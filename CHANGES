@@ -1,5 +1,9 @@
 Changes with APR-util b1  
 
+  *) Fix URI unparse function to handle the case where it would place a @
+     when both the username and password were present but omitted.
+     [Jon Travis <jtravis@covalent.net]
+
   *) Added apr_xml_parse_file() routine and a testxml program.
      [Ian Holsman <ianh@cnet.com>]
 

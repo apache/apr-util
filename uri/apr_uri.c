@@ -139,7 +139,9 @@ APU_DECLARE(char *) apr_uri_unparse_components(apr_pool_t *p,
 			(uptr->password && !(flags & UNP_OMITPASSWORD))
 			   ? ((flags & UNP_REVEALPASSWORD) ? uptr->password : "XXXXXXXX")
 			   : "",
-			"@", NULL);
+            ((uptr->user     && !(flags & UNP_OMITUSER)) ||
+             (uptr->password && !(flags & UNP_OMITPASSWORD))) ? "@" : "", 
+            NULL);
 
 	/* Construct scheme://site string */
 	if (uptr->hostname) {
