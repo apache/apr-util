@@ -1,5 +1,8 @@
 Changes with APR-util b1  
 
+  *) apr_bucket_shared_destroy() now returns a boolean value.
+     [Cliff Woolley]
+
   *) We have to initialize the heap buckets to the correct length.
      we were seeing heap buckets with 17 chars in them reporting
      a length of 9017, because they were initialized to the amount

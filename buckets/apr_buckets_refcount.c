@@ -52,10 +52,6 @@
  * <http://www.apache.org/>.
  */
 
-#include <stdlib.h>
-
-#include "apr_errno.h"
-
 #include "apr_buckets.h"
 
 APU_DECLARE_NONSTD(apr_status_t) apr_bucket_shared_split(apr_bucket *a,
@@ -86,12 +82,11 @@ APU_DECLARE_NONSTD(apr_status_t) apr_bucket_shared_copy(apr_bucket *a,
     return APR_SUCCESS;
 }
 
-/* XXX: can this just return true or false? */
-APU_DECLARE(void *) apr_bucket_shared_destroy(void *data)
+APU_DECLARE(int) apr_bucket_shared_destroy(void *data)
 {
     apr_bucket_refcount *r = data;
     r->refcount--;
-    return (r->refcount == 0) ? r : NULL;
+    return (r->refcount == 0);
 }
 
 APU_DECLARE(apr_bucket *) apr_bucket_shared_make(apr_bucket *b, void *data,
