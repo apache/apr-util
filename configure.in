@@ -119,7 +119,7 @@ fi
 
 dnl
 dnl everthing is done. 
-MAKEFILES="Makefile buckets/Makefile crypto/Makefile dbm/Makefile dbm/sdbm/Makefile encoding/Makefile hooks/Makefile ldap/Makefile uri/Makefile xml/Makefile misc/Makefile $test_Makefile"
+MAKEFILES="Makefile buckets/Makefile crypto/Makefile dbm/Makefile dbm/sdbm/Makefile encoding/Makefile hooks/Makefile ldap/Makefile uri/Makefile xml/Makefile misc/Makefile strmatch/Makefile $test_Makefile"
 AC_OUTPUT([
     export_vars.sh
     apu-config
