@@ -84,7 +84,11 @@ struct aup_test aup_tests[] =
     {
         "http://sonyamt@[fe80::1]/filespace/?arg1=store",
         0, "http", "sonyamt@[fe80::1]", "sonyamt", NULL, "fe80::1", NULL, "/filespace/", "arg1=store", NULL, 0
-    }
+    },
+    {
+        "//www.apache.org/",
+        0, NULL, "www.apache.org", NULL, NULL, "www.apache.org", NULL, "/", NULL, NULL, 0
+    },
 };
 
 struct uph_test {
@@ -166,19 +170,21 @@ static void test_aup(abts_case *tc, void *data)
         t = &aup_tests[i];
         rv = apr_uri_parse(p, t->uri, &info);
         ABTS_INT_EQUAL(tc, rv, t->rv);
-        ABTS_STR_EQUAL(tc, info.scheme, t->scheme);
-        ABTS_STR_EQUAL(tc, info.hostinfo, t->hostinfo);
-        ABTS_STR_EQUAL(tc, info.user, t->user);
-        ABTS_STR_EQUAL(tc, info.password, t->password);
-        ABTS_STR_EQUAL(tc, info.hostname, t->hostname);
-        ABTS_STR_EQUAL(tc, info.port_str, t->port_str);
-        ABTS_STR_EQUAL(tc, info.path, t->path);
-        ABTS_STR_EQUAL(tc, info.query, t->query);
-        ABTS_STR_EQUAL(tc, info.user, t->user);
-        ABTS_INT_EQUAL(tc, info.port, t->port);
+        if (t->rv == APR_SUCCESS) {
+            ABTS_STR_EQUAL(tc, info.scheme, t->scheme);
+            ABTS_STR_EQUAL(tc, info.hostinfo, t->hostinfo);
+            ABTS_STR_EQUAL(tc, info.user, t->user);
+            ABTS_STR_EQUAL(tc, info.password, t->password);
+            ABTS_STR_EQUAL(tc, info.hostname, t->hostname);
+            ABTS_STR_EQUAL(tc, info.port_str, t->port_str);
+            ABTS_STR_EQUAL(tc, info.path, t->path);
+            ABTS_STR_EQUAL(tc, info.query, t->query);
+            ABTS_STR_EQUAL(tc, info.user, t->user);
+            ABTS_INT_EQUAL(tc, info.port, t->port);
 
-        s = apr_uri_unparse(p, &info, APR_URI_UNP_REVEALPASSWORD);
-        ABTS_STR_EQUAL(tc, s, t->uri);
+            s = apr_uri_unparse(p, &info, APR_URI_UNP_REVEALPASSWORD);
+            ABTS_STR_EQUAL(tc, s, t->uri);
+        }
     }
 }
 
@@ -197,9 +203,11 @@ static void test_uph(abts_case *tc, void *data)
         t = &uph_tests[i];
         rv = apr_uri_parse_hostinfo(p, t->hostinfo, &info);
         ABTS_INT_EQUAL(tc, rv, t->rv);
-        ABTS_STR_EQUAL(tc, info.hostname, t->hostname);
-        ABTS_STR_EQUAL(tc, info.port_str, t->port_str);
-        ABTS_INT_EQUAL(tc, info.port, t->port);
+        if (t->rv == APR_SUCCESS) {
+            ABTS_STR_EQUAL(tc, info.hostname, t->hostname);
+            ABTS_STR_EQUAL(tc, info.port_str, t->port_str);
+            ABTS_INT_EQUAL(tc, info.port, t->port);
+        }
     }
 }
 
