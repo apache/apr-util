@@ -229,6 +229,7 @@ FILES_lib_objs = \
 	$(OBJDIR)/apr_buckets_file.o \
 	$(OBJDIR)/apr_buckets_flush.o \
 	$(OBJDIR)/apr_buckets_heap.o \
+	$(OBJDIR)/apr_buckets_mmap.o \
 	$(OBJDIR)/apr_buckets_pipe.o \
 	$(OBJDIR)/apr_buckets_pool.o \
 	$(OBJDIR)/apr_buckets_refcount.o \
@@ -244,6 +245,7 @@ FILES_lib_objs = \
 	$(OBJDIR)/apr_reslist.o \
 	$(OBJDIR)/apr_rmm.o \
 	$(OBJDIR)/apr_sha1.o \
+	$(OBJDIR)/apu_version.o \
 	$(OBJDIR)/getuuid.o \
 	$(OBJDIR)/uuid.o \
 	$(OBJDIR)/apr_strmatch.o \
