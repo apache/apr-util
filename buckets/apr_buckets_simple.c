@@ -151,7 +151,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_transient_create(
 
 const apr_bucket_type_t apr_bucket_type_immortal = {
     "IMMORTAL", 5,
-    free,
+    apr_bucket_destroy_notimpl,
     simple_read,
     apr_bucket_setaside_notimpl,
     apr_bucket_simple_split,
@@ -160,7 +160,7 @@ const apr_bucket_type_t apr_bucket_type_immortal = {
 
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_transient = {
     "TRANSIENT", 5,
-    free, 
+    apr_bucket_destroy_notimpl, 
     simple_read,
     transient_setaside,
     apr_bucket_simple_split,
