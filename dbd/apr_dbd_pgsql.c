@@ -27,14 +27,17 @@
 
 #define QUERY_MAX_ARGS 40
 
-typedef struct {
-    PGconn *conn;
-} apr_dbd_t;
+typedef struct apr_dbd_t apr_dbd_t;
 
 typedef struct {
     int errnum;
-    PGconn *handle;
+    apr_dbd_t *handle;
 } apr_dbd_transaction_t;
+
+struct apr_dbd_t {
+    PGconn *conn;
+    apr_dbd_transaction_t *trans;
+};
 
 typedef struct {
     int random;
@@ -63,14 +66,13 @@ typedef struct {
 #include "apr_dbd.h"
 
 static int dbd_pgsql_select(apr_pool_t *pool, apr_dbd_t *sql,
-                            apr_dbd_transaction_t *trans,
                             apr_dbd_results_t **results,
                             const char *query, int seek)
 {
     PGresult *res;
     int ret;
-    if ( trans && trans->errnum ) {
-        return trans->errnum;
+    if ( sql->trans && sql->trans->errnum ) {
+        return sql->trans->errnum;
     }
     if (seek) { /* synchronous query */
         res = PQexec(sql->conn, query);
@@ -85,8 +87,8 @@ static int dbd_pgsql_select(apr_pool_t *pool, apr_dbd_t *sql,
             ret = PGRES_FATAL_ERROR;
         }
         if (ret != 0) {
-            if (trans) {
-                trans->errnum = ret;
+            if (sql->trans) {
+                sql->trans->errnum = ret;
             }
             return ret;
         }
@@ -102,8 +104,8 @@ static int dbd_pgsql_select(apr_pool_t *pool, apr_dbd_t *sql,
     }
     else {
         if (PQsendQuery(sql->conn, query) == 0) {
-            if (trans) {
-                trans->errnum = 1;
+            if (sql->trans) {
+                sql->trans->errnum = 1;
             }
             return 1;
         }
@@ -191,13 +193,12 @@ static const char *dbd_pgsql_error(apr_dbd_t *sql, int n)
     return PQerrorMessage(sql->conn);
 }
 
-static int dbd_pgsql_query(apr_dbd_t *sql, apr_dbd_transaction_t *trans,
-                           int *nrows, const char *query)
+static int dbd_pgsql_query(apr_dbd_t *sql, int *nrows, const char *query)
 {
     PGresult *res;
     int ret;
-    if (trans && trans->errnum) {
-        return trans->errnum;
+    if (sql->trans && sql->trans->errnum) {
+        return sql->trans->errnum;
     }
     res = PQexec(sql->conn, query);
     if (res) {
@@ -212,8 +213,8 @@ static int dbd_pgsql_query(apr_dbd_t *sql, apr_dbd_transaction_t *trans,
     else {
         ret = PGRES_FATAL_ERROR;
     }
-    if (trans) {
-        trans->errnum = ret;
+    if (sql->trans) {
+        sql->trans->errnum = ret;
     }
     return ret;
 }
@@ -344,9 +345,8 @@ static int dbd_pgsql_prepare(apr_pool_t *pool, apr_dbd_t *sql,
 }
 
 static int dbd_pgsql_pquery(apr_pool_t *pool, apr_dbd_t *sql,
-                            apr_dbd_transaction_t *trans, int *nrows,
-                            apr_dbd_prepared_t *statement, int nargs,
-                            const char **values)
+                            int *nrows, apr_dbd_prepared_t *statement,
+                            int nargs, const char **values)
 {
     int ret;
     PGresult *res;
@@ -369,23 +369,22 @@ static int dbd_pgsql_pquery(apr_pool_t *pool, apr_dbd_t *sql,
         ret = PGRES_FATAL_ERROR;
     }
 
-    if (trans) {
-        trans->errnum = ret;
+    if (sql->trans) {
+        sql->trans->errnum = ret;
     }
     return ret;
 }
 
 static int dbd_pgsql_pvquery(apr_pool_t *pool, apr_dbd_t *sql,
-                             apr_dbd_transaction_t *trans, int *nrows,
-                             apr_dbd_prepared_t *statement, ...)
+                             int *nrows, apr_dbd_prepared_t *statement, ...)
 {
     const char *arg;
     int nargs = 0;
     va_list args;
     const char *values[QUERY_MAX_ARGS];
 
-    if (trans && trans->errnum) {
-        return trans->errnum;
+    if (sql->trans && sql->trans->errnum) {
+        return sql->trans->errnum;
     }
     va_start(args, statement);
     while ( arg = va_arg(args, const char*), arg ) {
@@ -397,11 +396,10 @@ static int dbd_pgsql_pvquery(apr_pool_t *pool, apr_dbd_t *sql,
     }
     va_end(args);
     values[nargs] = NULL;
-    return dbd_pgsql_pquery(pool, sql, trans, nrows, statement, nargs, values);
+    return dbd_pgsql_pquery(pool, sql, nrows, statement, nargs, values);
 }
 
 static int dbd_pgsql_pselect(apr_pool_t *pool, apr_dbd_t *sql,
-                             apr_dbd_transaction_t *trans,
                              apr_dbd_results_t **results,
                              apr_dbd_prepared_t *statement,
                              int seek, int nargs, const char **values)
@@ -431,8 +429,8 @@ static int dbd_pgsql_pselect(apr_pool_t *pool, apr_dbd_t *sql,
             ret = PGRES_FATAL_ERROR;
         }
         if (ret != 0) {
-            if (trans) {
-                trans->errnum = ret;
+            if (sql->trans) {
+                sql->trans->errnum = ret;
             }
             return ret;
         }
@@ -456,8 +454,8 @@ static int dbd_pgsql_pselect(apr_pool_t *pool, apr_dbd_t *sql,
                                    values, 0, 0, 0);
         }
         if (rv == 0) {
-            if (trans) {
-                trans->errnum = 1;
+            if (sql->trans) {
+                sql->trans->errnum = 1;
             }
             return 1;
         }
@@ -468,14 +466,13 @@ static int dbd_pgsql_pselect(apr_pool_t *pool, apr_dbd_t *sql,
         (*results)->handle = sql->conn;
     }
 
-    if (trans) {
-        trans->errnum = ret;
+    if (sql->trans) {
+        sql->trans->errnum = ret;
     }
     return ret;
 }
 
 static int dbd_pgsql_pvselect(apr_pool_t *pool, apr_dbd_t *sql,
-                              apr_dbd_transaction_t *trans,
                               apr_dbd_results_t **results,
                               apr_dbd_prepared_t *statement,
                               int seek, ...)
@@ -485,8 +482,8 @@ static int dbd_pgsql_pvselect(apr_pool_t *pool, apr_dbd_t *sql,
     va_list args;
     const char *values[QUERY_MAX_ARGS];
 
-    if (trans && trans->errnum) {
-        return trans->errnum;
+    if (sql->trans && sql->trans->errnum) {
+        return sql->trans->errnum;
     }
 
     va_start(args, seek);
@@ -498,7 +495,7 @@ static int dbd_pgsql_pvselect(apr_pool_t *pool, apr_dbd_t *sql,
         values[nargs++] = apr_pstrdup(pool, arg);
     }
     va_end(args);
-    return dbd_pgsql_pselect(pool, sql, trans, results, statement,
+    return dbd_pgsql_pselect(pool, sql, results, statement,
                              seek, nargs, values) ;
 }
 
@@ -506,7 +503,11 @@ static int dbd_pgsql_transaction(apr_pool_t *pool, apr_dbd_t *handle,
                                  apr_dbd_transaction_t **trans)
 {
     int ret = 0;
-    PGresult *res = PQexec(handle->conn, "BEGIN TRANSACTION");
+    PGresult *res;
+
+    /* XXX handle recursive transactions here */
+
+    res = PQexec(handle->conn, "BEGIN TRANSACTION");
     if (res) {
         ret = PQresultStatus(res);
         if (dbd_pgsql_is_success(ret)) {
@@ -516,7 +517,8 @@ static int dbd_pgsql_transaction(apr_pool_t *pool, apr_dbd_t *handle,
             }
         }
         PQclear(res);
-        (*trans)->handle = handle->conn;
+        (*trans)->handle = handle;
+        handle->trans = *trans;
     }
     else {
         ret = PGRES_FATAL_ERROR;
@@ -531,10 +533,10 @@ static int dbd_pgsql_end_transaction(apr_dbd_transaction_t *trans)
     if (trans) {
         if (trans->errnum) {
             trans->errnum = 0;
-            res = PQexec(trans->handle, "ROLLBACK");
+            res = PQexec(trans->handle->conn, "ROLLBACK");
         }
         else {
-            res = PQexec(trans->handle, "COMMIT");
+            res = PQexec(trans->handle->conn, "COMMIT");
         }
         if (res) {
             ret = PQresultStatus(res);
@@ -546,6 +548,7 @@ static int dbd_pgsql_end_transaction(apr_dbd_transaction_t *trans)
         else {
             ret = PGRES_FATAL_ERROR;
         }
+        trans->handle->trans = NULL;
     }
     return ret;
 }
