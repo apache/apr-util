@@ -515,6 +515,23 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
  */
 #define APR_BUCKET_IS_POOL(e)        (e->type == &apr_bucket_type_pool)
 
+/**
+ * Remove all zero length buckets from the brigade.
+ * @param b The bucket brigade
+ */
+#define APR_BRIGADE_NORMALIZE(b)       \
+    do {  \
+        apr_bucket *e; \
+        e = APR_BRIGADE_FIRST(b); \
+        if (e->length == 0) { \
+            apr_bucket *d; \
+            d = APR_BUCKET_NEXT(e); \
+            apr_bucket_delete(e); \
+            e = d; \
+        } \
+        e = APR_BUCKET_NEXT(e); \
+    } while (e != APR_BRIGADE_SENTINEL(b)) 
+
 /*
  * General-purpose reference counting for the various bucket types.
  *
