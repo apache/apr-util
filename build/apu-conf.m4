@@ -546,7 +546,9 @@ APR_XML_DIR=$bundled_subdir
 AC_SUBST(APR_XML_SUBDIRS)
 AC_SUBST(APR_XML_DIR)
 
-APR_ADDTO(APRUTIL_INCLUDES, [-I$expat_include_dir])
+if test "$expat_include_dir" != "/usr/include"; then
+  APR_ADDTO(APRUTIL_INCLUDES, [-I$expat_include_dir])
+fi
 APR_ADDTO(APRUTIL_EXPORT_LIBS, [$expat_libs])
 ])
 
