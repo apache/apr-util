@@ -17,14 +17,14 @@
 #define SDBM_PAIR_H
 
 /* Mini EMBED (pair.c) */
-#define chkpage sdbm__chkpage
-#define delpair sdbm__delpair
-#define duppair sdbm__duppair
-#define fitpair sdbm__fitpair
-#define getnkey sdbm__getnkey
-#define getpair sdbm__getpair
-#define putpair sdbm__putpair
-#define splpage sdbm__splpage
+#define chkpage apu__sdbm_chkpage
+#define delpair apu__sdbm_delpair
+#define duppair apu__sdbm_duppair
+#define fitpair apu__sdbm_fitpair
+#define getnkey apu__sdbm_getnkey
+#define getpair apu__sdbm_getpair
+#define putpair apu__sdbm_putpair
+#define splpage apu__sdbm_splpage
 
 int fitpair(char *, int);
 void  putpair(char *, apr_sdbm_datum_t, apr_sdbm_datum_t);
