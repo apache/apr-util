@@ -1,4 +1,4 @@
-PKG="ASFapr-util"
+PKG="ASFapr-util-0"
 NAME="apr-util"
 ARCH="@target_cpu@"
 VERSION="@APRUTIL_DOTTED_VERSION@"
