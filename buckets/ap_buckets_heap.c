@@ -52,7 +52,6 @@
  * <http://www.apache.org/>.
  */
 
-#include "apr_private.h"
 #include "httpd.h"
 #include "ap_buckets.h"
 #include <stdlib.h>
