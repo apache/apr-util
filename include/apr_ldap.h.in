@@ -56,7 +56,7 @@
  * apr_ldap.h is generated from apr_ldap.h.in by configure -- do not edit apr_ldap.h
  */
 /**
- * @file apr_ldab.h
+ * @file apr_ldap.h
  * @brief  APR-UTIL LDAP 
  */
 #ifndef APU_LDAP_H
