@@ -112,7 +112,7 @@ long sdbm_hash(const char *str, int len);
 #define SDBM_INVALIDATE_CACHE(db, finfo) \
     do { db->dirbno = (!finfo.size) ? 0 : -1; \
          db->pagbno = -1; \
-         db->maxbno = finfo.size * BYTESIZ; \
+         db->maxbno = (long)(finfo.size * BYTESIZ); \
     } while (0);
 
 #endif /* SDBM_PRIVATE_H */
