@@ -9,7 +9,6 @@ AC_CONFIG_HEADER(include/private/apu_config.h)
 AC_CONFIG_AUX_DIR(../apr/build)
 
 sinclude(build/apu-conf.m4)
-sinclude(../apr/build/libtool.m4)
 sinclude(../apr/build/apr_common.m4)
 
 dnl Generate ./config.nice for reproducing runs of configure
