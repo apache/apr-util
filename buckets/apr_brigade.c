@@ -68,8 +68,6 @@
 
 #include "ap_buckets.h"
 
-static apr_array_header_t *bucket_types;
-
 static apr_status_t ap_brigade_cleanup(void *data)
 {
     ap_bucket_brigade *b = data;
