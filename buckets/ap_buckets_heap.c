@@ -140,7 +140,7 @@ APR_DECLARE(ap_bucket *) ap_bucket_create_heap(
     ap_bucket_do_create(ap_bucket_make_heap(b, buf, length, copy, w));
 }
 
-const ap_bucket_type ap_heap_type = {
+APR_DECLARE_DATA const ap_bucket_type ap_heap_type = {
     "HEAP", 4,
     heap_destroy,
     heap_read,

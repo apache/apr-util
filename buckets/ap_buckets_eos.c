@@ -78,7 +78,7 @@ APR_DECLARE(ap_bucket *) ap_bucket_create_eos(void)
     ap_bucket_do_create(ap_bucket_make_eos(b));
 }
 
-const ap_bucket_type ap_eos_type = {
+APR_DECLARE_DATA const ap_bucket_type ap_eos_type = {
     "EOS", 4,
     ap_bucket_destroy_notimpl,
     eos_read,

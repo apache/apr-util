@@ -712,52 +712,52 @@ int ap_insert_bucket_type(const ap_bucket_type *type);
  * The flush bucket type.  This signifies that all data should be flushed to
  * the next filter.  The flush bucket should be sent with the other buckets.
  */
-extern const ap_bucket_type ap_flush_type;
+APR_DECLARE_DATA extern const ap_bucket_type ap_flush_type;
 /**
  * The EOS bucket type.  This signifies that there will be no more data, ever.
  * All filters MUST send all data to the next filter when they receive a
  * bucket of this type
  */
-extern const ap_bucket_type ap_eos_type;
+APR_DECLARE_DATA extern const ap_bucket_type ap_eos_type;
 /**
  * The FILE bucket type.  This bucket represents a file on disk
  */
-extern const ap_bucket_type ap_file_type;
+APR_DECLARE_DATA extern const ap_bucket_type ap_file_type;
 /**
  * The HEAP bucket type.  This bucket represents a data allocated out of the
  * heap.
  */
-extern const ap_bucket_type ap_heap_type;
+APR_DECLARE_DATA extern const ap_bucket_type ap_heap_type;
 /**
  * The MMAP bucket type.  This bucket represents an MMAP'ed file
  */
-extern const ap_bucket_type ap_mmap_type;
+APR_DECLARE_DATA extern const ap_bucket_type ap_mmap_type;
 /**
  * The POOL bucket type.  This bucket represents a data that was allocated
  * out of a pool.  IF this bucket is still available when the pool is cleared,
  * the data is copied on to the heap.
  */
-extern const ap_bucket_type ap_pool_type;
+APR_DECLARE_DATA extern const ap_bucket_type ap_pool_type;
 /**
  * The PIPE bucket type.  This bucket represents a pipe to another program.
  */
-extern const ap_bucket_type ap_pipe_type;
+APR_DECLARE_DATA extern const ap_bucket_type ap_pipe_type;
 /**
  * The IMMORTAL bucket type.  This bucket represents a segment of data that
  * the creator is willing to take responsability for.  The core will do
  * nothing with the data in an immortal bucket
  */
-extern const ap_bucket_type ap_immortal_type;
+APR_DECLARE_DATA extern const ap_bucket_type ap_immortal_type;
 /**
  * The TRANSIENT bucket type.  This bucket represents a data allocated off
  * the stack.  When the setaside function is called, this data is copied on
  * to the heap
  */
-extern const ap_bucket_type ap_transient_type;
+APR_DECLARE_DATA extern const ap_bucket_type ap_transient_type;
 /**
  * The SOCKET bucket type.  This bucket represents a socket to another machine
  */
-extern const ap_bucket_type ap_socket_type;
+APR_DECLARE_DATA extern const ap_bucket_type ap_socket_type;
 
 
 /*  *****  Shared reference-counted buckets  *****  */

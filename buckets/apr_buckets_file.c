@@ -185,7 +185,7 @@ APR_DECLARE(ap_bucket *) ap_bucket_create_file(apr_file_t *fd,
     ap_bucket_do_create(ap_bucket_make_file(b, fd, offset, len));
 }
 
-const ap_bucket_type ap_file_type = {
+APR_DECLARE_DATA const ap_bucket_type ap_file_type = {
     "FILE", 4,
     ap_bucket_destroy_notimpl,
     file_read,

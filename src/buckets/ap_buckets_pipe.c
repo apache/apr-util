@@ -139,7 +139,7 @@ APR_DECLARE(ap_bucket *) ap_bucket_create_pipe(apr_file_t *p)
     ap_bucket_do_create(ap_bucket_make_pipe(b, p));
 }
 
-const ap_bucket_type ap_pipe_type = {
+APR_DECLARE_DATA const ap_bucket_type ap_pipe_type = {
     "PIPE", 4,
     ap_bucket_destroy_notimpl,
     pipe_read,
