@@ -1,5 +1,5 @@
 APRUTIL LIBRARY STATUS:						-*-text-*-
-Last modified at [$Date: 2000/12/09 13:55:43 $]
+Last modified at [$Date: 2000/12/12 12:22:51 $]
 
 Release:
     ...on the 12th as part of Apache 2.0a9  [need specifics here]
@@ -7,34 +7,18 @@ Release:
 
 RELEASE SHOWSTOPPERS:
 
-    * revise the included SDBM package to use the apr_ prefix (on the
-      header and on the function/typedef names.
-      Status: Greg +0, Ryan +1(?), OtherBill +1
-
-    * Pick up APRVARS from APR (for building the test progs). Export
-      some library variables from APRUTIL (e.g. -lgdbm) for clients to
-      use. (Greg volunteers)
-
 
 RELEASE NON-SHOWSTOPPERS BUT WOULD BE REAL NICE TO WRAP THESE UP:
 
     * fix apr_dbm_geterror() prototype
       Status: OtherBill +1, Greg +1
 
-    * auto-rebuild aprutil.exports (and apr.exports) during the
-      make/build process.
-      Status: Ryan +1, Greg +1
-
-    * move apu_private.h to include/private/
-      Status: Ryan +1, OtherBill +1, Greg +0
-
-    * turn ap_bucket_split_any() into ap_brigade_split().
-      Message-ID: ???
-      Status: Greg +1
-      Note: awaiting code from Cliff Wooley for this
-
 
 Other bugs that need fixing:
+
+    * revise the included SDBM package to use the apr_ prefix on the
+      function/typedef names.
+      Status: Greg +1
 
 
 Other features that need writing:
@@ -55,13 +39,9 @@ Available Patches:
 
 Open Issues:
 
-    * Use of libtool.
-      Status: +1: Ryan, Greg
-
     * Prefix for the code.
       Status:
-        APR: Ryan +1, Greg +0
-	APU: Greg +0
+        APR: Ryan +1, Greg +1
 
     * Compatibility header to deal with renamed symbols.
       NOTE:
