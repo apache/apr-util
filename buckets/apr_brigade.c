@@ -53,6 +53,7 @@
  */
 
 #include "apr.h"
+#include "apr_lib.h"
 #include "apr_strings.h"
 #include "apr_pools.h"
 #include "apr_tables.h"
@@ -383,18 +384,67 @@ APU_DECLARE_NONSTD(apr_status_t) apr_brigade_printf(apr_bucket_brigade *b,
     return rv;
 }
 
-APU_DECLARE(apr_status_t) apr_brigade_vprintf(apr_bucket_brigade *b, 
+struct bridgade_vprintf_data_t {
+    apr_vformatter_buff_t vbuff;
+
+    apr_bucket_brigade *b;  /* associated brigade */
+    apr_brigade_flush *flusher; /* flushing function */
+    void *ctx;
+
+    char *cbuff; /* buffer to flush from */
+};
+
+static apr_status_t brigade_flush(apr_vformatter_buff_t *buff)
+{
+    /* callback function passed to ap_vformatter to be
+     * called when vformatter needs to buff and
+     * buff.curpos > buff.endpos
+     */
+
+    /* "downcast," have really passed a bridgade_vprintf_data_t* */
+    struct bridgade_vprintf_data_t *vd = (struct bridgade_vprintf_data_t*)buff;
+    apr_status_t res = APR_SUCCESS;
+
+    res = apr_brigade_write(vd->b, *vd->flusher, vd->ctx, vd->cbuff,
+                          APR_BUCKET_BUFF_SIZE);
+
+    if(res != APR_SUCCESS) {
+      return -1;
+    }
+
+    vd->vbuff.curpos = vd->cbuff;
+    vd->vbuff.endpos = vd->cbuff + APR_BUCKET_BUFF_SIZE;
+
+    return res;
+}
+
+APU_DECLARE(apr_status_t) apr_brigade_vprintf(apr_bucket_brigade *b,
                                               apr_brigade_flush flush,
-                                              void *ctx, 
+                                              void *ctx,
                                               const char *fmt, va_list va)
 {
-    /* XXX:  This needs to be replaced with a function to printf
-     * directly into a bucket.  I'm being lazy right now.  RBB
-     */
-    char buf[4096];
+    /* the cast, in order of appearance */
+    struct bridgade_vprintf_data_t vd;
+    char buf[APR_BUCKET_BUFF_SIZE];
+    apr_size_t written;
 
-    apr_vsnprintf(buf, sizeof(buf), fmt, va);
+    vd.vbuff.curpos = buf;
+    vd.vbuff.endpos = buf + APR_BUCKET_BUFF_SIZE;
+    vd.b = b;
+    vd.flusher = &flush;
+    vd.ctx = ctx;
+    vd.cbuff = buf;
 
-    return apr_brigade_puts(b, flush, ctx, buf);
-} 
+    written = apr_vformatter(brigade_flush, &vd.vbuff, fmt, va);
+
+    if (written == -1) {
+      return -1;
+    }
+
+    /* tack on null terminator to remaining string */
+    *(vd.vbuff.curpos) = '\0';
+
+    /* write out what remains in the buffer */
+    return apr_brigade_write(b, flush, ctx, buf, vd.vbuff.curpos - buf);
+}
 
