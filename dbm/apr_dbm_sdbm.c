@@ -57,6 +57,10 @@
 #define APR_WANT_STRFUNC
 #include "apr_want.h"
 
+#include "apu.h"
+
+#if APU_HAVE_SDBM
+
 #include "apr_dbm_private.h"
 
 #include "apr_sdbm.h"
@@ -293,3 +297,5 @@ APU_DECLARE_DATA const apr_dbm_type_t apr_dbm_type_sdbm = {
     vt_sdbm_freedatum,
     vt_sdbm_usednames
 };
+
+#endif /* APU_HAVE_SDBM */

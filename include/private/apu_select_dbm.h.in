@@ -62,8 +62,4 @@
 #define APU_USE_GDBM	@apu_use_gdbm@
 #define APU_USE_DB	@apu_use_db@
 
-#if APU_USE_DB
-#include <@db_header@>
-#endif
-
 #endif	/* !APU_SELECT_DBM_H */

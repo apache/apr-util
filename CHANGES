@@ -1,4 +1,6 @@
 Changes with APR-util b1  
+  *) Multi-DBM support (via apr_dbm_open_ex [Ian Holsman])
+
   *) Use apr_mmap_dup in MMap Bucket [Brian Pane <bpane@pacbell.net>]
 
   *) Dropped the "w" parameter from apr_bucket_heap_create() and

@@ -60,7 +60,12 @@
 #include <stdlib.h> /* for abort() */
 #endif
 
+#include "apu.h"
+
+#if APU_HAVE_DB 
+
 #include "apr_dbm_private.h"
+
 
 
 /* this is used in a few places to define a noop "function". it is needed
@@ -430,3 +435,5 @@ APU_DECLARE_DATA const apr_dbm_type_t apr_dbm_type_db = {
     vt_db_freedatum,
     vt_db_usednames
 };
+
+#endif /* APU_HAVE_DB */

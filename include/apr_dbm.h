@@ -96,6 +96,36 @@ typedef struct
 #define APR_DBM_RWCREATE        3       /**< open for r/w, create if needed */
 #define APR_DBM_RWTRUNC         4       /**< open for r/w, truncating a existing
                                           DB if present */
+/**
+ * Open a dbm file by file name and type of DBM
+ * @param dbm The newly opened database
+ * @param type The type of the DBM (not all may be available at run time)
+ * <pre>
+ *  GDBM for GDBM files
+ *  SDBM for SDBM files
+ *  DB   for berkeley DB files
+ *  default for the default DBM type
+ *  </pre>
+ * @param name The dbm file name to open
+ * @param mode The flag value
+ * <PRE>
+ *           APR_DBM_READONLY   open for read-only access
+ *           APR_DBM_READWRITE  open for read-write access
+ *           APR_DBM_RWCREATE   open for r/w, create if needed
+ *           APR_DBM_RWTRUNC    open for r/w, truncatate if already there
+ * </PRE>
+ * @param perm Permissions to apply to if created
+ * @param cntxt The pool to use when creating the dbm
+ * @deffunc apr_status_t apr_dbm_open(apr_dbm_t **dbm, const char *name, int mode
+ * @tip The dbm name may not be a true file name, as many dbm packages
+ * append suffixes for seperate data and index files.
+ */
+
+APU_DECLARE(apr_status_t) apr_dbm_open_ex(apr_dbm_t **dbm, const char* type, 
+                                       const char *name, 
+                                       apr_int32_t mode, apr_fileperms_t perm,
+                                       apr_pool_t *cntxt);
+
 
 /**
  * Open a dbm file by file name
@@ -197,6 +227,24 @@ APU_DECLARE(void) apr_dbm_freedatum(apr_dbm_t *dbm, apr_datum_t data);
  */
 APU_DECLARE(char *) apr_dbm_geterror(apr_dbm_t *dbm, int *errcode,
                                      char *errbuf, apr_size_t errbufsize);
+/**
+ * If the specified file/path were passed to apr_dbm_open(), return the
+ * actual file/path names which would be (created and) used. At most, two
+ * files may be used; used2 may be NULL if only one file is used.
+ * @param pool The pool for allocating used1 and used2.
+ * @param type The type of DBM you require info on
+ * @param pathname The path name to generate used-names from.
+ * @param used1 The first pathname used by the apr_dbm implementation.
+ * @param used2 The second pathname used by apr_dbm. If only one file is
+ *              used by the specific implementation, this will be set to NULL.
+ * @tip The dbm file(s) don't need to exist. This function only manipulates
+ *      the pathnames.
+ */
+APU_DECLARE(void) apr_dbm_get_usednames_ex(apr_pool_t *pool,
+                                        const char *type,
+                                        const char *pathname,
+                                        const char **used1,
+                                        const char **used2);
 
 /**
  * If the specified file/path were passed to apr_dbm_open(), return the

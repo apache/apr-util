@@ -60,6 +60,7 @@
 #define APR_WANT_STRFUNC
 #include "apr_want.h"
 
+#include "apu.h"
 #include "apu_select_dbm.h"
 #include "apr_dbm.h"
 #include "apr_dbm_private.h"
@@ -84,14 +85,38 @@
 #endif
 
 
+APU_DECLARE(apr_status_t) apr_dbm_open_ex(apr_dbm_t **pdb, const char*type, 
+                                       const char *pathname, 
+                                       apr_int32_t mode, apr_fileperms_t perm,
+                                       apr_pool_t *pool)
+{
+#if APU_HAVE_GDBM
+    if (!strcasecmp(type, "GDBM")) {
+        return (*apr_dbm_type_gdbm.open)(pdb, pathname, mode, perm, pool);
+    }
+#endif
+
+#if APU_HAVE_SDBM
+    if (!strcasecmp(type, "SDBM")) {
+        return (*apr_dbm_type_sdbm.open)(pdb, pathname, mode, perm, pool);
+    }
+#endif
+#if APU_HAVE_DB
+    if (!strcasecmp(type, "DB")) {
+        return (*apr_dbm_type_db.open)(pdb, pathname, mode, perm, pool);
+    }
+#endif
+    if (!strcasecmp(type, "default")) {
+        return (*DBM_VTABLE.open)(pdb, pathname, mode, perm, pool);
+    }
+
+    return APR_ENOTIMPL;
+} 
 
 APU_DECLARE(apr_status_t) apr_dbm_open(apr_dbm_t **pdb, const char *pathname, 
                                        apr_int32_t mode, apr_fileperms_t perm,
                                        apr_pool_t *pool)
 {
-    /* ### one day, a DBM type name will be passed and we'll need to look it
-       ### up. for now, it is constant. */
-
     return (*DBM_VTABLE.open)(pdb, pathname, mode, perm, pool);
 }
 
@@ -151,6 +176,36 @@ APU_DECLARE(char *) apr_dbm_geterror(apr_dbm_t *dbm, int *errcode,
         (void) apr_cpystrn(errbuf, dbm->errmsg, errbufsize);
     return errbuf;
 }
+APU_DECLARE(void) apr_dbm_get_usednames_ex(apr_pool_t *p, 
+                                        const char*type, 
+                                        const char *pathname,
+                                        const char **used1,
+                                        const char **used2)
+{
+#if APU_HAVE_GDBM
+    if (!strcasecmp(type, "GDBM")) {
+        (*apr_dbm_type_gdbm.getusednames)(p,pathname,used1,used2);
+        return;
+    }
+#endif
+
+#if APU_HAVE_SDBM
+    if (!strcasecmp(type, "SDBM")) {
+        (*apr_dbm_type_sdbm.getusednames)(p,pathname,used1,used2);
+        return;
+    }
+#endif
+#if APU_HAVE_DB
+    if (!strcasecmp(type, "DB")) {
+        (*apr_dbm_type_db.getusednames)(p,pathname,used1,used2);
+        return;
+    }
+#endif
+    if (!strcasecmp(type, "default")) {
+        (*DBM_VTABLE.getusednames)(p, pathname, used1, used2);
+        return;
+    }
+} 
 
 APU_DECLARE(void) apr_dbm_get_usednames(apr_pool_t *p,
                                         const char *pathname,

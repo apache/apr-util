@@ -108,6 +108,18 @@
  * declarations within headers to properly import the variable.
  */
 #define APU_DECLARE_DATA
+/*
+ * we always have SDBM (it's in our codebase)
+ */
+#define APU_HAVE_SDBM   @apu_have_sdbm@
+#define APU_HAVE_GDBM   @apu_have_gdbm@
+#define APU_HAVE_DB     @apu_have_db@
+
+#if APU_HAVE_DB
+/* found version @db_version@ */
+#include <@db_header@>
+#endif
+
 
 #endif /* APU_H */
 /** @} */
