@@ -65,11 +65,21 @@ static apr_status_t pipe_read(ap_bucket *a, const char **str,
     ap_bucket *b;
     char *buf;
     apr_status_t rv;
+    apr_interval_time_t timeout;
+
+    if (block == AP_NONBLOCK_READ) {
+        apr_get_pipe_timeout(p, &timeout);
+        apr_set_pipe_timeout(p, 0);
+    }
 
     buf = malloc(IOBUFSIZE); /* XXX: check for failure? */
     *str = buf;
     *len = IOBUFSIZE;
     rv = apr_read(p, buf, len);
+
+    if (block == AP_NONBLOCK_READ) {
+        apr_set_pipe_timeout(p, timeout);
+    }
 
     if (rv != APR_SUCCESS && rv != APR_EOF) {
         *str = NULL;
