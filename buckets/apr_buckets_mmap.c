@@ -76,7 +76,7 @@ static apr_status_t mmap_read(apr_bucket *b, const char **str,
 
 static void mmap_destroy(void *data)
 {
-    apr_bucket_mmap *m;
+    apr_bucket_mmap *m = data;
 
     if (apr_bucket_shared_destroy(data)) {
         /* XXX: apr_mmap_delete(m->mmap)? */
