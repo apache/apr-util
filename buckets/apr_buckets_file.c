@@ -86,13 +86,11 @@
 
 static void file_destroy(void *data)
 {
-    apr_bucket_file *f;
+    apr_bucket_file *f = data;
 
-    f = apr_bucket_shared_destroy(data);
-    if (f == NULL) {
-        return;
+    if (apr_bucket_shared_destroy(data)) {
+        free(f);
     }
-    free(f);
 }
 
 static apr_status_t file_read(apr_bucket *e, const char **str,

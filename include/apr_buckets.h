@@ -942,12 +942,12 @@ APU_DECLARE(apr_bucket *) apr_bucket_shared_make(apr_bucket *b, void *data,
  * Decrement the refcount of the data in the bucket. This function
  * should only be called by type-specific bucket destruction functions.
  * @param data The private data pointer from the bucket to be destroyed
- * @return NULL if nothing needs to be done,
- *         otherwise a pointer to the private data structure which
- *         must be destroyed because its reference count is zero
- * @deffunc void *apr_bucket_shared_destroy(void *data)
+ * @return TRUE or FALSE; TRUE if the reference count is now
+ *         zero, indicating that the shared resource itself can
+ *         be destroyed by the caller.
+ * @deffunc int apr_bucket_shared_destroy(void *data)
  */
-APU_DECLARE(void *) apr_bucket_shared_destroy(void *data);
+APU_DECLARE(int) apr_bucket_shared_destroy(void *data);
 
 /**
  * Split a bucket into two at the given point, and adjust the refcount
