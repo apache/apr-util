@@ -483,7 +483,7 @@ APU_DECLARE(apr_status_t) apr_xml_parse_file(apr_pool_t *p,
                                              apr_xml_parser **parser,
                                              apr_xml_doc **ppdoc,
                                              apr_file_t *xmlfd,
-                                             int buffer_length)
+                                             apr_size_t buffer_length)
 {
     apr_status_t rv;
     char *buffer;
