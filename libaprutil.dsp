@@ -588,10 +588,6 @@ SOURCE=.\include\apr_xlate.h
 
 SOURCE=.\include\apr_xml.h
 # End Source File
-# Begin Source File
-
-SOURCE=.\include\apu_compat.h
-# End Source File
 # End Group
 # Begin Source File
 
