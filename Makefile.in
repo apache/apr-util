@@ -49,18 +49,18 @@ delete-lib:
 install: $(TARGET_LIB)
 	if [ ! -d $(includedir) ]; then \
 	    @APR_SOURCE_DIR@/build/mkdir.sh $(includedir); \
-	fi; \
-	cp include/*.h $(includedir); \
+	fi;
+	cp include/*.h $(includedir)
 	if [ ! -d $(libdir) ]; then \
 	    @APR_SOURCE_DIR@/build/mkdir.sh $(libdir); \
-	fi; \
-	$(LIBTOOL) --mode=install cp $(TARGET_LIB) $(libdir); \
-	$(LIBTOOL) --mode=install cp aprutil.exp $(libdir); \
+	fi;
+	$(LIBTOOL) --mode=install cp $(TARGET_LIB) $(libdir)
+	$(LIBTOOL) --mode=install cp aprutil.exp $(libdir)
 	if [ ! -d $(bindir) ]; then \
 		@APR_SOURCE_DIR@/build/mkdir.sh $(bindir); \
-	fi; \
-	$(LIBTOOL) --mode=install cp apu-config $(bindir); \
-	chmod 755 $(bindir)/apu-config; \
+	fi;
+	$(LIBTOOL) --mode=install cp apu-config $(bindir)
+	chmod 755 $(bindir)/apu-config
 	list='$(INSTALL_SUBDIRS)'; for i in $$list; do \
 		( cd $$i ; $(MAKE) install ); \
 	done
