@@ -180,20 +180,9 @@ static apr_status_t prep(apr_sdbm_t **pdb, const char *dirname, const char *pagn
                 != APR_SUCCESS)
         goto error;
 
-    /*
-     * need the dirfile size to establish max bit number.
+    /* apr_pcalloc zeroed the buffers
+     * apr_sdbm_lock stated the dirf->size and invalidated the cache
      */
-    if ((status = apr_file_info_get(&finfo, APR_FINFO_SIZE, db->dirf)) 
-                != APR_SUCCESS)
-        goto error;
-
-    /*
-     * zero size: either a fresh database, or one with a single,
-     * unsplit data page: dirpage is all zeros.
-     */
-    SDBM_INVALIDATE_CACHE(db, finfo);
-
-    /* (apr_pcalloc zeroed the buffers) */
 
     /*
      * if we are opened in SHARED mode, unlock ourself 
