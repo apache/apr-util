@@ -1,3 +1,20 @@
+dnl -------------------------------------------------------- -*- autoconf -*-
+dnl Copyright 2000-2005 The Apache Software Foundation or its licensors, as
+dnl applicable.
+dnl
+dnl Licensed under the Apache License, Version 2.0 (the "License");
+dnl you may not use this file except in compliance with the License.
+dnl You may obtain a copy of the License at
+dnl
+dnl     http://www.apache.org/licenses/LICENSE-2.0
+dnl
+dnl Unless required by applicable law or agreed to in writing, software
+dnl distributed under the License is distributed on an "AS IS" BASIS,
+dnl WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+dnl See the License for the specific language governing permissions and
+dnl limitations under the License.
+
+
 dnl
 dnl custom autoconf rules for APRUTIL
 dnl
@@ -5,7 +22,7 @@ dnl
 dnl
 dnl APU_FIND_APR: figure out where APR is located
 dnl
-AC_DEFUN(APU_FIND_APR,[
+AC_DEFUN([APU_FIND_APR], [
 
   dnl use the find_apr.m4 script to locate APR. sets apr_found and apr_config
   APR_FIND_APR(,,,[1])
@@ -35,7 +52,7 @@ dnl APU_TEST_EXPAT(directory): test if Expat is located in the specified dir
 dnl
 dnl if present: sets expat_include_dir, expat_libs, possibly expat_old
 dnl
-AC_DEFUN(APU_TEST_EXPAT,[
+AC_DEFUN([APU_TEST_EXPAT], [
   AC_MSG_CHECKING(for Expat in ifelse($2,,$1,$2))
 
   expat_libtool=""
@@ -122,7 +139,7 @@ AC_DEFUN(APU_TEST_EXPAT,[
 dnl
 dnl APU_FIND_EXPAT: figure out where EXPAT is located (or use bundled)
 dnl
-AC_DEFUN(APU_FIND_EXPAT,[
+AC_DEFUN([APU_FIND_EXPAT], [
 
 AC_ARG_WITH([expat],
 [  --with-expat=DIR        specify Expat location], [
@@ -208,7 +225,7 @@ APR_ADDTO(APRUTIL_LIBS, [$expat_libtool])
 dnl 
 dnl Find a particular LDAP library
 dnl
-AC_DEFUN(APU_FIND_LDAPLIB,[
+AC_DEFUN([APU_FIND_LDAPLIB], [
   if test ${apu_has_ldap} != "1"; then
     ldaplib=$1
     extralib=$2
@@ -234,7 +251,7 @@ AC_DEFUN(APU_FIND_LDAPLIB,[
 dnl
 dnl APU_FIND_LDAP: figure out where LDAP is located
 dnl
-AC_DEFUN(APU_FIND_LDAP,[
+AC_DEFUN([APU_FIND_LDAP],  [
 
 echo $ac_n "${nl}checking for ldap support..."
 
