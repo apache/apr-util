@@ -30,6 +30,10 @@
 
 #if APR_HAS_LDAP
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /*
  * The following defines handle the different TLS certificate
  * options available. If these options are missing, APR will try and
@@ -177,6 +181,10 @@ APU_DECLARE(int) apr_ldap_set_option(apr_pool_t *pool,
                                      int option,
                                      const void *invalue,
                                      apr_ldap_err_t **result_err);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* APR_HAS_LDAP */
 
