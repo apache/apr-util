@@ -99,4 +99,3 @@
 #define APU_DECLARE_DATA
 
 #endif /* APU_H */
-#endif /* WIN32 */

@@ -62,6 +62,7 @@ AC_OUTPUT([
 	build/Makefile
 	build/rules.mk
 	include/private/apu_private.h
+        include/apu.h
 	src/Makefile
 	src/buckets/Makefile
 	src/crypto/Makefile
