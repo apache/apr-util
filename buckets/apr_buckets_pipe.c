@@ -135,7 +135,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_pipe_make(apr_bucket *b, apr_file_t *p)
      * buckets created by pipe_read() above.
      */
     b->type     = &apr_bucket_type_pipe;
-    b->length   = -1;
+    b->length   = (apr_size_t)(-1);
     b->start    = -1;
     b->data     = p;
 
