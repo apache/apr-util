@@ -186,11 +186,11 @@
 #define AP_RING_SPLICE_TAIL(hp, ep1, epN, link)				\
 	AP_RING_SPLICE_AFTER(AP_RING_LAST((hp)), (ep1), (epN), link)
 
-#define AP_RING_INSERT_HEAD(lep, nep, link)				\
-	AP_RING_SPLICE_HEAD((lep), (nep), (nep), link)
+#define AP_RING_INSERT_HEAD(hp, nep, link)				\
+	AP_RING_SPLICE_HEAD((hp), (nep), (nep), link)
 
-#define AP_RING_INSERT_TAIL(lep, nep, link)				\
-	AP_RING_SPLICE_TAIL((lep), (nep), (nep), link)
+#define AP_RING_INSERT_TAIL(hp, nep, link)				\
+	AP_RING_SPLICE_TAIL((hp), (nep), (nep), link)
 
 /*
  * Concatenating ring h2 onto the end of ring h1 leaves h2 empty.
