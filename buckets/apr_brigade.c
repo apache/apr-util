@@ -77,17 +77,11 @@ APU_DECLARE(apr_status_t) apr_brigade_cleanup(void *data)
     apr_bucket_brigade *b = data;
     apr_bucket *e;
 
-    /*
-     * Bah! We can't use APR_RING_FOREACH here because this bucket has
-     * gone away when we dig inside it to get the next one.
-     */
     while (!APR_BRIGADE_EMPTY(b)) {
         e = APR_BRIGADE_FIRST(b);
         apr_bucket_delete(e);
     }
-    /*
-     * We don't need to free(bb) because it's allocated from a pool.
-     */
+    /* We don't need to free(bb) because it's allocated from a pool. */
     return APR_SUCCESS;
 }
 
@@ -154,9 +148,12 @@ APU_DECLARE(apr_status_t) apr_brigade_partition(apr_bucket_brigade *b,
 
     APR_BRIGADE_CHECK_CONSISTENCY(b);
 
-    APR_BRIGADE_FOREACH(e, b) {
+    for (e = APR_BRIGADE_FIRST(b);
+         e != APR_BRIGADE_SENTINEL(b);
+         e = APR_BUCKET_NEXT(e))
+    {
         if ((e->length == (apr_size_t)(-1)) && (point > (apr_size_t)(-1))) {
-            /* XXX: point is too far out to simply split this bucket,
+            /* point is too far out to simply split this bucket,
              * we must fix this bucket's size and keep going... */
             rv = apr_bucket_read(e, &s, &len, APR_BLOCK_READ);
             if (rv != APR_SUCCESS) {
@@ -207,7 +204,10 @@ APU_DECLARE(apr_status_t) apr_brigade_length(apr_bucket_brigade *bb,
     apr_off_t total = 0;
     apr_bucket *bkt;
 
-    APR_BRIGADE_FOREACH(bkt, bb) {
+    for (bkt = APR_BRIGADE_FIRST(bb);
+         bkt != APR_BRIGADE_SENTINEL(bb);
+         bkt = APR_BUCKET_NEXT(bkt))
+    {
         if (bkt->length == (apr_size_t)(-1)) {
             const char *ignore;
             apr_size_t len;
@@ -237,7 +237,10 @@ APU_DECLARE(apr_status_t) apr_brigade_flatten(apr_bucket_brigade *bb,
     apr_size_t actual = 0;
     apr_bucket *b;
  
-    APR_BRIGADE_FOREACH(b, bb) {
+    for (b = APR_BRIGADE_FIRST(bb);
+         b != APR_BRIGADE_SENTINEL(bb);
+         b = APR_BUCKET_NEXT(b))
+    {
         const char *str;
         apr_size_t str_len;
         apr_status_t status;
@@ -361,7 +364,11 @@ APU_DECLARE(apr_status_t) apr_brigade_to_iovec(apr_bucket_brigade *b,
     apr_status_t rv;
 
     orig = vec;
-    APR_BRIGADE_FOREACH(e, b) {
+
+    for (e = APR_BRIGADE_FIRST(b);
+         e != APR_BRIGADE_SENTINEL(b);
+         e = APR_BUCKET_NEXT(e))
+    {
         if (left-- == 0)
             break;
 

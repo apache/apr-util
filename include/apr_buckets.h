@@ -389,50 +389,6 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
 #define APR_BRIGADE_LAST(b)	APR_RING_LAST(&(b)->list)
 
 /**
- * Iterate through a bucket brigade
- * @param e The current bucket
- * @param b The brigade to iterate over
- * @remark This is the same as either:
- * <pre>
- *	e = APR_BRIGADE_FIRST(b);
- * 	while (e != APR_BRIGADE_SENTINEL(b)) {
- *	    ...
- * 	    e = APR_BUCKET_NEXT(e);
- * 	}
- *  OR
- * 	for (e = APR_BRIGADE_FIRST(b);
- *           e != APR_BRIGADE_SENTINEL(b);
- *           e = APR_BUCKET_NEXT(e)) {
- *	    ...
- * 	}
- * </pre>
- * @warning Be aware that you cannot change the value of e within
- * the foreach loop, nor can you destroy the bucket it points to.
- * Modifying the prev and next pointers of the bucket is dangerous
- * but can be done if you're careful.  If you change e's value or
- * destroy the bucket it points to, then APR_BRIGADE_FOREACH
- * will have no way to find out what bucket to use for its next
- * iteration.  The reason for this can be seen by looking closely
- * at the equivalent loops given in the tip above.  So, for example,
- * if you are writing a loop that empties out a brigade one bucket
- * at a time, APR_BRIGADE_FOREACH just won't work for you.  Do it
- * by hand, like so:
- * <pre>
- *      while (!APR_BRIGADE_EMPTY(b)) {
- *          e = APR_BRIGADE_FIRST(b);
- *          ...
- *          apr_bucket_delete(e);
- *      }
- * </pre>
- * @deprecated This macro causes more headaches than it's worth.  Use
- * one of the alternatives documented here instead; the clarity gained
- * in what's really going on is well worth the extra line or two of code.
- * This macro will be removed at some point in the future.
- */
-#define APR_BRIGADE_FOREACH(e, b)					\
-	APR_RING_FOREACH((e), &(b)->list, apr_bucket, link)
-
-/**
  * Insert a list of buckets at the front of a brigade
  * @param b The brigade to add to
  * @param e The first bucket in a list of buckets to insert
