@@ -1,4 +1,8 @@
 Changes with APR-util b1  
+
+  *) Add ability to natively fetch and split brigades based on LF lines.
+     [Justin Erenkrantz]
+
   *) add --with-berkeley-db=DIR & --with-gdbm  configure flags
      [Ian Holsman/Justin Erenkrantz]
 
