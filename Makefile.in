@@ -26,7 +26,7 @@ includedir=@includedir@
 
 delete-lib:
 	@if test -f $(TARGET_LIB); then \
-	    objects="`find $(SUBDIRS) -name '*.@so_ext@' -a -newer $(TARGET_LIB)`" ; \
+	    objects="`find $(SUBDIRS) -name expat -prune -o -name '*.@so_ext@' -a -newer $(TARGET_LIB)`" ; \
 	    if test -n "$$objects"; then \
 		echo Found newer objects. Will relink $(TARGET_LIB). ; \
 		echo $(RM) -f $(TARGET_LIB) ; \
@@ -45,7 +45,7 @@ install: $(TARGET_LIB)
 	$(LIBTOOL) --mode=install cp $(TARGET_LIB) $(libdir)
 
 $(TARGET_LIB):
-	@objects="`find $(SUBDIRS) -name '*.@so_ext@'`" ; \
+	@objects="`find $(SUBDIRS) -name expat -prune -o -name '*.@so_ext@'`"; \
 	    $(LINK) @lib_target@
 
 delete-exports:
