@@ -1,3 +1,4 @@
+#include "ap_config.h"
 #include "httpd.h"
 #include "ap_hooks.h"
 #include <assert.h>
