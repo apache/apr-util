@@ -499,28 +499,6 @@ struct apr_bucket_refcount {
 /*  *****  Reference-counted bucket types  *****  */
 
 
-typedef struct apr_bucket_pool apr_bucket_pool;
-/**
- * A bucket referring to data allocated from a pool
- */
-struct apr_bucket_pool {
-    /** Number of buckets using this memory */
-    apr_bucket_refcount  refcount;
-    /** The start of the data actually allocated.  This should never be
-     * modified, it is only used to free the bucket.
-     */
-    const char *base;
-    /** The pool the data was allocated from */
-    apr_pool_t  *p;
-    /** This is a hack, because we call apr_destroy_bucket with the ->data
-     *  pointer, so the pool cleanup needs to be registered with that pointer,
-     *  but the whole point of the cleanup is to convert the bucket to another
-     *  type.  To do that conversion, we need a pointer to the bucket itself.
-     *  This gives us a pointer to the original bucket.
-     */
-    apr_bucket *b;
-};
-
 typedef struct apr_bucket_heap apr_bucket_heap;
 /**
  * A bucket referring to data allocated off the heap.
@@ -534,6 +512,38 @@ struct apr_bucket_heap {
     char    *base;
     /** how much memory was allocated */
     size_t  alloc_len;
+};
+
+typedef struct apr_bucket_pool apr_bucket_pool;
+/**
+ * A bucket referring to data allocated from a pool
+ */
+struct apr_bucket_pool {
+    /** The pool bucket must be able to be easily morphed to a heap
+     * bucket if the pool gets cleaned up before all references are
+     * destroyed.  This apr_bucket_heap structure is populated automatically
+     * when the pool gets cleaned up, and subsequent calls to pool_read()
+     * will result in the apr_bucket in question being morphed into a
+     * regular heap bucket.  (To avoid having to do many extra refcount
+     * manipulations and b->data manipulations, the apr_bucket_pool
+     * struct actually *contains* the apr_bucket_heap struct that it
+     * will become as its first element; the two share their
+     * apr_bucket_refcount members.)
+     */
+    apr_bucket_heap  heap;
+    /** The block of data actually allocated from the pool.
+     * Segments of this block are referenced by adjusting
+     * the start and length of the apr_bucket accordingly.
+     * This will be NULL after the pool gets cleaned up.
+     */
+    const char *base;
+    /** The pool the data was allocated from.  When the pool
+     * is cleaned up, this gets set to NULL as an indicator
+     * to pool_read() that the data is now on the heap and
+     * so it should morph the bucket into a regular heap
+     * bucket before continuing.
+     */
+    apr_pool_t *pool;
 };
 
 #if APR_HAS_MMAP
@@ -1128,25 +1138,25 @@ APU_DECLARE(apr_bucket *)
  * Create a bucket referring to memory allocated from a pool.
  *
  * @param buf The buffer to insert into the bucket
- * @param p The pool the memory was allocated from
+ * @param pool The pool the memory was allocated from
  * @return The new bucket, or NULL if allocation failed
- * @deffunc apr_bucket *apr_bucket_pool_create(const char *buf, apr_size_t *length, apr_pool_t *p)
+ * @deffunc apr_bucket *apr_bucket_pool_create(const char *buf, apr_size_t *length, apr_pool_t *pool)
  */
 APU_DECLARE(apr_bucket *) 
                 apr_bucket_pool_create(const char *buf, apr_size_t length,
-                                      apr_pool_t *p);
+                                      apr_pool_t *pool);
 
 /**
  * Make the bucket passed in a bucket refer to pool data
  * @param b The bucket to make into a pool bucket
  * @param buf The buffer to insert into the bucket
- * @param p The pool the memory was allocated from
+ * @param pool The pool the memory was allocated from
  * @return The new bucket, or NULL if allocation failed
- * @deffunc apr_bucket *apr_bucket_pool_make(apr_bucket *b, const char *buf, apr_size_t *length, apr_pool_t *p)
+ * @deffunc apr_bucket *apr_bucket_pool_make(apr_bucket *b, const char *buf, apr_size_t *length, apr_pool_t *pool)
  */
 APU_DECLARE(apr_bucket *) 
                 apr_bucket_pool_make(apr_bucket *b, const char *buf, 
-                                    apr_size_t length, apr_pool_t *p);
+                                    apr_size_t length, apr_pool_t *pool);
 
 #if APR_HAS_MMAP
 /**
