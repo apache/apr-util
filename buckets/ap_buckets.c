@@ -125,12 +125,14 @@ API_EXPORT(int) ap_brigade_to_iovec(ap_bucket_brigade *b,
 {
     ap_bucket *e;
     struct iovec *orig;
+    apr_ssize_t iov_len;
 
     orig = vec;
     AP_BRIGADE_FOREACH(e, b) {
 	if (nvec-- == 0)
             break;
-	e->read(e, (const char **)&vec->iov_base, &vec->iov_len, 0);
+	e->read(e, (const char **)&vec->iov_base, &iov_len, 0);
+        vec->iov_len = iov_len; /* set indirectly in case size differs */
 	++vec;
     }
     return vec - orig;
