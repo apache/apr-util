@@ -86,17 +86,17 @@ int main (void)
         exit(1);
     }
     pattern_nocase = apr_strmatch_precompile(pool, "pattern", 0);
-    if (!pattern) {
+    if (!pattern_nocase) {
         printf("FAILED\n");
         exit(1);
     }
     pattern_onechar = apr_strmatch_precompile(pool, "g", 0);
-    if (!pattern) {
+    if (!pattern_onechar) {
         printf("FAILED\n");
         exit(1);
     }
     pattern_zero = apr_strmatch_precompile(pool, "", 0);
-    if (!pattern) {
+    if (!pattern_zero) {
         printf("FAILED\n");
         exit(1);
     }
