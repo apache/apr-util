@@ -121,24 +121,18 @@ static apr_status_t mmap_setaside(apr_bucket *data, apr_pool_t *p)
 {
     apr_bucket_mmap *m = data->data;
     apr_mmap_t *mm = m->mmap;
-    char *base;
-    void *addr;
+    apr_mmap_t *new_mm;
     apr_status_t ok;
 
     if (apr_pool_is_ancestor(mm->cntxt, p)) {
         return APR_SUCCESS;
     }
 
-    ok = apr_mmap_offset(&addr, m->mmap, data->start);
+    ok = apr_mmap_dup(&new_mm, mm, p, 1);
     if (ok != APR_SUCCESS) {
         return ok;
     }
-
-    base = apr_palloc(p, data->length);
-    memcpy(base, addr, data->length);
-    data = apr_bucket_pool_make(data, base, data->length, p);
-    mmap_destroy(m);
-
+    m->mmap = new_mm;
     return APR_SUCCESS;
 }
 
