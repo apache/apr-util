@@ -113,8 +113,27 @@ AC_DEFUN([APR_FIND_APU], [
       AC_MSG_ERROR([the --with-apr-util parameter is incorrect. It must specify an install prefix, a build directory, or an apu-config file.])
     fi
   ],[
-    dnl if we have a bundled source directory, use it
-    if test -d "$1"; then
+    if test -n "$3" && test "$3" = "1"; then
+      for apu_temp_apu_config_file in $apu_temp_acceptable_apu_config
+      do
+        if $apu_temp_apu_config_file --help > /dev/null 2>&1 ; then
+          apu_found="yes"
+          apu_config="$apu_temp_apu_config_file"
+          break
+        else
+          dnl look in some standard places (apparently not in builtin/default)
+          for lookdir in /usr /usr/local /usr/local/apr /opt/apr /usr/local/apache2 ; do
+            if $TEST_X "$lookdir/bin/$apu_temp_apu_config_file"; then
+              apu_found="yes"
+              apu_config="$lookdir/bin/$apu_temp_apu_config_file"
+              break 2
+            fi
+          done
+        fi
+      done
+    fi
+    dnl if we have not found anything yet and have bundled source, use that
+    if test "$apu_found" = "no" && test -d "$1"; then
       apu_temp_abs_srcdir="`cd $1 && pwd`"
       apu_found="reconfig"
       apu_bundled_major="`sed -n '/#define.*APU_MAJOR_VERSION/s/^[^0-9]*\([0-9]*\).*$/\1/p' \"$1/include/apu_version.h\"`"
@@ -134,25 +153,6 @@ AC_DEFUN([APR_FIND_APU], [
       else
         apu_config="$1/$apu_temp_apu_config_file"
       fi
-    fi
-    if test "$apu_found" = "no" && test -n "$3" && test "$3" = "1"; then
-      for apu_temp_apu_config_file in $apu_temp_acceptable_apu_config
-      do
-        if $apu_temp_apu_config_file --help > /dev/null 2>&1 ; then
-          apu_found="yes"
-          apu_config="$apu_temp_apu_config_file"
-          break
-        else
-          dnl look in some standard places (apparently not in builtin/default)
-          for lookdir in /usr /usr/local /opt/apr /usr/local/apache2 ; do
-            if $TEST_X "$lookdir/bin/$apu_temp_apu_config_file"; then
-              apu_found="yes"
-              apu_config="$lookdir/bin/$apu_temp_apu_config_file"
-              break 2
-            fi
-          done
-        fi
-      done
     fi
   ])
 
