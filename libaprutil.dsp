@@ -153,38 +153,6 @@ SOURCE=.\crypto\apr_sha1.c
 # Begin Group "dbm"
 
 # PROP Default_Filter ""
-# Begin Group "sdbm"
-
-# PROP Default_Filter ""
-# Begin Source File
-
-SOURCE=.\dbm\sdbm\sdbm.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\dbm\sdbm\sdbm_hash.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\dbm\sdbm\sdbm_lock.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\dbm\sdbm\sdbm_pair.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\dbm\sdbm\sdbm_pair.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\dbm\sdbm\sdbm_private.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\dbm\sdbm\sdbm_tune.h
-# End Source File
-# End Group
 # Begin Source File
 
 SOURCE=.\dbm\apr_dbm.c
@@ -218,6 +186,50 @@ SOURCE=.\encoding\apr_base64.c
 SOURCE=.\hooks\apr_hooks.c
 # End Source File
 # End Group
+# Begin Group "misc"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\misc\apr_date.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\misc\apr_rmm.c
+# End Source File
+# End Group
+# Begin Group "sdbm"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\dbm\sdbm\sdbm.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\dbm\sdbm\sdbm_hash.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\dbm\sdbm\sdbm_lock.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\dbm\sdbm\sdbm_pair.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\dbm\sdbm\sdbm_pair.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\dbm\sdbm\sdbm_private.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\dbm\sdbm\sdbm_tune.h
+# End Source File
+# End Group
 # Begin Group "uri"
 
 # PROP Default_Filter ""
@@ -232,14 +244,6 @@ SOURCE=.\uri\apr_uri.c
 # Begin Source File
 
 SOURCE=.\xml\apr_xml.c
-# End Source File
-# End Group
-# Begin Group "misc"
-
-# PROP Default_Filter ""
-# Begin Source File
-
-SOURCE=.\misc\apr_date.c
 # End Source File
 # End Group
 # End Group
@@ -380,11 +384,11 @@ SOURCE=.\include\apr_buckets.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\apr_dbm.h
+SOURCE=.\include\apr_date.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\apr_generic_hook.h
+SOURCE=.\include\apr_dbm.h
 # End Source File
 # Begin Source File
 
@@ -392,7 +396,19 @@ SOURCE=.\include\apr_hooks.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\apr_md4.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\apr_optional.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\apr_optional_hooks.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\apr_rmm.h
 # End Source File
 # Begin Source File
 

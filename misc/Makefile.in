@@ -5,7 +5,7 @@ top_builddir=@top_builddir@
 top_srcdir=@abs_srcdir@
 INCLUDES=-I$(top_builddir)/include -I$(top_srcdir)/include @APR_INCLUDES@
 
-TARGETS = apr_date.lo
+TARGETS = apr_date.lo apr_rmm.lo
 CLEAN_TARGETS = 
 
 # bring in rules.mk for standard functionality
