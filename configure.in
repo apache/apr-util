@@ -5,7 +5,7 @@ dnl
 AC_PREREQ(2.13)
 AC_INIT(build/rules.mk.in)
 
-AC_CONFIG_HEADER(include/apu_config.h)
+AC_CONFIG_HEADER(include/private/apu_config.h)
 AC_CONFIG_AUX_DIR(build)
 
 AC_PROG_CC
@@ -33,7 +33,7 @@ AC_PROG_LIBTOOL
 dnl
 dnl set up the compilation flags and stuff
 dnl
-INCLUDES="-I$APR_INCLUDES -I\$(top_builddir)/include"
+INCLUDES="-I\$(top_builddir)/include/private -I\$(top_builddir)/include -I$APR_INCLUDES"
 
 CFLAGS="$CFLAGS $INCLUDES"
 
@@ -42,7 +42,7 @@ AC_OUTPUT([
 	Makefile
 	build/Makefile
 	build/rules.mk
-	include/apu_private.h
+	include/private/apu_private.h
 	src/Makefile
 	src/buckets/Makefile
 	src/crypto/Makefile
