@@ -1,5 +1,8 @@
 Changes with APR-util b1  
 
+  *) add apr_rmm_realloc() function
+     [Madhusudan Mathihalli <madhusudan_mathihalli@hp.com>]
+
   *) renames: apr_ansi_time_to_apr_time becomes apr_time_ansi_put
      ap_exploded_time_t becomes apr_time_exp_t
      [Thom May <thom@planetarytramp.net>]

@@ -368,6 +368,33 @@ APU_DECLARE(apr_rmm_off_t) apr_rmm_calloc(apr_rmm_t *rmm, apr_size_t reqsize)
     return this;
 }
 
+APU_DECLARE(apr_rmm_off_t) apr_rmm_realloc(apr_rmm_t *rmm, void *entity,
+                                           apr_size_t reqsize)
+{
+    apr_status_t rv;
+    apr_rmm_off_t this;
+    apr_rmm_off_t old;
+
+    if (!entity) {
+        return apr_rmm_malloc(rmm, reqsize);
+    }
+
+    reqsize = (1 + (reqsize - 1) / grain) * grain;
+    old = apr_rmm_offset_get(rmm, entity);
+
+    if ((this = apr_rmm_malloc(rmm, reqsize)) < 0) {
+        return rv;
+    }
+
+    if (old >= 0) {
+        memcpy(apr_rmm_addr_get(rmm, this),
+               apr_rmm_addr_get(rmm, old),reqsize);
+        move_block(rmm, old, 1);
+    }
+
+    return this;
+}
+
 APU_DECLARE(apr_status_t) apr_rmm_free(apr_rmm_t *rmm, apr_rmm_off_t this)
 {
     apr_status_t rv;
