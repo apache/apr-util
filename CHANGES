@@ -1,5 +1,7 @@
 Changes with APR-util b1  
 
+  *) Fix Berkley DBM support [Ian Holsman <ianh@apache.org>]
+
   *) Fix apr_brigade_vprintf so that it can handle more than
      4k of data at one time.  [Cody Sherr <csherr@covalent.net>]
 
