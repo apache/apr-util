@@ -313,6 +313,35 @@ InputPath=.\include\private\apu_select_dbm.hw
 !ENDIF 
 
 # End Source File
+# Begin Source File
+
+SOURCE=.\xml\expat\lib\expat.h.in
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\xml\expat\lib\expat.h.in
+
+".\xml\expat\lib\expat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy .\xml\expat\lib\expat.h.in .\xml\expat\lib\expat.h >  nul 
+	echo Created expat.h from expat.h.in
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\xml\expat\lib\expat.h.in
+
+".\xml\expat\lib\expat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy .\xml\expat\lib\expat.h.in .\xml\expat\lib\expat.h >  nul 
+	echo Created expat.h from expat.h.in
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
 # End Group
 # Begin Group "External Headers"
 
