@@ -141,9 +141,9 @@ APU_DECLARE(apr_bucket *) apr_bucket_pipe_create(apr_file_t *p)
 
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_pipe = {
     "PIPE", 5,
-    apr_bucket_notimpl_destroy,
+    apr_bucket_destroy_notimpl,
     pipe_read,
-    apr_bucket_notimpl_setaside,
-    apr_bucket_notimpl_split,
-    apr_bucket_notimpl_copy
+    apr_bucket_setaside_notimpl,
+    apr_bucket_split_notimpl,
+    apr_bucket_copy_notimpl
 };

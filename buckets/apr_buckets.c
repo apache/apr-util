@@ -96,20 +96,20 @@ APU_DECLARE(int) apr_bucket_insert_type(const apr_bucket_type_t *type)
     return bucket_types->nelts - 1;
 }
 
-APU_DECLARE_NONSTD(apr_status_t) apr_bucket_notimpl_setaside(apr_bucket *data)
+APU_DECLARE_NONSTD(apr_status_t) apr_bucket_setaside_notimpl(apr_bucket *data)
 {
     return APR_ENOTIMPL;
 }
 
-APU_DECLARE_NONSTD(apr_status_t) apr_bucket_notimpl_split(apr_bucket *data, apr_off_t point)
+APU_DECLARE_NONSTD(apr_status_t) apr_bucket_split_notimpl(apr_bucket *data, apr_off_t point)
 {
     return APR_ENOTIMPL;
 }
-APU_DECLARE_NONSTD(apr_status_t) apr_bucket_notimpl_copy(apr_bucket *e, apr_bucket **c)
+APU_DECLARE_NONSTD(apr_status_t) apr_bucket_copy_notimpl(apr_bucket *e, apr_bucket **c)
 {
     return APR_ENOTIMPL;
 }
-APU_DECLARE_NONSTD(void) apr_bucket_notimpl_destroy(void *data)
+APU_DECLARE_NONSTD(void) apr_bucket_destroy_notimpl(void *data)
 {
     return;
 }

@@ -800,9 +800,9 @@ APU_DECLARE(void) apr_bucket_init_types(apr_pool_t *p);
  * implemented for this bucket
  * @param data The bucket to setaside
  * @return APR_ENOTIMPL
- * @deffunc apr_status_t apr_bucket_notimpl_setaside(apr_bucket *data)
+ * @deffunc apr_status_t apr_bucket_setaside_notimpl(apr_bucket *data)
  */ 
-APU_DECLARE_NONSTD(apr_status_t) apr_bucket_notimpl_setaside(apr_bucket *data);
+APU_DECLARE_NONSTD(apr_status_t) apr_bucket_setaside_notimpl(apr_bucket *data);
 
 /**
  * A place holder function that signifies that the split function was not
@@ -810,10 +810,10 @@ APU_DECLARE_NONSTD(apr_status_t) apr_bucket_notimpl_setaside(apr_bucket *data);
  * @param data The bucket to split
  * @param point The location to split the bucket
  * @return APR_ENOTIMPL
- * @deffunc apr_status_t apr_bucket_notimpl_split(apr_bucket *data, apr_off_t point)
+ * @deffunc apr_status_t apr_bucket_split_notimpl(apr_bucket *data, apr_off_t point)
  */ 
 APU_DECLARE_NONSTD(apr_status_t) 
-                       apr_bucket_notimpl_split(apr_bucket *data, 
+                       apr_bucket_split_notimpl(apr_bucket *data, 
                                                apr_off_t point);
 
 /**
@@ -822,10 +822,10 @@ APU_DECLARE_NONSTD(apr_status_t)
  * @param e The bucket to copy
  * @param c Returns a pointer to the new bucket
  * @return APR_ENOTIMPL
- * @deffunc apr_status_t apr_bucket_notimpl_copy(apr_bucket *e, apr_bucket **c)
+ * @deffunc apr_status_t apr_bucket_copy_notimpl(apr_bucket *e, apr_bucket **c)
  */
 APU_DECLARE_NONSTD(apr_status_t) 
-                       apr_bucket_notimpl_copy(apr_bucket *e, apr_bucket **c);
+                       apr_bucket_copy_notimpl(apr_bucket *e, apr_bucket **c);
 
 /**
  * A place holder function that signifies that the destroy function was not
@@ -833,7 +833,7 @@ APU_DECLARE_NONSTD(apr_status_t)
  * @param data The bucket to destroy
  * @deffunc void apr_bucket_destroy(apr_bucket *data)
  */ 
-APU_DECLARE_NONSTD(void) apr_bucket_notimpl_destroy(void *data);
+APU_DECLARE_NONSTD(void) apr_bucket_destroy_notimpl(void *data);
 
 /* There is no apr_bucket_read_notimpl, because it is a required function
  */
