@@ -67,7 +67,9 @@
 #if APR_HAVE_STDIO_H
 #include <stdio.h>
 #endif
+#if APR_HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 #include <stdlib.h>     /* for atexit(), malloc() */
 #include <string.h>
 
