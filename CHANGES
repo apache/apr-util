@@ -1,5 +1,8 @@
 Changes with APR-util 0.9.2
 
+  *) Detect Berkeley DB 4.0 compiled with --with-uniquenames.
+     [Philip Martin <philip@codematters.co.uk>]
+
   *) Allocate brigades from a bucket allocator rather than a pool. [Brian Pane]
 
   *) Update with the latest APR renames [Thom May]
