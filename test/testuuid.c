@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-#include "test_aprutil.h"
+#include "testutil.h"
 #include "apr_general.h"
 #include "apr_uuid.h"
 
-static void test_uuid_parse(CuTest *tc)
+static void test_uuid_parse(abts_case *tc, void *data)
 {
     apr_uuid_t uuid;
     apr_uuid_t uuid2;
@@ -27,11 +27,11 @@ static void test_uuid_parse(CuTest *tc)
     apr_uuid_format(buf, &uuid);
 
     apr_uuid_parse(&uuid2, buf);
-    CuAssert(tc, "parse produced a different UUID",
+    ABTS_ASSERT(tc, "parse produced a different UUID",
              memcmp(&uuid, &uuid2, sizeof(uuid)) == 0);
 }
 
-static void test_gen2(CuTest *tc)
+static void test_gen2(abts_case *tc, void *data)
 {
     apr_uuid_t uuid;
     apr_uuid_t uuid2;
@@ -40,16 +40,16 @@ static void test_gen2(CuTest *tc)
     apr_uuid_get(&uuid);
     apr_uuid_get(&uuid2);
 
-    CuAssert(tc, "generated the same UUID twice",
+    ABTS_ASSERT(tc, "generated the same UUID twice",
              memcmp(&uuid, &uuid2, sizeof(uuid)) != 0);
 }
 
-CuSuite *testuuid(void)
+abts_suite *testuuid(abts_suite *suite)
 {
-    CuSuite *suite = CuSuiteNew("UUID");
+    suite = ADD_SUITE(suite);
 
-    SUITE_ADD_TEST(suite, test_uuid_parse);
-    SUITE_ADD_TEST(suite, test_gen2);
+    abts_run_test(suite, test_uuid_parse, NULL);
+    abts_run_test(suite, test_gen2, NULL);
 
     return suite;
 }

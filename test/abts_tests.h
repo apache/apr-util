@@ -16,22 +16,13 @@
 #ifndef APR_TEST_INCLUDES
 #define APR_TEST_INCLUDES
 
-#include "CuTest.h"
-#include "apr_pools.h"
+#include "abts.h"
+#include "testutil.h"
 
-/* Some simple functions to make the test apps easier to write and
- * a bit more consistent...
- */
-
-extern apr_pool_t *p;
-
-CuSuite *getsuite(void);
-
-CuSuite *testuuid(void);
-
-/* Assert that RV is an APR_SUCCESS value; else fail giving strerror
- * for RV and CONTEXT message. */
-void apr_assert_success(CuTest* tc, const char *context, apr_status_t rv);
-
+const struct testlist {
+    abts_suite *(*func)(abts_suite *suite);
+} alltests[] = {
+    {testuuid}
+};
 
 #endif /* APR_TEST_INCLUDES */

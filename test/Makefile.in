@@ -81,7 +81,7 @@ testpass_LDADD =  $(TARGET_LIB_PATH)
 testpass: $(testpass_OBJECTS) $(testpass_LDADD)
 	$(LINK) $(APRUTIL_LDFLAGS) $(testpass_OBJECTS) $(testpass_LDADD) $(PROGRAM_DEPENDENCIES)
 
-testall_OBJECTS = testall.lo testuuid.lo CuTest.lo
+testall_OBJECTS = testuuid.lo abts.lo testutil.lo
 testall_LDADD =  $(TARGET_LIB_PATH)
 testall: $(testall_OBJECTS) $(testall_LDADD)
 	$(LINK) $(APRUTIL_LDFLAGS) $(testall_OBJECTS) $(testall_LDADD) $(PROGRAM_DEPENDENCIES)
