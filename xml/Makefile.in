@@ -1,4 +1,7 @@
 
+top_builddir=@top_builddir@
+INCLUDES=-I$(top_builddir)/include -I$(top_builddir)/include/private -I$(top_builddir)/../apr/include -I$(top_builddir)/xml/expat/lib
+
 TARGETS = apr_xml.lo
 
 SUBDIRS = @APR_XML_SUBDIRS@

@@ -1,4 +1,7 @@
 
+top_builddir=@top_builddir@
+INCLUDES=-I$(top_builddir)/include -I$(top_builddir)/../apr/include
+
 TARGETS = apr_sha1.lo apr_md4.lo
 
 # bring in rules.mk for standard functionality

@@ -1,4 +1,7 @@
 
+top_builddir=@top_builddir@
+INCLUDES=-I$(top_builddir)/include -I$(top_builddir)/../apr/include
+
 TARGETS = apr_base64.lo
 
 # bring in rules.mk for standard functionality

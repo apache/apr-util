@@ -1,5 +1,0 @@
-# bring in rules.mk for standard functionality
-@INCLUDE_RULES@
-
-DISTCLEAN_TARGETS = rules.mk
-EXTRACLEAN_TARGETS = config.guess config.sub ltconfig ltmain.sh
