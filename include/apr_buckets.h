@@ -921,23 +921,13 @@ APU_DECLARE(apr_status_t) apr_brigade_vprintf(apr_bucket_brigade *b,
 
 /*  *****  Bucket freelist functions *****  */
 /**
- * Create a bucket allocator (and its underlying apr_allocator_t).
+ * Create a bucket allocator.
  * @param p Pool to allocate the allocator from [note: this is only
  *          used to allocate internal structures of the allocator, NOT
  *          to allocate the memory handed out by the allocator]
  * @warning The allocator must never be used by more than one thread at a time.
  */
 APU_DECLARE_NONSTD(apr_bucket_alloc_t *) apr_bucket_alloc_create(apr_pool_t *p);
-
-/**
- * Create a bucket allocator (specifying an apr_allocator_t for it to use).
- * @param p         Pool to allocate the allocator from [note: this is only
- *                  used to allocate internal structures of the allocator, NOT
- *                  to allocate the memory handed out by the allocator]
- * @param allocator The apr_allocator_t from which to get blocks of memory.
- * @warning The allocator must never be used by more than one thread at a time.
- */
-APU_DECLARE_NONSTD(apr_bucket_alloc_t *) apr_bucket_alloc_create_ex(apr_pool_t *p, apr_allocator_t *allocator);
 
 /**
  * Destroy a bucket allocator.
