@@ -133,6 +133,12 @@ static void check_sbcs(apr_xlate_t *convset)
 
         /* TODO: add the table to the cache */
     }
+    else {
+        /* reset the iconv descriptor, since it's now in an undefined
+         * state. */
+        iconv_close(convset->ich);
+        convset->ich = iconv_open(convset->topage, convset->frompage);
+    }
 }
 #elif APU_HAVE_APR_ICONV
 static void check_sbcs(apr_xlate_t *convset)
@@ -168,6 +174,12 @@ static void check_sbcs(apr_xlate_t *convset)
         convset->ich = (apr_iconv_t)-1;
 
         /* TODO: add the table to the cache */
+    }
+    else {
+        /* reset the iconv descriptor, since it's now in an undefined
+         * state. */
+        apr_iconv_close(convset->ich);
+        convset->ich = apr_iconv_open(convset->topage, convset->frompage);
     }
 }
 #endif /* APU_HAVE_APR_ICONV */
