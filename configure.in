@@ -43,12 +43,12 @@ echo "performing libtool configuration..."
 AC_CANONICAL_SYSTEM
 case "$host_alias" in
 *os2*)
-    # Use a custom made libtool replacement
+    # Use a custom-made libtool replacement
     echo "using aplibtool"
     LIBTOOL="$APR_SOURCE_DIR/build/aplibtool"
     ;;
-*)
-    AC_PROG_LIBTOOL
+*)  dnl libtoolize requires that the following not be indented
+AC_PROG_LIBTOOL
     ;;
 esac
 
