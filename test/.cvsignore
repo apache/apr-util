@@ -3,3 +3,4 @@ Makefile
 *.la
 .libs
 testdbm
+testmd4

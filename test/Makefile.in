@@ -15,3 +15,8 @@ testdate_OBJECTS = testdate.lo
 testdate_LDADD =  ../libaprutil.la @APR_SOURCE_DIR@/libapr.la
 testdate: $(testdate_OBJECTS) $(testdate_LDADD)
 	$(LINK) $(testdate_OBJECTS) $(testdate_LDADD) $(LIBS)
+
+testmd4_OBJECTS = testmd4.lo
+testmd4_LDADD =  ../libaprutil.la @APR_SOURCE_DIR@/libapr.la
+testmd4: $(testmd4_OBJECTS) $(testmd4_LDADD)
+	$(LINK) $(testmd4_OBJECTS) $(testmd4_LDADD) $(LIBS)
