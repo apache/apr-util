@@ -404,7 +404,7 @@ AC_DEFUN(APU_CHECK_DB42, [
   APU_CHECK_BERKELEY_DB("4", "2", "-1",
     "$places",
     "db42/db.h db4/db.h db.h",
-    "db-4.2 db41 db4 db"
+    "db-4.2 db42 db4 db"
   )
   if test "$apu_have_db" = "1"; then
     apu_db_version=4
