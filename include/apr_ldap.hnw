@@ -132,7 +132,7 @@ typedef struct apr_ldap_err_t {
 
 #include "apr_ldap_url.h"
 #include "apr_ldap_init.h"
-#include "apr_ldap_option.h"
+
 
 /** @} */
 #endif /* APR_HAS_LDAP */
