@@ -63,6 +63,12 @@ static apr_status_t flush_read(ap_bucket *b, const char **str,
     return APR_SUCCESS;
 }
 
+static apr_status_t flush_copy(ap_bucket *e, ap_bucket **c)
+{
+    *c = ap_bucket_create_flush();
+    return APR_SUCCESS;
+}
+
 APR_DECLARE(ap_bucket *) ap_bucket_make_flush(ap_bucket *b)
 {
     b->length    = 0;
@@ -79,9 +85,10 @@ APR_DECLARE(ap_bucket *) ap_bucket_create_flush(void)
 }
 
 APR_DECLARE_DATA const ap_bucket_type ap_flush_type = {
-    "FLUSH", 4,
+    "FLUSH", 5,
     ap_bucket_destroy_notimpl,
     flush_read,
     ap_bucket_setaside_notimpl,
-    ap_bucket_split_notimpl
+    ap_bucket_split_notimpl,
+    flush_copy
 };

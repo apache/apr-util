@@ -141,9 +141,10 @@ APR_DECLARE(ap_bucket *) ap_bucket_create_heap(
 }
 
 APR_DECLARE_DATA const ap_bucket_type ap_heap_type = {
-    "HEAP", 4,
+    "HEAP", 5,
     heap_destroy,
     heap_read,
     ap_bucket_setaside_notimpl,
-    ap_bucket_split_shared
+    ap_bucket_split_shared,
+    ap_bucket_copy_shared
 };

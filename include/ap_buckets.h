@@ -88,7 +88,7 @@ typedef enum {AP_BLOCK_READ, AP_NONBLOCK_READ} ap_read_type;
  * Buckets are data stores of varous types. They can refer to data in
  * memory, or part of a file or mmap area, or the output of a process,
  * etc. Buckets also have some type-dependent accessor functions:
- * read, split, setaside, and destroy.
+ * read, split, copy, setaside, and destroy.
  *
  * read returns the address and size of the data in the bucket. If the
  * data isn't in memory then it is read in and the bucket changes type
@@ -109,8 +109,16 @@ typedef enum {AP_BLOCK_READ, AP_NONBLOCK_READ} ap_read_type;
  * expectation turns out not to be valid, the setaside function is
  * called to move the data somewhere safer.
  *
+ * copy makes a duplicate of the bucket structure as long as it's
+ * possible to have multiple references to a single copy of the
+ * data itself.  Not all bucket types can be copied.
+ *
  * destroy maintains the reference counts on the resources used by a
  * bucket and frees them if necessary.
+ *
+ * Note: all of the above functions have wrapper macros (ap_bucket_read(),
+ * ap_bucket_destroy(), etc), and those macros should be used rather
+ * than using the function pointers directly.
  *
  * To write a bucket brigade, they are first made into an iovec, so that we
  * don't write too little data at one time.  Currently we ignore compacting the
@@ -135,17 +143,19 @@ struct ap_bucket_type {
     const char *name;
     /** 
      * The number of functions this bucket understands.  Can not be less than
-     * four.
+     * five.
      */
     int num_func;
     /**
      * Free the private data and any resources used by the bucket
-     * (if they aren't shared with another bucket).
+     *  (if they aren't shared with another bucket).
      * @param data The private data pointer from the bucket to be destroyed
      */
     void (*destroy)(void *data);
 
-    /** Read the data from the bucket.
+    /**
+     * Read the data from the bucket. This is guaranteed to be implemented
+     *  for all bucket types.
      * @param b The bucket to read from
      * @param str A place to store the data read.  Allocation should only be
      *            done if absolutely necessary. 
@@ -156,20 +166,39 @@ struct ap_bucket_type {
      */
     apr_status_t (*read)(ap_bucket *b, const char **str, apr_size_t *len, ap_read_type block);
     
-    /** Make it possible to set aside the data. For most bucket types this is
-     *  a no-op; buckets containing data that dies when the stack is un-wound
-     *  must convert the bucket into a heap bucket.
+    /**
+     * Make it possible to set aside the data. Buckets containing data that
+     *  dies when the stack is un-wound must convert the bucket into a heap
+     *  bucket. For most bucket types, though, this is a no-op and this
+     *  function will return APR_ENOTIMPL.
      * @param e The bucket to convert
      * @deffunc apr_status_t setaside(ap_bucket *e)
      */
     apr_status_t (*setaside)(ap_bucket *e);
 
-    /** Split one bucket in two at the specified position
+    /**
+     * Split one bucket in two at the specified position by duplicating
+     *  the bucket structure (not the data) and modifying any necessary
+     *  start/end/offset information.  If it's not possible to do this
+     *  for the bucket type (perhaps the length of the data is indeterminate,
+     *  as with pipe and socket buckets), then APR_ENOTIMPL is returned.
+     *  See also ap_bucket_split_any().
      * @param e The bucket to split
      * @param point The offset of the first byte in the new bucket
      * @deffunc apr_status_t split(ap_bucket *e, apr_off_t point)
      */
     apr_status_t (*split)(ap_bucket *e, apr_off_t point);
+
+    /**
+     * Copy the bucket structure (not the data), assuming that this is
+     *  possible for the bucket type. If it's not, APR_ENOTIMPL is returned.
+     *  See also ap_bucket_copy_any().
+     * @param e The bucket to copy
+     * @param c Returns a pointer to the new bucket
+     * @deffunc apr_status_t copy
+     */
+    apr_status_t (*copy)(ap_bucket *e, ap_bucket **c);
+
 };
 
 /**
@@ -669,6 +698,37 @@ void ap_init_bucket_types(apr_pool_t *p);
  */
 #define ap_bucket_split(e,point) e->type->split(e, point)
 
+/**
+ * Copy a bucket.
+ * @param e The bucket to copy
+ * @param c Returns a pointer to the new bucket
+ * @deffunc apr_status_t ap_bucket_copy(ap_bucket *e, ap_bucket **c)
+ */
+#define ap_bucket_copy(e,c) e->type->copy(e, c)
+
+/**
+ * Split a bucket into two, using ap_bucket_split() if that's possible
+ * for the given bucket type. If split() is not implemented for the
+ * bucket's type, then we perform a blocking read on the bucket. That
+ * morphs the bucket into a splittable bucket (eg, pipe becomes heap),
+ * and we then split the result.
+ * @param e The bucket to split
+ * @param point The offset to split the bucket at
+ * @deffunc apr_status_t ap_bucket_split_any(ap_bucket *e, apr_off_t point)
+ */
+APR_DECLARE(apr_status_t) ap_bucket_split_any(ap_bucket *e, apr_off_t point);
+
+/**
+ * Copy a bucket, using ap_bucket_copy() if that's possible for the given
+ * bucket type. If copy() is not implemented for the bucket's type, then
+ * we copy the data as well by performing a blocking read on the bucket.
+ * That morphs the bucket into a copyable one, which we then copy.
+ * @param e The bucket to copy
+ * @param c Returns a pointer to the new bucket
+ * @deffunc apr_status_t ap_bucket_copy_any(ap_bucket *e, ap_bucket **c)
+ */
+APR_DECLARE(apr_status_t) ap_bucket_copy_any(ap_bucket *e, ap_bucket **c);
+
 
 /* Bucket type handling */
 
@@ -690,6 +750,16 @@ APR_DECLARE_NONSTD(apr_status_t) ap_bucket_setaside_notimpl(ap_bucket *data);
  */ 
 APR_DECLARE_NONSTD(apr_status_t) ap_bucket_split_notimpl(ap_bucket *data, 
                                                  apr_off_t point);
+/**
+ * A place holder function that signifies that the copy function was not
+ * implemented for this bucket
+ * @param e The bucket to copy
+ * @param c Returns a pointer to the new bucket
+ * @return APR_ENOTIMPL
+ * @deffunc apr_status_t ap_bucket_copy_notimpl(ap_bucket *e, ap_bucket **c)
+ */
+APR_DECLARE_NONSTD(apr_status_t) ap_bucket_copy_notimpl(ap_bucket *e,
+                                                        ap_bucket **c);
 /**
  * A place holder function that signifies that the destroy function was not
  * implemented for this bucket
@@ -807,6 +877,18 @@ APR_DECLARE(void *) ap_bucket_destroy_shared(void *data);
  * @deffunc apr_status_t ap_bucket_split_shared(ap_bucket *b, apr_off_t point)
  */
 APR_DECLARE_NONSTD(apr_status_t) ap_bucket_split_shared(ap_bucket *b, apr_off_t point);
+
+/**
+ * Copy a refcounted bucket, incrementing the reference count. Most
+ * reference-counting bucket types will be able to use this function
+ * as their copy function without any additional type-specific handling.
+ * @param a The bucket to copy
+ * @param c Returns a pointer to the new bucket
+ * @return APR_ENOMEM if allocation failed;
+           or APR_SUCCESS
+ * @deffunc apr_status_t ap_bucket_copy_shared(ap_bucket *a, ap_bucket **c)
+ */
+APR_DECLARE(apr_status_t) ap_bucket_copy_shared(ap_bucket *a, ap_bucket **c);
 
 
 /*  *****  Functions to Create Buckets of varying type  *****  */
