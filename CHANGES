@@ -1,5 +1,7 @@
 Changes with APR-util 1.0
 
+  *) Switch to a single, top-level make. [Greg Stein]
+
   *) Add timeout feature to apr_reslist_acquire().  
      [Mladen Turk <mturk apache.org>]
 
