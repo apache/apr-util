@@ -9,7 +9,7 @@ PROGRAMS = testdbm testdate testmd4 testxml
 
 # bring in rules.mk for standard functionality
 @INCLUDE_RULES@
-LIBS = @LIBS@
+LIBS = @APRUTIL_LDFLAGS@ @LIBS@
 
 test: $(PROGRAMS)
 

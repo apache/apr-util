@@ -1,4 +1,6 @@
 Changes with APR-util b1  
+  *) add --with-berkeley-db=DIR & --with-gdbm  configure flags
+     [Ian Holsman/Justin Erenkrantz]
 
   *) Fix expat detection to recognize installed versions.
      [Eric Gillespie, Jr. <epg@pretzelnet.org>]

@@ -158,6 +158,32 @@ AC_CHECK_HEADER(db.h, [
 fi
 ])
 
+AC_DEFUN(APU_CHECK_BERKELEY_DB,[
+if test "$apu_want_db" != "0"; then
+  APU_CHECK_DB4
+  if test "$apu_db_version" != "4"; then
+    APU_CHECK_DB3
+    if test "$apu_db_version" != "3"; then
+      APU_CHECK_DB2
+      if test "$apu_db_version" != "2"; then
+        APU_CHECK_DB1
+        if test "$apu_db_version" != "1"; then
+          APU_CHECK_DB185
+        fi
+      fi
+    fi
+  fi
+fi
+AC_MSG_CHECKING(for Berkeley DB)
+if test "$apu_db_version" != "0"; then
+  apu_have_db=1
+  AC_MSG_RESULT(found db$apu_db_version)
+else
+  AC_MSG_RESULT(not found)
+fi
+
+
+])
 dnl
 dnl APU_CHECK_DBM: see what kind of DBM backend to use for apr_dbm.
 dnl
@@ -209,30 +235,56 @@ AC_ARG_WITH([gdbm],
         
 
 dnl We're going to try to find the highest version of Berkeley DB supported.
-APU_CHECK_DB4
-if test "$apu_db_version" != "4"; then
-  APU_CHECK_DB3
-  if test "$apu_db_version" != "3"; then
-    APU_CHECK_DB2
-    if test "$apu_db_version" != "2"; then
-      APU_CHECK_DB1
-      if test "$apu_db_version" != "1"; then
-        APU_CHECK_DB185
-      fi
+AC_ARG_WITH([berkeley-db],
+[--with-berkeley-db=PATH
+     Find the Berkeley DB header and library in \`PATH/include' and
+    \`PATH/lib'.  If PATH is of the form \`HEADER:LIB', then search
+    for header files in HEADER, and the library in LIB.  If you omit
+    the \`=PATH' part completely, the configure script will search
+    for Berkeley DB in a number of standard places.
+], [
+   if test "$withval" = "yes"; then
+      apu_want_db=1
+      BDB_INC=""
+      BDB_LDFLAGS=""
+    elif test "$withval" = "no"; then
+      apu_want_db=0
+    else
+      apu_want_db=1
+      case "$withval" in 
+        *":"*)
+          BDB_INC="-I`echo $withval |sed -e 's/:.*$//'`"
+          BDB_LDFLAGS="-L`echo $withval |sed -e 's/^.*://'`"
+        ;;
+        *)
+          BDB_INC="-I$withval/include"
+          BDB_LDFLAGS="-L$withval/lib"
+        ;;
+      esac
+      AC_MSG_RESULT(looking for berkeley-db includes with $BDB_INC)
+      AC_MSG_RESULT(looking for berkeley-db libs with $BDB_LDFLAGS)
     fi
-  fi
-fi
+    SAVE_CPPFLAGS="$CPPFLAGS"
+    SAVE_LDFLAGS="$LDFLAGS"
+    CPPFLAGS="$CPPFLAGS $BDB_INC"
+    LDFLAGS="$LDFLAGS $BDB_LDFLAGS"
+    if test "$apu_want_db" != "0"; then
+        APU_CHECK_BERKELEY_DB
+        if test "$apu_db_version" != "0"; then
+            if test "$withval" != "yes"; then
+                APR_ADDTO( APRUTIL_INCLUDES, [$BDB_INC])
+                APR_ADDTO( APRUTIL_LDFLAGS, [$BDB_LDFLAGS])
+            fi
+        elif test "$withval" != "yes"; then
+            AC_ERROR( Berkeley DB not found in the specified directory)
+        fi
+    fi 
+    CPPFLAGS="$SAVE_CPPFLAGS"
+    LDFLAGS="$SAVE_LDFLAGS"
+],[
+    APU_CHECK_BERKELEY_DB
+])
 
-dnl Yes, it'd be nice if we could collate the output in an order
-dnl so that the AC_MSG_CHECKING would be output before the actual
-dnl checks, but it isn't happening now.
-AC_MSG_CHECKING(for Berkeley DB)
-if test "$apu_db_version" != "0"; then
-  apu_have_db=1
-  AC_MSG_RESULT(found db$apu_db_version)
-else
-  AC_MSG_RESULT(not found)
-fi
 
 dnl Note that we may have found db3, but the user wants db1.  So, check
 dnl explicitly for db1 in this case.  Unfortunately, this means 
