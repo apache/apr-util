@@ -158,6 +158,51 @@ static void * APR_THREAD_FUNC resource_consuming_thread(apr_thread_t *thd,
     return APR_SUCCESS;
 }
 
+static void test_timeout(apr_reslist_t *rl)
+{
+    apr_status_t rv;
+    my_resource_t *resources[RESLIST_HMAX];
+    my_resource_t *res;
+    int i;
+
+    printf("Setting timeout to 1000us: ");
+    apr_reslist_timeout_set(rl, 1000);
+    fprintf(stdout, "OK\n");
+
+    /* deplete all possible resources from the resource list 
+     * so that the next call will block until timeout is reached 
+     * (since there are no other threads to make a resource 
+     * available)
+     */
+
+    for (i = 0; i < RESLIST_HMAX; i++) {
+        rv = apr_reslist_acquire(rl, (void**)&resources[i]);
+        if (rv != APR_SUCCESS) {
+            fprintf(stderr, "couldn't acquire resource: %d\n", rv);
+            exit(1);
+        }
+    }
+
+    /* next call will block until timeout is reached */
+    rv = apr_reslist_acquire(rl, (void **)&res);
+    if (!APR_STATUS_IS_TIMEUP(rv)) {
+        fprintf(stderr, "apr_reslist_acquire()->%d instead of TIMEUP\n", 
+                rv);
+        exit(1);
+    }
+
+    /* release the resources; otherwise the destroy operation
+     * will blow
+     */
+    for (i = 0; i < RESLIST_HMAX; i++) {
+        rv = apr_reslist_release(rl, &resources[i]);
+        if (rv != APR_SUCCESS) {
+            fprintf(stderr, "couldn't release resource: %d\n", rv);
+            exit(1);
+        }
+    }
+}
+
 static apr_status_t test_reslist(apr_pool_t *parpool)
 {
     apr_status_t rv;
@@ -223,6 +268,8 @@ static apr_status_t test_reslist(apr_pool_t *parpool)
         }
     }
     printf("\nDone!\n");
+
+    test_timeout(rl);
 
     printf("Destroying resource list.................");
     rv = apr_reslist_destroy(rl);
