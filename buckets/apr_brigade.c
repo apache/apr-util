@@ -222,9 +222,9 @@ APU_DECLARE(apr_status_t) apr_brigade_length(apr_bucket_brigade *bb,
 }
 
 APU_DECLARE(apr_status_t) apr_brigade_flatten(apr_bucket_brigade *bb,
-                                              char *c, apr_size_t *len)
+                                              char *c, apr_off_t *len)
 {
-    apr_size_t actual = 0;
+    apr_off_t actual = 0;
     apr_bucket *b;
  
     APR_BRIGADE_FOREACH(b, bb) {
@@ -259,8 +259,7 @@ APU_DECLARE(apr_status_t) apr_brigade_flatten(apr_bucket_brigade *bb,
 APU_DECLARE(char *) apr_brigade_pflatten(apr_bucket_brigade *bb,
                                          apr_pool_t *pool)
 {
-    apr_off_t tmp;
-    apr_size_t actual;
+    apr_off_t tmp, actual;
     char *c;
 
     apr_brigade_length(bb, 1, &tmp);
@@ -277,9 +276,9 @@ APU_DECLARE(char *) apr_brigade_pflatten(apr_bucket_brigade *bb,
 APU_DECLARE(apr_status_t) apr_brigade_split_line(apr_bucket_brigade *bbOut,
                                                  apr_bucket_brigade *bbIn,
                                                  apr_read_type_e block,
-                                                 apr_size_t maxbytes)
+                                                 apr_off_t maxbytes)
 {
-    apr_size_t readbytes = 0;
+    apr_off_t readbytes = 0;
 
     while (!APR_BRIGADE_EMPTY(bbIn)) {
         const char *pos;

@@ -697,7 +697,7 @@ APU_DECLARE(apr_status_t) apr_brigade_length(apr_bucket_brigade *bb,
  */
 APU_DECLARE(apr_status_t) apr_brigade_flatten(apr_bucket_brigade *bb,
                                               char *c,
-                                              apr_size_t *len);
+                                              apr_off_t *len);
 
 /**
  * Returns a pool-allocated string representing a flat bucket brigade
@@ -719,7 +719,7 @@ APU_DECLARE(char *) apr_brigade_pflatten(apr_bucket_brigade *bb,
 APU_DECLARE(apr_status_t) apr_brigade_split_line(apr_bucket_brigade *bbOut,
                                                  apr_bucket_brigade *bbIn,
                                                  apr_read_type_e block,
-                                                 apr_size_t maxbytes);
+                                                 apr_off_t maxbytes);
 
 /**
  * create an iovec of the elements in a bucket_brigade... return number 
