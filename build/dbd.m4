@@ -13,9 +13,9 @@ AC_DEFUN(APU_CHECK_DBD, [
   ], [
     apu_have_pgsql=0
     if test "$withval" = "yes"; then
-      AC_CHECK_HEADER(libpq-fe.h, AC_CHECK_LIB(pq, PQconnectdb, [apu_have_pgsql=1]))
+      AC_CHECK_HEADER(libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
       if test "$apu_have_pgsql" == "0"; then
-        AC_CHECK_HEADER(postgresql/libpq-fe.h, AC_CHECK_LIB(pq, PQconnectdb, [apu_have_pgsql=1]))
+        AC_CHECK_HEADER(postgresql/libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
         if test "$apu_have_pgsql" != "0"; then
           APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/include/postgresql])
         fi
@@ -27,13 +27,13 @@ AC_DEFUN(APU_CHECK_DBD, [
       LIBS="-L$withval/lib "
 
       AC_MSG_NOTICE(checking for pgsql in $withval)
-      AC_CHECK_HEADER(libpq-fe.h, AC_CHECK_LIB(pq, PQconnectdb, [apu_have_pgsql=1]))
+      AC_CHECK_HEADER(libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
       if test "$apu_have_pgsql" != "0"; then
         APR_ADDTO(APRUTIL_LDFLAGS, [-L$withval/lib])
         APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/include])
       fi
       if test "$apu_have_pgsql" != "1"; then
-        AC_CHECK_HEADER(postgresql/libpq-fe.h, AC_CHECK_LIB(pq, PQconnectdb, [apu_have_pgsql=1]))
+        AC_CHECK_HEADER(postgresql/libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
         if test "$apu_have_pgsql" != "0"; then
           APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/include/postgresql])
           APR_ADDTO(APRUTIL_LDFLAGS, [-L$withval/lib])
@@ -42,7 +42,7 @@ AC_DEFUN(APU_CHECK_DBD, [
     fi
   ], [
     apu_have_pgsql=0
-    AC_CHECK_HEADER(libpq-fe.h, AC_CHECK_LIB(pq, PQconnectdb, [apu_have_pgsql=1]))
+    AC_CHECK_HEADER(libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
   ])
   AC_SUBST(apu_have_pgsql)
   dnl Since we have already done the AC_CHECK_LIB tests, if we have it, 
