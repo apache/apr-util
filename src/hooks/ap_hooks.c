@@ -34,7 +34,7 @@ static int crude_order(const void *a_,const void *b_)
     return a->nOrder-b->nOrder;
 }
 
-static TSort *prepare(ap_context_t *p,TSortData *pItems,int nItems)
+static TSort *prepare(ap_pool_t *p,TSortData *pItems,int nItems)
 {
     TSort *pData=ap_palloc(p,nItems*sizeof *pData);
     int n;
@@ -115,12 +115,12 @@ static TSort *tsort(TSort *pData,int nItems)
 
 static ap_array_header_t *sort_hook(ap_array_header_t *pHooks,const char *szName)
 {
-    ap_context_t *p;
+    ap_pool_t *p;
     TSort *pSort;
     ap_array_header_t *pNew;
     int n;
 
-    ap_create_context(&p, g_pHookPool);
+    ap_create_pool(&p, g_pHookPool);
     pSort=prepare(p,(TSortData *)pHooks->elts,pHooks->nelts);
     pSort=tsort(pSort,pHooks->nelts);
     pNew=ap_make_array(g_pHookPool,pHooks->nelts,sizeof(TSortData));
