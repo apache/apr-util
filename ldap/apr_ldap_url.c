@@ -581,7 +581,7 @@ APU_DECLARE(int) apr_ldap_url_parse(apr_pool_t *pool,
                                     apr_ldap_err_t **result_err)
 {
 
-    int rc = ldap_url_parse_ext(pool, url_in, ludpp, result_err);
+    int rc = apr_ldap_url_parse_ext(pool, url_in, ludpp, result_err);
     if( rc != APR_SUCCESS ) {
         return rc;
     }
