@@ -74,13 +74,11 @@ extern "C" {
 #define AP_SHA1PW_ID "{SHA}"
 #define AP_SHA1PW_IDLEN 5
 
-typedef unsigned long AP_LONG;     /* a 32-bit quantity */
-
 typedef struct {
-    AP_LONG digest[5];             /* message digest */
-    AP_LONG count_lo, count_hi;    /* 64-bit bit count */
-    AP_LONG data[16];              /* SHA data buffer */
-    int local;                     /* unprocessed amount in data */
+    ap_uint32_t digest[5];          /* message digest */
+    ap_uint32_t count_lo, count_hi; /* 64-bit bit count */
+    ap_uint32_t data[16];           /* SHA data buffer */
+    int local;                      /* unprocessed amount in data */
 } AP_SHA1_CTX;
 
 API_EXPORT(void) ap_sha1_base64(const char *clear, int len, char *out);

@@ -62,12 +62,8 @@
  * ugly 'len' functions, which is quite a nasty cost.
  */
 
-#define CORE_PRIVATE
-#include <string.h>
-
-#include "ap.h"
-
 #include "ap_config.h"
+#include "ap_base64.h"
 #ifdef CHARSET_EBCDIC
 #include "ebcdic.h"
 #endif				/* CHARSET_EBCDIC */
