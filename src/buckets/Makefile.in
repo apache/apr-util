@@ -1,8 +1,0 @@
-
-TARGETS = ap_buckets_file.lo ap_buckets_pool.lo ap_buckets_flush.lo \
-ap_buckets_refcount.lo ap_buckets_heap.lo ap_buckets_simple.lo ap_buckets.lo \
-ap_buckets_mmap.lo ap_buckets_socket.lo ap_buckets_eos.lo ap_buckets_pipe.lo \
-ap_brigade.lo
-
-# bring in rules.mk for standard functionality
-@INCLUDE_RULES@

@@ -1,5 +1,0 @@
-
-TARGETS = ap_base64.lo
-
-# bring in rules.mk for standard functionality
-@INCLUDE_RULES@

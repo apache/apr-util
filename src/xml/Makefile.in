@@ -1,2 +1,0 @@
-# bring in rules.mk for standard functionality
-@INCLUDE_RULES@

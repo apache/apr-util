@@ -1,5 +1,0 @@
-
-TARGETS = ap_sha1.lo
-
-# bring in rules.mk for standard functionality
-@INCLUDE_RULES@
