@@ -1,0 +1,119 @@
+#!/bin/sh
+# ====================================================================
+# The Apache Software License, Version 1.1
+#
+# Copyright (c) 2001 The Apache Software Foundation.  All rights
+# reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with the
+#    distribution.
+#
+# 3. The end-user documentation included with the redistribution,
+#    if any, must include the following acknowledgment:
+#       "This product includes software developed by the
+#        Apache Software Foundation (http://www.apache.org/)."
+#    Alternately, this acknowledgment may appear in the software itself,
+#    if and wherever such third-party acknowledgments normally appear.
+#
+# 4. The names "Apache" and "Apache Software Foundation" must
+#    not be used to endorse or promote products derived from this
+#    software without prior written permission. For written
+#    permission, please contact apache@apache.org.
+#
+# 5. Products derived from this software may not be called "Apache",
+#    nor may "Apache" appear in their name, without prior written
+#    permission of the Apache Software Foundation.
+#
+# THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
+# WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+# OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR
+# ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+# USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+# OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+# SUCH DAMAGE.
+# ====================================================================
+#
+# This software consists of voluntary contributions made by many
+# individuals on behalf of the Apache Software Foundation.  For more
+# information on the Apache Software Foundation, please see
+# <http://www.apache.org/>.
+
+# APR-util script designed to allow easy command line access to APR-util
+# configuration parameters.
+
+PREFIX="@prefix@"
+EXEC_PREFIX="@exec_prefix@"
+BINDIR="@bindir@"
+LIBDIR="@libdir@"
+TOP_SRCDIR="@top_srcdir@"
+LIBS="@APRUTIL_EXPORT_LIBS@"
+
+show_usage()
+{
+    cat << EOF
+Usage: apu-config [OPTION]
+
+Known values for OPTION are:
+  --prefix[=DIR]    change prefix to DIR
+  --libs            print library information
+  --help            print this help
+EOF
+}
+
+if test $# -eq 0; then
+    show_usage
+    exit 1
+fi
+
+while test $# -gt 0; do
+    # Normalize the prefix.
+    case "$1" in
+    -*=*) optarg=`echo "$1" | sed 's/[-_a-zA-Z0-9]*=//'` ;;
+    *) optarg= ;;
+    esac
+
+    case "$1" in
+    # It is possible for the user to override our prefix.
+    --prefix=*)
+    prefix=$optarg
+    ;;
+    --prefix)
+    echo $PREFIX
+    ;;
+    --libs)
+    if [ -f $PREFIX/lib/libexpat.la ] ; then
+      TMP_SRCDIR=`echo "$TOP_SRCDIR/xml/expat" | sed 's/\\//\\\\\\//g'`
+      TMP_PREFIX=`echo $PREFIX | sed 's/\\//\\\\\\//g'`
+      LIBS=`echo "$LIBS" | sed "s/$TMP_SRCDIR/$TMP_PREFIX/g"`
+    fi
+    echo "$LIBS"
+    ;;
+    --help)
+    show_usage
+    exit 1
+    ;;
+    *)
+    show_usage
+    exit 1
+    ;;
+    esac
+
+    # Next please.
+    shift
+done
+
+exit 0

@@ -12,6 +12,7 @@ aprutil.exp
 exports.c
 export_vars.h
 export_vars.sh
+apu-config
 Debug
 Release
 LibD
