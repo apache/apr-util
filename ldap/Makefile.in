@@ -1,0 +1,8 @@
+
+top_builddir=@top_builddir@
+INCLUDES=-I$(top_builddir)/include -I$(top_builddir)/../apr/include
+
+TARGETS = apr_ldap_compat.lo
+
+# bring in rules.mk for standard functionality
+@INCLUDE_RULES@
