@@ -290,7 +290,7 @@ API_EXPORT(apr_status_t) ap_brigade_destroy(ap_bucket_brigade *b);
 
 /**
  * append bucket(s) to a bucket_brigade.  This is the correct way to add
- * buckets to the end of a bucket briagdes bucket list.  This will accept
+ * buckets to the end of a bucket brigades bucket list.  This will accept
  * a list of buckets of any length.
  * @param b The bucket brigade to append to
  * @param e The bucket list to append
