@@ -8,7 +8,9 @@ config.nice
 configure
 libtool
 libaprutil.la
-aprutil.exports
+aprutil.exp
+exports.c
+export_vars.h
 export_vars.sh
 Debug
 Release
