@@ -96,9 +96,12 @@ typedef ret (APR_OPTIONAL_FN_TYPE(name)) args
 
 typedef void (apr_opt_fn_t)(void);
 /** @internal */
-APU_DECLARE_NONSTD(void) apr_register_optional_fn(const char *szName, 
+APU_DECLARE_NONSTD(void) apr_dynamic_fn_register(const char *szName, 
                                                   apr_opt_fn_t *pfn);
     
+/** @deprecated @see apr_dynamic_fn_register */
+APU_DECLARE_NONSTD(void) apr_register_optional_fn(const char *szName, 
+                                                  apr_opt_fn_t *pfn);
 
 /**
  * Register an optional function. This can be later retrieved, type-safely, by
@@ -108,11 +111,14 @@ APU_DECLARE_NONSTD(void) apr_register_optional_fn(const char *szName,
  */
 #define APR_REGISTER_OPTIONAL_FN(name) \
     (((void (*)(const char *, APR_OPTIONAL_FN_TYPE(name) *)) \
-               &apr_register_optional_fn)(#name,name))
+               &apr_dynamic_fn_register)(#name,name))
 
 /** @internal
  * Private function! DO NOT USE! 
  */
+APU_DECLARE(apr_opt_fn_t *) apr_dynamic_fn_retrieve(const char *szName);
+
+/** @deprecated @see apr_dynamic_fn_retrieve */
 APU_DECLARE(apr_opt_fn_t *) apr_retrieve_optional_fn(const char *szName);
 
 /**
@@ -120,7 +126,7 @@ APU_DECLARE(apr_opt_fn_t *) apr_retrieve_optional_fn(const char *szName);
  * @param name The name of the function
  */
 #define APR_RETRIEVE_OPTIONAL_FN(name) \
-	(APR_OPTIONAL_FN_TYPE(name) *)apr_retrieve_optional_fn(#name)
+	(APR_OPTIONAL_FN_TYPE(name) *)apr_dynamic_fn_retrieve(#name)
 
 /** @} */
 #ifdef __cplusplus

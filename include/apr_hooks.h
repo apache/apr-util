@@ -107,7 +107,7 @@ link##_DECLARE(void) ns##_hook_##name(ns##_HOOK_##name##_t *pf,const char * cons
     ns##_LINK_##name##_t *pHook; \
     if(!_hooks.link_##name) \
 	{ \
-	_hooks.link_##name=apr_array_make(apr_global_hook_pool,1,sizeof(ns##_LINK_##name##_t)); \
+	_hooks.link_##name=apr_array_make(apr_hook_global_pool,1,sizeof(ns##_LINK_##name##_t)); \
 	apr_hook_sort_register(#name,&_hooks.link_##name); \
 	} \
     pHook=apr_array_push(_hooks.link_##name); \
@@ -115,9 +115,9 @@ link##_DECLARE(void) ns##_hook_##name(ns##_HOOK_##name##_t *pf,const char * cons
     pHook->aszPredecessors=aszPre; \
     pHook->aszSuccessors=aszSucc; \
     pHook->nOrder=nOrder; \
-    pHook->szName=apr_current_hooking_module; \
-    if(apr_debug_module_hooks) \
-	apr_show_hook(#name,aszPre,aszSucc); \
+    pHook->szName=apr_hook_debug_current; \
+    if(apr_hook_debug_enabled) \
+	apr_hook_debug_show(#name,aszPre,aszSucc); \
     } \
     APR_IMPLEMENT_HOOK_GET_PROTO(ns,link,name) \
     { \
@@ -240,15 +240,24 @@ link##_DECLARE(ret) ns##_run_##name args_decl \
  */ 
 APU_DECLARE_DATA extern apr_pool_t *apr_global_hook_pool;
 
+/** @deprecated @see apr_hook_global_pool */
+APU_DECLARE_DATA extern apr_pool_t *apr_hook_global_pool;
+
 /**
  * A global variable to determine if debugging information about the
  * hooks functions should be printed
  */ 
+APU_DECLARE_DATA extern int apr_hook_debug_enabled;
+
+/** @deprecated @see apr_hook_debug_enabled */
 APU_DECLARE_DATA extern int apr_debug_module_hooks;
 
 /**
  * The name of the module that is currently registering a function
  */ 
+APU_DECLARE_DATA extern const char *apr_hook_debug_current;
+
+/** @deprecated @see apr_hook_debug_current */
 APU_DECLARE_DATA extern const char *apr_current_hooking_module;
 
 /**
@@ -261,6 +270,9 @@ APU_DECLARE(void) apr_hook_sort_register(const char *szHookName,
 /**
  * Sort all of the registerd functions for a given hook
  */
+APU_DECLARE(void) apr_hook_sort_all(void);
+
+/** @deprecated @see apr_hook_sort_all */
 APU_DECLARE(void) apr_sort_hooks(void);
 
 /**
@@ -270,8 +282,14 @@ APU_DECLARE(void) apr_sort_hooks(void);
  * @param aszPre All of the functions in the predecessor array
  * @param aszSucc All of the functions in the successor array
  */
-APU_DECLARE(void) apr_show_hook(const char *szName,const char * const *aszPre,
-                               const char * const *aszSucc);
+APU_DECLARE(void) apr_hook_debug_show(const char *szName,
+                                      const char * const *aszPre,
+                                      const char * const *aszSucc);
+
+/** @deprecated @see apr_hook_debug_show */
+APU_DECLARE(void) apr_show_hook(const char *szName,
+                                const char * const *aszPre,
+                                const char * const *aszSucc);
 
 /**
  * Remove all currently registered functions.
