@@ -213,7 +213,7 @@ APU_DECLARE(apr_status_t) apr_rmm_init(apr_rmm_t **rmm, apr_anylock_t *lock,
     
     if (!lock) {
         nulllock.type = apr_anylock_none;
-        nulllock.lock.rw = NULL;
+        nulllock.lock.pm = NULL;
         lock = &nulllock;
     }
     if ((rv = APR_ANYLOCK_LOCK(lock)) != APR_SUCCESS)
@@ -280,7 +280,7 @@ APU_DECLARE(apr_status_t) apr_rmm_attach(apr_rmm_t **rmm, apr_anylock_t *lock,
 
     if (!lock) {
         nulllock.type = apr_anylock_none;
-        nulllock.lock.rw = NULL;
+        nulllock.lock.pm = NULL;
         lock = &nulllock;
     }
 
