@@ -129,18 +129,18 @@ APU_DECLARE(char *) apr_uri_unparse_components(apr_pool_t *p,
     char *ret = "";
 
     /* If suppressing the site part, omit both user name & scheme://hostname */
-    if (!(flags & UNP_OMITSITEPART)) {
+    if (!(flags & APR_URI_UNP_OMITSITEPART)) {
 
-	/* Construct a "user:password@" string, honoring the passed UNP_ flags: */
+	/* Construct a "user:password@" string, honoring the passed APR_URI_UNP_ flags: */
 	if (uptr->user||uptr->password)
 	    ret = apr_pstrcat (p,
-			(uptr->user     && !(flags & UNP_OMITUSER)) ? uptr->user : "",
-			(uptr->password && !(flags & UNP_OMITPASSWORD)) ? ":" : "",
-			(uptr->password && !(flags & UNP_OMITPASSWORD))
-			   ? ((flags & UNP_REVEALPASSWORD) ? uptr->password : "XXXXXXXX")
+			(uptr->user     && !(flags & APR_URI_UNP_OMITUSER)) ? uptr->user : "",
+			(uptr->password && !(flags & APR_URI_UNP_OMITPASSWORD)) ? ":" : "",
+			(uptr->password && !(flags & APR_URI_UNP_OMITPASSWORD))
+			   ? ((flags & APR_URI_UNP_REVEALPASSWORD) ? uptr->password : "XXXXXXXX")
 			   : "",
-            ((uptr->user     && !(flags & UNP_OMITUSER)) ||
-             (uptr->password && !(flags & UNP_OMITPASSWORD))) ? "@" : "", 
+            ((uptr->user     && !(flags & APR_URI_UNP_OMITUSER)) ||
+             (uptr->password && !(flags & APR_URI_UNP_OMITPASSWORD))) ? "@" : "", 
             NULL);
 
 	/* Construct scheme://site string */
@@ -162,15 +162,15 @@ APU_DECLARE(char *) apr_uri_unparse_components(apr_pool_t *p,
     }
 
     /* Should we suppress all path info? */
-    if (!(flags & UNP_OMITPATHINFO)) {
+    if (!(flags & APR_URI_UNP_OMITPATHINFO)) {
 	/* Append path, query and fragment strings: */
 	ret = apr_pstrcat (p,
 		ret,
 		uptr->path ? uptr->path : "",
-		(uptr->query    && !(flags & UNP_OMITQUERY)) ? "?" : "",
-		(uptr->query    && !(flags & UNP_OMITQUERY)) ? uptr->query : "",
-		(uptr->fragment && !(flags & UNP_OMITQUERY)) ? "#" : NULL,
-		(uptr->fragment && !(flags & UNP_OMITQUERY)) ? uptr->fragment : NULL,
+		(uptr->query    && !(flags & APR_URI_UNP_OMITQUERY)) ? "?" : "",
+		(uptr->query    && !(flags & APR_URI_UNP_OMITQUERY)) ? uptr->query : "",
+		(uptr->fragment && !(flags & APR_URI_UNP_OMITQUERY)) ? "#" : NULL,
+		(uptr->fragment && !(flags & APR_URI_UNP_OMITQUERY)) ? uptr->fragment : NULL,
 		NULL);
     }
     return ret;
