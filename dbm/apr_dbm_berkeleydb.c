@@ -250,7 +250,13 @@ static apr_status_t vt_db_fetch(apr_dbm_t *dbm, apr_datum_t key,
     dberr = do_fetch(GET_BDB(dbm->file), ckey, rd);
 
     /* "not found" is not an error. return zero'd value. */
-    if (dberr == DB_NOTFOUND) {
+    if (dberr ==
+#if DB_VER == 1
+        RET_SPECIAL
+#else
+        DB_NOTFOUND
+#endif
+        ) {
         memset(&rd, 0, sizeof(rd));
         dberr = 0;
     }
