@@ -87,6 +87,8 @@
 static void file_destroy(void *data)
 {
     if (apr_bucket_shared_destroy(data)) {
+        /* no need to close the file here; it will get
+         * done automatically when the pool gets cleaned up */
         free(data);
     }
 }
