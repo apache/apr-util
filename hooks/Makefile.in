@@ -1,5 +1,5 @@
 
-TARGETS = ap_hooks.lo
+TARGETS = apr_hooks.lo
 
 # bring in rules.mk for standard functionality
 @INCLUDE_RULES@

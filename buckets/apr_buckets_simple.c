@@ -52,17 +52,17 @@
  * <http://www.apache.org/>.
  */
 
-#include "ap_buckets.h"
+#include "apr_buckets.h"
 #include <stdlib.h>
 
 /*
- * We can't simplify this function by using an ap_bucket_make function
+ * We can't simplify this function by using an apr_bucket_make function
  * because we aren't sure of the exact type of this bucket.
  */
-static apr_status_t simple_copy(ap_bucket *a, ap_bucket **c)
+static apr_status_t simple_copy(apr_bucket *a, apr_bucket **c)
 {
-    ap_bucket *b;
-    ap_bucket_simple *ad, *bd;
+    apr_bucket *b;
+    apr_bucket_simple *ad, *bd;
 
     b = malloc(sizeof(*b)); 
     if (b == NULL) {
@@ -83,10 +83,10 @@ static apr_status_t simple_copy(ap_bucket *a, ap_bucket **c)
     return APR_SUCCESS;
 }
 
-static apr_status_t simple_split(ap_bucket *a, apr_off_t point)
+static apr_status_t simple_split(apr_bucket *a, apr_off_t point)
 {
-    ap_bucket *b;
-    ap_bucket_simple *ad, *bd;
+    apr_bucket *b;
+    apr_bucket_simple *ad, *bd;
     apr_status_t rv;
 
     if (point < 0 || point > a->length) {
@@ -106,24 +106,24 @@ static apr_status_t simple_split(ap_bucket *a, apr_off_t point)
     b->length -= point;
     bd->start += point;
 
-    AP_BUCKET_INSERT_AFTER(a, b);
+    APR_BUCKET_INSERT_AFTER(a, b);
 
     return APR_SUCCESS;
 }
 
-static apr_status_t simple_read(ap_bucket *b, const char **str, 
-				apr_size_t *len, ap_read_type block)
+static apr_status_t simple_read(apr_bucket *b, const char **str, 
+				apr_size_t *len, apr_read_type_e block)
 {
-    ap_bucket_simple *bd = b->data;
+    apr_bucket_simple *bd = b->data;
     *str = bd->start;
     *len = bd->end - bd->start;
     return APR_SUCCESS;
 }
 
-APU_DECLARE(ap_bucket *) ap_bucket_make_immortal(ap_bucket *b,
+APU_DECLARE(apr_bucket *) apr_bucket_make_immortal(apr_bucket *b,
 		const char *buf, apr_size_t length)
 {
-    ap_bucket_simple *bd;
+    apr_bucket_simple *bd;
 
     bd = malloc(sizeof(*bd));
     if (bd == NULL) {
@@ -133,17 +133,17 @@ APU_DECLARE(ap_bucket *) ap_bucket_make_immortal(ap_bucket *b,
     bd->start   = buf;
     bd->end     = buf+length;
 
-    b->type     = &ap_immortal_type;
+    b->type     = &apr_bucket_type_immortal;
     b->length   = length;
     b->data     = bd;
 
     return b;
 }
 
-APU_DECLARE(ap_bucket *) ap_bucket_create_immortal(
+APU_DECLARE(apr_bucket *) apr_bucket_create_immortal(
 		const char *buf, apr_size_t length)
 {
-    ap_bucket_do_create(ap_bucket_make_immortal(b, buf, length));
+    apr_bucket_do_create(apr_bucket_make_immortal(b, buf, length));
 }
 
 /*
@@ -151,13 +151,13 @@ APU_DECLARE(ap_bucket *) ap_bucket_create_immortal(
  * usage in various cases, e.g. share buffers in the heap between all
  * the buckets that are set aside, or even spool set-aside data to
  * disk if it gets too voluminous (but if it does then that's probably
- * a bug elsewhere). There should probably be a ap_brigade_setaside()
+ * a bug elsewhere). There should probably be a apr_brigade_setaside()
  * function that co-ordinates the action of all the bucket setaside
  * functions to improve memory efficiency.
  */
-static apr_status_t transient_setaside(ap_bucket *b)
+static apr_status_t transient_setaside(apr_bucket *b)
 {
-    ap_bucket_simple *bd;
+    apr_bucket_simple *bd;
     const char *start, *end;
     apr_size_t w;
     
@@ -165,7 +165,7 @@ static apr_status_t transient_setaside(ap_bucket *b)
     start = bd->start;
     end = bd->end;
     /* XXX: handle small heap buckets */
-    b = ap_bucket_make_heap(b, start, end-start, 1, &w);
+    b = apr_bucket_make_heap(b, start, end-start, 1, &w);
     if (b == NULL || w != end-start) {
 	return APR_ENOMEM;
     }
@@ -173,33 +173,33 @@ static apr_status_t transient_setaside(ap_bucket *b)
     return APR_SUCCESS;
 }
 
-APU_DECLARE(ap_bucket *) ap_bucket_make_transient(ap_bucket *b,
+APU_DECLARE(apr_bucket *) apr_bucket_make_transient(apr_bucket *b,
 		const char *buf, apr_size_t length)
 {
-    b = ap_bucket_make_immortal(b, buf, length);
+    b = apr_bucket_make_immortal(b, buf, length);
     if (b == NULL) {
 	return NULL;
     }
-    b->type = &ap_transient_type;
+    b->type = &apr_bucket_type_transient;
     return b;
 }
 
-APU_DECLARE(ap_bucket *) ap_bucket_create_transient(
+APU_DECLARE(apr_bucket *) apr_bucket_create_transient(
 		const char *buf, apr_size_t length)
 {
-    ap_bucket_do_create(ap_bucket_make_transient(b, buf, length));
+    apr_bucket_do_create(apr_bucket_make_transient(b, buf, length));
 }
 
-const ap_bucket_type ap_immortal_type = {
+const apr_bucket_type_t apr_bucket_type_immortal = {
     "IMMORTAL", 5,
     free,
     simple_read,
-    ap_bucket_setaside_notimpl,
+    apr_bucket_setaside_notimpl,
     simple_split,
     simple_copy
 };
 
-APU_DECLARE_DATA const ap_bucket_type ap_transient_type = {
+APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_transient = {
     "TRANSIENT", 5,
     free, 
     simple_read,

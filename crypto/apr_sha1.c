@@ -55,7 +55,7 @@
 /*
  * The exported function:
  *
- * 	 ap_sha1_base64(const char *clear, int len, char *out);
+ * 	 apr_sha1_base64(const char *clear, int len, char *out);
  *
  * provides a means to SHA1 crypt/encode a plaintext password in
  * a way which makes password files compatible with those commonly
@@ -82,8 +82,8 @@
  *	This code is hereby placed in the public domain
  */
 
-#include "ap_sha1.h"
-#include "ap_base64.h"
+#include "apr_sha1.h"
+#include "apr_base64.h"
 #include "apr_strings.h"
 #include "apr_lib.h"
 #if APR_CHARSET_EBCDIC
@@ -122,7 +122,7 @@
 #if APR_CHARSET_EBCDIC
 static apr_xlate_t *ebcdic2ascii_xlate;
 
-APU_DECLARE(apr_status_t) ap_SHA1InitEBCDIC(apr_xlate_t *x)
+APU_DECLARE(apr_status_t) apr_SHA1InitEBCDIC(apr_xlate_t *x)
 {
     apr_status_t rv;
     int onoff;
@@ -141,10 +141,8 @@ APU_DECLARE(apr_status_t) ap_SHA1InitEBCDIC(apr_xlate_t *x)
 }
 #endif
 
-typedef unsigned char AP_BYTE;
-
 /* do SHA transformation */
-static void sha_transform(AP_SHA1_CTX *sha_info)
+static void sha_transform(apr_sha1_ctx_t *sha_info)
 {
     int i;
     apr_uint32_t temp, A, B, C, D, E, W[80];
@@ -222,11 +220,11 @@ static char isLittleEndian(void)
 static void maybe_byte_reverse(apr_uint32_t *buffer, int count)
 {
     int i;
-    AP_BYTE ct[4], *cp;
+    apr_byte_t ct[4], *cp;
 
     if (isLittleEndian()) {	/* do the swap only if it is little endian */
 	count /= sizeof(apr_uint32_t);
-	cp = (AP_BYTE *) buffer;
+	cp = (apr_byte_t *) buffer;
 	for (i = 0; i < count; ++i) {
 	    ct[0] = cp[0];
 	    ct[1] = cp[1];
@@ -243,7 +241,7 @@ static void maybe_byte_reverse(apr_uint32_t *buffer, int count)
 
 /* initialize the SHA digest */
 
-APU_DECLARE(void) ap_SHA1Init(AP_SHA1_CTX *sha_info)
+APU_DECLARE(void) apr_SHA1Init(apr_sha1_ctx_t *sha_info)
 {
     sha_info->digest[0] = 0x67452301L;
     sha_info->digest[1] = 0xefcdab89L;
@@ -257,7 +255,7 @@ APU_DECLARE(void) ap_SHA1Init(AP_SHA1_CTX *sha_info)
 
 /* update the SHA digest */
 
-APU_DECLARE(void) ap_SHA1Update_binary(AP_SHA1_CTX *sha_info,
+APU_DECLARE(void) apr_SHA1Update_binary(apr_sha1_ctx_t *sha_info,
                                      const unsigned char *buffer,
                                      unsigned int count)
 {
@@ -273,7 +271,7 @@ APU_DECLARE(void) ap_SHA1Update_binary(AP_SHA1_CTX *sha_info,
 	if (i > count) {
 	    i = count;
 	}
-	memcpy(((AP_BYTE *) sha_info->data) + sha_info->local, buffer, i);
+	memcpy(((apr_byte_t *) sha_info->data) + sha_info->local, buffer, i);
 	count -= i;
 	buffer += i;
 	sha_info->local += i;
@@ -296,12 +294,12 @@ APU_DECLARE(void) ap_SHA1Update_binary(AP_SHA1_CTX *sha_info,
     sha_info->local = count;
 }
 
-APU_DECLARE(void) ap_SHA1Update(AP_SHA1_CTX *sha_info, const char *buf,
+APU_DECLARE(void) apr_SHA1Update(apr_sha1_ctx_t *sha_info, const char *buf,
                               unsigned int count)
 {
 #if APR_CHARSET_EBCDIC
     int i;
-    const AP_BYTE *buffer = (const AP_BYTE *) buf;
+    const apr_byte_t *buffer = (const apr_byte_t *) buf;
     apr_size_t inbytes_left, outbytes_left;
 
     if ((sha_info->count_lo + ((apr_uint32_t) count << 3)) < sha_info->count_lo) {
@@ -317,7 +315,7 @@ APU_DECLARE(void) ap_SHA1Update(AP_SHA1_CTX *sha_info, const char *buf,
 	}
         inbytes_left = outbytes_left = i;
         apr_xlate_conv_buffer(ebcdic2ascii_xlate, buffer, &inbytes_left,
-                              ((AP_BYTE *) sha_info->data) + sha_info->local,
+                              ((apr_byte_t *) sha_info->data) + sha_info->local,
                               &outbytes_left);
 	count -= i;
 	buffer += i;
@@ -333,7 +331,7 @@ APU_DECLARE(void) ap_SHA1Update(AP_SHA1_CTX *sha_info, const char *buf,
     while (count >= SHA_BLOCKSIZE) {
         inbytes_left = outbytes_left = SHA_BLOCKSIZE;
         apr_xlate_conv_buffer(ebcdic2ascii_xlate, buffer, &inbytes_left,
-                              (AP_BYTE *) sha_info->data, &outbytes_left);
+                              (apr_byte_t *) sha_info->data, &outbytes_left);
 	buffer += SHA_BLOCKSIZE;
 	count -= SHA_BLOCKSIZE;
 	maybe_byte_reverse(sha_info->data, SHA_BLOCKSIZE);
@@ -341,17 +339,17 @@ APU_DECLARE(void) ap_SHA1Update(AP_SHA1_CTX *sha_info, const char *buf,
     }
     inbytes_left = outbytes_left = count;
     apr_xlate_conv_buffer(ebcdic2ascii_xlate, buffer, &inbytes_left,
-                          (AP_BYTE *) sha_info->data, &outbytes_left);
+                          (apr_byte_t *) sha_info->data, &outbytes_left);
     sha_info->local = count;
 #else
-    ap_SHA1Update_binary(sha_info, (const unsigned char *) buf, count);
+    apr_SHA1Update_binary(sha_info, (const unsigned char *) buf, count);
 #endif
 }
 
 /* finish computing the SHA digest */
 
-APU_DECLARE(void) ap_SHA1Final(unsigned char digest[SHA_DIGESTSIZE],
-                             AP_SHA1_CTX *sha_info)
+APU_DECLARE(void) apr_SHA1Final(unsigned char digest[APR_SHA1_DIGESTSIZE],
+                             apr_sha1_ctx_t *sha_info)
 {
     int count, i, j;
     apr_uint32_t lo_bit_count, hi_bit_count, k;
@@ -359,15 +357,15 @@ APU_DECLARE(void) ap_SHA1Final(unsigned char digest[SHA_DIGESTSIZE],
     lo_bit_count = sha_info->count_lo;
     hi_bit_count = sha_info->count_hi;
     count = (int) ((lo_bit_count >> 3) & 0x3f);
-    ((AP_BYTE *) sha_info->data)[count++] = 0x80;
+    ((apr_byte_t *) sha_info->data)[count++] = 0x80;
     if (count > SHA_BLOCKSIZE - 8) {
-	memset(((AP_BYTE *) sha_info->data) + count, 0, SHA_BLOCKSIZE - count);
+	memset(((apr_byte_t *) sha_info->data) + count, 0, SHA_BLOCKSIZE - count);
 	maybe_byte_reverse(sha_info->data, SHA_BLOCKSIZE);
 	sha_transform(sha_info);
-	memset((AP_BYTE *) sha_info->data, 0, SHA_BLOCKSIZE - 8);
+	memset((apr_byte_t *) sha_info->data, 0, SHA_BLOCKSIZE - 8);
     }
     else {
-	memset(((AP_BYTE *) sha_info->data) + count, 0,
+	memset(((apr_byte_t *) sha_info->data) + count, 0,
 	       SHA_BLOCKSIZE - 8 - count);
     }
     maybe_byte_reverse(sha_info->data, SHA_BLOCKSIZE);
@@ -375,7 +373,7 @@ APU_DECLARE(void) ap_SHA1Final(unsigned char digest[SHA_DIGESTSIZE],
     sha_info->data[15] = lo_bit_count;
     sha_transform(sha_info);
 
-    for (i = 0, j = 0; j < SHA_DIGESTSIZE; i++) {
+    for (i = 0, j = 0; j < APR_SHA1_DIGESTSIZE; i++) {
 	k = sha_info->digest[i];
 	digest[j++] = (unsigned char) ((k >> 24) & 0xff);
 	digest[j++] = (unsigned char) ((k >> 16) & 0xff);
@@ -385,28 +383,28 @@ APU_DECLARE(void) ap_SHA1Final(unsigned char digest[SHA_DIGESTSIZE],
 }
 
 
-APU_DECLARE(void) ap_sha1_base64(const char *clear, int len, char *out)
+APU_DECLARE(void) apr_sha1_base64(const char *clear, int len, char *out)
 {
     int l;
-    AP_SHA1_CTX context;
-    AP_BYTE digest[SHA_DIGESTSIZE];
+    apr_sha1_ctx_t context;
+    apr_byte_t digest[APR_SHA1_DIGESTSIZE];
 
-    if (strncmp(clear, AP_SHA1PW_ID, AP_SHA1PW_IDLEN) == 0) {
-	clear += AP_SHA1PW_IDLEN;
+    if (strncmp(clear, APR_SHA1PW_ID, APR_SHA1PW_IDLEN) == 0) {
+	clear += APR_SHA1PW_IDLEN;
     }
 
-    ap_SHA1Init(&context);
-    ap_SHA1Update(&context, clear, len);
-    ap_SHA1Final(digest, &context);
+    apr_SHA1Init(&context);
+    apr_SHA1Update(&context, clear, len);
+    apr_SHA1Final(digest, &context);
 
     /* private marker. */
-    apr_cpystrn(out, AP_SHA1PW_ID, AP_SHA1PW_IDLEN + 1);
+    apr_cpystrn(out, APR_SHA1PW_ID, APR_SHA1PW_IDLEN + 1);
 
     /* SHA1 hash is always 20 chars */
-    l = ap_base64encode_binary(out + AP_SHA1PW_IDLEN, digest, sizeof(digest));
-    out[l + AP_SHA1PW_IDLEN] = '\0';
+    l = apr_base64encode_binary(out + APR_SHA1PW_IDLEN, digest, sizeof(digest));
+    out[l + APR_SHA1PW_IDLEN] = '\0';
 
     /*
-     * output of base64 encoded SHA1 is always 28 chars + AP_SHA1PW_IDLEN
+     * output of base64 encoded SHA1 is always 28 chars + APR_SHA1PW_IDLEN
      */
 }

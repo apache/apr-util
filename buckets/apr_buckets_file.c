@@ -56,7 +56,7 @@
 #include "apr_general.h"
 #include "apr_lib.h"
 #include "apr_file_io.h"
-#include "ap_buckets.h"
+#include "apr_buckets.h"
 #include <stdlib.h>
 
 /* Allow Apache to use ap_mmap */
@@ -86,12 +86,12 @@
 
 
 /* XXX: We should obey the block flag */
-static apr_status_t file_read(ap_bucket *e, const char **str,
-			      apr_size_t *len, ap_read_type block)
+static apr_status_t file_read(apr_bucket *e, const char **str,
+			      apr_size_t *len, apr_read_type_e block)
 {
-    ap_bucket_file *a = (ap_bucket_file *)e->data;
+    apr_bucket_file *a = (apr_bucket_file *)e->data;
     apr_file_t *f = (apr_file_t *) a->fd;
-    ap_bucket *b = NULL;
+    apr_bucket *b = NULL;
     char *buf;
     apr_status_t rv;
 #if APR_HAS_MMAP
@@ -114,8 +114,8 @@ static apr_status_t file_read(ap_bucket *e, const char **str,
         mm = NULL;
     }
     if (mm) {
-        ap_bucket_make_mmap(e, mm, 0, e->length); /*XXX: check for failure? */
-        return ap_bucket_read(e, str, len, block);
+        apr_bucket_make_mmap(e, mm, 0, e->length); /*XXX: check for failure? */
+        return apr_bucket_read(e, str, len, block);
     }
     else {
 #endif
@@ -150,12 +150,12 @@ static apr_status_t file_read(ap_bucket *e, const char **str,
          * Change the current bucket to refer to what we read,
          * even if we read nothing because we hit EOF.
          */
-        ap_bucket_make_heap(e, buf, *len, 0, NULL); /*XXX: check for failure? */
+        apr_bucket_make_heap(e, buf, *len, 0, NULL); /*XXX: check for failure? */
 
         /* If we have more to read from the file, then create another bucket */
         if (*len > 0) {
-            b = ap_bucket_create_file(f, 0, e->length);
-            AP_BUCKET_INSERT_AFTER(e, b);
+            b = apr_bucket_create_file(f, 0, e->length);
+            APR_BUCKET_INSERT_AFTER(e, b);
         }
 #if APR_HAS_MMAP
     }
@@ -163,10 +163,10 @@ static apr_status_t file_read(ap_bucket *e, const char **str,
     return APR_SUCCESS;
 }
 
-APU_DECLARE(ap_bucket *) ap_bucket_make_file(ap_bucket *b, apr_file_t *fd,
+APU_DECLARE(apr_bucket *) apr_bucket_make_file(apr_bucket *b, apr_file_t *fd,
                                             apr_off_t offset, apr_size_t len)
 {
-    ap_bucket_file *f;
+    apr_bucket_file *f;
 
     f = malloc(sizeof(*f));
     if (f == NULL) {
@@ -176,24 +176,24 @@ APU_DECLARE(ap_bucket *) ap_bucket_make_file(ap_bucket *b, apr_file_t *fd,
     f->fd = fd;
     f->offset = offset;
 
-    b->type = &ap_file_type;
+    b->type = &apr_bucket_type_file;
     b->data = f;
     b->length = len;
 
     return b;
 }
 
-APU_DECLARE(ap_bucket *) ap_bucket_create_file(apr_file_t *fd,
+APU_DECLARE(apr_bucket *) apr_bucket_create_file(apr_file_t *fd,
                                               apr_off_t offset, apr_size_t len)
 {
-    ap_bucket_do_create(ap_bucket_make_file(b, fd, offset, len));
+    apr_bucket_do_create(apr_bucket_make_file(b, fd, offset, len));
 }
 
-APU_DECLARE_DATA const ap_bucket_type ap_file_type = {
+APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_file = {
     "FILE", 5,
     free,
     file_read,
-    ap_bucket_setaside_notimpl,
-    ap_bucket_split_notimpl,
-    ap_bucket_copy_notimpl
+    apr_bucket_setaside_notimpl,
+    apr_bucket_split_notimpl,
+    apr_bucket_copy_notimpl
 };

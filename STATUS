@@ -1,5 +1,5 @@
 APRUTIL LIBRARY STATUS:						-*-text-*-
-Last modified at [$Date: 2001/01/19 03:09:53 $]
+Last modified at [$Date: 2001/01/19 07:01:58 $]
 
 Release:
     ...on the 12th as part of Apache 2.0a9  [need specifics here]
@@ -11,6 +11,8 @@ RELEASE SHOWSTOPPERS:
       top-level SUBDIRS list, but definitely get it cleaned for the
       dev guys.  (Greg volunteers)
 
+    * we distribute 2 (3?) copies of sdbm in apr, and these are -public-?
+      get organized.
 
 RELEASE NON-SHOWSTOPPERS BUT WOULD BE REAL NICE TO WRAP THESE UP:
 
@@ -46,14 +48,3 @@ Available Patches:
 
 Open Issues:
 
-    * Compatibility header to deal with renamed symbols.
-      NOTE:
-	OtherBill suggests that Apache, APR, and APR-utils all have
-	compat headers, and Apache's includes APR-util's which includes
-	APR's.  OtherBill would like apache-2.0/src/include/ap_compat.h to
-        include apr-util/include/apu_compat.h, which itself includes
-        apr/include/apr_compat.h.  If the user employs apr_compat, and
-        only uses features moved to apr, they only need the apr package.
-      Status:
-        apr-util/include/: Ryan +1, Greg +0, OtherBill +1, David +1
-	apache-2.0/src/include/: Greg +1, Ryan -0.5, OtherBill -0.5

@@ -52,43 +52,43 @@
  * <http://www.apache.org/>.
  */
 
-#include "ap_buckets.h"
+#include "apr_buckets.h"
 #include <stdlib.h>
 
-static apr_status_t eos_read(ap_bucket *b, const char **str, 
-                                apr_size_t *len, ap_read_type block)
+static apr_status_t eos_read(apr_bucket *b, const char **str, 
+                                apr_size_t *len, apr_read_type_e block)
 {
     *str = NULL;
     *len = 0;
     return APR_SUCCESS;
 }
 
-static apr_status_t eos_copy(ap_bucket *e, ap_bucket **c)
+static apr_status_t eos_copy(apr_bucket *e, apr_bucket **c)
 {
-    *c = ap_bucket_create_eos();
+    *c = apr_bucket_create_eos();
     return APR_SUCCESS;
 }
 
-APU_DECLARE(ap_bucket *) ap_bucket_make_eos(ap_bucket *b)
+APU_DECLARE(apr_bucket *) apr_bucket_make_eos(apr_bucket *b)
 {
     b->length    = 0;
     b->data      = NULL;
 
-    b->type      = &ap_eos_type;
+    b->type      = &apr_bucket_type_eos;
     
     return b;
 }
 
-APU_DECLARE(ap_bucket *) ap_bucket_create_eos(void)
+APU_DECLARE(apr_bucket *) apr_bucket_create_eos(void)
 {
-    ap_bucket_do_create(ap_bucket_make_eos(b));
+    apr_bucket_do_create(apr_bucket_make_eos(b));
 }
 
-APU_DECLARE_DATA const ap_bucket_type ap_eos_type = {
+APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_eos = {
     "EOS", 5,
-    ap_bucket_destroy_notimpl,
+    apr_bucket_destroy_notimpl,
     eos_read,
-    ap_bucket_setaside_notimpl,
-    ap_bucket_split_notimpl,
+    apr_bucket_setaside_notimpl,
+    apr_bucket_split_notimpl,
     eos_copy
 };

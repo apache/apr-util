@@ -59,9 +59,9 @@
 #include "apr_pools.h"
 #include "apr_tables.h"
 #include "apr.h"
-#include "ap_hooks.h"
+#include "apr_hooks.h"
 #include "apr_hash.h"
-#include "ap_generic_hook.h"
+#include "apr_generic_hook.h"
 
 #if APR_HAVE_STRINGS_H
 #include <strings.h>
@@ -71,9 +71,9 @@
 #define apr_palloc(pool,size)	malloc(size)
 #endif
 
-APU_DECLARE_DATA apr_pool_t *ap_global_hook_pool = NULL;
-APU_DECLARE_DATA int ap_debug_module_hooks = 0;
-APU_DECLARE_DATA const char *ap_current_hooking_module = NULL;
+APU_DECLARE_DATA apr_pool_t *apr_global_hook_pool = NULL;
+APU_DECLARE_DATA int apr_debug_module_hooks = 0;
+APU_DECLARE_DATA const char *apr_debug_module_name = NULL;
 
 /* NB: This must echo the LINK_##name structure */
 typedef struct
@@ -188,21 +188,21 @@ static apr_array_header_t *sort_hook(apr_array_header_t *pHooks,
     apr_array_header_t *pNew;
     int n;
 
-    apr_create_pool(&p, ap_global_hook_pool);
+    apr_create_pool(&p, apr_global_hook_pool);
     pSort=prepare(p,(TSortData *)pHooks->elts,pHooks->nelts);
     pSort=tsort(pSort,pHooks->nelts);
-    pNew=apr_make_array(ap_global_hook_pool,pHooks->nelts,sizeof(TSortData));
-    if(ap_debug_module_hooks)
+    pNew=apr_make_array(apr_global_hook_pool,pHooks->nelts,sizeof(TSortData));
+    if(apr_debug_module_hooks)
 	printf("Sorting %s:",szName);
     for(n=0 ; pSort ; pSort=pSort->pNext,++n) {
 	TSortData *pHook;
 	assert(n < pHooks->nelts);
 	pHook=apr_push_array(pNew);
 	memcpy(pHook,pSort->pData,sizeof *pHook);
-	if(ap_debug_module_hooks)
+	if(apr_debug_module_hooks)
 	    printf(" %s",pHook->szName);
     }
-    if(ap_debug_module_hooks)
+    if(apr_debug_module_hooks)
 	fputc('\n',stdout);
     return pNew;
 }
@@ -214,19 +214,19 @@ typedef struct
     apr_array_header_t **paHooks;
 } HookSortEntry;
 
-APU_DECLARE(void) ap_hook_sort_register(const char *szHookName,
+APU_DECLARE(void) apr_hook_sort_register(const char *szHookName,
 					apr_array_header_t **paHooks)
 {
     HookSortEntry *pEntry;
 
     if(!s_aHooksToSort)
-	s_aHooksToSort=apr_make_array(ap_global_hook_pool,1,sizeof(HookSortEntry));
+	s_aHooksToSort=apr_make_array(apr_global_hook_pool,1,sizeof(HookSortEntry));
     pEntry=apr_push_array(s_aHooksToSort);
     pEntry->szHookName=szHookName;
     pEntry->paHooks=paHooks;
 }
 
-APU_DECLARE(void) ap_sort_hooks()
+APU_DECLARE(void) apr_sort_hooks()
 {
     int n;
 
@@ -238,7 +238,7 @@ APU_DECLARE(void) ap_sort_hooks()
     
 static apr_hash_t *s_phGenericHooks;
 
-APU_DECLARE(void) ap_hook_deregister_all(void)
+APU_DECLARE(void) apr_hook_deregister_all(void)
 {
     int n;    
 
@@ -250,7 +250,7 @@ APU_DECLARE(void) ap_hook_deregister_all(void)
     s_phGenericHooks=NULL;
 }
 
-APU_DECLARE(void) ap_show_hook(const char *szName,const char * const *aszPre,
+APU_DECLARE(void) apr_show_hook(const char *szName,const char * const *aszPre,
 			       const char * const *aszSucc)
 {
     int nFirst;
@@ -285,9 +285,9 @@ APU_DECLARE(void) ap_show_hook(const char *szName,const char * const *aszPre,
 
 /* Generic hook support */
 
-AP_DECLARE_EXTERNAL_HOOK(APU,void,_generic,(void))
+APR_DECLARE_EXTERNAL_HOOK(apr,APU,void,_generic,(void))
 
-APU_DECLARE(apr_array_header_t *) ap_generic_hook_get(const char *szName)
+APU_DECLARE(apr_array_header_t *) apr_generic_hook_get(const char *szName)
 {
     apr_array_header_t **ppArray;
 
@@ -299,32 +299,32 @@ APU_DECLARE(apr_array_header_t *) ap_generic_hook_get(const char *szName)
     return *ppArray;
 }
 
-APU_DECLARE(void) ap_hook_generic(const char *szName,void (*pfn)(void),
+APU_DECLARE(void) apr_hook_generic(const char *szName,void (*pfn)(void),
 				  const char * const *aszPre,
 				  const char * const *aszSucc,int nOrder)
 {
-    apr_array_header_t *pArray=ap_generic_hook_get(szName);
-    LINK__generic *pHook;
+    apr_array_header_t *pArray=apr_generic_hook_get(szName);
+    apr_LINK__generic_t *pHook;
 
     if(!pArray) {
 	apr_array_header_t **ppArray;
 
-	pArray=apr_make_array(ap_global_hook_pool,1,sizeof(LINK__generic));
+	pArray=apr_make_array(apr_global_hook_pool,1,sizeof(apr_LINK__generic_t));
 	if(!s_phGenericHooks)
-	    s_phGenericHooks=apr_make_hash(ap_global_hook_pool);
-	ppArray=apr_palloc(ap_global_hook_pool,sizeof *ppArray);
+	    s_phGenericHooks=apr_make_hash(apr_global_hook_pool);
+	ppArray=apr_palloc(apr_global_hook_pool,sizeof *ppArray);
 	*ppArray=pArray;
 	apr_hash_set(s_phGenericHooks,szName,strlen(szName),ppArray);
-	ap_hook_sort_register(szName,ppArray);
+	apr_hook_sort_register(szName,ppArray);
     }
     pHook=apr_push_array(pArray);
     pHook->pFunc=pfn;
     pHook->aszPredecessors=aszPre;
     pHook->aszSuccessors=aszSucc;
     pHook->nOrder=nOrder;
-    pHook->szName=ap_current_hooking_module;
-    if(ap_debug_module_hooks)
-	ap_show_hook(szName,aszPre,aszSucc);
+    pHook->szName=apr_debug_module_name;
+    if(apr_debug_module_hooks)
+	apr_show_hook(szName,aszPre,aszSucc);
 }
 
 #if 0

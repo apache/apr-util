@@ -90,51 +90,51 @@ LIB32=link.exe -lib
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=.\buckets\ap_brigade.c
+SOURCE=.\buckets\apr_brigade.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\buckets\ap_buckets.c
+SOURCE=.\buckets\apr_buckets.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\buckets\ap_buckets_eos.c
+SOURCE=.\buckets\apr_buckets_eos.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\buckets\ap_buckets_file.c
+SOURCE=.\buckets\apr_buckets_file.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\buckets\ap_buckets_flush.c
+SOURCE=.\buckets\apr_buckets_flush.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\buckets\ap_buckets_heap.c
+SOURCE=.\buckets\apr_buckets_heap.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\buckets\ap_buckets_mmap.c
+SOURCE=.\buckets\apr_buckets_mmap.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\buckets\ap_buckets_pipe.c
+SOURCE=.\buckets\apr_buckets_pipe.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\buckets\ap_buckets_pool.c
+SOURCE=.\buckets\apr_buckets_pool.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\buckets\ap_buckets_refcount.c
+SOURCE=.\buckets\apr_buckets_refcount.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\buckets\ap_buckets_simple.c
+SOURCE=.\buckets\apr_buckets_simple.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\buckets\ap_buckets_socket.c
+SOURCE=.\buckets\apr_buckets_socket.c
 # End Source File
 # End Group
 # Begin Group "crypto"
@@ -142,7 +142,7 @@ SOURCE=.\buckets\ap_buckets_socket.c
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=.\crypto\ap_sha1.c
+SOURCE=.\crypto\apr_sha1.c
 # End Source File
 # End Group
 # Begin Group "dbm"
@@ -190,7 +190,7 @@ SOURCE=.\dbm\apr_dbm.c
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=.\encoding\ap_base64.c
+SOURCE=.\encoding\apr_base64.c
 # End Source File
 # End Group
 # Begin Group "hooks"
@@ -198,7 +198,7 @@ SOURCE=.\encoding\ap_base64.c
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=.\hooks\ap_hooks.c
+SOURCE=.\hooks\apr_hooks.c
 # End Source File
 # End Group
 # Begin Group "uri"
@@ -281,23 +281,23 @@ InputPath=.\include\private\apu_private.hw
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=.\include\ap_base64.h
+SOURCE=.\include\apr_base64.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\ap_buckets.h
+SOURCE=.\include\apr_buckets.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\ap_hooks.h
+SOURCE=.\include\apr_hooks.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\ap_ring.h
+SOURCE=.\include\apr_ring.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\ap_sha1.h
+SOURCE=.\include\apr_sha1.h
 # End Source File
 # Begin Source File
 

@@ -53,19 +53,19 @@
  */
 
 #include "apr_lib.h"
-#include "ap_buckets.h"
+#include "apr_buckets.h"
 #include <stdlib.h>
 
-static apr_status_t pipe_read(ap_bucket *a, const char **str,
-			      apr_size_t *len, ap_read_type block)
+static apr_status_t pipe_read(apr_bucket *a, const char **str,
+			      apr_size_t *len, apr_read_type_e block)
 {
     apr_file_t *p = a->data;
-    ap_bucket *b;
+    apr_bucket *b;
     char *buf;
     apr_status_t rv;
     apr_interval_time_t timeout;
 
-    if (block == AP_NONBLOCK_READ) {
+    if (block == APR_NONBLOCK_READ) {
         apr_get_pipe_timeout(p, &timeout);
         apr_set_pipe_timeout(p, 0);
     }
@@ -75,7 +75,7 @@ static apr_status_t pipe_read(ap_bucket *a, const char **str,
     *len = HUGE_STRING_LEN;
     rv = apr_read(p, buf, len);
 
-    if (block == AP_NONBLOCK_READ) {
+    if (block == APR_NONBLOCK_READ) {
         apr_set_pipe_timeout(p, timeout);
     }
 
@@ -88,7 +88,7 @@ static apr_status_t pipe_read(ap_bucket *a, const char **str,
      * Change the current bucket to refer to what we read,
      * even if we read nothing because we hit EOF.
      */
-    ap_bucket_make_heap(a, buf, *len, 0, NULL);  /* XXX: check for failure? */
+    apr_bucket_make_heap(a, buf, *len, 0, NULL);  /* XXX: check for failure? */
     /*
      * If there's more to read we have to keep the rest of the pipe
      * for later.  Otherwise, we'll close the pipe.
@@ -102,17 +102,17 @@ static apr_status_t pipe_read(ap_bucket *a, const char **str,
      * new bucket.
      */
     if (*len > 0) {
-        b = ap_bucket_create_pipe(p);
-	AP_BUCKET_INSERT_AFTER(a, b);
+        b = apr_bucket_create_pipe(p);
+	APR_BUCKET_INSERT_AFTER(a, b);
     }
     else if (rv == APR_EOF) {
         apr_close(p);
-        return (block == AP_NONBLOCK_READ) ? APR_EOF : APR_SUCCESS;
+        return (block == APR_NONBLOCK_READ) ? APR_EOF : APR_SUCCESS;
     }
     return APR_SUCCESS;
 }
 
-APU_DECLARE(ap_bucket *) ap_bucket_make_pipe(ap_bucket *b, apr_file_t *p)
+APU_DECLARE(apr_bucket *) apr_bucket_make_pipe(apr_bucket *b, apr_file_t *p)
 {
     /*
      * A pipe is closed when the end is reached in pipe_read().  If the
@@ -127,23 +127,23 @@ APU_DECLARE(ap_bucket *) ap_bucket_make_pipe(ap_bucket *b, apr_file_t *p)
      * stream so the bucket(s) that it sets aside will be the heap
      * buckets created by pipe_read() above.
      */
-    b->type     = &ap_pipe_type;
+    b->type     = &apr_bucket_type_pipe;
     b->length   = -1;
     b->data     = p;
 
     return b;
 }
 
-APU_DECLARE(ap_bucket *) ap_bucket_create_pipe(apr_file_t *p)
+APU_DECLARE(apr_bucket *) apr_bucket_create_pipe(apr_file_t *p)
 {
-    ap_bucket_do_create(ap_bucket_make_pipe(b, p));
+    apr_bucket_do_create(apr_bucket_make_pipe(b, p));
 }
 
-APU_DECLARE_DATA const ap_bucket_type ap_pipe_type = {
+APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_pipe = {
     "PIPE", 5,
-    ap_bucket_destroy_notimpl,
+    apr_bucket_destroy_notimpl,
     pipe_read,
-    ap_bucket_setaside_notimpl,
-    ap_bucket_split_notimpl,
-    ap_bucket_copy_notimpl
+    apr_bucket_setaside_notimpl,
+    apr_bucket_split_notimpl,
+    apr_bucket_copy_notimpl
 };

@@ -53,20 +53,20 @@
  */
 
 #include "apr_lib.h"
-#include "ap_buckets.h"
+#include "apr_buckets.h"
 #include <stdlib.h>
 
 /* XXX: We should obey the block flag */
-static apr_status_t socket_read(ap_bucket *a, const char **str,
-			      apr_size_t *len, ap_read_type block)
+static apr_status_t socket_read(apr_bucket *a, const char **str,
+			      apr_size_t *len, apr_read_type_e block)
 {
     apr_socket_t *p = a->data;
-    ap_bucket *b;
+    apr_bucket *b;
     char *buf;
     apr_status_t rv;
     apr_int32_t timeout;
 
-    if (block == AP_NONBLOCK_READ) {
+    if (block == APR_NONBLOCK_READ) {
         apr_getsocketopt(p, APR_SO_TIMEOUT, &timeout);
         apr_setsocketopt(p, APR_SO_TIMEOUT, 0);
     }
@@ -76,7 +76,7 @@ static apr_status_t socket_read(ap_bucket *a, const char **str,
     *len = HUGE_STRING_LEN;
     rv = apr_recv(p, buf, len);
 
-    if (block == AP_NONBLOCK_READ) {
+    if (block == APR_NONBLOCK_READ) {
         apr_setsocketopt(p, APR_SO_TIMEOUT, timeout);
     }
 
@@ -89,7 +89,7 @@ static apr_status_t socket_read(ap_bucket *a, const char **str,
      * Change the current bucket to refer to what we read,
      * even if we read nothing because we hit EOF.
      */
-    ap_bucket_make_heap(a, buf, *len, 0, NULL);  /* XXX: check for failure? */
+    apr_bucket_make_heap(a, buf, *len, 0, NULL);  /* XXX: check for failure? */
     /*
      * If there's more to read we have to keep the rest of the socket
      * for later. XXX: Note that more complicated bucket types that
@@ -106,16 +106,16 @@ static apr_status_t socket_read(ap_bucket *a, const char **str,
      * down for reading, but there is no benefit to doing so.
      */
     if (*len > 0) {
-        b = ap_bucket_create_socket(p);
-	AP_BUCKET_INSERT_AFTER(a, b);
+        b = apr_bucket_create_socket(p);
+	APR_BUCKET_INSERT_AFTER(a, b);
     }
-    else if (rv == APR_EOF && block == AP_NONBLOCK_READ) {
+    else if (rv == APR_EOF && block == APR_NONBLOCK_READ) {
         return APR_EOF;
     }
     return APR_SUCCESS;
 }
 
-APU_DECLARE(ap_bucket *) ap_bucket_make_socket(ap_bucket *b, apr_socket_t *p)
+APU_DECLARE(apr_bucket *) apr_bucket_make_socket(apr_bucket *b, apr_socket_t *p)
 {
     /*
      * XXX: We rely on a cleanup on some pool or other to actually
@@ -125,23 +125,23 @@ APU_DECLARE(ap_bucket *) ap_bucket_make_socket(ap_bucket *b, apr_socket_t *p)
      * Note that typically the socket is allocated from the connection pool
      * so it will disappear when the connection is finished. 
      */
-    b->type     = &ap_socket_type;
+    b->type     = &apr_bucket_type_socket;
     b->length   = -1;
     b->data     = p;
 
     return b;
 }
 
-APU_DECLARE(ap_bucket *) ap_bucket_create_socket(apr_socket_t *p)
+APU_DECLARE(apr_bucket *) apr_bucket_create_socket(apr_socket_t *p)
 {
-    ap_bucket_do_create(ap_bucket_make_socket(b, p));
+    apr_bucket_do_create(apr_bucket_make_socket(b, p));
 }
 
-APU_DECLARE_DATA const ap_bucket_type ap_socket_type = {
+APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_socket = {
     "SOCKET", 5,
-    ap_bucket_destroy_notimpl,
+    apr_bucket_destroy_notimpl,
     socket_read,
-    ap_bucket_setaside_notimpl, 
-    ap_bucket_split_notimpl,
-    ap_bucket_copy_notimpl
+    apr_bucket_setaside_notimpl, 
+    apr_bucket_split_notimpl,
+    apr_bucket_copy_notimpl
 };
