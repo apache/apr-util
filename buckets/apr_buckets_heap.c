@@ -56,8 +56,8 @@
 #define APR_WANT_MEMFUNC
 #include "apr_want.h"
 
-static apr_status_t heap_read(apr_bucket *b, const char **str, 
-			      apr_size_t *len, apr_read_type_e block)
+static apr_status_t heap_bucket_read(apr_bucket *b, const char **str, 
+                                     apr_size_t *len, apr_read_type_e block)
 {
     apr_bucket_heap *h = b->data;
 
@@ -66,7 +66,7 @@ static apr_status_t heap_read(apr_bucket *b, const char **str,
     return APR_SUCCESS;
 }
 
-static void heap_destroy(void *data)
+static void heap_bucket_destroy(void *data)
 {
     apr_bucket_heap *h = data;
 
@@ -126,8 +126,8 @@ APU_DECLARE(apr_bucket *) apr_bucket_heap_create(const char *buf,
 
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_heap = {
     "HEAP", 5,
-    heap_destroy,
-    heap_read,
+    heap_bucket_destroy,
+    heap_bucket_read,
     apr_bucket_setaside_noop,
     apr_bucket_shared_split,
     apr_bucket_shared_copy

@@ -54,8 +54,8 @@
 
 #include "apr_buckets.h"
 
-static apr_status_t pipe_read(apr_bucket *a, const char **str,
-			      apr_size_t *len, apr_read_type_e block)
+static apr_status_t pipe_bucket_read(apr_bucket *a, const char **str,
+                                     apr_size_t *len, apr_read_type_e block)
 {
     apr_file_t *p = a->data;
     char *buf;
@@ -116,8 +116,8 @@ static apr_status_t pipe_read(apr_bucket *a, const char **str,
 APU_DECLARE(apr_bucket *) apr_bucket_pipe_make(apr_bucket *b, apr_file_t *p)
 {
     /*
-     * A pipe is closed when the end is reached in pipe_read().  If the
-     * pipe isn't read to the end (e.g., error path), the pipe will be
+     * A pipe is closed when the end is reached in pipe_bucket_read().  If
+     * the pipe isn't read to the end (e.g., error path), the pipe will be
      * closed when its pool goes away.
      *
      * Note that typically the pipe is allocated from the request pool
@@ -126,7 +126,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_pipe_make(apr_bucket *b, apr_file_t *p)
      * response if the connection is pipelined. This turns out not to
      * be a problem because the core will have read to the end of the
      * stream so the bucket(s) that it sets aside will be the heap
-     * buckets created by pipe_read() above.
+     * buckets created by pipe_bucket_read() above.
      */
     b->type     = &apr_bucket_type_pipe;
     b->length   = (apr_size_t)(-1);
@@ -150,7 +150,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_pipe_create(apr_file_t *p,
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_pipe = {
     "PIPE", 5,
     apr_bucket_destroy_noop,
-    pipe_read,
+    pipe_bucket_read,
     apr_bucket_setaside_notimpl,
     apr_bucket_split_notimpl,
     apr_bucket_copy_notimpl

@@ -54,8 +54,8 @@
 
 #include "apr_buckets.h"
 
-static apr_status_t flush_read(apr_bucket *b, const char **str, 
-                                apr_size_t *len, apr_read_type_e block)
+static apr_status_t flush_bucket_read(apr_bucket *b, const char **str, 
+                                      apr_size_t *len, apr_read_type_e block)
 {
     *str = NULL;
     *len = 0;
@@ -85,7 +85,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_flush_create(apr_bucket_alloc_t *list)
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_flush = {
     "FLUSH", 5,
     apr_bucket_destroy_noop,
-    flush_read,
+    flush_bucket_read,
     apr_bucket_setaside_noop,
     apr_bucket_split_notimpl,
     apr_bucket_simple_copy
