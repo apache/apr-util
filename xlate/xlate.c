@@ -56,6 +56,7 @@
 #include "apu_config.h"
 #include "apr_lib.h"
 #include "apr_strings.h"
+#include "apr_portable.h"
 #include "apr_xlate.h"
 
 /* If no implementation is available, don't generate code here since
@@ -72,9 +73,6 @@
 #endif
 #if APR_HAVE_STRINGS_H
 #include <strings.h>
-#endif
-#ifdef HAVE_LANGINFO_H
-#include <langinfo.h>
 #endif
 #ifdef HAVE_ICONV_H
 #include <iconv.h>
@@ -103,73 +101,14 @@ struct apr_xlate_t {
 #endif
 };
 
-/* get_default_charset()
- *
- * simple heuristic to determine codepage of source code so that
- * literal strings (e.g., "GET /\r\n") in source code can be translated
- * properly
- *
- * If appropriate, a symbol can be set at configure time to determine
- * this.  On EBCDIC platforms, it will be important how the code was
- * unpacked.
- */
 
-static const char *get_default_charset(void)
-{
-#ifdef __MVS__
-#    ifdef __CODESET__
-        return __CODESET__;
-#    else
-        return "IBM-1047";
-#    endif
-#endif
-
-    if ('}' == 0xD0) {
-        return "IBM-1047";
-    }
-
-    if ('{' == 0xFB) {
-        return "EDF04";
-    }
-
-    if ('A' == 0xC1) {
-        return "EBCDIC"; /* not useful */
-    }
-
-    if ('A' == 0x41) {
-        return "ISO8859-1"; /* not necessarily true */
-    }
-
-    return "unknown";
-}
-
-/* get_locale_charset()
- *
- * If possible on this system, get the charset of the locale.  Otherwise,
- * defer to get_default_charset().
- */
-
-static const char *get_locale_charset(void)
-{
-#if defined(HAVE_NL_LANGINFO) && defined(HAVE_CODESET)
-    const char *charset;
-
-    charset = nl_langinfo(CODESET);
-    if (charset) {
-        return charset;
-    }
-#endif
-
-    return get_default_charset();
-}
-
-static const char *handle_special_names(const char *page)
+static const char *handle_special_names(const char *page, apr_pool_t *pool)
 {
     if (page == APR_DEFAULT_CHARSET) {
-        return get_default_charset();
+        return apr_os_default_encoding(pool);
     }
     else if (page == APR_LOCALE_CHARSET) {
-        return get_locale_charset();
+        return apr_os_locale_encoding(pool);
     }
     else {
         return page;
@@ -254,8 +193,8 @@ APU_DECLARE(apr_status_t) apr_xlate_open(apr_xlate_t **convset,
 
     *convset = NULL;
 
-    topage = handle_special_names(topage);
-    frompage = handle_special_names(frompage);
+    topage = handle_special_names(topage, pool);
+    frompage = handle_special_names(frompage, pool);
 
     new = (apr_xlate_t *)apr_pcalloc(pool, sizeof(apr_xlate_t));
     if (!new) {
