@@ -181,7 +181,7 @@ static void check_sbcs(apr_xlate_t *convset)
         apr_iconv_close(convset->ich, convset->pool);
         rv = apr_iconv_open(convset->topage, convset->frompage, 
                             convset->pool, &convset->ich);
-     }
+    }
 }
 #endif /* APU_HAVE_APR_ICONV */
 
