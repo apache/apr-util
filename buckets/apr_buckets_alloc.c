@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+#include <stdlib.h>
+
 #include "apr_buckets.h"
 #include "apr_allocator.h"
 
@@ -49,8 +51,18 @@ static apr_status_t alloc_cleanup(void *data)
 APU_DECLARE_NONSTD(apr_bucket_alloc_t *) apr_bucket_alloc_create(apr_pool_t *p)
 {
     apr_allocator_t *allocator = apr_pool_allocator_get(p);
-    apr_bucket_alloc_t *list = apr_bucket_alloc_create_ex(allocator);
+    apr_bucket_alloc_t *list;
 
+#if APR_POOL_DEBUG
+    /* may be NULL for debug mode. */
+    if (allocator == NULL) {
+        if (apr_allocator_create(&allocator) != APR_SUCCESS) {
+            abort();
+        }
+    }
+#endif
+
+    list = apr_bucket_alloc_create_ex(allocator);
     list->pool = p;
     apr_pool_cleanup_register(list->pool, list, alloc_cleanup,
                               apr_pool_cleanup_null);
@@ -82,6 +94,12 @@ APU_DECLARE_NONSTD(void) apr_bucket_alloc_destroy(apr_bucket_alloc_t *list)
     }
 
     apr_allocator_free(list->allocator, list->blocks);
+
+#if APR_POOL_DEBUG
+    if (list->pool && list->allocator != apr_pool_allocator_get(list->pool)) {
+        apr_allocator_destroy(list->allocator);
+    }
+#endif
 }
 
 APU_DECLARE_NONSTD(void *) apr_bucket_alloc(apr_size_t size, 
