@@ -414,7 +414,7 @@ static apr_status_t read_from(apr_file_t *f, void *buf,
     apr_status_t status;
 
     if ((status = apr_file_seek(f, APR_SET, &off)) != APR_SUCCESS ||
-	((status = apr_file_read_file(f, buf, len, NULL)) != APR_SUCCESS)) {
+	((status = apr_file_read_full(f, buf, len, NULL)) != APR_SUCCESS)) {
 	/* if EOF is reached, pretend we read all zero's */
 	if (status == APR_EOF) {
 	    memset(buf, 0, len);
@@ -588,7 +588,7 @@ getnext(SDBM *db)
 
 		db->pagbno = db->blkptr;
 		/* ### EOF acceptable here too? */
-		if (apr_file_read_file(db->pagf, db->pagbuf, PBLKSIZ, NULL) != APR_SUCCESS)
+		if (apr_file_read_full(db->pagf, db->pagbuf, PBLKSIZ, NULL) != APR_SUCCESS)
 			break;
 		if (!chkpage(db->pagbuf))
 			break;
