@@ -1,4 +1,8 @@
 Changes with APR-util b1  
+
+  *) Moved httpd 2.0.18's util_uri to apr_uri and name-protected its
+     symbols and functions.  [Justin Erenkrantz, Roy Fielding]
+
   *) Rename field "private" in struct apr_xml_elem to "priv" for C++
      compatibility.  PR #7727  [Joshua MacDonald <jmacd@cs.berkeley.edu>]
 
