@@ -61,56 +61,49 @@ AC_SUBST(APR_SOURCE_DIR)
 dnl
 dnl APU_CHECK_DB1: is DB1 present?
 dnl
-dnl if present: sets apu_have_db=1, db_header, db_lib, and db_version
+dnl if present: sets apu_db_header, apu_db_lib, and apu_db_version
 dnl
 AC_DEFUN(APU_CHECK_DB1,[
 AC_CHECK_HEADER(db1/db.h, [
   AC_CHECK_LIB(db1, dbopen, [
-  apu_have_db=1
-  db_header=db1/db.h
-  db_lib=db1
-  db_version=1
+  apu_db_header=db1/db.h
+  apu_db_lib=db1
+  apu_db_version=1
   ])])])
 
 dnl
 dnl APU_CHECK_DB185: is DB1.85 present?
 dnl
-dnl if present: sets apu_have_db=1, db_header, db_lib, and db_version
+dnl if present: sets apu_db_header, apu_db_lib, and apu_db_version
 dnl
 dnl NB: BerkelyDB v2 and above can be compiled in 1.85 mode
 dnl which has a libdb not libdb1 or libdb185
 AC_DEFUN(APU_CHECK_DB185,[
 AC_CHECK_HEADER(db_185.h, [
   AC_CHECK_LIB(db, dbopen, [
-  apu_have_db=1
-  db_header=db_185.h
-  db_lib=db
-  db_version=185
+  apu_db_header=db_185.h
+  apu_db_lib=db
+  apu_db_version=185
   ])])])
 
 dnl
 dnl APU_CHECK_DB2: is DB2 present?
 dnl
-dnl if present: sets apu_have_db=1, db_header, and db_lib
+dnl if present: sets apu_db_header, apu_db_lib, and apu_db_version
 dnl
 AC_DEFUN(APU_CHECK_DB2,[
-apu_found_db=0
 AC_CHECK_HEADER(db2/db.h, [
   AC_CHECK_LIB(db2, db_open, [
-  apu_have_db=1
-  db_header=db2/db.h
-  db_lib=db2
-  db_version=2
-  apu_found_db=1
+  apu_db_header=db2/db.h
+  apu_db_lib=db2
+  apu_db_version=2
   ])])
-if test $apu_found_db = 0; then
+if test $apu_db_version != 2; then
 AC_CHECK_HEADER(db.h, [
   AC_CHECK_LIB(db, db_open, [
-  apu_have_db=1
-  db_header=db.h
-  db_lib=db
-  db_version=2
-  apu_found_db=1
+  apu_db_header=db.h
+  apu_db_lib=db
+  apu_db_version=2
   ])])
 fi
 ])
@@ -118,27 +111,49 @@ fi
 dnl
 dnl APU_CHECK_DB3: is DB3 present?
 dnl
-dnl if present: sets apu_have_db=1, db_header, and db_lib
+dnl if present: sets apu_db_header, apu_db_lib, and apu_db_version
 dnl
 AC_DEFUN(APU_CHECK_DB3,[
-apu_found_db=0
 AC_CHECK_HEADER(db3/db.h, [
   AC_CHECK_LIB(db3, db_create, [
-  apu_have_db=1
-  db_header=db3/db.h
-  db_lib=db3
-  db_version=3
-  apu_found_db=1
+  apu_db_header=db3/db.h
+  apu_db_lib=db3
+  apu_db_version=3
   ])])
-if test $apu_found_db = 0; then
+if test $apu_db_version != 3; then
 AC_CHECK_HEADER(db.h, [
   AC_CHECK_LIB(db, db_create, [
-  apu_have_db=1
-  db_header=db.h
-  db_lib=db
-  db_version=3
-  apu_found_db=1
+  apu_db_header=db.h
+  apu_db_lib=db
+  apu_db_version=3
   ])])
+fi
+])
+
+dnl
+dnl APU_CHECK_DB4: is DB4 present?
+dnl
+dnl if present: sets apu_db_header, apu_db_lib, and apu_db_version
+dnl
+dnl At this point in time, DB4 doesn't have some functions that DB3 does.
+dnl So look for a function that was removed in DB3 to confirm DB4.  
+dnl If it fails, then we know we are DB4 at least.
+dnl
+AC_DEFUN(APU_CHECK_DB4,[
+AC_CHECK_HEADER(db4/db.h, [
+  AC_CHECK_LIB(db4, db_create, [
+  apu_db_header=db4/db.h
+  apu_db_lib=db4
+  apu_db_version=4
+  ])])
+if test $apu_db_version != 4; then
+AC_CHECK_HEADER(db.h, [
+  AC_CHECK_LIB(db, db_create, [
+    AC_CHECK_LIB(db, lock_get, [], [
+        apu_db_header=db.h
+        apu_db_lib=db
+        apu_db_version=4
+    ])])])
 fi
 ])
 
@@ -154,7 +169,8 @@ apu_have_sdbm=1
 apu_have_gdbm=0
 apu_have_db=0
 
-db_header=db.h		# default so apu_select_dbm.h is syntactically correct
+apu_db_header=db.h		# default so apu_select_dbm.h is syntactically correct
+apu_db_version=0
 
 AC_ARG_WITH(dbm,
   [  --with-dbm=DBM          choose the DBM type to use.
@@ -171,13 +187,16 @@ One of: sdbm, gdbm, db, db1, db185, db2, db3])
 AC_CHECK_HEADER(gdbm.h, AC_CHECK_LIB(gdbm, gdbm_open, [apu_have_gdbm=1]))
 
 dnl We're going to try to find the highest version of Berkeley DB supported.
-APU_CHECK_DB3
-if test $apu_have_db = 0; then
-  APU_CHECK_DB2
-  if test $apu_have_db = 0; then
-    APU_CHECK_DB1
-    if test $apu_have_db = 0; then
-      APU_CHECK_DB185
+APU_CHECK_DB4
+if test $apu_db_version != 4; then
+  APU_CHECK_DB3
+  if test $apu_db_version != 3; then
+    APU_CHECK_DB2
+    if test $apu_db_version != 2; then
+      APU_CHECK_DB1
+      if test $apu_db_version != 1; then
+        APU_CHECK_DB185
+      fi
     fi
   fi
 fi
@@ -186,8 +205,9 @@ dnl Yes, it'd be nice if we could collate the output in an order
 dnl so that the AC_MSG_CHECKING would be output before the actual
 dnl checks, but it isn't happening now.
 AC_MSG_CHECKING(for Berkeley DB)
-if test $apu_have_db = 1; then
-  AC_MSG_RESULT(found db$db_version)
+if test $apu_db_version != 0; then
+  apu_have_db=1
+  AC_MSG_RESULT(found db$apu_db_version)
 else
   AC_MSG_RESULT(not found)
 fi
@@ -199,68 +219,73 @@ dnl DB macros can't have the side-effect of setting LIBS.
 case "$requested" in
   sdbm)
     apu_use_sdbm=1
-    default_dbm=sdbm
+    apu_default_dbm=sdbm
     ;;
   gdbm)
     apu_use_gdbm=1
-    default_dbm=gdbm
+    apu_default_dbm=gdbm
     ;;
   db)
-    if test $apu_have_db = 1; then
+    if test $apu_db_version != 0; then
       apu_use_db=1
-      default_dbm=db
+      apu_default_dbm=db
     else
       AC_MSG_ERROR(Berkeley db requested, but not found)
     fi
     ;;
   db1)
-    apu_have_db=0
     APU_CHECK_DB1
-    if test $apu_have_db = 1; then
+    if test $apu_db_version = 1; then
       apu_use_db=1
-      default_dbm=db1
+      apu_default_dbm=db1
     else
       AC_MSG_ERROR(Berkeley db1 not found)
     fi
     ;;
   db185)
-    apu_have_db=0
     APU_CHECK_DB185
-    if test $apu_have_db = 1; then
+    if test $apu_db_version = 185; then
       apu_use_db=1
-      default_dbm=db185
+      apu_default_dbm=db185
     else
       AC_MSG_ERROR(Berkeley db185 not found)
     fi
     ;;
   db2)
-    apu_have_db=0
     APU_CHECK_DB2
-    if test $apu_have_db = 1; then
+    if test $apu_db_version = 2; then
       apu_use_db=1
-      default_dbm=db2
+      apu_default_dbm=db2
     else
-      AC_MSG_ERROR([db2 not present])
+      AC_MSG_ERROR(Berkeley db2 not found)
     fi
     ;;
   db3)
-    apu_have_db=0
     APU_CHECK_DB3
-    if test $apu_have_db = 1; then
+    if test $apu_db_version = 3; then
       apu_use_db=1
-      default_dbm=db3
+      apu_default_dbm=db3
     else
-      AC_MSG_ERROR([db3 not present])
+      AC_MSG_ERROR(Berkeley db3 not found)
+    fi
+    ;;
+  db4)
+    APU_CHECK_DB4
+    if test $apu_db_version = 4; then
+      apu_use_db=1
+      apu_default_dbm=db4
+    else
+      AC_MSG_ERROR(Berkeley db4 not found)
     fi
     ;;
   default)
     dnl ### use more sophisticated DBMs for the default?
-    default_dbm="sdbm (default)"
+    apu_default_dbm="sdbm (default)"
     apu_use_sdbm=1
     ;;
   *)
     AC_MSG_ERROR([--with-dbm=$look_for is an unknown DBM type.
-Use one of: sdbm, gdbm, db, db1, db185, db2, db3])
+Use one of: sdbm, gdbm, db, db1, db185, db2, db3, db4])
     ;;
 esac
 
@@ -268,7 +293,7 @@ dnl Yes, it'd be nice if we could collate the output in an order
 dnl so that the AC_MSG_CHECKING would be output before the actual
 dnl checks, but it isn't happening now.
 AC_MSG_CHECKING(for default DBM)
-AC_MSG_RESULT($default_dbm)
+AC_MSG_RESULT($apu_default_dbm)
 
 AC_SUBST(apu_use_sdbm)
 AC_SUBST(apu_use_gdbm)
@@ -277,8 +302,8 @@ AC_SUBST(apu_use_db)
 AC_SUBST(apu_have_sdbm)
 AC_SUBST(apu_have_gdbm)
 AC_SUBST(apu_have_db)
-AC_SUBST(db_header)
-AC_SUBST(db_version)
+AC_SUBST(apu_db_header)
+AC_SUBST(apu_db_version)
 
 dnl Since we have already done the AC_CHECK_LIB tests, if we have it, 
 dnl we know the library is there.
@@ -287,9 +312,9 @@ if test $apu_have_gdbm = 1; then
   APR_ADDTO(LIBS,[-lgdbm])
 fi
 
-if test $apu_have_db = 1; then
-  APR_ADDTO(APRUTIL_EXPORT_LIBS,[-l$db_lib])
-  APR_ADDTO(LIBS,[-l$db_lib])
+if test $apu_db_version != 0; then
+  APR_ADDTO(APRUTIL_EXPORT_LIBS,[-l$apu_db_lib])
+  APR_ADDTO(LIBS,[-l$apu_db_lib])
 fi
 
 ])
