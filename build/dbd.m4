@@ -1,3 +1,19 @@
+dnl -------------------------------------------------------- -*- autoconf -*-
+dnl Copyright 2005 The Apache Software Foundation or its licensors, as
+dnl applicable.
+dnl
+dnl Licensed under the Apache License, Version 2.0 (the "License");
+dnl you may not use this file except in compliance with the License.
+dnl You may obtain a copy of the License at
+dnl
+dnl     http://www.apache.org/licenses/LICENSE-2.0
+dnl
+dnl Unless required by applicable law or agreed to in writing, software
+dnl distributed under the License is distributed on an "AS IS" BASIS,
+dnl WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+dnl See the License for the specific language governing permissions and
+dnl limitations under the License.
+
 dnl
 dnl DBD module
 dnl
@@ -5,7 +21,7 @@ dnl
 dnl
 dnl APU_CHECK_DBD: compile backends for apr_dbd.
 dnl
-AC_DEFUN(APU_CHECK_DBD, [
+AC_DEFUN([APU_CHECK_DBD], [
   apu_have_pgsql=0
 
   AC_ARG_WITH([pgsql], [
@@ -53,7 +69,7 @@ AC_DEFUN(APU_CHECK_DBD, [
   fi
 ])
 dnl
-AC_DEFUN(APU_CHECK_DBD_MYSQL, [
+AC_DEFUN([APU_CHECK_DBD_MYSQL], [
   apu_have_mysql=0
 
   AC_ARG_WITH([mysql], [

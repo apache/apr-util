@@ -1,7 +1,23 @@
+dnl -------------------------------------------------------- -*- autoconf -*-
+dnl Copyright 2002-2005 The Apache Software Foundation or its licensors, as
+dnl applicable.
+dnl
+dnl Licensed under the Apache License, Version 2.0 (the "License");
+dnl you may not use this file except in compliance with the License.
+dnl You may obtain a copy of the License at
+dnl
+dnl     http://www.apache.org/licenses/LICENSE-2.0
+dnl
+dnl Unless required by applicable law or agreed to in writing, software
+dnl distributed under the License is distributed on an "AS IS" BASIS,
+dnl WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+dnl See the License for the specific language governing permissions and
+dnl limitations under the License.
+
+
 dnl
 dnl DBM module
 dnl
-
 
 dnl   APU_LIB_BERKELEY_DB(major, minor, patch, places, headers, libnames)
 dnl
@@ -32,7 +48,7 @@ dnl   different --with-berkeley-db switch values, without interference
 dnl   from the cache.
 
 
-AC_DEFUN(APU_CHECK_BERKELEY_DB, [
+AC_DEFUN([APU_CHECK_BERKELEY_DB], [
   bdb_version=$1
   if test "$2" != "-1"; then
     bdb_version="$bdb_version.$2"
@@ -203,7 +219,7 @@ dnl   /usr/local/lib.  Disaster.  Thus this test compares the version constants
 dnl   in the db.h header with the ones returned by db_version().
 
 
-AC_DEFUN(APU_TRY_BERKELEY_DB,
+AC_DEFUN([APU_TRY_BERKELEY_DB],
   [
     apu_try_berkeley_db_save_libs="$LIBS"
 
@@ -268,7 +284,7 @@ dnl APU_CHECK_DB1: is DB1 present?
 dnl
 dnl if present: sets apu_db_header, apu_db_lib, and apu_db_version
 dnl
-AC_DEFUN(APU_CHECK_DB1, [
+AC_DEFUN([APU_CHECK_DB1], [
   places=$1
   if test -z "$places"; then
     places="std"
@@ -291,7 +307,7 @@ dnl if present: sets apu_db_header, apu_db_lib, and apu_db_version
 dnl
 dnl NB: BerkelyDB v2 and above can be compiled in 1.85 mode
 dnl which has a libdb not libdb1 or libdb185
-AC_DEFUN(APU_CHECK_DB185, [
+AC_DEFUN([APU_CHECK_DB185], [
   places=$1
   if test -z "$places"; then
     places="std"
@@ -312,7 +328,7 @@ dnl APU_CHECK_DB2: is DB2 present?
 dnl
 dnl if present: sets apu_db_header, apu_db_lib, and apu_db_version
 dnl
-AC_DEFUN(APU_CHECK_DB2, [
+AC_DEFUN([APU_CHECK_DB2], [
   places=$1
   if test -z "$places"; then
     places="std"
@@ -333,7 +349,7 @@ dnl APU_CHECK_DB3: is DB3 present?
 dnl
 dnl if present: sets apu_db_header, apu_db_lib, and apu_db_version
 dnl
-AC_DEFUN(APU_CHECK_DB3, [
+AC_DEFUN([APU_CHECK_DB3], [
   places=$1
   if test -z "$places"; then
     places="std"
@@ -354,7 +370,7 @@ dnl APU_CHECK_DB4: is DB4 present?
 dnl
 dnl if present: sets apu_db_header, apu_db_lib, and apu_db_version
 dnl
-AC_DEFUN(APU_CHECK_DB4, [
+AC_DEFUN([APU_CHECK_DB4], [
   places=$1
   if test -z "$places"; then
     places="std /usr/local /usr/local/BerkeleyDB.4.0 /boot/home/config"
@@ -375,7 +391,7 @@ dnl APU_CHECK_DB41: is DB4.1 present?
 dnl
 dnl if present: sets apu_db_header, apu_db_lib, and apu_db_version
 dnl
-AC_DEFUN(APU_CHECK_DB41, [
+AC_DEFUN([APU_CHECK_DB41], [
   places=$1
   if test -z "$places"; then
     places="std /usr/local /usr/local/BerkeleyDB.4.1 /boot/home/config"
@@ -396,7 +412,7 @@ dnl APU_CHECK_DB42: is DB4.2 present?
 dnl
 dnl if present: sets apu_db_header, apu_db_lib, and apu_db_version
 dnl
-AC_DEFUN(APU_CHECK_DB42, [
+AC_DEFUN([APU_CHECK_DB42], [
   places=$1
   if test -z "$places"; then
     places="std /usr/local /usr/local/BerkeleyDB.4.2 /boot/home/config"
@@ -415,7 +431,7 @@ dnl APU_CHECK_DB43: is DB4.3 present?
 dnl
 dnl if present: sets apu_db_header, apu_db_lib, and apu_db_version
 dnl
-AC_DEFUN(APU_CHECK_DB43, [
+AC_DEFUN([APU_CHECK_DB43], [
   places=$1
   if test -z "$places"; then
     places="std /usr/local/BerkeleyDB.4.3 /boot/home/config"
@@ -431,7 +447,7 @@ AC_DEFUN(APU_CHECK_DB43, [
 ])
 
 
-AC_DEFUN(APU_CHECK_DB, [
+AC_DEFUN([APU_CHECK_DB], [
   requested=$1
   check_places=$2
 
@@ -499,7 +515,7 @@ AC_DEFUN(APU_CHECK_DB, [
 dnl
 dnl APU_CHECK_DB_ALL: Try all Berkeley DB versions, from 4.3 to 1.
 dnl
-AC_DEFUN(APU_CHECK_DB_ALL, [
+AC_DEFUN([APU_CHECK_DB_ALL], [
   all_places=$1
  
   APU_CHECK_DB43("$all_places")
@@ -536,7 +552,7 @@ AC_DEFUN(APU_CHECK_DB_ALL, [
 dnl
 dnl APU_CHECK_DBM: see what kind of DBM backend to use for apr_dbm.
 dnl
-AC_DEFUN(APU_CHECK_DBM, [
+AC_DEFUN([APU_CHECK_DBM], [
   apu_use_sdbm=0
   apu_use_ndbm=0
   apu_use_gdbm=0

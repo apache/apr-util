@@ -1,11 +1,23 @@
+dnl -------------------------------------------------------- -*- autoconf -*-
+dnl Copyright 2002-2005 The Apache Software Foundation, or its licensors, as
+dnl applicable.
 dnl
-dnl custom autoconf rules for APRUTIL
+dnl Licensed under the Apache License, Version 2.0 (the "License");
+dnl you may not use this file except in compliance with the License.
+dnl You may obtain a copy of the License at
 dnl
+dnl     http://www.apache.org/licenses/LICENSE-2.0
+dnl
+dnl Unless required by applicable law or agreed to in writing, software
+dnl distributed under the License is distributed on an "AS IS" BASIS,
+dnl WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+dnl See the License for the specific language governing permissions and
+dnl limitations under the License.
 
 dnl
 dnl APU_TRY_ICONV[ IF-SUCCESS, IF-FAILURE ]: try to compile for iconv.
 dnl
-AC_DEFUN(APU_TRY_ICONV,[
+AC_DEFUN([APU_TRY_ICONV], [
   AC_TRY_LINK([
 #include <stdlib.h>
 #include <iconv.h>
@@ -19,7 +31,7 @@ AC_DEFUN(APU_TRY_ICONV,[
 dnl
 dnl APU_FIND_ICONV: find an iconv library
 dnl
-AC_DEFUN(APU_FIND_ICONV,[
+AC_DEFUN([APU_FIND_ICONV], [
 
 apu_iconv_dir="unknown"
 have_apr_iconv="0"
@@ -91,7 +103,7 @@ dnl  warning, so we allow a variable -- apu_iconv_inbuf_const -- to
 dnl  be set in hints.m4 to specify whether or not iconv() has const
 dnl  on this parameter.
 dnl
-AC_DEFUN(APU_CHECK_ICONV_INBUF,[
+AC_DEFUN([APU_CHECK_ICONV_INBUF], [
 AC_MSG_CHECKING(for type of inbuf parameter to iconv)
 if test "x$apu_iconv_inbuf_const" = "x"; then
     APR_TRY_COMPILE_NO_WARNING([
