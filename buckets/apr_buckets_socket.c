@@ -123,10 +123,11 @@ APU_DECLARE(apr_bucket *) apr_bucket_socket_make(apr_bucket *b, apr_socket_t *p)
      * Note that typically the socket is allocated from the connection pool
      * so it will disappear when the connection is finished. 
      */
-    b->type     = &apr_bucket_type_socket;
-    b->length   = (apr_size_t)(-1);
-    b->start    = -1;
-    b->data     = p;
+    b->type        = &apr_bucket_type_socket;
+    b->length      = (apr_size_t)(-1);
+    b->start       = -1;
+    b->is_metadata = 0;
+    b->data        = p;
 
     return b;
 }

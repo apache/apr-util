@@ -106,6 +106,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_heap_make(apr_bucket *b, const char *buf,
     }
 
     b = apr_bucket_shared_make(b, h, 0, length);
+    b->is_metadata = 0;
     b->type = &apr_bucket_type_heap;
 
     return b;

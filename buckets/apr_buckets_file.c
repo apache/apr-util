@@ -205,6 +205,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_file_make(apr_bucket *b, apr_file_t *fd,
 #endif
 
     b = apr_bucket_shared_make(b, f, offset, len);
+    b->is_metadata = 0;
     b->type = &apr_bucket_type_file;
 
     return b;
