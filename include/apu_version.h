@@ -92,16 +92,16 @@ extern "C" {
  * programs such as structure size changes.  No binary compatibility is
  * possible across a change in the major version.
  */
-#define APU_MAJOR_VERSION       0
+#define APU_MAJOR_VERSION       1
 
 /** 
  * Minor API changes that do not cause binary compatibility problems.
  * Should be reset to 0 when upgrading APU_MAJOR_VERSION
  */
-#define APU_MINOR_VERSION       9
+#define APU_MINOR_VERSION       0
 
 /** patch level */
-#define APU_PATCH_VERSION       4
+#define APU_PATCH_VERSION       0
 
 /** 
  *  This symbol is defined for internal, "development" copies of APU. This
