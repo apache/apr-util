@@ -148,10 +148,9 @@ typedef enum {
  * Forward declaration of the main types.
  */
 
-/** bucket brigade structure */
 typedef struct apr_bucket_brigade apr_bucket_brigade;
-
 typedef struct apr_bucket apr_bucket;
+typedef struct apr_bucket_alloc_t apr_bucket_alloc_t;
 
 typedef struct apr_bucket_type_t apr_bucket_type_t;
 struct apr_bucket_type_t {
@@ -260,6 +259,8 @@ struct apr_bucket {
      * @param e Pointer to the bucket being freed
      */
     void (*free)(void *e);
+    /** The freelist from which this bucket was allocated */
+    apr_bucket_alloc_t *list;
 };
 
 /** A list of buckets */
@@ -279,7 +280,10 @@ struct apr_bucket_brigade {
      * doesn't like that.
      */
     APR_RING_HEAD(apr_bucket_list, apr_bucket) list;
+    /** The freelist from which this bucket was allocated */
+    apr_bucket_alloc_t *bucket_alloc;
 };
+
 
 typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
 
@@ -543,6 +547,8 @@ struct apr_bucket_heap {
     char    *base;
     /** how much memory was allocated */
     apr_size_t  alloc_len;
+    /** function to use to delete the data */
+    void (*free_func)(void *data);
 };
 
 typedef struct apr_bucket_pool apr_bucket_pool;
@@ -575,6 +581,10 @@ struct apr_bucket_pool {
      * bucket before continuing.
      */
     apr_pool_t *pool;
+    /** The freelist this structure was allocated from, which is
+     * needed in the cleanup phase in order to allocate space on the heap
+     */
+    apr_bucket_alloc_t *list;
 };
 
 #if APR_HAS_MMAP
@@ -611,7 +621,8 @@ struct apr_bucket_file {
  *        of the pool, but a cleanup is registered.
  * @return The empty bucket brigade
  */
-APU_DECLARE(apr_bucket_brigade *) apr_brigade_create(apr_pool_t *p);
+APU_DECLARE(apr_bucket_brigade *) apr_brigade_create(apr_pool_t *p,
+                                                     apr_bucket_alloc_t *list);
 
 /**
  * destroy an entire bucket brigade.  This includes destroying all of the
@@ -804,6 +815,35 @@ APU_DECLARE(apr_status_t) apr_brigade_vprintf(apr_bucket_brigade *b,
                                               apr_brigade_flush flush,
                                               void *ctx,
                                               const char *fmt, va_list va);
+
+/*  *****  Bucket freelist functions *****  */
+/**
+ * Create a bucket allocator.
+ * @param p Pool to allocate the allocator from [note: this is only
+ *          used to allocate internal structures of the allocator, NOT
+ *          to allocate the memory handed out by the allocator]
+ * @warning The allocator must never be used by more than one thread at a time.
+ */
+APU_DECLARE(apr_bucket_alloc_t *) apr_bucket_alloc_create(apr_pool_t *p);
+
+/**
+ * Destroy a bucket allocator.
+ * @param list The allocator to be destroyed
+ */
+APU_DECLARE(void) apr_bucket_alloc_destroy(apr_bucket_alloc_t *list);
+
+/**
+ * Allocate memory for use by the buckets.
+ * @param size The amount to allocate.
+ * @param list The allocator from which to allocate the memory.
+ */
+APU_DECLARE(void *) apr_bucket_alloc(apr_size_t size, apr_bucket_alloc_t *list);
+
+/**
+ * Free memory previously allocated with apr_bucket_alloc().
+ * @param block The block of memory to be freed.
+ */
+APU_DECLARE(void) apr_bucket_free(void *block);
 
 
 /*  *****  Bucket Functions  *****  */
@@ -1086,9 +1126,10 @@ APU_DECLARE_NONSTD(apr_status_t) apr_bucket_shared_copy(apr_bucket *a,
 /**
  * Create an End of Stream bucket.  This indicates that there is no more data
  * coming from down the filter stack.  All filters should flush at this point.
+ * @param list The freelist from which this bucket should be allocated
  * @return The new bucket, or NULL if allocation failed
  */
-APU_DECLARE(apr_bucket *) apr_bucket_eos_create(void);
+APU_DECLARE(apr_bucket *) apr_bucket_eos_create(apr_bucket_alloc_t *list);
 
 /**
  * Make the bucket passed in an EOS bucket.  This indicates that there is no 
@@ -1103,9 +1144,10 @@ APU_DECLARE(apr_bucket *) apr_bucket_eos_make(apr_bucket *b);
  * Create a flush  bucket.  This indicates that filters should flush their
  * data.  There is no guarantee that they will flush it, but this is the
  * best we can do.
+ * @param list The freelist from which this bucket should be allocated
  * @return The new bucket, or NULL if allocation failed
  */
-APU_DECLARE(apr_bucket *) apr_bucket_flush_create(void);
+APU_DECLARE(apr_bucket *) apr_bucket_flush_create(apr_bucket_alloc_t *list);
 
 /**
  * Make the bucket passed in a FLUSH  bucket.  This indicates that filters 
@@ -1120,10 +1162,12 @@ APU_DECLARE(apr_bucket *) apr_bucket_flush_make(apr_bucket *b);
  * Create a bucket referring to long-lived data.
  * @param buf The data to insert into the bucket
  * @param nbyte The size of the data to insert.
+ * @param list The freelist from which this bucket should be allocated
  * @return The new bucket, or NULL if allocation failed
  */
 APU_DECLARE(apr_bucket *) apr_bucket_immortal_create(const char *buf, 
-                                                     apr_size_t nbyte);
+                                                     apr_size_t nbyte,
+                                                     apr_bucket_alloc_t *list);
 
 /**
  * Make the bucket passed in a bucket refer to long-lived data
@@ -1140,10 +1184,12 @@ APU_DECLARE(apr_bucket *) apr_bucket_immortal_make(apr_bucket *b,
  * Create a bucket referring to data on the stack.
  * @param buf The data to insert into the bucket
  * @param nbyte The size of the data to insert.
+ * @param list The freelist from which this bucket should be allocated
  * @return The new bucket, or NULL if allocation failed
  */
 APU_DECLARE(apr_bucket *) apr_bucket_transient_create(const char *buf, 
-                                                      apr_size_t nbyte);
+                                                      apr_size_t nbyte,
+                                                      apr_bucket_alloc_t *list);
 
 /**
  * Make the bucket passed in a bucket refer to stack data
@@ -1165,21 +1211,27 @@ APU_DECLARE(apr_bucket *) apr_bucket_transient_make(apr_bucket *b,
  * over responsibility for free()ing the memory.
  * @param buf The buffer to insert into the bucket
  * @param nbyte The size of the buffer to insert.
- * @param copy Whether to copy the data into newly-allocated memory or not
+ * @param free_func Function to use to free the data; NULL indicates that the
+ *                  bucket should make a copy of the data
+ * @param list The freelist from which this bucket should be allocated
  * @return The new bucket, or NULL if allocation failed
  */
 APU_DECLARE(apr_bucket *) apr_bucket_heap_create(const char *buf, 
-                                                 apr_size_t nbyte, int copy);
+                                                 apr_size_t nbyte,
+                                                 void (*free_func)(void *data),
+                                                 apr_bucket_alloc_t *list);
 /**
  * Make the bucket passed in a bucket refer to heap data
  * @param b The bucket to make into a HEAP bucket
  * @param buf The buffer to insert into the bucket
  * @param nbyte The size of the buffer to insert.
- * @param copy Whether to copy the data into newly-allocated memory or not
+ * @param free_func Function to use to free the data; NULL indicates that the
+ *                  bucket should make a copy of the data
  * @return The new bucket, or NULL if allocation failed
  */
 APU_DECLARE(apr_bucket *) apr_bucket_heap_make(apr_bucket *b, const char *buf,
-                                               apr_size_t nbyte, int copy);
+                                               apr_size_t nbyte,
+                                               void (*free_func)(void *data));
 
 /**
  * Create a bucket referring to memory allocated from a pool.
@@ -1187,11 +1239,13 @@ APU_DECLARE(apr_bucket *) apr_bucket_heap_make(apr_bucket *b, const char *buf,
  * @param buf The buffer to insert into the bucket
  * @param length The number of bytes referred to by this bucket
  * @param pool The pool the memory was allocated from
+ * @param list The freelist from which this bucket should be allocated
  * @return The new bucket, or NULL if allocation failed
  */
 APU_DECLARE(apr_bucket *) apr_bucket_pool_create(const char *buf, 
                                                  apr_size_t length,
-                                                 apr_pool_t *pool);
+                                                 apr_pool_t *pool,
+                                                 apr_bucket_alloc_t *list);
 
 /**
  * Make the bucket passed in a bucket refer to pool data
@@ -1212,11 +1266,13 @@ APU_DECLARE(apr_bucket *) apr_bucket_pool_make(apr_bucket *b, const char *buf,
  * @param start The offset of the first byte in the mmap
  *              that this bucket refers to
  * @param length The number of bytes referred to by this bucket
+ * @param list The freelist from which this bucket should be allocated
  * @return The new bucket, or NULL if allocation failed
  */
 APU_DECLARE(apr_bucket *) apr_bucket_mmap_create(apr_mmap_t *mm, 
                                                  apr_off_t start,
-                                                 apr_size_t length);
+                                                 apr_size_t length,
+                                                 apr_bucket_alloc_t *list);
 
 /**
  * Make the bucket passed in a bucket refer to an MMAP'ed file
@@ -1235,9 +1291,11 @@ APU_DECLARE(apr_bucket *) apr_bucket_mmap_make(apr_bucket *b, apr_mmap_t *mm,
 /**
  * Create a bucket referring to a socket.
  * @param thissocket The socket to put in the bucket
+ * @param list The freelist from which this bucket should be allocated
  * @return The new bucket, or NULL if allocation failed
  */
-APU_DECLARE(apr_bucket *) apr_bucket_socket_create(apr_socket_t *thissock);
+APU_DECLARE(apr_bucket *) apr_bucket_socket_create(apr_socket_t *thissock,
+                                                   apr_bucket_alloc_t *list);
 /**
  * Make the bucket passed in a bucket refer to a socket
  * @param b The bucket to make into a SOCKET bucket
@@ -1250,9 +1308,11 @@ APU_DECLARE(apr_bucket *) apr_bucket_socket_make(apr_bucket *b,
 /**
  * Create a bucket referring to a pipe.
  * @param thispipe The pipe to put in the bucket
+ * @param list The freelist from which this bucket should be allocated
  * @return The new bucket, or NULL if allocation failed
  */
-APU_DECLARE(apr_bucket *) apr_bucket_pipe_create(apr_file_t *thispipe);
+APU_DECLARE(apr_bucket *) apr_bucket_pipe_create(apr_file_t *thispipe,
+                                                 apr_bucket_alloc_t *list);
 
 /**
  * Make the bucket passed in a bucket refer to a pipe
@@ -1270,12 +1330,14 @@ APU_DECLARE(apr_bucket *) apr_bucket_pipe_make(apr_bucket *b,
  * @param len The amount of data in the file we are interested in
  * @param p The pool into which any needed structures should be created
  *          while reading from this file bucket
+ * @param list The freelist from which this bucket should be allocated
  * @return The new bucket, or NULL if allocation failed
  */
 APU_DECLARE(apr_bucket *) apr_bucket_file_create(apr_file_t *fd,
                                                  apr_off_t offset,
                                                  apr_size_t len, 
-                                                 apr_pool_t *p);
+                                                 apr_pool_t *p,
+                                                 apr_bucket_alloc_t *list);
 
 /**
  * Make the bucket passed in a bucket refer to a file

@@ -53,7 +53,6 @@
  */
 
 #include "apr_buckets.h"
-#include <stdlib.h>
 #define APR_WANT_MEMFUNC
 #include "apr_want.h"
 
@@ -73,7 +72,7 @@ static apr_status_t pool_bucket_cleanup(void *data)
      * can typecast a pool bucket struct to make it look like a
      * regular old heap bucket struct.
      */
-    p->heap.base = malloc(p->heap.alloc_len);
+    p->heap.base = apr_bucket_alloc(p->heap.alloc_len, p->list);
     memcpy(p->heap.base, p->base, p->heap.alloc_len);
     p->base = NULL;
     p->pool = NULL;
@@ -116,7 +115,7 @@ static void pool_destroy(void *data)
          */
         if (apr_bucket_shared_destroy(p)) {
             apr_pool_cleanup_kill(p->pool, p, pool_bucket_cleanup);
-            free(p);
+            apr_bucket_free(p);
         }
     }
     else {
@@ -134,10 +133,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_pool_make(apr_bucket *b,
 {
     apr_bucket_pool *p;
 
-    p = malloc(sizeof(*p));
-    if (p == NULL) {
-	return NULL;
-    }
+    p = apr_bucket_alloc(sizeof(*p), b->list);
 
     /* XXX: we lose the const qualifier here which indicates
      * there's something screwy with the API...
@@ -146,6 +142,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_pool_make(apr_bucket *b,
      * the problem?  --jcw */
     p->base = (char *) buf;
     p->pool = pool;
+    p->list = b->list;
 
     b = apr_bucket_shared_make(b, p, 0, length);
     b->type = &apr_bucket_type_pool;
@@ -159,13 +156,16 @@ APU_DECLARE(apr_bucket *) apr_bucket_pool_make(apr_bucket *b,
     return b;
 }
 
-APU_DECLARE(apr_bucket *) apr_bucket_pool_create(
-		const char *buf, apr_size_t length, apr_pool_t *pool)
+APU_DECLARE(apr_bucket *) apr_bucket_pool_create(const char *buf,
+                                                 apr_size_t length,
+                                                 apr_pool_t *pool,
+                                                 apr_bucket_alloc_t *list)
 {
-    apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
+    apr_bucket *b = apr_bucket_alloc(sizeof(*b), list);
 
     APR_BUCKET_INIT(b);
-    b->free = free;
+    b->free = apr_bucket_free;
+    b->list = list;
     return apr_bucket_pool_make(b, buf, length, pool);
 }
 

@@ -63,7 +63,6 @@
 #define APR_WANT_STRFUNC
 #include "apr_want.h"
 
-#include <stdlib.h>
 #if APR_HAVE_SYS_UIO_H
 #include <sys/uio.h>
 #endif
@@ -98,12 +97,14 @@ APU_DECLARE(apr_status_t) apr_brigade_destroy(apr_bucket_brigade *b)
     return apr_brigade_cleanup(b);
 }
 
-APU_DECLARE(apr_bucket_brigade *) apr_brigade_create(apr_pool_t *p)
+APU_DECLARE(apr_bucket_brigade *) apr_brigade_create(apr_pool_t *p,
+                                                     apr_bucket_alloc_t *list)
 {
     apr_bucket_brigade *b;
 
     b = apr_palloc(p, sizeof(*b));
     b->p = p;
+    b->bucket_alloc = list;
 
     APR_RING_INIT(&b->list, apr_bucket, link);
 
@@ -117,7 +118,7 @@ APU_DECLARE(apr_bucket_brigade *) apr_brigade_split(apr_bucket_brigade *b,
     apr_bucket_brigade *a;
     apr_bucket *f;
 
-    a = apr_brigade_create(b->p);
+    a = apr_brigade_create(b->p, b->bucket_alloc);
     /* Return an empty brigade if there is nothing left in 
      * the first brigade to split off 
      */
@@ -415,12 +416,12 @@ APU_DECLARE(apr_status_t) apr_brigade_write(apr_bucket_brigade *b,
         if (nbyte > APR_BUCKET_BUFF_SIZE) {
             /* too big to buffer */
             if (flush) {
-                e = apr_bucket_transient_create(str, nbyte);
+                e = apr_bucket_transient_create(str, nbyte, b->bucket_alloc);
                 APR_BRIGADE_INSERT_TAIL(b, e);
                 return flush(b, ctx);
             }
             else {
-                e = apr_bucket_heap_create(str, nbyte, 1);
+                e = apr_bucket_heap_create(str, nbyte, NULL, b->bucket_alloc);
                 APR_BRIGADE_INSERT_TAIL(b, e);
                 return APR_SUCCESS;
             }
@@ -428,8 +429,9 @@ APU_DECLARE(apr_status_t) apr_brigade_write(apr_bucket_brigade *b,
         else {
             /* bigger than the current buffer can handle, but we don't
              * mind making a new buffer */
-            buf = malloc(APR_BUCKET_BUFF_SIZE);
-            e = apr_bucket_heap_create(buf, APR_BUCKET_BUFF_SIZE, 0);
+            buf = apr_bucket_alloc(APR_BUCKET_BUFF_SIZE, b->bucket_alloc);
+            e = apr_bucket_heap_create(buf, APR_BUCKET_BUFF_SIZE,
+                                       apr_bucket_free, b->bucket_alloc);
             APR_BRIGADE_INSERT_TAIL(b, e);
             e->length = 0;   /* We are writing into the brigade, and
                               * allocating more memory than we need.  This

@@ -1,5 +1,10 @@
 Changes with APR-util b1  
 
+  *) Change bucket brigades API to allow a "bucket allocator" to be
+     passed in at certain points.  This allows us to implement freelists
+     so that we can stop using malloc/free so frequently.
+     [Cliff Woolley, Brian Pane]
+
   *) add apr_rmm_realloc() function
      [Madhusudan Mathihalli <madhusudan_mathihalli@hp.com>]
 
