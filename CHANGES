@@ -1,5 +1,12 @@
 Changes with APR-util b1  
 
+  *) Extend apr_bucket_type_t to add a pointer to a function used
+     to free the bucket. This change enables custom buckets to
+     completely specify how they are to be allocated and freed.
+     Before this change, custom buckets were required to use the 
+     same memory allocation scheme as the standard APR buckets.
+     [Saeid Sakhitab, Bill Stoddard]
+
   *) Install Expat when installing APR-util.  [Justin Erenkrantz]
 
   *) Make APR-util configure script rely on APR.  This removes the locally

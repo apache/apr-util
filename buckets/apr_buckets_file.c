@@ -262,6 +262,7 @@ static apr_status_t file_setaside(apr_bucket *data, apr_pool_t *reqpool)
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_file = {
     "FILE", 5,
     file_destroy,
+    free,
     file_read,
     file_setaside,
     apr_bucket_shared_split,
