@@ -1,10 +1,17 @@
 Makefile
 *.lo
 *.plg
+*.swp
 Debug
 *.la
 .libs
 testdbm
 testmd4
+testmd5
+testqueue
+testreslist
+testrmm
+testuuid
+teststrmatch
 testdate
 testxml

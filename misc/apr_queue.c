@@ -74,8 +74,8 @@
 /* 
  * define this to get debug messages
  *
- */
 #define QUEUE_DEBUG
+ */
 
 struct apr_queue_t {
     void              **data;
