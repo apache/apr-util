@@ -1,5 +1,8 @@
 Changes with APR-util b1  
 
+  *) Substantial changes to correct linkage and declarations for
+     generic hooks on dso architectures.  [Ben Laurie, Will Rowe]
+
   *) apr_bucket_shared_destroy() now returns a boolean value.
      [Cliff Woolley]
 
