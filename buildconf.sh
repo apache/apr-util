@@ -21,7 +21,7 @@ $ltpath/libtoolize --force --copy
 #
 # Generate the autoconf header (include/apu_config.h) and ./configure
 #
-echo "Creating include/apu_config.h ..."
+echo "Creating include/private/apu_config.h ..."
 autoheader
 
 echo "Creating configure ..."
