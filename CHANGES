@@ -13,9 +13,6 @@ Changes with APR-util 1.0
   *) Add timeout feature to apr_reslist_acquire().  
      [Mladen Turk <mturk apache.org>]
 
-  *) Add SHA1 support to apr_password_validate.
-     [Paul Querna <chip force-elite.com>]
-
   *) Pass error codes returned from constructors all the way back to
      the reslist consumer. Also fix a minor reslist memory leak that could
      happen when a constructor returns an error code.  PR 23492.
@@ -26,9 +23,22 @@ Changes with APR-util 1.0
      apu_compat.h
 
 Changes with APR-util 0.9.5
-   
+
+  *) Restore support for SHA1 passwords in apr_validate_password.
+     PR 17343.  [Paul Querna <chip force-elite.com>]
+
+  *) Fix DESTDIR install for bundled expat library.  PR 14076
+     [David S. Madole <david madole.net>]
+
   *) Fix occasional crash in apr_rmm_realloc().  PR 22915.
      [Jay Shrauner <shrauner inktomi.com>]
+
+  *) Fix apr_dbm_exists() for sdbm when sizeof(int) != sizeof(size_t). 
+     [Joe Orton]
+
+  *) The whole codebase was relicensed and is now available under
+     the Apache License, Version 2.0 (http://www.apache.org/licenses).
+     [Apache Software Foundation]
 
   *) Fix xlate.c compile failure on AIX 5.2.  PR 25701.  [Jeff Trawick]
 
