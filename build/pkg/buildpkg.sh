@@ -24,6 +24,7 @@ rm -rf $TEMPDIR
 
 apr_util_src_dir=.
 apr_src_dir=../apr
+expat_dir=/usr
 
 while test $# -gt 0 
 do
@@ -45,6 +46,12 @@ do
   ;;
   esac
 
+  case "$1" in
+  --with-expat=*)
+  expat_dir=$optarg
+  ;;
+  esac
+
   shift
 done
 
@@ -52,18 +59,24 @@ if [ -f "$apr_util_src_dir/configure.in" ]; then
   cd $apr_util_src_dir
 else
   echo "The apr-util source could not be found within $apr_util_src_dir"
-  echo "Usage: buildpkg [--with-apr=dir] [--with-apr-util=dir]"
+  echo "Usage: buildpkg [--with-apr=dir] [--with-apr-util=dir] [--with-expat=dir]"
   exit 1
 fi
 
 if [ ! -f "$apr_src_dir/configure.in" ]; then
   echo "The apr source could not be found within $apr_src_dir"
-  echo "Usage: buildpkg [--with-apr=dir] [--with-apr-util=dir]"
+  echo "Usage: buildpkg [--with-apr=dir] [--with-apr-util=dir] [--with-expat=dir]"
+  exit 1
+fi
+
+if [ ! -d "$expat_dir" ]; then
+  echo "The expat directory could not be found within $expat_dir"
+  echo "Usage: buildpkg [--with-apr=dir] [--with-apr-util=dir] [--with-expat=dir]"
   exit 1
 fi
 
 ./configure --prefix=$PREFIX --with-apr=$apr_src_dir \
-            --with-ldap
+            --with-ldap --with-expat=$expat_dir
 make
 make install DESTDIR=$TEMPDIR
 rm $TEMPDIR$PREFIX/lib/aprutil.exp
