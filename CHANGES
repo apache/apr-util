@@ -1,5 +1,7 @@
 Changes with APR-util b1  
 
+  *) Fix exporting of includes in apu-config.  [Justin Erenkrantz]
+
   *) Change bucket brigades API to allow a "bucket allocator" to be
      passed in at certain points.  This allows us to implement freelists
      so that we can stop using malloc/free so frequently.

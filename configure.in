@@ -39,14 +39,11 @@ dnl
 dnl set up the compilation flags and stuff
 dnl
 
-APRUTIL_INCLUDES="-I$top_builddir/include"
-APRUTIL_PRIV_INCLUDES="-I$top_builddir/include/private"
+APRUTIL_INCLUDES=""
+APRUTIL_PRIV_INCLUDES="-I$top_builddir/include -I$top_builddir/include/private"
 if test -n "$USE_VPATH"; then
-    APRUTIL_PRIV_INCLUDES="$APRUTIL_PRIV_INCLUDES -I$abs_srcdir/include/private"
-    APRUTIL_INCLUDES="$APRUTIL_INCLUDES -I$abs_srcdir/include"
+    APRUTIL_PRIV_INCLUDES="$APRUTIL_PRIV_INCLUDES -I$abs_srcdir/include/private -I$abs_srcdir/include"
 fi
-AC_SUBST(APRUTIL_INCLUDES)
-AC_SUBST(APRUTIL_PRIV_INCLUDES)
 
 dnl
 dnl 1. Find the APR includes directory and (possibly) the source (base) dir.
@@ -87,6 +84,7 @@ dnl
 APR_ADDTO(LIBS, [$APR_LIBS])
 
 AC_SUBST(APRUTIL_EXPORT_LIBS)
+AC_SUBST(APRUTIL_PRIV_INCLUDES)
 AC_SUBST(APRUTIL_INCLUDES)
 AC_SUBST(APRUTIL_LDFLAGS)
 AC_SUBST(LDFLAGS)
