@@ -111,10 +111,6 @@ static apr_status_t socket_read(apr_bucket *a, const char **str,
         free(buf);
         a = apr_bucket_immortal_make(a, "", 0);
         *str = a->data;
-        if (rv == APR_EOF && block == APR_NONBLOCK_READ) {
-            /* XXX: this is bogus... should return APR_SUCCESS */
-            return APR_EOF;
-        }
     }
     return APR_SUCCESS;
 }
