@@ -64,10 +64,11 @@ static apr_status_t flush_bucket_read(apr_bucket *b, const char **str,
 
 APU_DECLARE(apr_bucket *) apr_bucket_flush_make(apr_bucket *b)
 {
-    b->length    = 0;
-    b->start     = 0;
-    b->data      = NULL;
-    b->type      = &apr_bucket_type_flush;
+    b->length      = 0;
+    b->start       = 0;
+    b->data        = NULL;
+    b->is_metadata = 1;
+    b->type        = &apr_bucket_type_flush;
     
     return b;
 }
