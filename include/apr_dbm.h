@@ -106,12 +106,13 @@ typedef struct
  */
 APU_DECLARE(apr_status_t) apr_dbm_open(apr_dbm_t **dbm, const char *name, 
                                        int mode, apr_pool_t *cntxt);
+
 /**
  * Close a dbm file previously opened by apr_dbm_open
  * @param dbm The database to close
- * @deffunc void apr_dbm_close(apr_dbm_t *db)
+ * @deffunc void apr_dbm_close(apr_dbm_t *dbm)
  */
-APU_DECLARE(void) apr_dbm_close(apr_dbm_t *db);
+APU_DECLARE(void) apr_dbm_close(apr_dbm_t *dbm);
 
 /**
  * Fetch a dbm record value by key
@@ -137,6 +138,7 @@ APU_DECLARE(apr_status_t) apr_dbm_store(apr_dbm_t *dbm, apr_datum_t key,
  * @param dbm The database 
  * @param key The key datum of the record to delete
  * @deffunc apr_status_t apr_dbm_delete(apr_dbm_t *dbm, apr_datum_t key)
+ * @tip It is not an error to delete a non-existent record.
  */
 APU_DECLARE(apr_status_t) apr_dbm_delete(apr_dbm_t *dbm, apr_datum_t key);
 
@@ -172,11 +174,18 @@ APU_DECLARE(apr_status_t) apr_dbm_nextkey(apr_dbm_t *dbm, apr_datum_t *pkey);
  */
 APU_DECLARE(void) apr_dbm_freedatum(apr_dbm_t *dbm, apr_datum_t data);
 
-/* XXX: Need to change errcode to be handled canonically, and modify
- * the prototype to follow apr_dso_error etc.
- * @deffunc void apr_dbm_geterror(apr_dbm_t *dbm, int *errcode, const char **errmsg)
+/**
+ * Report more information when an apr_dbm function fails.
+ * @param dbm The database
+ * @param errcode A DBM-specific value for the error (for logging). If this
+ *                isn't needed, it may be NULL.
+ * @param errbuf Location to store the error text
+ * @param errbufsize The size of the provided buffer
+ * @return The errbuf parameter, for convenience.
+ * @deffunc const char * apr_dbm_geterror(apr_dbm_t *dbm, int *errcode, char *errbuf, apr_size_t errbufsize)
  */
-APU_DECLARE(void) apr_dbm_geterror(apr_dbm_t *dbm, int *errcode, const char **errmsg);
+APU_DECLARE(char *) apr_dbm_geterror(apr_dbm_t *dbm, int *errcode,
+                                     char *errbuf, apr_size_t errbufsize);
 
 /**
  * If the specified file/path were passed to apr_dbm_open(), return the
