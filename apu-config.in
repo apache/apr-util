@@ -67,6 +67,7 @@ LDFLAGS="@APRUTIL_LDFLAGS@"
 
 APU_SOURCE_DIR="@top_srcdir@"
 APU_BUILD_DIR="@top_builddir@"
+APR_XML_EXPAT_OLD="@APR_XML_EXPAT_OLD@"
 
 show_usage()
 {
@@ -82,6 +83,7 @@ Known values for OPTION are:
   --link-ld         print link switch(es) for linking to APR-util
   --link-libtool    print the libtool inputs for linking to APR-util
   --apu-la-file     print the path to the .la file, if available
+  --old-expat       indicate if APR-util was built against an old expat
   --help            print this help
 
 When linking with libtool, an application should do something like:
@@ -180,6 +182,14 @@ while test $# -gt 0; do
     if test -f "$LA_FILE"; then
         flags="$flags $LA_FILE"
     fi
+    ;;
+    --old-expat)
+    if test ! -n "$APR_XML_EXPAT_OLD"; then
+        echo "no"
+    else
+        echo "$APR_XML_EXPAT_OLD"
+    fi
+    exit 0
     ;;
     --help)
     show_usage

@@ -1,5 +1,10 @@
 Changes with APR-util b1  
 
+  *) Add --old-expat option to apu-config to allow users of apr-util to
+     determine what expat it should expect to be installed.  If the
+     flag is set to yes, it should include xmlparse.h.  If it is set to
+     no, it should include expat.h.  [Justin Erenkrantz]
+
   *) Fix exporting of includes in apu-config.  [Justin Erenkrantz]
 
   *) Change bucket brigades API to allow a "bucket allocator" to be
