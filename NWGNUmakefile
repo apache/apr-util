@@ -241,6 +241,7 @@ FILES_lib_objs = \
 	$(OBJDIR)/apr_md4.o \
 	$(OBJDIR)/apr_rmm.o \
 	$(OBJDIR)/apr_sha1.o \
+	$(OBJDIR)/apr_strmatch.o \
 	$(OBJDIR)/apr_uri.o \
 	$(OBJDIR)/sdbm.o \
 	$(OBJDIR)/sdbm_hash.o \
@@ -293,6 +294,10 @@ $(OBJDIR)/%.o: hooks/%.c $(OBJDIR)\cc.opt
 $(OBJDIR)/%.o: misc/%.c $(OBJDIR)\cc.opt
 	@echo Compiling $<
 	$(CC) misc\$(<F) -o=$(OBJDIR)\$(@F) @$(OBJDIR)\cc.opt
+
+$(OBJDIR)/%.o: strmatch/%.c $(OBJDIR)\cc.opt
+	@echo Compiling $<
+	$(CC) strmatch\$(<F) -o=$(OBJDIR)\$(@F) @$(OBJDIR)\cc.opt
 
 $(OBJDIR)/%.o: uri/%.c $(OBJDIR)\cc.opt
 	@echo Compiling $<
