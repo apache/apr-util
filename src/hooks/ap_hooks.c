@@ -120,7 +120,7 @@ static ap_array_header_t *sort_hook(ap_array_header_t *pHooks,const char *szName
 
     ap_create_context(&p, g_pHookPool);
     pSort=prepare(p,(TSortData *)pHooks->elts,pHooks->nelts);
-    tsort(pSort,pHooks->nelts);
+    pSort=tsort(pSort,pHooks->nelts);
     pNew=ap_make_array(g_pHookPool,pHooks->nelts,sizeof(TSortData));
     if(g_bDebugHooks)
 	printf("Sorting %s:",szName);
