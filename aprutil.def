@@ -1,0 +1,7 @@
+; aprutil.def :
+
+LIBRARY aprutil
+DESCRIPTION ''
+
+EXPORTS
+; Add new API calls to the end of this list.
