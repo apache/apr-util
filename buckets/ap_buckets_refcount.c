@@ -62,20 +62,44 @@ APR_DECLARE_NONSTD(apr_status_t) ap_bucket_split_shared(ap_bucket *a, apr_off_t 
 {
     ap_bucket *b;
     ap_bucket_shared *ad, *bd;
-    ap_bucket_refcount *r;
+    apr_status_t rv;
 
     if (point < 0 || point > a->length) {
 	return APR_EINVAL;
     }
 
-    b = malloc(sizeof(*b)); 
+    rv = ap_bucket_copy_shared(a, &b);
+    if (rv != APR_SUCCESS) {
+        return rv;
+    }
+
+    ad = a->data;
+    bd = b->data;
+
+    a->length = point;
+    ad->end = ad->start + point;
+    b->length -= point;
+    bd->start += point;
+
+    AP_BUCKET_INSERT_AFTER(a, b);
+
+    return APR_SUCCESS;
+}
+
+APR_DECLARE(apr_status_t) ap_bucket_copy_shared(ap_bucket *a, ap_bucket **c)
+{
+    ap_bucket *b;
+    ap_bucket_shared *ad, *bd;
+    ap_bucket_refcount *r;
+
+    b = malloc(sizeof(*b));
     if (b == NULL) {
-	return APR_ENOMEM;
+        return APR_ENOMEM;
     }
     bd = malloc(sizeof(*bd));
     if (bd == NULL) {
-	free(b);
-	return APR_ENOMEM;
+        free(b);
+        return APR_ENOMEM;
     }
     *b = *a;
     ad = a->data;
@@ -85,12 +109,7 @@ APR_DECLARE_NONSTD(apr_status_t) ap_bucket_split_shared(ap_bucket *a, apr_off_t 
     r = ad->data;
     r->refcount += 1;
 
-    a->length = point;
-    ad->end = ad->start + point;
-    b->length -= point;
-    bd->start += point;
-
-    AP_BUCKET_INSERT_AFTER(a, b);
+    *c = b;
 
     return APR_SUCCESS;
 }

@@ -116,9 +116,10 @@ APR_DECLARE(ap_bucket *) ap_bucket_create_mmap(
 }
 
 APR_DECLARE_DATA const ap_bucket_type ap_mmap_type = {
-    "MMAP", 4,
+    "MMAP", 5,
     mmap_destroy,
     mmap_read,
     ap_bucket_setaside_notimpl,
-    ap_bucket_split_shared
+    ap_bucket_split_shared,
+    ap_bucket_copy_shared
 };
