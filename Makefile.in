@@ -10,7 +10,7 @@ TARGETS = delete-lib $(TARGET_LIB) delete-exports $(TARGET_EXPORTS)
 # bring in rules.mk for standard functionality
 @INCLUDE_RULES@
 
-SUBDIRS = src . build test
+SUBDIRS = src . test build
 
 CLEAN_TARGETS = $(TARGET_EXPORTS)
 DISTCLEAN_TARGETS = config.cache config.log config.status config.sub \
