@@ -76,7 +76,7 @@ static apr_status_t mmap_bucket_insert(ap_bucket *e, const apr_mmap_t *mm,
     b->sub->refcount = 1;
 
     b->start = mm->mm;
-    b->end = mm->mm + nbytes;
+    b->end = (char *) mm->mm + nbytes;
     *w = nbytes;
     return APR_SUCCESS;
 }
@@ -90,9 +90,9 @@ static apr_status_t mmap_split(ap_bucket *e, apr_off_t nbyte)
 
     newbuck = ap_bucket_mmap_create(a->sub->mmap, e->length, &dump);
     b = (ap_bucket_mmap *)newbuck->data;
-    b->start = a->start + nbyte + 1;
+    b->start = (char *) a->start + nbyte + 1;
     b->end = a->end;
-    a->end = a->start + nbyte;
+    a->end = (char *) a->start + nbyte;
     newbuck->length = e->length - nbyte;
     e->length = nbyte;
 

@@ -91,8 +91,8 @@ static apr_status_t heap_split(ap_bucket *e, apr_off_t nbyte)
     b->alloc_addr = a->alloc_addr;
     b->alloc_len = a->alloc_len;
     b->end = a->end;
-    a->end = a->start + nbyte;
-    b->start = a->end + 1;
+    a->end = (char *) a->start + nbyte;
+    b->start = (char *) a->end + 1;
     newbuck->length = e->length - nbyte;
     e->length = nbyte;
 
@@ -150,7 +150,7 @@ void ap_heap_setaside(ap_bucket *e)
     b->alloc_len  = DEFAULT_RWBUF_SIZE;
     memcpy(b->alloc_addr, a->start, e->length);
     b->start      = b->alloc_addr;
-    b->end        = b->start + e->length;
+    b->end        = (char *) b->start + e->length;
 
     e->type       = AP_BUCKET_HEAP;
     e->read       = heap_get_str;
@@ -175,7 +175,7 @@ API_EXPORT(ap_bucket *) ap_bucket_heap_create(const void *buf,
 
     newbuf->data       = b;
     heap_insert(newbuf, buf, nbyte, w); 
-    newbuf->length     = b->end - b->start;
+    newbuf->length     = (char *) b->end - (char *) b->start;
 
     newbuf->type       = AP_BUCKET_HEAP;
     newbuf->read       = heap_get_str;
