@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "testutil.h"
 #include "apr_general.h"
 #include "apr_uri.h"
 
@@ -150,77 +151,40 @@ static void show_info(apr_status_t rv, apr_status_t expected, const apr_uri_t *i
     }
 }
 
-static int same_str(const char *s1, const char *s2)
+static void test_aup(abts_case *tc, void *data)
 {
-    if (s1 == s2) { /* e.g., NULL and NULL */
-        return 1;
-    }
-    else if (!s1 || !s2) { /* only 1 is NULL */
-        return 0;
-    }
-    else {
-        return strcmp(s1, s2) == 0;
-    }
-}
-
-static int test_aup(apr_pool_t *p)
-{
+    apr_pool_t *p = (apr_pool_t *)data;
     int i;
     apr_status_t rv;
     apr_uri_t info;
     struct aup_test *t;
-    const char *failed;
+    const char *s = NULL;
     int rc = 0;
 
     for (i = 0; i < sizeof(aup_tests) / sizeof(aup_tests[0]); i++) {
         memset(&info, 0, sizeof(info));
         t = &aup_tests[i];
         rv = apr_uri_parse(p, t->uri, &info);
-        failed = (rv != t->rv) ? "bad rc" : NULL;
-        if (!failed && t->rv == APR_SUCCESS) {
-            if (!same_str(info.scheme, t->scheme))
-                failed = "bad scheme";
-            if (!same_str(info.hostinfo, t->hostinfo))
-                failed = "bad hostinfo";
-            if (!same_str(info.user, t->user))
-                failed = "bad user";
-            if (!same_str(info.password, t->password))
-                failed = "bad password";
-            if (!same_str(info.hostname, t->hostname))
-                failed = "bad hostname";
-            if (!same_str(info.port_str, t->port_str))
-                failed = "bad port_str";
-            if (!same_str(info.path, t->path))
-                failed = "bad path";
-            if (!same_str(info.query, t->query))
-                failed = "bad query";
-            if (!same_str(info.fragment, t->fragment))
-                failed = "bad fragment";
-            if (info.port != t->port)
-                failed = "bad port";
-        }
-        if (failed) {
-            ++rc;
-            fprintf(stderr, "failure for testcase %d/uri %s: %s\n", i,
-                    t->uri, failed);
-            show_info(rv, t->rv, &info);
-        }
-        else if (t->rv == APR_SUCCESS) {
-            const char *s = apr_uri_unparse(p, &info,
-                                            APR_URI_UNP_REVEALPASSWORD);
+        ABTS_INT_EQUAL(tc, rv, t->rv);
+        ABTS_STR_EQUAL(tc, info.scheme, t->scheme);
+        ABTS_STR_EQUAL(tc, info.hostinfo, t->hostinfo);
+        ABTS_STR_EQUAL(tc, info.user, t->user);
+        ABTS_STR_EQUAL(tc, info.password, t->password);
+        ABTS_STR_EQUAL(tc, info.hostname, t->hostname);
+        ABTS_STR_EQUAL(tc, info.port_str, t->port_str);
+        ABTS_STR_EQUAL(tc, info.path, t->path);
+        ABTS_STR_EQUAL(tc, info.query, t->query);
+        ABTS_STR_EQUAL(tc, info.user, t->user);
+        ABTS_INT_EQUAL(tc, info.port, t->port);
 
-            if (strcmp(s, t->uri)) {
-                fprintf(stderr, "apr_uri_unparsed failed for testcase %d\n", i);
-                fprintf(stderr, "  got %s, expected %s\n", s, t->uri);
-            }
-        }
+        s = apr_uri_unparse(p, &info, APR_URI_UNP_REVEALPASSWORD);
+        ABTS_STR_EQUAL(tc, s, t->uri);
     }
-
-    return rc;
 }
 
-static int test_uph(apr_pool_t *p)
+static void test_uph(abts_case *tc, void *data)
 {
+    apr_pool_t *p = (apr_pool_t *)data;
     int i;
     apr_status_t rv;
     apr_uri_t info;
@@ -232,41 +196,26 @@ static int test_uph(apr_pool_t *p)
         memset(&info, 0, sizeof(info));
         t = &uph_tests[i];
         rv = apr_uri_parse_hostinfo(p, t->hostinfo, &info);
-        failed = (rv != t->rv) ? "bad rc" : NULL;
-        if (!failed && t->rv == APR_SUCCESS) {
-            if (!same_str(info.hostname, t->hostname))
-                failed = "bad hostname";
-            if (!same_str(info.port_str, t->port_str))
-                failed = "bad port_str";
-            if (info.port != t->port)
-                failed = "bad port";
-        }
-        if (failed) {
-            ++rc;
-            fprintf(stderr, "failure for testcase %d/hostinfo %s: %s\n", i,
-                    t->hostinfo, failed);
-            show_info(rv, t->rv, &info);
-        }
+        ABTS_INT_EQUAL(tc, rv, t->rv);
+        ABTS_STR_EQUAL(tc, info.hostname, t->hostname);
+        ABTS_STR_EQUAL(tc, info.port_str, t->port_str);
+        ABTS_INT_EQUAL(tc, info.port, t->port);
     }
-
-    return rc;
 }
 
-int main(void)
+abts_suite *testuri(abts_suite *suite)
 {
     apr_pool_t *pool;
-    int rc;
 
-    apr_initialize();
-    atexit(apr_terminate);
+    suite = ADD_SUITE(suite);
+
+    /* do we need to run the apr_initialize and set an atexit() here? */
 
     apr_pool_create(&pool, NULL);
 
-    rc = test_aup(pool);
+    abts_run_test(suite, test_aup, pool);
+    abts_run_test(suite, test_uph, pool);
 
-    if (!rc) {
-        rc = test_uph(pool);
-    }
-    
-    return rc;
+    return suite;
 }
+
