@@ -12,17 +12,30 @@ AC_PROG_CC
 AC_PROG_AWK
 AC_CHECK_PROG(RM, rm, rm)
 
+dnl Absolute source/build directory
+abs_srcdir=`(cd $srcdir && pwd)`
+abs_builddir=`pwd`
+ 
+if test "$abs_builddir" != "$abs_srcdir"; then
+  USE_VPATH=1
+fi
+
 dnl
 dnl compute the top directory of the build
 dnl note: this is needed for LIBTOOL and exporting the bundled Expat
 dnl
-top_builddir="`cd $srcdir ; pwd`"
+top_builddir="$abs_builddir"
 AC_SUBST(top_builddir)
+AC_SUBST(abs_srcdir)
 
 dnl
 dnl set up the compilation flags and stuff
 dnl
 INCLUDES="$INCLUDES -I\$(top_builddir)/include/private -I\$(top_builddir)/include"
+
+if test -n "$USE_VPATH"; then
+    INCLUDES="$INCLUDES -I\$(top_srcdir)/include"
+fi
 
 dnl
 dnl 1. Find the APR includes directory and (possibly) the source (base) dir.
@@ -33,7 +46,7 @@ APU_FIND_APR
 APU_CHECK_DBM
 APU_FIND_EXPAT
 
-INCLUDES="$INCLUDES -I$APR_INCLUDES"
+INCLUDES="$INCLUDES $APR_INCLUDES"
 
 dnl
 dnl prep libtool
@@ -96,16 +109,6 @@ AC_SUBST(LT_LDFLAGS)
 AC_SUBST(EXPAT_LINK)
 
 dnl
-dnl grab flags from APR.
-dnl ### APR doesn't have "nice" names for its exports (yet), but it isn't
-dnl ### a problem to deal with them right here
-dnl
-. "$APR_SOURCE_DIR/APRVARS"
-APR_EXPORT_CPPFLAGS="$EXTRA_CPPFLAGS"
-APR_EXPORT_CFLAGS="$EXTRA_CFLAGS"
-APR_EXPORT_LIBS="$EXTRA_LIBS"
-
-dnl
 dnl Prep all the flags and stuff for compilation and export to other builds
 dnl
 CFLAGS="$CFLAGS $INCLUDES $APR_EXPORT_CFLAGS $APR_EXPORT_CPPFLAGS"
@@ -133,21 +136,31 @@ fi
 
 dnl
 dnl everthing is done. 
+MAKEFILES=" Makefile build/Makefile buckets/Makefile crypto/Makefile dbm/Makefile dbm/sdbm/Makefile encoding/Makefile hooks/Makefile uri/Makefile xml/Makefile misc/Makefile $test_Makefile"
 AC_OUTPUT([
-	Makefile
 	export_vars.sh
-	build/Makefile
 	build/rules.mk
 	include/private/apu_select_dbm.h
         include/apu.h
-	buckets/Makefile
-	crypto/Makefile
-	dbm/Makefile
-	dbm/sdbm/Makefile
-	encoding/Makefile
-	hooks/Makefile
-	uri/Makefile
-	xml/Makefile
-	misc/Makefile
-	$test_Makefile
+        $MAKEFILES
 	])
+
+dnl #----------------------------- Fixup Makefiles for VPATH support
+ 
+changequote({,})
+ 
+if test -n "$USE_VPATH"; then
+  for makefile in $MAKEFILES; do
+    dir=`echo $makefile|sed 's%[^/][^/]*$%%'`
+    (cat <<EOF
+srcdir = $abs_srcdir/$dir
+VPATH  = $abs_srcdir/$dir
+ 
+EOF
+)    |  cat - $makefile > tmp
+    cp tmp $makefile
+  done
+  rm -f tmp
+fi
+ 
+changequote([,])
