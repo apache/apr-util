@@ -68,27 +68,16 @@
    to stop "no effect" warnings from GCC. */
 #define NOOP_FUNCTION if (0) ; else
 
+/* ### define defaults for now; these will go away in a while */
+#define REGISTER_CLEANUP(dbm, pdatum) NOOP_FUNCTION
+#define SET_FILE(pdb, f) ((pdb)->file = (f))
+
 
 #if APU_USE_SDBM
 
 #include "apr_dbm_sdbm.c"
 
-#else /* Not using SDBM: */
-
-/* Most DBM libraries take a POSIX mode for creating files.  Don't trust
- * the mode_t type, some platforms may not support it, int is safe.
- */
-int apr_posix_perms2mode(apr_fileperms_t perm)
-{
-    int mode = 0;
-
-    mode |= 0700 & (perm >> 2); /* User  is off-by-2 bits */
-    mode |= 0070 & (perm >> 1); /* Group is off-by-1 bit */
-    mode |= 0007 & (perm);      /* World maps 1 for 1 */
-    return mode;
-}
-
-#if APU_USE_GDBM
+#elif APU_USE_GDBM
 
 #include "apr_dbm_gdbm.c"
 
@@ -100,28 +89,6 @@ int apr_posix_perms2mode(apr_fileperms_t perm)
 #error a DBM implementation was not specified
 #endif
 
-#endif /* Not USE_SDBM */
-
-
-#ifdef NEEDS_CLEANUP
-
-static apr_status_t datum_cleanup(void *dptr)
-{
-    APR_DBM_FREEDPTR(dptr);
-    return APR_SUCCESS;
-}
-
-#define REGISTER_CLEANUP(dbm, pdatum) \
-    if ((pdatum)->dptr) \
-        apr_pool_cleanup_register((dbm)->pool, (pdatum)->dptr, \
-                             datum_cleanup, apr_pool_cleanup_null); \
-    else
-
-#else /* NEEDS_CLEANUP */
-
-#define REGISTER_CLEANUP(dbm, pdatum) NOOP_FUNCTION
-
-#endif /* NEEDS_CLEANUP */
 
 static apr_status_t set_error(apr_dbm_t *dbm, apr_status_t dbm_said)
 {
@@ -255,7 +222,7 @@ APU_DECLARE(apr_status_t) apr_dbm_open(apr_dbm_t **pdb, const char *pathname,
     /* we have an open database... return it */
     *pdb = apr_pcalloc(pool, sizeof(**pdb));
     (*pdb)->pool = pool;
-    (*pdb)->file = file;
+    SET_FILE(*pdb, file);
 
     /* ### register a cleanup to close the DBM? */
 
@@ -336,7 +303,7 @@ APU_DECLARE(int) apr_dbm_exists(apr_dbm_t *dbm, apr_datum_t key)
 #elif APU_USE_DB
     {
         DBT data;
-        int dberr = do_fetch(dbm->file.bdb, ckey, data);
+        int dberr = do_fetch(GET_BDB(dbm->file), ckey, data);
 
         /* DB returns DB_NOTFOUND if it doesn't exist. but we want to say
            that *any* error means it doesn't exist. */
@@ -421,4 +388,17 @@ APU_DECLARE(void) apr_dbm_get_usednames(apr_pool_t *p,
 #else
 #error apr_dbm_get_usednames has not been coded for this database type
 #endif
+}
+
+/* Most DBM libraries take a POSIX mode for creating files.  Don't trust
+ * the mode_t type, some platforms may not support it, int is safe.
+ */
+APU_DECLARE(int) apr_posix_perms2mode(apr_fileperms_t perm)
+{
+    int mode = 0;
+
+    mode |= 0700 & (perm >> 2); /* User  is off-by-2 bits */
+    mode |= 0070 & (perm >> 1); /* Group is off-by-1 bit */
+    mode |= 0007 & (perm);      /* World maps 1 for 1 */
+    return mode;
 }

@@ -77,3 +77,94 @@ typedef apr_sdbm_datum_t result_datum_t;
 #define APR_DBM_DBMODE_RW       (APR_READ | APR_WRITE)
 #define APR_DBM_DBMODE_RWCREATE (APR_READ | APR_WRITE | APR_CREATE)
 #define APR_DBM_DBMODE_RWTRUNC  (APR_READ | APR_WRITE | APR_CREATE|APR_TRUNCATE)
+
+/* --------------------------------------------------------------------------
+**
+** DEFINE THE VTABLE FUNCTIONS FOR SDBM
+*/
+
+static apr_status_t vt_sdbm_open(apr_dbm_t **dbm, const char *name,
+                                 apr_int32_t mode, apr_fileperms_t perm,
+                                 apr_pool_t *cntxt)
+{
+    abort();
+    return APR_SUCCESS;
+}
+
+static void vt_sdbm_close(apr_dbm_t *dbm)
+{
+    abort();
+}
+
+static apr_status_t vt_sdbm_fetch(apr_dbm_t *dbm, apr_datum_t key,
+                                  apr_datum_t * pvalue)
+{
+    abort();
+    return APR_SUCCESS;
+}
+
+static apr_status_t vt_sdbm_store(apr_dbm_t *dbm, apr_datum_t key,
+                                  apr_datum_t value)
+{
+    abort();
+    return APR_SUCCESS;
+}
+
+static apr_status_t vt_sdbm_del(apr_dbm_t *dbm, apr_datum_t key)
+{
+    abort();
+    return APR_SUCCESS;
+}
+
+static int vt_sdbm_exists(apr_dbm_t *dbm, apr_datum_t key)
+{
+    abort();
+    return 0;
+}
+
+static apr_status_t vt_sdbm_firstkey(apr_dbm_t *dbm, apr_datum_t * pkey)
+{
+    abort();
+    return APR_SUCCESS;
+}
+
+static apr_status_t vt_sdbm_nextkey(apr_dbm_t *dbm, apr_datum_t * pkey)
+{
+    abort();
+    return APR_SUCCESS;
+}
+
+static char * vt_sdbm_geterror(apr_dbm_t *dbm, int *errcode, char *errbuf,
+                               apr_size_t errbufsize)
+{
+    abort();
+    return NULL;
+}
+
+static void vt_sdbm_freedatum(apr_dbm_t *dbm, apr_datum_t data)
+{
+    abort();
+}
+
+static void vt_sdbm_usednames(apr_pool_t *pool, const char *pathname,
+                              const char **used1, const char **used2)
+{
+    abort();
+}
+
+
+static const apr_dbm_type_t apr_dbm_type_sdbm = {
+    "sdbm",
+
+    vt_sdbm_open,
+    vt_sdbm_close,
+    vt_sdbm_fetch,
+    vt_sdbm_store,
+    vt_sdbm_del,
+    vt_sdbm_exists,
+    vt_sdbm_firstkey,
+    vt_sdbm_nextkey,
+    vt_sdbm_geterror,
+    vt_sdbm_freedatum,
+    vt_sdbm_usednames
+};

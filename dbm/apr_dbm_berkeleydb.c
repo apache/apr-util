@@ -75,6 +75,11 @@ typedef struct {
 #endif
 } real_file_t;
 
+
+#undef SET_FILE
+#define SET_FILE(pdb, f) ((pdb)->file = apr_pmemdup((pdb)->pool, \
+                                                    &(f), sizeof(f)))
+
 typedef DBT cvt_datum_t;
 #define CONVERT_DATUM(cvt, pinput) (memset(&(cvt), 0, sizeof(cvt)), \
                                     (cvt).data = (pinput)->dptr, \
@@ -90,18 +95,20 @@ typedef DBT result_datum_t;
 #define TXN_ARG NULL,
 #endif
 
+#define GET_BDB(f)      (((real_file_t *)(f))->bdb)
+
 #if DB_VER == 1
-#define APR_DBM_CLOSE(f)	((*(f).bdb->close)((f).bdb))
+#define APR_DBM_CLOSE(f)	((*GET_BDB(f)->close)(GET_BDB(f)))
 #else
-#define APR_DBM_CLOSE(f)	((*(f).bdb->close)((f).bdb, 0))
+#define APR_DBM_CLOSE(f)	((*GET_BDB(f)->close)(GET_BDB(f), 0))
 #endif
 
-#define do_fetch(f, k, v)       ((*(f)->get)(f, TXN_ARG &(k), &(v), 0))
-#define APR_DBM_FETCH(f, k, v)	db2s(do_fetch((f).bdb, k, v))
-#define APR_DBM_STORE(f, k, v)	db2s((*(f).bdb->put)((f).bdb, TXN_ARG &(k), &(v), 0))
-#define APR_DBM_DELETE(f, k)	db2s((*(f).bdb->del)((f).bdb, TXN_ARG &(k), 0))
-#define APR_DBM_FIRSTKEY(f, k)  do_firstkey(&(f), &(k))
-#define APR_DBM_NEXTKEY(f, k, nk) do_nextkey(&(f), &(k), &(nk))
+#define do_fetch(bdb, k, v)       ((*(bdb)->get)(bdb, TXN_ARG &(k), &(v), 0))
+#define APR_DBM_FETCH(f, k, v)	db2s(do_fetch(GET_BDB(f), k, v))
+#define APR_DBM_STORE(f, k, v)	db2s((*GET_BDB(f)->put)(GET_BDB(f), TXN_ARG &(k), &(v), 0))
+#define APR_DBM_DELETE(f, k)	db2s((*GET_BDB(f)->del)(GET_BDB(f), TXN_ARG &(k), 0))
+#define APR_DBM_FIRSTKEY(f, k)  do_firstkey(f, &(k))
+#define APR_DBM_NEXTKEY(f, k, nk) do_nextkey(f, &(k), &(nk))
 #define APR_DBM_FREEDPTR(dptr)	NOOP_FUNCTION
 
 #if DB_VER == 1
@@ -181,3 +188,94 @@ static apr_status_t do_nextkey(real_file_t *f, DBT *pkey, DBT *pnext)
 
     return db2s(dberr);
 }
+
+/* --------------------------------------------------------------------------
+**
+** DEFINE THE VTABLE FUNCTIONS FOR BERKELEY DB
+*/
+
+static apr_status_t vt_db_open(apr_dbm_t **dbm, const char *name,
+                               apr_int32_t mode, apr_fileperms_t perm,
+                               apr_pool_t *cntxt)
+{
+    abort();
+    return APR_SUCCESS;
+}
+
+static void vt_db_close(apr_dbm_t *dbm)
+{
+    abort();
+}
+
+static apr_status_t vt_db_fetch(apr_dbm_t *dbm, apr_datum_t key,
+                                apr_datum_t * pvalue)
+{
+    abort();
+    return APR_SUCCESS;
+}
+
+static apr_status_t vt_db_store(apr_dbm_t *dbm, apr_datum_t key,
+                                apr_datum_t value)
+{
+    abort();
+    return APR_SUCCESS;
+}
+
+static apr_status_t vt_db_del(apr_dbm_t *dbm, apr_datum_t key)
+{
+    abort();
+    return APR_SUCCESS;
+}
+
+static int vt_db_exists(apr_dbm_t *dbm, apr_datum_t key)
+{
+    abort();
+    return 0;
+}
+
+static apr_status_t vt_db_firstkey(apr_dbm_t *dbm, apr_datum_t * pkey)
+{
+    abort();
+    return APR_SUCCESS;
+}
+
+static apr_status_t vt_db_nextkey(apr_dbm_t *dbm, apr_datum_t * pkey)
+{
+    abort();
+    return APR_SUCCESS;
+}
+
+static char * vt_db_geterror(apr_dbm_t *dbm, int *errcode, char *errbuf,
+                             apr_size_t errbufsize)
+{
+    abort();
+    return NULL;
+}
+
+static void vt_db_freedatum(apr_dbm_t *dbm, apr_datum_t data)
+{
+    abort();
+}
+
+static void vt_db_usednames(apr_pool_t *pool, const char *pathname,
+                            const char **used1, const char **used2)
+{
+    abort();
+}
+
+
+static const apr_dbm_type_t apr_dbm_type_db = {
+    "db",
+
+    vt_db_open,
+    vt_db_close,
+    vt_db_fetch,
+    vt_db_store,
+    vt_db_del,
+    vt_db_exists,
+    vt_db_firstkey,
+    vt_db_nextkey,
+    vt_db_geterror,
+    vt_db_freedatum,
+    vt_db_usednames
+};
