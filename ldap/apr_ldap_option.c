@@ -133,7 +133,7 @@ APU_DECLARE(int) apr_ldap_set_option(apr_pool_t *pool,
  * APR_LDAP_STARTTLS: STARTTLS encryption
  * APR_LDAP_STOPTLS: Stop existing TLS connecttion
  */
-static int option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
+static void option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
                           apr_ldap_err_t *result)
 {
     int tls = * (const int *)invalue;
@@ -298,7 +298,7 @@ static int option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
  * Microsoft: unknown
  * Solaris: unknown
  */
-static int option_set_cert(apr_pool_t *pool, LDAP *ldap,
+static void option_set_cert(apr_pool_t *pool, LDAP *ldap,
                            const void *invalue, apr_ldap_err_t *result)
 {
     apr_array_header_t *certs = (apr_array_header_t *)invalue;
