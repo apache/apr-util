@@ -43,8 +43,6 @@ oldincludedir = /usr/include
 
 subdir = lib
 
-DESTDIR =
-
 top_builddir = ..
 
 INSTALL = @INSTALL@
