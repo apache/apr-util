@@ -64,6 +64,8 @@
 extern "C" {
 #endif
 
+#ifdef APR_NOT_AVAILABLE_YET
+
 /**
  * @package Apache XML library
  */
@@ -349,6 +351,8 @@ APU_DECLARE(void) apr_xml_quote_elem(apr_pool_t *p, apr_xml_elem *elem);
 APU_DECLARE(int) apr_xml_insert_uri(apr_array_header_t *uri_array,
                                     const char *uri);
 #define APR_XML_GET_URI_ITEM(ary, i) (((const char * const *)(ary)->elts)[i])
+
+#endif /* APR_NOT_AVAILABLE_YET */
 
 #ifdef __cplusplus
 }
