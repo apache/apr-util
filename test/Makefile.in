@@ -18,11 +18,11 @@ all: $(PROGRAMS)
 
 check: $(PROGRAMS)
 	for prog in $(PROGRAMS); do \
-		./$$prog \
-		if test $$i = 255; then \
+		./$$prog ;\
+		if test $$? = 255; then \
 			echo "$$prog failed"; \
 			break; \
-		fi \
+		fi; \
 	done
 
 testdbm_OBJECTS = testdbm.lo
