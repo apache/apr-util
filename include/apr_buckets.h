@@ -589,6 +589,20 @@ APU_DECLARE(apr_bucket_brigade *) apr_brigade_create(apr_pool_t *p);
 APU_DECLARE(apr_status_t) apr_brigade_destroy(apr_bucket_brigade *b);
 
 /**
+ * empty out an entire bucket brigade.  This includes destroying all of the
+ * buckets within the bucket brigade's bucket list.  This is similar to
+ * apr_brigade_destroy(), except that it does not deregister the brigade's
+ * pool cleanup function.
+ * @tip Generally, you should use apr_brigade_destroy().  This function
+ *      can be useful in situations where you have a single brigade that
+ *      you wish to reuse many times by destroying all of the buckets in
+ *      the brigade and putting new buckets into it later.
+ * @param b The bucket brigade to clean up
+ * @deffunc apr_status_t apr_brigade_cleanup(apr_bucket_brigade *b)
+ */
+APU_DECLARE(apr_status_t) apr_brigade_cleanup(void *data);
+
+/**
  * Split a bucket brigade into two, such that the given bucket is the
  * first in the new bucket brigade. This function is useful when a
  * filter wants to pass only the initial part of a brigade to the next
