@@ -296,3 +296,29 @@ AC_SUBST(apu_has_ldap_starttls)
 AC_SUBST(apu_has_ldap)
 
 ])
+
+dnl
+dnl APU_CHECK_CRYPT_R_STYLE
+dnl
+dnl  Decide which of a couple of flavors of crypt_r() is necessary for
+dnl  this platform.
+dnl
+AC_DEFUN([APU_CHECK_CRYPT_R_STYLE], [
+
+AC_CACHE_CHECK([style of crypt_r], apr_cv_crypt_r_style, 
+[AC_TRY_COMPILE([#include <crypt.h>],
+ [CRYPTD buffer;
+  crypt_r("passwd", "hash", &buffer);], 
+ [apr_cv_crypt_r_style=cryptd],
+ [AC_TRY_COMPILE([#include <crypt.h>],
+  [struct crypt_data buffer;
+   crypt_r("passwd", "hash", &buffer);], 
+  [apr_cv_crypt_r_style=struct_crypt_data],
+  [apr_cv_crypt_r_style=none])])])
+
+if test "$apr_cv_crypt_r_style" = "cryptd"; then
+   AC_DEFINE(CRYPT_R_CRYPTD, 1, [Define if crypt_r has uses CRYPTD])
+elif test "$apr_cv_crypt_r_style" = "struct_crypt_data"; then
+   AC_DEFINE(CRYPT_R_STRUCT_CRYPT_DATA, 1, [Define if crypt_r uses struct crypt_data])
+fi
+])
