@@ -55,6 +55,7 @@
 #include "apr_strings.h"
 #define APR_WANT_MEMFUNC
 #include "apr_want.h"
+#define APU_DBM_BERKELEYDB_PRIVATE 1
 
 #if APR_HAVE_STDLIB_H
 #include <stdlib.h> /* for abort() */
