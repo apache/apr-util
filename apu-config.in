@@ -55,15 +55,17 @@
 # APR-util script designed to allow easy command line access to APR-util
 # configuration parameters.
 
-PREFIX="@prefix@"
-EXEC_PREFIX="@exec_prefix@"
-BINDIR="@bindir@"
-LIBDIR="@libdir@"
-TOP_SRCDIR="@top_srcdir@"
-TOP_BUILDDIR="@top_builddir@"
+prefix="@prefix@"
+exec_prefix="@exec_prefix@"
+bindir="@bindir@"
+libdir="@libdir@"
+
 LIBS="@APRUTIL_EXPORT_LIBS@"
 INCLUDES="@APRUTIL_INCLUDES@"
 LDFLAGS="@APRUTIL_LDFLAGS@"
+
+APU_SOURCE_DIR="@top_srcdir@"
+APU_BUILD_DIR="@top_builddir@"
 
 show_usage()
 {
@@ -75,7 +77,19 @@ Known values for OPTION are:
   --includes        print include information
   --ldflags         print linker flags
   --libs            print library information
+  --srcdir          print APR-util source directory
+  --link-ld         print link switch(es) for linking to APR-util
+  --link-libtool    print the libtool inputs for linking to APR-util
+  --apu-la-file     print the path to the .la file, if available
   --help            print this help
+
+When linking with libtool, an application should do something like:
+  APU_LIBS="\`apu-config --link-libtool --libs\`"
+or when linking directly:
+  APU_LIBS="\`apu-config --link-ld --libs\`"
+
+An application should use the results of --includes, and --ldflags in
+their build process.
 EOF
 }
 
@@ -83,6 +97,24 @@ if test $# -eq 0; then
     show_usage
     exit 1
 fi
+
+thisdir="`dirname $0`"
+thisdir="`cd $thisdir && pwd`"
+if test "$bindir" = "$thisdir"; then
+  location=installed
+elif test "$APR_SOURCE_DIR" = "$thisdir"; then
+  location=source
+else
+  location=build
+fi
+
+if test "$location" = "installed"; then
+    LA_FILE="$libdir/libaprutil.la"
+else
+    LA_FILE="$thisdir/libaprutil.la"
+fi
+
+flags=""
 
 while test $# -gt 0; do
     # Normalize the prefix.
@@ -97,25 +129,53 @@ while test $# -gt 0; do
     prefix=$optarg
     ;;
     --prefix)
-    echo $PREFIX
+    echo $prefix
+    exit 0
     ;;
     --libs)
-    if [ -f $PREFIX/lib/libexpat.la ] ; then
-      TMP_BUILDDIR=`echo "$TOP_BUILDDIR/xml/expat" | sed 's/\\//\\\\\\//g'`
-      TMP_PREFIX=`echo $PREFIX | sed 's/\\//\\\\\\//g'`
+    if test "$location" = "installed" && -f $PREFIX/lib/libexpat.la; then
+      TMP_BUILDDIR=`echo "$APU_BUILD_DIR/xml/expat" | sed 's/\\//\\\\\\//g'`
+      TMP_PREFIX=`echo $prefix | sed 's/\\//\\\\\\//g'`
       LIBS=`echo "$LIBS" | sed "s/$TMP_BUILDDIR/$TMP_PREFIX/g"`
     fi
-    echo "$LIBS"
+    flags="$flags $LIBS"
     ;;
     --includes)
-    echo $INCLUDES
+    flags="$flags $INCLUDES"
     ;;
     --ldflags)
-    echo $LDFLAGS
+    flags="$flags $LDFLAGS"
+    ;;
+    --srcdir)
+    echo $APU_SOURCE_DIR
+    exit 0
+    ;;
+    --link-ld)
+    if test "$location" = "installed"; then
+        ### avoid using -L if libdir is a "standard" location like /usr/lib
+        flags="$flags -L$libdir -laprutil"
+    else
+        flags="$flags -L$thisdir -laprutil"
+    fi
+    ;;
+    --link-libtool)
+    if test -f "$LA_FILE"; then
+        flags="$flags $LA_FILE"
+    elif test "$location" = "installed"; then
+        ### avoid using -L if libdir is a "standard" location like /usr/lib
+        flags="$flags -L$libdir -laprutil"
+    else
+        flags="$flags -L$thisdir -laprutil"
+    fi
+    ;;
+    --apu-la-file)
+    if test -f "$LA_FILE"; then
+        flags="$flags $LA_FILE"
+    fi
     ;;
     --help)
     show_usage
-    exit 1
+    exit 0
     ;;
     *)
     show_usage
@@ -126,5 +186,9 @@ while test $# -gt 0; do
     # Next please.
     shift
 done
+
+if test -n "$flags"; then
+  echo "$flags"
+fi
 
 exit 0
