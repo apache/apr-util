@@ -371,7 +371,6 @@ APU_DECLARE(apr_rmm_off_t) apr_rmm_calloc(apr_rmm_t *rmm, apr_size_t reqsize)
 APU_DECLARE(apr_rmm_off_t) apr_rmm_realloc(apr_rmm_t *rmm, void *entity,
                                            apr_size_t reqsize)
 {
-    apr_status_t rv;
     apr_rmm_off_t this;
     apr_rmm_off_t old;
 
