@@ -1,4 +1,4 @@
-/* This program tests the parseHTTPdate routine in ../main/util_date.c.
+/* This program tests the date_parse_http routine in ../main/util_date.c.
  *
  * It is only semiautomated in that I would run it, modify the code to
  * use a different algorithm or seed, recompile and run again, etc.
@@ -153,7 +153,7 @@ int main (void)
         secstodate = year2secs[year - 1970] + offset;
         gm_timestr_822(datestr, secstodate);
         secstodate *= APR_USEC_PER_SEC;
-        newsecs = apr_parseHTTPdate(datestr);
+        newsecs = apr_date_parse_http(datestr);
         if (secstodate == newsecs)
             printf("Yes %4d %19lld %s\n", year, secstodate, datestr);
         else if (newsecs == APR_DATE_BAD)
@@ -172,7 +172,7 @@ int main (void)
         secstodate = guess + offset;
         gm_timestr_822(datestr, secstodate);
         secstodate *= APR_USEC_PER_SEC;
-        newsecs = apr_parseHTTPdate(datestr);
+        newsecs = apr_date_parse_http(datestr);
         if (secstodate == newsecs)
             printf("Yes %" APR_TIME_T_FMT " %s\n", secstodate, datestr);
         else if (newsecs == APR_DATE_BAD)

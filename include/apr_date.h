@@ -92,7 +92,7 @@ extern "C" {
  * @return 1 if the string matches, 0 otherwise
  * @deffunc int apr_checkmask(const char *data, const char *mask)
  */
-APU_DECLARE(int) apr_checkmask(const char *data, const char *mask);
+APU_DECLARE(int) apr_date_checkmask(const char *data, const char *mask);
 
 /**
  * Parses an HTTP date in one of three standard forms:
@@ -104,14 +104,14 @@ APU_DECLARE(int) apr_checkmask(const char *data, const char *mask);
  * @param date The date in one of the three formats above
  * @return the apr_time_t number of microseconds since 1 Jan 1970 GMT, or
  *         0 if this would be out of range or if the date is invalid.
- * @deffunc apr_time_t apr_parseHTTPdate(const char *date)
+ * @deffunc apr_time_t apr_date_parse_http(const char *date)
  */
-APU_DECLARE(apr_time_t) apr_parseHTTPdate(const char *date);
+APU_DECLARE(apr_time_t) apr_date_parse_http(const char *date);
 
 /**
  * Parses a string resembling an RFC 822 date.  This is meant to be
  * leinent in its parsing of dates.  Hence, this will parse a wider 
- * range of dates than apr_parseHTTPdate.
+ * range of dates than apr_date_parse_http.
  *
  * The prominent mailer (or poster, if mailer is unknown) that has
  * been seen in the wild is included for the unknown formats.
@@ -131,9 +131,9 @@ APU_DECLARE(apr_time_t) apr_parseHTTPdate(const char *date);
  * @param date The date in one of the formats above
  * @return the apr_time_t number of microseconds since 1 Jan 1970 GMT, or
  *         0 if this would be out of range or if the date is invalid.
- * @deffunc apr_time_t apr_parseRFCdate(char *date)
+ * @deffunc apr_time_t apr_date_parse_rfc(char *date)
  */
-APU_DECLARE(apr_time_t) apr_parseRFCdate(char *date);
+APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date);
 
 #ifdef __cplusplus
 }

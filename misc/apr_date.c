@@ -90,7 +90,7 @@
  *   * - swallow remaining characters 
  *  <x> - exact match for any other character
  */
-APU_DECLARE(int) apr_checkmask(const char *data, const char *mask)
+APU_DECLARE(int) apr_date_checkmask(const char *data, const char *mask)
 {
     int i;
     char d;
@@ -180,7 +180,7 @@ APU_DECLARE(int) apr_checkmask(const char *data, const char *mask)
  * but many changes since then.
  *
  */
-APU_DECLARE(apr_time_t) apr_parseHTTPdate(const char *date)
+APU_DECLARE(apr_time_t) apr_date_parse_http(const char *date)
 {
     apr_exploded_time_t ds;
     apr_time_t result;
@@ -211,7 +211,7 @@ APU_DECLARE(apr_time_t) apr_parseHTTPdate(const char *date)
 
     /* start of the actual date information for all 4 formats. */
 
-    if (apr_checkmask(date, "## @$$ #### ##:##:## *")) {
+    if (apr_date_checkmask(date, "## @$$ #### ##:##:## *")) {
         /* RFC 1123 format with two days */
         ds.tm_year = ((date[7] - '0') * 10 + (date[8] - '0') - 19) * 100;
         if (ds.tm_year < 0)
@@ -224,7 +224,8 @@ APU_DECLARE(apr_time_t) apr_parseHTTPdate(const char *date)
         monstr = date + 3;
         timstr = date + 12;
     }
-    else if (apr_checkmask(date, "##-@$$-## ##:##:## *")) { /* RFC 850 format */
+    else if (apr_date_checkmask(date, "##-@$$-## ##:##:## *")) { 
+        /* RFC 850 format */
         ds.tm_year = ((date[7] - '0') * 10) + (date[8] - '0');
         if (ds.tm_year < 70)
             ds.tm_year += 100;
@@ -234,7 +235,8 @@ APU_DECLARE(apr_time_t) apr_parseHTTPdate(const char *date)
         monstr = date + 3;
         timstr = date + 10;
     }
-    else if (apr_checkmask(date, "@$$ ~# ##:##:## ####*")) {/* asctime format */
+    else if (apr_date_checkmask(date, "@$$ ~# ##:##:## ####*")) {
+        /* asctime format */
         ds.tm_year = ((date[16] - '0') * 10 + (date[17] - '0') - 19) * 100;
         if (ds.tm_year < 0) 
             return APR_DATE_BAD;
@@ -251,7 +253,7 @@ APU_DECLARE(apr_time_t) apr_parseHTTPdate(const char *date)
         monstr = date;
         timstr = date + 7;
     }
-    else if (apr_checkmask(date, "# @$$ #### ##:##:## *")) {
+    else if (apr_date_checkmask(date, "# @$$ #### ##:##:## *")) {
         /* RFC 1123 format with one day */
         ds.tm_year = ((date[6] - '0') * 10 + (date[7] - '0') - 19) * 100;
         if (ds.tm_year < 0)
@@ -319,7 +321,7 @@ APU_DECLARE(apr_time_t) apr_parseHTTPdate(const char *date)
 /*
  * Parses a string resembling an RFC 822 date.  This is meant to be
  * leinent in its parsing of dates.  Hence, this will parse a wider 
- * range of dates than apr_parseHTTPdate.
+ * range of dates than apr_date_parse_http.
  *
  * The prominent mailer (or poster, if mailer is unknown) that has
  * been seen in the wild is included for the unknown formats.
@@ -336,7 +338,7 @@ APU_DECLARE(apr_time_t) apr_parseHTTPdate(const char *date)
  *     Sun, 6 Nov 94 8:49:37 GMT      ; Unknown [Elm 70.85] 
  *
  */
-APU_DECLARE(apr_time_t) apr_parseRFCdate(char *date)
+APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
 {
     apr_exploded_time_t ds;
     apr_time_t result;
@@ -369,7 +371,7 @@ APU_DECLARE(apr_time_t) apr_parseRFCdate(char *date)
         ++date;    /* Now pointing to first char after space, which should be */    }
 
     /* start of the actual date information for all 11 formats. */
-    if (apr_checkmask(date, "## @$$ #### ##:##:## *")) {   /* RFC 1123 format */
+    if (apr_date_checkmask(date, "## @$$ #### ##:##:## *")) {   /* RFC 1123 format */
         ds.tm_year = ((date[7] - '0') * 10 + (date[8] - '0') - 19) * 100;
 
         if (ds.tm_year < 0)
@@ -382,7 +384,7 @@ APU_DECLARE(apr_time_t) apr_parseRFCdate(char *date)
         monstr = date + 3;
         timstr = date + 12;
     }
-    else if (apr_checkmask(date, "##-@$$-## ##:##:## *")) {/* RFC 850 format  */
+    else if (apr_date_checkmask(date, "##-@$$-## ##:##:## *")) {/* RFC 850 format  */
         ds.tm_year = ((date[7] - '0') * 10) + (date[8] - '0');
 
         if (ds.tm_year < 70)
@@ -393,7 +395,8 @@ APU_DECLARE(apr_time_t) apr_parseRFCdate(char *date)
         monstr = date + 3;
         timstr = date + 10;
     }
-    else if (apr_checkmask(date, "@$$ ~# ##:##:## ####*")) {/* asctime format */
+    else if (apr_date_checkmask(date, "@$$ ~# ##:##:## ####*")) {
+        /* asctime format */
         ds.tm_year = ((date[16] - '0') * 10 + (date[17] - '0') - 19) * 100;
         if (ds.tm_year < 0) 
             return APR_DATE_BAD;
@@ -410,7 +413,8 @@ APU_DECLARE(apr_time_t) apr_parseRFCdate(char *date)
         monstr = date;
         timstr = date + 7;
     }
-    else if (apr_checkmask(date, "# @$$ #### ##:##:## *")) {/* RFC 1123 format*/
+    else if (apr_date_checkmask(date, "# @$$ #### ##:##:## *")) {
+        /* RFC 1123 format*/
         ds.tm_year = ((date[6] - '0') * 10 + (date[7] - '0') - 19) * 100;
 
         if (ds.tm_year < 0)
@@ -422,8 +426,8 @@ APU_DECLARE(apr_time_t) apr_parseRFCdate(char *date)
         monstr = date + 2;
         timstr = date + 11;
     }
-    else if (apr_checkmask(date, "## @$$ ## ##:##:## *")) {/* RFC 1123 format */
-        /* This is the old RFC date format - many many years ago, people
+    else if (apr_date_checkmask(date, "## @$$ ## ##:##:## *")) {
+        /* This is the old RFC 1123 date format - many many years ago, people
          * used two-digit years.  Oh, how foolish.  */
         ds.tm_year = ((date[7] - '0') * 10) + (date[8] - '0');
 
@@ -436,8 +440,8 @@ APU_DECLARE(apr_time_t) apr_parseRFCdate(char *date)
         timstr = date + 10;
 
     } 
-    else if (apr_checkmask(date, "# @$$ ## ##:##:## *")) {/* RFC 1123 format */
-        /* This is the old RFC date format - many many years ago, people
+    else if (apr_date_checkmask(date, "# @$$ ## ##:##:## *")) {
+        /* This is the old RFC 1123 date format - many many years ago, people
          * used two-digit years.  Oh, how foolish.  */
         ds.tm_year = ((date[6] - '0') * 10) + (date[7] - '0');
 
@@ -450,8 +454,8 @@ APU_DECLARE(apr_time_t) apr_parseRFCdate(char *date)
         timstr = date + 9;
 
     } 
-    else if (apr_checkmask(date, "## @$$ ## ##:## *")) {      /* Loser format */
-        /* This is quite bogus.  */
+    else if (apr_date_checkmask(date, "## @$$ ## ##:## *")) {
+        /* Loser format.  This is quite bogus.  */
         ds.tm_year = ((date[7] - '0') * 10) + (date[8] - '0');
 
         if (ds.tm_year < 70)
@@ -464,8 +468,8 @@ APU_DECLARE(apr_time_t) apr_parseRFCdate(char *date)
         timstr[6] = '0';
         timstr[7] = '0';
     } 
-    else if (apr_checkmask(date, "# @$$ ## ##:## *")) {       /* Loser format */
-        /* This is quite bogus.  */
+    else if (apr_date_checkmask(date, "# @$$ ## ##:## *")) {
+        /* Loser format.  This is quite bogus.  */
         ds.tm_year = ((date[6] - '0') * 10) + (date[7] - '0');
 
         if (ds.tm_year < 70)
@@ -479,8 +483,8 @@ APU_DECLARE(apr_time_t) apr_parseRFCdate(char *date)
         timstr[6] = '0';
         timstr[7] = '0';
     }
-    else if (apr_checkmask(date, "## @$$ ## #:##:## *")) {    /* Loser format */
-        /* This is quite bogus.  */
+    else if (apr_date_checkmask(date, "## @$$ ## #:##:## *")) {
+        /* Loser format.  This is quite bogus.  */
         ds.tm_year = ((date[7] - '0') * 10) + (date[8] - '0');
 
         if (ds.tm_year < 70)
@@ -493,8 +497,8 @@ APU_DECLARE(apr_time_t) apr_parseRFCdate(char *date)
 
         timstr[0] = '0';
     }
-    else if (apr_checkmask(date, "# @$$ ## #:##:## *")) {     /* Loser format */
-        /* This is quite bogus.  */
+    else if (apr_date_checkmask(date, "# @$$ ## #:##:## *")) {
+         /* Loser format.  This is quite bogus.  */
         ds.tm_year = ((date[6] - '0') * 10) + (date[7] - '0');
 
         if (ds.tm_year < 70)
