@@ -123,6 +123,15 @@ APU_DECLARE(apr_status_t) apr_reslist_release(apr_reslist_t *reslist,
 APU_DECLARE(void) apr_reslist_timeout_set(apr_reslist_t *reslist,
                                           apr_interval_time_t timeout);
 
+/**
+ * Invalidate a resource in the pool - e.g. a database connection
+ * that returns a "lost connection" error and can't be restored.
+ * Use this instead of apr_reslist_release if the resource is bad.
+ */
+APU_DECLARE(apr_status_t) apr_reslist_invalidate(apr_reslist_t *reslist,
+                                                 void *resource);
+
+
 #ifdef __cplusplus
 }
 #endif
