@@ -1,5 +1,12 @@
 Changes with APR-util 0.9.4
 
+  *) Changed apr_bucket_alloc_create() so that it uses the allocator
+     from the pool that was passed in rather than creating its own.
+     Also, the bucket_allocator is now allocated from the apr_allocator_t
+     rather than using apr_palloc().  Added apr_bucket_alloc_create_ex()
+     which takes an apr_allocator_t* directly rather than an apr_pool_t*.
+     [Cliff Woolley, Jean-Jacques Clar]
+
   *) Added debugging consistency checks to the buckets code.  Add
      -DAPR_BUCKET_DEBUG to the build flags to enable.
      [Cliff Woolley]

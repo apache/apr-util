@@ -965,12 +965,28 @@ APU_DECLARE(apr_status_t) apr_brigade_vprintf(apr_bucket_brigade *b,
 /*  *****  Bucket freelist functions *****  */
 /**
  * Create a bucket allocator.
- * @param p Pool to allocate the allocator from [note: this is only
- *          used to allocate internal structures of the allocator, NOT
- *          to allocate the memory handed out by the allocator]
+ * @param p This pool's underlying apr_allocator_t is used to allocate memory
+ *          for the bucket allocator.  When the pool is destroyed, the bucket
+ *          allocator's cleanup routine will free all memory that has been
+ *          allocated from it.
+ * @remark  The reason the allocator gets its memory from the pool's
+ *          apr_allocator_t rather than from the pool itself is because
+ *          the bucket allocator will free large memory blocks back to the
+ *          allocator when it's done with them, thereby preventing memory
+ *          footprint growth that would occur if we allocated from the pool.
  * @warning The allocator must never be used by more than one thread at a time.
  */
 APU_DECLARE_NONSTD(apr_bucket_alloc_t *) apr_bucket_alloc_create(apr_pool_t *p);
+
+/**
+ * Create a bucket allocator.
+ * @param allocator This apr_allocator_t is used to allocate both the bucket
+ *          allocator and all memory handed out by the bucket allocator.  The
+ *          caller is responsible for destroying the bucket allocator and the
+ *          apr_allocator_t -- no automatic cleanups will happen.
+ * @warning The allocator must never be used by more than one thread at a time.
+ */
+APU_DECLARE_NONSTD(apr_bucket_alloc_t *) apr_bucket_alloc_create_ex(apr_allocator_t *allocator);
 
 /**
  * Destroy a bucket allocator.
