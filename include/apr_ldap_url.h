@@ -52,99 +52,68 @@
  * <http://www.apache.org/>.
  */
 
+#ifndef APR_LDAP_URL_H
+#define APR_LDAP_URL_H
+
+#include "apr_ldap.h"
+
+#if APR_HAS_LDAP_URL_PARSE
+
+#define apr_ldap_url_desc_t             LDAPURLDesc
+#define apr_ldap_is_ldap_url(url)       ldap_is_ldap_url(url)
+#define apr_ldap_is_ldaps_url(url)      ldap_is_ldaps_url(url)
+#define apr_ldap_is_ldapi_url(url)      ldap_is_ldapi_url(url)
+#define apr_ldap_url_parse(url, ludpp)  ldap_url_parse(url, ludpp)
+#define apr_ldap_free_urldesc(ludp)     ldap_free_urldesc(ludp)
+
+#else /* ! APR_HAS_LDAP_URL_PARSE */
+
 /*
- * apr_ldap.h is generated from apr_ldap.h.in by configure -- do not edit apr_ldap.h
+ * types for ldap URL handling
  */
-/**
- * @file apr_ldap.h
- * @brief  APR-UTIL LDAP 
- */
-#ifndef APU_LDAP_H
-#define APU_LDAP_H
+typedef struct apr_ldap_url_desc_t {
+    struct  apr_ldap_url_desc_t  *lud_next;
+    char    *lud_scheme;
+    char    *lud_host;
+    int     lud_port;
+    char    *lud_dn;
+    char    **lud_attrs;
+    int     lud_scope;
+    char    *lud_filter;
+    char    **lud_exts;
+    int     lud_crit_exts;
+} apr_ldap_url_desc_t;
 
-/**
- * @defgroup APR_Util_LDAP LDAP
- * @ingroup APR_Util
- * @{
- */
-
+#ifndef LDAP_URL_SUCCESS
+#define LDAP_URL_SUCCESS          0x00    /* Success */
+#define LDAP_URL_ERR_MEM          0x01    /* can't allocate memory space */
+#define LDAP_URL_ERR_PARAM        0x02    /* parameter is bad */
+#define LDAP_URL_ERR_BADSCHEME    0x03    /* URL doesn't begin with "ldap[si]://" */
+#define LDAP_URL_ERR_BADENCLOSURE 0x04    /* URL is missing trailing ">" */
+#define LDAP_URL_ERR_BADURL       0x05    /* URL is bad */
+#define LDAP_URL_ERR_BADHOST      0x06    /* host port is bad */
+#define LDAP_URL_ERR_BADATTRS     0x07    /* bad (or missing) attributes */
+#define LDAP_URL_ERR_BADSCOPE     0x08    /* scope string is invalid (or missing) */
+#define LDAP_URL_ERR_BADFILTER    0x09    /* bad or missing filter */
+#define LDAP_URL_ERR_BADEXTS      0x0a    /* bad or missing extensions */
+#endif
 
 /*
- * This switches LDAP support on or off.
- */
-
-/* this will be defined if LDAP support was compiled into apr-util */
-#define APR_HAS_LDAP		  @apu_has_ldap@
-
-/* this whole thing disappears if LDAP is not enabled */
-#if !APR_HAS_LDAP
-
-#define APR_HAS_LDAP_URL_PARSE    0
-#define APU_HAS_LDAP_NETSCAPE_SSL 0
-#define APU_HAS_LDAP_STARTTLS     0
-
-#else
-
-/* presume all unices do, win32, for example, does not */
-#define APR_HAS_LDAP_URL_PARSE    1
-
-/* LDAP secure capabilities */
-#define APR_HAS_LDAP_NETSCAPE_SSL @apu_has_ldap_netscape_ssl@
-#define APR_HAS_LDAP_STARTTLS     @apu_has_ldap_starttls@
-
-/* These are garbage, our public macros are always APR_HAS_ prefixed,
- * and use 0/1 values, not defined/undef semantics.  
+ * in url.c
  *
- * Will be deprecated in APR 1.0
+ * need _ext varients
  */
-#if APR_HAS_LDAP
-#define APU_HAS_LDAP
-#endif
+APU_DECLARE(int) apr_ldap_is_ldap_url(LDAP_CONST char *url);
 
-#if APR_HAS_LDAP_NETSCAPE_SSL
-#define APU_HAS_LDAP_NETSCAPE_SSL 
-#endif
+APU_DECLARE(int) apr_ldap_is_ldaps_url(LDAP_CONST char *url);
 
-#if APR_HAS_LDAP_STARTTLS
-#define APU_HAS_LDAP_STARTTLS
-#endif
+APU_DECLARE(int) apr_ldap_is_ldapi_url(LDAP_CONST char *url);
 
-/* LDAP header files */
-@ldap_h@
-@lber_h@
-@ldap_ssl_h@
+APU_DECLARE(int) apr_ldap_url_parse(LDAP_CONST char *url, 
+                                    apr_ldap_url_desc_t **ludpp);
 
+APU_DECLARE(void) apr_ldap_free_urldesc(apr_ldap_url_desc_t *ludp);
 
-/*
- * LDAP Compatibility
- */
+#endif /* ! APR_HAS_LDAP_URL_PARSE */
 
-#if LDAP_VERSION_MAX <= 2
-int ldap_search_ext_s(LDAP *ldap, char *base, int scope, char *filter,
-		      char **attrs, int attrsonly, void *servertrls, void *clientctrls,
-		      void *timeout, int sizelimit, LDAPMessage **res);
-void ldap_memfree(void *p);
-
-/* The const_cast is used to get around the fact that some of the LDAPv2 prototypes
- * have non-const parameters, while the same ones in LDAPv3 are const. If compiling
- * with LDAPv2, the const_cast casts away the constness, but won't under LDAPv3
- */
-#define const_cast(x) ((char *)(x))
-#else
-#define const_cast(x) (x)
-#endif /* LDAP_VERSION_MAX */
-
-#include "apr_ldap_url.h"
-
-/* Define some errors that are mysteriously gone from OpenLDAP 2.x */
-#ifndef LDAP_URL_ERR_NOTLDAP
-#define LDAP_URL_ERR_NOTLDAP LDAP_URL_ERR_BADSCHEME
-#endif
-
-#ifndef LDAP_URL_ERR_NODN
-#define LDAP_URL_ERR_NODN LDAP_URL_ERR_BADURL
-#endif
-
-/** @} */
-#endif /* APU_HAS_LDAP */
-#endif /* APU_LDAP_H */
+#endif /* APR_LDAP_URL_H */

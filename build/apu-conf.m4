@@ -647,7 +647,7 @@ dnl
 dnl Find a particular LDAP library
 dnl
 AC_DEFUN(APU_FIND_LDAPLIB,[
-  if test ${apu_has_ldap} != "define"; then
+  if test ${apu_has_ldap} != "1"; then
     ldaplib=$1
     extralib=$2
     unset ac_cv_lib_${ldaplib}_ldap_init
@@ -655,9 +655,9 @@ AC_DEFUN(APU_FIND_LDAPLIB,[
       [
         APR_ADDTO(APRUTIL_EXPORT_LIBS,[-l${ldaplib} ${extralib}])
         APR_ADDTO(APRUTIL_LIBS,[-l${ldaplib} ${extralib}])
-        AC_CHECK_LIB(${ldaplib}, ldapssl_install_routines, apu_has_ldap_netscape_ssl="define", , ${extralib})
-        AC_CHECK_LIB(${ldaplib}, ldap_start_tls_s, apu_has_ldap_starttls="define", , ${extralib})
-        apu_has_ldap="define";
+        AC_CHECK_LIB(${ldaplib}, ldapssl_install_routines, apu_has_ldap_netscape_ssl="1", , ${extralib})
+        AC_CHECK_LIB(${ldaplib}, ldap_start_tls_s, apu_has_ldap_starttls="1", , ${extralib})
+        apu_has_ldap="1";
       ], , ${extralib})
   fi
 ])
@@ -670,9 +670,9 @@ AC_DEFUN(APU_FIND_LDAP,[
 
 echo $ac_n "${nl}checking for ldap support..."
 
-apu_has_ldap="undef";
-apu_has_ldap_netscape_ssl="undef"
-apu_has_ldap_starttls="undef"
+apu_has_ldap="0";
+apu_has_ldap_netscape_ssl="0"
+apu_has_ldap_starttls="0"
 
 AC_ARG_WITH(ldap-include,[  --with-ldap-include=path  path to ldap include files with trailing slash])
 AC_ARG_WITH(ldap-lib,[  --with-ldap-lib=path    path to ldap lib file])
@@ -704,7 +704,7 @@ dnl The iPlanet C SDK 5.0 is as yet untested...
       APU_FIND_LDAPLIB($LDAPLIB)
     fi
 
-    test ${apu_has_ldap} != "define" && AC_MSG_ERROR(could not find an LDAP library)
+    test ${apu_has_ldap} != "1" && AC_MSG_ERROR(could not find an LDAP library)
     AC_CHECK_LIB(lber, ber_init)
 
     AC_CHECK_HEADERS(ldap.h, ldap_h=["#include <ldap.h>"])

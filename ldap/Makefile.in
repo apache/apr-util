@@ -2,6 +2,7 @@ VPATH = @srcdir@
 
 INCLUDES = @APRUTIL_PRIV_INCLUDES@ @APR_INCLUDES@ @APRUTIL_INCLUDES@
 
+# we presume Unicies aren't in need of apr_parse_uri
 TARGETS = apr_ldap_compat.lo
 
 # bring in rules.mk for standard functionality
