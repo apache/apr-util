@@ -56,7 +56,7 @@ install: $(TARGET_LIB)
 	done
 
 $(TARGET_LIB):
-	@objects="`find $(SUBDIRS) -name expat -prune -o -name '*.@so_ext@' -print`"; \
+	@objects="`find $(SUBDIRS) -name expat -prune -o -name 'gen_uri_delims.@so_ext@' -prune -o -name '*.@so_ext@' -print`"; \
 	    $(LINK) @lib_target@ @EXTRA_OS_LINK@
 
 delete-exports:
