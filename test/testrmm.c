@@ -29,7 +29,7 @@
 
 #if APR_HAS_SHARED_MEMORY
 
-#define FRAG_SIZE 10
+#define FRAG_SIZE 80
 #define FRAG_COUNT 10
 #define SHARED_SIZE (apr_size_t)(FRAG_SIZE * FRAG_COUNT * sizeof(char*))
 
@@ -78,7 +78,15 @@ static apr_status_t test_rmm(apr_pool_t *parpool)
         off[i] = apr_rmm_malloc(rmm, fragsize);
     } 
     fprintf(stdout, "OK\n");
-
+    
+    printf("Checking for out of memory allocation............");
+    if (apr_rmm_malloc(rmm, FRAG_SIZE * FRAG_COUNT) == 0) {
+        fprintf(stdout, "OK\n");
+    }
+    else {
+        return APR_EGENERAL;  
+    }
+    
     printf("Setting each fragment to a unique value..........");
     for (i = 0; i < FRAG_COUNT; i++) {
         int j;
