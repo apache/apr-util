@@ -64,7 +64,7 @@ API_EXPORT_NONSTD(apr_status_t) ap_bucket_split_shared(ap_bucket *a, apr_off_t p
     ap_bucket_shared *ad, *bd;
     ap_bucket_refcount *r;
 
-    if (point <= 0 || point >= a->length) {
+    if (point < 0 || point > a->length) {
 	return APR_EINVAL;
     }
 

@@ -66,7 +66,7 @@ static apr_status_t simple_split(ap_bucket *a, apr_off_t point)
     ap_bucket *b;
     ap_bucket_simple *ad, *bd;
 
-    if (point <= 0 || point >= a->length) {
+    if (point < 0 || point > a->length) {
 	return APR_EINVAL;
     }
 
