@@ -386,6 +386,8 @@ static apr_status_t vt_db_nextkey(apr_dbm_t *dbm, apr_datum_t * pkey)
         (*f->curs->c_close)(f->curs);
         f->curs = NULL;
         dberr = 0;
+        ckey.data = NULL;
+        ckey.size =0;
     }
 #endif
 
