@@ -1,5 +1,9 @@
 Changes with APR-util 1.0.2
 
+  *) Make install passed a shell expanded list of header files to the
+     build/install.sh script, which can only install one file at a time.
+     Changed to install one header file at a time. [Graham Leggett]
+
   *) Rework the LDAP toolkit detection to be more accurate than "OpenLDAP
      detected regardless", while remaining backwards compatible with v1.0.
      [Graham Leggett]
