@@ -15,6 +15,21 @@ Package=<4>
 
 ###############################################################################
 
+Project: "apriconv"="..\apr-iconv\apriconv.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name apr
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "aprutil"=".\aprutil.dsp" - Package Owner=<4>
 
 Package=<5>
@@ -32,6 +47,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name xml
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name apriconv
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -44,6 +62,21 @@ Package=<5>
 
 Package=<4>
 {{{
+}}}
+
+###############################################################################
+
+Project: "libapriconv"="..\apr-iconv\libapriconv.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libapr
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -64,6 +97,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name xml
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libapriconv
     End Project Dependency
 }}}
 
