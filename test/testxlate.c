@@ -53,6 +53,11 @@ static int test_conversion (apr_xlate_t *convset,
                                                 &inbytes_left,
                                                 buf,
                                                 &outbytes_left);
+    if (status == APR_SUCCESS) {
+        status = apr_xlate_conv_buffer(convset, NULL, NULL,
+                                       buf + sizeof(buf) - outbytes_left - 1,
+                                       &outbytes_left);
+    }
     buf[sizeof(buf) - outbytes_left - 1] = '\0';
     retcode |= check_status(status, "apr_xlate_conv_buffer");
     if ((!status || APR_STATUS_IS_INCOMPLETE(status))
