@@ -1,5 +1,7 @@
 Changes with APR-util b1  
 
+  *) Install Expat when installing APR-util.  [Justin Erenkrantz]
+
   *) Make APR-util configure script rely on APR.  This removes the locally
      generated copy of libtool and uses the one in APR.  Fix up how we
      call the expat configure script.  Generate config.nice file.
