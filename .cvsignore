@@ -37,3 +37,4 @@ autom4te.cache
 build-outputs.mk
 .make.dirs
 apr-util*.pc
+apr-util.spec
