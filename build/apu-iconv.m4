@@ -3,26 +3,58 @@ dnl custom autoconf rules for APRUTIL
 dnl
 
 dnl
+dnl APU_TRY_ICONV[ IF-SUCCESS, IF-FAILURE ]: try to compile for iconv.
+dnl
+AC_DEFUN(APU_TRY_ICONV,[
+  AC_TRY_LINK([
+#include <stdlib.h>
+#include <iconv.h>
+],
+[
+  iconv_t cd = iconv_open("", "");
+  iconv(cd, NULL, NULL, NULL, NULL);
+], [$1], [$2])
+])
+
+dnl
 dnl APU_FIND_ICONV: find an iconv library
 dnl
 AC_DEFUN(APU_FIND_ICONV,[
 
-dnl
-dnl TODO: Check for --with-iconv or --with-apr-iconv, or look for
-dnl apr-iconv sources or an installed apr-iconv ...
-dnl
-
-AC_CHECK_FUNCS(iconv, [
-  have_iconv="1"
-], [ 
-  AC_CHECK_LIB(iconv, iconv, [
-    APR_ADDTO(APRUTIL_LIBS,[-liconv])
-    APR_ADDTO(APRUTIL_EXPORT_LIBS,[-liconv])
-    have_iconv="1"
-  ], [
-    have_iconv="0"
+apu_iconv_dir="unknown"
+AC_ARG_WITH(iconv,[  --with-iconv[=DIR]        path to iconv installation],
+  [ apu_iconv_dir="$withval"
+    if test "$apu_iconv_dir" != "yes"; then
+      APR_ADDTO(CPPFLAGS,[-I$apu_iconv_dir/include])
+      APR_ADDTO(LDFLAGS,[-L$apu_iconv_dir/lib])
+    fi
   ])
-])
+
+AC_CHECK_HEADER(iconv.h, [
+  APU_TRY_ICONV([ have_iconv="1" ], [
+
+   APR_ADDTO(LIBS,[-liconv])
+
+   APU_TRY_ICONV([
+     APR_ADDTO(APRUTIL_LIBS,[-liconv])
+     APR_ADDTO(APRUTIL_EXPORT_LIBS,[-liconv])
+     have_iconv="1" ],
+     [ have_iconv="0" ])
+
+   APR_REMOVEFROM(LIBS,[-liconv])
+
+ ])
+], [ have_iconv="0" ])
+
+if test "$apu_iconv_dir" != "unknown"; then
+  if test "$have_iconv" != "1"; then
+    AC_MSG_ERROR([iconv support requested, but not found])
+  fi
+  APR_REMOVEFROM(CPPFLAGS,[-I$apu_iconv_dir/include])
+  APR_REMOVEFROM(LDFLAGS,[-L$apu_iconv_dir/lib])
+  APR_ADDTO(APRUTIL_INCLUDES,[-I$apu_iconv_dir/include])
+  APR_ADDTO(APRUTIL_LDFLAGS,[-L$apu_iconv_dir/lib])
+fi
 
 if test "$have_iconv" = "1"; then
   APU_CHECK_ICONV_INBUF
@@ -34,7 +66,6 @@ APR_CHECK_DEFINE(CODESET, langinfo.h, [CODESET defined in langinfo.h])
 
 AC_SUBST(have_iconv)
 ])dnl
-
 
 dnl
 dnl APU_CHECK_ICONV_INBUF
