@@ -26,6 +26,8 @@ NULL=
 NULL=nul
 !ENDIF 
 
+CPP=cl.exe
+
 !IF  "$(CFG)" == "aprutil - Win32 Release"
 
 OUTDIR=.\LibR
@@ -81,44 +83,12 @@ CLEAN :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 RSC=rc.exe
-CPP=cl.exe
 CPP_PROJ=/nologo /MD /W3 /O2 /I "./include" /I "../apr/include" /I\
  "./include/private" /I "./dbm/sdbm" /I "./xml/expat/lib" /D "NDEBUG" /D "WIN32"\
  /D "_WINDOWS" /D "APR_DECLARE_STATIC" /D "APU_DECLARE_STATIC" /D "APU_USE_SDBM"\
  /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\aprutil" /FD /c 
 CPP_OBJS=.\LibR/
 CPP_SBRS=.
-
-.c{$(CPP_OBJS)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cpp{$(CPP_OBJS)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cxx{$(CPP_OBJS)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.c{$(CPP_SBRS)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cpp{$(CPP_SBRS)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cxx{$(CPP_SBRS)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
 BSC32=bscmake.exe
 BSC32_FLAGS=/nologo /o"$(OUTDIR)\aprutil.bsc" 
 BSC32_SBRS= \
@@ -213,44 +183,12 @@ CLEAN :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 RSC=rc.exe
-CPP=cl.exe
 CPP_PROJ=/nologo /MDd /W3 /GX /Zi /Od /I "./include" /I "../apr/include" /I\
  "./include/private" /I "./dbm/sdbm" /I "./xml/expat/lib" /D "_DEBUG" /D "WIN32"\
  /D "_WINDOWS" /D "APR_DECLARE_STATIC" /D "APU_DECLARE_STATIC" /D "APU_USE_SDBM"\
  /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\aprutil" /FD /c 
 CPP_OBJS=.\LibD/
 CPP_SBRS=.
-
-.c{$(CPP_OBJS)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cpp{$(CPP_OBJS)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cxx{$(CPP_OBJS)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.c{$(CPP_SBRS)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cpp{$(CPP_SBRS)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cxx{$(CPP_SBRS)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
 BSC32=bscmake.exe
 BSC32_FLAGS=/nologo /o"$(OUTDIR)\aprutil.bsc" 
 BSC32_SBRS= \
@@ -290,6 +228,36 @@ LIB32_OBJS= \
 <<
 
 !ENDIF 
+
+.c{$(CPP_OBJS)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cpp{$(CPP_OBJS)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cxx{$(CPP_OBJS)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.c{$(CPP_SBRS)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cpp{$(CPP_SBRS)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cxx{$(CPP_SBRS)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
 
 
 !IF "$(CFG)" == "aprutil - Win32 Release" || "$(CFG)" ==\
