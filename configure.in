@@ -53,10 +53,10 @@ case "$host_alias" in
     # if we're building a shared lib then we need to add in the
     # apr library to the build...
     LDFLAGS="$APR_SOURCE_DIR/libapr.la"
-    AC_PROG_LIBTOOL
+AC_PROG_LIBTOOL
     ;;
 *)  dnl libtoolize requires that the following not be indented
-    AC_PROG_LIBTOOL
+AC_PROG_LIBTOOL
     ;;
 esac
 
