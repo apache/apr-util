@@ -1,5 +1,5 @@
 APRUTIL LIBRARY STATUS:						-*-text-*-
-Last modified at [$Date: 2002/05/31 00:08:20 $]
+Last modified at [$Date: 2002/05/31 00:13:52 $]
 
 Release:
 
@@ -35,7 +35,7 @@ RELEASE SHOWSTOPPERS:
 		    available.
       Greg says: showstopper because of the move of functions from one
                  lib to another
-      Status: Justin +1 (volunteers), Greg +1
+      Status: Justin +1, Greg +1
 
 
 RELEASE NON-SHOWSTOPPERS BUT WOULD BE REAL NICE TO WRAP THESE UP:
