@@ -224,6 +224,8 @@ abts_suite *testuri(abts_suite *suite)
     abts_run_test(suite, test_aup, pool);
     abts_run_test(suite, test_uph, pool);
 
+    apr_pool_destroy(pool);
+
     return suite;
 }
 
