@@ -1,6 +1,6 @@
-; apr-util.def :
+; aprutil.def :
 
-LIBRARY aprutil
+LIBRARY apr-util
 DESCRIPTION ''
 
 EXPORTS
