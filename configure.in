@@ -13,29 +13,33 @@ AC_PROG_AWK
 AC_CHECK_PROG(RM, rm, rm)
 
 dnl
-dnl 1. Find the APR includes directory and (possibly) the source (base) dir.
-dnl 2. Determine what DBM backend type to use.
-dnl
-APU_FIND_APR
-APU_CHECK_DBM
-
-dnl
 dnl compute the top directory of the build
-dnl note: this substitution is needed for LIBTOOL
+dnl note: this is needed for LIBTOOL and exporting the bundled Expat
 dnl
 top_builddir="`cd $srcdir ; pwd`"
 AC_SUBST(top_builddir)
+
+dnl
+dnl set up the compilation flags and stuff
+dnl
+INCLUDES="$INCLUDES -I\$(top_builddir)/include/private -I\$(top_builddir)/include"
+
+dnl
+dnl 1. Find the APR includes directory and (possibly) the source (base) dir.
+dnl 2. Determine what DBM backend type to use.
+dnl 3. Find Expat
+dnl
+APU_FIND_APR
+APU_CHECK_DBM
+APU_FIND_EXPAT
+
+INCLUDES="$INCLUDES -I$APR_INCLUDES"
 
 dnl
 dnl prep libtool
 dnl
 echo "performing libtool configuration..."
 AC_PROG_LIBTOOL
-
-dnl
-dnl set up the compilation flags and stuff
-dnl
-INCLUDES="-I\$(top_builddir)/include/private -I\$(top_builddir)/include -I$APR_INCLUDES"
 
 dnl
 dnl grab flags from APR.
