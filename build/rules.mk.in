@@ -98,15 +98,18 @@ install: all-recursive
 
 all-recursive depend-recursive clean-recursive distclean-recursive \
   extraclean-recursive:
-	@otarget=`echo $@|sed s/-recursive//`; \
-	list='$(SUBDIRS)'; for i in $$list; do \
-	    target="$$otarget"; \
-	    echo "Making $$target in $$i"; \
-	    if test "$$i" = "."; then \
-		made_local=yes; \
-		target="local-$$target"; \
+	@otarget=`echo $@ | sed s/-recursive//`; \
+	list='$(SUBDIRS)'; \
+	for i in $$list; do \
+	    if test -d "$$i"; then \
+		target="$$otarget"; \
+		echo "Making $$target in $$i"; \
+		if test "$$i" = "."; then \
+		    made_local=yes; \
+		    target="local-$$target"; \
+		fi; \
+		(cd $$i && $(MAKE) $$target) || exit 1; \
 	    fi; \
-	    (cd $$i && $(MAKE) $$target) || exit 1; \
 	done; \
         if test "$$otarget" = "all" && test -z "$(TARGETS)"; then \
 	    made_local=n/a; \
@@ -116,7 +119,7 @@ all-recursive depend-recursive clean-recursive distclean-recursive \
 	fi
 
 local-clean:
-	$(RM) -f *.o *.lo *.a *.la *.so $(CLEAN_TARGETS)
+	$(RM) -f *.o *.lo *.a *.la *.so $(CLEAN_TARGETS) $(PROGRAMS)
 	$(RM) -rf .libs
 
 local-distclean: local-clean

@@ -67,6 +67,10 @@ case "$host_alias" in
 esac
 AC_SUBST(INCLUDE_RULES)
 
+if test -d ./test; then
+    test_Makefile="test/Makefile"
+fi
+
 dnl
 dnl everthing is done. 
 AC_OUTPUT([
@@ -85,5 +89,5 @@ AC_OUTPUT([
 	src/hooks/Makefile
 	src/uri/Makefile
 	src/xml/Makefile
-	test/Makefile
+	$test_Makefile
 	])
