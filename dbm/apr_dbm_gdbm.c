@@ -73,7 +73,12 @@ typedef datum result_datum_t;
 #define APR_DBM_NEXTKEY(f, k, nk) ((nk) = gdbm_nextkey(f, *(k)), APR_SUCCESS)
 #define APR_DBM_FREEDPTR(dptr)	((dptr) ? free(dptr) : 0)
 
-#define NEEDS_CLEANUP
+#undef REGISTER_CLEANUP
+#define REGISTER_CLEANUP(dbm, pdatum) \
+    if ((pdatum)->dptr) \
+        apr_pool_cleanup_register((dbm)->pool, (pdatum)->dptr, \
+                             datum_cleanup, apr_pool_cleanup_null); \
+    else
 
 #define APR_DBM_DBMODE_RO       GDBM_READER
 #define APR_DBM_DBMODE_RW       GDBM_WRITER
@@ -90,3 +95,102 @@ static apr_status_t g2s(int gerr)
 
     return APR_SUCCESS;
 }
+
+static apr_status_t datum_cleanup(void *dptr)
+{
+    if (dptr)
+        free(dptr);
+
+    return APR_SUCCESS;
+}
+
+/* --------------------------------------------------------------------------
+**
+** DEFINE THE VTABLE FUNCTIONS FOR GDBM
+*/
+
+static apr_status_t vt_gdbm_open(apr_dbm_t **dbm, const char *name,
+                                 apr_int32_t mode, apr_fileperms_t perm,
+                                 apr_pool_t *cntxt)
+{
+    abort();
+    return APR_SUCCESS;
+}
+
+static void vt_gdbm_close(apr_dbm_t *dbm)
+{
+    abort();
+}
+
+static apr_status_t vt_gdbm_fetch(apr_dbm_t *dbm, apr_datum_t key,
+                                  apr_datum_t * pvalue)
+{
+    abort();
+    return APR_SUCCESS;
+}
+
+static apr_status_t vt_gdbm_store(apr_dbm_t *dbm, apr_datum_t key,
+                                  apr_datum_t value)
+{
+    abort();
+    return APR_SUCCESS;
+}
+
+static apr_status_t vt_gdbm_del(apr_dbm_t *dbm, apr_datum_t key)
+{
+    abort();
+    return APR_SUCCESS;
+}
+
+static int vt_gdbm_exists(apr_dbm_t *dbm, apr_datum_t key)
+{
+    abort();
+    return 0;
+}
+
+static apr_status_t vt_gdbm_firstkey(apr_dbm_t *dbm, apr_datum_t * pkey)
+{
+    abort();
+    return APR_SUCCESS;
+}
+
+static apr_status_t vt_gdbm_nextkey(apr_dbm_t *dbm, apr_datum_t * pkey)
+{
+    abort();
+    return APR_SUCCESS;
+}
+
+static char * vt_gdbm_geterror(apr_dbm_t *dbm, int *errcode, char *errbuf,
+                               apr_size_t errbufsize)
+{
+    abort();
+    return NULL;
+}
+
+static void vt_gdbm_freedatum(apr_dbm_t *dbm, apr_datum_t data)
+{
+    abort();
+}
+
+static void vt_gdbm_usednames(apr_pool_t *pool, const char *pathname,
+                              const char **used1, const char **used2)
+{
+    abort();
+}
+
+
+static const apr_dbm_type_t apr_dbm_type_gdbm = {
+    "gdbm",
+
+    vt_gdbm_open,
+    vt_gdbm_close,
+    vt_gdbm_fetch,
+    vt_gdbm_store,
+    vt_gdbm_del,
+    vt_gdbm_exists,
+    vt_gdbm_firstkey,
+    vt_gdbm_nextkey,
+    vt_gdbm_geterror,
+    vt_gdbm_freedatum,
+    vt_gdbm_usednames
+};
