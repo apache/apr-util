@@ -260,7 +260,7 @@ void ap_init_bucket_types(apr_pool_t *p)
     ap_insert_bucket_type(&ap_eos_type);
     ap_insert_bucket_type(&ap_file_type);
     ap_insert_bucket_type(&ap_heap_type);
-#ifdef AP_USE_MMAP_FILES
+#ifdef APR_HAS_MMAP
     ap_insert_bucket_type(&ap_mmap_type);
 #endif
     ap_insert_bucket_type(&ap_pipe_type);
