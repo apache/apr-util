@@ -7,3 +7,6 @@ expat.h
 config.h
 LibD
 LibR
+*.plg
+*.dep
+*.mak
