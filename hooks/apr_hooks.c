@@ -73,7 +73,7 @@
 
 APU_DECLARE_DATA apr_pool_t *apr_global_hook_pool = NULL;
 APU_DECLARE_DATA int apr_debug_module_hooks = 0;
-APU_DECLARE_DATA const char *apr_debug_module_name = NULL;
+APU_DECLARE_DATA const char *apr_current_hooking_module = NULL;
 
 /* NB: This must echo the LINK_##name structure */
 typedef struct
@@ -322,7 +322,7 @@ APU_DECLARE(void) apr_hook_generic(const char *szName,void (*pfn)(void),
     pHook->aszPredecessors=aszPre;
     pHook->aszSuccessors=aszSucc;
     pHook->nOrder=nOrder;
-    pHook->szName=apr_debug_module_name;
+    pHook->szName=apr_current_hooking_module;
     if(apr_debug_module_hooks)
 	apr_show_hook(szName,aszPre,aszSucc);
 }
