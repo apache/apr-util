@@ -285,6 +285,54 @@ static void test_splits(abts_case *tc, void *ctx)
     apr_bucket_alloc_destroy(ba);
 }
 
+#define TIF_FNAME "testfile.txt"
+
+static void test_insertfile(abts_case *tc, void *ctx)
+{
+    apr_bucket_alloc_t *ba = apr_bucket_alloc_create(p);
+    apr_bucket_brigade *bb;
+    const apr_off_t bignum = (APR_INT64_C(2) << 32) + 424242;
+    apr_off_t count;
+    apr_file_t *f;
+    apr_bucket *e;
+
+    ABTS_ASSERT(tc, "open test file",
+                apr_file_open(&f, TIF_FNAME,
+                              APR_WRITE|APR_TRUNCATE|APR_CREATE,
+                              APR_OS_DEFAULT, p) == APR_SUCCESS);
+
+    if (apr_file_trunc(f, bignum)) {
+        apr_file_close(f);
+        apr_file_remove(TIF_FNAME, p);
+        ABTS_NOT_IMPL(tc, "Skipped: could not create large file");
+    }
+    
+    bb = apr_brigade_create(p, ba);
+
+    e = apr_brigade_insert_file(bb, f, 0, bignum, p);
+    
+    ABTS_ASSERT(tc, "inserted file was not at end of brigade",
+                e == APR_BRIGADE_LAST(bb));
+
+    /* check that the total size of inserted buckets is equal to the
+     * total size of the file. */
+    count = 0;
+
+    for (e = APR_BRIGADE_FIRST(bb);
+         e != APR_BRIGADE_SENTINEL(bb);
+         e = APR_BUCKET_NEXT(e)) {
+        ABTS_ASSERT(tc, "bucket size sane", e->length != (apr_size_t)-1);
+        count += e->length;
+    }
+
+    ABTS_ASSERT(tc, "total size of buckets incorrect", count == bignum);
+    
+    apr_brigade_destroy(bb);
+    apr_file_close(f);
+    apr_bucket_alloc_destroy(ba);
+    apr_file_remove(TIF_FNAME, p);
+}
+
 abts_suite *testbuckets(abts_suite *suite)
 {
     suite = ADD_SUITE(suite);
@@ -296,6 +344,7 @@ abts_suite *testbuckets(abts_suite *suite)
     abts_run_test(suite, test_bwrite, NULL);
     abts_run_test(suite, test_splitline, NULL);
     abts_run_test(suite, test_splits, NULL);
+    abts_run_test(suite, test_insertfile, NULL);
 
     return suite;
 }

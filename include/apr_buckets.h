@@ -868,6 +868,25 @@ APU_DECLARE(apr_status_t) apr_brigade_vprintf(apr_bucket_brigade *b,
                                               void *ctx,
                                               const char *fmt, va_list va);
 
+/**
+ * Utility function to insert a file of given length onto the end of
+ * the brigade.  The file is split into multiple buckets if it is
+ * larger than the maximum size which can be represented by a single bucket.
+ * @param bb the brigade to insert into
+ * @param f the file to insert
+ * @param start the offset into the file
+ * @param len the length of the file to insert
+ * @param p pool from which file buckets are allocated
+ * @return the last bucket inserted
+ */
+APU_DECLARE(apr_bucket *) apr_brigade_insert_file(apr_bucket_brigade *bb,
+                                                  apr_file_t *f,
+                                                  apr_off_t start,
+                                                  apr_off_t len,
+                                                  apr_pool_t *p);
+
+
+
 /*  *****  Bucket freelist functions *****  */
 /**
  * Create a bucket allocator.
