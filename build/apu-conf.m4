@@ -77,12 +77,14 @@ dnl APU_CHECK_DB185: is DB1.85 present?
 dnl
 dnl if present: sets apu_have_db=1, db_header, db_lib, and db_version
 dnl
+dnl NB: BerkelyDB v2 and above can be compiled in 1.85 mode
+dnl which has a libdb not libdb1 or libdb185
 AC_DEFUN(APU_CHECK_DB185,[
 AC_CHECK_HEADER(db_185.h, [
   AC_CHECK_LIB(db, dbopen, [
   apu_have_db=1
   db_header=db_185.h
-  db_lib=db1
+  db_lib=db
   db_version=185
   ])])])
 
