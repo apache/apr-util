@@ -309,9 +309,8 @@ APU_DECLARE(apr_status_t) apr_queue_pop(apr_queue_t *queue, void **data)
 
 /**
  * Retrieves the next item from the queue. If there are no
- * items available, it will block until one becomes available.
- * Once retrieved, the item is placed into the address specified by
- * 'data'.
+ * items available, return APR_EAGAIN.  Once retrieved,
+ * the item is placed into the address specified by 'data'.
  */
 APU_DECLARE(apr_status_t) apr_queue_trypop(apr_queue_t *queue, void **data)
 {
@@ -326,7 +325,6 @@ APU_DECLARE(apr_status_t) apr_queue_trypop(apr_queue_t *queue, void **data)
         return rv;
     }
 
-    /* Keep waiting until we wake up and find that the queue is not empty. */
     if (apr_queue_empty(queue)) {
         rv = apr_thread_mutex_unlock(queue->one_big_mutex);
         return APR_EAGAIN;
