@@ -81,12 +81,16 @@ static apr_status_t pipe_read(ap_bucket *b, const char **str,
     if ((rv = apr_read(bd->thepipe, buf, len)) != APR_SUCCESS) {
         return rv;
     }
-    *str = buf;
     if (*len > 0) {
         l = *len;
         a = ap_bucket_create_pipe(bd->thepipe);
         
+        /* XXX ap_bucket_make_heap() can decide not to copy all our data;
+         * either handle it here or ensure that IOBUFSIZE < 
+         * DEFAULT_BUCKET_SIZE;
+         */
         b = ap_bucket_make_heap(b, buf, l, 1, &toss);
+        b->read(b, str, len, block); /* set str to new location of data */
 
         b->next->prev = a;
         a->next = b->next;
