@@ -1,5 +1,8 @@
 Changes with APR-util 0.9.5
 
+  *) Guarantee and require default address alignment for block offsets
+     within segments in the apr_rmm interface.  PR 29873.  [Joe Orton]
+
   *) SECURITY: CAN-2004-0786 (cve.mitre.org)
      Fix input validation in apr_uri_parse() to avoid passing negative
      length to memcpy for malformed IPv6 literal addresses.
