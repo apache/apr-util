@@ -70,7 +70,7 @@ static apr_status_t pipe_read(apr_bucket *a, const char **str,
 
     *str = NULL;
     *len = APR_BUCKET_BUFF_SIZE;
-    buf = malloc(*len); /* XXX: check for failure? */
+    buf = malloc(*len);
 
     rv = apr_file_read(p, buf, len);
 
@@ -96,9 +96,8 @@ static apr_status_t pipe_read(apr_bucket *a, const char **str,
      */
     if (*len > 0) {
         apr_bucket_heap *h;
-        /* Change the current bucket to refer to what we read */
-        /* XXX: check for failure? */
-        a = apr_bucket_heap_make(a, buf, *len, 0, NULL);
+
+        apr_bucket_heap_make(a, buf, *len, 0, NULL);
         h = a->data;
         h->alloc_len = APR_BUCKET_BUFF_SIZE; /* note the real buffer size */
         *str = buf;
@@ -106,7 +105,7 @@ static apr_status_t pipe_read(apr_bucket *a, const char **str,
     }
     else {
         free(buf);
-        a = apr_bucket_immortal_make(a, "", 0);
+        apr_bucket_immortal_make(a, "", 0);
         *str = a->data;
         if (rv == APR_EOF) {
             apr_file_close(p);
@@ -144,10 +143,16 @@ APU_DECLARE(apr_bucket *) apr_bucket_pipe_make(apr_bucket *b, apr_file_t *p)
 
 APU_DECLARE(apr_bucket *) apr_bucket_pipe_create(apr_file_t *p)
 {
-    apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
+    apr_sms_t *sms;
+    apr_bucket *b;
 
+    if (!apr_bucket_global_sms) {
+        apr_sms_std_create(&apr_bucket_global_sms);
+    }
+    sms = apr_bucket_global_sms;
+    b = (apr_bucket *)apr_sms_malloc(sms, sizeof(*b));
     APR_BUCKET_INIT(b);
-    b->free = free;
+    b->sms = sms;
     return apr_bucket_pipe_make(b, p);
 }
 
