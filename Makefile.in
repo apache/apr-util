@@ -51,6 +51,7 @@ install: $(TARGET_LIB)
 	    @APR_SOURCE_DIR@/build/mkdir.sh $(libdir); \
 	fi; \
 	$(LIBTOOL) --mode=install cp $(TARGET_LIB) $(libdir); \
+	$(LIBTOOL) --mode=install cp aprutil.exp $(libdir); \
 	list='$(INSTALL_SUBDIRS)'; for i in $$list; do \
 		( cd $$i ; $(MAKE) install ); \
 	done
