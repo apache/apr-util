@@ -57,11 +57,15 @@
  */
 
 /*
- * util_uri.h: External Interface of util_uri.c
+ * apr_uri.h: External Interface of apr_uri.c
  */
 
-#ifndef UTIL_URI_H
-#define UTIL_URI_H
+#ifndef APR_URI_H
+#define APR_URI_H
+
+#include "apu.h"
+
+#include <apr_network_io.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -84,8 +88,14 @@ struct schemes_t {
 #define	DEFAULT_FTP_DATA_PORT	20
 #define	DEFAULT_FTP_PORT	21
 #define	DEFAULT_GOPHER_PORT	70
+#ifndef DEFAULT_HTTP_PORT
+#define	DEFAULT_HTTP_PORT	80
+#endif
 #define	DEFAULT_NNTP_PORT	119
 #define	DEFAULT_WAIS_PORT	210
+#ifndef DEFAULT_HTTPS_PORT
+#define	DEFAULT_HTTPS_PORT	443
+#endif
 #define	DEFAULT_SNEWS_PORT	563
 #define	DEFAULT_PROSPERO_PORT	1525	/* WARNING: conflict w/Oracle */
 
@@ -98,12 +108,12 @@ struct schemes_t {
 #define UNP_OMITPATHINFO	(1U<<4)	/* Show "scheme://user@site:port" only */
 #define UNP_OMITQUERY	        (1U<<5)	/* Omit the "?queryarg" from the path */
 
-typedef struct uri_components uri_components;
+typedef struct apr_uri_components apr_uri_components;
 
 /**
  * A structure to encompass all of the fields in a uri
  */
-struct uri_components {
+struct apr_uri_components {
     /** scheme ("http"/"ftp"/...) */
     char *scheme;
     /** combined [user[:password]@]host[:port] */
@@ -139,29 +149,21 @@ struct uri_components {
     unsigned dns_resolved:1;
 };
 
-/* util_uri.c */
+/* apr_uri.c */
 /**
  * Return the default port for a given scheme.  The schemes recognized are
  * http, ftp, https, gopher, wais, nntp, snews, and prospero
  * @param scheme_str The string that contains the current scheme
  * @return The default port for this scheme
- * @deffunc apr_port_t ap_default_port_for_scheme(const char *scheme_str)
+ * @deffunc apr_port_t apr_uri_default_port_for_scheme(const char *scheme_str)
  */ 
-AP_DECLARE(apr_port_t) ap_default_port_for_scheme(const char *scheme_str);
+APU_DECLARE(apr_port_t) apr_uri_default_port_for_scheme(const char *scheme_str);
 
 /**
- * Return the default for the current request
- * @param r The current request
- * @return The default port
- * @deffunc apr_port_t ap_default_port_for_request(const request_rec *r)
- */
-AP_DECLARE(apr_port_t) ap_default_port_for_request(const request_rec *r);
-
-/**
- * Unparse a uri_components structure to an URI string.  Optionally suppress 
- * the password for security reasons.
+ * Unparse a apr_uri_components structure to an URI string.  Optionally 
+ * suppress the password for security reasons.
  * @param p The pool to allocate out of
- * @param uri_components All of the parts of the uri
+ * @param uptr All of the parts of the uri
  * @param flags How to unparse the uri.  One of:
  * <PRE>
  *    UNP_OMITSITEPART        suppress "scheme://user@site:port" 
@@ -173,35 +175,39 @@ AP_DECLARE(apr_port_t) ap_default_port_for_request(const request_rec *r);
  *    UNP_OMITQUERY           Omit the "?queryarg" from the path 
  * </PRE>
  * @return The uri as a string
- * @deffunc char * ap_unparse_uri_components(apr_pool_t *p, const uri_components *uptr, unsigned flags)
+ * @deffunc char * apr_uri_unparse_components(apr_pool_t *p, const apr_uri_components *uptr, unsigned flags)
  */
-AP_DECLARE(char *) ap_unparse_uri_components(apr_pool_t *p, const uri_components *uptr,
-    unsigned flags);
+APU_DECLARE(char *) apr_uri_unparse_components(apr_pool_t *p, 
+                                               const apr_uri_components *uptr,
+                                               unsigned flags);
 
 /**
- * Parse a given URI, fill in all supplied fields of a uri_components
+ * Parse a given URI, fill in all supplied fields of a apr_uri_components
  * structure. This eliminates the necessity of extracting host, port,
  * path, query info repeatedly in the modules.
  * @param p The pool to allocate out of
  * @param uri The uri to parse
- * @param uptr The uri_components to fill out
+ * @param uptr The apr_uri_components to fill out
  * @return An HTTP status code
- * @deffunc int ap_parse_uri_components(apr_pool_t *p, const char *uri, uri_components *uptr)
+ * @deffunc int apr_uri_parse_components(apr_pool_t *p, const char *uri, apr_uri_components *uptr)
  */
-AP_DECLARE(int) ap_parse_uri_components(apr_pool_t *p, const char *uri, uri_components *uptr);
+APU_DECLARE(int) apr_uri_parse_components(apr_pool_t *p, const char *uri, 
+                                          apr_uri_components *uptr);
 
 /**
  * Special case for CONNECT parsing: it comes with the hostinfo part only
  * @param p The pool to allocate out of
  * @param hostinfo The hostinfo string to parse
- * @param uptr The uri_components to fill out
+ * @param uptr The apr_uri_components to fill out
  * @return An HTTP status code
- * @deffunc int ap_parse_hostinfo_components(apr_pool_t *p, const char *hostinfo, uri_components *uptr)
+ * @deffunc int apr_parse_hostinfo_components(apr_pool_t *p, const char *hostinfo, apr_uri_components *uptr)
  */
-AP_DECLARE(int) ap_parse_hostinfo_components(apr_pool_t *p, const char *hostinfo, uri_components *uptr);
+APU_DECLARE(int) apr_uri_parse_hostinfo_components(apr_pool_t *p, 
+                                                   const char *hostinfo, 
+                                                   apr_uri_components *uptr);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /*UTIL_URI_H*/
+#endif /*APR_URI_H*/

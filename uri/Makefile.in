@@ -1,2 +1,12 @@
+TARGETS = uri_delims.h apr_uri.lo
+CLEAN_TARGETS = gen_uri_delims uri_delims.h
+
 # bring in rules.mk for standard functionality
 @INCLUDE_RULES@
+
+gen_uri_delims_OBJECTS = gen_uri_delims.o
+gen_uri_delims: $(gen_uri_delims_OBJECTS)
+	$(LINK) $(EXTRA_LDFLAGS) $(gen_uri_delims_OBJECTS) $(EXTRA_LIBS)
+
+uri_delims.h: gen_uri_delims
+	./gen_uri_delims > uri_delims.h
