@@ -245,6 +245,7 @@ int main(int argc, const char *const * argv)
                             "(EXPECTED) This is good.\n",
                     apr_strerror(rv, errbuf, sizeof(errbuf)),
              apr_xml_parser_geterror(parser, errbufXML, sizeof(errbufXML)));
+             rv = APR_SUCCESS; /* reset the return code, as the test is supposed to get this error */
         }
         else {
             fprintf(stderr, "Expected an error, but didn't get one ;( ");
