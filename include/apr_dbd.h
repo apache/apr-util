@@ -25,15 +25,6 @@
 extern "C" {
 #endif
 
-/** Patch required to build against APR/0.9 and HTTPD/2.0
- *  Invalidate a resource in the pool - e.g. a database connection
- *  that returns a "lost connection" error and can't be restored.
- *  Use this instead of apr_reslist_release if the resource is bad.
- */
-#if APR_HAS_THREADS
-#include "apr_reslist.h"
-#endif
-
 /* These are opaque structs.  Instantiation is up to each backend */
 #ifndef APR_DBD_INTERNAL
 typedef struct apr_dbd_t apr_dbd_t;

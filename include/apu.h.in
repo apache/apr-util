@@ -78,6 +78,7 @@
 #endif /* APU_HAVE_DB */
 
 #define APU_HAVE_PGSQL         @apu_have_pgsql@
+#define APU_HAVE_MYSQL         @apu_have_mysql@
 
 #define APU_HAVE_APR_ICONV     @have_apr_iconv@
 #define APU_HAVE_ICONV         @have_iconv@
