@@ -133,7 +133,8 @@ API_EXPORT(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
     b->read     = heap_read;
     b->setaside = NULL;
 
-    *w = length;
+    if (w)
+        *w = length;
 
     return b;
 }
