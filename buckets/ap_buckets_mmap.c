@@ -81,7 +81,6 @@ static void mmap_destroy(void *data)
     if (m == NULL) {
 	return;
     }
-    apr_mmap_delete(m->mmap); /* hope this works! */
     free(m);
 }
 
