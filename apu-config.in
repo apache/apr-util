@@ -83,6 +83,7 @@ Known values for OPTION are:
   --prefix[=DIR]    change prefix to DIR
   --bindir          print location where binaries are installed
   --includes        print include information
+  --includedir      print location where includes are installed
   --ldflags         print linker flags
   --libs            print library information
   --srcdir          print APR-util source directory
@@ -162,6 +163,18 @@ while test $# -gt 0; do
     ;;
     --libs)
     flags="$flags $LIBS"
+    ;;
+    --includedir)
+    if test "$location" = "installed"; then
+        flags="$includedir"
+    elif test "$location" = "source"; then
+        flags="$APU_SOURCE_DIR/include"
+    else
+        # this is for VPATH builds
+        flags="$thisdir/include $APU_SOURCE_DIR/include"
+    fi
+    echo $flags
+    exit 0
     ;;
     --includes)
     if test "$location" = "installed"; then
