@@ -668,9 +668,9 @@ static void crypt_mutex_unlock(void)
  * Validate a plaintext password against a smashed one.  Uses either
  * crypt() (if available) or apr_md5_encode() or apr_sha1_base64(), depending
  * upon the format of the smashed input password.  Returns APR_SUCCESS if
- * they match, or APR_EMISMATCH if they don't.
+ * they match, or APR_EMISMATCH if they don't.  If the platform doesn't
+ * support crypt, then the default check is against a clear text string.
  */
-
 APU_DECLARE(apr_status_t) apr_password_validate(const char *passwd, 
                                                 const char *hash)
 {
