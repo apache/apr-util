@@ -150,7 +150,7 @@ static void ldap_charray_free(char **a);
 
 static char **ldap_str2charray(const char *str, const char *brkstr);
 
-APU_DECLARE(int) apr_ldap_is_ldap_url(LDAP_CONST char *url)
+APU_DECLARE(int) apr_ldap_is_ldap_url(const char *url)
 {
     int enclosed;
     const char * scheme;
@@ -166,7 +166,7 @@ APU_DECLARE(int) apr_ldap_is_ldap_url(LDAP_CONST char *url)
     return 1;
 }
 
-APU_DECLARE(int) apr_ldap_is_ldaps_url(LDAP_CONST char *url)
+APU_DECLARE(int) apr_ldap_is_ldaps_url(const char *url)
 {
     int enclosed;
     const char * scheme;
@@ -182,7 +182,7 @@ APU_DECLARE(int) apr_ldap_is_ldaps_url(LDAP_CONST char *url)
     return strcmp(scheme, "ldaps") == 0;
 }
 
-APU_DECLARE(int) apr_ldap_is_ldapi_url(LDAP_CONST char *url)
+APU_DECLARE(int) apr_ldap_is_ldapi_url(const char *url)
 {
     int enclosed;
     const char * scheme;
@@ -276,7 +276,7 @@ static int str2scope(const char *p)
 }
 
 
-static int ldap_url_parse_ext(LDAP_CONST char *url_in, 
+static int ldap_url_parse_ext(const char *url_in, 
                               apr_ldap_url_desc_t **ludpp)
 {
 /*
@@ -594,7 +594,7 @@ static int ldap_url_parse_ext(LDAP_CONST char *url_in,
     return LDAP_URL_SUCCESS;
 }
 
-APU_DECLARE(int) apr_ldap_url_parse(LDAP_CONST char *url_in, 
+APU_DECLARE(int) apr_ldap_url_parse(const char *url_in, 
                                     apr_ldap_url_desc_t **ludpp)
 {
     int rc = ldap_url_parse_ext( url_in, ludpp );

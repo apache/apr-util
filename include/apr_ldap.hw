@@ -121,11 +121,6 @@
  * LDAP Compatibility
  */
 
-/* Empty declaration, Win32 const'ness in SDK library headers is
- * generally bogus
- */
-#define LDAP_CONST
-
 /* These don't apply on Win32, leave them in place for reference 
  */
 #if LDAP_VERSION_MAX <= 2
