@@ -36,4 +36,9 @@ $(TARGET_LIB):
 aprutil.exports:
 	perl @APR_SOURCE_DIR@/helpers/make_export.pl -o $@ include/*.h
 
+docs:
+	mkdir ./docs
+	perl @APR_SOURCE_DIR@/helpers/scandoc -i./build/default.pl -p./docs/ ./include/*.h
+
+
 .PHONY: delete-lib
