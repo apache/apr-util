@@ -61,14 +61,15 @@
  * ugly 'len' functions, which is quite a nasty cost.
  */
 
+#define CORE_PRIVATE
 #include <string.h>
 
-#include "ap_config.h"
 #include "ap.h"
 
 #ifdef CHARSET_EBCDIC
 #include "ebcdic.h"
 #endif				/* CHARSET_EBCDIC */
+#include "ap_config.h"
 
 /* aaaack but it's fast and const should make it shared text page. */
 static const unsigned char pr2six[256] =
