@@ -1,15 +1,16 @@
 #ifndef APACHE_AP_HOOKS_H
 #define APACHE_AP_HOOKS_H
 
-extern int g_bDebugHooks;
-
 #define DECLARE_HOOK(ret,name,args) \
 typedef ret HOOK_##name args; \
-void ap_hook_##name(HOOK_##name *pf); \
+void ap_hook_##name(HOOK_##name *pf,const char * const *aszPre,const char * const *aszSucc); \
 ret ap_run_##name args; \
 typedef struct _LINK_##name \
     { \
     HOOK_##name *pFunc; \
+    const char *szName; \
+    const char * const *aszPredecessors; \
+    const char * const *aszSuccessors; \
     } LINK_##name;
 
 #define HOOK_STRUCT(members) \
@@ -19,15 +20,21 @@ static struct { members } _hooks;
     array_header *link_##name;
 
 #define IMPLEMENT_HOOK_BASE(ret,rv_decl,sv,rv,name,args,args2,run_all,term1,term2,rv_final) \
-void ap_hook_##name(HOOK_##name *pf) \
+void ap_hook_##name(HOOK_##name *pf,const char * const *aszPre,const char * const *aszSucc) \
     { \
     LINK_##name *pHook; \
     if(!_hooks.link_##name) \
+	{ \
 	_hooks.link_##name=ap_make_array(g_pHookPool,1,sizeof(LINK_##name)); \
+	ap_hook_sort_register(#name,&_hooks.link_##name); \
+	} \
     pHook=ap_push_array(_hooks.link_##name); \
     pHook->pFunc=pf; \
+    pHook->aszPredecessors=aszPre; \
+    pHook->aszSuccessors=aszSucc; \
+    pHook->szName=g_szCurrentHookName; \
     if(g_bDebugHooks) \
-	puts("  Hooked " #name); \
+	ap_show_hook(#name,aszPre,aszSucc); \
     } \
 ret ap_run_##name args \
     { \
@@ -55,5 +62,12 @@ ret ap_run_##name args \
 	IMPLEMENT_HOOK_BASE(void,,,,name,args,args2,run_all,1,0,)
 
 extern pool *g_pHookPool;
+extern int g_bDebugHooks;
+extern const char *g_szCurrentHookName;
+
+void ap_hook_sort_register(const char *szHookName,array_header **aHooks);
+void ap_sort_hooks(void);
+void ap_show_hook(const char *szName,const char * const *aszPre,
+		  const char * const *aszSucc);
 
 #endif /* ndef(AP_HOOKS_H) */
