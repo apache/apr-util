@@ -339,8 +339,8 @@ APU_DECLARE(apr_opt_fn_t *) apr_retrieve_optional_fn(const char *szName)
     return (void(*)(void))apr_hash_get(s_phOptionalFunctions,szName,strlen(szName));
 }
 
-APU_DECLARE(void) apr_register_optional_fn(const char *szName,
-                                           apr_opt_fn_t *pfn)
+APU_DECLARE_NONSTD(void) apr_register_optional_fn(const char *szName,
+                                                  apr_opt_fn_t *pfn)
 {
     if(!s_phOptionalFunctions)
 	s_phOptionalFunctions=apr_hash_make(apr_global_hook_pool);
