@@ -31,3 +31,4 @@ BuildLog.htm
 *.stt
 *.sto
 *.vcproj
+autom4te.cache

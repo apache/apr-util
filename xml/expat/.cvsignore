@@ -6,3 +6,4 @@ config.h.in
 config.h
 config.log
 config.status
+autom4te.cache
