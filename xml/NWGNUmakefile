@@ -247,9 +247,9 @@ install :: nlms FORCE
 # Any specialized rules here
 #
 
-$(OBJDIR)/%.o: expat/lib/%.c $(OBJDIR)\cc.opt
+$(OBJDIR)/%.o: expat/lib/%.c $(OBJDIR)\$(NLM_NAME)_cc.opt
 	@echo Compiling $<
-	$(CC) expat/lib\$(<F) -o=$(OBJDIR)\$(@F) @$(OBJDIR)\cc.opt
+	$(CC) expat/lib\$(<F) -o=$(OBJDIR)\$(@F) @$(OBJDIR)\$(NLM_NAME)_cc.opt
 
 
 
