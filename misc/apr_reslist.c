@@ -286,7 +286,7 @@ APU_DECLARE(apr_status_t) apr_reslist_create(apr_reslist_t **reslist,
 
     /* Do some sanity checks so we don't thrash around in the
      * maintenance routine later. */
-    if (min >= smax || min >= hmax || smax > hmax || ttl < 0) {
+    if (min > smax || min > hmax || smax > hmax || ttl < 0) {
         return APR_EINVAL;
     }
 
