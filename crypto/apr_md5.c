@@ -684,7 +684,7 @@ APU_DECLARE(apr_status_t) apr_password_validate(const char *passwd,
          */
         apr_md5_encode(passwd, hash, sample, sizeof(sample));
     }
-    else if(!strncmp(hash, APR_SHA1PW_ID, strlen(APR_SHA1PW_ID))) {
+    else if (!strncmp(hash, APR_SHA1PW_ID, APR_SHA1PW_IDLEN)) {
          apr_sha1_base64(passwd, strlen(passwd), sample);
     }
     else {
