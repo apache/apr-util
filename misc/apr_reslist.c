@@ -157,12 +157,9 @@ static apr_status_t create_resource(apr_reslist_t *reslist, apr_res_t **ret_res)
     res = apr_pcalloc(reslist->pool, sizeof(*res));
 
     rv = reslist->constructor(&res->opaque, reslist->params, reslist->pool);
-    if (rv != APR_SUCCESS) {
-        return rv;
-    }
 
     *ret_res = res;
-    return APR_SUCCESS;
+    return rv;
 }
 
 /**
@@ -171,14 +168,7 @@ static apr_status_t create_resource(apr_reslist_t *reslist, apr_res_t **ret_res)
  */
 static apr_status_t destroy_resource(apr_reslist_t *reslist, apr_res_t *res)
 {
-    apr_status_t rv;
-
-    rv = reslist->destructor(res->opaque, reslist->params, reslist->pool);
-    if (rv != APR_SUCCESS) {
-        return rv;
-    }
-
-    return APR_SUCCESS;
+    return reslist->destructor(res->opaque, reslist->params, reslist->pool);
 }
 
 static apr_status_t reslist_cleanup(void *data_)
@@ -368,17 +358,13 @@ APU_DECLARE(apr_status_t) apr_reslist_acquire(apr_reslist_t *reslist,
      * a resource to fill the slot and use it. */
     else {
         rv = create_resource(reslist, &res);
-
-        if (rv != APR_SUCCESS) {
-           apr_thread_mutex_unlock(reslist->listlock);
-           return rv;
+        if (rv == APR_SUCCESS) {
+            reslist->ntotal++;
+            *resource = res->opaque;
         }
-
-        reslist->ntotal++;
-        *resource = res->opaque;
         free_container(reslist, res);
         apr_thread_mutex_unlock(reslist->listlock);
-        return APR_SUCCESS;
+        return rv;
     }
 }
 
