@@ -284,7 +284,7 @@ API_EXPORT(ap_bucket_brigade *) ap_brigade_create(apr_pool_t *p);
  * destroy an enitre bucket brigade.  This includes destroying all of the
  * buckets within the bucket brigade's bucket list. 
  * @param b The bucket brigade to destroy
- * @deffunc apr_status_t ap_brigade_destroy(void *b)
+ * @deffunc apr_status_t ap_brigade_destroy(ap_bucket_brigade *b)
  */
 API_EXPORT(apr_status_t) ap_brigade_destroy(ap_bucket_brigade *b);
 
