@@ -300,13 +300,13 @@ AC_DEFUN(APU_TEST_EXPAT,[
     expat_old=yes
   elif test -r "$1/include/xmlparse.h" -a \
        -r "$1/lib/libexpat.a"; then
-    dnl ### who is this?
+    dnl previously installed expat
     expat_include_dir="$1/include"
     expat_libs="-L$1/lib -lexpat"
     expat_old=yes
   elif test -r "$1/include/xml/xmlparse.h" -a \
        -r "$1/lib/xml/libexpat.a"; then
-    dnl ### who is this?
+    dnl previously installed expat
     expat_include_dir="$1/include/xml"
     expat_libs="-L$1/lib -lexpat"
     expat_old=yes
@@ -315,8 +315,7 @@ AC_DEFUN(APU_TEST_EXPAT,[
     expat_include_dir="$1/include/xmltok"
     expat_libs="-L$1/lib -lxmlparse -lxmltok"
     expat_old=yes
-  elif test -r "$1/xmlparse/xmlparse.h" -a \
-       -r "$1/lib/xmlparse/libexpat.a"; then
+  elif test -r "$1/xmlparse/xmlparse.h"; then
     dnl Expat 1.0 or 1.1 source directory
     expat_include_dir="$1/xmlparse"
     expat_libs="-L$1 -lexpat"
