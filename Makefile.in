@@ -11,10 +11,12 @@ top_builddir = @top_builddir@
 include $(top_builddir)/build/rules.mk
 
 SUBDIRS = src . test build
+
+CLEAN_TARGETS = $(TARGET_EXPORTS)
 DISTCLEAN_TARGETS = config.cache config.log config.status config.sub \
-	include/apu_config.h
-EXTRACLEAN_TARGETS = configure libtool aclocal.m4 include/apu_config.h.in \
-	aprutils.exports
+	include/private/apu_config.h include/private/apu_private.h
+EXTRACLEAN_TARGETS = configure libtool aclocal.m4 \
+	include/private/apu_config.h.in
 
 ### fix this up at some point (install location)
 libdir = /usr/local/lib
