@@ -18,6 +18,7 @@
 
 #include "testutil.h"
 #include "apr_general.h"
+#include "apr_strings.h"
 #include "apr_uri.h"
 
 struct aup_test {
@@ -37,6 +38,10 @@ struct aup_test {
 
 struct aup_test aup_tests[] =
 {
+    { "http://[/::1]/index.html", APR_EGENERAL },
+    { "http://[", APR_EGENERAL },
+    { "http://[?::1]/index.html", APR_EGENERAL },
+
     {
         "http://127.0.0.1:9999/asdf.html",
         0, "http", "127.0.0.1:9999", NULL, NULL, "127.0.0.1", "9999", "/asdf.html", NULL, NULL, 9999
@@ -166,10 +171,14 @@ static void test_aup(abts_case *tc, void *data)
     const char *s = NULL;
 
     for (i = 0; i < sizeof(aup_tests) / sizeof(aup_tests[0]); i++) {
+        char msg[256];
+
         memset(&info, 0, sizeof(info));
         t = &aup_tests[i];
         rv = apr_uri_parse(p, t->uri, &info);
-        ABTS_INT_EQUAL(tc, rv, t->rv);
+        apr_snprintf(msg, sizeof msg, "uri '%s': rv=%d not %d", t->uri,
+                     rv, t->rv);
+        ABTS_ASSERT(tc, msg, rv == t->rv);
         if (t->rv == APR_SUCCESS) {
             ABTS_STR_EQUAL(tc, info.scheme, t->scheme);
             ABTS_STR_EQUAL(tc, info.hostinfo, t->hostinfo);
