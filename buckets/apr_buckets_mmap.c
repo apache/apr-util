@@ -56,6 +56,7 @@
  */
 
 #include "apr_private.h"
+#include "httpd.h"
 #include "ap_buckets.h"
 #include <stdlib.h>
 
@@ -105,7 +106,7 @@ static apr_status_t mmap_split(ap_bucket *e, apr_off_t nbyte)
     return APR_SUCCESS;
 }
 
-APR_EXPORT(ap_bucket *) ap_bucket_mmap_create(const apr_mmap_t *buf, 
+API_EXPORT(ap_bucket *) ap_bucket_mmap_create(const apr_mmap_t *buf, 
                                       apr_size_t nbytes, apr_ssize_t *w)
 {
     ap_bucket *newbuf;

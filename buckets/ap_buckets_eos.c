@@ -56,6 +56,7 @@
  */
 
 #include "apr_private.h"
+#include "httpd.h"
 #include "ap_buckets.h"
 #include <stdlib.h>
 
@@ -67,7 +68,7 @@ static apr_status_t eos_get_str(ap_bucket *e, const char **str,
     return AP_END_OF_BRIGADE;
 }
 
-APR_EXPORT(ap_bucket *) ap_bucket_eos_create(void)
+API_EXPORT(ap_bucket *) ap_bucket_eos_create(void)
 {
     ap_bucket *newbuf;
 

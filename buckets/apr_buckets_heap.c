@@ -56,6 +56,7 @@
  */
 
 #include "apr_private.h"
+#include "httpd.h"
 #include "ap_buckets.h"
 #include <stdlib.h>
 
@@ -159,7 +160,7 @@ void ap_heap_setaside(ap_bucket *e)
     e->destroy    = heap_destroy;
 }
 
-APR_EXPORT(ap_bucket *) ap_bucket_heap_create(const void *buf,
+API_EXPORT(ap_bucket *) ap_bucket_heap_create(const void *buf,
                                 apr_size_t nbyte, apr_ssize_t *w)
 {
     ap_bucket *newbuf;
