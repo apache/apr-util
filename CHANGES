@@ -1,3 +1,12 @@
+Changes with APR-util 1.0.1
+
+  *) Add support for Berkeley DB 4.3.  [Jani Averbach <jaa jaa.iki.fi>]
+
+  *) SECURITY: CAN-2004-0786 (cve.mitre.org)
+     Fix input validation in apr_uri_parse() to avoid passing negative
+     length to memcpy for malformed IPv6 literal addresses.
+     [Joe Orton]
+
 Changes with APR-util 1.0
 
   *) Only install apu-$MAJOR-config and add appropriate detection code to

@@ -11,9 +11,10 @@ libtool
 libaprutil*.la
 aprutil.exp
 exports.c
-export_vars.h
+export_vars.[ch]
 export_vars.sh
 apu-config
+apu-*-config
 apu-config.out
 Debug
 Release
@@ -36,4 +37,5 @@ BuildLog.htm
 autom4te.cache
 build-outputs.mk
 .make.dirs
-apr-util.pc
+apr-util*.pc
+apr-util.spec

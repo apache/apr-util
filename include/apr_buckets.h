@@ -701,17 +701,6 @@ APU_DECLARE(apr_status_t) apr_brigade_partition(apr_bucket_brigade *b,
                                                 apr_off_t point,
                                                 apr_bucket **after_point);
 
-#if APR_NOT_DONE_YET
-/**
- * consume nbytes from beginning of b -- call apr_bucket_destroy as
- * appropriate, and/or modify start on last element 
- * @param b The brigade to consume data from
- * @param nbytes The number of bytes to consume
- */
-APU_DECLARE(void) apr_brigade_consume(apr_bucket_brigade *b,
-                                      apr_off_t nbytes);
-#endif
-
 /**
  * Return the total length of the brigade.
  * @param bb The brigade to compute the length of
