@@ -79,11 +79,11 @@ typedef apr_sdbm_datum_t result_datum_t;
 #define RETURN_DATUM(poutput, rd) (*(poutput) = *(apr_datum_t *)&(rd))
 
 #define APR_DBM_CLOSE(f)	apr_sdbm_close(f)
-#define APR_DBM_FETCH(f, k, v)	apr_sdbm_fetch(f, &v, *(k))
+#define APR_DBM_FETCH(f, k, v)	apr_sdbm_fetch(f, &(v), *(k))
 #define APR_DBM_STORE(f, k, v)	apr_sdbm_store(f, *(k), *(v), APR_SDBM_REPLACE)
 #define APR_DBM_DELETE(f, k)	apr_sdbm_delete(f, *(k))
-#define APR_DBM_FIRSTKEY(f, k)	apr_sdbm_firstkey(f, &k)
-#define APR_DBM_NEXTKEY(f, k, nk) apr_sdbm_nextkey(f, &nk)
+#define APR_DBM_FIRSTKEY(f, k)	apr_sdbm_firstkey(f, &(k))
+#define APR_DBM_NEXTKEY(f, k, nk) apr_sdbm_nextkey(f, &(nk))
 #define APR_DBM_FREEDPTR(dptr)	NOOP_FUNCTION
 
 #define APR_DBM_DBMODE_RO       APR_READ
