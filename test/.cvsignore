@@ -4,3 +4,4 @@ Makefile
 .libs
 testdbm
 testmd4
+testdate
