@@ -97,24 +97,14 @@ static int file_make_mmap(apr_bucket *e, apr_size_t filelength,
                            apr_off_t fileoffset, apr_pool_t *p)
 {
     apr_bucket_file *a = e->data;
-    apr_file_t *f = a->fd;
     apr_mmap_t *mm;
 
-    if ((filelength >= MMAP_THRESHOLD)
-        && (filelength < MMAP_LIMIT)) {
-        /* we need to protect ourselves in case we die while we've got the
-         * file mmapped */
-        apr_status_t status;
-        if ((status = apr_mmap_create(&mm, f, fileoffset, filelength, 
-                                      APR_MMAP_READ, p)) != APR_SUCCESS) {
-            mm = NULL;
-        }
-    }
-    else {
-        mm = NULL;
-    }
-    if (mm) {
-        apr_bucket_mmap_make(e, mm, 0, filelength); /*XXX: check for failure? */
+    if ((filelength >= MMAP_THRESHOLD) &&
+        (filelength < MMAP_LIMIT) &&
+        (apr_mmap_create(&mm, a->fd, fileoffset, filelength,
+                         APR_MMAP_READ, p) == APR_SUCCESS))
+    {
+        apr_bucket_mmap_make(e, mm, 0, filelength);
         file_destroy(a);
         return 1;
     }
