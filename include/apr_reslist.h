@@ -150,6 +150,15 @@ APU_DECLARE(apr_status_t) apr_reslist_acquire(apr_reslist_t *reslist,
 APU_DECLARE(apr_status_t) apr_reslist_release(apr_reslist_t *reslist,
                                               void *resource);
 
+/**
+ * Set the timeout the acquire will wait for a free resource
+ * when the maximum number of resources is exceeded.
+ * @param reslist The resource list.
+ * @param timeout Timeout to wait. The zero waits forewer.
+ */
+APU_DECLARE(void) apr_reslist_timeout_set(apr_reslist_t *reslist,
+                                          apr_interval_time_t timeout);
+
 #ifdef __cplusplus
 }
 #endif
