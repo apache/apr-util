@@ -41,14 +41,22 @@ dnl
 echo "performing libtool configuration..."
 
 AC_CANONICAL_SYSTEM
+LDFLAGS=""
 case "$host_alias" in
 *os2*)
     # Use a custom-made libtool replacement
     echo "using aplibtool"
     LIBTOOL="$APR_SOURCE_DIR/build/aplibtool"
     ;;
+*beos*)
+    # Horrible Hack !!!
+    # if we're building a shared lib then we need to add in the
+    # apr library to the build...
+    LDFLAGS="$APR_SOURCE_DIR/libapr.la"
+    AC_PROG_LIBTOOL
+    ;;
 *)  dnl libtoolize requires that the following not be indented
-AC_PROG_LIBTOOL
+    AC_PROG_LIBTOOL
     ;;
 esac
 
@@ -89,6 +97,7 @@ CFLAGS="$CFLAGS $INCLUDES $APR_EXPORT_CFLAGS $APR_EXPORT_CPPFLAGS"
 LIBS="$LIBS $APR_EXPORT_LIBS"
 
 AC_SUBST(APRUTIL_EXPORT_LIBS)
+AC_SUBST(LDFLAGS)
 
 dnl
 dnl BSD/OS (BSDi) needs to use a different include syntax in the Makefiles
