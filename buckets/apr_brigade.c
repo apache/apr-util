@@ -403,45 +403,47 @@ APU_DECLARE(apr_status_t) apr_brigade_write(apr_bucket_brigade *b,
                                             const char *str, apr_size_t nbyte)
 {
     apr_bucket *e = APR_BRIGADE_LAST(b);
-    char *buf;
+    apr_size_t remaining = APR_BUCKET_BUFF_SIZE;
+    char *buf = NULL;
 
-    if (!APR_BRIGADE_EMPTY(b) && APR_BUCKET_IS_HEAP(e) &&
-        (e->length + nbyte <= ((apr_bucket_heap *)e->data)->alloc_len))
-    {
-        /* there is a sufficiently big buffer bucket available */
+    if (!APR_BRIGADE_EMPTY(b) && APR_BUCKET_IS_HEAP(e)) {
         apr_bucket_heap *h = e->data;
+
+        remaining = h->alloc_len - e->length;
         buf = h->base + e->start + e->length;
     }
-    else {
-        if (nbyte > APR_BUCKET_BUFF_SIZE) {
-            /* too big to buffer */
-            if (flush) {
-                e = apr_bucket_transient_create(str, nbyte, b->bucket_alloc);
-                APR_BRIGADE_INSERT_TAIL(b, e);
-                return flush(b, ctx);
-            }
-            else {
-                e = apr_bucket_heap_create(str, nbyte, NULL, b->bucket_alloc);
-                APR_BRIGADE_INSERT_TAIL(b, e);
-                return APR_SUCCESS;
-            }
+
+    if (nbyte > remaining) {
+        /* either a buffer bucket exists but is full, 
+         * or no buffer bucket exists and the data is too big
+         * to buffer.  In either case, we should flush.  */
+        if (flush) {
+            e = apr_bucket_transient_create(str, nbyte, b->bucket_alloc);
+            APR_BRIGADE_INSERT_TAIL(b, e);
+            return flush(b, ctx);
         }
         else {
-            /* bigger than the current buffer can handle, but we don't
-             * mind making a new buffer */
-            buf = apr_bucket_alloc(APR_BUCKET_BUFF_SIZE, b->bucket_alloc);
-            e = apr_bucket_heap_create(buf, APR_BUCKET_BUFF_SIZE,
-                                       apr_bucket_free, b->bucket_alloc);
+            e = apr_bucket_heap_create(str, nbyte, NULL, b->bucket_alloc);
             APR_BRIGADE_INSERT_TAIL(b, e);
-            e->length = 0;   /* We are writing into the brigade, and
-                              * allocating more memory than we need.  This
-                              * ensures that the bucket thinks it is empty just
-                              * after we create it.  We'll fix the length
-                              * once we put data in it below.
-                              */
+            return APR_SUCCESS;
         }
     }
+    else if (!buf) {
+        /* we don't have a buffer, but the data is small enough
+         * that we don't mind making a new buffer */
+        buf = apr_bucket_alloc(APR_BUCKET_BUFF_SIZE, b->bucket_alloc);
+        e = apr_bucket_heap_create(buf, APR_BUCKET_BUFF_SIZE,
+                                   apr_bucket_free, b->bucket_alloc);
+        APR_BRIGADE_INSERT_TAIL(b, e);
+        e->length = 0;   /* We are writing into the brigade, and
+                          * allocating more memory than we need.  This
+                          * ensures that the bucket thinks it is empty just
+                          * after we create it.  We'll fix the length
+                          * once we put data in it below.
+                          */
+    }
 
+    /* there is a sufficiently big buffer bucket available now */
     memcpy(buf, str, nbyte);
     e->length += nbyte;
 
