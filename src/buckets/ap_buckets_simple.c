@@ -179,7 +179,7 @@ const ap_bucket_type ap_immortal_type = {
     simple_split
 };
 
-const ap_bucket_type ap_transient_type = {
+APR_DECLARE_DATA const ap_bucket_type ap_transient_type = {
     "TRANSIENT", 4,
     ap_bucket_destroy_notimpl, 
     simple_read,
