@@ -333,6 +333,49 @@ static void test_insertfile(abts_case *tc, void *ctx)
     apr_file_remove(TIF_FNAME, p);
 }
 
+/* Make a test file named FNAME, and write CONTENTS to it. */
+static apr_file_t *make_test_file(abts_case *tc, const char *fname,
+                                  const char *contents)
+{
+    apr_file_t *f;
+
+    ABTS_ASSERT(tc, "create test file",
+                apr_file_open(&f, fname,
+                              APR_READ|APR_WRITE|APR_TRUNCATE|APR_CREATE,
+                              APR_OS_DEFAULT, p) == APR_SUCCESS);
+    
+    ABTS_ASSERT(tc, "write test file contents",
+                apr_file_puts(contents, f) == APR_SUCCESS);
+
+    return f;
+}
+
+static void test_manyfile(abts_case *tc, void *data)
+{
+    apr_bucket_alloc_t *ba = apr_bucket_alloc_create(p);
+    apr_bucket_brigade *bb = apr_brigade_create(p, ba);
+    apr_file_t *f;
+
+    f = make_test_file(tc, "manyfile.bin",
+                       "world" "hello" "brave" " ,\n");
+
+    apr_brigade_insert_file(bb, f, 5, 5, p);
+    apr_brigade_insert_file(bb, f, 16, 1, p);
+    apr_brigade_insert_file(bb, f, 15, 1, p);
+    apr_brigade_insert_file(bb, f, 10, 5, p);
+    apr_brigade_insert_file(bb, f, 15, 1, p);
+    apr_brigade_insert_file(bb, f, 0, 5, p);
+    apr_brigade_insert_file(bb, f, 17, 1, p);
+
+    /* can you tell what it is yet? */
+    flatten_match(tc, "file seek test", bb,
+                  "hello, brave world\n");
+
+    apr_file_close(f);
+    apr_brigade_destroy(bb);
+    apr_bucket_alloc_destroy(ba);
+}
+
 abts_suite *testbuckets(abts_suite *suite)
 {
     suite = ADD_SUITE(suite);
@@ -345,6 +388,7 @@ abts_suite *testbuckets(abts_suite *suite)
     abts_run_test(suite, test_splitline, NULL);
     abts_run_test(suite, test_splits, NULL);
     abts_run_test(suite, test_insertfile, NULL);
+    abts_run_test(suite, test_manyfile, NULL);
 
     return suite;
 }
