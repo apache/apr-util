@@ -156,7 +156,10 @@ AC_SUBST(APRUTIL_LIBS)
 AC_SUBST(LDFLAGS)
 
 dnl copy apr's rules.mk into our build directory.
-cp $APR_BUILD_DIR/apr_rules.mk $abs_srcdir/build/rules.mk
+if test ! -d ./build; then
+   $mkdir_p build
+fi
+cp $APR_BUILD_DIR/apr_rules.mk $abs_builddir/build/rules.mk
 
 dnl
 dnl BSD/OS (BSDi) needs to use a different include syntax in the Makefiles
@@ -165,13 +168,13 @@ case "$host_alias" in
 *bsdi* | BSD/OS)
     # Check whether they've installed GNU make
     if make --version > /dev/null 2>&1; then
-        INCLUDE_RULES="include $abs_srcdir/build/rules.mk"
+        INCLUDE_RULES="include $abs_builddir/build/rules.mk"
     else
-        INCLUDE_RULES=".include \"$abs_srcdir/build/rules.mk\""
+        INCLUDE_RULES=".include \"$abs_builddir/build/rules.mk\""
     fi
     ;;
 *)
-    INCLUDE_RULES="include $abs_srcdir/build/rules.mk"
+    INCLUDE_RULES="include $abs_builddir/build/rules.mk"
     ;;
 esac
 AC_SUBST(INCLUDE_RULES)

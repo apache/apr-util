@@ -1,5 +1,8 @@
 Changes with APR-util 0.9.4
 
+  *) Fix a problem with VPATH builds copying the APR rules.mk into the
+     source directory rather than the build directory.  [Justin Erenkrantz]
+
   *) SECURITY [httpd incident CAN-2003-0189] Address a thread safety
      issue with apr_password_validate() on AIX, Linux, Mac OS X, and
      possibly other platforms.  [Jeff Trawick, Justin Erenkrantz]
