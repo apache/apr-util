@@ -702,6 +702,7 @@ AC_ARG_WITH(ldap,[  --with-ldap=library     ldap library to use],
   [
     save_cppflags="$CPPFLAGS"
     save_ldflags="$LDFLAGS"
+    save_libs="$LIBS"
     if test -n "$with_ldap_include"; then
       CPPFLAGS="$CPPFLAGS -I$with_ldap_include"
       APR_ADDTO(APRUTIL_INCLUDES, [-I$with_ldap_include])
@@ -739,6 +740,7 @@ dnl The iPlanet C SDK 5.0 is as yet untested...
 
     CPPFLAGS=$save_cppflags
     LDFLAGS=$save_ldflags
+    LIBS=$save_libs
   ])
 
 AC_SUBST(ldap_h)

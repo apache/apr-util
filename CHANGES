@@ -1,5 +1,10 @@
 Changes with APR-util 0.9.4
 
+  *) Fix a problem with LDAP configuration which caused subsequent
+     configure tests to fail since LIBS contained LDAP libraries for
+     subsequent tests but LDFLAGS no longer included the path to such 
+     LDAP libraries.  [Jeff Trawick]
+
   *) Fix a problem preventing the use of the bundled Expat when APR-util
      is built stand-alone.  [Jeff Trawick]
 
