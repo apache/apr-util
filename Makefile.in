@@ -14,10 +14,9 @@ SUBDIRS = buckets crypto dbm encoding hooks uri xml
 CLEAN_SUBDIRS = . test build
 
 CLEAN_TARGETS = $(TARGET_EXPORTS)
-DISTCLEAN_TARGETS = config.cache config.log config.status \
+DISTCLEAN_TARGETS = config.cache config.log config.status libtool \
 	include/private/apu_config.h include/private/apu_private.h \
-	include/private/apu_select_dbm.h include/apu.h export_vars.sh \
-	libtool build/Makefile build/rules.mk
+	include/private/apu_select_dbm.h include/apu.h export_vars.sh
 EXTRACLEAN_TARGETS = configure aclocal.m4 include/private/apu_config.h.in
 
 prefix=@prefix@
