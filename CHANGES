@@ -1,5 +1,12 @@
 Changes with APR-util b1  
 
+  *) We have to initialize the heap buckets to the correct length.
+     we were seeing heap buckets with 17 chars in them reporting
+     a length of 9017, because they were initialized to the amount
+     of memory allocated, instead of the amount of memory used.
+     This was only an issue for heap buckets created by the
+     apr_brigade_* functions.   [Ryan Bloom]
+
   *) apr_bucket_init_types() and apr_bucket_insert_type() have been
      removed... they're not needed anymore. [Cliff Woolley]
 
