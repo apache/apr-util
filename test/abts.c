@@ -144,7 +144,7 @@ abts_suite *abts_add_suite(abts_suite *suite, const char *suite_name_full)
     }
 
     reset_status();
-    fprintf(stdout, "%-20s:  ", subsuite->name);
+    fprintf(stdout, "%s:  ", subsuite->name);
     update_status();
     fflush(stdout);
 
@@ -161,7 +161,7 @@ void abts_run_test(abts_suite *ts, test_func f, void *value)
     }
     ss = ts->tail;
 
-    tc = malloc(sizeof(*tc));
+    tc = malloc(sizeof(tc));
     tc->failed = 0;
     tc->suite = ss;
     
