@@ -21,7 +21,7 @@ static struct { members } _hooks;
 #define HOOK_LINK(name) \
     array_header *link_##name;
 
-#define IMPLEMENT_HOOK_BASE(ret,rv_decl,sv,rv,name,args,args2,run_all,term1,term2,rv_final) \
+#define IMPLEMENT_HOOK_BASE(name) \
 void ap_hook_##name(HOOK_##name *pf,const char * const *aszPre, \
 		    const char * const *aszSucc,int nOrder) \
     { \
@@ -39,37 +39,74 @@ void ap_hook_##name(HOOK_##name *pf,const char * const *aszPre, \
     pHook->szName=g_szCurrentHookName; \
     if(g_bDebugHooks) \
 	ap_show_hook(#name,aszPre,aszSucc); \
-    } \
-ret ap_run_##name args \
+    }
+
+/* RUN_ALL runs to the first one to return other than ok or decline
+   RUN_FIRST runs to the first one to return other than decline
+   VOID runs all
+*/
+
+#define IMPLEMENT_HOOK_VOID(name,args_decl,args_use) \
+IMPLEMENT_HOOK_BASE(name) \
+void ap_run_##name args_decl \
     { \
     LINK_##name *pHook; \
     int n; \
-    rv_decl \
 \
     if(!_hooks.link_##name) \
-	return rv_final; \
+	return; \
+\
+    pHook=(LINK_##name *)_hooks.link_##name->elts; \
+    for(n=0 ; n < _hooks.link_##name->nelts ; ++n) \
+	pHook[n].pFunc args_use; \
+    }
+
+/* FIXME: note that this returns ok when nothing is run. I suspect it should
+   really return decline, but that breaks Apache currently - Ben
+*/
+#define IMPLEMENT_HOOK_RUN_ALL(ret,name,args_decl,args_use,ok,decline) \
+IMPLEMENT_HOOK_BASE(name) \
+ret ap_run_##name args_decl \
+    { \
+    LINK_##name *pHook; \
+    int n; \
+    ret rv; \
+\
+    if(!_hooks.link_##name) \
+	return ok; \
 \
     pHook=(LINK_##name *)_hooks.link_##name->elts; \
     for(n=0 ; n < _hooks.link_##name->nelts ; ++n) \
 	{ \
-	sv pHook[n].pFunc args2; \
+	rv=pHook[n].pFunc args_use; \
 \
-	if(term1 && (!run_all || term2)) \
+	if(rv != ok && rv != decline) \
 	    return rv; \
 	} \
-    return rv_final; \
+    return ok; \
     }
 
-/* RUN_ALL runs to the first one to return other than ok or decline
-   RUN_FIRST runs to the first one to return other than ok
-*/
-#define RUN_ALL			1
-#define RUN_FIRST		0
-
-#define IMPLEMENT_HOOK(ret,name,args,args2,run_all,ok,decline) \
-	IMPLEMENT_HOOK_BASE(ret,ret r_;,r_=,r_,name,args,args2,run_all,r_ != decline,r_ != ok,run_all ? ok : decline)
-#define IMPLEMENT_VOID_HOOK(name,args,args2) \
-	IMPLEMENT_HOOK_BASE(void,,,,name,args,args2,RUN_ALL,1,0,)
+#define IMPLEMENT_HOOK_RUN_FIRST(ret,name,args_decl,args_use,decline) \
+IMPLEMENT_HOOK_BASE(name) \
+ret ap_run_##name args_decl \
+    { \
+    LINK_##name *pHook; \
+    int n; \
+    ret rv; \
+\
+    if(!_hooks.link_##name) \
+	return decline; \
+\
+    pHook=(LINK_##name *)_hooks.link_##name->elts; \
+    for(n=0 ; n < _hooks.link_##name->nelts ; ++n) \
+	{ \
+	rv=pHook[n].pFunc args_use; \
+\
+	if(rv != decline) \
+	    return rv; \
+	} \
+    return decline; \
+    }
 
      /* Hook orderings */
 #define HOOK_REALLY_FIRST	(-10)
