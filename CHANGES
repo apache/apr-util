@@ -1,5 +1,8 @@
 Changes with APR-util 1.1.0
 
+  *) Add apr_brigade_insert_file() function, to safely insert a file
+     into a brigade, regardless of size.  [Joe Orton]
+
 Changes with APR-util 1.0.1
 
   *) Add support for Berkeley DB 4.3.  [Jani Averbach <jaa jaa.iki.fi>]
