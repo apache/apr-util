@@ -91,6 +91,8 @@
 
 #else /* ldap support available */
 
+#ifdef APR_NOT_READY_YET
+/* FIXME: this code awaits support from apu-conf.m4 */
 
    /* There a several LDAPv3 SDKs available on various platforms
     * define which LDAP SDK is used 
@@ -104,6 +106,15 @@
    /* define if LDAP SSL support is available 
    */
 #define APR_HAS_LDAP_SSL            @apu_has_ldap_ssl@
+
+#else /* APR_NOT_READY_YET */
+
+/* FIXME: remove this when above code works.  Default to build with
+ * OpenLDAP until apu-conf.m4 support exists */
+#define APR_HAS_OPENLDAP_LDAPSDK 1 
+#define APR_HAS_LDAP_SSL 1
+
+#endif /* APR_NOT_READY_YET */
 
    /* If no APR_HAS_xxx_LDAPSDK is defined error out
     * Define if the SDK supports the ldap_url_parse function 
