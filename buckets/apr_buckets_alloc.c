@@ -52,33 +52,102 @@
  * <http://www.apache.org/>.
  */
 
-#include <stdlib.h>
 #include "apr_buckets.h"
+#include "apr_allocator.h"
 
-/*
- * XXX: this file will be filled in later
+#define ALLOC_AMT (8192 - APR_MEMNODE_T_SIZE)
+
+typedef struct node_header_t {
+    apr_size_t size;
+    apr_bucket_alloc_t *alloc;
+    apr_memnode_t *memnode;
+    struct node_header_t *next;
+} node_header_t;
+
+#define SIZEOF_NODE_HEADER_T  APR_ALIGN_DEFAULT(sizeof(node_header_t))
+#define SMALL_NODE_SIZE       (APR_BUCKET_ALLOC_SIZE + SIZEOF_NODE_HEADER_T)
+
+/** A list of free memory from which new buckets or private bucket
+ *  structures can be allocated.
  */
-
 struct apr_bucket_alloc_t {
-    int x; /* temporary... some compilers trigger an error on empty structure defs */
+    apr_allocator_t *allocator;
+    node_header_t *freelist;
+    apr_memnode_t *blocks;
 };
 
 APU_DECLARE_NONSTD(apr_bucket_alloc_t *) apr_bucket_alloc_create(apr_pool_t *p)
 {
-    return (apr_bucket_alloc_t *)0xFECCFECC;
+    apr_allocator_t *allocator;
+    apr_bucket_alloc_t *list;
+    apr_memnode_t *block;
+
+    apr_allocator_create(&allocator);
+    block = apr_allocator_alloc(allocator, ALLOC_AMT);
+    list = (apr_bucket_alloc_t *)block->first_avail;
+    list->allocator = allocator;
+    list->freelist = NULL;
+    list->blocks = block;
+    block->first_avail += APR_ALIGN_DEFAULT(sizeof(*list));
+    return list;
 }
 
 APU_DECLARE_NONSTD(void) apr_bucket_alloc_destroy(apr_bucket_alloc_t *list)
 {
+    apr_allocator_t *allocator = list->allocator;
+
+    apr_allocator_free(allocator, list->blocks);
+    apr_allocator_destroy(allocator);
 }
 
 APU_DECLARE_NONSTD(void *) apr_bucket_alloc(apr_size_t size, 
                                             apr_bucket_alloc_t *list)
 {
-    return malloc(size);
+    node_header_t *node;
+    apr_memnode_t *active = list->blocks;
+    char *endp;
+
+    size += SIZEOF_NODE_HEADER_T;
+    if (size <= SMALL_NODE_SIZE) {
+        if (list->freelist) {
+            node = list->freelist;
+            list->freelist = node->next;
+        }
+        else {
+            endp = active->first_avail + SMALL_NODE_SIZE;
+            if (endp >= active->endp) {
+                list->blocks = apr_allocator_alloc(list->allocator, ALLOC_AMT);
+                list->blocks->next = active;
+                active = list->blocks;
+                endp = active->first_avail + SMALL_NODE_SIZE;
+            }
+            node = (node_header_t *)active->first_avail;
+            node->alloc = list;
+            node->memnode = active;
+            node->size = SMALL_NODE_SIZE;
+            active->first_avail = endp;
+        }
+    }
+    else {
+        apr_memnode_t *memnode = apr_allocator_alloc(list->allocator, size);
+        node = (node_header_t *)memnode->first_avail;
+        node->alloc = list;
+        node->memnode = memnode;
+        node->size = size;
+    }
+    return ((char *)node) + SIZEOF_NODE_HEADER_T;
 }
 
-APU_DECLARE_NONSTD(void) apr_bucket_free(void *block)
+APU_DECLARE_NONSTD(void) apr_bucket_free(void *mem)
 {
-    free(block);
+    node_header_t *node = (node_header_t *)((char *)mem - SIZEOF_NODE_HEADER_T);
+    apr_bucket_alloc_t *list = node->alloc;
+
+    if (node->size == SMALL_NODE_SIZE) {
+        node->next = list->freelist;
+        list->freelist = node;
+    }
+    else {
+        apr_allocator_free(list->allocator, node->memnode);
+    }
 }
