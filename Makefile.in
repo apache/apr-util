@@ -1,0 +1,21 @@
+#
+# Top-level Makefile for APRUTIL
+#
+
+TARGETS = libaprutil.la
+
+top_builddir = @top_builddir@
+include $(top_builddir)/build/rules.mk
+
+SUBDIRS = src . test build
+DISTCLEAN_TARGETS = config.cache config.log config.status config.sub \
+	include/apu_config.h
+EXTRACLEAN_TARGETS = configure libtool aclocal.m4 include/apu_config.h.in
+
+### fix this up at some point (install location)
+libdir = /usr/local/lib
+
+libaprutil.la:
+	@objects="`find src -name '*.lo'`" ; \
+	    echo $(LINK) $$objects ; \
+	    $(LINK) -rpath $(libdir) $$objects
