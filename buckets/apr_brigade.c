@@ -411,25 +411,25 @@ APU_DECLARE(apr_status_t) apr_brigade_putc(apr_bucket_brigade *b,
     return apr_brigade_write(b, flush, ctx, &c, 1);
 }
 
-APU_DECLARE(apr_status_t) apr_brigade_write(apr_bucket_brigade *bb, 
+APU_DECLARE(apr_status_t) apr_brigade_write(apr_bucket_brigade *b,
                                             apr_brigade_flush flush,
                                             void *ctx, 
                                             const char *str, apr_size_t nbyte)
 {
-    if (check_brigade_flush(&str, &nbyte, bb, flush)) {
+    if (check_brigade_flush(&str, &nbyte, b, flush)) {
         if (flush) {
-            return flush(bb, ctx);
+            return flush(b, ctx);
         }
     }
     else {
-        apr_bucket *b = APR_BRIGADE_LAST(bb);
+        apr_bucket *e = APR_BRIGADE_LAST(b);
         char *buf;
 
-        if (APR_BRIGADE_EMPTY(bb) || !APR_BUCKET_IS_HEAP(b)) {
+        if (APR_BRIGADE_EMPTY(b) || !APR_BUCKET_IS_HEAP(e)) {
             buf = malloc(APR_BUCKET_BUFF_SIZE);
-            b = apr_bucket_heap_create(buf, APR_BUCKET_BUFF_SIZE, 0);
-            APR_BRIGADE_INSERT_TAIL(bb, b);
-            b->length = 0;   /* We are writing into the brigade, and
+            e = apr_bucket_heap_create(buf, APR_BUCKET_BUFF_SIZE, 0);
+            APR_BRIGADE_INSERT_TAIL(b, e);
+            e->length = 0;   /* We are writing into the brigade, and
                               * allocating more memory than we need.  This
                               * ensures that the bucket thinks it is empty just
                               * after we create it.  We'll fix the length
@@ -437,12 +437,12 @@ APU_DECLARE(apr_status_t) apr_brigade_write(apr_bucket_brigade *bb,
                               */
         }
         else {
-            apr_bucket_heap *h = b->data;
-            buf = h->base + b->start + b->length;
+            apr_bucket_heap *h = e->data;
+            buf = h->base + e->start + e->length;
         }
 
         memcpy(buf, str, nbyte);
-        b->length += nbyte;
+        e->length += nbyte;
     }
 
     return APR_SUCCESS;
