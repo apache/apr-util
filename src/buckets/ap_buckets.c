@@ -229,19 +229,20 @@ API_EXPORT(int) ap_brigade_vprintf(ap_bucket_brigade *b, const char *fmt, va_lis
 void ap_init_bucket_types(apr_pool_t *p)
 {
     bucket_types = apr_make_array(p, 8, sizeof(ap_bucket_type));
-    ap_bucket_heap_register(p);
-    ap_bucket_transient_register(p);
-    ap_bucket_file_register(p);
-    ap_bucket_mmap_register(p);
-    ap_bucket_immortal_register(p);
-    ap_bucket_socket_register(p);
-    ap_bucket_pipe_register(p);
-    ap_bucket_eos_register(p);
+
+    ap_insert_bucket_type(&ap_eos_type);
+    ap_insert_bucket_type(&ap_file_type);
+    ap_insert_bucket_type(&ap_heap_type);
+    ap_insert_bucket_type(&ap_mmap_type);
+    ap_insert_bucket_type(&ap_pipe_type);
+    ap_insert_bucket_type(&ap_immortal_type);
+    ap_insert_bucket_type(&ap_transient_type);
+    ap_insert_bucket_type(&ap_socket_type);
 }
 
-int ap_insert_bucket_type(ap_bucket_type *type)
+int ap_insert_bucket_type(const ap_bucket_type *type)
 {
-    ap_bucket_type **newone = (ap_bucket_type **)apr_push_array(bucket_types);
+    const ap_bucket_type **newone = (ap_bucket_type **)apr_push_array(bucket_types);
 
     newone = &type;
 

@@ -108,9 +108,6 @@ static apr_status_t file_read(ap_bucket *e, const char **str,
     return APR_SUCCESS;
 }
 
-ap_bucket_type ap_file_type = { "FILE", 4, ap_bucket_destroy_notimpl, file_read,
-                          ap_bucket_setaside_notimpl, ap_bucket_split_notimpl };
-
 API_EXPORT(ap_bucket *) ap_bucket_make_file(ap_bucket *b, apr_file_t *fd,
                                             apr_off_t offset, apr_size_t len)
 {
@@ -131,13 +128,16 @@ API_EXPORT(ap_bucket *) ap_bucket_make_file(ap_bucket *b, apr_file_t *fd,
     return b;
 }
 
-API_EXPORT(ap_bucket *) ap_bucket_create_file(apr_file_t *fd, apr_off_t offset, apr_size_t len)
+API_EXPORT(ap_bucket *) ap_bucket_create_file(apr_file_t *fd,
+                                              apr_off_t offset, apr_size_t len)
 {
     ap_bucket_do_create(ap_bucket_make_file(b, fd, offset, len));
 }
 
-void ap_bucket_file_register(apr_pool_t *p)
-{
-    ap_insert_bucket_type(&ap_file_type);
-}
-
+const ap_bucket_type ap_file_type = {
+    "FILE", 4,
+    ap_bucket_destroy_notimpl,
+    file_read,
+    ap_bucket_setaside_notimpl,
+    ap_bucket_split_notimpl
+};

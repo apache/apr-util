@@ -136,7 +136,7 @@ struct ap_bucket_type {
     /**
      * The name of the bucket type
      */
-    char *name;
+    const char *name;
     /** 
      * The number of functions this bucket understands.  Can not be less than
      * four.
@@ -191,7 +191,7 @@ struct ap_bucket {
     AP_RING_ENTRY(ap_bucket) link;
     /** The type of bucket.  These types can be found in the enumerated
      *  type above */
-    ap_bucket_type *type;
+    const ap_bucket_type *type;
     /** The length of the data in the bucket.  This could have been implemented
      *  with a function, but this is an optimization, because the most
      *  common thing to do will be to get the length.  If the length is unknown,
@@ -501,14 +501,8 @@ API_EXPORT(apr_status_t) ap_bucket_setaside(ap_bucket *e);
  */
 API_EXPORT(apr_status_t) ap_bucket_split(ap_bucket *e, apr_off_t point);
 
-void ap_bucket_file_register(apr_pool_t *p);
-void ap_bucket_heap_register(apr_pool_t *p);
-void ap_bucket_transient_register(apr_pool_t *p);
-void ap_bucket_mmap_register(apr_pool_t *p);
-void ap_bucket_immortal_register(apr_pool_t *p);
-void ap_bucket_socket_register(apr_pool_t *p);
-void ap_bucket_pipe_register(apr_pool_t *p);
-void ap_bucket_eos_register(apr_pool_t *p);
+
+/* Bucket type handling */
 
 API_EXPORT(apr_status_t) ap_bucket_setaside_notimpl(ap_bucket *data);
 API_EXPORT(apr_status_t) ap_bucket_split_notimpl(ap_bucket *data, 
@@ -516,17 +510,18 @@ API_EXPORT(apr_status_t) ap_bucket_split_notimpl(ap_bucket *data,
 API_EXPORT(void) ap_bucket_destroy_notimpl(void *data);
 /* There is no ap_bucket_read_notimpl, because it is a required function
  */
-int ap_insert_bucket_type(ap_bucket_type *type);
+int ap_insert_bucket_type(const ap_bucket_type *type);
 
 /* All of the bucket types implemented by the core */
-extern ap_bucket_type ap_eos_type;
-extern ap_bucket_type ap_file_type;
-extern ap_bucket_type ap_heap_type;
-extern ap_bucket_type ap_mmap_type;
-extern ap_bucket_type ap_pipe_type;
-extern ap_bucket_type ap_immortal_type;
-extern ap_bucket_type ap_transient_type;
-extern ap_bucket_type ap_socket_type;
+extern const ap_bucket_type ap_eos_type;
+extern const ap_bucket_type ap_file_type;
+extern const ap_bucket_type ap_heap_type;
+extern const ap_bucket_type ap_mmap_type;
+extern const ap_bucket_type ap_pipe_type;
+extern const ap_bucket_type ap_immortal_type;
+extern const ap_bucket_type ap_transient_type;
+extern const ap_bucket_type ap_socket_type;
+
 
 /*  *****  Shared reference-counted buckets  *****  */
 

@@ -64,9 +64,6 @@ static apr_status_t eos_read(ap_bucket *b, const char **str,
     return APR_SUCCESS;
 }
 
-ap_bucket_type ap_eos_type = { "EOS", 4, ap_bucket_destroy_notimpl, eos_read,
-                          ap_bucket_setaside_notimpl, ap_bucket_split_notimpl };
-
 API_EXPORT(ap_bucket *) ap_bucket_make_eos(ap_bucket *b)
 {
     b->length    = AP_END_OF_BRIGADE;
@@ -82,8 +79,10 @@ API_EXPORT(ap_bucket *) ap_bucket_create_eos(void)
     ap_bucket_do_create(ap_bucket_make_eos(b));
 }
 
-void ap_bucket_eos_register(apr_pool_t *p)
-{
-    ap_insert_bucket_type(&ap_eos_type);
-}
-
+const ap_bucket_type ap_eos_type = {
+    "EOS", 4,
+    ap_bucket_destroy_notimpl,
+    eos_read,
+    ap_bucket_setaside_notimpl,
+    ap_bucket_split_notimpl
+};

@@ -97,9 +97,6 @@ static apr_status_t pipe_read(ap_bucket *a, const char **str,
     return APR_SUCCESS;
 }
 
-ap_bucket_type ap_pipe_type = { "PIPE", 4, ap_bucket_destroy_notimpl, pipe_read,
-                          ap_bucket_setaside_notimpl, ap_bucket_split_notimpl };
-
 API_EXPORT(ap_bucket *) ap_bucket_make_pipe(ap_bucket *b, apr_file_t *p)
 {
     /*
@@ -127,8 +124,10 @@ API_EXPORT(ap_bucket *) ap_bucket_create_pipe(apr_file_t *p)
     ap_bucket_do_create(ap_bucket_make_pipe(b, p));
 }
 
-void ap_bucket_pipe_register(apr_pool_t *p)
-{
-    ap_insert_bucket_type(&ap_pipe_type);
-}
-
+const ap_bucket_type ap_pipe_type = {
+    "PIPE", 4,
+    ap_bucket_destroy_notimpl,
+    pipe_read,
+    ap_bucket_setaside_notimpl,
+    ap_bucket_split_notimpl
+};
