@@ -1,5 +1,5 @@
 APRUTIL LIBRARY STATUS:						-*-text-*-
-Last modified at [$Date: 2001/01/19 12:38:29 $]
+Last modified at [$Date: 2001/01/19 12:43:24 $]
 
 Release:
     ...on the 12th as part of Apache 2.0a9  [need specifics here]
@@ -7,6 +7,8 @@ Release:
 
 RELEASE SHOWSTOPPERS:
 
+    * Need apu_compat.h to track the latest renames
+      [Will voulenteers - is on it]
 
 RELEASE NON-SHOWSTOPPERS BUT WOULD BE REAL NICE TO WRAP THESE UP:
 
