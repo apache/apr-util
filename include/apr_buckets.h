@@ -292,14 +292,14 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
  * Return the first bucket in a brigade
  * @param b The brigade to query
  * @return The first bucket in the brigade
- * @deffunc apr_bucket *APR_BUCKET_FIRST(apr_bucket_brigade *b)
+ * @deffunc apr_bucket *APR_BRIGADE_FIRST(apr_bucket_brigade *b)
  */
 #define APR_BRIGADE_FIRST(b)	APR_RING_FIRST(&(b)->list)
 /**
  * Return the last bucket in a brigade
  * @param b The brigade to query
  * @return The last bucket in the brigade
- * @deffunc apr_bucket *APR_BUCKET_LAST(apr_bucket_brigade *b)
+ * @deffunc apr_bucket *APR_BRIGADE_LAST(apr_bucket_brigade *b)
  */
 #define APR_BRIGADE_LAST(b)	APR_RING_LAST(&(b)->list)
 
@@ -309,13 +309,13 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
  * @param b The brigade to iterate over
  * @tip This is the same as either:
  * <pre>
- *	e = APR_BUCKET_FIRST(b);
+ *	e = APR_BRIGADE_FIRST(b);
  * 	while (e != APR_BRIGADE_SENTINEL(b)) {
  *	    ...
  * 	    e = APR_BUCKET_NEXT(e);
  * 	}
  *  OR
- * 	for (e = APR_BUCKET_FIRST(b);
+ * 	for (e = APR_BRIGADE_FIRST(b);
  *           e != APR_BRIGADE_SENTINEL(b);
  *           e = APR_BUCKET_NEXT(e)) {
  *	    ...
