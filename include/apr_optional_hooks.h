@@ -99,7 +99,7 @@ APU_DECLARE(void) apr_optional_hook_add(const char *szName,void (*pfn)(void),
  */
 
 #define APR_OPTIONAL_HOOK(ns,name,pfn,aszPre,aszSucc,nOrder) \
-    ((void (*)(const char *,ns##_HOOK_##name##_t *,const char * const *, \
+    ((void (APR_THREAD_FUNC *)(const char *,ns##_HOOK_##name##_t *,const char * const *, \
 	       const char * const *,int))&apr_optional_hook_add)(#name,pfn,aszPre, \
 							   aszSucc, nOrder)
 
