@@ -124,8 +124,8 @@ static apr_status_t database_cleanup(void *data)
     return APR_SUCCESS;
 }
 
-apr_status_t prep(apr_sdbm_t **pdb, const char *dirname, const char *pagname,
-                       apr_int32_t flags, apr_fileperms_t perms, apr_pool_t *p)
+static apr_status_t prep(apr_sdbm_t **pdb, const char *dirname, const char *pagname,
+                         apr_int32_t flags, apr_fileperms_t perms, apr_pool_t *p)
 {
     apr_sdbm_t *db;
     apr_finfo_t finfo;
