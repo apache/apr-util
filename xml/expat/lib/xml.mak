@@ -25,6 +25,8 @@ NULL=
 NULL=nul
 !ENDIF 
 
+CPP=cl.exe
+
 !IF  "$(CFG)" == "xml - Win32 Release"
 
 OUTDIR=.\LibR
@@ -54,44 +56,12 @@ CLEAN :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 RSC=rc.exe
-CPP=cl.exe
 CPP_PROJ=/nologo /MD /W3 /O2 /I "." /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D\
  "_MBCS" /D VERSION=\"expat_1.95.1\" /D XML_MAJOR_VERSION=1 /D\
  XML_MINOR_VERSION=95 /D XML_MICRO_VERSION=1 /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"\
  /FD /c 
 CPP_OBJS=.\LibR/
 CPP_SBRS=.
-
-.c{$(CPP_OBJS)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cpp{$(CPP_OBJS)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cxx{$(CPP_OBJS)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.c{$(CPP_SBRS)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cpp{$(CPP_SBRS)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cxx{$(CPP_SBRS)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
 BSC32=bscmake.exe
 BSC32_FLAGS=/nologo /o"$(OUTDIR)\xml.bsc" 
 BSC32_SBRS= \
@@ -138,13 +108,29 @@ CLEAN :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 RSC=rc.exe
-CPP=cl.exe
 CPP_PROJ=/nologo /MDd /W3 /GX /Zi /Od /I "." /D "WIN32" /D "_DEBUG" /D\
  "_WINDOWS" /D "_MBCS" /D VERSION=\"expat_1.95.1\" /D XML_MAJOR_VERSION=1 /D\
  XML_MINOR_VERSION=95 /D XML_MICRO_VERSION=1 /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"\
  /FD /c 
 CPP_OBJS=.\LibD/
 CPP_SBRS=.
+BSC32=bscmake.exe
+BSC32_FLAGS=/nologo /o"$(OUTDIR)\xml.bsc" 
+BSC32_SBRS= \
+	
+LIB32=link.exe -lib
+LIB32_FLAGS=/nologo /out:"$(OUTDIR)\xml.lib" 
+LIB32_OBJS= \
+	"$(INTDIR)\xmlparse.obj" \
+	"$(INTDIR)\xmlrole.obj" \
+	"$(INTDIR)\xmltok.obj"
+
+"$(OUTDIR)\xml.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
+    $(LIB32) @<<
+  $(LIB32_FLAGS) $(DEF_FLAGS) $(LIB32_OBJS)
+<<
+
+!ENDIF 
 
 .c{$(CPP_OBJS)}.obj::
    $(CPP) @<<
@@ -176,24 +162,6 @@ CPP_SBRS=.
    $(CPP_PROJ) $< 
 <<
 
-BSC32=bscmake.exe
-BSC32_FLAGS=/nologo /o"$(OUTDIR)\xml.bsc" 
-BSC32_SBRS= \
-	
-LIB32=link.exe -lib
-LIB32_FLAGS=/nologo /out:"$(OUTDIR)\xml.lib" 
-LIB32_OBJS= \
-	"$(INTDIR)\xmlparse.obj" \
-	"$(INTDIR)\xmlrole.obj" \
-	"$(INTDIR)\xmltok.obj"
-
-"$(OUTDIR)\xml.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
-    $(LIB32) @<<
-  $(LIB32_FLAGS) $(DEF_FLAGS) $(LIB32_OBJS)
-<<
-
-!ENDIF 
-
 
 !IF "$(CFG)" == "xml - Win32 Release" || "$(CFG)" == "xml - Win32 Debug"
 SOURCE=.\xmlparse.c
@@ -214,15 +182,16 @@ DEP_CPP_XMLPA=\
 !ELSEIF  "$(CFG)" == "xml - Win32 Debug"
 
 DEP_CPP_XMLPA=\
-	".\config.h"\
-	".\expat.h"\
-	".\winconfig.h"\
 	".\xmlrole.h"\
 	".\xmltok.h"\
 	
+NODEP_CPP_XMLPA=\
+	".\config.h"\
+	".\expat.h"\
+	
 
-"$(INTDIR)\xmlparse.obj" : $(SOURCE) $(DEP_CPP_XMLPA) "$(INTDIR)"\
- ".\winconfig.h" ".\expat.h" ".\config.h"
+"$(INTDIR)\xmlparse.obj" : $(SOURCE) $(DEP_CPP_XMLPA) "$(INTDIR)" ".\config.h"\
+ ".\expat.h"
 
 
 !ENDIF 
@@ -245,14 +214,14 @@ DEP_CPP_XMLRO=\
 
 DEP_CPP_XMLRO=\
 	".\ascii.h"\
-	".\config.h"\
-	".\winconfig.h"\
 	".\xmlrole.h"\
 	".\xmltok.h"\
 	
+NODEP_CPP_XMLRO=\
+	".\config.h"\
+	
 
-"$(INTDIR)\xmlrole.obj" : $(SOURCE) $(DEP_CPP_XMLRO) "$(INTDIR)"\
- ".\winconfig.h" ".\config.h"
+"$(INTDIR)\xmlrole.obj" : $(SOURCE) $(DEP_CPP_XMLRO) "$(INTDIR)" ".\config.h"
 
 
 !ENDIF 
@@ -283,20 +252,20 @@ DEP_CPP_XMLTO=\
 DEP_CPP_XMLTO=\
 	".\ascii.h"\
 	".\asciitab.h"\
-	".\config.h"\
 	".\iasciitab.h"\
 	".\latin1tab.h"\
 	".\nametab.h"\
 	".\utf8tab.h"\
-	".\winconfig.h"\
 	".\xmltok.h"\
 	".\xmltok_impl.c"\
 	".\xmltok_impl.h"\
 	".\xmltok_ns.c"\
 	
+NODEP_CPP_XMLTO=\
+	".\config.h"\
+	
 
-"$(INTDIR)\xmltok.obj" : $(SOURCE) $(DEP_CPP_XMLTO) "$(INTDIR)" ".\winconfig.h"\
- ".\config.h"
+"$(INTDIR)\xmltok.obj" : $(SOURCE) $(DEP_CPP_XMLTO) "$(INTDIR)" ".\config.h"
 
 
 !ENDIF 
