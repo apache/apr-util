@@ -77,13 +77,13 @@ extern "C" {
  * strings are neither. But propably should.
  *
  */
-API_EXPORT(int) ap_base64encode_len(int len);
-API_EXPORT(int) ap_base64encode(char * coded_dst, const char *plain_src,int len_plain_src);
-API_EXPORT(int) ap_base64encode_binary(char * coded_dst, const unsigned char *plain_src,int len_plain_src);
+AP_EXPORT(int) ap_base64encode_len(int len);
+AP_EXPORT(int) ap_base64encode(char * coded_dst, const char *plain_src,int len_plain_src);
+AP_EXPORT(int) ap_base64encode_binary(char * coded_dst, const unsigned char *plain_src,int len_plain_src);
 
-API_EXPORT(int) ap_base64decode_len(const char * coded_src);
-API_EXPORT(int) ap_base64decode(char * plain_dst, const char *coded_src);
-API_EXPORT(int) ap_base64decode_binary(unsigned char * plain_dst, const char *coded_src);
+AP_EXPORT(int) ap_base64decode_len(const char * coded_src);
+AP_EXPORT(int) ap_base64decode(char * plain_dst, const char *coded_src);
+AP_EXPORT(int) ap_base64decode_binary(unsigned char * plain_dst, const char *coded_src);
 
 #ifdef __cplusplus
 }
