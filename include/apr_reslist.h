@@ -69,7 +69,7 @@
 #if APR_HAS_THREADS
 
 /**
- * @defgroup APR_RMM Resource List Routines
+ * @defgroup APR_RL Resource List Routines
  * @ingroup APR
  * @{
  */
