@@ -13,6 +13,10 @@
  * limitations under the License.
  */
 
+/* Overview of what this is and does:
+ * http://www.apache.org/~niq/dbd.html
+ */
+
 #ifndef APR_DBD_H
 #define APR_DBD_H
 
