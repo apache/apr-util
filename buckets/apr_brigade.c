@@ -72,6 +72,7 @@ static apr_status_t brigade_cleanup(void *data)
 {
     return apr_brigade_cleanup(data);
 }
+
 APU_DECLARE(apr_status_t) apr_brigade_cleanup(void *data)
 {
     apr_bucket_brigade *b = data;
@@ -82,8 +83,8 @@ APU_DECLARE(apr_status_t) apr_brigade_cleanup(void *data)
      * gone away when we dig inside it to get the next one.
      */
     while (!APR_BRIGADE_EMPTY(b)) {
-	e = APR_BRIGADE_FIRST(b);
-	apr_bucket_delete(e);
+        e = APR_BRIGADE_FIRST(b);
+        apr_bucket_delete(e);
     }
     /*
      * We don't need to free(bb) because it's allocated from a pool.
@@ -111,7 +112,7 @@ APU_DECLARE(apr_bucket_brigade *) apr_brigade_create(apr_pool_t *p)
 }
 
 APU_DECLARE(apr_bucket_brigade *) apr_brigade_split(apr_bucket_brigade *b,
-						 apr_bucket *e)
+                                                    apr_bucket *e)
 {
     apr_bucket_brigade *a;
     apr_bucket *f;
@@ -150,7 +151,8 @@ APU_DECLARE(apr_status_t) apr_brigade_partition(apr_bucket_brigade *b,
         if ((point > (apr_size_t)(-1)) && (e->length == (apr_size_t)(-1))) {
             /* XXX: point is too far out to simply split this bucket,
              * we must fix this bucket's size and keep going... */
-            if ((rv = apr_bucket_read(e, &s, &len, APR_BLOCK_READ)) != APR_SUCCESS) {
+            rv = apr_bucket_read(e, &s, &len, APR_BLOCK_READ);
+            if (rv != APR_SUCCESS) {
                 *after_point = e;
                 return rv;
             }
@@ -167,7 +169,8 @@ APU_DECLARE(apr_status_t) apr_brigade_partition(apr_bucket_brigade *b,
 
             /* if the bucket cannot be split, we must read from it,
              * changing its type to one that can be split */
-            if ((rv = apr_bucket_read(e, &s, &len, APR_BLOCK_READ)) != APR_SUCCESS) {
+            rv = apr_bucket_read(e, &s, &len, APR_BLOCK_READ);
+            if (rv != APR_SUCCESS) {
                 *after_point = e;
                 return rv;
             }
@@ -331,15 +334,15 @@ APU_DECLARE(apr_status_t) apr_brigade_to_iovec(apr_bucket_brigade *b,
 
     orig = vec;
     APR_BRIGADE_FOREACH(e, b) {
-	if (left-- == 0)
+        if (left-- == 0)
             break;
 
-	rv = apr_bucket_read(e, (const char **)&vec->iov_base, &iov_len,
+        rv = apr_bucket_read(e, (const char **)&vec->iov_base, &iov_len,
                              APR_NONBLOCK_READ);
         if (rv != APR_SUCCESS)
             return rv;
         vec->iov_len = iov_len; /* set indirectly in case size differs */
-	++vec;
+        ++vec;
     }
 
     *nvec = vec - orig;
