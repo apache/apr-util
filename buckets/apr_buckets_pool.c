@@ -103,23 +103,27 @@ static void pool_destroy(void *data)
     apr_bucket_pool *p = data;
 
     /* If the pool is cleaned up before the last reference goes
-     * away, buckets that have performed at least one read will
-     * have been turned into heap buckets, so heap_destroy() takes
-     * over.  If the very last reference to be destroyed now
-     * considers itself a heap bucket, we don't have to worry about
-     * it anymore... free() in heap_destroy() thinks it's freeing
+     * away, the data is really now on the heap; heap_destroy() takes
+     * over.  free() in heap_destroy() thinks it's freeing
      * an apr_bucket_heap, when in reality it's freeing the whole
-     * apr_bucket_pool for us.  We have to be a little careful, though,
-     * because it's _possible_ the very last reference to be destroyed
-     * has never been read since the pool was cleaned up, in which
-     * case we have to avoid deregistering a pool cleanup that
-     * has already taken place.
+     * apr_bucket_pool for us.
      */
-    if (apr_bucket_shared_destroy(p)) {
-        if (p->pool) {
+    if (p->pool) {
+        /* the shared resource is still in the pool
+         * because the pool has not been cleaned up yet
+         */
+        if (apr_bucket_shared_destroy(p)) {
             apr_pool_cleanup_kill(p->pool, p, pool_bucket_cleanup);
+            free(p);
         }
-        free(p);
+    }
+    else {
+        /* the shared resource is no longer in the pool, it's
+         * on the heap, but this reference still thinks it's a pool
+         * bucket.  we should just go ahead and pass control to
+         * heap_destroy() for it since it doesn't know any better.
+         */
+        apr_bucket_type_heap.destroy(p);
     }
 }
 
