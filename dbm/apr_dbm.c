@@ -161,8 +161,8 @@ static apr_status_t set_error(apr_dbm_t *db)
     return rv;
 }
 
-apr_status_t apr_dbm_open(const char *pathname, apr_pool_t *pool, int mode,
-                          apr_dbm_t **pdb)
+apr_status_t apr_dbm_open(apr_dbm_t **pdb, const char *pathname, int mode,
+                          apr_pool_t *pool)
 {
     real_file_t file;
     int dbmode;
@@ -286,11 +286,18 @@ apr_status_t apr_dbm_nextkey(apr_dbm_t *db, apr_datum_t *pkey)
     return set_error(db);
 }
 
+/* XXX: This is wrong - we must call freedatum after moving the
+ * datum contents into the pool before we return, the user can't
+ * concern themselves with free in a pool-managed application.
+ */
 void apr_dbm_freedatum(apr_dbm_t *db, apr_datum_t data)
 {
     APR_DBM_FREEDATUM(db, data);
 }
 
+/* XXX: This is wrong... need to return a canonical errcode as part
+ * of this package, and follow the apr_dso_error prototype.
+ */
 void apr_dbm_geterror(apr_dbm_t *db, int *errcode, const char **errmsg)
 {
     *errcode = db->errcode;
