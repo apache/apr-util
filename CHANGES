@@ -1,3 +1,5 @@
+Changes with APR-util 1.1.0
+
 Changes with APR-util 1.0.1
 
   *) Add support for Berkeley DB 4.3.  [Jani Averbach <jaa jaa.iki.fi>]
