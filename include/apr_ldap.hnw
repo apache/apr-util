@@ -116,9 +116,6 @@
 #endif
 
 
-#include "apr_ldap_url.h"
-#include "apr_ldap_init.h"
-
 /* Note: Macros defining const casting has been removed in APR v1.0,
  * pending real support for LDAP v2.0 toolkits.
  *
@@ -138,6 +135,9 @@ typedef struct apr_ldap_err_t {
     const char *msg;
     int rc;
 } apr_ldap_err_t;
+
+#include "apr_ldap_url.h"
+#include "apr_ldap_init.h"
 
 /** @} */
 #endif /* APU_HAS_LDAP */
