@@ -98,7 +98,7 @@ typedef apr_sdbm_datum_t result_datum_t;
 /* Most DBM libraries take a POSIX mode for creating files.  Don't trust
  * the mode_t type, some platforms may not support it, int is safe.
  */
-int apr_posix_perms2mode(apr_fileperms_t perm) 
+int apr_posix_perms2mode(apr_fileperms_t perm)
 {
     int mode = 0;
 
@@ -206,14 +206,14 @@ typedef DBT result_datum_t;
 #define APR_DBM_DBMODE_RO       DB_RDONLY
 #define APR_DBM_DBMODE_RW       0
 #define APR_DBM_DBMODE_RWCREATE DB_CREATE
-#endif
+#endif /* DBVER == 1 */
 
 /* map a DB error to an apr_status_t */
 static apr_status_t db2s(int dberr)
 {
     if (dberr != 0) {
         /* ### need to fix this */
-        return APR_EGENERAL;
+        return APR_OS_START_USEERR+dberr;
     }
 
     return APR_SUCCESS;
@@ -225,6 +225,9 @@ static apr_status_t do_firstkey(real_file_t *f, DBT *pkey)
     int dberr;
     DBT data;
 
+    memset(pkey,0,sizeof(DBT));
+
+    memset(&data,0,sizeof(DBT));
 #if DB_VER == 1
     dberr = (*f->bdb->seq)(f->bdb, pkey, &data, R_FIRST);
 #else
@@ -344,9 +347,9 @@ static apr_status_t set_error(apr_dbm_t *dbm, apr_status_t dbm_said)
     else {
         /* ### need to fix. dberr was tossed in db2s(). */
         /* ### use db_strerror() */
-        dbm->errcode = 1;
-        dbm->errmsg = "DB error occurred.";
-        rv = APR_EGENERAL;
+        dbm->errcode = dbm_said;
+        dbm->errmsg = db_strerror( dbm_said - APR_OS_START_USEERR);
+        rv = dbm_said;
     }
 #else
 #error set_error has not been coded for this database type
@@ -455,6 +458,9 @@ APU_DECLARE(apr_status_t) apr_dbm_fetch(apr_dbm_t *dbm, apr_datum_t key,
     result_datum_t rd;
 
     CONVERT_DATUM(ckey, &key);
+#if APU_USE_DB
+    memset(&rd,0,sizeof(rd));
+#endif
     rv = APR_DBM_FETCH(dbm->file, ckey, rd);
     RETURN_DATUM(pvalue, rd);
 
