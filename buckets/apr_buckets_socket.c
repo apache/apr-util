@@ -97,10 +97,6 @@ static apr_status_t socket_read(ap_bucket *a, const char **str,
     return APR_SUCCESS;
 }
 
-ap_bucket_type ap_socket_type = { "SOCKET", 4, ap_bucket_destroy_notimpl, 
-                          socket_read, ap_bucket_setaside_notimpl, 
-                          ap_bucket_split_notimpl };
-
 API_EXPORT(ap_bucket *) ap_bucket_make_socket(ap_bucket *b, apr_socket_t *p)
 {
     /*
@@ -123,8 +119,10 @@ API_EXPORT(ap_bucket *) ap_bucket_create_socket(apr_socket_t *p)
     ap_bucket_do_create(ap_bucket_make_socket(b, p));
 }
 
-void ap_bucket_socket_register(apr_pool_t *p)
-{
-    ap_insert_bucket_type(&ap_socket_type);
-}
-
+const ap_bucket_type ap_socket_type = {
+    "SOCKET", 4,
+    ap_bucket_destroy_notimpl,
+    socket_read,
+    ap_bucket_setaside_notimpl, 
+    ap_bucket_split_notimpl
+};

@@ -103,9 +103,6 @@ static apr_status_t simple_read(ap_bucket *b, const char **str,
     return APR_SUCCESS;
 }
 
-ap_bucket_type ap_immortal_type = { "IMMORTAL", 4, free, simple_read,
-                          ap_bucket_setaside_notimpl, simple_split };
-
 API_EXPORT(ap_bucket *) ap_bucket_make_immortal(ap_bucket *b,
 		const char *buf, apr_size_t length)
 {
@@ -130,11 +127,6 @@ API_EXPORT(ap_bucket *) ap_bucket_create_immortal(
 		const char *buf, apr_size_t length)
 {
     ap_bucket_do_create(ap_bucket_make_immortal(b, buf, length));
-}
-
-void ap_bucket_immortal_register(apr_pool_t *p)
-{
-    ap_insert_bucket_type(&ap_immortal_type);
 }
 
 /*
@@ -164,9 +156,6 @@ static apr_status_t transient_setaside(ap_bucket *b)
     return APR_SUCCESS;
 }
 
-ap_bucket_type ap_transient_type = { "TRANSIENT", 4, ap_bucket_destroy_notimpl, 
-                                simple_read, transient_setaside, simple_split };
-
 API_EXPORT(ap_bucket *) ap_bucket_make_transient(ap_bucket *b,
 		const char *buf, apr_size_t length)
 {
@@ -184,8 +173,18 @@ API_EXPORT(ap_bucket *) ap_bucket_create_transient(
     ap_bucket_do_create(ap_bucket_make_transient(b, buf, length));
 }
 
-void ap_bucket_transient_register(apr_pool_t *p)
-{
-    ap_insert_bucket_type(&ap_transient_type);
-}
+const ap_bucket_type ap_immortal_type = {
+    "IMMORTAL", 4,
+    free,
+    simple_read,
+    ap_bucket_setaside_notimpl,
+    simple_split
+};
 
+const ap_bucket_type ap_transient_type = {
+    "TRANSIENT", 4,
+    ap_bucket_destroy_notimpl, 
+    simple_read,
+    transient_setaside,
+    simple_split
+};
