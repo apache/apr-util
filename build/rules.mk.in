@@ -94,10 +94,6 @@ extraclean: extraclean-recursive
 
 install: all-recursive
 
-local-clean:
-	$(RM) -f *.o *.lo *.a *.la *.so $(CLEAN_TARGETS)
-	$(RM) -rf .libs
-
 
 all-recursive depend-recursive clean-recursive distclean-recursive \
   extraclean-recursive:
@@ -118,7 +114,10 @@ all-recursive depend-recursive clean-recursive distclean-recursive \
 	    $(MAKE) "local-$$otarget" || exit 1; \
 	fi
 
-# nothing to do for this target
+local-clean:
+	$(RM) -f *.o *.lo *.a *.la *.so $(CLEAN_TARGETS)
+	$(RM) -rf .libs
+
 local-distclean: local-clean
 	$(RM) -f Makefile $(DISTCLEAN_TARGETS)
 
@@ -146,6 +145,7 @@ local-depend:
 .c.lo:
 	$(LT_COMPILE)
 
-.PHONY: all depend clean distclean install \
+.PHONY: all depend clean distclean extraclean install \
 	all-recursive depend-recursive clean-recursive distclean-recursive \
-	local-all local-depend local-clean local-distclean
+	extraclean-recursive
+	local-all local-depend local-clean local-distclean local-extraclean
