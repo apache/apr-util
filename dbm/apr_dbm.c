@@ -78,6 +78,8 @@
 #define DBM_VTABLE apr_dbm_type_gdbm
 #elif APU_USE_DB
 #define DBM_VTABLE apr_dbm_type_db
+#elif APU_USE_NDBM
+#define DBM_VTABLE apr_dbm_type_ndbm
 #else /* Not in the USE_xDBM list above */
 #error a DBM implementation was not specified
 #endif
@@ -102,6 +104,12 @@ APU_DECLARE(apr_status_t) apr_dbm_open_ex(apr_dbm_t **pdb, const char*type,
         return (*apr_dbm_type_db.open)(pdb, pathname, mode, perm, pool);
     }
 #endif
+#if APU_HAVE_NDBM
+    if (!strcasecmp(type, "NDBM")) {
+        return (*apr_dbm_type_ndbm.open)(pdb, pathname, mode, perm, pool);
+    }
+#endif
+
     if (!strcasecmp(type, "default")) {
         return (*DBM_VTABLE.open)(pdb, pathname, mode, perm, pool);
     }
@@ -197,6 +205,13 @@ APU_DECLARE(void) apr_dbm_get_usednames_ex(apr_pool_t *p,
         return;
     }
 #endif
+#if APU_HAVE_NDBM
+    if (!strcasecmp(type, "NDBM")) {
+        (*apr_dbm_type_ndbm.getusednames)(p,pathname,used1,used2);
+        return;
+    }
+#endif
+
     if (!strcasecmp(type, "default")) {
         (*DBM_VTABLE.getusednames)(p, pathname, used1, used2);
         return;

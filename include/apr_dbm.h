@@ -104,6 +104,7 @@ typedef struct
  *  GDBM for GDBM files
  *  SDBM for SDBM files
  *  DB   for berkeley DB files
+ *  NDBM for NDBM files
  *  default for the default DBM type
  *  </pre>
  * @param name The dbm file name to open

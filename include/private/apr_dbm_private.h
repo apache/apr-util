@@ -146,6 +146,7 @@ struct apr_dbm_t
 /* Declare all of the builtin DBM providers */
 APU_DECLARE_DATA extern const apr_dbm_type_t apr_dbm_type_sdbm;
 APU_DECLARE_DATA extern const apr_dbm_type_t apr_dbm_type_gdbm;
+APU_DECLARE_DATA extern const apr_dbm_type_t apr_dbm_type_ndbm;
 APU_DECLARE_DATA extern const apr_dbm_type_t apr_dbm_type_db1;
 APU_DECLARE_DATA extern const apr_dbm_type_t apr_dbm_type_db2;
 APU_DECLARE_DATA extern const apr_dbm_type_t apr_dbm_type_db3;

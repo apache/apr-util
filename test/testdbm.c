@@ -442,6 +442,9 @@ static void show_usage()
 #if APU_HAVE_GDBM
     fputs(" GDBM", stderr);
 #endif
+#if APU_HAVE_NDBM
+    fputs(" NDBM", stderr);
+#endif
 #if APU_HAVE_SDBM
     fputs(" SDBM", stderr);
 #endif
