@@ -82,6 +82,67 @@ LIB32=link.exe -lib
 
 # Name "aprutil - Win32 Release"
 # Name "aprutil - Win32 Debug"
+# Begin Group "Generated Headers"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\include\apu_private.hw
+
+!IF  "$(CFG)" == "aprlib - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\include\apu_private.hw
+
+".\include\apu_private.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy .\include\apu_private.hw .\include\apu_private.h > nul 
+	echo Created apu_private.h from apu_private.hw 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "aprlib - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\include\apu_private.hw
+
+".\include\apu_private.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy .\include\apu_private.hw .\include\apu_private.h > nul 
+	echo Created apu_private.h from apu_private.hw 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# End Group
+# Begin Group "External Headers"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\include\ap_base64.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\ap_buckets.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\ap_hooks.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\ap_ring.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\ap_sha1.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\apr_dbm.h
+# End Source File
+# End Group
 # Begin Group "buckets"
 
 # PROP Default_Filter ""
@@ -142,58 +203,6 @@ SOURCE=.\src\buckets\ap_buckets_util.c
 SOURCE=.\src\crypto\ap_sha1.c
 # End Source File
 # End Group
-# Begin Group "encoding"
-
-# PROP Default_Filter ""
-# Begin Source File
-
-SOURCE=.\src\encoding\ap_base64.c
-# End Source File
-# End Group
-# Begin Group "hooks"
-
-# PROP Default_Filter ""
-# Begin Source File
-
-SOURCE=.\src\hooks\ap_hooks.c
-# End Source File
-# End Group
-# Begin Group "uri"
-
-# PROP Default_Filter ""
-# End Group
-# Begin Group "xml"
-
-# PROP Default_Filter ""
-# End Group
-# Begin Group "External Headers"
-
-# PROP Default_Filter ""
-# Begin Source File
-
-SOURCE=.\include\ap_base64.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\ap_buckets.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\ap_hooks.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\ap_ring.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\ap_sha1.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\apr_dbm.h
-# End Source File
-# End Group
 # Begin Group "dbm"
 
 # PROP Default_Filter ""
@@ -233,6 +242,30 @@ SOURCE=.\src\dbm\sdbm\sdbm_tune.h
 
 SOURCE=.\src\dbm\apr_dbm.c
 # End Source File
+# End Group
+# Begin Group "encoding"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\src\encoding\ap_base64.c
+# End Source File
+# End Group
+# Begin Group "hooks"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\src\hooks\ap_hooks.c
+# End Source File
+# End Group
+# Begin Group "uri"
+
+# PROP Default_Filter ""
+# End Group
+# Begin Group "xml"
+
+# PROP Default_Filter ""
 # End Group
 # End Target
 # End Project
