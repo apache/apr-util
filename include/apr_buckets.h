@@ -169,6 +169,10 @@ struct ap_bucket {
      */
     apr_off_t length;
 
+    /** The file offset. Applicable for AP_BUCKET_FILE types only.
+     */
+    apr_off_t offset;
+
     /** @tip all of these function pointers may be replaced by some
      *  other means for getting to the functions, like a an index into
      *  a table.  In any case, these functions will always be available.
@@ -611,5 +615,17 @@ API_EXPORT(ap_bucket *) ap_bucket_make_mmap(ap_bucket *b,
  */
 API_EXPORT(ap_bucket *) ap_bucket_create_pipe(apr_file_t *thispipe);
 API_EXPORT(ap_bucket *) ap_bucket_make_pipe(ap_bucket *b, apr_file_t *thispipe);
+
+/**
+ * Create a bucket referring to a file.
+ * @param fd The file to put in the bucket
+ * @param offset The offset where the data of interest begins in the file
+ * @param len The amount of data in the file we are interested in
+ * @return The new bucket, or NULL if allocation failed
+ * @deffunc ap_bucket *ap_bucket_create_file(apr_file_t *thispipe)
+ */
+API_EXPORT(ap_bucket *) ap_bucket_create_file(apr_file_t *fd, apr_off_t offset, apr_size_t len);
+API_EXPORT(ap_bucket *) ap_bucket_make_file(ap_bucket *b, apr_file_t *fd, 
+                                            apr_off_t offset, apr_size_t len);
 
 #endif /* !AP_BUCKETS_H */
