@@ -246,6 +246,12 @@ apu_has_ldapssl_add_trusted_cert="0"
 apu_has_ldap_start_tls_s="0"
 apu_has_ldapssl_init="0"
 apu_has_ldap_sslinit="0"
+apu_has_ldap_openldap="0"
+apu_has_ldap_solaris="0"
+apu_has_ldap_novell="0"
+apu_has_ldap_microsoft="0"
+apu_has_ldap_netscape="0"
+apu_has_ldap_other="0"
 
 AC_ARG_WITH(ldap-include,[  --with-ldap-include=path  path to ldap include files with trailing slash])
 AC_ARG_WITH(ldap-lib,[  --with-ldap-lib=path    path to ldap lib file])
@@ -304,6 +310,46 @@ dnl The iPlanet C SDK 5.0 is as yet untested...
 
     AC_CHECK_HEADERS(ldap_ssl.h, ldap_ssl_h=["#include <ldap_ssl.h>"])
 
+    if test "$apr_cv_hdr_ldap_h" = "yes"; then
+      AC_CACHE_CHECK([for LDAP toolkit],
+                     [apr_cv_ldap_toolkit], [
+        if test "x$apr_cv_ldap_toolkit" = "x"; then
+          AC_EGREP_CPP([OpenLDAP], [$lber_h
+                       $ldap_h 
+                       LDAP_VENDOR_NAME], [apu_has_ldap_openldap="1"
+                                           apr_cv_ldap_toolkit="OpenLDAP"])
+        fi
+        if test "x$apr_cv_ldap_toolkit" = "x"; then
+          AC_EGREP_CPP([Sun Microsystems Inc.], [$lber_h
+                       $ldap_h
+                       LDAP_VENDOR_NAME], [apu_has_ldap_solaris="1"
+                                           apr_cv_ldap_toolkit="Solaris"])
+        fi
+        if test "x$apr_cv_ldap_toolkit" = "x"; then
+          AC_EGREP_CPP([Novell], [$lber_h
+                       $ldap_h
+                       LDAP_VENDOR_NAME], [apu_has_ldap_novell="1"
+                                           apr_cv_ldap_toolkit="Novell"])
+        fi
+        if test "x$apr_cv_ldap_toolkit" = "x"; then
+          AC_EGREP_CPP([Microsoft Corporation.], [$lber_h
+                       $ldap_h
+                       LDAP_VENDOR_NAME], [apu_has_ldap_microsoft="1"
+                                           apr_cv_ldap_toolkit="Microsoft"])
+        fi
+        if test "x$apr_cv_ldap_toolkit" = "x"; then
+          AC_EGREP_CPP([Netscape Communications Corp.], [$lber_h
+                       $ldap_h
+                       LDAP_VENDOR_NAME], [apu_has_ldap_netscape="1"
+                                           apr_cv_ldap_toolkit="Netscape"])
+        fi
+        if test "x$apr_cv_ldap_toolkit" = "x"; then
+          apu_has_ldap_other="1"
+          apr_cv_ldap_toolkit="unknown"
+        fi
+      ])
+    fi
+
     CPPFLAGS=$save_cppflags
     LDFLAGS=$save_ldflags
     LIBS=$save_libs
@@ -319,6 +365,12 @@ AC_SUBST(apu_has_ldap_start_tls_s)
 AC_SUBST(apu_has_ldapssl_init)
 AC_SUBST(apu_has_ldap_sslinit)
 AC_SUBST(apu_has_ldap)
+AC_SUBST(apu_has_ldap_openldap)
+AC_SUBST(apu_has_ldap_solaris)
+AC_SUBST(apu_has_ldap_novell)
+AC_SUBST(apu_has_ldap_microsoft)
+AC_SUBST(apu_has_ldap_netscape)
+AC_SUBST(apu_has_ldap_other)
 
 ])
 
