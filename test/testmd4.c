@@ -130,7 +130,7 @@ static void MDString(char *string)
 /* Measures the time to digest TEST_BLOCK_COUNT TEST_BLOCK_LEN-byte
      blocks.
  */
-static void MDTimeTrial()
+static void MDTimeTrial(void)
 {
     apr_md4_ctx_t context;
     apr_time_t endTime, startTime;
@@ -170,7 +170,7 @@ static void MDTimeTrial()
 
 /* Digests a reference suite of strings and prints the results.
  */
-static void MDTestSuite()
+static void MDTestSuite(void)
 {
     apr_file_printf(out, "MD4 test suite:\n");
 
@@ -214,7 +214,7 @@ static void MDFile(char *filename)
 
 /* Digests the standard input and prints the result.
  */
-static void MDFilter()
+static void MDFilter(void)
 {
     apr_md4_ctx_t context;
     int len = 16;
