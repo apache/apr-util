@@ -1,4 +1,4 @@
-/* Copyright 2000-2004 The Apache Software Foundation
+/* Copyright 2000-2005 The Apache Software Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,11 @@
 #include "apr_strings.h"
 
 #if APR_HAS_LDAP
+
+static int option_set_cert(apr_pool_t *pool, LDAP *ldap, const void *invalue,
+                           apr_ldap_err_t *result);
+static int option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
+                          apr_ldap_err_t *result);
 
 /**
  * APR LDAP get option function
@@ -129,11 +134,9 @@ APU_DECLARE(int) apr_ldap_set_option(apr_pool_t *pool,
  * APR_LDAP_STARTTLS: STARTTLS encryption
  * APR_LDAP_STOPTLS: Stop existing TLS connecttion
  */
-int option_set_tls(apr_pool_t *pool,
-            LDAP *ldap,
-            const void *invalue,
-            apr_ldap_err_t *result) {
-
+static int option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
+                          apr_ldap_err_t *result)
+{
     int tls = * (const int *)invalue;
 
 #if APR_HAS_LDAP_SSL /* compiled with ssl support */
@@ -298,11 +301,9 @@ int option_set_tls(apr_pool_t *pool,
  * Microsoft: unknown
  * Solaris: unknown
  */
-int option_set_cert(apr_pool_t *pool,
-             LDAP *ldap,
-             const void *invalue,
-             apr_ldap_err_t *result) {
-
+static int option_set_cert(apr_pool_t *pool, LDAP *ldap,
+                           const void *invalue, apr_ldap_err_t *result)
+{
     apr_ldap_opt_tls_cert_t *cert = (apr_ldap_opt_tls_cert_t *)invalue;
 
 #if APR_HAS_LDAP_SSL
