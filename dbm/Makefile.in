@@ -1,6 +1,6 @@
 VPATH = @srcdir@
 
-INCLUDES = @APR_INCLUDES@ @APRUTIL_INCLUDES@ @APRUTIL_PRIV_INCLUDES@
+INCLUDES = @APRUTIL_PRIV_INCLUDES@ @APR_INCLUDES@ @APRUTIL_INCLUDES@
 
 TARGETS = apr_dbm.lo apr_dbm_berkeleydb.lo apr_dbm_gdbm.lo apr_dbm_sdbm.lo
 

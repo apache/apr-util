@@ -1,6 +1,6 @@
 VPATH = @srcdir@
 
-INCLUDES = @APR_INCLUDES@ @APRUTIL_INCLUDES@ @APRUTIL_PRIV_INCLUDES@
+INCLUDES = @APRUTIL_PRIV_INCLUDES@ @APR_INCLUDES@ @APRUTIL_INCLUDES@ 
 
 TARGETS = apr_buckets_file.lo apr_buckets_pool.lo apr_buckets_flush.lo \
           apr_buckets_refcount.lo apr_buckets_heap.lo apr_buckets_simple.lo \
