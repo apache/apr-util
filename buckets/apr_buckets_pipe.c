@@ -57,6 +57,8 @@
 #include "ap_buckets.h"
 #include <stdlib.h>
 
+static int pipe_type;
+
 /* XXX: We should obey the block flag */
 static apr_status_t pipe_read(ap_bucket *a, const char **str,
 			      apr_ssize_t *len, int block)
@@ -112,12 +114,8 @@ API_EXPORT(ap_bucket *) ap_bucket_make_pipe(ap_bucket *b, apr_file_t *p)
      * stream so the bucket(s) that it sets aside will be the heap
      * buckets created by pipe_read() above.
      */
-    b->type     = AP_BUCKET_PIPE;
+    b->type     = pipe_type;
     b->length   = -1;
-    b->setaside = NULL;
-    b->destroy  = NULL;
-    b->split    = NULL;
-    b->read     = pipe_read;
     b->data     = p;
 
     return b;
@@ -126,4 +124,21 @@ API_EXPORT(ap_bucket *) ap_bucket_make_pipe(ap_bucket *b, apr_file_t *p)
 API_EXPORT(ap_bucket *) ap_bucket_create_pipe(apr_file_t *p)
 {
     ap_bucket_do_create(ap_bucket_make_pipe(b, p));
+}
+
+void ap_bucket_pipe_register(apr_pool_t *p)
+{
+    ap_bucket_type type;
+
+    type.setaside = NULL;
+    type.destroy  = NULL;
+    type.split    = NULL;
+    type.read     = pipe_read;
+
+    pipe_type = ap_insert_bucket_type(&type);
+}
+
+int ap_pipe_type(void)
+{
+    return pipe_type;
 }
