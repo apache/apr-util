@@ -124,14 +124,14 @@ API_EXPORT(apr_status_t) ap_base64init_ebcdic(apr_xlate_t *to_ascii,
     
     /* Only single-byte conversion is supported.
      */
-    rv = ap_xlate_get_sb(to_ascii, &onoff);
+    rv = apr_xlate_get_sb(to_ascii, &onoff);
     if (rv) {
         return rv;
     }
     if (!onoff) { /* If conversion is not single-byte-only */
         return APR_EINVAL;
     }
-    rv = ap_xlate_get_sb(to_ebcdic, &onoff);
+    rv = apr_xlate_get_sb(to_ebcdic, &onoff);
     if (rv) {
         return rv;
     }
@@ -143,8 +143,8 @@ API_EXPORT(apr_status_t) ap_base64init_ebcdic(apr_xlate_t *to_ascii,
         os_toascii[i] = i;
     }
     inbytes_left = outbytes_left = sizeof(os_toascii);
-    ap_xlate_conv_buffer(to_ascii, os_toascii, &inbytes_left,
-                         os_toascii, &outbytes_left);
+    apr_xlate_conv_buffer(to_ascii, os_toascii, &inbytes_left,
+                          os_toascii, &outbytes_left);
 
     return APR_SUCCESS;
 }
@@ -175,8 +175,8 @@ API_EXPORT(int) ap_base64decode(char *bufplain, const char *bufcoded)
     len = ap_base64decode_binary((unsigned char *) bufplain, bufcoded);
 #ifdef CHARSET_EBCDIC
     inbytes_left = outbytes_left = len;
-    ap_xlate_conv_buffer(xlate_to_ebcdic, bufplain, &inbytes_left,
-                         bufplain, &outbytes_left);
+    apr_xlate_conv_buffer(xlate_to_ebcdic, bufplain, &inbytes_left,
+                          bufplain, &outbytes_left);
 #endif				/* CHARSET_EBCDIC */
     bufplain[len] = '\0';
     return len;
