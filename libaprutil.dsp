@@ -323,7 +323,7 @@ SOURCE=.\include\apu.hnw
 
 SOURCE=.\include\apu.hw
 
-!IF  "$(CFG)" == "aprutil - Win32 Release"
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
 
 # Begin Custom Build - Creating apu.h from apu.hw 
 InputPath=.\include\apu.hw
@@ -333,7 +333,7 @@ InputPath=.\include\apu.hw
 	
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
 
 # Begin Custom Build - Creating apu.h from apu.hw 
 InputPath=.\include\apu.hw
@@ -354,7 +354,7 @@ SOURCE=.\include\private\apu_config.h.in
 
 SOURCE=.\include\private\apu_config.hw
 
-!IF  "$(CFG)" == "aprutil - Win32 Release"
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
 
 # Begin Custom Build - Creating apu_config.h from apu_config.hw 
 InputPath=.\include\private\apu_config.hw
@@ -364,7 +364,7 @@ InputPath=.\include\private\apu_config.hw
 	
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
 
 # Begin Custom Build - Creating apu_config.h from apu_config.hw 
 InputPath=.\include\private\apu_config.hw
@@ -385,7 +385,7 @@ SOURCE=.\include\private\apu_select_dbm.h.in
 
 SOURCE=.\include\private\apu_select_dbm.hw
 
-!IF  "$(CFG)" == "aprutil - Win32 Release"
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
 
 # Begin Custom Build - Creating apu_select_dbm.h from apu_select_dbm.hw 
 InputPath=.\include\private\apu_select_dbm.hw
@@ -395,7 +395,7 @@ InputPath=.\include\private\apu_select_dbm.hw
 	
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
 
 # Begin Custom Build - Creating apu_select_dbm.h from apu_select_dbm.hw 
 InputPath=.\include\private\apu_select_dbm.hw
@@ -412,7 +412,7 @@ InputPath=.\include\private\apu_select_dbm.hw
 
 SOURCE=.\uri\gen_uri_delims.exe
 
-!IF  "$(CFG)" == "aprutil - Win32 Release"
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
 
 # Begin Custom Build - Generating uri_delims.h
 InputPath=.\uri\gen_uri_delims.exe
@@ -422,7 +422,7 @@ InputPath=.\uri\gen_uri_delims.exe
 	
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
 
 # Begin Custom Build - Generating uri_delims.h
 InputPath=.\uri\gen_uri_delims.exe
