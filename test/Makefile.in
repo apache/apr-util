@@ -1,6 +1,5 @@
 TARGETS =
 PROGRAMS = testdbm
-DISTCLEAN_TARGETS = Makefile
 
 # bring in rules.mk for standard functionality
 @INCLUDE_RULES@
