@@ -59,11 +59,16 @@
  * XXX: this file will be filled in later
  */
 
+/* XXX: Remove the ifdef when the struct is filled in.
+ *  An empty struct causes a compiler error on NetWare
+ */
+#ifndef NETWARE
 /** A list of free memory from which new buckets or private bucket
  *  structures can be allocated.
  */
 struct apr_bucket_alloc_t {
 };
+#endif
 
 APU_DECLARE(apr_bucket_alloc_t *) apr_bucket_alloc_create(apr_pool_t *p)
 {
