@@ -158,7 +158,7 @@ struct ap_bucket {
      *  with a function, but this is an optimization, because the most
      *  common thing to do will be to get the length.
      */
-    apr_ssize_t length;
+    apr_off_t length;
 
     /** @tip all of these function pointers may be replaced by some
      *  other means for getting to the functions, like a an index into
