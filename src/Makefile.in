@@ -1,4 +1,0 @@
-# bring in rules.mk for standard functionality
-@INCLUDE_RULES@
-
-SUBDIRS = buckets crypto dbm encoding hooks uri xml

@@ -1,6 +1,0 @@
-TARGETS = apr_dbm.lo
-
-# bring in rules.mk for standard functionality
-@INCLUDE_RULES@
-
-SUBDIRS = sdbm .
