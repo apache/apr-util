@@ -1,5 +1,5 @@
 APRUTIL LIBRARY STATUS:						-*-text-*-
-Last modified at [$Date: 2001/01/13 04:23:31 $]
+Last modified at [$Date: 2001/01/13 05:27:21 $]
 
 Release:
     ...on the 12th as part of Apache 2.0a9  [need specifics here]
@@ -7,12 +7,12 @@ Release:
 
 RELEASE SHOWSTOPPERS:
 
-    * This vote ends on Wednesday!
-      Source code layout needs to be decided for apr and apr-util.  There
-      has been some discussion about adding a src/ directory to apr or 
-      removing it from apr-util/.  Either way, this needs to be decided.
-      Those for adding apr/src/    : gstein
-      Those removing apr-util/src/ : wrowe, rbb
+    * Prefix for the code.  This vote ends on Wednesday!
+      Bill notes - recent problems on win32 would have been averted if the
+      author noticed their names didn't match their linkage declarations.
+      Status:
+        APR: Ryan +1, Greg +1
+        apu: wrowe +1
 
     * Many linkage errors are gpfaulting Apache/win32 in various configs
       (load mod_dav, for example.)  Must complete the APR_DECLARES
@@ -62,11 +62,6 @@ Available Patches:
 
 
 Open Issues:
-
-    * Prefix for the code.
-      Status:
-        APR: Ryan +1, Greg +1
-        Will asks "Is that apu_ prefix?  I'm +++1 for that!
 
     * Compatibility header to deal with renamed symbols.
       NOTE:
