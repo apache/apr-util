@@ -360,4 +360,15 @@ APU_DECLARE(void) apr_reslist_timeout_set(apr_reslist_t *reslist,
     reslist->timeout = timeout;
 }
 
+APU_DECLARE(apr_status_t) apr_reslist_invalidate(apr_reslist_t *reslist,
+                                                 void *resource)
+{
+    apr_status_t ret;
+    apr_thread_mutex_lock(reslist->listlock);
+    ret = reslist->destructor(resource, reslist->params, reslist->pool);
+    reslist->ntotal--;
+    apr_thread_mutex_unlock(reslist->listlock);
+    return ret;
+}
+
 #endif  /* APR_HAS_THREADS */

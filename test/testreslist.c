@@ -59,7 +59,8 @@ static apr_status_t my_constructor(void **resource, void *params,
     res = apr_palloc(pool, sizeof(*res));
     res->id = my_params->c_count++;
 
-    printf("++ constructing new resource [id:%d]\n", res->id);
+    printf("++ constructing new resource [id:%d, #%d/%d]\n", res->id,
+       my_params->c_count, my_params->d_count);
 
     /* Sleep for awhile, to simulate construction overhead. */
     apr_sleep(my_params->sleep_upon_construct);
@@ -75,8 +76,8 @@ static apr_status_t my_destructor(void *resource, void *params,
     my_resource_t *res = resource;
     my_parameters_t *my_params = params;
 
-    printf("-- destructing old resource [id:%d, #%d]\n", res->id,
-           my_params->d_count++);
+    printf("-- destructing old resource [id:%d, #%d/%d]\n", res->id,
+           my_params->c_count, ++my_params->d_count);
 
     apr_sleep(my_params->sleep_upon_destruct);
 
@@ -108,12 +109,23 @@ static void * APR_THREAD_FUNC resource_consuming_thread(apr_thread_t *thd,
         printf("  [tid:%d,iter:%d] using resource id:%d\n", thread_info->tid,
                i, res->id);
         apr_sleep(thread_info->work_delay_sleep);
-        rv = apr_reslist_release(rl, res);
-        if (rv != APR_SUCCESS) {
-            fprintf(stderr, "Failed to return resource to reslist\n");
-            apr_thread_exit(thd, rv);
-            return NULL;
-        }
+/* simulate a 5% chance of the resource being bad */
+        if ( drand48() < 0.95 ) {
+           rv = apr_reslist_release(rl, res);
+            if (rv != APR_SUCCESS) {
+                fprintf(stderr, "Failed to return resource to reslist\n");
+                apr_thread_exit(thd, rv);
+                return NULL;
+            }
+       } else {
+           printf("invalidating resource id:%d\n", res->id) ;
+           rv = apr_reslist_invalidate(rl, res);
+            if (rv != APR_SUCCESS) {
+                fprintf(stderr, "Failed to invalidate resource\n");
+                apr_thread_exit(thd, rv);
+                return NULL;
+            }
+       }
     }
 
     return APR_SUCCESS;
@@ -173,6 +185,7 @@ static apr_status_t test_reslist(apr_pool_t *parpool)
     int i;
     apr_thread_t *my_threads[CONSUMER_THREADS];
     my_thread_info_t my_thread_info[CONSUMER_THREADS];
+    srand48(time(0)) ;
 
     printf("Creating child pool.......................");
     rv = apr_pool_create(&pool, parpool);
