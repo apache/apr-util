@@ -403,3 +403,8 @@ APU_DECLARE(apr_rmm_off_t) apr_rmm_offset_get(apr_rmm_t *rmm, void* entity)
      */
     return ((char*)entity - (char*)rmm->base);
 }
+
+APU_DECLARE(apr_size_t) apr_rmm_overhead_get(int n) 
+{
+    return sizeof(rmm_hdr_block_t) + n * sizeof(rmm_block_t);
+}
