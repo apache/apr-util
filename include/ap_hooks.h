@@ -68,8 +68,8 @@ ret ap_run_##name args \
 
 #define IMPLEMENT_HOOK(ret,name,args,args2,run_all,ok,decline) \
 	IMPLEMENT_HOOK_BASE(ret,ret r_;,r_=,r_,name,args,args2,run_all,r_ != decline,r_ != ok,run_all ? ok : decline)
-#define IMPLEMENT_VOID_HOOK(name,args,args2,run_all) \
-	IMPLEMENT_HOOK_BASE(void,,,,name,args,args2,run_all,1,0,)
+#define IMPLEMENT_VOID_HOOK(name,args,args2) \
+	IMPLEMENT_HOOK_BASE(void,,,,name,args,args2,RUN_ALL,1,0,)
 
      /* Hook orderings */
 #define HOOK_REALLY_FIRST	(-10)
