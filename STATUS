@@ -1,5 +1,5 @@
 APRUTIL LIBRARY STATUS:						-*-text-*-
-Last modified at [$Date: 2001/06/27 21:07:15 $]
+Last modified at [$Date: 2001/07/13 00:13:31 $]
 
 Release:
     2.0a9   : released December 12, 2000
@@ -27,7 +27,12 @@ RELEASE NON-SHOWSTOPPERS BUT WOULD BE REAL NICE TO WRAP THESE UP:
       including the possibility of re-opening the file into the correct
       pool and morphing the mmap bucket back down to a file bucket.
 
-
+    * Some funny make dependency is happening with apr_uri.c and
+      uri_delims.h that causes it to always build apr_uri.c whether
+      it needs to or not.  (This is slightly better than the previous
+      behavior which caused it not to build uri_delims.h when it needed
+      to.)
+     
 Other bugs that need fixing:
 
 
