@@ -54,7 +54,14 @@
 
 #include "apr_buckets.h"
 
-APU_DECLARE_NONSTD(apr_status_t) apr_bucket_setaside_notimpl(apr_bucket *data)
+APU_DECLARE_NONSTD(apr_status_t) apr_bucket_setaside_noop(apr_bucket *data,
+                                                          apr_pool_t *pool)
+{
+    return APR_SUCCESS;
+}
+
+APU_DECLARE_NONSTD(apr_status_t) apr_bucket_setaside_notimpl(apr_bucket *data,
+                                                             apr_pool_t *pool)
 {
     return APR_ENOTIMPL;
 }
