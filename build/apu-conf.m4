@@ -372,7 +372,7 @@ dnl special-case the bundled distribution (use absolute dirs)
 if test "$expat_include_dir" = "xml/expat/lib" -o "$expat_include_dir" = "xml/expat-cvs/lib"; then
   bundled_subdir="`echo $expat_include_dir | sed -e 's%/lib%%'`"
   APU_SUBDIR_CONFIG($bundled_subdir)
-  expat_include_dir=$srcdir/$bundled_subdir/lib
+  expat_include_dir=$top_builddir/$bundled_subdir/lib
   expat_libs=$top_builddir/$bundled_subdir/lib/libexpat.la
   APR_XML_SUBDIRS="`echo $bundled_subdir | sed -e 's%xml/%%'`"
 fi
