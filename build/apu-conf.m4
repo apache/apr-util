@@ -136,7 +136,12 @@ AC_CHECK_HEADER(db4/db.h, [
   apu_db_header=db4/db.h
   apu_db_lib=db4
   apu_db_version=4
-  ])])
+  ], [
+  AC_CHECK_LIB(db-4.0, db_create, [
+  apu_db_header=db4/db.h
+  apu_db_lib=db-4.0
+  apu_db_version=4
+  ])])])
 if test "$apu_db_version" != "4"; then
 AC_CHECK_HEADER(db.h, [
   AC_CHECK_LIB(db, db_create, [
