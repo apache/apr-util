@@ -100,7 +100,7 @@ AC_DEFUN(APU_CHECK_BERKELEY_DB, [
                      | sed -e 's/[^a-zA-Z0-9_]/_/g'`"
             changequote([,])
 
-            AC_MSG_CHECKING([for $bdb_libname])
+            AC_MSG_CHECKING([for -l$bdb_libname])
             dnl We can't use AC_CACHE_CHECK here, because that won't print out
             dnl the value of the computed cache variable properly.
             AC_CACHE_VAL($cache_id,
