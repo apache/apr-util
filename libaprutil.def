@@ -1,7 +1,7 @@
-; aprutil.def :
+; libaprutil.def :
 
-LIBRARY apr-util
-DESCRIPTION ''
+LIBRARY libaprutil
+DESCRIPTION 'Apache Utility Runtime Library'
 
 EXPORTS
 ; Add new API calls to the end of this list.
