@@ -73,11 +73,11 @@ static apr_status_t mmap_read(ap_bucket *b, const char **str,
     return APR_SUCCESS;
 }
 
-static void mmap_destroy(ap_bucket *b)
+static void mmap_destroy(void *data)
 {
     ap_bucket_mmap *m;
 
-    m = ap_bucket_destroy_shared(b);
+    m = ap_bucket_destroy_shared(data);
     if (m == NULL) {
 	return;
     }
