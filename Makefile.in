@@ -25,7 +25,7 @@ TARGETS = delete-lib $(TARGET_LIB) delete-exports aprutil.exp export_vars.h
 SUBDIRS = buckets crypto dbm encoding hooks ldap uri xml misc strmatch xlate
 CLEAN_SUBDIRS = test
 
-CLEAN_TARGETS = exports.c export_vars.h aprutil.exp
+CLEAN_TARGETS = exports.c export_vars.h aprutil.exp apu-config.out
 DISTCLEAN_TARGETS = config.cache config.log config.status libtool \
 	include/private/apu_config.h include/private/apu_private.h \
 	include/private/apu_select_dbm.h include/apr_ldap.h include/apu.h \
@@ -52,6 +52,10 @@ delete-lib:
 	    fi; \
 	fi
 
+apu-config.out: apu-config
+	sed 's,^\(location=\).*$$,\1installed,' < apu-config > $@
+
+install: $(TARGET_LIB) apu-config.out
 install: $(TARGET_LIB)
 	if [ ! -d $(DESTDIR)$(includedir) ]; then \
 	    @APR_SOURCE_DIR@/build/mkdir.sh $(DESTDIR)$(includedir); \
@@ -72,7 +76,7 @@ install: $(TARGET_LIB)
 	if [ ! -d $(DESTDIR)$(bindir) ]; then \
 		@APR_SOURCE_DIR@/build/mkdir.sh $(DESTDIR)$(bindir); \
 	fi;
-	$(LIBTOOL) --mode=install cp apu-config $(DESTDIR)$(bindir)
+	$(LIBTOOL) --mode=install cp apu-config.out $(DESTDIR)$(bindir)/apu-config
 	chmod 755 $(DESTDIR)$(bindir)/apu-config
 
 $(TARGET_LIB):
