@@ -1,5 +1,7 @@
 Changes with APR-util 0.9.4
 
+  *) Fix apr_uuid_parse() on EBCDIC machines.  [Jeff Trawick]
+
   *) Fix alignment problem when allocating memory using apr_rmm. The problem
      showed up while trying to write a double in the memory allocated.
      [Madhusudan Mathihalli]

@@ -71,6 +71,7 @@ APU_DECLARE(void) apr_uuid_format(char *buffer, const apr_uuid_t *uuid)
 }
 
 /* convert a pair of hex digits to an integer value [0,255] */
+#if 'A' == 65
 static unsigned char parse_hexpair(const char *s)
 {
     int result;
@@ -94,6 +95,39 @@ static unsigned char parse_hexpair(const char *s)
 
     return (unsigned char)result;
 }
+#else
+static unsigned char parse_hexpair(const char *s)
+{
+    int result;
+
+    if (isdigit(*s)) {
+        result = (*s - '0') << 4;
+    }
+    else {
+        if (isupper(*s)) {
+            result = (*s - 'A' + 10) << 4;
+        }
+        else {
+            result = (*s - 'a' + 10) << 4;
+        }
+    }
+
+    ++s;
+    if (isdigit(*s)) {
+        result |= (*s - '0');
+    }
+    else {
+        if (isupper(*s)) {
+            result |= (*s - 'A' + 10);
+        }
+        else {
+            result |= (*s - 'a' + 10);
+        }
+    }
+
+    return (unsigned char)result;
+}
+#endif
 
 APU_DECLARE(apr_status_t) apr_uuid_parse(apr_uuid_t *uuid,
                                          const char *uuid_str)
