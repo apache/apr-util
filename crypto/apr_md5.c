@@ -58,6 +58,7 @@
  */
 #include "apr_strings.h"
 #include "apr_md5.h"
+#include "apr_sha1.h" /* needed by apr_password_validate */
 #include "apr_lib.h"
 #include "apu_config.h"
 
@@ -682,6 +683,9 @@ APU_DECLARE(apr_status_t) apr_password_validate(const char *passwd,
          * The hash was created using our custom algorithm.
          */
         apr_md5_encode(passwd, hash, sample, sizeof(sample));
+    }
+    else if (!strncmp(hash, APR_SHA1PW_ID, APR_SHA1PW_IDLEN)) {
+        apr_sha1_base64(passwd, strlen(passwd), sample);
     }
     else {
         /*

@@ -1,7 +1,16 @@
 Changes with APR-util 0.9.5
 
+  *) Restore support for SHA1 passwords in apr_validate_password.
+     PR 17343.  [Joe Orton]
+
+  *) Fix DESTDIR install for bundled expat library.  PR 14076
+     [David S. Madole <david madole.net>]
+
   *) Fix occasional crash in apr_rmm_realloc().  PR 22915.
      [Jay Shrauner <shrauner inktomi.com>]
+
+  *) Fix apr_dbm_exists() for sdbm when sizeof(int) != sizeof(size_t). 
+     [Joe Orton]
 
   *) The whole codebase was relicensed and is now available under
      the Apache License, Version 2.0 (http://www.apache.org/licenses).
