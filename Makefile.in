@@ -49,11 +49,11 @@ delete-exports:
 	fi
 
 $(TARGET_EXPORTS):
-	$(AWK) -f @APR_SOURCE_DIR@/helpers/make_export.awk include/*.h > $@ ;
+	$(AWK) -f @APR_SOURCE_DIR@/build/make_export.awk include/*.h > $@ ;
 
 docs:
 	mkdir ./docs
-	perl @APR_SOURCE_DIR@/helpers/scandoc -i./build/default.pl -p./docs/ ./include/*.h
+	perl @APR_SOURCE_DIR@/build/scandoc.pl -i./build/default.pl -p./docs/ ./include/*.h
 
 
 .PHONY: delete-lib delete-exports
