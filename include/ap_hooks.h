@@ -87,7 +87,7 @@ impl(void) ap_hook_##name(HOOK_##name *pf,const char * const *aszPre, \
     LINK_##name *pHook; \
     if(!_hooks.link_##name) \
 	{ \
-	_hooks.link_##name=ap_make_array(g_pHookPool,1,sizeof(LINK_##name)); \
+	_hooks.link_##name=ap_make_array(ap_global_hook_pool,1,sizeof(LINK_##name)); \
 	ap_hook_sort_register(#name,&_hooks.link_##name); \
 	} \
     pHook=ap_push_array(_hooks.link_##name); \
@@ -95,8 +95,8 @@ impl(void) ap_hook_##name(HOOK_##name *pf,const char * const *aszPre, \
     pHook->aszPredecessors=aszPre; \
     pHook->aszSuccessors=aszSucc; \
     pHook->nOrder=nOrder; \
-    pHook->szName=g_szCurrentHookName; \
-    if(g_bDebugHooks) \
+    pHook->szName=ap_debug_module_name; \
+    if(ap_debug_module_hooks) \
 	ap_show_hook(#name,aszPre,aszSucc); \
     }
 
@@ -174,9 +174,9 @@ impl(ret) ap_run_##name args_decl \
 #define AP_HOOK_LAST		20
 #define AP_HOOK_REALLY_LAST	30
 
-extern AP_EXPORT_VAR ap_pool_t *g_pHookPool;
-extern AP_EXPORT_VAR int g_bDebugHooks;
-extern AP_EXPORT_VAR const char *g_szCurrentHookName;
+extern AP_EXPORT_VAR ap_pool_t *ap_global_hook_pool;
+extern AP_EXPORT_VAR int ap_debug_module_hooks;
+extern AP_EXPORT_VAR const char *ap_debug_module_name;
 
 AP_EXPORT(void) ap_hook_sort_register(const char *szHookName, 
                                       ap_array_header_t **aHooks);

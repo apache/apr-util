@@ -6,9 +6,9 @@
 #define ap_palloc(pool,size)	malloc(size)
 #endif
 
-AP_EXPORT_VAR ap_pool_t *g_pHookPool = NULL;
-AP_EXPORT_VAR int g_bDebugHooks = FALSE;
-AP_EXPORT_VAR const char *g_szCurrentHookName = NULL;
+AP_EXPORT_VAR ap_pool_t *ap_global_hook_pool = NULL;
+AP_EXPORT_VAR int ap_debug_module_hooks = FALSE;
+AP_EXPORT_VAR const char *ap_debug_module_name = NULL;
 
 /* NB: This must echo the LINK_##name structure */
 typedef struct
@@ -122,21 +122,21 @@ static ap_array_header_t *sort_hook(ap_array_header_t *pHooks,const char *szName
     ap_array_header_t *pNew;
     int n;
 
-    ap_create_pool(&p, g_pHookPool);
+    ap_create_pool(&p, ap_global_hook_pool);
     pSort=prepare(p,(TSortData *)pHooks->elts,pHooks->nelts);
     pSort=tsort(pSort,pHooks->nelts);
-    pNew=ap_make_array(g_pHookPool,pHooks->nelts,sizeof(TSortData));
-    if(g_bDebugHooks)
+    pNew=ap_make_array(ap_global_hook_pool,pHooks->nelts,sizeof(TSortData));
+    if(ap_debug_module_hooks)
 	printf("Sorting %s:",szName);
     for(n=0 ; pSort ; pSort=pSort->pNext,++n) {
 	TSortData *pHook;
 	assert(n < pHooks->nelts);
 	pHook=ap_push_array(pNew);
 	memcpy(pHook,pSort->pData,sizeof *pHook);
-	if(g_bDebugHooks)
+	if(ap_debug_module_hooks)
 	    printf(" %s",pHook->szName);
     }
-    if(g_bDebugHooks)
+    if(ap_debug_module_hooks)
 	fputc('\n',stdout);
     return pNew;
 }
@@ -154,7 +154,7 @@ AP_EXPORT(void) ap_hook_sort_register(const char *szHookName,
     HookSortEntry *pEntry;
 
     if(!s_aHooksToSort)
-	s_aHooksToSort=ap_make_array(g_pHookPool,1,sizeof(HookSortEntry));
+	s_aHooksToSort=ap_make_array(ap_global_hook_pool,1,sizeof(HookSortEntry));
     pEntry=ap_push_array(s_aHooksToSort);
     pEntry->szHookName=szHookName;
     pEntry->paHooks=paHooks;
