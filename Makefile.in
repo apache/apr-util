@@ -10,7 +10,7 @@ TARGETS = delete-lib $(TARGET_LIB) delete-exports $(TARGET_EXPORTS)
 # bring in rules.mk for standard functionality
 @INCLUDE_RULES@
 
-SUBDIRS = buckets crypto dbm encoding hooks uri xml
+SUBDIRS = buckets crypto dbm encoding hooks uri xml misc
 CLEAN_SUBDIRS = . test build
 
 CLEAN_TARGETS = $(TARGET_EXPORTS)
