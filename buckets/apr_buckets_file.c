@@ -227,6 +227,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_file_create(apr_file_t *fd,
     apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
 
     APR_BUCKET_INIT(b);
+    b->free = free;
     return apr_bucket_file_make(b, fd, offset, len, p);
 }
 
@@ -262,7 +263,6 @@ static apr_status_t file_setaside(apr_bucket *data, apr_pool_t *reqpool)
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_file = {
     "FILE", 5,
     file_destroy,
-    free,
     file_read,
     file_setaside,
     apr_bucket_shared_split,
