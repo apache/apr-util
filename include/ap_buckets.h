@@ -888,7 +888,7 @@ APR_DECLARE_NONSTD(apr_status_t) ap_bucket_split_shared(ap_bucket *b, apr_off_t 
            or APR_SUCCESS
  * @deffunc apr_status_t ap_bucket_copy_shared(ap_bucket *a, ap_bucket **c)
  */
-APR_DECLARE(apr_status_t) ap_bucket_copy_shared(ap_bucket *a, ap_bucket **c);
+APR_DECLARE_NONSTD(apr_status_t) ap_bucket_copy_shared(ap_bucket *a, ap_bucket **c);
 
 
 /*  *****  Functions to Create Buckets of varying type  *****  */
