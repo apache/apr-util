@@ -1,8 +1,6 @@
 #include "ap_config.h"
-#include "httpd.h"
 #include "ap_hooks.h"
 #include <assert.h>
-#include <stdlib.h>
 
 #if 0
 #define ap_palloc(pool,size)	malloc(size)

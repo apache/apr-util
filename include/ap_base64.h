@@ -51,48 +51,40 @@
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  *
- * NIST Secure Hash Algorithm
- * 	heavily modified by Uwe Hollerbach uh@alumni.caltech edu
- * 	from Peter C. Gutmann's implementation as found in
- * 	Applied Cryptography by Bruce Schneier
- * 	This code is hereby placed in the public domain
+ * The ap_vsnprintf/ap_snprintf functions are based on, and used with the
+ * permission of, the  SIO stdio-replacement strx_* functions by Panos
+ * Tsirigotis <panos@alumni.cs.colorado.edu> for xinetd.
  */
 
-#ifndef APACHE_SHA1_H
-#define APACHE_SHA1_H
+#ifndef APACHE_BASE64_H
+#define APACHE_BASE64_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define SHA_DIGESTSIZE 20
-
-/*
- * Define the Magic String prefix that identifies a password as being
- * hashed using our algorithm.
+/* Simple BASE64 encode/decode functions.
+ * 
+ * As we might encode binary strings, hence we require the length of
+ * the incoming plain source. And return the length of what we decoded.
+ *
+ * The decoding function takes any non valid char (i.e. whitespace, \0
+ * or anything non A-Z,0-9 etc as terminal.
+ * 
+ * plain strings/binary sequences are not assumed '\0' terminated. Encoded
+ * strings are neither. But propably should.
+ *
  */
-#define AP_SHA1PW_ID "{SHA}"
-#define AP_SHA1PW_IDLEN 5
+API_EXPORT(int) ap_base64encode_len(int len);
+API_EXPORT(int) ap_base64encode(char * coded_dst, const char *plain_src,int len_plain_src);
+API_EXPORT(int) ap_base64encode_binary(char * coded_dst, const unsigned char *plain_src,int len_plain_src);
 
-typedef struct {
-    ap_uint32_t digest[5];          /* message digest */
-    ap_uint32_t count_lo, count_hi; /* 64-bit bit count */
-    ap_uint32_t data[16];           /* SHA data buffer */
-    int local;                      /* unprocessed amount in data */
-} AP_SHA1_CTX;
-
-API_EXPORT(void) ap_sha1_base64(const char *clear, int len, char *out);
-API_EXPORT(void) ap_SHA1Init(AP_SHA1_CTX *context);
-API_EXPORT(void) ap_SHA1Update(AP_SHA1_CTX *context, const char *input,
-			       unsigned int inputLen);
-API_EXPORT(void) ap_SHA1Update_binary(AP_SHA1_CTX *context,
-				      const unsigned char *input,
-				      unsigned int inputLen);
-API_EXPORT(void) ap_SHA1Final(unsigned char digest[SHA_DIGESTSIZE],
-                              AP_SHA1_CTX *context);
+API_EXPORT(int) ap_base64decode_len(const char * coded_src);
+API_EXPORT(int) ap_base64decode(char * plain_dst, const char *coded_src);
+API_EXPORT(int) ap_base64decode_binary(unsigned char * plain_dst, const char *coded_src);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif	/* !APACHE_SHA1_H */
+#endif	/* !APACHE_BASE64_H */
