@@ -1,5 +1,10 @@
 Changes with APR-util 0.9.5
 
+  *) SECURITY: CAN-2004-0786 (cve.mitre.org)
+     Fix input validation in apr_uri_parse() to avoid passing negative
+     length to memcpy for malformed IPv6 literal addresses.
+     [Joe Orton]
+
   *) Fix build issues in paths containing symlinks.  PR 8867.
      [Joe Orton]
 

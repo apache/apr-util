@@ -36,6 +36,11 @@ struct aup_test {
 
 struct aup_test aup_tests[] =
 {
+    { "http://[/::1]/index.html", APR_EGENERAL },
+    { "http://[", APR_EGENERAL },
+    { "http://[?::1]/index.html", APR_EGENERAL },
+
+
     {
         "http://127.0.0.1:9999/asdf.html",
         0, "http", "127.0.0.1:9999", NULL, NULL, "127.0.0.1", "9999", "/asdf.html", NULL, NULL, 9999
