@@ -12,33 +12,11 @@ AC_PROG_CC
 AC_CHECK_PROG(RM, rm, rm)
 
 dnl
-dnl figure out where APR is located
+dnl 1. Find the APR includes directory and (possibly) the source (base) dir.
+dnl 2. Determine what DBM backend type to use.
 dnl
-AC_MSG_CHECKING(for APR)
-AC_ARG_WITH(apr,
-[  --with-apr=DIR         path to APR source or the APR includes.],
-[
-    if test "$withval" = "yes"; then
-        AC_MSG_ERROR(You need to specify a directory with --with-apr)
-    fi
-    absdir="`cd $withval ; pwd`"
-    if test -f "$absdir/apr_pools.h"; then
-	APR_INCLUDES="$absdir"
-    elif test -f "$absdir/include/apr_pools.h"; then
-	APR_INCLUDES="$absdir/include"
-    fi
-],[
-    dnl see if we can find APR
-    if test -f "$srcdir/apr/include/apr_pools.h"; then
-	APR_INCLUDES="$srcdir/apr/include"
-    fi
-])
-if test -z "$APR_INCLUDES"; then
-    AC_MSG_RESULT(not found)
-    AC_MSG_ERROR(APR could not be located. Please use the --with-apr option.)
-fi
-AC_MSG_RESULT($APR_INCLUDES)
-
+APU_FIND_APR
+APU_CHECK_DBM
 
 dnl
 dnl compute the top directory of the build
@@ -64,6 +42,7 @@ AC_OUTPUT([
 	Makefile
 	build/Makefile
 	build/rules.mk
+	include/apu_private.h
 	src/Makefile
 	src/buckets/Makefile
 	src/crypto/Makefile

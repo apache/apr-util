@@ -60,6 +60,7 @@
 # Configuration variables
 #
 top_builddir=@top_builddir@
+APR_SOURCE_DIR=@APR_SOURCE_DIR@
 
 CC=@CC@
 LIBTOOL=@LIBTOOL@

@@ -57,7 +57,7 @@
 #include "apr_pools.h"
 
 #include "apu_private.h"
-#include "apu_dbm.h"
+#include "apr_dbm.h"
 
 #if APU_USE_SDBM
 #include "sdbm.h"
@@ -65,17 +65,17 @@
 typedef SDBM *real_file_t;
 typedef sdbm_datum real_datum_t;
 
-#define APU_DBM_CLOSE(f)	sdbm_close(f)
-#define APU_DBM_FETCH(f, k)	sdbm_fetch((f), (k))
-#define APU_DBM_STORE(f, k, v)	sdbm_store((f), (k), (v), SDBM_REPLACE)
-#define APU_DBM_DELETE(f, k)	sdbm_delete((f), (k))
-#define APU_DBM_FIRSTKEY(f)	sdbm_firstkey(f)
-#define APU_DBM_NEXTKEY(f, k)	sdbm_nextkey(f)
-#define APU_DBM_FREEDATUM(f, d)	if (0) ; else	/* stop "no effect" warning */
+#define APR_DBM_CLOSE(f)	sdbm_close(f)
+#define APR_DBM_FETCH(f, k)	sdbm_fetch((f), (k))
+#define APR_DBM_STORE(f, k, v)	sdbm_store((f), (k), (v), SDBM_REPLACE)
+#define APR_DBM_DELETE(f, k)	sdbm_delete((f), (k))
+#define APR_DBM_FIRSTKEY(f)	sdbm_firstkey(f)
+#define APR_DBM_NEXTKEY(f, k)	sdbm_nextkey(f)
+#define APR_DBM_FREEDATUM(f, d)	if (0) ; else	/* stop "no effect" warning */
 
-#define APU_DBM_DBMODE_RO       APR_READ
-#define APU_DBM_DBMODE_RW       (APR_READ | APR_WRITE)
-#define APU_DBM_DBMODE_RWCREATE (APR_READ | APR_WRITE | APR_CREATE)
+#define APR_DBM_DBMODE_RO       APR_READ
+#define APR_DBM_DBMODE_RW       (APR_READ | APR_WRITE)
+#define APR_DBM_DBMODE_RWCREATE (APR_READ | APR_WRITE | APR_CREATE)
 
 #elif APU_USE_GDBM
 #include <gdbm.h>
@@ -84,17 +84,17 @@ typedef sdbm_datum real_datum_t;
 typedef GDBM_FILE real_file_t;
 typedef datum real_datum_t;
 
-#define APU_DBM_CLOSE(f)	gdbm_close(f)
-#define APU_DBM_FETCH(f, k)	gdbm_fetch((f), (k))
-#define APU_DBM_STORE(f, k, v)	g2s(gdbm_store((f), (k), (v), GDBM_REPLACE))
-#define APU_DBM_DELETE(f, k)	g2s(gdbm_delete((f), (k)))
-#define APU_DBM_FIRSTKEY(f)	gdbm_firstkey(f)
-#define APU_DBM_NEXTKEY(f, k)	gdbm_nextkey((f), (k))
-#define APU_DBM_FREEDATUM(f, d)	((d).dptr ? free((d).dptr) : 0)
+#define APR_DBM_CLOSE(f)	gdbm_close(f)
+#define APR_DBM_FETCH(f, k)	gdbm_fetch((f), (k))
+#define APR_DBM_STORE(f, k, v)	g2s(gdbm_store((f), (k), (v), GDBM_REPLACE))
+#define APR_DBM_DELETE(f, k)	g2s(gdbm_delete((f), (k)))
+#define APR_DBM_FIRSTKEY(f)	gdbm_firstkey(f)
+#define APR_DBM_NEXTKEY(f, k)	gdbm_nextkey((f), (k))
+#define APR_DBM_FREEDATUM(f, d)	((d).dptr ? free((d).dptr) : 0)
 
-#define APU_DBM_DBMODE_RO       GDBM_READER
-#define APU_DBM_DBMODE_RW       GDBM_WRITER
-#define APU_DBM_DBMODE_RWCREATE GDBM_WRCREAT
+#define APR_DBM_DBMODE_RO       GDBM_READER
+#define APR_DBM_DBMODE_RW       GDBM_WRITER
+#define APR_DBM_DBMODE_RWCREATE GDBM_WRCREAT
 
 /* map a GDBM error to an apr_status_t */
 static apr_status_t g2s(int gerr)
@@ -112,7 +112,7 @@ static apr_status_t g2s(int gerr)
 #endif
 
 
-struct apu_dbm_t
+struct apr_dbm_t
 {
     apr_pool_t *pool;
     real_file_t file;
@@ -126,7 +126,7 @@ struct apu_dbm_t
 #define R2A_DATUM(d)    (*(apu_datum_t *)&(d))
 
 
-static apr_status_t set_error(apu_dbm_t *db)
+static apr_status_t set_error(apr_dbm_t *db)
 {
     apr_status_t rv = APR_SUCCESS;
 
@@ -161,8 +161,8 @@ static apr_status_t set_error(apu_dbm_t *db)
     return rv;
 }
 
-apr_status_t apu_dbm_open(const char *pathname, apr_pool_t *pool, int mode,
-                          apu_dbm_t **pdb)
+apr_status_t apr_dbm_open(const char *pathname, apr_pool_t *pool, int mode,
+                          apr_dbm_t **pdb)
 {
     real_file_t file;
     int dbmode;
@@ -170,14 +170,14 @@ apr_status_t apu_dbm_open(const char *pathname, apr_pool_t *pool, int mode,
     *pdb = NULL;
 
     switch (mode) {
-    case APU_DBM_READONLY:
-        dbmode = APU_DBM_DBMODE_RO;
+    case APR_DBM_READONLY:
+        dbmode = APR_DBM_DBMODE_RO;
         break;
-    case APU_DBM_READWRITE:
-        dbmode = APU_DBM_DBMODE_RW;
+    case APR_DBM_READWRITE:
+        dbmode = APR_DBM_DBMODE_RW;
         break;
-    case APU_DBM_RWCREATE:
-        dbmode = APU_DBM_DBMODE_RWCREATE;
+    case APR_DBM_RWCREATE:
+        dbmode = APR_DBM_DBMODE_RWCREATE;
         break;
     default:
         return APR_EINVAL;
@@ -208,25 +208,25 @@ apr_status_t apu_dbm_open(const char *pathname, apr_pool_t *pool, int mode,
     return APR_SUCCESS;
 }
 
-void apu_dbm_close(apu_dbm_t *db)
+void apr_dbm_close(apr_dbm_t *db)
 {
-    APU_DBM_CLOSE(db->file);
+    APR_DBM_CLOSE(db->file);
 }
 
-apr_status_t apu_dbm_fetch(apu_dbm_t *db, apu_datum_t key, apu_datum_t *pvalue)
+apr_status_t apr_dbm_fetch(apr_dbm_t *db, apu_datum_t key, apu_datum_t *pvalue)
 {
-    *(real_datum_t *) pvalue = APU_DBM_FETCH(db->file, A2R_DATUM(key));
+    *(real_datum_t *) pvalue = APR_DBM_FETCH(db->file, A2R_DATUM(key));
 
     /* store the error info into DB, and return a status code. Also, note
        that *pvalue should have been cleared on error. */
     return set_error(db);
 }
 
-apr_status_t apu_dbm_store(apu_dbm_t *db, apu_datum_t key, apu_datum_t value)
+apr_status_t apr_dbm_store(apr_dbm_t *db, apu_datum_t key, apu_datum_t value)
 {
     apr_status_t rv;
 
-    rv = APU_DBM_STORE(db->file, A2R_DATUM(key), A2R_DATUM(value));
+    rv = APR_DBM_STORE(db->file, A2R_DATUM(key), A2R_DATUM(value));
 
     /* ### is this the right handling of set_error() and rv? */
 
@@ -237,11 +237,11 @@ apr_status_t apu_dbm_store(apu_dbm_t *db, apu_datum_t key, apu_datum_t value)
     return rv;
 }
 
-apr_status_t apu_dbm_delete(apu_dbm_t *db, apu_datum_t key)
+apr_status_t apr_dbm_delete(apr_dbm_t *db, apu_datum_t key)
 {
     apr_status_t rv;
 
-    rv = APU_DBM_DELETE(db->file, A2R_DATUM(key));
+    rv = APR_DBM_DELETE(db->file, A2R_DATUM(key));
 
     /* ### is this the right handling of set_error() and rv? */
 
@@ -252,7 +252,7 @@ apr_status_t apu_dbm_delete(apu_dbm_t *db, apu_datum_t key)
     return rv;
 }
 
-int apu_dbm_exists(apu_dbm_t *db, apu_datum_t key)
+int apr_dbm_exists(apr_dbm_t *db, apu_datum_t key)
 {
     int exists;
 
@@ -268,30 +268,30 @@ int apu_dbm_exists(apu_dbm_t *db, apu_datum_t key)
     return exists;
 }
 
-apr_status_t apu_dbm_firstkey(apu_dbm_t *db, apu_datum_t *pkey)
+apr_status_t apr_dbm_firstkey(apr_dbm_t *db, apu_datum_t *pkey)
 {
-    *(real_datum_t *) pkey = APU_DBM_FIRSTKEY(db->file);
+    *(real_datum_t *) pkey = APR_DBM_FIRSTKEY(db->file);
 
     /* store the error info into DB, and return a status code. Also, note
        that *pvalue should have been cleared on error. */
     return set_error(db);
 }
 
-apr_status_t apu_dbm_nextkey(apu_dbm_t *db, apu_datum_t *pkey)
+apr_status_t apr_dbm_nextkey(apr_dbm_t *db, apu_datum_t *pkey)
 {
-    *(real_datum_t *) pkey = APU_DBM_NEXTKEY(db->file, A2R_DATUM(*pkey));
+    *(real_datum_t *) pkey = APR_DBM_NEXTKEY(db->file, A2R_DATUM(*pkey));
 
     /* store the error info into DB, and return a status code. Also, note
        that *pvalue should have been cleared on error. */
     return set_error(db);
 }
 
-void apu_dbm_freedatum(apu_dbm_t *db, apu_datum_t data)
+void apr_dbm_freedatum(apr_dbm_t *db, apu_datum_t data)
 {
-    APU_DBM_FREEDATUM(db, data);
+    APR_DBM_FREEDATUM(db, data);
 }
 
-void apu_dbm_geterror(apu_dbm_t *db, int *errcode, const char **errmsg)
+void apr_dbm_geterror(apr_dbm_t *db, int *errcode, const char **errmsg)
 {
     *errcode = db->errcode;
     *errmsg = db->errmsg;
