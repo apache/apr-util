@@ -204,7 +204,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_file_make(apr_bucket *b, apr_file_t *fd,
 APU_DECLARE(apr_bucket *) apr_bucket_file_create(apr_file_t *fd,
                                               apr_off_t offset, apr_size_t len)
 {
-    apr_bucket *b = (apr_bucket *)calloc(1, sizeof(*b));
+    apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
 
     APR_BUCKET_INIT(b);
     return apr_bucket_file_make(b, fd, offset, len);

@@ -117,7 +117,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_heap_make(apr_bucket *b,
 APU_DECLARE(apr_bucket *) apr_bucket_heap_create(
 		const char *buf, apr_size_t length, int copy, apr_size_t *w)
 {
-    apr_bucket *b = (apr_bucket *)calloc(1, sizeof(*b));
+    apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
 
     APR_BUCKET_INIT(b);
     return apr_bucket_heap_make(b, buf, length, copy, w);
