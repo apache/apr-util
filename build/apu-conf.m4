@@ -89,39 +89,57 @@ AC_CHECK_HEADER(db_185.h, [
   ])])])
 
 dnl
-dnl APU_CHECK_DB2OR3: are DB2 or DB3 present?
+dnl APU_CHECK_DB2: is DB2 present?
 dnl
 dnl if present: sets apu_have_db=1, db_header, and db_lib
 dnl
-AC_DEFUN(APU_CHECK_DB2OR3,[
-AC_CHECK_HEADER(db.h, [
+AC_DEFUN(APU_CHECK_DB2,[
+apu_found_db=0
+AC_CHECK_HEADER(db2/db.h, [
   AC_CHECK_LIB(db2, db_open, [
+  apu_have_db=1
+  db_header=db2/db.h
+  db_lib=db2
+  db_version=2
+  apu_found_db=1
+  ])])
+if test $apu_found_db = 0; then
+AC_CHECK_HEADER(db.h, [
+  AC_CHECK_LIB(db, db_open, [
   apu_have_db=1
   db_header=db.h
   db_lib=db
-  ])])])
+  db_version=2
+  apu_found_db=1
+  ])])
+fi
+])
 
 dnl
-dnl APU_CHECK_DB_VSN: check the actual version of db (for db2 or db3)
+dnl APU_CHECK_DB3: is DB3 present?
 dnl
-dnl sets db_version
+dnl if present: sets apu_have_db=1, db_header, and db_lib
 dnl
-AC_DEFUN(APU_CHECK_DB_VSN,[
-  apu_save_libs="$LIBS"
-  LIBS="$LIBS -ldb"
-  AC_TRY_RUN([
-#include <stdlib.h> /* for exit() */
-#include "db.h"
-int main()
-{
-    int major, minor, patch;
-    db_version(&major, &minor, &patch);
-    if (major == 2)
-        exit(1);
-    exit(0);
-}
-], db_version=3, db_version=2, db_version=2)
-  LIBS="$apu_save_libs"
+AC_DEFUN(APU_CHECK_DB3,[
+apu_found_db=0
+AC_CHECK_HEADER(db3/db.h, [
+  AC_CHECK_LIB(db3, db_create, [
+  apu_have_db=1
+  db_header=db3/db.h
+  db_lib=db3
+  db_version=3
+  apu_found_db=1
+  ])])
+if test $apu_found_db = 0; then
+AC_CHECK_HEADER(db.h, [
+  AC_CHECK_LIB(db, db_create, [
+  apu_have_db=1
+  db_header=db.h
+  db_lib=db
+  db_version=3
+  apu_found_db=1
+  ])])
+fi
 ])
 
 dnl
@@ -153,13 +171,14 @@ One of: sdbm, gdbm, db, db1, db185, db2, db3])
 AC_CHECK_HEADER(gdbm.h, AC_CHECK_LIB(gdbm, gdbm_open, [apu_have_gdbm=1]))
 
 dnl We're going to try to find the highest version of Berkeley DB supported.
-APU_CHECK_DB2OR3
-if test $apu_have_db = 1; then
-  APU_CHECK_DB_VSN
-else
-  APU_CHECK_DB1
-  if test $apu_have_db != 1; then
-    APU_CHECK_DB185
+APU_CHECK_DB3
+if test $apu_have_db = 0; then
+  APU_CHECK_DB2
+  if test $apu_have_db = 0; then
+    APU_CHECK_DB1
+    if test $apu_have_db = 0; then
+      APU_CHECK_DB185
+    fi
   fi
 fi
 
@@ -216,30 +235,20 @@ case "$requested" in
     ;;
   db2)
     apu_have_db=0
-    APU_CHECK_DB2OR3
+    APU_CHECK_DB2
     if test $apu_have_db = 1; then
       apu_use_db=1
-      APU_CHECK_DB_VSN
-      if test "$db_version" = 2; then
-        default_dbm=db2
-      else
-        AC_MSG_ERROR([db2 not present (found db3)])
-      fi
+      default_dbm=db2
     else
       AC_MSG_ERROR([db2 not present])
     fi
     ;;
   db3)
     apu_have_db=0
-    APU_CHECK_DB2OR3
+    APU_CHECK_DB3
     if test $apu_have_db = 1; then
       apu_use_db=1
-      APU_CHECK_DB_VSN
-      if test "$db_version" = 3; then
-        default_dbm=db3
-      else
-        AC_MSG_ERROR([db3 not present (found db2)])
-      fi
+      default_dbm=db3
     else
       AC_MSG_ERROR([db3 not present])
     fi

@@ -1,4 +1,7 @@
 Changes with APR-util b1  
+
+  *) Improve autoconf detection of DBMs.  [Justin Erenkrantz]
+
   *) BerkeleyDBM v2 now checks minor level for cursor ops [Ian Holsman]
 
   *) Reading a file bucket bigger than APR_MMAP_LIMIT (4MB) now yields
