@@ -196,7 +196,11 @@ APU_DECLARE(int) apr_ldap_init(apr_pool_t *pool,
 
     /* clear connection requested */
     if (!secure) {
+#if APR_HAS_MICROSOFT_LDAPSDK
+        *ldap = ldap_init((char *)hostname, portno);
+#else
         *ldap = ldap_init(hostname, portno);
+#endif
     }
     else { /* ssl connnection requested */
 #if APR_HAS_LDAP_SSL
@@ -219,7 +223,7 @@ APU_DECLARE(int) apr_ldap_init(apr_pool_t *pool,
             }
         }
 #elif APR_HAS_MICROSOFT_LDAPSDK
-        *ldap = ldap_sslinit(const_cast(ldc->host), ldc->port, 1);
+        *ldap = ldap_sslinit((char *)hostname, portno, 1);
 #else
         /* unknown toolkit - return not implemented */
         return APR_ENOTIMPL;

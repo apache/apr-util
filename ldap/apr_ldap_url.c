@@ -76,6 +76,7 @@
 
 #include "apu.h"
 #include "apr_pools.h"
+#include "apr_strings.h"
 
 #ifndef LDAPS_PORT
 #define LDAPS_PORT              636  /* ldaps:/// default LDAP over TLS port */
