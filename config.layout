@@ -227,6 +227,6 @@
     localstatedir: ${prefix}/var/run
     runtimedir:    ${prefix}/var/run
     infodir:       ${exec_prefix}/share/info
-    libsuffix     -${APRUTIL_MAJOR_VERSION}
+    libsuffix:     -${APRUTIL_MAJOR_VERSION}
     installbuilddir: ${prefix}/usr/share/apache2/build
 </Layout>
