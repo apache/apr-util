@@ -76,6 +76,7 @@
 /* --------------------------------------------------------------------
  * the following symbols were moved from httpd-2.0/.../util_xml.[ch]
  */
+#if 0
 #define ap_text apr_text
 #define ap_text_header apr_text_header
 #define ap_text_append apr_text_append
@@ -101,5 +102,6 @@
 #define ap_xml_quote_elem apr_xml_quote_elem
 #define ap_xml_insert_uri apr_xml_insert_uri
 #define AP_XML_GET_URI_ITEM(a,i) APR_XML_GET_URI_ITEM(a,i)
+#endif /* 0 */
 
 #endif /* APU_COMPAT_H */
