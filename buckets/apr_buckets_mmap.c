@@ -53,9 +53,6 @@
  */
 
 #include "apr_buckets.h"
-#define APR_WANT_MEMFUNC
-#include "apr_want.h"
-#include <stdlib.h>
 
 #if APR_HAS_MMAP
 
@@ -83,7 +80,7 @@ static void mmap_destroy(void *data)
         /* if we are the owner of the mmaped region, apr_mmap_delete will
          * munmap it for us.  if we're not, it's essentially a noop. */
         apr_mmap_delete(m->mmap);
-        free(m);
+        apr_bucket_free(m);
     }
 }
 
@@ -96,10 +93,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_mmap_make(apr_bucket *b, apr_mmap_t *mm,
 {
     apr_bucket_mmap *m;
 
-    m = malloc(sizeof(*m));
-    if (m == NULL) {
-        return NULL;
-    }
+    m = apr_bucket_alloc(sizeof(*m), b->list);
     m->mmap = mm;
 
     b = apr_bucket_shared_make(b, m, start, length);
@@ -111,12 +105,14 @@ APU_DECLARE(apr_bucket *) apr_bucket_mmap_make(apr_bucket *b, apr_mmap_t *mm,
 
 APU_DECLARE(apr_bucket *) apr_bucket_mmap_create(apr_mmap_t *mm, 
                                                  apr_off_t start, 
-                                                 apr_size_t length)
+                                                 apr_size_t length,
+                                                 apr_bucket_alloc_t *list)
 {
-    apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
+    apr_bucket *b = apr_bucket_alloc(sizeof(*b), list);
 
     APR_BUCKET_INIT(b);
-    b->free = free;
+    b->free = apr_bucket_free;
+    b->list = list;
     return apr_bucket_mmap_make(b, mm, start, length);
 }
 

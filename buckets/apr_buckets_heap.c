@@ -54,9 +54,7 @@
 
 #include "apr_buckets.h"
 #define APR_WANT_MEMFUNC
-#define APR_WANT_STRFUNC
 #include "apr_want.h"
-#include <stdlib.h>
 
 static apr_status_t heap_read(apr_bucket *b, const char **str, 
 			      apr_size_t *len, apr_read_type_e block)
@@ -73,28 +71,27 @@ static void heap_destroy(void *data)
     apr_bucket_heap *h = data;
 
     if (apr_bucket_shared_destroy(h)) {
-        free(h->base);
-        free(h);
+        (*h->free_func)(h->base);
+        apr_bucket_free(h);
     }
 }
 
 APU_DECLARE(apr_bucket *) apr_bucket_heap_make(apr_bucket *b, const char *buf,
-                                               apr_size_t length, int copy)
+                                               apr_size_t length,
+                                               void (*free_func)(void *data))
 {
     apr_bucket_heap *h;
 
-    h = malloc(sizeof(*h));
-    if (h == NULL) {
-	return NULL;
-    }
+    h = apr_bucket_alloc(sizeof(*h), b->list);
 
-    if (copy) {
+    if (!free_func) {
 	h->alloc_len = length;
-	h->base = malloc(h->alloc_len);
+	h->base = apr_bucket_alloc(h->alloc_len, b->list);
 	if (h->base == NULL) {
-	    free(h);
+	    apr_bucket_free(h);
 	    return NULL;
 	}
+        h->free_func = apr_bucket_free;
 	memcpy(h->base, buf, length);
     }
     else {
@@ -103,6 +100,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_heap_make(apr_bucket *b, const char *buf,
 	 */
 	h->base = (char *) buf;
 	h->alloc_len = length;
+        h->free_func = free_func;
     }
 
     b = apr_bucket_shared_make(b, h, 0, length);
@@ -112,13 +110,16 @@ APU_DECLARE(apr_bucket *) apr_bucket_heap_make(apr_bucket *b, const char *buf,
 }
 
 APU_DECLARE(apr_bucket *) apr_bucket_heap_create(const char *buf,
-                                                 apr_size_t length, int copy)
+                                                 apr_size_t length,
+                                                 void (*free_func)(void *data),
+                                                 apr_bucket_alloc_t *list)
 {
-    apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
+    apr_bucket *b = apr_bucket_alloc(sizeof(*b), list);
 
     APR_BUCKET_INIT(b);
-    b->free = free;
-    return apr_bucket_heap_make(b, buf, length, copy);
+    b->free = apr_bucket_free;
+    b->list = list;
+    return apr_bucket_heap_make(b, buf, length, free_func);
 }
 
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_heap = {

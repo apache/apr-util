@@ -53,14 +53,11 @@
  */
 
 #include "apr_buckets.h"
-#include <stdlib.h>
 
 APU_DECLARE_NONSTD(apr_status_t) apr_bucket_simple_copy(apr_bucket *a,
                                                         apr_bucket **b)
 {
-    if ((*b = malloc(sizeof(**b))) == NULL) {
-	return APR_ENOMEM;
-    }
+    *b = apr_bucket_alloc(sizeof(**b), a->list); /* XXX: check for failure? */
     **b = *a;
 
     return APR_SUCCESS;
@@ -105,13 +102,15 @@ APU_DECLARE(apr_bucket *) apr_bucket_immortal_make(apr_bucket *b,
     return b;
 }
 
-APU_DECLARE(apr_bucket *) apr_bucket_immortal_create(
-		const char *buf, apr_size_t length)
+APU_DECLARE(apr_bucket *) apr_bucket_immortal_create(const char *buf,
+                                                     apr_size_t length,
+                                                     apr_bucket_alloc_t *list)
 {
-    apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
+    apr_bucket *b = apr_bucket_alloc(sizeof(*b), list);
 
     APR_BUCKET_INIT(b);
-    b->free = free;
+    b->free = apr_bucket_free;
+    b->list = list;
     return apr_bucket_immortal_make(b, buf, length);
 }
 
@@ -126,7 +125,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_immortal_create(
  */
 static apr_status_t transient_setaside(apr_bucket *b, apr_pool_t *pool)
 {
-    b = apr_bucket_heap_make(b, (char *)b->data + b->start, b->length, 1);
+    b = apr_bucket_heap_make(b, (char *)b->data + b->start, b->length, NULL);
     if (b == NULL) {
         return APR_ENOMEM;
     }
@@ -143,13 +142,15 @@ APU_DECLARE(apr_bucket *) apr_bucket_transient_make(apr_bucket *b,
     return b;
 }
 
-APU_DECLARE(apr_bucket *) apr_bucket_transient_create(
-		const char *buf, apr_size_t length)
+APU_DECLARE(apr_bucket *) apr_bucket_transient_create(const char *buf,
+                                                      apr_size_t length,
+                                                      apr_bucket_alloc_t *list)
 {
-    apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
+    apr_bucket *b = apr_bucket_alloc(sizeof(*b), list);
 
     APR_BUCKET_INIT(b);
-    b->free = free;
+    b->free = apr_bucket_free;
+    b->list = list;
     return apr_bucket_transient_make(b, buf, length);
 }
 

@@ -1,7 +1,7 @@
 /* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2000-2002 The Apache Software Foundation.  All rights
+ * Copyright (c) 2000-2001 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,41 +52,34 @@
  * <http://www.apache.org/>.
  */
 
+#include <stdlib.h>
 #include "apr_buckets.h"
 
-static apr_status_t flush_read(apr_bucket *b, const char **str, 
-                                apr_size_t *len, apr_read_type_e block)
-{
-    *str = NULL;
-    *len = 0;
-    return APR_SUCCESS;
-}
+/*
+ * XXX: this file will be filled in later
+ */
 
-APU_DECLARE(apr_bucket *) apr_bucket_flush_make(apr_bucket *b)
-{
-    b->length    = 0;
-    b->start     = 0;
-    b->data      = NULL;
-    b->type      = &apr_bucket_type_flush;
-    
-    return b;
-}
-
-APU_DECLARE(apr_bucket *) apr_bucket_flush_create(apr_bucket_alloc_t *list)
-{
-    apr_bucket *b = apr_bucket_alloc(sizeof(*b), list);
-
-    APR_BUCKET_INIT(b);
-    b->free = apr_bucket_free;
-    b->list = list;
-    return apr_bucket_flush_make(b);
-}
-
-APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_flush = {
-    "FLUSH", 5,
-    apr_bucket_destroy_noop,
-    flush_read,
-    apr_bucket_setaside_noop,
-    apr_bucket_split_notimpl,
-    apr_bucket_simple_copy
+/** A list of free memory from which new buckets or private bucket
+ *  structures can be allocated.
+ */
+struct apr_bucket_alloc_t {
 };
+
+APU_DECLARE(apr_bucket_alloc_t *) apr_bucket_alloc_create(apr_pool_t *p)
+{
+    return (apr_bucket_alloc_t *)0xFECCFECC;
+}
+
+APU_DECLARE(void) apr_bucket_alloc_destroy(apr_bucket_alloc_t *list)
+{
+}
+
+APU_DECLARE(void *) apr_bucket_alloc(apr_size_t size, apr_bucket_alloc_t *list)
+{
+    return malloc(size);
+}
+
+APU_DECLARE(void) apr_bucket_free(void *block)
+{
+    free(block);
+}
