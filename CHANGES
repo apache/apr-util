@@ -1,5 +1,8 @@
 Changes with APR-util 1.0
 
+  *) Add timeout feature to apr_reslist_acquire().  
+     [Mladen Turk <mturk apache.org>]
+
   *) Fixed a bug in apr_rmm that would cause it to mishandle blocks of
      a size close to the one requested from the allocator.
      [Kevin Wang <xwang_tech yahoo.com>]
