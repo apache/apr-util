@@ -112,7 +112,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_immortal_make(apr_bucket *b,
 APU_DECLARE(apr_bucket *) apr_bucket_immortal_create(
 		const char *buf, apr_size_t length)
 {
-    apr_bucket *b = (apr_bucket *)calloc(1, sizeof(*b));
+    apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
 
     APR_BUCKET_INIT(b);
     return apr_bucket_immortal_make(b, buf, length);
@@ -149,7 +149,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_transient_make(apr_bucket *b,
 APU_DECLARE(apr_bucket *) apr_bucket_transient_create(
 		const char *buf, apr_size_t length)
 {
-    apr_bucket *b = (apr_bucket *)calloc(1, sizeof(*b));
+    apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
 
     APR_BUCKET_INIT(b);
     return apr_bucket_transient_make(b, buf, length);

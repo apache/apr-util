@@ -144,7 +144,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_pipe_make(apr_bucket *b, apr_file_t *p)
 
 APU_DECLARE(apr_bucket *) apr_bucket_pipe_create(apr_file_t *p)
 {
-    apr_bucket *b = (apr_bucket *)calloc(1, sizeof(*b));
+    apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
 
     APR_BUCKET_INIT(b);
     return apr_bucket_pipe_make(b, p);

@@ -109,7 +109,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_mmap_make(apr_bucket *b,
 APU_DECLARE(apr_bucket *) apr_bucket_mmap_create(
 		apr_mmap_t *mm, apr_off_t start, apr_size_t length)
 {
-    apr_bucket *b = (apr_bucket *)calloc(1, sizeof(*b));
+    apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
 
     APR_BUCKET_INIT(b);
     return apr_bucket_mmap_make(b, mm, start, length);

@@ -139,7 +139,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_socket_make(apr_bucket *b, apr_socket_t *p)
 
 APU_DECLARE(apr_bucket *) apr_bucket_socket_create(apr_socket_t *p)
 {
-    apr_bucket *b = (apr_bucket *)calloc(1, sizeof(*b));
+    apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
 
     APR_BUCKET_INIT(b);
     return apr_bucket_socket_make(b, p);
