@@ -164,7 +164,7 @@ int option_set_tls(apr_pool_t *pool,
 #endif
 
     /* Novell SDK */
-#if APR_HAS_NOVELL_SDK
+#if APR_HAS_NOVELL_LDAPSDK
     /* ldapssl_install_routines(ldap)
      * Behavior is unpredictable when other LDAP functions are called
      * between the ldap_init function and the ldapssl_install_routines
@@ -172,15 +172,15 @@ int option_set_tls(apr_pool_t *pool,
      * 
      * STARTTLS is supported by the ldap_start_tls_s() method
      */
-    if (APR_LDAP_SSL == tls) {
+    /*if ((APR_LDAP_SSL == tls) || (APR_LDAP_STARTTLS == tls)) {
         result->rc = ldapssl_install_routines(ldap);
         if (result->rc != LDAP_SUCCESS) {
             result->msg = ldap_err2string(result->rc);
             result->reason = "LDAP: Could not switch SSL on for this "
                              "connection.";
         }
-    }
-    else if (APR_LDAP_STARTTLS == tls) {
+    }*/
+    if (APR_LDAP_STARTTLS == tls) {
         result->rc = ldapssl_start_tls(ldap);
         if (result->rc != LDAP_SUCCESS) {
             result->msg = ldap_err2string(result->rc);
@@ -415,28 +415,28 @@ int option_set_cert(apr_pool_t *pool,
             case APR_LDAP_CERT_TYPE_DER: {
                 result->rc = ldapssl_set_client_cert((void *)cert->path,
                                       LDAPSSL_CERT_FILETYPE_DER,
-                                      cert->password);
+                                      (void*)cert->password);
                 result->msg = ldap_err2string(result->rc);
                 break;
             }
             case APR_LDAP_CERT_TYPE_BASE64: {
                 result->rc = ldapssl_set_client_cert((void *)cert->path,
                                       LDAPSSL_CERT_FILETYPE_B64,
-                                      cert->password);
+                                      (void*)cert->password);
                 result->msg = ldap_err2string(result->rc);
                 break;
             }
             case APR_LDAP_KEY_TYPE_DER: {
                 result->rc = ldapssl_set_client_private_key((void *)cert->path,
                                       LDAPSSL_CERT_FILETYPE_DER,
-                                      cert->password);
+                                      (void*)cert->password);
                 result->msg = ldap_err2string(result->rc);
                 break;
             }
             case APR_LDAP_KEY_TYPE_BASE64: {
                 result->rc = ldapssl_set_client_private_key((void *)cert->path,
                                       LDAPSSL_CERT_FILETYPE_B64,
-                                      cert->password);
+                                      (void*)cert->password);
                 result->msg = ldap_err2string(result->rc);
                 break;
             }
