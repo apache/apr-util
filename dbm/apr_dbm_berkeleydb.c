@@ -168,7 +168,7 @@ static apr_status_t do_firstkey(real_file_t *f, DBT *pkey)
     if ((dberr = (*f->bdb->cursor)(f->bdb, NULL, &f->curs
 #if DB_VER == 3
                                    , 0
-#elif ( DB_VERSION_MAJOR == 2 ) && ( DB_VERSION_MINOR > 5) 
+#elif (DB_VERSION_MAJOR == 2) && (DB_VERSION_MINOR > 5) 
                                    , 0
 
 #endif
@@ -230,9 +230,7 @@ static apr_status_t set_error(apr_dbm_t *dbm, apr_status_t dbm_said)
         /* ### need to fix. dberr was tossed in db2s(). */
         /* ### use db_strerror() */
         dbm->errcode = dbm_said;
-#if DB_VER == 1
-        dbm->errmsg = NULL;
-#elif DB_VER == 2
+#if DB_VER == 1 || DB_VER == 2
         dbm->errmsg = NULL;
 #else
         dbm->errmsg = db_strerror(dbm_said - APR_OS_START_USEERR);
