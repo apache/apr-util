@@ -53,6 +53,7 @@
  */
 
 #include "apr_buckets.h"
+#include <stdlib.h>
 
 static apr_status_t eos_read(apr_bucket *b, const char **str, 
                                 apr_size_t *len, apr_read_type_e block)
@@ -80,16 +81,10 @@ APU_DECLARE(apr_bucket *) apr_bucket_eos_make(apr_bucket *b)
 
 APU_DECLARE(apr_bucket *) apr_bucket_eos_create(void)
 {
-    apr_sms_t *sms;
-    apr_bucket *b;
+    apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
 
-    if (!apr_bucket_global_sms) {
-        apr_sms_std_create(&apr_bucket_global_sms);
-    }
-    sms = apr_bucket_global_sms;
-    b = (apr_bucket *)apr_sms_malloc(sms, sizeof(*b));
     APR_BUCKET_INIT(b);
-    b->sms = sms;
+    b->free = free;
     return apr_bucket_eos_make(b);
 }
 
