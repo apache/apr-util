@@ -128,7 +128,7 @@ AC_SUBST(APRUTIL_LIBS)
 AC_SUBST(LDFLAGS)
 
 dnl copy apr's rules.mk into our build directory.
-cp $APR_BUILD_DIR/build/rules.mk $abs_srcdir/build/rules.mk
+cp $APR_BUILD_DIR/build/apr_rules.mk $abs_srcdir/build/rules.mk
 
 dnl
 dnl BSD/OS (BSDi) needs to use a different include syntax in the Makefiles
