@@ -224,6 +224,7 @@ FILES_lib_objs = \
 	$(OBJDIR)/apr_base64.o \
 	$(OBJDIR)/apr_brigade.o \
 	$(OBJDIR)/apr_buckets.o \
+	$(OBJDIR)/apr_buckets_alloc.o \
 	$(OBJDIR)/apr_buckets_eos.o \
 	$(OBJDIR)/apr_buckets_file.o \
 	$(OBJDIR)/apr_buckets_flush.o \
