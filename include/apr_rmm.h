@@ -68,6 +68,7 @@
 #include "apr_pools.h"
 #include "apr_errno.h"
 #include "apu.h"
+#include "apr_anylock.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -82,12 +83,14 @@ typedef apr_size_t   apr_rmm_off_t;
 /**
  * Initialize a relocatable memory block to be managed by the apr_rmm API.
  * @param rmm The relocatable memory block
+ * @param lock An apr_anylock_t of the appropriate type of lock
  * @param membuf The block of relocateable memory to be managed
  * @param memsize The size of relocateable memory block to be managed
  * @param cont The pool to use for local storage and management
  */
-APU_DECLARE(apr_status_t) apr_rmm_init(apr_rmm_t **rmm, void* membuf,
-                                       apr_size_t memsize, apr_pool_t *cont);
+APU_DECLARE(apr_status_t) apr_rmm_init(apr_rmm_t **rmm, apr_anylock_t *lock,
+                                       void* membuf, apr_size_t memsize, 
+                                       apr_pool_t *cont);
 
 /**
  * Destroy a managed memory block.
@@ -98,11 +101,12 @@ APU_DECLARE(apr_status_t) apr_rmm_destroy(apr_rmm_t *rmm);
 /**
  * Attach to a relocatable memory block already managed by the apr_rmm API.
  * @param rmm The relocatable memory block
+ * @param lock An apr_anylock_t of the appropriate type of lock
  * @param membuf The block of relocateable memory already under management
  * @param cont The pool to use for local storage and management
  */
-APU_DECLARE(apr_status_t) apr_rmm_attach(apr_rmm_t **rmm, void* membuf,
-                                         apr_pool_t *cont);
+APU_DECLARE(apr_status_t) apr_rmm_attach(apr_rmm_t **rmm, apr_anylock_t *lock,
+                                         void* membuf, apr_pool_t *cont);
 
 /**
  * Detach from the managed block of memory.
