@@ -129,7 +129,7 @@ API_EXPORT(apr_status_t) ap_SHA1InitEBCDIC(apr_xlate_t *x)
 
     /* Only single-byte conversion is supported.
      */
-    rv = ap_xlate_get_sb(x, &onoff);
+    rv = apr_xlate_get_sb(x, &onoff);
     if (rv) {
         return rv;
     }
@@ -316,9 +316,9 @@ API_EXPORT(void) ap_SHA1Update(AP_SHA1_CTX *sha_info, const char *buf,
 	    i = count;
 	}
         inbytes_left = outbytes_left = i;
-        ap_xlate_conv_buffer(ebcdic2ascii_xlate, buffer, &inbytes_left,
-                             ((AP_BYTE *) sha_info->data) + sha_info->local,
-                             &outbytes_left);
+        apr_xlate_conv_buffer(ebcdic2ascii_xlate, buffer, &inbytes_left,
+                              ((AP_BYTE *) sha_info->data) + sha_info->local,
+                              &outbytes_left);
 	count -= i;
 	buffer += i;
 	sha_info->local += i;
@@ -332,16 +332,16 @@ API_EXPORT(void) ap_SHA1Update(AP_SHA1_CTX *sha_info, const char *buf,
     }
     while (count >= SHA_BLOCKSIZE) {
         inbytes_left = outbytes_left = SHA_BLOCKSIZE;
-        ap_xlate_conv_buffer(ebcdic2ascii_xlate, buffer, &inbytes_left,
-                             (AP_BYTE *) sha_info->data, &outbytes_left);
+        apr_xlate_conv_buffer(ebcdic2ascii_xlate, buffer, &inbytes_left,
+                              (AP_BYTE *) sha_info->data, &outbytes_left);
 	buffer += SHA_BLOCKSIZE;
 	count -= SHA_BLOCKSIZE;
 	maybe_byte_reverse(sha_info->data, SHA_BLOCKSIZE);
 	sha_transform(sha_info);
     }
     inbytes_left = outbytes_left = count;
-    ap_xlate_conv_buffer(ebcdic2ascii_xlate, buffer, &inbytes_left,
-                         (AP_BYTE *) sha_info->data, &outbytes_left);
+    apr_xlate_conv_buffer(ebcdic2ascii_xlate, buffer, &inbytes_left,
+                          (AP_BYTE *) sha_info->data, &outbytes_left);
     sha_info->local = count;
 #else
     ap_SHA1Update_binary(sha_info, (const unsigned char *) buf, count);
