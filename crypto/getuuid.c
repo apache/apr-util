@@ -56,6 +56,12 @@
  * This attempts to generate V1 UUIDs according to the Internet Draft
  * located at http://www.webdav.org/specs/draft-leach-uuids-guids-01.txt
  */
+#include "apr.h"
+#include "apr_uuid.h"
+#include "apr_md5.h"
+#include "apr_general.h"
+#include "apr_portable.h"
+
 
 #if APR_HAVE_UNISTD_H
 #include <unistd.h>     /* for getpid, gethostname */
@@ -63,12 +69,6 @@
 #if APR_HAVE_STDLIB_H
 #include <stdlib.h>     /* for rand, srand */
 #endif
-
-#include "apr.h"
-#include "apr_uuid.h"
-#include "apr_md5.h"
-#include "apr_general.h"
-#include "apr_portable.h"
 
 
 #if APR_HAVE_STRING_H
