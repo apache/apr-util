@@ -456,80 +456,29 @@ APU_DECLARE(apr_status_t) apr_brigade_puts(apr_bucket_brigade *bb,
                                            apr_brigade_flush flush, void *ctx,
                                            const char *str)
 {
+    apr_size_t len = strlen(str);
     apr_bucket *bkt = APR_BRIGADE_LAST(bb);
     if (!APR_BRIGADE_EMPTY(bb) && APR_BUCKET_IS_HEAP(bkt)) {
-        /* If there is some space available in a heap bucket
-         * at the end of the brigade, start copying the string
+        /* If there is enough space available in a heap bucket
+         * at the end of the brigade, copy the string directly
+         * into the heap bucket
          */
         apr_bucket_heap *h = bkt->data;
-        char *buf = h->base + bkt->start + bkt->length;
         apr_size_t bytes_avail = h->alloc_len - bkt->length;
-        const char *saved_start = str;
 
-        /* Optimization:
-         * The loop that follows is an unrolled version of the original:
-         *   while (bytes_avail && *str) {
-         *       *buf++ = *str++;
-         *       bytes_avail--;
-         *   }
-         * With that original loop, apr_brigade_puts() was showing
-         * up as a surprisingly expensive function in httpd performance
-         * profiling (it gets called a *lot*).  This new loop reduces
-         * the overhead from two conditional branch ops per character
-         * to 1+1/8.  The result is a 30% reduction in the cost of
-         * apr_brigade_puts() in typical usage within the httpd.
-         */
-        while (bytes_avail >= 8) {
-            /* Copy the next 8 characters (or fewer if we hit end of string) */
-            if (!*str) {
-                break;
-            }
-            *buf++ = *str++;
-            if (!*str) {
-                break;
-            }
-            *buf++ = *str++;
-            if (!*str) {
-                break;
-            }
-            *buf++ = *str++;
-            if (!*str) {
-                break;
-            }
-            *buf++ = *str++;
-            if (!*str) {
-                break;
-            }
-            *buf++ = *str++;
-            if (!*str) {
-                break;
-            }
-            *buf++ = *str++;
-            if (!*str) {
-                break;
-            }
-            *buf++ = *str++;
-            if (!*str) {
-                break;
-            }
-            *buf++ = *str++;
-            bytes_avail -= 8;
-        }
-        bkt->length += (str - saved_start);
-
-        /* If we had enough free space in the bucket to copy
-         * the entire string, we're done
-         */
-        if (!*str) {
+        if (bytes_avail >= len) {
+            char *buf = h->base + bkt->start + bkt->length;
+            memcpy(buf, str, len);
+            bkt->length += len;
             return APR_SUCCESS;
         }
     }
 
-    /* If the string has not been copied completely to the brigade,
-     * delegate the remaining work to apr_brigade_write(), which
+    /* If the string could not be copied into an existing heap
+     * bucket, delegate the work to apr_brigade_write(), which
      * knows how to grow the brigade
      */
-    return apr_brigade_write(bb, flush, ctx, str, strlen(str));
+    return apr_brigade_write(bb, flush, ctx, str, len);
 }
 
 APU_DECLARE_NONSTD(apr_status_t) apr_brigade_putstrs(apr_bucket_brigade *b, 
