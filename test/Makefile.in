@@ -9,21 +9,21 @@ PROGRAMS = testdbm testdate testmd4 testxml
 test: $(PROGRAMS)
 
 testdbm_OBJECTS = testdbm.lo
-testdbm_LDADD =  ../libaprutil.la @APR_SOURCE_DIR@/libapr.la
+testdbm_LDADD =  ../libaprutil.la @APR_SOURCE_DIR@/libapr.la ../xml/expat/lib/libexpat.la
 testdbm: $(testdbm_OBJECTS) $(testdbm_LDADD)
-	$(LINK) $(testdbm_OBJECTS) $(testdbm_LDADD) $(LIBS)
+	$(LINK) $(testdbm_OBJECTS) $(testdbm_LDADD) $(ALL_LIBS)
 
 testdate_OBJECTS = testdate.lo
-testdate_LDADD =  ../libaprutil.la @APR_SOURCE_DIR@/libapr.la
+testdate_LDADD =  ../libaprutil.la @APR_SOURCE_DIR@/libapr.la ../xml/expat/lib/libexpat.la
 testdate: $(testdate_OBJECTS) $(testdate_LDADD)
-	$(LINK) $(testdate_OBJECTS) $(testdate_LDADD) $(LIBS)
+	$(LINK) $(testdate_OBJECTS) $(testdate_LDADD) $(ALL_LIBS)
 
 testxml_OBJECTS = testxml.lo
 testxml_LDADD =  ../libaprutil.la @APR_SOURCE_DIR@/libapr.la ../xml/expat/lib/libexpat.la
 testxml: $(testxml_OBJECTS) $(testxml_LDADD)
-	$(LINK) $(testxml_OBJECTS) $(testxml_LDADD) $(LIBS)
+	$(LINK) $(testxml_OBJECTS) $(testxml_LDADD) $(ALL_LIBS)
 
 testmd4_OBJECTS = testmd4.lo
-testmd4_LDADD =  ../libaprutil.la @APR_SOURCE_DIR@/libapr.la
+testmd4_LDADD =  ../libaprutil.la @APR_SOURCE_DIR@/libapr.la ../xml/expat/lib/libexpat.la
 testmd4: $(testmd4_OBJECTS) $(testmd4_LDADD)
-	$(LINK) $(testmd4_OBJECTS) $(testmd4_LDADD) $(LIBS)
+	$(LINK) $(testmd4_OBJECTS) $(testmd4_LDADD) $(ALL_LIBS)
