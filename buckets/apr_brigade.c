@@ -187,7 +187,7 @@ APU_DECLARE(int) apr_brigade_to_iovec(apr_bucket_brigade *b,
 
 static int check_brigade_flush(const char **str, 
                                apr_size_t *n, apr_bucket_brigade *bb,
-                               brigade_flush flush)
+                               apr_brigade_flush flush)
 {
     apr_bucket *b = APR_BRIGADE_LAST(bb);
 
@@ -228,10 +228,8 @@ static int check_brigade_flush(const char **str,
 }
 
 APU_DECLARE(int) apr_brigade_vputstrs(apr_bucket_brigade *b, 
-                                      brigade_flush flush, void *ctx,
+                                      apr_brigade_flush flush, void *ctx,
                                       va_list va)
-                                    
-                                   
 {
     const char *x;
     int j, k;
@@ -247,48 +245,15 @@ APU_DECLARE(int) apr_brigade_vputstrs(apr_bucket_brigade *b,
     return k;
 }
 
-APU_DECLARE(int) apr_brigade_putc(apr_bucket_brigade *b, brigade_flush flush, 
-                                  void *ctx, const char c)
+APU_DECLARE(int) apr_brigade_putc(apr_bucket_brigade *b,
+                                  apr_brigade_flush flush, void *ctx,
+                                  const char c)
 {
-    apr_size_t nbyte = 1;
-    const char *str = &c;
-
-    if (check_brigade_flush(&str, &nbyte, b, flush)) {
-        if (flush) {
-            return flush(b, ctx);
-        }
-    }
-    else {
-        apr_bucket *buck = APR_BRIGADE_LAST(b);
-        apr_bucket_shared *s;
-        apr_bucket_heap *h;
-        char *buf;
-
-        if (!APR_BUCKET_IS_HEAP(buck) || APR_BRIGADE_EMPTY(b)) {
-            buf = malloc(APR_BUCKET_BUFF_SIZE);
-
-            buck = apr_bucket_heap_create(buf, APR_BUCKET_BUFF_SIZE, 0, NULL);
-            s = buck->data;
-            s->start = s->end = 0;
-            h = s->data;
-
-            APR_BRIGADE_INSERT_TAIL(b, buck);
-        }
-        else {
-            s = buck->data;
-            h = s->data;
-
-            buf = h->base + s->end;
-        }
-        memcpy(buf, &c, 1);
-        s->end++;
-    }
-
-    return 1;
+    return apr_brigade_write(b, flush, ctx, &c, 1);
 }
 
 APU_DECLARE(int) apr_brigade_write(apr_bucket_brigade *b, 
-                                   brigade_flush flush, void *ctx, 
+                                   apr_brigade_flush flush, void *ctx, 
                                    const char *str, apr_size_t nbyte)
 {
     if (check_brigade_flush(&str, &nbyte, b, flush)) {
@@ -325,14 +290,16 @@ APU_DECLARE(int) apr_brigade_write(apr_bucket_brigade *b,
     return nbyte;
 }
 
-APU_DECLARE(int) apr_brigade_puts(apr_bucket_brigade *b, brigade_flush flush, 
-                                  void *ctx, const char *str)
+APU_DECLARE(int) apr_brigade_puts(apr_bucket_brigade *b,
+                                  apr_brigade_flush flush, void *ctx,
+                                  const char *str)
 {
     return apr_brigade_write(b, flush, ctx, str, strlen(str));
 }
 
 APU_DECLARE_NONSTD(int) apr_brigade_putstrs(apr_bucket_brigade *b, 
-                                           brigade_flush flush, void *ctx, ...)
+                                            apr_brigade_flush flush,
+                                            void *ctx, ...)
 {
     va_list va;
     int written;
@@ -344,7 +311,7 @@ APU_DECLARE_NONSTD(int) apr_brigade_putstrs(apr_bucket_brigade *b,
 }
 
 APU_DECLARE_NONSTD(int) apr_brigade_printf(apr_bucket_brigade *b, 
-                                           brigade_flush flush, void *ctx, 
+                                           apr_brigade_flush flush, void *ctx, 
                                            const char *fmt, ...)
 {
     va_list ap;
@@ -357,7 +324,7 @@ APU_DECLARE_NONSTD(int) apr_brigade_printf(apr_bucket_brigade *b,
 }
 
 APU_DECLARE(int) apr_brigade_vprintf(apr_bucket_brigade *b, 
-                                     brigade_flush flush, void *ctx, 
+                                     apr_brigade_flush flush, void *ctx, 
                                      const char *fmt, va_list va)
 {
     /* XXX:  This needs to be replaced with a function to printf
@@ -365,7 +332,7 @@ APU_DECLARE(int) apr_brigade_vprintf(apr_bucket_brigade *b,
      */
     char buf[4096];
 
-    apr_vsnprintf(buf, 4096, fmt, va);
+    apr_vsnprintf(buf, sizeof(buf), fmt, va);
 
     return apr_brigade_puts(b, flush, ctx, buf);
 } 
