@@ -16,6 +16,10 @@
 #include <time.h>
 #include "apr_date.h"
 
+void gm_timestr_822(char *ts, apr_time_t sec);
+void gm_timestr_850(char *ts, apr_time_t sec);
+void gm_timestr_ccc(char *ts, apr_time_t sec);
+
 static const apr_time_t year2secs[] = {
              0LL,    /* 1970 */
       31536000LL,    /* 1971 */
