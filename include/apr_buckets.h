@@ -688,7 +688,7 @@ APU_DECLARE(apr_status_t) apr_brigade_length(apr_bucket_brigade *bb,
  */
 APU_DECLARE(apr_status_t) apr_brigade_flatten(apr_bucket_brigade *bb,
                                               char *c,
-                                              apr_off_t *len);
+                                              apr_size_t *len);
 
 /**
  * Creates a pool-allocated string representing a flat bucket brigade
@@ -699,7 +699,7 @@ APU_DECLARE(apr_status_t) apr_brigade_flatten(apr_bucket_brigade *bb,
  */
 APU_DECLARE(apr_status_t) apr_brigade_pflatten(apr_bucket_brigade *bb, 
                                                char **c,
-                                               apr_off_t *len,
+                                               apr_size_t *len,
                                                apr_pool_t *pool);
 
 /**

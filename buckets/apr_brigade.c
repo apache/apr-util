@@ -225,9 +225,9 @@ APU_DECLARE(apr_status_t) apr_brigade_length(apr_bucket_brigade *bb,
 }
 
 APU_DECLARE(apr_status_t) apr_brigade_flatten(apr_bucket_brigade *bb,
-                                              char *c, apr_off_t *len)
+                                              char *c, apr_size_t *len)
 {
-    apr_off_t actual = 0;
+    apr_size_t actual = 0;
     apr_bucket *b;
  
     APR_BRIGADE_FOREACH(b, bb) {
@@ -241,16 +241,22 @@ APU_DECLARE(apr_status_t) apr_brigade_flatten(apr_bucket_brigade *bb,
         }
 
         /* If we would overflow. */
-        if (*len < actual + str_len) {
+        if (str_len + actual > *len) {
             str_len = *len - actual;
         }
 
+        /* XXX: It appears that overflow of the final bucket
+         * is DISCARDED without any warning to the caller.
+         */
         memcpy(c, str, str_len);
 
         c += str_len;
         actual += str_len;
 
-        if (*len < actual) {
+        /* XXX: Is this a bug in actual == *len or did we intend to
+         * flatten all trailing 0 byte buckets?
+         */
+        if (actual > *len) {
             break;
         }
     }
@@ -261,14 +267,28 @@ APU_DECLARE(apr_status_t) apr_brigade_flatten(apr_bucket_brigade *bb,
 
 APU_DECLARE(apr_status_t) apr_brigade_pflatten(apr_bucket_brigade *bb,
                                                char **c,
-                                               apr_off_t *len,
+                                               apr_size_t *len,
                                                apr_pool_t *pool)
 {
-    apr_off_t total;
+    apr_off_t actual;
+    apr_size_t total;
     apr_status_t rv;
 
-    apr_brigade_length(bb, 1, &total);
+    apr_brigade_length(bb, 1, &actual);
     
+    /* XXX: This is dangerous beyond belief.  At least in the
+     * apr_brigade_flatten case, the user explicitly stated their
+     * buffer length - so we don't up and palloc 4GB for a single
+     * file bucket.  This API must grow a useful max boundry,
+     * either compiled-in or preset via the *len value.
+     *
+     * Shouldn't both fn's grow an additional return value for 
+     * the case that the brigade couldn't be flattened into the
+     * provided or allocated buffer (such as APR_EMOREDATA?)
+     * Not a failure, simply an advisory result.
+     */
+    total = (apr_size_t)actual;
+
     *c = apr_palloc(pool, total);
     
     rv = apr_brigade_flatten(bb, *c, &total);
