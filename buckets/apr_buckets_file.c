@@ -85,6 +85,10 @@ static int file_make_mmap(apr_bucket *e, apr_size_t filelength,
     apr_bucket_file *a = e->data;
     apr_mmap_t *mm;
 
+    if (!a->can_mmap) {
+        return 0;
+    }
+
     if (filelength > APR_MMAP_LIMIT) {
         if (apr_mmap_create(&mm, a->fd, fileoffset, APR_MMAP_LIMIT,
                             APR_MMAP_READ, p) != APR_SUCCESS) {
@@ -122,8 +126,7 @@ static apr_status_t file_bucket_read(apr_bucket *e, const char **str,
 #endif
 
 #if APR_HAS_MMAP
-    if (a->can_mmap &&
-        file_make_mmap(e, filelength, fileoffset, a->readpool)) {
+    if (file_make_mmap(e, filelength, fileoffset, a->readpool)) {
         return apr_bucket_read(e, str, len, block);
     }
 #endif
