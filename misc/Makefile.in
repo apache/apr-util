@@ -1,5 +1,5 @@
 top_builddir=@top_builddir@
-INCLUDES=-I$(top_builddir)/include -I$(top_builddir)/../apr/include
+INCLUDES=-I$(top_builddir)/include -I$(top_builddir)/../apr/include -I$(srcdir)../../apr/include -I$(srcdir)../include
 
 TARGETS = apr_date.lo
 CLEAN_TARGETS = 
