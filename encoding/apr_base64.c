@@ -67,10 +67,10 @@
 
 #include "ap.h"
 
+#include "ap_config.h"
 #ifdef CHARSET_EBCDIC
 #include "ebcdic.h"
 #endif				/* CHARSET_EBCDIC */
-#include "ap_config.h"
 
 /* aaaack but it's fast and const should make it shared text page. */
 static const unsigned char pr2six[256] =
