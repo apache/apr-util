@@ -56,7 +56,6 @@
 #include "ap_buckets.h"
 #include <stdlib.h>
 
-/* XXX: We should obey the block flag */
 static apr_status_t pipe_read(ap_bucket *a, const char **str,
 			      apr_size_t *len, ap_read_type block)
 {
@@ -106,8 +105,9 @@ static apr_status_t pipe_read(ap_bucket *a, const char **str,
         b = ap_bucket_create_pipe(p);
 	AP_BUCKET_INSERT_AFTER(a, b);
     }
-    else {
+    else if (rv == APR_EOF) {
         apr_close(p);
+        return (block == AP_NONBLOCK_READ) ? APR_EOF : APR_SUCCESS;
     }
     return APR_SUCCESS;
 }
