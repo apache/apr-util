@@ -54,6 +54,7 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "apr_pools.h"
 #include "apr_tables.h"
