@@ -58,9 +58,9 @@ LINK32=link.exe
 InputPath=.\Release\libaprutil.dll
 SOURCE="$(InputPath)"
 
-".\Release\libaprutil.dbgmark" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+".\Release\libaprutil.dbr" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	rebase -q -b 0x6EE60000 -x ".\Release" $(InputPath)
-	echo rebased > ".\Release\libaprutil.dbgmark"
+	echo rebased > ".\Release\libaprutil.dbr"
 
 # End Custom Build
 
