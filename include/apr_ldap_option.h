@@ -128,12 +128,10 @@ struct apr_ldap_opt_tls_cert_t {
  * ldapssl_install_routines() (check this).
  *
  * OpenLDAP:
- * Supports SSL and apparently supports STARTTLS
- * Currently it is not clear whether OpenLDAP can support SSL, apparently it
- * can.
- * Support for STARTTLS is also unconfirmed - ldap_start_tls_s() has been
- * deprecated, but no replacement method or function has been defined. Even the
- * OpenLDAP source code is uncommented and yields no clues...
+ * Supports SSL and supports STARTTLS, but none of this is documented:
+ * http://www.openldap.org/lists/openldap-software/200409/msg00618.html
+ * Documentation for both SSL support and STARTTLS has been deleted from
+ * the OpenLDAP documentation and website.
  */
 #define APR_LDAP_NONE 0
 #define APR_LDAP_SSL 1
