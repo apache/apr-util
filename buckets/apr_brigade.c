@@ -149,7 +149,7 @@ APU_DECLARE(apr_status_t) apr_brigade_partition(apr_bucket_brigade *b,
     }
 
     APR_BRIGADE_FOREACH(e, b) {
-        if ((point > (apr_size_t)(-1)) && (e->length == (apr_size_t)(-1))) {
+        if ((e->length == (apr_size_t)(-1)) && (point > (apr_size_t)(-1))) {
             /* XXX: point is too far out to simply split this bucket,
              * we must fix this bucket's size and keep going... */
             rv = apr_bucket_read(e, &s, &len, APR_BLOCK_READ);
