@@ -213,7 +213,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_file_create(apr_file_t *fd,
 static apr_status_t file_setaside(apr_bucket *data, apr_pool_t *reqpool)
 {
     apr_bucket_file *a = data->data;
-    apr_file_t *fd;
+    apr_file_t *fd = NULL;
     apr_file_t *f = a->fd;
     apr_pool_t *curpool = apr_file_pool_get(f);
 #if APR_HAS_MMAP
