@@ -220,7 +220,7 @@ struct apr_bucket_type_t {
  * apr_bucket structures are allocated on the malloc() heap and
  * their lifetime is controlled by the parent apr_bucket_brigade
  * structure. Buckets can move from one brigade to another e.g. by
- * calling apr_brigade_concat(). In general the data in a bucket has
+ * calling APR_BRIGADE_CONCAT(). In general the data in a bucket has
  * the same lifetime as the bucket and is freed when the bucket is
  * destroyed; if the data is shared by more than one bucket (e.g.
  * after a split) the data is freed when the last bucket goes away.
@@ -383,7 +383,7 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
     } while (0)
 
 /**
- * Concatenate two brigades together
+ * Concatenate brigade b onto the end of brigade a, leaving brigade b empty
  * @param a The first brigade
  * @param b The second brigade
  * @deffunc void APR_BRIGADE_CONCAT(apr_bucket_brigade *a, apr_bucket_brigade *b)
