@@ -69,7 +69,8 @@ extern "C" {
 #endif
 
 /**
- * @package SHA1 library
+ * @file apr_sha1.h
+ * @brief SHA1 library
  */
 
 #define APR_SHA1_DIGESTSIZE 20
@@ -77,7 +78,6 @@ extern "C" {
 /**
  * Define the Magic String prefix that identifies a password as being
  * hashed using our algorithm.
- * @defvar APR_SHA1PW_ID "{SHA}"
  */
 #define APR_SHA1PW_ID "{SHA}"
 #define APR_SHA1PW_IDLEN 5
@@ -105,21 +105,19 @@ struct apr_sha1_ctx_t {
  * @param clear The plaintext password
  * @param len The length of the plaintext password
  * @param out The encrypted/encoded password
- * @tip SHA1 support is useful for migration purposes, but is less
+ * @note SHA1 support is useful for migration purposes, but is less
  *     secure than Apache's password format, since Apache's (MD5)
  *     password format uses a random eight character salt to generate
  *     one of many possible hashes for the same password.  Netscape
  *     uses plain SHA1 without a salt, so the same password
  *     will always generate the same hash, making it easier
  *     to break since the search space is smaller.
- * @deffunc void apr_sha1_base64(const char *clear, int len, char *out)
  */
 APU_DECLARE(void) apr_sha1_base64(const char *clear, int len, char *out);
 
 /**
  * Initialize the SHA digest
  * @param context The SHA context to initialize
- * @deffunc void apr_sha1_init(apr_sha1_ctx_t *context);
  */
 APU_DECLARE(void) apr_sha1_init(apr_sha1_ctx_t *context);
 
@@ -128,7 +126,6 @@ APU_DECLARE(void) apr_sha1_init(apr_sha1_ctx_t *context);
  * @param context The SHA1 context to update
  * @param input The buffer to add to the SHA digest
  * @param inputLen The length of the input buffer
- * @deffunc void apr_sha1_update(apr_sha1_ctx_t *context, const char *input, unsigned int inputLen)
  */
 APU_DECLARE(void) apr_sha1_update(apr_sha1_ctx_t *context, const char *input,
                                 unsigned int inputLen);
@@ -138,7 +135,6 @@ APU_DECLARE(void) apr_sha1_update(apr_sha1_ctx_t *context, const char *input,
  * @param context The SHA1 context to update
  * @param input The buffer to add to the SHA digest
  * @param inputLen The length of the input buffer
- * @deffunc void apr_sha1_update_binary(apr_sha1_ctx_t *context, const unsigned char *input, unsigned int inputLen)
  */
 APU_DECLARE(void) apr_sha1_update_binary(apr_sha1_ctx_t *context,
                                        const unsigned char *input,
@@ -148,7 +144,6 @@ APU_DECLARE(void) apr_sha1_update_binary(apr_sha1_ctx_t *context,
  * Finish computing the SHA digest
  * @param digest the output buffer in which to store the digest
  * @param context The context to finalize
- * @deffunc void apr_sha1_final(unsigned char digest[APR_SHA1_DIGESTSIZE], apr_sha1_ctx_t *context)
  */
 APU_DECLARE(void) apr_sha1_final(unsigned char digest[APR_SHA1_DIGESTSIZE],
                                apr_sha1_ctx_t *context);

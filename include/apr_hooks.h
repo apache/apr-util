@@ -64,7 +64,8 @@ extern "C" {
 #endif
 
 /**
- * @package Apache hooks functions
+ * @file apr_hooks.h
+ * @brief Apache hook functions
  */
 
 #define APR_IMPLEMENT_HOOK_GET_PROTO(ns,link,name) \
@@ -124,8 +125,7 @@ link##_DECLARE(void) ns##_hook_##name(ns##_HOOK_##name##_t *pf,const char * cons
  * @param name The name of the hook
  * @param args_decl The declaration of the arguments for the hook
  * @param args_used The names for the arguments for the hook
- * @deffunc void APR_IMPLEMENT_EXTERNAL_HOOK_VOID(ns, link, name, args_decl, args_use)
- * @tip The link prefix FOO corresponds to FOO_DECLARE() macros, which
+ * @note The link prefix FOO corresponds to FOO_DECLARE() macros, which
  * provide export linkage from the module that IMPLEMENTs the hook, and
  * import linkage from external modules that link to the hook's module.
  */
@@ -155,8 +155,7 @@ link##_DECLARE(void) ns##_run_##name args_decl \
  * @param name The name of the hook
  * @param args_decl The declaration of the arguments for the hook
  * @param args_used The names for the arguments for the hook
- * @deffunc int APR_IMPLEMENT_EXTERNAL_HOOK_RUN_ALL(ns, link, name, args_decl, args_use)
- * @tip The link prefix FOO corresponds to FOO_DECLARE() macros, which
+ * @note The link prefix FOO corresponds to FOO_DECLARE() macros, which
  * provide export linkage from the module that IMPLEMENTs the hook, and
  * import linkage from external modules that link to the hook's module.
  */
@@ -191,8 +190,7 @@ link##_DECLARE(ret) ns##_run_##name args_decl \
  * @param name The name of the hook
  * @param args_decl The declaration of the arguments for the hook
  * @param args_used The names for the arguments for the hook
- * @deffunc int APR_IMPLEMENT_HOOK_RUN_FIRST(ns, link, name, args_decl, args_use, decline)
- * @tip The link prefix FOO corresponds to FOO_DECLARE() macros, which
+ * @note The link prefix FOO corresponds to FOO_DECLARE() macros, which
  * provide export linkage from the module that IMPLEMENTs the hook, and
  * import linkage from external modules that link to the hook's module.
  */
@@ -227,20 +225,17 @@ link##_DECLARE(ret) ns##_run_##name args_decl \
 
 /**
  * The global pool used to allocate any memory needed by the hooks.
- * @defvar apr_pool_t *apr_global_hook_pool
  */ 
 APU_DECLARE_DATA extern apr_pool_t *apr_global_hook_pool;
 
 /**
  * A global variable to determine if debugging information about the
  * hooks functions should be printed
- * @defvar apr_pool_t *apr_debug_module_hooks
  */ 
 APU_DECLARE_DATA extern int apr_debug_module_hooks;
 
 /**
  * The name of the module that is currently registering a function
- * @defvar apr_pool_t *apr_current_hooking_module
  */ 
 APU_DECLARE_DATA extern const char *apr_current_hooking_module;
 
@@ -248,13 +243,11 @@ APU_DECLARE_DATA extern const char *apr_current_hooking_module;
  * Register a hook function to be sorted
  * @param szHookName The name of the Hook the function is registered for
  * @param aHooks The array which stores all of the functions for this hook
- * @deffunc void apr_hook_sort_register(const char *szHookName, apr_array_header_t **aHooks)
  */
 APU_DECLARE(void) apr_hook_sort_register(const char *szHookName, 
                                         apr_array_header_t **aHooks);
 /**
  * Sort all of the registerd functions for a given hook
- * @deffunc void apr_sort_hooks(void)
  */
 APU_DECLARE(void) apr_sort_hooks(void);
 
@@ -264,14 +257,12 @@ APU_DECLARE(void) apr_sort_hooks(void);
  * @param szName The name of the hook
  * @param aszPre All of the functions in the predecessor array
  * @param aszSucc All of the functions in the successor array
- * @deffunc void apr_show_hook(const char *szName, const char *const *aszPre, const char *const *aszSucc)
  */
 APU_DECLARE(void) apr_show_hook(const char *szName,const char * const *aszPre,
                                const char * const *aszSucc);
 
 /**
  * Remove all currently registered functions.
- * @deffunc void apr_hook_deregister_all(void)
  */
 APU_DECLARE(void) apr_hook_deregister_all(void);
 
