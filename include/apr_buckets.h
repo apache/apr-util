@@ -877,12 +877,22 @@ APU_DECLARE_NONSTD(apr_status_t)
                        apr_bucket_copy_notimpl(apr_bucket *e, apr_bucket **c);
 
 /**
- * A place holder function that signifies that the destroy function was not
- * implemented for this bucket
- * @param data The bucket to destroy
- * @deffunc void apr_bucket_destroy_notimpl(void *data)
+ * A place holder function that signifies that this bucket does not need
+ * to do anything special to be destroyed.  That's only the case for buckets
+ * that either have no data (metadata buckets) or buckets whose data pointer
+ * points to something that's not a bucket-type-specific structure, as with
+ * simple buckets where data points to a string and pipe buckets where data
+ * points directly to the apr_file_t.
+ * @param data The bucket data to destroy
+ * @deffunc void apr_bucket_destroy_noop(void *data)
  */ 
-APU_DECLARE_NONSTD(void) apr_bucket_destroy_notimpl(void *data);
+APU_DECLARE_NONSTD(void) apr_bucket_destroy_noop(void *data);
+
+/**
+ * There is no apr_bucket_destroy_notimpl, because destruction is required
+ * to be implemented (it could be a noop, but only if that makes sense for
+ * the bucket type)
+ */
 
 /* There is no apr_bucket_read_notimpl, because it is a required function
  */

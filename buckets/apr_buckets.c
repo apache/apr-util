@@ -78,7 +78,7 @@ APU_DECLARE_NONSTD(apr_status_t) apr_bucket_copy_notimpl(apr_bucket *e,
     return APR_ENOTIMPL;
 }
 
-APU_DECLARE_NONSTD(void) apr_bucket_destroy_notimpl(void *data)
+APU_DECLARE_NONSTD(void) apr_bucket_destroy_noop(void *data)
 {
     return;
 }
