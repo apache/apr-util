@@ -7,56 +7,35 @@ dnl APU_FIND_APR: figure out where APR is located
 dnl
 AC_DEFUN(APU_FIND_APR,[
 
-AC_MSG_CHECKING(for APR)
-AC_ARG_WITH(apr,
-[  --with-apr=DIR          path to APR source or the APR includes],
-[
-    if test "$withval" = "yes"; then
-        AC_MSG_ERROR(You need to specify a directory with --with-apr)
-    fi
-    absdir="`cd $withval ; pwd`"
-    if test -f "$absdir/apr.h"; then
-	APR_INCLUDES="$absdir"
-    elif test -f "$absdir/include/apr.h"; then
-	APR_BUILD_DIR="$absdir"
-    fi
-],[
-    dnl see if we can find APR
-    if test -f "$srcdir/apr/include/apr.h"; then
-	APR_BUILD_DIR="$srcdir/apr"
-    elif test -f "$srcdir/../apr/include/apr.h"; then
-	APR_BUILD_DIR="`cd $srcdir/../apr ; pwd`"
-    fi
-])
-
-dnl
-dnl grab flags from APR.
-dnl ### APR doesn't have "nice" names for its exports (yet), but it isn't
-dnl ### a problem to deal with them right here
-dnl
-
-. "$APR_BUILD_DIR/APRVARS"
-APR_EXPORT_CPPFLAGS="$EXTRA_CPPFLAGS"
-APR_EXPORT_CFLAGS="$EXTRA_CFLAGS"
-APR_EXPORT_LIBS="$EXTRA_LIBS"
-
-if test -n "$APR_BUILD_DIR"; then
-    APR_INCLUDES="-I$APR_BUILD_DIR/include"
-    if test "$APR_BUILD_DIR" != "$APR_SOURCE_DIR"; then
-        APR_INCLUDES="$APR_INCLUDES -I$APR_SOURCE_DIR/include"
-    fi
-fi
-
-if test -z "$APR_INCLUDES"; then
-    AC_MSG_RESULT(not found)
+  dnl use the find_apr.m4 script to locate APR. sets apr_found and apr_config
+  APR_FIND_APR
+  if test "$apr_found" = "no"; then
     AC_MSG_ERROR(APR could not be located. Please use the --with-apr option.)
-fi
+  fi
 
-AC_MSG_RESULT($APR_INCLUDES)
+  changequote(<<,>>)dnl
+  APR_BUILD_DIR="`echo $apr_config | sed 's,/[^/]*$,,'`"
+  changequote([,])dnl
 
-AC_SUBST(APR_BUILD_DIR)
-AC_SUBST(APR_SOURCE_DIR)
-AC_SUBST(APR_INCLUDES)
+  dnl make APR_BUILD_DIR an absolute directory (we'll need it in the
+  dnl sub-projects in some cases)
+  APR_BUILD_DIR="`cd $APR_BUILD_DIR && pwd`"
+
+  dnl ### need to get rid of these two lines
+  dnl ### used for: CC, CPP, ...
+  . "$APR_BUILD_DIR/APRVARS"
+
+
+  APR_INCLUDES="`$apr_config --includes`"
+  APR_LIBS="`$apr_config --link-libtool --libs`"
+
+  AC_SUBST(APR_INCLUDES)
+  AC_SUBST(APR_LIBS)
+
+  dnl ### would be nice to obsolete these
+  APR_SOURCE_DIR="`$apr_config --srcdir`"
+  AC_SUBST(APR_BUILD_DIR)
+  AC_SUBST(APR_SOURCE_DIR)
 ])
 
 dnl
@@ -278,23 +257,23 @@ AC_ARG_WITH([berkeley-db],
       AC_MSG_RESULT(looking for berkeley-db includes with $BDB_INC)
       AC_MSG_RESULT(looking for berkeley-db libs with $BDB_LDFLAGS)
     fi
-    SAVE_CPPFLAGS="$CPPFLAGS"
-    SAVE_LDFLAGS="$LDFLAGS"
+    save_cppflags="$CPPFLAGS"
+    save_ldflags="$LDFLAGS"
     CPPFLAGS="$CPPFLAGS $BDB_INC"
     LDFLAGS="$LDFLAGS $BDB_LDFLAGS"
     if test "$apu_want_db" != "0"; then
         APU_CHECK_BERKELEY_DB
         if test "$apu_db_version" != "0"; then
             if test "$withval" != "yes"; then
-                APR_ADDTO( APRUTIL_INCLUDES, [$BDB_INC])
-                APR_ADDTO( APRUTIL_LDFLAGS, [$BDB_LDFLAGS])
+                APR_ADDTO(APRUTIL_INCLUDES, [$BDB_INC])
+                APR_ADDTO(APRUTIL_LDFLAGS, [$BDB_LDFLAGS])
             fi
         elif test "$withval" != "yes"; then
             AC_ERROR( Berkeley DB not found in the specified directory)
         fi
     fi 
-    CPPFLAGS="$SAVE_CPPFLAGS"
-    LDFLAGS="$SAVE_LDFLAGS"
+    CPPFLAGS="$save_cppflags"
+    LDFLAGS="$save_ldflags"
 ],[
     APU_CHECK_BERKELEY_DB
 ])
@@ -631,8 +610,6 @@ dnl The iPlanet C SDK 5.0 is as yet untested...
     AC_CHECK_HEADERS(ldap.h, ldap_h=["#include <ldap.h>"])
     AC_CHECK_HEADERS(lber.h, lber_h=["#include <lber.h>"])
     AC_CHECK_HEADERS(ldap_ssl.h, ldap_ssl_h=["#include <ldap_ssl.h>"])
-
-
   ])
 
 AC_SUBST(ldap_h)

@@ -1,9 +1,6 @@
-srcdir = @srcdir@
 VPATH = @srcdir@
 
-top_builddir=@top_builddir@
-top_srcdir=@abs_srcdir@
-INCLUDES=-I$(top_builddir)/include -I$(top_srcdir)/include @APR_INCLUDES@ @APRUTIL_INCLUDES@
+INCLUDES = @APR_INCLUDES@ @APRUTIL_INCLUDES@ @APRUTIL_PRIV_INCLUDES@
 
 TARGETS = apr_sha1.lo apr_md4.lo
 

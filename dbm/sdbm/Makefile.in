@@ -1,9 +1,6 @@
-srcdir = @srcdir@
 VPATH = @srcdir@
 
-top_builddir=@top_builddir@
-top_srcdir=@abs_srcdir@
-INCLUDES=-I$(top_builddir)/include -I$(top_srcdir)/include @APR_INCLUDES@ @APRUTIL_INCLUDES@
+INCLUDES = @APR_INCLUDES@ @APRUTIL_INCLUDES@ @APRUTIL_PRIV_INCLUDES@
 
 TARGETS = sdbm.lo sdbm_hash.lo sdbm_lock.lo sdbm_pair.lo
 
