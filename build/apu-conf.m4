@@ -413,3 +413,79 @@ APR_ADDTO(LIBS, [$expat_libs])
 APR_ADDTO(APRUTIL_EXPORT_LIBS, [$expat_libs])
 dnl ### export the Expat includes?
 ])
+
+
+dnl 
+dnl Find a particular LDAP library
+dnl
+AC_DEFUN(APU_FIND_LDAPLIB,[
+  if test ${apu_has_ldap} != "define"; then
+    ldaplib=$1
+    extralib=$2
+    unset ac_cv_lib_${ldaplib}_ldap_init
+    AC_CHECK_LIB(${ldaplib}, ldap_init, 
+      [
+dnl        APR_ADDTO(CPPFLAGS,[-DAPU_HAS_LDAP])
+        APR_ADDTO(LIBS,[-l${ldaplib} ${extralib}])
+        APR_ADDTO(APRUTIL_EXPORT_LIBS,[-l${ldaplib} ${extralib}])
+        AC_CHECK_LIB(${ldaplib}, ldapssl_install_routines, apu_has_ldap_netscape_ssl="define", , ${extralib})
+        AC_CHECK_LIB(${ldaplib}, ldap_start_tls_s, apu_has_ldap_starttls="define", , ${extralib})
+        apu_has_ldap="define";
+      ], , ${extralib})
+  fi
+])
+
+
+dnl
+dnl APU_FIND_LDAP: figure out where LDAP is located
+dnl
+AC_DEFUN(APU_FIND_LDAP,[
+
+echo $ac_n "${nl}checking for ldap support..."
+
+apu_has_ldap="undef";
+apu_has_ldap_netscape_ssl="undef"
+apu_has_ldap_starttls="undef"
+
+AC_ARG_WITH(ldap-include,  --with-ldap-include=path     path to ldap include files with trailing slash)
+AC_ARG_WITH(ldap-lib,  --with-ldap-lib=path     path to ldap lib file)
+AC_ARG_WITH(ldap,  --with-ldap=library   ldap library to use,
+  [
+    if test -n "$with_ldap_include"; then
+      APR_ADDTO(CPPFLAGS, [-I$with_ldap_include])
+    fi
+    if test -n "$with_ldap_lib"; then
+      APR_ADDTO(LDFLAGS, [-L$with_ldap_lib])
+    fi
+
+    LIBLDAP="$withval"
+    if test "$LIBLDAP" = "yes"; then
+dnl The iPlanet C SDK 5.0 is as yet untested... 
+      APU_FIND_LDAPLIB("ldap50", "-lnspr4 -lplc4 -lplds4 -liutil50 -llber50 -lldif50 -lnss3 -lprldap50 -lssl3 -lssldap50")
+      APU_FIND_LDAPLIB("ldapssl41", "-lnspr3 -lplc3 -lplds3")
+      APU_FIND_LDAPLIB("ldapssl40")
+      APU_FIND_LDAPLIB("ldapssl30")
+      APU_FIND_LDAPLIB("ldapssl20")
+      APU_FIND_LDAPLIB("ldap", "-llber")
+    else
+      APU_FIND_LDAPLIB($LDAPLIB)
+    fi
+
+    test ${apu_has_ldap} != "define" && AC_MSG_ERROR(could not find an LDAP library)
+    AC_CHECK_LIB(lber, ber_init)
+
+    AC_CHECK_HEADERS(ldap.h, ldap_h=["#include <ldap.h>"])
+    AC_CHECK_HEADERS(lber.h, lber_h=["#include <lber.h>"])
+    AC_CHECK_HEADERS(ldap_ssl.h, ldap_ssl_h=["#include <ldap_ssl.h>"])
+
+
+  ])
+
+AC_SUBST(ldap_h)
+AC_SUBST(lber_h)
+AC_SUBST(ldap_ssl_h)
+AC_SUBST(apu_has_ldap_netscape_ssl)
+AC_SUBST(apu_has_ldap_starttls)
+AC_SUBST(apu_has_ldap)
+
+])
