@@ -242,8 +242,9 @@ void ap_init_bucket_types(apr_pool_t *p)
 
 int ap_insert_bucket_type(const ap_bucket_type *type)
 {
-    const ap_bucket_type **newone = (ap_bucket_type **)apr_push_array(bucket_types);
+    const ap_bucket_type **newone;
 
+    newone = (const ap_bucket_type **)apr_push_array(bucket_types);
     newone = &type;
 
     return bucket_types->nelts - 1;
