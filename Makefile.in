@@ -77,7 +77,7 @@ $(TARGET_LIB):
 	@objects="`find $(SUBDIRS) -name expat -prune -o -name 'gen_uri_delims.@so_ext@' -prune -o -name '*.@so_ext@' -print`"; \
 	    tmpcmd="$(LINK) @lib_target@ @EXTRA_OS_LINK@"; \
 	    echo $$tmpcmd; \
-	    $$tmpcmd
+	    $$tmpcmd && touch $@
 
 delete-exports:
 	@if test -f aprutil.exp; then \
