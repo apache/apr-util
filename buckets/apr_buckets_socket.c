@@ -60,8 +60,6 @@ static apr_status_t socket_read(apr_bucket *a, const char **str,
 			      apr_size_t *len, apr_read_type_e block)
 {
     apr_socket_t *p = a->data;
-    apr_bucket_shared *s;
-    apr_bucket_heap *h;
     char *buf;
     apr_status_t rv;
     apr_int32_t timeout;
@@ -86,15 +84,6 @@ static apr_status_t socket_read(apr_bucket *a, const char **str,
         return rv;
     }
     /*
-     * Change the current bucket to refer to what we read,
-     * even if we read nothing because we hit EOF.
-     */
-    apr_bucket_heap_make(a, buf, *len, 0, NULL);  /* XXX: check for failure? */
-    s = a->data;
-    h = s->data;
-    h->alloc_len = HUGE_STRING_LEN; /* note the real buffer size */
-    *str = buf;
-    /*
      * If there's more to read we have to keep the rest of the socket
      * for later. XXX: Note that more complicated bucket types that
      * refer to data not in memory and must therefore have a read()
@@ -110,10 +99,23 @@ static apr_status_t socket_read(apr_bucket *a, const char **str,
      * down for reading, but there is no benefit to doing so.
      */
     if (*len > 0) {
+        apr_bucket_heap *h;
+        /* Change the current bucket to refer to what we read */
+        /* XXX: check for failure? */
+        a = apr_bucket_heap_make(a, buf, *len, 0, NULL);
+        h = a->data;
+        h->alloc_len = HUGE_STRING_LEN; /* note the real buffer size */
+        *str = buf;
         APR_BUCKET_INSERT_AFTER(a, apr_bucket_socket_create(p));
     }
-    else if (rv == APR_EOF && block == APR_NONBLOCK_READ) {
-        return APR_EOF;
+    else {
+        free(buf);
+        a = apr_bucket_immortal_make(a, "", 0);
+        *str = a->data;
+        if (rv == APR_EOF && block == APR_NONBLOCK_READ) {
+            /* XXX: this is bogus... should return APR_SUCCESS */
+            return APR_EOF;
+        }
     }
     return APR_SUCCESS;
 }
@@ -130,6 +132,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_socket_make(apr_bucket *b, apr_socket_t *p)
      */
     b->type     = &apr_bucket_type_socket;
     b->length   = -1;
+    b->start    = -1;
     b->data     = p;
 
     return b;

@@ -99,13 +99,13 @@ static void file_destroy(void *data)
 static apr_status_t file_read(apr_bucket *e, const char **str,
 			      apr_size_t *len, apr_read_type_e block)
 {
-    apr_bucket_shared *s = e->data;
-    apr_bucket_file *a = s->data;
+    apr_bucket_file *a = e->data;
     apr_file_t *f = a->fd;
     apr_bucket *b = NULL;
     char *buf;
     apr_status_t rv;
     apr_off_t filelength = e->length;  /* bytes remaining in file past offset */
+    apr_off_t fileoffset = e->start;
 #if APR_HAS_MMAP
     apr_mmap_t *mm = NULL;
 #endif
@@ -117,7 +117,7 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
          * file mmapped */
         apr_status_t status;
         apr_pool_t *p = apr_file_pool_get(f);
-        if ((status = apr_mmap_create(&mm, f, s->start, filelength, 
+        if ((status = apr_mmap_create(&mm, f, fileoffset, filelength, 
                                       APR_MMAP_READ, p)) != APR_SUCCESS) {
             mm = NULL;
         }
@@ -126,8 +126,8 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
         mm = NULL;
     }
     if (mm) {
-        apr_bucket_mmap_make(e, mm, 0, e->length); /*XXX: check for failure? */
-        file_destroy(s);
+        apr_bucket_mmap_make(e, mm, 0, filelength); /*XXX: check for failure? */
+        file_destroy(a);
         return apr_bucket_read(e, str, len, block);
     }
 #endif
@@ -137,8 +137,8 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
     buf = malloc(*len);
 
     /* Handle offset ... */
-    if (s->start) {
-        rv = apr_file_seek(f, APR_SET, &s->start);
+    if (fileoffset) {
+        rv = apr_file_seek(f, APR_SET, &fileoffset);
         if (rv != APR_SUCCESS) {
             free(buf);
             return rv;
@@ -159,16 +159,16 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
     /* If we have more to read from the file, then create another bucket */
     if (filelength > 0) {
         /* for efficiency, we can just build a new apr_bucket struct
-         * to wrap around the existing shared+file bucket */
-        s->start += (*len);
+         * to wrap around the existing file bucket */
         b = malloc(sizeof(*b));
-        b->data = s;
-        b->type = &apr_bucket_type_file;
+        b->start  = fileoffset + (*len);
         b->length = filelength;
+        b->data   = a;
+        b->type   = &apr_bucket_type_file;
         APR_BUCKET_INSERT_AFTER(e, b);
     }
     else {
-        file_destroy(s);
+        file_destroy(a);
     }
 
     *str = buf;
@@ -186,12 +186,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_file_make(apr_bucket *b, apr_file_t *fd,
     }
     f->fd = fd;
 
-    b = apr_bucket_shared_make(b, f, offset, offset + len);
-    if (b == NULL) {
-        free(f);
-        return NULL;
-    }
-    
+    b = apr_bucket_shared_make(b, f, offset, len);
     b->type = &apr_bucket_type_file;
 
     return b;
