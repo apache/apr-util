@@ -52,6 +52,15 @@
  * <http://www.apache.org/>.
  */
 
+#ifndef APR_OPTIONAL_H
+#define APR_OPTIONAL_H
+
+#include "apu.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * Typesafe registration and retrieval of functions that may not be present
  * (i.e. functions exported by optional modules)
@@ -95,3 +104,10 @@ APU_DECLARE_DATA void (*apr_retrieve_optional_fn(const char *szName))(void);
  */
 #define APR_RETRIEVE_OPTIONAL_FN(name) \
 	(APR_OPTIONAL_FN_TYPE(name) *)apr_retrieve_optional_fn(#name)
+
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* APR_OPTIONAL_H */
