@@ -175,10 +175,10 @@ apu_db_version=0
 
 AC_ARG_WITH(dbm,
   [  --with-dbm=DBM          choose the DBM type to use.
-                          DBM={sdbm,gdbm,db,db1,db185,db2,db3}],[
+                          DBM={sdbm,gdbm,db,db1,db185,db2,db3,db4}],[
   if test "$withval" = "yes"; then
     AC_MSG_ERROR([--with-dbm needs to specify a DBM type to use.
-One of: sdbm, gdbm, db, db1, db185, db2, db3])
+One of: sdbm, gdbm, db, db1, db185, db2, db3, db4])
   fi
   requested="$withval"
 ],[
