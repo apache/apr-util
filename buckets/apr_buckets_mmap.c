@@ -60,7 +60,7 @@
 #if APR_HAS_MMAP
 
 static apr_status_t mmap_read(apr_bucket *b, const char **str, 
-			      apr_size_t *length, apr_read_type_e block)
+                              apr_size_t *length, apr_read_type_e block)
 {
     apr_bucket_mmap *m = b->data;
     apr_status_t ok;
@@ -68,7 +68,7 @@ static apr_status_t mmap_read(apr_bucket *b, const char **str,
     
     ok = apr_mmap_offset(&addr, m->mmap, b->start);
     if (ok != APR_SUCCESS) {
-	return ok;
+        return ok;
     }
     *str = addr;
     *length = b->length;
@@ -90,26 +90,28 @@ static void mmap_destroy(void *data)
 /*
  * XXX: are the start and length arguments useful?
  */
-APU_DECLARE(apr_bucket *) apr_bucket_mmap_make(apr_bucket *b,
-		apr_mmap_t *mm, apr_off_t start, apr_size_t length)
+APU_DECLARE(apr_bucket *) apr_bucket_mmap_make(apr_bucket *b, apr_mmap_t *mm, 
+                                               apr_off_t start, 
+                                               apr_size_t length)
 {
     apr_bucket_mmap *m;
 
     m = malloc(sizeof(*m));
     if (m == NULL) {
-	return NULL;
+        return NULL;
     }
     m->mmap = mm;
 
     b = apr_bucket_shared_make(b, m, start, length);
-    b->type     = &apr_bucket_type_mmap;
+    b->type = &apr_bucket_type_mmap;
 
     return b;
 }
 
 
-APU_DECLARE(apr_bucket *) apr_bucket_mmap_create(
-		apr_mmap_t *mm, apr_off_t start, apr_size_t length)
+APU_DECLARE(apr_bucket *) apr_bucket_mmap_create(apr_mmap_t *mm, 
+                                                 apr_off_t start, 
+                                                 apr_size_t length)
 {
     apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
 
