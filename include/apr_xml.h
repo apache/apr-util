@@ -51,10 +51,18 @@
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  */
-
+/**
+ * @file apr_xml.h
+ * @brief APR-UTIL XML Library
+ */
 #ifndef APR_XML_H
 #define APR_XML_H
 
+/**
+ * @defgroup APR_Util_XML XML 
+ * @ingroup APR_Util
+ * @{
+ */
 #include "apr_pools.h"
 #include "apr_tables.h"
 #include "apr_file_io.h"
@@ -100,7 +108,6 @@ struct apr_text_header {
  * @param p The pool to allocate out of
  * @param hdr The text header to append to
  * @param text The new text to append
- * @deffunc void apr_text_append(apr_pool_t *p, apr_text_header *hdr, const char *text)
  */
 APU_DECLARE(void) apr_text_append(apr_pool_t *p, apr_text_header *hdr,
                                   const char *text);
@@ -268,7 +275,7 @@ APU_DECLARE(apr_status_t) apr_xml_parse_file(apr_pool_t *p,
  * @param data The data to parse.
  * @param len The length of the data.
  * @return Any errors found during parsing.
- * @tip Use apr_xml_parser_geterror() to get more error information.
+ * @remark Use apr_xml_parser_geterror() to get more error information.
  */
 APU_DECLARE(apr_status_t) apr_xml_parser_feed(apr_xml_parser *parser,
                                               const char *data,
@@ -280,7 +287,7 @@ APU_DECLARE(apr_status_t) apr_xml_parser_feed(apr_xml_parser *parser,
  * @param pdoc The resulting parse information. May be NULL to simply
  *             terminate the parsing without fetching the info.
  * @return Any errors found during the final stage of parsing.
- * @tip Use apr_xml_parser_geterror() to get more error information.
+ * @remark Use apr_xml_parser_geterror() to get more error information.
  */
 APU_DECLARE(apr_status_t) apr_xml_parser_done(apr_xml_parser *parser,
                                               apr_xml_doc **pdoc);
@@ -312,7 +319,6 @@ APU_DECLARE(char *) apr_xml_parser_geterror(apr_xml_parser *parser,
  * @param ns_map Namespace mapping
  * @param pbuf Buffer to put the converted text into
  * @param psize Size of the converted text
- * @deffunc void apr_xml_to_text(apr_pool_t *p, const apr_xml_elem *elem, int style, apr_array_header_t *namespaces, int *ns_map, const char **pbuf, size_t *psize);
  */
 APU_DECLARE(void) apr_xml_to_text(apr_pool_t *p, const apr_xml_elem *elem,
                                   int style, apr_array_header_t *namespaces,
@@ -320,17 +326,16 @@ APU_DECLARE(void) apr_xml_to_text(apr_pool_t *p, const apr_xml_elem *elem,
                                   apr_size_t *psize);
 
 /* style argument values: */
-#define APR_XML_X2T_FULL         0	/* start tag, contents, end tag */
-#define APR_XML_X2T_INNER        1	/* contents only */
-#define APR_XML_X2T_LANG_INNER   2	/* xml:lang + inner contents */
-#define APR_XML_X2T_FULL_NS_LANG 3	/* FULL + ns defns + xml:lang */
+#define APR_XML_X2T_FULL         0	/**< start tag, contents, end tag */
+#define APR_XML_X2T_INNER        1	/**< contents only */
+#define APR_XML_X2T_LANG_INNER   2	/**< xml:lang + inner contents */
+#define APR_XML_X2T_FULL_NS_LANG 3	/**< FULL + ns defns + xml:lang */
 
 /**
  * empty XML element
  * @param p The pool to allocate out of
  * @param elem The XML element to empty
  * @return the string that was stored in the XML element
- * @deffunc const char *apr_xml_empty_elem(apr_pool_t *p, const apr_xml_elem *elem)
  */
 APU_DECLARE(const char *) apr_xml_empty_elem(apr_pool_t *p,
                                              const apr_xml_elem *elem);
@@ -342,7 +347,6 @@ APU_DECLARE(const char *) apr_xml_empty_elem(apr_pool_t *p,
  * @param s The string to quote
  * @param quotes If quotes is true, then replace '"' with '&quot;'.
  * @return The quoted string
- * @deffunc const char *apr_xml_quote_string(apr_pool_t *p, const char *s, int quotes)
  */
 APU_DECLARE(const char *) apr_xml_quote_string(apr_pool_t *p, const char *s,
                                                int quotes);
@@ -351,7 +355,6 @@ APU_DECLARE(const char *) apr_xml_quote_string(apr_pool_t *p, const char *s,
  * Quote an XML element
  * @param p The pool to allocate out of
  * @param elem The element to quote
- * @deffunc void apr_xml_quote_elem(apr_pool_t *p, apr_xml_elem *elem)
  */
 APU_DECLARE(void) apr_xml_quote_elem(apr_pool_t *p, apr_xml_elem *elem);
 
@@ -362,7 +365,6 @@ APU_DECLARE(void) apr_xml_quote_elem(apr_pool_t *p, apr_xml_elem *elem);
  * @param uri_array array to insert into
  * @param uri The uri to insert
  * @return int The uri's index
- * @deffunc int apr_xml_insert_uri(apr_array_header_t *uri_array, const char *uri)
  */
 APU_DECLARE(int) apr_xml_insert_uri(apr_array_header_t *uri_array,
                                     const char *uri);
@@ -371,5 +373,5 @@ APU_DECLARE(int) apr_xml_insert_uri(apr_array_header_t *uri_array,
 #ifdef __cplusplus
 }
 #endif
-
+/** @} */
 #endif /* APR_XML_H */

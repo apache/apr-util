@@ -60,6 +60,11 @@
  * apr_uri.h: External Interface of apr_uri.c
  */
 
+/**
+ * @file apr_uri.h
+ * @brief APR-UTIL URI Routines
+ */
+
 #ifndef APR_URI_H
 #define APR_URI_H
 
@@ -72,7 +77,9 @@ extern "C" {
 #endif
 
 /**
- * @package Apache URI library
+ * @defgroup APR_Util_URI URI
+ * @ingroup APR_Util
+ * @{
  */
 
 #define APR_URI_FTP_DEFAULT_PORT         21
@@ -150,7 +157,6 @@ struct apr_uri_t {
  * http, ftp, https, gopher, wais, nntp, snews, and prospero
  * @param scheme_str The string that contains the current scheme
  * @return The default port for this scheme
- * @deffunc apr_port_t apr_uri_default_port_for_scheme(const char *scheme_str)
  */ 
 APU_DECLARE(apr_port_t) apr_uri_default_port_for_scheme(const char *scheme_str);
 
@@ -170,7 +176,6 @@ APU_DECLARE(apr_port_t) apr_uri_default_port_for_scheme(const char *scheme_str);
  *    APR_URI_UNP_OMITQUERY           Omit the "?queryarg" from the path 
  * </PRE>
  * @return The uri as a string
- * @deffunc char * apr_uri_unparse(apr_pool_t *p, const apr_uri_t *uptr, unsigned flags)
  */
 APU_DECLARE(char *) apr_uri_unparse(apr_pool_t *p, 
                                                const apr_uri_t *uptr,
@@ -184,7 +189,6 @@ APU_DECLARE(char *) apr_uri_unparse(apr_pool_t *p,
  * @param uri The uri to parse
  * @param uptr The apr_uri_t to fill out
  * @return An HTTP status code
- * @deffunc int apr_uri_parse(apr_pool_t *p, const char *uri, apr_uri_t *uptr)
  */
 APU_DECLARE(int) apr_uri_parse(apr_pool_t *p, const char *uri, 
                                           apr_uri_t *uptr);
@@ -195,12 +199,12 @@ APU_DECLARE(int) apr_uri_parse(apr_pool_t *p, const char *uri,
  * @param hostinfo The hostinfo string to parse
  * @param uptr The apr_uri_t to fill out
  * @return An HTTP status code
- * @deffunc int apr_parse_hostinfo_components(apr_pool_t *p, const char *hostinfo, apr_uri_t *uptr)
  */
 APU_DECLARE(int) apr_uri_parse_hostinfo(apr_pool_t *p, 
                                                    const char *hostinfo, 
                                                    apr_uri_t *uptr);
 
+/** @} */
 #ifdef __cplusplus
 }
 #endif

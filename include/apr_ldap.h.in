@@ -55,9 +55,19 @@
 /*
  * apr_ldap.h is generated from apr_ldap.h.in by configure -- do not edit apr_ldap.h
  */
-
+/**
+ * @file apr_ldab.h
+ * @brief  APR-UTIL LDAP 
+ */
 #ifndef APU_LDAP_H
 #define APU_LDAP_H
+
+/**
+ * @defgroup APR_Util_LDAP LDAP
+ * @ingroup APR_Util
+ * @{
+ */
+
 
 /*
  * This switches LDAP support on or off.
@@ -107,6 +117,6 @@ void ldap_memfree(void *p);
 #define LDAP_URL_ERR_NODN LDAP_URL_ERR_BADURL
 #endif
 
-
+/** @} */
 #endif /* APU_HAS_LDAP */
 #endif /* APU_LDAP_H */
