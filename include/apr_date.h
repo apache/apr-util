@@ -58,13 +58,11 @@
 
 #ifndef APR_DATE_H
 #define APR_DATE_H
+
 /**
  * @file apr_date.h
  * @brief APR-UTIL date routines
  */
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * @defgroup APR_Util_Date Date routines
@@ -79,7 +77,12 @@ extern "C" {
 #include "apu.h"
 #include "apr_time.h"
 
-#define APR_DATE_BAD (apr_time_t)0
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+#define APR_DATE_BAD ((apr_time_t)0)
 
 /**
  * Compare a string to a mask
