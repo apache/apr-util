@@ -219,7 +219,7 @@ AC_ARG_WITH([gdbm],
         AC_MSG_CHECKING(checking for gdbm in $withval)
         AC_CHECK_HEADER(gdbm.h, AC_CHECK_LIB(gdbm, gdbm_open, [apu_have_gdbm=1]))
         if test "$apu_have_gdbm" != "0"; then
-            APR_ADDTO(APRUTIL_EXPORT_LIBS, [-L$withval/lib])
+            APR_ADDTO(APRUTIL_LDFLAGS, [-L$withval/lib])
             APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/include])
         fi
     fi
@@ -378,13 +378,13 @@ dnl Since we have already done the AC_CHECK_LIB tests, if we have it,
 dnl we know the library is there.
 if test "$apu_have_gdbm" = "1"; then
   APR_ADDTO(APRUTIL_EXPORT_LIBS,[-lgdbm])
-  APR_ADDTO(LIBS,[-lgdbm])
+  APR_ADDTO(APRUTIL_LIBS,[-lgdbm])
 fi
 
 if test "$apu_db_version" != "0"; then
   if test -n "$apu_db_lib"; then
     APR_ADDTO(APRUTIL_EXPORT_LIBS,[-l$apu_db_lib])
-    APR_ADDTO(LIBS,[-l$apu_db_lib])
+    APR_ADDTO(APRUTIL_LIBS,[-l$apu_db_lib])
   fi
 fi
 
@@ -398,53 +398,67 @@ dnl
 AC_DEFUN(APU_TEST_EXPAT,[
   AC_MSG_CHECKING(for Expat in ifelse($2,,$1,$2))
 
+  expat_libtool=""
+
   if test -r "$1/lib/expat.h.in"; then
     dnl Expat 1.95.* distribution
     expat_include_dir="$1/lib"
-    expat_libs="$1/lib/libexpat.la"
+    expat_ldflags="-L$1/lib"
+    expat_libs="-lexpat"
+    expat_libtool="$1/lib/libexpat.la"
   elif test -r "$1/include/expat.h" -a \
     -r "$1/lib/libexpat.la"; then
     dnl Expat 1.95.* installation (with libtool)
     expat_include_dir="$1/include"
-    expat_libs="$1/lib/libexpat.la"
+    expat_ldflags="-L$1/lib"
+    expat_libs="-lexpat"
+    expat_libtool="$1/lib/libexpat.la"
   elif test -r "$1/include/expat.h" -a \
     -r "$1/lib/libexpat.a"; then
     dnl Expat 1.95.* installation (without libtool)
     dnl FreeBSD textproc/expat2
     expat_include_dir="$1/include"
-    expat_libs="-L$1/lib -lexpat"
+    expat_ldflags="-L$1/lib"
+    expat_libs="-lexpat"
   elif test -r "$1/xmlparse.h"; then
     dnl maybe an expat-lite. use this dir for both includes and libs
     expat_include_dir="$1"
-    expat_libs="$1/libexpat.la"
+    expat_ldflags="-L$1"
+    expat_libs="-lexpat"
+    expat_libtool="$1/libexpat.la"
     expat_old=yes
   elif test -r "$1/include/xmlparse.h" -a \
        -r "$1/lib/libexpat.a"; then
     dnl previously installed expat
     expat_include_dir="$1/include"
-    expat_libs="-L$1/lib -lexpat"
+    expat_ldflags="-L$1/lib"
+    expat_libs="-lexpat"
     expat_old=yes
   elif test -r "$1/include/xml/xmlparse.h" -a \
        -r "$1/lib/xml/libexpat.a"; then
     dnl previously installed expat
     expat_include_dir="$1/include/xml"
-    expat_libs="-L$1/lib -lexpat"
+    expat_ldflags="-L$1/lib"
+    expat_libs="-lexpat"
     expat_old=yes
   elif test -r "$1/include/xmltok/xmlparse.h"; then
     dnl Debian distribution
     expat_include_dir="$1/include/xmltok"
-    expat_libs="-L$1/lib -lxmlparse -lxmltok"
+    expat_ldflags="-L$1/lib"
+    expat_libs="-lxmlparse -lxmltok"
     expat_old=yes
   elif test -r "$1/include/xml/xmlparse.h" -a \
        -r "$1/lib/libexpat.a"; then
     dnl FreeBSD textproc/expat package
     expat_include_dir="$1/include/xml"
-    expat_libs="-L$1/lib -lexpat"
+    expat_ldflags="-L$1/lib"
+    expat_libs="-lexpat"
     expat_old=yes
   elif test -r "$1/xmlparse/xmlparse.h"; then
     dnl Expat 1.0 or 1.1 source directory
     expat_include_dir="$1/xmlparse"
-    expat_libs="-L$1 -lexpat"
+    expat_ldflags="-L$1"
+    expat_libs="-lexpat"
     expat_old=yes
   fi
   dnl ### test for installed Expat 1.95.* distros
@@ -482,12 +496,22 @@ if test -z "$expat_include_dir"; then
   for d in /usr /usr/local xml/expat-cvs xml/expat $srcdir/xml/expat ; do
     APU_TEST_EXPAT($d)
     if test -n "$expat_include_dir"; then
+      dnl For /usr installs of expat, we can't specify -L/usr/lib
+      if test "$d" = "/usr"; then
+        expat_ldflags=""
+      fi
       break
     fi
   done
 fi
 if test -z "$expat_include_dir"; then
   AC_MSG_ERROR([could not locate Expat. use --with-expat])
+fi
+
+dnl If this expat doesn't use libtool natively, we'll mimic it for our
+dnl dependency library generation.
+if test -z "$expat_libtool"; then
+  expat_libtool="$expat_ldflags $expat_libs" 
 fi
 
 if test -n "$expat_old"; then
@@ -499,7 +523,9 @@ if test "$expat_include_dir" = "xml/expat/lib" -o "$expat_include_dir" = "xml/ex
   bundled_subdir="`echo $expat_include_dir | sed -e 's%/lib%%'`"
   APR_SUBDIR_CONFIG($bundled_subdir)
   expat_include_dir=$top_builddir/$bundled_subdir/lib
-  expat_libs=$top_builddir/$bundled_subdir/lib/libexpat.la
+  expat_ldflags="-L$top_builddir/$bundled_subdir/lib"
+  expat_libs="-lexpat"
+  expat_libtool=$top_builddir/$bundled_subdir/lib/libexpat.la
   APR_XML_SUBDIRS="`echo $bundled_subdir | sed -e 's%xml/%%'`"
 else
 if test "$expat_include_dir" = "$srcdir/xml/expat/include" -o "$expat_include_dir" = "$srcdir/xml/expat/lib"; then
@@ -508,7 +534,9 @@ if test "$expat_include_dir" = "$srcdir/xml/expat/include" -o "$expat_include_di
   bundled_subdir="xml/expat"
   APR_SUBDIR_CONFIG($bundled_subdir)
   expat_include_dir=$top_builddir/$bundled_subdir/lib
-  expat_libs=$top_builddir/$bundled_subdir/lib/libexpat.la
+  expat_ldflags="-L$top_builddir/$bundled_subdir/lib"
+  expat_libs="-lexpat"
+  expat_libtool=$top_builddir/$bundled_subdir/lib/libexpat.la
   APR_XML_SUBDIRS="`echo $bundled_subdir | sed -e 's%xml/%%'`"
 fi
 fi
@@ -522,6 +550,8 @@ if test "$expat_include_dir" != "/usr/include"; then
   APR_ADDTO(APRUTIL_INCLUDES, [-I$expat_include_dir])
 fi
 APR_ADDTO(APRUTIL_EXPORT_LIBS, [$expat_libs])
+APR_ADDTO(APRUTIL_LDFLAGS, [$expat_ldflags])
+APR_ADDTO(APRUTIL_LIBS, [$expat_libtool])
 ])
 
 
@@ -536,8 +566,8 @@ AC_DEFUN(APU_FIND_LDAPLIB,[
     AC_CHECK_LIB(${ldaplib}, ldap_init, 
       [
 dnl        APR_ADDTO(CPPFLAGS,[-DAPU_HAS_LDAP])
-        APR_ADDTO(LIBS,[-l${ldaplib} ${extralib}])
         APR_ADDTO(APRUTIL_EXPORT_LIBS,[-l${ldaplib} ${extralib}])
+        APR_ADDTO(APRUTIL_LIBS,[-l${ldaplib} ${extralib}])
         AC_CHECK_LIB(${ldaplib}, ldapssl_install_routines, apu_has_ldap_netscape_ssl="define", , ${extralib})
         AC_CHECK_LIB(${ldaplib}, ldap_start_tls_s, apu_has_ldap_starttls="define", , ${extralib})
         apu_has_ldap="define";
