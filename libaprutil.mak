@@ -42,12 +42,13 @@ ALL : "$(OUTDIR)\libaprutil.dll"
 
 !ELSE 
 
-ALL : "libapr - Win32 Release" "$(OUTDIR)\libaprutil.dll"
+ALL : "libexpat - Win32 Release" "libapr - Win32 Release"\
+ "$(OUTDIR)\libaprutil.dll"
 
 !ENDIF 
 
 !IF "$(RECURSE)" == "1" 
-CLEAN :"libapr - Win32 ReleaseCLEAN" 
+CLEAN :"libapr - Win32 ReleaseCLEAN" "libexpat - Win32 ReleaseCLEAN" 
 !ELSE 
 CLEAN :
 !ENDIF 
@@ -67,6 +68,7 @@ CLEAN :
 	-@erase "$(INTDIR)\apr_dbm.obj"
 	-@erase "$(INTDIR)\apr_hooks.obj"
 	-@erase "$(INTDIR)\apr_sha1.obj"
+	-@erase "$(INTDIR)\apr_xml.obj"
 	-@erase "$(INTDIR)\aprutil.idb"
 	-@erase "$(INTDIR)\sdbm.obj"
 	-@erase "$(INTDIR)\sdbm_hash.obj"
@@ -82,9 +84,9 @@ CLEAN :
 
 CPP=cl.exe
 CPP_PROJ=/nologo /MD /W3 /O2 /I "./include" /I "../apr/include" /I\
- "./include/private" /I "./dbm/sdbm" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D\
- "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\aprutil"\
- /FD /c 
+ "./include/private" /I "./dbm/sdbm" /I "../expat-lite" /D "NDEBUG" /D "WIN32"\
+ /D "_WINDOWS" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" /Fo"$(INTDIR)\\"\
+ /Fd"$(INTDIR)\aprutil" /FD /c 
 CPP_OBJS=.\Release/
 CPP_SBRS=.
 
@@ -147,11 +149,13 @@ LINK32_OBJS= \
 	"$(INTDIR)\apr_dbm.obj" \
 	"$(INTDIR)\apr_hooks.obj" \
 	"$(INTDIR)\apr_sha1.obj" \
+	"$(INTDIR)\apr_xml.obj" \
 	"$(INTDIR)\sdbm.obj" \
 	"$(INTDIR)\sdbm_hash.obj" \
 	"$(INTDIR)\sdbm_lock.obj" \
 	"$(INTDIR)\sdbm_pair.obj" \
-	"..\apr\Release\libapr.lib"
+	"..\apr\Release\libapr.lib" \
+	"..\expat-lite\Release\libexpat.lib"
 
 "$(OUTDIR)\libaprutil.dll" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
@@ -172,12 +176,13 @@ ALL : "$(OUTDIR)\libaprutil.dll"
 
 !ELSE 
 
-ALL : "libapr - Win32 Debug" "$(OUTDIR)\libaprutil.dll"
+ALL : "libexpat - Win32 Debug" "libapr - Win32 Debug"\
+ "$(OUTDIR)\libaprutil.dll"
 
 !ENDIF 
 
 !IF "$(RECURSE)" == "1" 
-CLEAN :"libapr - Win32 DebugCLEAN" 
+CLEAN :"libapr - Win32 DebugCLEAN" "libexpat - Win32 DebugCLEAN" 
 !ELSE 
 CLEAN :
 !ENDIF 
@@ -197,6 +202,7 @@ CLEAN :
 	-@erase "$(INTDIR)\apr_dbm.obj"
 	-@erase "$(INTDIR)\apr_hooks.obj"
 	-@erase "$(INTDIR)\apr_sha1.obj"
+	-@erase "$(INTDIR)\apr_xml.obj"
 	-@erase "$(INTDIR)\aprutil.idb"
 	-@erase "$(INTDIR)\aprutil.pdb"
 	-@erase "$(INTDIR)\sdbm.obj"
@@ -214,9 +220,9 @@ CLEAN :
 
 CPP=cl.exe
 CPP_PROJ=/nologo /MDd /W3 /GX /Zi /Od /I "./include" /I "../apr/include" /I\
- "./include/private" /I "./dbm/sdbm" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D\
- "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\aprutil"\
- /FD /c 
+ "./include/private" /I "./dbm/sdbm" /I "../expat-lite" /D "_DEBUG" /D "WIN32"\
+ /D "_WINDOWS" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" /Fo"$(INTDIR)\\"\
+ /Fd"$(INTDIR)\aprutil" /FD /c 
 CPP_OBJS=.\Debug/
 CPP_SBRS=.
 
@@ -280,11 +286,13 @@ LINK32_OBJS= \
 	"$(INTDIR)\apr_dbm.obj" \
 	"$(INTDIR)\apr_hooks.obj" \
 	"$(INTDIR)\apr_sha1.obj" \
+	"$(INTDIR)\apr_xml.obj" \
 	"$(INTDIR)\sdbm.obj" \
 	"$(INTDIR)\sdbm_hash.obj" \
 	"$(INTDIR)\sdbm_lock.obj" \
 	"$(INTDIR)\sdbm_pair.obj" \
-	"..\apr\Debug\libapr.lib"
+	"..\apr\Debug\libapr.lib" \
+	"..\expat-lite\Debug\libexpat.lib"
 
 "$(OUTDIR)\libaprutil.dll" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
@@ -303,10 +311,10 @@ DEP_CPP_APR_B=\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
-	"..\apr\include\apr_lib.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_strings.h"\
 	"..\apr\include\apr_tables.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
@@ -314,6 +322,7 @@ DEP_CPP_APR_B=\
 	".\include\apr_buckets.h"\
 	".\include\apr_ring.h"\
 	".\include\apu.h"\
+	{$(INCLUDE)}"arpa\inet.h"\
 	
 
 "$(INTDIR)\apr_brigade.obj" : $(SOURCE) $(DEP_CPP_APR_B) "$(INTDIR)"\
@@ -339,6 +348,7 @@ DEP_CPP_APR_BU=\
 	".\include\apr_buckets.h"\
 	".\include\apr_ring.h"\
 	".\include\apu.h"\
+	{$(INCLUDE)}"arpa\inet.h"\
 	
 
 "$(INTDIR)\apr_buckets.obj" : $(SOURCE) $(DEP_CPP_APR_BU) "$(INTDIR)"\
@@ -362,6 +372,7 @@ DEP_CPP_APR_BUC=\
 	".\include\apr_buckets.h"\
 	".\include\apr_ring.h"\
 	".\include\apu.h"\
+	{$(INCLUDE)}"arpa\inet.h"\
 	
 
 "$(INTDIR)\apr_buckets_eos.obj" : $(SOURCE) $(DEP_CPP_APR_BUC) "$(INTDIR)"\
@@ -386,6 +397,7 @@ DEP_CPP_APR_BUCK=\
 	".\include\apr_buckets.h"\
 	".\include\apr_ring.h"\
 	".\include\apu.h"\
+	{$(INCLUDE)}"arpa\inet.h"\
 	
 
 "$(INTDIR)\apr_buckets_file.obj" : $(SOURCE) $(DEP_CPP_APR_BUCK) "$(INTDIR)"\
@@ -409,6 +421,7 @@ DEP_CPP_APR_BUCKE=\
 	".\include\apr_buckets.h"\
 	".\include\apr_ring.h"\
 	".\include\apu.h"\
+	{$(INCLUDE)}"arpa\inet.h"\
 	
 
 "$(INTDIR)\apr_buckets_flush.obj" : $(SOURCE) $(DEP_CPP_APR_BUCKE) "$(INTDIR)"\
@@ -432,6 +445,7 @@ DEP_CPP_APR_BUCKET=\
 	".\include\apr_buckets.h"\
 	".\include\apr_ring.h"\
 	".\include\apu.h"\
+	{$(INCLUDE)}"arpa\inet.h"\
 	
 
 "$(INTDIR)\apr_buckets_heap.obj" : $(SOURCE) $(DEP_CPP_APR_BUCKET) "$(INTDIR)"\
@@ -455,6 +469,7 @@ DEP_CPP_APR_BUCKETS=\
 	".\include\apr_buckets.h"\
 	".\include\apr_ring.h"\
 	".\include\apu.h"\
+	{$(INCLUDE)}"arpa\inet.h"\
 	
 
 "$(INTDIR)\apr_buckets_mmap.obj" : $(SOURCE) $(DEP_CPP_APR_BUCKETS) "$(INTDIR)"\
@@ -479,6 +494,7 @@ DEP_CPP_APR_BUCKETS_=\
 	".\include\apr_buckets.h"\
 	".\include\apr_ring.h"\
 	".\include\apu.h"\
+	{$(INCLUDE)}"arpa\inet.h"\
 	
 
 "$(INTDIR)\apr_buckets_pipe.obj" : $(SOURCE) $(DEP_CPP_APR_BUCKETS_)\
@@ -502,6 +518,7 @@ DEP_CPP_APR_BUCKETS_P=\
 	".\include\apr_buckets.h"\
 	".\include\apr_ring.h"\
 	".\include\apu.h"\
+	{$(INCLUDE)}"arpa\inet.h"\
 	
 
 "$(INTDIR)\apr_buckets_pool.obj" : $(SOURCE) $(DEP_CPP_APR_BUCKETS_P)\
@@ -525,6 +542,7 @@ DEP_CPP_APR_BUCKETS_R=\
 	".\include\apr_buckets.h"\
 	".\include\apr_ring.h"\
 	".\include\apu.h"\
+	{$(INCLUDE)}"arpa\inet.h"\
 	
 
 "$(INTDIR)\apr_buckets_refcount.obj" : $(SOURCE) $(DEP_CPP_APR_BUCKETS_R)\
@@ -548,6 +566,7 @@ DEP_CPP_APR_BUCKETS_S=\
 	".\include\apr_buckets.h"\
 	".\include\apr_ring.h"\
 	".\include\apu.h"\
+	{$(INCLUDE)}"arpa\inet.h"\
 	
 
 "$(INTDIR)\apr_buckets_simple.obj" : $(SOURCE) $(DEP_CPP_APR_BUCKETS_S)\
@@ -572,6 +591,7 @@ DEP_CPP_APR_BUCKETS_SO=\
 	".\include\apr_buckets.h"\
 	".\include\apr_ring.h"\
 	".\include\apu.h"\
+	{$(INCLUDE)}"arpa\inet.h"\
 	
 
 "$(INTDIR)\apr_buckets_socket.obj" : $(SOURCE) $(DEP_CPP_APR_BUCKETS_SO)\
@@ -613,6 +633,7 @@ DEP_CPP_SDBM_=\
 	".\dbm\sdbm\sdbm_private.h"\
 	".\dbm\sdbm\sdbm_tune.h"\
 	".\include\apr_sdbm.h"\
+	{$(INCLUDE)}"arpa\inet.h"\
 	
 
 "$(INTDIR)\sdbm.obj" : $(SOURCE) $(DEP_CPP_SDBM_) "$(INTDIR)"
@@ -630,6 +651,7 @@ DEP_CPP_SDBM_H=\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
 	".\include\apr_sdbm.h"\
+	{$(INCLUDE)}"arpa\inet.h"\
 	
 
 "$(INTDIR)\sdbm_hash.obj" : $(SOURCE) $(DEP_CPP_SDBM_H) "$(INTDIR)"
@@ -648,6 +670,7 @@ DEP_CPP_SDBM_L=\
 	"..\apr\include\apr_want.h"\
 	".\dbm\sdbm\sdbm_private.h"\
 	".\include\apr_sdbm.h"\
+	{$(INCLUDE)}"arpa\inet.h"\
 	
 
 "$(INTDIR)\sdbm_lock.obj" : $(SOURCE) $(DEP_CPP_SDBM_L) "$(INTDIR)"
@@ -668,6 +691,7 @@ DEP_CPP_SDBM_P=\
 	".\dbm\sdbm\sdbm_private.h"\
 	".\dbm\sdbm\sdbm_tune.h"\
 	".\include\apr_sdbm.h"\
+	{$(INCLUDE)}"arpa\inet.h"\
 	
 
 "$(INTDIR)\sdbm_pair.obj" : $(SOURCE) $(DEP_CPP_SDBM_P) "$(INTDIR)"
@@ -689,6 +713,7 @@ DEP_CPP_APR_D=\
 	".\include\apr_sdbm.h"\
 	".\include\apu.h"\
 	".\include\private\apu_select_dbm.h"\
+	{$(INCLUDE)}"arpa\inet.h"\
 	
 
 "$(INTDIR)\apr_dbm.obj" : $(SOURCE) $(DEP_CPP_APR_D) "$(INTDIR)"\
@@ -730,6 +755,25 @@ DEP_CPP_APR_H=\
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
+SOURCE=.\xml\apr_xml.c
+DEP_CPP_APR_X=\
+	"..\apr\include\apr.h"\
+	"..\apr\include\apr_errno.h"\
+	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_strings.h"\
+	"..\apr\include\apr_tables.h"\
+	"..\apr\include\apr_want.h"\
+	"..\expat-lite\xmlparse.h"\
+	".\include\apr_xml.h"\
+	".\include\apu.h"\
+	{$(INCLUDE)}"arpa\inet.h"\
+	
+
+"$(INTDIR)\apr_xml.obj" : $(SOURCE) $(DEP_CPP_APR_X) "$(INTDIR)"\
+ ".\include\apu.h"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
 SOURCE=.\include\apu.hw
 
 !IF  "$(CFG)" == "libaprutil - Win32 Release"
@@ -760,7 +804,7 @@ InputPath=.\include\private\apu_select_dbm.hw
 
 ".\include\private\apu_select_dbm.h"	 : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	copy .\include\private\apu_select_dbm.hw .\include\private\apu_select_dbm.h >\
- nul 
+  nul 
 	echo Created apu_select_dbm.h from apu_select_dbm.hw 
 	
 
@@ -770,7 +814,7 @@ InputPath=.\include\private\apu_select_dbm.hw
 
 ".\include\private\apu_select_dbm.h"	 : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	copy .\include\private\apu_select_dbm.hw .\include\private\apu_select_dbm.h >\
- nul 
+  nul 
 	echo Created apu_select_dbm.h from apu_select_dbm.hw 
 	
 
@@ -799,6 +843,34 @@ InputPath=.\include\private\apu_select_dbm.hw
 "libapr - Win32 DebugCLEAN" : 
    cd "\clean\httpd-2.0\srclib\apr"
    $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\libapr.mak" CFG="libapr - Win32 Debug"\
+ RECURSE=1 
+   cd "..\apr-util"
+
+!ENDIF 
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
+"libexpat - Win32 Release" : 
+   cd "\clean\httpd-2.0\srclib\expat-lite"
+   $(MAKE) /$(MAKEFLAGS) /F ".\libexpat.mak" CFG="libexpat - Win32 Release" 
+   cd "..\apr-util"
+
+"libexpat - Win32 ReleaseCLEAN" : 
+   cd "\clean\httpd-2.0\srclib\expat-lite"
+   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\libexpat.mak"\
+ CFG="libexpat - Win32 Release" RECURSE=1 
+   cd "..\apr-util"
+
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+"libexpat - Win32 Debug" : 
+   cd "\clean\httpd-2.0\srclib\expat-lite"
+   $(MAKE) /$(MAKEFLAGS) /F ".\libexpat.mak" CFG="libexpat - Win32 Debug" 
+   cd "..\apr-util"
+
+"libexpat - Win32 DebugCLEAN" : 
+   cd "\clean\httpd-2.0\srclib\expat-lite"
+   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\libexpat.mak" CFG="libexpat - Win32 Debug"\
  RECURSE=1 
    cd "..\apr-util"
 
