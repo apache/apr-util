@@ -90,7 +90,7 @@ static void * APR_THREAD_FUNC consumer(apr_thread_t *thd, void *data)
     apr_queue_t *q = (apr_queue_t*)data;
     apr_status_t rv;
     int val;
-    void*v;
+    void *v;
 
     sleeprate = 1000000/consumer_activity;
     apr_sleep( (rand() % 4 ) * 1000000 ); /* sleep random seconds */
@@ -111,7 +111,7 @@ static void * APR_THREAD_FUNC consumer(apr_thread_t *thd, void *data)
             apr_thread_exit(thd, rv);
             return NULL;
         }
-        val = **(int**)v;
+        val = *(int*)v;
         if (verbose)
             fprintf(stderr,  "%ld\tpop %d\n", apr_os_thread_current(),val);
         apr_sleep( sleeprate ); /* sleep this long to acheive our rate */
@@ -161,7 +161,7 @@ static void * APR_THREAD_FUNC producer(apr_thread_t *thd, void *data)
 
 static void usage(void)
 {
-    fprintf(stderr,"usage: testqueue -p n -P n -c n -C n -q n -s n ");
+    fprintf(stderr,"usage: testqueue -p n -P n -c n -C n -q n -s n\n");
     fprintf(stderr,"-c # of consumer\n");
     fprintf(stderr,"-C amount they consumer before dying\n");
     fprintf(stderr,"-p # of producers\n");
