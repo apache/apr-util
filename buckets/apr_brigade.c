@@ -458,71 +458,109 @@ APU_DECLARE(apr_status_t) apr_brigade_writev(apr_bucket_brigade *b,
                                              const struct iovec *vec,
                                              apr_size_t nvec)
 {
-    apr_bucket *e = APR_BRIGADE_LAST(b);
-    apr_size_t remaining;
-    char *buf;
+    apr_bucket *e;
+    apr_size_t total_len;
     apr_size_t i;
-    apr_status_t rv;
+    char *buf;
 
-    /* Step 1: check if there is a heap bucket at the end
-     * of the brigade already
+    /* Compute the total length of the data to be written.
      */
+    total_len = 0;
+    for (i = 0; i < nvec; i++) {
+       total_len += vec[i].iov_len;
+    }
+
+    /* If the data to be written is very large, convert
+     * the iovec to transient buckets rather than copying.
+     */
+    if (total_len > APR_BUCKET_BUFF_SIZE) {
+        for (i = 0; i < nvec; i++) {
+            e = apr_bucket_transient_create(vec[i].iov_base, vec[i].iov_len,
+                                            b->bucket_alloc);
+            APR_BRIGADE_INSERT_TAIL(b, e);
+        }
+        if (flush) {
+            return flush(b, ctx);
+        }
+        else {
+            return APR_SUCCESS;
+        }
+    }
+
+    i = 0;
+
+    /* If there is a heap bucket at the end of the brigade
+     * already, copy into the existing bucket.
+     */
+    e = APR_BRIGADE_LAST(b);
     if (!APR_BRIGADE_EMPTY(b) && APR_BUCKET_IS_HEAP(e)) {
         apr_bucket_heap *h = e->data;
-        remaining = h->alloc_len - (e->length + (apr_size_t)e->start);
+        apr_size_t remaining = h->alloc_len -
+            (e->length + (apr_size_t)e->start);
         buf = h->base + e->start + e->length;
-    }
-    else {
-        remaining = 0;
-        buf = NULL;
-    }
 
-    /* Step 2: copy the data into the heap bucket, appending
-     * a new heap bucket each time the old one becomes full
-     */
-    for (i = 0; i < nvec; i++) {
-        apr_size_t nbyte = vec[i].iov_len;
-        const char *str = (const char *)(vec[i].iov_base);
-
-        if (nbyte <= remaining) {
-            /* Simple case: the data will fit in the current heap bucket */
-            memcpy(buf, str, nbyte);
-            e->length += nbyte;
-            buf += nbyte;
-            remaining -= nbyte;
-        }
-        else if (nbyte < APR_BUCKET_BUFF_SIZE) {
-            /* Flush the content written so far */
-            if (flush && (i != 0) && !APR_BRIGADE_EMPTY(b)) {
-                rv = flush(b, ctx);
-                if (rv != APR_SUCCESS) {
-                    return rv;
-                }
+        if (remaining >= total_len) {
+            /* Simple case: all the data will fit in the
+             * existing heap bucket
+             */
+            for (; i < nvec; i++) {
+                apr_size_t len = vec[i].iov_len;
+                memcpy(buf, (const void *) vec[i].iov_base, len);
+                buf += len;
             }
-
-            /* Allocate a new heap buffer */
-            buf = apr_bucket_alloc(APR_BUCKET_BUFF_SIZE, b->bucket_alloc);
-            e = apr_bucket_heap_create(buf, APR_BUCKET_BUFF_SIZE,
-                                       apr_bucket_free, b->bucket_alloc);
-            APR_BRIGADE_INSERT_TAIL(b, e);
-            memcpy(buf, str, nbyte);
-            e->length = nbyte;
-            buf += nbyte;
-            remaining = APR_BUCKET_BUFF_SIZE - nbyte;
-
+            e->length += total_len;
+            return APR_SUCCESS;
         }
-        else { /* String larger than APR_BUCKET_BUFF_SIZE */
-            e = apr_bucket_transient_create(str, nbyte, b->bucket_alloc);
-            APR_BRIGADE_INSERT_TAIL(b, e);
+        else {
+            /* More complicated case: not all of the data
+             * will fit in the existing heap bucket.  The
+             * total data size is <= APR_BUCKET_BUFF_SIZE,
+             * so we'll need only one additional bucket.
+             */
+            const char *start_buf = buf;
+            for (; i < nvec; i++) {
+                apr_size_t len = vec[i].iov_len;
+                if (len > remaining) {
+                    break;
+                }
+                memcpy(buf, (const void *) vec[i].iov_base, len);
+                buf += len;
+                remaining -= len;
+            }
+            e->length += (buf - start_buf);
+            total_len -= (buf - start_buf);
+
             if (flush) {
-                rv = flush(b, ctx);
+                apr_status_t rv = flush(b, ctx);
                 if (rv != APR_SUCCESS) {
                     return rv;
                 }
             }
-            remaining = 0; /* create a new heap bucket for the next write */
+
+            /* Now fall through into the case below to
+             * allocate another heap bucket and copy the
+             * rest of the array.  (Note that i is not
+             * reset to zero here; it holds the index
+             * of the first vector element to be
+             * written to the new bucket.)
+             */
         }
     }
+
+    /* Allocate a new heap bucket, and copy the data into it.
+     * The checks above ensure that the amount of data to be
+     * written here is no larger than APR_BUCKET_BUFF_SIZE.
+     */
+    buf = apr_bucket_alloc(APR_BUCKET_BUFF_SIZE, b->bucket_alloc);
+    e = apr_bucket_heap_create(buf, APR_BUCKET_BUFF_SIZE,
+                               apr_bucket_free, b->bucket_alloc);
+    for (; i < nvec; i++) {
+        apr_size_t len = vec[i].iov_len;
+        memcpy(buf, (const void *) vec[i].iov_base, len);
+        buf += len;
+    }
+    e->length = total_len;
+    APR_BRIGADE_INSERT_TAIL(b, e);
 
     return APR_SUCCESS;
 }
