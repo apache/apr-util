@@ -1,5 +1,9 @@
 Changes with APR-util 0.9.5
 
+  *) The whole codebase was relicensed and is now available under
+     the Apache License, Version 2.0 (http://www.apache.org/licenses).
+     [Apache Software Foundation]
+
   *) Fix xlate.c compile failure on AIX 5.2.  PR 25701.  [Jeff Trawick]
 
   *) Fixed a bug in apr_rmm that would cause it to mishandle blocks of
