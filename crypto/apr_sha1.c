@@ -85,6 +85,7 @@
 #include "ap_config.h"
 #include "ap_sha1.h"
 #include "ap_base64.h"
+#include "apr_strings.h"
 #include "apr_lib.h"
 #ifdef CHARSET_EBCDIC
 #include "apr_xlate.h"
