@@ -1,5 +1,9 @@
 Changes with APR-util 0.9.5
 
+  *) Change the order in which ldap.h and lber.h are defined, to fix
+     a compile bug in Solaris v2.8 which requires lber.h then ldap.h.
+     PR 27379 [Andrew Connors <andy.connors@idea.com>]
+ 
   *) Restore support for SHA1 passwords in apr_validate_password.
      PR 17343.  [Paul Querna <chip force-elite.com>]
 
