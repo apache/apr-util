@@ -44,11 +44,11 @@ APU_DECLARE(int) apr_ldap_get_option(apr_pool_t *pool,
                                      LDAP *ldap,
                                      int option,
                                      void *outvalue,
-                                     apr_ldap_err_t **result_err) {
-
+                                     apr_ldap_err_t **result_err)
+{
     apr_ldap_err_t *result;
 
-    result = (apr_ldap_err_t *)apr_pcalloc(pool, sizeof(apr_ldap_err_t));
+    result = apr_pcalloc(pool, sizeof(apr_ldap_err_t));
     *result_err = result;
     if (!result) {
         return APR_ENOMEM;
@@ -58,9 +58,9 @@ APU_DECLARE(int) apr_ldap_get_option(apr_pool_t *pool,
     result->rc = ldap_get_option(ldap, option, outvalue);
 
     /* handle the error case */
-    if (LDAP_SUCCESS != result->rc) {
+    if (result->rc != LDAP_SUCCESS) {
         result->msg = ldap_err2string(result-> rc);
-        result->reason = apr_pstrdup (pool, "LDAP: Could not get an option");
+        result->reason = apr_pstrdup(pool, "LDAP: Could not get an option");
         return APR_EGENERAL;
     }
 
@@ -82,41 +82,39 @@ APU_DECLARE(int) apr_ldap_set_option(apr_pool_t *pool,
                                      LDAP *ldap,
                                      int option,
                                      const void *invalue,
-                                     apr_ldap_err_t **result_err) {
-
+                                     apr_ldap_err_t **result_err)
+{
     apr_ldap_err_t *result;
 
-    result = (apr_ldap_err_t *)apr_pcalloc(pool, sizeof(apr_ldap_err_t));
+    result = apr_pcalloc(pool, sizeof(apr_ldap_err_t));
     *result_err = result;
     if (!result) {
         return APR_ENOMEM;
     }
 
     switch (option) {
-        case APR_LDAP_OPT_TLS_CERT: {
-            option_set_cert(pool, ldap, invalue, result);
-            break;
-        }
-        case APR_LDAP_OPT_TLS: {
-            option_set_tls(pool, ldap, invalue, result);
-            break;
-        }
-        default: {
+    case APR_LDAP_OPT_TLS_CERT:
+        option_set_cert(pool, ldap, invalue, result);
+        break;
 
-            /* set the option specified using the native LDAP function */
-            result->rc = ldap_set_option(ldap, option, (void *)invalue);
-
-            /* handle the error case */
-            if (LDAP_SUCCESS != result->rc) {
-                result->msg = ldap_err2string(result->rc);
-                result->reason = "LDAP: Could not set an option";
-            }
-
+    case APR_LDAP_OPT_TLS:
+        option_set_tls(pool, ldap, invalue, result);
+        break;
+        
+    default:
+        /* set the option specified using the native LDAP function */
+        result->rc = ldap_set_option(ldap, option, (void *)invalue);
+        
+        /* handle the error case */
+        if (result->rc != LDAP_SUCCESS) {
+            result->msg = ldap_err2string(result->rc);
+            result->reason = "LDAP: Could not set an option";
         }
+        break;
     }
 
     /* handle the error case */
-    if (LDAP_SUCCESS != result->rc) {
+    if (result->rc != LDAP_SUCCESS) {
         return APR_EGENERAL;
     }
 
@@ -143,7 +141,7 @@ static int option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
 
     /* Netscape SDK */
 #if APR_HAS_NETSCAPE_LDAPSDK
-    if (APR_LDAP_SSL == tls) {
+    if (tls == APR_LDAP_SSL) {
         result->rc = ldapssl_install_routines(ldap);
         if (result->rc == LDAP_SUCCESS) {
             result->rc = ldap_set_option(ldap, LDAP_OPT_SSL, LDAP_OPT_ON);
@@ -154,12 +152,12 @@ static int option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
                              "connection.";
         }
     }
-    else if (APR_LDAP_STARTTLS == tls) {
+    else if (tls == APR_LDAP_STARTTLS) {
         result->reason = "LDAP: STARTTLS is not supported by the "
                          "Netscape/Mozilla SDK";
         result->rc = -1;
     }
-    else if (APR_LDAP_STOPTLS == tls) {
+    else if (tls == APR_LDAP_STOPTLS) {
         result->reason = "LDAP: STOPTLS is not supported by the "
                          "Netscape/Mozilla SDK";
         result->rc = -1;
@@ -175,7 +173,7 @@ static int option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
      * 
      * STARTTLS is supported by the ldap_start_tls_s() method
      */
-    /*if ((APR_LDAP_SSL == tls) || (APR_LDAP_STARTTLS == tls)) {
+    /*if ((tls == APR_LDAP_SSL) || (tls == APR_LDAP_STARTTLS)) {
         result->rc = ldapssl_install_routines(ldap);
         if (result->rc != LDAP_SUCCESS) {
             result->msg = ldap_err2string(result->rc);
@@ -183,14 +181,14 @@ static int option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
                              "connection.";
         }
     }*/
-    if (APR_LDAP_STARTTLS == tls) {
+    if (tls == APR_LDAP_STARTTLS) {
         result->rc = ldapssl_start_tls(ldap);
         if (result->rc != LDAP_SUCCESS) {
             result->msg = ldap_err2string(result->rc);
             result->reason = "LDAP: Could not start TLS on this connection";
         }
     }
-    else if (APR_LDAP_STOPTLS == tls) {
+    else if (tls == APR_LDAP_STOPTLS) {
         result->rc = ldapssl_stop_tls(ldap);
         if (result->rc != LDAP_SUCCESS) {
             result->msg = ldap_err2string(result->rc);
@@ -202,24 +200,24 @@ static int option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
     /* OpenLDAP SDK */
 #if APR_HAS_OPENLDAP_LDAPSDK
 #ifdef LDAP_OPT_X_TLS
-    if (APR_LDAP_SSL == tls) {
+    if (tls == APR_LDAP_SSL) {
         int SSLmode = LDAP_OPT_X_TLS_HARD;
         result->rc = ldap_set_option(ldap, LDAP_OPT_X_TLS, &SSLmode);
-        if (LDAP_SUCCESS != result->rc) {
+        if (result->rc != LDAP_SUCCESS) {
             result->reason = "LDAP: ldap_set_option failed. "
                              "Could not set LDAP_OPT_X_TLS to "
                              "LDAP_OPT_X_TLS_HARD";
             result->msg = ldap_err2string(result->rc);
         }   
     }
-    else if (APR_LDAP_STARTTLS == tls) {
+    else if (tls == APR_LDAP_STARTTLS) {
         result->rc = ldap_start_tls_s(ldap, NULL, NULL);
-        if (LDAP_SUCCESS != result->rc) {
+        if (result->rc != LDAP_SUCCESS) {
             result->reason = "LDAP: ldap_start_tls_s() failed";
             result->msg = ldap_err2string(result->rc);
         }
     }
-    else if (APR_LDAP_STOPTLS == tls) {
+    else if (tls == APR_LDAP_STOPTLS) {
         result->reason = "LDAP: STOPTLS is not supported by the "
                          "OpenLDAP SDK";
         result->rc = -1;
@@ -233,7 +231,7 @@ static int option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
 
     /* Solaris SDK */
 #if APR_HAS_SOLARIS_LDAPSDK
-    if (APR_LDAP_NONE != tls) {
+    if (tls != APR_LDAP_NONE) {
         result->reason = "LDAP: SSL/TLS is currently not supported by "
                          "APR on the Solaris SDK";
         result->rc = -1;
@@ -242,34 +240,34 @@ static int option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
 
     /* Microsoft SDK */
 #if APR_HAS_MICROSOFT_LDAPSDK
-    if (APR_LDAP_NONE == tls) {
+    if (tls == APR_LDAP_NONE) {
         mode = 0;
         result->rc = ldap_set_option(ldap, LDAP_OPT_SSL, &mode);
-        if (LDAP_SUCCESS != result->rc) {
+        if (result->rc != LDAP_SUCCESS) {
             result->reason = "LDAP: an attempt to set LDAP_OPT_SSL off "
                              "failed.";
             result->msg = ldap_err2string(result->rc);
         }
     }
-    else if (APR_LDAP_SSL == tls) {
+    else if (tls == APR_LDAP_SSL) {
         mode = 1;
         result->rc = ldap_set_option(ldap, LDAP_OPT_SSL, &mode);
-        if (LDAP_SUCCESS != result->rc) {
+        if (result->rc != LDAP_SUCCESS) {
             result->reason = "LDAP: an attempt to set LDAP_OPT_SSL on "
                              "failed.";
             result->msg = ldap_err2string(result->rc);
         }
     }
-    else if (APR_LDAP_STARTTLS == tls) {
+    else if (tls == APR_LDAP_STARTTLS) {
         result->rc = ldap_start_tls_s(ldap, NULL, NULL, NULL, NULL);
-        if (LDAP_SUCCESS != result->rc) {
+        if (result->rc != LDAP_SUCCESS) {
             result->reason = "LDAP: ldap_start_tls_s() failed";
             result->msg = ldap_err2string(result->rc);
         }
     }
-    else if (APR_LDAP_STOPTLS == tls) {
+    else if (tls == APR_LDAP_STOPTLS) {
         result->rc = ldap_stop_tls_s(ldap);
-        if (LDAP_SUCCESS != result->rc) {
+        if (result->rc != LDAP_SUCCESS) {
             result->reason = "LDAP: ldap_stop_tls_s() failed";
             result->msg = ldap_err2string(result->rc);
         }
@@ -277,7 +275,7 @@ static int option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
 #endif
 
 #if APR_HAS_OTHER_LDAPSDK
-    if (APR_LDAP_NONE != tls) {
+    if (tls != APR_LDAP_NONE) {
         result->reason = "LDAP: SSL/TLS is currently not supported by "
                          "APR on this LDAP SDK";
         result->rc = -1;
@@ -317,24 +315,21 @@ static int option_set_cert(apr_pool_t *pool, LDAP *ldap,
     /* set up cert7.db, key3.db and secmod parameters */
     while (cert) {
         switch (cert->type) {
-            case APR_LDAP_CA_TYPE_CERT7_DB: {
-                cert7db = cert->path;
-                break;
-            }
-            case APR_LDAP_CA_TYPE_SECMOD: {
-                secmod = cert->path;
-                break;
-            }
-            case APR_LDAP_CERT_TYPE_KEY3_DB: {
-                key3db = cert->path;
-                break;
-            }
-            default: {
-                result->rc = -1;
-                result->reason = "LDAP: The Netscape/Mozilla LDAP SDK only "
-                                 "understands the CERT7, KEY3 and SECMOD "
-                                 "file types.";
-            }
+        case APR_LDAP_CA_TYPE_CERT7_DB:
+            cert7db = cert->path;
+            break;
+        case APR_LDAP_CA_TYPE_SECMOD:
+            secmod = cert->path;
+            break;
+        case APR_LDAP_CERT_TYPE_KEY3_DB:
+            key3db = cert->path;
+            break;
+        default:
+            result->rc = -1;
+            result->reason = "LDAP: The Netscape/Mozilla LDAP SDK only "
+                "understands the CERT7, KEY3 and SECMOD "
+                "file types.";
+            break;
         }
         if (result->rc != LDAP_SUCCESS) {
             break;
@@ -388,66 +383,60 @@ static int option_set_cert(apr_pool_t *pool, LDAP *ldap,
         result->reason = "LDAP: The Novell LDAP SDK cannot support the setting "
                          "of certificates or keys on a per connection basis.";
     }
-    /* Novell's library needs to be inititalised first */
+    /* Novell's library needs to be initialised first */
     else {
         result->rc = ldapssl_client_init(NULL, NULL);
-        if (LDAP_SUCCESS != result->rc) {
+        if (result->rc != LDAP_SUCCESS) {
             result->msg = ldap_err2string(result-> rc);
-            result->reason = apr_pstrdup (pool, "LDAP: Could not "
-                                                "initialize SSL");
+            result->reason = apr_pstrdup(pool, "LDAP: Could not "
+                                         "initialize SSL");
         }
     }
     /* set one or more certificates */
     while (LDAP_SUCCESS == result->rc && cert) {
         /* Novell SDK supports DER or BASE64 files. */
         switch (cert->type) {
-            case APR_LDAP_CA_TYPE_DER: {
-                result->rc = ldapssl_add_trusted_cert((void *)cert->path,
-                                      LDAPSSL_CERT_FILETYPE_DER);
-                result->msg = ldap_err2string(result->rc);
-                break;
-            }
-            case APR_LDAP_CA_TYPE_BASE64: {
-                result->rc = ldapssl_add_trusted_cert((void *)cert->path,
-                                      LDAPSSL_CERT_FILETYPE_B64);
-                result->msg = ldap_err2string(result->rc);
-                break;
-            }
-            case APR_LDAP_CERT_TYPE_DER: {
-                result->rc = ldapssl_set_client_cert((void *)cert->path,
-                                      LDAPSSL_CERT_FILETYPE_DER,
-                                      (void*)cert->password);
-                result->msg = ldap_err2string(result->rc);
-                break;
-            }
-            case APR_LDAP_CERT_TYPE_BASE64: {
-                result->rc = ldapssl_set_client_cert((void *)cert->path,
-                                      LDAPSSL_CERT_FILETYPE_B64,
-                                      (void*)cert->password);
-                result->msg = ldap_err2string(result->rc);
-                break;
-            }
-            case APR_LDAP_KEY_TYPE_DER: {
-                result->rc = ldapssl_set_client_private_key((void *)cert->path,
-                                      LDAPSSL_CERT_FILETYPE_DER,
-                                      (void*)cert->password);
-                result->msg = ldap_err2string(result->rc);
-                break;
-            }
-            case APR_LDAP_KEY_TYPE_BASE64: {
-                result->rc = ldapssl_set_client_private_key((void *)cert->path,
-                                      LDAPSSL_CERT_FILETYPE_B64,
-                                      (void*)cert->password);
-                result->msg = ldap_err2string(result->rc);
-                break;
-            }
-            default: {
-                result->rc = -1;
-                result->reason = "LDAP: The Novell LDAP SDK only understands the "
-                                 "DER and PEM (BASE64) file types.";
-            }
+        case APR_LDAP_CA_TYPE_DER:
+            result->rc = ldapssl_add_trusted_cert((void *)cert->path,
+                                                  LDAPSSL_CERT_FILETYPE_DER);
+            result->msg = ldap_err2string(result->rc);
+            break;
+        case APR_LDAP_CA_TYPE_BASE64:
+            result->rc = ldapssl_add_trusted_cert((void *)cert->path,
+                                                  LDAPSSL_CERT_FILETYPE_B64);
+            result->msg = ldap_err2string(result->rc);
+            break;
+        case APR_LDAP_CERT_TYPE_DER:
+            result->rc = ldapssl_set_client_cert((void *)cert->path,
+                                                 LDAPSSL_CERT_FILETYPE_DER,
+                                                 (void*)cert->password);
+            result->msg = ldap_err2string(result->rc);
+            break;
+        case APR_LDAP_CERT_TYPE_BASE64: 
+            result->rc = ldapssl_set_client_cert((void *)cert->path,
+                                                 LDAPSSL_CERT_FILETYPE_B64,
+                                                 (void*)cert->password);
+            result->msg = ldap_err2string(result->rc);
+            break;
+        case APR_LDAP_KEY_TYPE_DER:
+            result->rc = ldapssl_set_client_private_key((void *)cert->path,
+                                                        LDAPSSL_CERT_FILETYPE_DER,
+                                                        (void*)cert->password);
+            result->msg = ldap_err2string(result->rc);
+            break;
+        case APR_LDAP_KEY_TYPE_BASE64:
+            result->rc = ldapssl_set_client_private_key((void *)cert->path,
+                                                        LDAPSSL_CERT_FILETYPE_B64,
+                                                        (void*)cert->password);
+            result->msg = ldap_err2string(result->rc);
+            break;
+        default:
+            result->rc = -1;
+            result->reason = "LDAP: The Novell LDAP SDK only understands the "
+                "DER and PEM (BASE64) file types.";
+            break;
         }
-        if (LDAP_SUCCESS != result->rc) {
+        if (result->rc != LDAP_SUCCESS) {
             break;
         }
         cert = cert->next;
@@ -462,7 +451,7 @@ static int option_set_cert(apr_pool_t *pool, LDAP *ldap,
 #endif
 #endif
 
-    /* openldap SDK */
+    /* OpenLDAP SDK */
 #if APR_HAS_OPENLDAP_LDAPSDK
 #ifdef LDAP_OPT_X_TLS_CACERTFILE
     /* set one or more certificates */
@@ -470,31 +459,28 @@ static int option_set_cert(apr_pool_t *pool, LDAP *ldap,
     while (cert) {
         /* OpenLDAP SDK supports BASE64 files. */
         switch (cert->type) {
-            case APR_LDAP_CA_TYPE_BASE64: {
-                result->rc = ldap_set_option(ldap, LDAP_OPT_X_TLS_CACERTFILE,
-                                             (void *)cert->path);
-                result->msg = ldap_err2string(result->rc);
-                break;
-            }
-            case APR_LDAP_CERT_TYPE_BASE64: {
-                result->rc = ldap_set_option(ldap, LDAP_OPT_X_TLS_CERTFILE,
-                                             (void *)cert->path);
-                result->msg = ldap_err2string(result->rc);
-                break;
-            }
-            case APR_LDAP_KEY_TYPE_BASE64: {
-                result->rc = ldap_set_option(ldap, LDAP_OPT_X_TLS_KEYFILE,
-                                             (void *)cert->path);
-                result->msg = ldap_err2string(result->rc);
-                break;
-            }
-            default: {
-                result->rc = -1;
-                result->reason = "LDAP: The OpenLDAP SDK only understands the "
-                                 "PEM (BASE64) file type.";
-            }
+        case APR_LDAP_CA_TYPE_BASE64:
+            result->rc = ldap_set_option(ldap, LDAP_OPT_X_TLS_CACERTFILE,
+                                         (void *)cert->path);
+            result->msg = ldap_err2string(result->rc);
+            break;
+        case APR_LDAP_CERT_TYPE_BASE64:
+            result->rc = ldap_set_option(ldap, LDAP_OPT_X_TLS_CERTFILE,
+                                         (void *)cert->path);
+            result->msg = ldap_err2string(result->rc);
+            break;
+        case APR_LDAP_KEY_TYPE_BASE64:
+            result->rc = ldap_set_option(ldap, LDAP_OPT_X_TLS_KEYFILE,
+                                         (void *)cert->path);
+            result->msg = ldap_err2string(result->rc);
+            break;
+        default:
+            result->rc = -1;
+            result->reason = "LDAP: The OpenLDAP SDK only understands the "
+                "PEM (BASE64) file type.";
+            break;
         }
-        if (LDAP_SUCCESS != result->rc) {
+        if (result->rc != LDAP_SUCCESS) {
             break;
         }
         cert = cert->next;
@@ -507,11 +493,10 @@ static int option_set_cert(apr_pool_t *pool, LDAP *ldap,
 #endif
 #endif
 
-    /* microsoft SDK */
+    /* Microsoft SDK */
 #if APR_HAS_MICROSOFT_LDAPSDK
-    /* Microsoft SDK use the registry certificate store - error out here
-     * with a message explaining this.
-     */
+    /* Microsoft SDK use the registry certificate store - error out
+     * here with a message explaining this. */
     result->reason = "LDAP: CA certificates cannot be set using this method, "
                      "as they are stored in the registry instead."
     result->rc = -1;
@@ -527,10 +512,10 @@ static int option_set_cert(apr_pool_t *pool, LDAP *ldap,
 
     /* SDK not recognised */
 #if APR_HAS_OTHER_LDAPSDK
-        result->reason = "LDAP: LDAP_OPT_X_TLS_CACERTFILE not "
-                         "defined by this LDAP SDK. Certificate " 
-                         "authority file not set";
-        result->rc = -1;
+    result->reason = "LDAP: LDAP_OPT_X_TLS_CACERTFILE not "
+                     "defined by this LDAP SDK. Certificate "
+                     "authority file not set";
+    result->rc = -1;
 #endif
 
 #else  /* not compiled with SSL Support */
@@ -540,8 +525,6 @@ static int option_set_cert(apr_pool_t *pool, LDAP *ldap,
 #endif /* APR_HAS_LDAP_SSL */
 
     return result->rc;
-
 }
-
 
 #endif /* APR_HAS_LDAP */
