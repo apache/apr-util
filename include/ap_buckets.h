@@ -430,7 +430,7 @@ API_EXPORT_NONSTD(int) ap_brigade_putstrs(ap_bucket_brigade *b, ...);
  * @return The number of bytes added to the brigade
  * @deffunc int ap_brigade_printf(ap_bucket_brigade *b, const char *fmt, ...) 
  */
-API_EXPORT(int) ap_brigade_printf(ap_bucket_brigade *b, const char *fmt, ...);
+API_EXPORT_NONSTD(int) ap_brigade_printf(ap_bucket_brigade *b, const char *fmt, ...);
 
 /**
  * Evaluate a printf and put the resulting string into a bucket at the end 
