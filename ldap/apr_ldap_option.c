@@ -141,8 +141,8 @@ static void option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
 #if APR_HAS_LDAP_SSL /* compiled with ssl support */
 
     /* Netscape/Mozilla/Solaris SDK */
-#if APR_HAS_NETSCAPE_LDAPSDK || APR_HAS_SOLARIS_LDAPSDK
-#ifdef LDAP_OPT_SSL
+#if APR_HAS_NETSCAPE_LDAPSDK || APR_HAS_SOLARIS_LDAPSDK || APR_HAS_MOZILLA_LDAPSK
+#if APR_HAS_LDAPSSL_INSTALL_ROUTINES
     if (tls == APR_LDAP_SSL) {
         result->rc = ldapssl_install_routines(ldap);
         if (result->rc == LDAP_SUCCESS) {
@@ -309,7 +309,7 @@ static void option_set_cert(apr_pool_t *pool, LDAP *ldap,
 #if APR_HAS_LDAP_SSL
 
     /* Netscape/Mozilla/Solaris SDK */
-#if APR_HAS_NETSCAPE_LDAPSDK || APR_HAS_SOLARIS_LDAPSDK
+#if APR_HAS_NETSCAPE_LDAPSDK || APR_HAS_SOLARIS_LDAPSDK || APR_HAS_MOZILLA_LDAPSDK
 #if APR_HAS_LDAPSSL_CLIENT_INIT
     const char *nickname = NULL;
     const char *secmod = NULL;
