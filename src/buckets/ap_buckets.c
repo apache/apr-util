@@ -111,7 +111,7 @@ API_EXPORT(ap_bucket_brigade *) ap_brigade_create(apr_pool_t *p)
 API_EXPORT(void) ap_brigade_add_bucket(ap_bucket_brigade *b, 
 				       ap_bucket *e)
 {
-    AP_RING_INSERT_TAIL(&b->list, e, link);
+    AP_RING_INSERT_TAIL(&b->list, e, ap_bucket, link);
 }
 
 API_EXPORT(void) ap_brigade_catenate(ap_bucket_brigade *a, 
@@ -128,7 +128,7 @@ API_EXPORT(ap_bucket_brigade *) ap_brigade_split(ap_bucket_brigade *b,
     a = ap_brigade_create(b->p);
     f = AP_RING_LAST(&b->list);
     AP_RING_UNSPLICE(e, f, link);
-    AP_RING_SPLICE_HEAD(&a->list, e, f, link);
+    AP_RING_SPLICE_HEAD(&a->list, e, f, ap_bucket, link);
     return a;
 }
 

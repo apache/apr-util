@@ -175,22 +175,19 @@
 #define AP_RING_INSERT_AFTER(lep, nep, link)				\
 	AP_RING_SPLICE_AFTER((lep), (nep), (nep), link)
 
-/*
- * We could implement these by splicing after and before the sentinel
- * instead of before the first and after the last respectively, but
- * then the caller would have to pass in the element type.
- */
-#define AP_RING_SPLICE_HEAD(hp, ep1, epN, link)				\
-	AP_RING_SPLICE_BEFORE(AP_RING_FIRST((hp)), (ep1), (epN), link)
+#define AP_RING_SPLICE_HEAD(hp, ep1, epN, elem, link)			\
+	AP_RING_SPLICE_AFTER(AP_RING_SENTINEL((hp), elem, link),	\
+			     (ep1), (epN), link)
 
-#define AP_RING_SPLICE_TAIL(hp, ep1, epN, link)				\
-	AP_RING_SPLICE_AFTER(AP_RING_LAST((hp)), (ep1), (epN), link)
+#define AP_RING_SPLICE_TAIL(hp, ep1, epN, elem, link)			\
+	AP_RING_SPLICE_BEFORE(AP_RING_SENTINEL((hp), elem, link),	\
+			     (ep1), (epN), link)
 
-#define AP_RING_INSERT_HEAD(hp, nep, link)				\
-	AP_RING_SPLICE_HEAD((hp), (nep), (nep), link)
+#define AP_RING_INSERT_HEAD(hp, nep, elem, link)			\
+	AP_RING_SPLICE_HEAD((hp), (nep), (nep), elem, link)
 
-#define AP_RING_INSERT_TAIL(hp, nep, link)				\
-	AP_RING_SPLICE_TAIL((hp), (nep), (nep), link)
+#define AP_RING_INSERT_TAIL(hp, nep, elem, link)			\
+	AP_RING_SPLICE_TAIL((hp), (nep), (nep), elem, link)
 
 /*
  * Concatenating ring h2 onto the end of ring h1 leaves h2 empty.
@@ -232,5 +229,43 @@
     for ((ep)  = AP_RING_LAST((hp));					\
 	 (ep) != AP_RING_SENTINEL((hp), elem, link);			\
 	 (ep)  = AP_RING_PREV((ep), link))
+
+#ifdef AP_RING_DEBUG
+#include <stdio.h>
+#define AP_RING_CHECK_ONE(msg, ptr)					\
+	fprintf(stderr, "*** %s %p\n", msg, ptr)
+#define AP_RING_CHECK(hp, elem, link, msg)				\
+	AP_RING_CHECK_ELEM(AP_RING_SENTINEL(hp, elem, link), elem, link, msg)
+#define AP_RING_CHECK_ELEM(ep, elem, link, msg) do {			\
+	struct elem *start = (ep);					\
+	struct elem *this = start;					\
+	fprintf(stderr, "*** ring check start -- %s\n", msg);		\
+	do {								\
+	    fprintf(stderr, "\telem %p\n", this);			\
+	    fprintf(stderr, "\telem->next %p\n",			\
+		    AP_RING_NEXT(this, link));				\
+	    fprintf(stderr, "\telem->prev %p\n",			\
+		    AP_RING_PREV(this, link));				\
+	    fprintf(stderr, "\telem->next->prev %p\n",			\
+		    AP_RING_PREV(AP_RING_NEXT(this, link), link));	\
+	    fprintf(stderr, "\telem->prev->next %p\n",			\
+		    AP_RING_NEXT(AP_RING_PREV(this, link), link));	\
+	    if (AP_RING_PREV(AP_RING_NEXT(this, link), link) != this) {	\
+		fprintf(stderr, "\t*** this->next->prev != this\n");	\
+		break;							\
+	    }								\
+	    if (AP_RING_NEXT(AP_RING_PREV(this, link), link) != this) {	\
+		fprintf(stderr, "\t*** this->prev->next != this\n");	\
+		break;							\
+	    }								\
+	    this = AP_RING_NEXT(this, link);				\
+	} while (this != start);					\
+	fprintf(stderr, "*** ring check end\n");			\
+    } while (0)
+#else
+#define AP_RING_CHECK_ONE(msg, ptr)
+#define AP_RING_CHECK(hp, elem, link, msg)
+#define AP_RING_CHECK_ELEM(ep, elem, link, msg)
+#endif
 
 #endif /* !AP_RING_H */
