@@ -238,14 +238,15 @@ APU_DECLARE(char *) apr_dbm_geterror(apr_dbm_t *dbm, int *errcode,
  * @param used1 The first pathname used by the apr_dbm implementation.
  * @param used2 The second pathname used by apr_dbm. If only one file is
  *              used by the specific implementation, this will be set to NULL.
+ * @return An error if the specified type is invalid.
  * @tip The dbm file(s) don't need to exist. This function only manipulates
  *      the pathnames.
  */
-APU_DECLARE(void) apr_dbm_get_usednames_ex(apr_pool_t *pool,
-                                        const char *type,
-                                        const char *pathname,
-                                        const char **used1,
-                                        const char **used2);
+APU_DECLARE(apr_status_t) apr_dbm_get_usednames_ex(apr_pool_t *pool,
+                                                   const char *type,
+                                                   const char *pathname,
+                                                   const char **used1,
+                                                   const char **used2);
 
 /**
  * If the specified file/path were passed to apr_dbm_open(), return the
