@@ -382,53 +382,53 @@ AC_DEFUN(APU_CHECK_DB41, [
 
 AC_DEFUN(APU_CHECK_DB, [
   requested=$1
-  places=$2
+  check_places=$2
 
   case "$requested" in
   db)
-    APU_CHECK_DB_ALL("$places")
+    APU_CHECK_DB_ALL("$check_places")
     if test "$apu_have_db" = "0"; then
       AC_MSG_ERROR(Berkeley db requested, but not found)
     fi
     ;;
   db1)
-    APU_CHECK_DB1("$places")
+    APU_CHECK_DB1("$check_places")
     if test "$apu_db_version" != "1"; then
       AC_MSG_ERROR(Berkeley db1 not found)
     fi
     ;;
   db185)
-    APU_CHECK_DB185("$places")
+    APU_CHECK_DB185("$check_places")
     if test "$apu_db_version" != "185"; then
       AC_MSG_ERROR(Berkeley db185 not found)
     fi
     ;;
   db2)
-    APU_CHECK_DB2("$places")
+    APU_CHECK_DB2("$check_places")
     if test "$apu_db_version" != "2"; then
       AC_MSG_ERROR(Berkeley db2 not found)
     fi
     ;;
   db3)
-    APU_CHECK_DB3("$places")
+    APU_CHECK_DB3("$check_places")
     if test "$apu_db_version" != "3"; then
       AC_MSG_ERROR(Berkeley db3 not found)
     fi
     ;;
   db4)
-    APU_CHECK_DB4("$places")
+    APU_CHECK_DB4("$check_places")
     if test "$apu_db_version" != "4"; then
       AC_MSG_ERROR(Berkeley db4 not found)
     fi
     ;;
   db41)
-    APU_CHECK_DB41("$places")
+    APU_CHECK_DB41("$check_places")
     if test "$apu_db_version" != "4"; then
       AC_MSG_ERROR(Berkeley db4 not found)
     fi
     ;;
   default)
-    APU_CHECK_DB_ALL("$places")
+    APU_CHECK_DB_ALL("$check_places")
     ;;
   esac
 ])
@@ -437,19 +437,19 @@ dnl
 dnl APU_CHECK_DB_ALL: Try all Berkeley DB versions, from 4.1 to 1.
 dnl
 AC_DEFUN(APU_CHECK_DB_ALL, [
-  places=$1
+  all_places=$1
   
-  APU_CHECK_DB41("$places")
+  APU_CHECK_DB41("$all_places")
   if test "$apu_db_version" != "4"; then
-    APU_CHECK_DB4("$places")
+    APU_CHECK_DB4("$all_places")
     if test "$apu_db_version" != "4"; then
-      APU_CHECK_DB3("$places")
+      APU_CHECK_DB3("$all_places")
       if test "$apu_db_version" != "3"; then
-        APU_CHECK_DB2("$places")
+        APU_CHECK_DB2("$all_places")
         if test "$apu_db_version" != "2"; then
-          APU_CHECK_DB1("$places")
+          APU_CHECK_DB1("$all_places")
           if test "$apu_db_version" != "1"; then
-            APU_CHECK_DB185("$places")
+            APU_CHECK_DB185("$all_places")
           fi
         fi
       fi
@@ -598,16 +598,16 @@ AC_DEFUN(APU_CHECK_DBM, [
   ], [
     if test "$withval" = "yes"; then
       apu_want_db=1
-      bdb_places=""
+      user_places=""
     elif test "$withval" = "no"; then
       apu_want_db=0
     else
       apu_want_db=1
-      bdb_places="$withval"
+      user_places="$withval"
     fi
 
     if test "$apu_want_db" != "0"; then
-      APU_CHECK_DB($requested, $bdb_places)
+      APU_CHECK_DB($requested, $user_places)
       if test "$apu_have_db" = "0"; then
         AC_ERROR(Berkeley DB not found.)
       fi
