@@ -42,12 +42,14 @@ echo "performing libtool configuration..."
 
 AC_CANONICAL_SYSTEM
 LDFLAGS=""
+EXPAT_LINK=""
 case "$host_alias" in
 *beos*)
     # Horrible Hack !!!
     # if we're building a shared lib then we need to add in the
     # apr library to the build...
     LDFLAGS="$APR_SOURCE_DIR/libapr.la"
+    EXPAT_LINK="\$(top_builddir)/xml/expat/lib/libexpat.so"
     ;;
 *)
     ;;
@@ -91,6 +93,7 @@ AC_SUBST(so_ext)
 AC_SUBST(lib_target)
 AC_SUBST(LTFLAGS)
 AC_SUBST(LT_LDFLAGS)
+AC_SUBST(EXPAT_LINK)
 
 dnl
 dnl grab flags from APR.
