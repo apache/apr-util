@@ -110,7 +110,8 @@ static apr_status_t test_rmm(apr_pool_t *parpool)
     fprintf(stdout, "OK\n");
 
     fragsize = SHARED_SIZE / FRAG_COUNT;
-    printf("Creating each fragment of size %d................", fragsize);
+    printf("Creating each fragment of size %" APR_SIZE_T_FMT "................",
+           fragsize);
     off = apr_palloc(pool, FRAG_COUNT * sizeof(apr_rmm_off_t));
     for (i = 0; i < FRAG_COUNT; i++) {
         off[i] = apr_rmm_malloc(rmm, fragsize);
@@ -164,7 +165,8 @@ static apr_status_t test_rmm(apr_pool_t *parpool)
     apr_rmm_free(rmm, off[0]);
     fprintf(stdout, "OK\n");
 
-    printf("Creating each fragment of size %d (again)........", fragsize);
+    printf("Creating each fragment of size %" APR_SIZE_T_FMT " (again)........",
+           fragsize);
     for (i = 0; i < FRAG_COUNT; i++) {
         off[i] = apr_rmm_malloc(rmm, fragsize);
     } 
