@@ -183,8 +183,8 @@ static apr_status_t set_error(apr_dbm_t *db)
     return rv;
 }
 
-apr_status_t apr_dbm_open(apr_dbm_t **pdb, const char *pathname, int mode,
-                          apr_pool_t *pool)
+APU_DECLARE(apr_status_t) apr_dbm_open(apr_dbm_t **pdb, const char *pathname, 
+                                       int mode, apr_pool_t *pool)
 {
     real_file_t file;
     int dbmode;
@@ -230,12 +230,13 @@ apr_status_t apr_dbm_open(apr_dbm_t **pdb, const char *pathname, int mode,
     return APR_SUCCESS;
 }
 
-void apr_dbm_close(apr_dbm_t *db)
+APU_DECLARE(void) apr_dbm_close(apr_dbm_t *db)
 {
     APR_DBM_CLOSE(db->file);
 }
 
-apr_status_t apr_dbm_fetch(apr_dbm_t *db, apr_datum_t key, apr_datum_t *pvalue)
+APU_DECLARE(apr_status_t) apr_dbm_fetch(apr_dbm_t *db, apr_datum_t key,
+                                        apr_datum_t *pvalue)
 {
     *(real_datum_t *) pvalue = APR_DBM_FETCH(db->file, A2R_DATUM(key));
 
@@ -246,7 +247,8 @@ apr_status_t apr_dbm_fetch(apr_dbm_t *db, apr_datum_t key, apr_datum_t *pvalue)
     return set_error(db);
 }
 
-apr_status_t apr_dbm_store(apr_dbm_t *db, apr_datum_t key, apr_datum_t value)
+APU_DECLARE(apr_status_t) apr_dbm_store(apr_dbm_t *db, apr_datum_t key,
+                                        apr_datum_t value)
 {
     apr_status_t rv;
 
@@ -261,7 +263,7 @@ apr_status_t apr_dbm_store(apr_dbm_t *db, apr_datum_t key, apr_datum_t value)
     return rv;
 }
 
-apr_status_t apr_dbm_delete(apr_dbm_t *db, apr_datum_t key)
+APU_DECLARE(apr_status_t) apr_dbm_delete(apr_dbm_t *db, apr_datum_t key)
 {
     apr_status_t rv;
 
@@ -276,7 +278,7 @@ apr_status_t apr_dbm_delete(apr_dbm_t *db, apr_datum_t key)
     return rv;
 }
 
-int apr_dbm_exists(apr_dbm_t *db, apr_datum_t key)
+APU_DECLARE(int) apr_dbm_exists(apr_dbm_t *db, apr_datum_t key)
 {
     int exists;
 
@@ -292,7 +294,7 @@ int apr_dbm_exists(apr_dbm_t *db, apr_datum_t key)
     return exists;
 }
 
-apr_status_t apr_dbm_firstkey(apr_dbm_t *db, apr_datum_t *pkey)
+APU_DECLARE(apr_status_t) apr_dbm_firstkey(apr_dbm_t *db, apr_datum_t *pkey)
 {
     *(real_datum_t *) pkey = APR_DBM_FIRSTKEY(db->file);
 
@@ -303,7 +305,7 @@ apr_status_t apr_dbm_firstkey(apr_dbm_t *db, apr_datum_t *pkey)
     return set_error(db);
 }
 
-apr_status_t apr_dbm_nextkey(apr_dbm_t *db, apr_datum_t *pkey)
+APU_DECLARE(apr_status_t) apr_dbm_nextkey(apr_dbm_t *db, apr_datum_t *pkey)
 {
     *(real_datum_t *) pkey = APR_DBM_NEXTKEY(db->file, A2R_DATUM(*pkey));
 
@@ -314,7 +316,7 @@ apr_status_t apr_dbm_nextkey(apr_dbm_t *db, apr_datum_t *pkey)
     return set_error(db);
 }
 
-void apr_dbm_freedatum(apr_dbm_t *db, apr_datum_t data)
+APU_DECLARE(void) apr_dbm_freedatum(apr_dbm_t *db, apr_datum_t data)
 {
 #ifdef NEEDS_CLEANUP
     (void) apr_run_cleanup(db->pool, data.dptr, datum_cleanup);
@@ -326,7 +328,8 @@ void apr_dbm_freedatum(apr_dbm_t *db, apr_datum_t data)
 /* XXX: This is wrong... need to return a canonical errcode as part
  * of this package, and follow the apr_dso_error prototype.
  */
-void apr_dbm_geterror(apr_dbm_t *db, int *errcode, const char **errmsg)
+APU_DECLARE(void) apr_dbm_geterror(apr_dbm_t *db, int *errcode, 
+                                   const char **errmsg)
 {
     *errcode = db->errcode;
     *errmsg = db->errmsg;

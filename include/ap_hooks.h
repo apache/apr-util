@@ -59,6 +59,10 @@
 /* For apr_array_header_t */
 #include "apr_tables.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @package Apache hooks functions
  */
@@ -235,7 +239,7 @@ extern APU_DECLARE_DATA const char *ap_current_hooking_module;
  * @deffunc void ap_hook_sort_register(const char *szHookName, ap_arry_header_t **aHooks)
  */
 APU_DECLARE(void) ap_hook_sort_register(const char *szHookName, 
-                                       apr_array_header_t **aHooks);
+                                        apr_array_header_t **aHooks);
 /**
  * Sort all of the registerd functions for a given hook
  * @deffunc void ap_sort_hooks(void)
@@ -251,12 +255,16 @@ APU_DECLARE(void) ap_sort_hooks(void);
  * @deffunc void ap_show_hook(const char *szName, const char *const *aszPre, const char *const *aszSucc)
  */
 APU_DECLARE(void) ap_show_hook(const char *szName,const char * const *aszPre,
-                              const char * const *aszSucc);
+                               const char * const *aszSucc);
 
 /**
  * Remove all currently registered functions.
  * @deffunc void ap_hook_deregister_all(void)
  */
 APU_DECLARE(void) ap_hook_deregister_all(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* ndef(AP_HOOKS_H) */

@@ -70,7 +70,7 @@
 
 static apr_array_header_t *bucket_types;
 
-void ap_init_bucket_types(apr_pool_t *p)
+APU_DECLARE(void) ap_init_bucket_types(apr_pool_t *p)
 {
     bucket_types = apr_make_array(p, 8, sizeof(ap_bucket_type));
 
