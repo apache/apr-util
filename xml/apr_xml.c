@@ -52,18 +52,13 @@
  * <http://www.apache.org/>.
  */
 
-/*
-** DAV extension module for Apache 2.0.*
-**  - XML parser for the body of a request
-*/
-
 /* James Clark's Expat parser */
 #include "xmlparse.h"
 
 #include "apr.h"
 #include "apr_strings.h"
 
-#define APR_WANT_STDIO          /* for fprintf(), sprintf() */
+#define APR_WANT_STDIO          /* for sprintf() */
 #define APR_WANT_STRFUNC
 #include "apr_want.h"
 
@@ -72,10 +67,8 @@
 
 #define DEBUG_CR "\r\n"
 
-#define APR_XML_READ_BLOCKSIZE	2048	/* used for reading input blocks */
-
 /* errors related to namespace processing */
-#define APR_XML_NS_ERROR_UNKNOWN_PREFIX	(APR_XML_NS_ERROR_BASE)
+#define APR_XML_NS_ERROR_UNKNOWN_PREFIX (-1000)
 
 /* test for a namespace prefix that begins with [Xx][Mm][Ll] */
 #define APR_XML_NS_IS_RESERVED(name) \
@@ -84,17 +77,20 @@
 	  (name[2] == 'L' || name[2] == 'l') )
 
 
-/* content for parsing */
-typedef struct apr_xml_ctx {
+/* the real (internal) definition of the parser context */
+struct apr_xml_parser {
     apr_xml_doc *doc;		/* the doc we're parsing */
     apr_pool_t *p;		/* the pool we allocate from */
     apr_xml_elem *cur_elem;	/* current element */
 
     int error;			/* an error has occurred */
-    /* errors may be APR_XML_NS_ERROR_* or other private errors which will
-       be defined here (none yet) */
+#define APR_XML_ERROR_EXPAT             1
+#define APR_XML_ERROR_PARSE_DONE        2
+/* also: public APR_XML_NS_ERROR_* values (if any) */
 
-} apr_xml_ctx;
+    XML_Parser xp;              /* the actual (Expat) XML parser */
+    enum XML_Error xp_err;      /* stored Expat error code */
+};
 
 /* struct for scoping namespace declarations */
 typedef struct apr_xml_ns_scope {
@@ -106,9 +102,9 @@ typedef struct apr_xml_ns_scope {
 
 
 /* return namespace table index for a given prefix */
-static int find_prefix(apr_xml_ctx *ctx, const char *prefix)
+static int find_prefix(apr_xml_parser *parser, const char *prefix)
 {
-    apr_xml_elem *elem = ctx->cur_elem;
+    apr_xml_elem *elem = parser->cur_elem;
 
     /*
     ** Walk up the tree, looking for a namespace scope that defines this
@@ -151,7 +147,7 @@ static int find_prefix(apr_xml_ctx *ctx, const char *prefix)
 
 static void start_handler(void *userdata, const char *name, const char **attrs)
 {
-    apr_xml_ctx *ctx = userdata;
+    apr_xml_parser *parser = userdata;
     apr_xml_elem *elem;
     apr_xml_attr *attr;
     apr_xml_attr *prev;
@@ -160,31 +156,31 @@ static void start_handler(void *userdata, const char *name, const char **attrs)
     char *elem_name;
 
     /* punt once we find an error */
-    if (ctx->error)
+    if (parser->error)
 	return;
 
-    elem = apr_pcalloc(ctx->p, sizeof(*elem));
+    elem = apr_pcalloc(parser->p, sizeof(*elem));
 
     /* prep the element */
-    elem->name = elem_name = apr_pstrdup(ctx->p, name);
+    elem->name = elem_name = apr_pstrdup(parser->p, name);
 
     /* fill in the attributes (note: ends up in reverse order) */
     while (*attrs) {
-	attr = apr_palloc(ctx->p, sizeof(*attr));
-	attr->name = apr_pstrdup(ctx->p, *attrs++);
-	attr->value = apr_pstrdup(ctx->p, *attrs++);
+	attr = apr_palloc(parser->p, sizeof(*attr));
+	attr->name = apr_pstrdup(parser->p, *attrs++);
+	attr->value = apr_pstrdup(parser->p, *attrs++);
 	attr->next = elem->attr;
 	elem->attr = attr;
     }
 
     /* hook the element into the tree */
-    if (ctx->cur_elem == NULL) {
+    if (parser->cur_elem == NULL) {
 	/* no current element; this also becomes the root */
-	ctx->cur_elem = ctx->doc->root = elem;
+	parser->cur_elem = parser->doc->root = elem;
     }
     else {
 	/* this element appeared within the current elem */
-	elem->parent = ctx->cur_elem;
+	elem->parent = parser->cur_elem;
 
 	/* set up the child/sibling links */
 	if (elem->parent->last_child == NULL) {
@@ -198,7 +194,7 @@ static void start_handler(void *userdata, const char *name, const char **attrs)
 	}
 
 	/* this element is now the current element */
-	ctx->cur_elem = elem;
+	parser->cur_elem = elem;
     }
 
     /* scan the attributes for namespace declarations */
@@ -219,12 +215,12 @@ static void start_handler(void *userdata, const char *name, const char **attrs)
 	    }
 
 	    /* quote the URI before we ever start working with it */
-	    quoted = apr_xml_quote_string(ctx->p, attr->value, 1);
+	    quoted = apr_xml_quote_string(parser->p, attr->value, 1);
 
 	    /* build and insert the new scope */
-	    ns_scope = apr_pcalloc(ctx->p, sizeof(*ns_scope));
+	    ns_scope = apr_pcalloc(parser->p, sizeof(*ns_scope));
 	    ns_scope->prefix = prefix;
-	    ns_scope->ns = apr_xml_insert_uri(ctx->doc->namespaces, quoted);
+	    ns_scope->ns = apr_xml_insert_uri(parser->doc->namespaces, quoted);
 	    ns_scope->emptyURI = *quoted == '\0';
 	    ns_scope->next = elem->ns_scope;
 	    elem->ns_scope = ns_scope;
@@ -239,7 +235,7 @@ static void start_handler(void *userdata, const char *name, const char **attrs)
 	}
 	else if (strcmp(attr->name, "xml:lang") == 0) {
 	    /* save away the language (in quoted form) */
-	    elem->lang = apr_xml_quote_string(ctx->p, attr->value, 1);
+	    elem->lang = apr_xml_quote_string(parser->p, attr->value, 1);
 
 	    /* remove this attribute from the element */
 	    if (prev == NULL)
@@ -272,18 +268,18 @@ static void start_handler(void *userdata, const char *name, const char **attrs)
 	 * be found. Either it will be "no namespace", or a default
 	 * namespace URI has been specified at some point.
 	 */
-	elem->ns = find_prefix(ctx, "");
+	elem->ns = find_prefix(parser, "");
     }
     else if (APR_XML_NS_IS_RESERVED(elem->name)) {
 	elem->ns = APR_XML_NS_NONE;
     }
     else {
 	*colon = '\0';
-	elem->ns = find_prefix(ctx, elem->name);
+	elem->ns = find_prefix(parser, elem->name);
 	elem->name = colon + 1;
 
 	if (APR_XML_NS_IS_ERROR(elem->ns)) {
-	    ctx->error = elem->ns;
+	    parser->error = elem->ns;
 	    return;
 	}
     }
@@ -310,11 +306,11 @@ static void start_handler(void *userdata, const char *name, const char **attrs)
 	}
 	else {
 	    *colon = '\0';
-	    attr->ns = find_prefix(ctx, attr->name);
+	    attr->ns = find_prefix(parser, attr->name);
 	    attr->name = colon + 1;
 
 	    if (APR_XML_NS_IS_ERROR(attr->ns)) {
-		ctx->error = attr->ns;
+		parser->error = attr->ns;
 		return;
 	    }
 	}
@@ -323,29 +319,29 @@ static void start_handler(void *userdata, const char *name, const char **attrs)
 
 static void end_handler(void *userdata, const char *name)
 {
-    apr_xml_ctx *ctx = userdata;
+    apr_xml_parser *parser = userdata;
 
     /* punt once we find an error */
-    if (ctx->error)
+    if (parser->error)
 	return;
 
     /* pop up one level */
-    ctx->cur_elem = ctx->cur_elem->parent;
+    parser->cur_elem = parser->cur_elem->parent;
 }
 
 static void cdata_handler(void *userdata, const char *data, int len)
 {
-    apr_xml_ctx *ctx = userdata;
+    apr_xml_parser *parser = userdata;
     apr_xml_elem *elem;
     apr_text_header *hdr;
     const char *s;
 
     /* punt once we find an error */
-    if (ctx->error)
+    if (parser->error)
 	return;
 
-    elem = ctx->cur_elem;
-    s = apr_pstrndup(ctx->p, data, len);
+    elem = parser->cur_elem;
+    s = apr_pstrndup(parser->p, data, len);
 
     if (elem->last_child == NULL) {
 	/* no children yet. this cdata follows the start tag */
@@ -356,128 +352,128 @@ static void cdata_handler(void *userdata, const char *data, int len)
 	hdr = &elem->last_child->following_cdata;
     }
 
-    apr_text_append(ctx->p, hdr, s);
+    apr_text_append(parser->p, hdr, s);
 }
 
-
-#if 0
-
-APU_DECLARE(int) apr_xml_parse_input(request_rec * r, apr_xml_doc **pdoc)
+static apr_status_t cleanup_parser(void *ctx)
 {
-    int result;
-    apr_xml_ctx ctx = { 0 };
-    XML_Parser parser;
+    apr_xml_parser *parser = ctx;
 
-    if ((result = ap_setup_client_block(r, REQUEST_CHUNKED_DECHUNK)) != OK)
-	return result;
+    XML_ParserFree(parser->xp);
+    parser->xp = NULL;
 
-    if (r->remaining == 0) {
-	*pdoc = NULL;
-	return OK;
-    }
-
-    ctx.p = r->pool;
-    ctx.doc = apr_pcalloc(ctx.p, sizeof(*ctx.doc));
-
-    ctx.doc->namespaces = apr_array_make(ctx.p, 5, sizeof(const char *));
-    apr_xml_insert_uri(ctx.doc->namespaces, "DAV:");
-
-    /* ### we should get the encoding from Content-Encoding */
-    parser = XML_ParserCreate(NULL);
-    if (parser == NULL) {
-	/* ### anything better to do? */
-	fprintf(stderr, "Ouch!  XML_ParserCreate() failed!\n");
-	exit(1);
-    }
-
-    XML_SetUserData(parser, (void *) &ctx);
-    XML_SetElementHandler(parser, start_handler, end_handler);
-    XML_SetCharacterDataHandler(parser, cdata_handler);
-
-    if (ap_should_client_block(r)) {
-	long len;
-	char *buffer;
-	char end;
-	int rv;
-	apr_size_t total_read = 0;
-	apr_size_t limit_xml_body = ap_get_limit_xml_body(r);
-
-	/* allocate our working buffer */
-	buffer = apr_palloc(r->pool, APR_XML_READ_BLOCKSIZE);
-
-	/* read the body, stuffing it into the parser */
-	while ((len = ap_get_client_block(r, buffer, APR_XML_READ_BLOCKSIZE)) > 0) {
-	    total_read += len;
-	    if (limit_xml_body && total_read > limit_xml_body) {
-		ap_log_rerror(APLOG_MARK, APLOG_ERR | APLOG_NOERRNO, 0, r,
-			      "XML request body is larger than the configured "
-			      "limit of %lu", (unsigned long)limit_xml_body);
-		goto read_error;
-	    }
-
-	    rv = XML_Parse(parser, buffer, len, 0);
-	    if (rv == 0)
-		goto parser_error;
-	}
-	if (len == -1) {
-	    /* ap_get_client_block() has logged an error */
-	    goto read_error;
-	}
-
-	/* tell the parser that we're done */
-	rv = XML_Parse(parser, &end, 0, 1);
-	if (rv == 0)
-	    goto parser_error;
-    }
-
-    XML_ParserFree(parser);
-
-    if (ctx.error) {
-	switch (ctx.error) {
-	case APR_XML_NS_ERROR_UNKNOWN_PREFIX:
-	    ap_log_rerror(APLOG_MARK, APLOG_ERR | APLOG_NOERRNO, 0, r,
-			  "An undefined namespace prefix was used.");
-	    break;
-
-	default:
-	    ap_log_rerror(APLOG_MARK, APLOG_ERR | APLOG_NOERRNO, 0, r,
-			  "There was an error within the XML request body.");
-	    break;
-	}
-
-	/* Apache will supply a default error, plus the error log above. */
-	return HTTP_BAD_REQUEST;
-    }
-
-    /* ### assert: ctx.cur_elem == NULL */
-
-    *pdoc = ctx.doc;
-
-    return OK;
-
-  parser_error:
-    {
-	enum XML_Error err = XML_GetErrorCode(parser);
-
-	/* ### fix this error message (default vs special) */
-	ap_log_rerror(APLOG_MARK, APLOG_ERR | APLOG_NOERRNO, 0, r,
-		      "XML parser error code: %s (%d).",
-		      XML_ErrorString(err), err);
-
-	XML_ParserFree(parser);
-
-	/* Apache will supply a default error, plus the error log above. */
-	return HTTP_BAD_REQUEST;
-    }
-
-  read_error:
-    XML_ParserFree(parser);
-
-    /* Apache will supply a default error, plus whatever was logged. */
-    return HTTP_BAD_REQUEST;
+    return APR_SUCCESS;
 }
 
-#endif /* 0 */
+APU_DECLARE(apr_xml_parser *) apr_xml_parser_create(apr_pool_t *pool)
+{
+    apr_xml_parser *parser = apr_pcalloc(pool, sizeof(*parser));
+
+    parser->p = pool;
+    parser->doc = apr_pcalloc(pool, sizeof(*parser->doc));
+
+    parser->doc->namespaces = apr_array_make(pool, 5, sizeof(const char *));
+
+    /* ### is there a way to avoid hard-coding this? */
+    apr_xml_insert_uri(parser->doc->namespaces, "DAV:");
+
+    parser->xp = XML_ParserCreate(NULL);
+    if (parser->xp == NULL) {
+        (void) (*pool->apr_abort)(APR_ENOMEM);
+        return NULL;
+    }
+
+    apr_pool_cleanup_register(pool, parser, cleanup_parser,
+                              apr_pool_cleanup_null);
+
+    XML_SetUserData(parser->xp, parser);
+    XML_SetElementHandler(parser->xp, start_handler, end_handler);
+    XML_SetCharacterDataHandler(parser->xp, cdata_handler);
+
+    return parser;
+}
+
+static apr_status_t do_parse(apr_xml_parser *parser,
+                             const char *data, apr_size_t len,
+                             int is_final)
+{
+    if (parser->xp == NULL) {
+        parser->error = APR_XML_ERROR_PARSE_DONE;
+    }
+    else {
+        int rv = XML_Parse(parser->xp, data, len, is_final);
+
+        if (rv == 0) {
+            parser->error = APR_XML_ERROR_EXPAT;
+            parser->xp_err = XML_GetErrorCode(parser->xp);
+        }
+    }
+
+    /* ### better error code? */
+    return parser->error ? APR_EGENERAL : APR_SUCCESS;
+}
+
+APU_DECLARE(apr_status_t) apr_xml_parser_feed(apr_xml_parser *parser,
+                                              const char *data,
+                                              apr_size_t len)
+{
+    return do_parse(parser, data, len, 0 /* is_final */);
+}
+
+APU_DECLARE(apr_status_t) apr_xml_parser_done(apr_xml_parser *parser,
+                                              apr_xml_doc **pdoc)
+{
+    char end;
+    apr_status_t status = do_parse(parser, &end, 0, 1 /* is_final */);
+
+    /* get rid of the parser */
+    (void) apr_pool_cleanup_run(parser->p, parser, cleanup_parser);
+
+    if (status)
+        return status;
+
+    if (pdoc != NULL)
+        *pdoc = parser->doc;
+    return APR_SUCCESS;
+}
+
+APU_DECLARE(char *) apr_xml_parser_geterror(apr_xml_parser *parser,
+                                            char *errbuf,
+                                            apr_size_t errbufsize)
+{
+    int error = parser->error;
+    const char *msg;
+
+    /* clear our record of an error */
+    parser->error = 0;
+
+    switch (error) {
+    case 0:
+        msg = "No error.";
+        break;
+
+    case APR_XML_NS_ERROR_UNKNOWN_PREFIX:
+        msg = "An undefined namespace prefix was used.";
+        break;
+
+    case APR_XML_ERROR_EXPAT:
+        (void) apr_snprintf(errbuf, errbufsize,
+                            "XML parser error code: %s (%d)",
+                            XML_ErrorString(parser->xp_err), parser->xp_err);
+        return errbuf;
+
+    case APR_XML_ERROR_PARSE_DONE:
+        msg = "The parser is not active.";
+        break;
+
+    default:
+        msg = "There was an unknown error within the XML body.";
+        break;
+    }
+
+    (void) apr_cpystrn(errbuf, msg, errbufsize);
+    return errbuf;
+}
 
 
 APU_DECLARE(void) apr_text_append(apr_pool_t * p, apr_text_header *hdr,
