@@ -588,6 +588,10 @@ SOURCE=.\include\apr_xlate.h
 
 SOURCE=.\include\apr_xml.h
 # End Source File
+# Begin Source File
+
+SOURCE=.\include\apu_version.h
+# End Source File
 # End Group
 # Begin Source File
 
@@ -600,22 +604,24 @@ SOURCE=..\apr\build\win32ver.awk
 !IF  "$(CFG)" == "libaprutil - Win32 Release"
 
 # PROP Ignore_Default_Tool 1
+USERDEP__WIN32="./include/apu_version.h"	
 # Begin Custom Build - Creating Version Resource
 InputPath=..\apr\build\win32ver.awk
 
 ".\libaprutil.rc" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	awk -f ../apr/build/win32ver.awk libaprutil.dll "Apache APR Utility Library"  ../../include/ap_release.h > .\libaprutil.rc
+	awk -f ../apr/build/win32ver.awk libaprutil.dll "Apache APR Utility Library"  ./include/apu_version.h > .\libaprutil.rc
 
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
 
 # PROP Ignore_Default_Tool 1
+USERDEP__WIN32="./include/apu_version.h"	
 # Begin Custom Build - Creating Version Resource
 InputPath=..\apr\build\win32ver.awk
 
 ".\libaprutil.rc" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	awk -f ../apr/build/win32ver.awk libaprutil.dll "Apache APR Utility Library"  ../../include/ap_release.h > .\libaprutil.rc
+	awk -f ../apr/build/win32ver.awk libaprutil.dll "Apache APR Utility Library"  ./include/apu_version.h > .\libaprutil.rc
 
 # End Custom Build
 
