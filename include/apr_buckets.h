@@ -192,7 +192,6 @@ struct apr_bucket_type_t {
      *  start/end/offset information.  If it's not possible to do this
      *  for the bucket type (perhaps the length of the data is indeterminate,
      *  as with pipe and socket buckets), then APR_ENOTIMPL is returned.
-     * @see apr_bucket_split_any().
      * @param e The bucket to split
      * @param point The offset of the first byte in the new bucket
      * @deffunc apr_status_t split(apr_bucket *e, apr_off_t point)
@@ -260,10 +259,17 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
  * that handles bucket brigades.
  */
 /**
- * Determine if this bucket is the start of the list
- * @param b The bucket to test
- * @return true or false
- * @deffunc int APR_BRIGADE_SENTINEL(apr_bucket *b)
+ * The magic pointer value that indicates the head of the brigade
+ * @tip This is used to find the beginning and end of the brigade, eg:
+ * <pre>
+ *      while (e != APR_BRIGADE_SENTINEL(b)) {
+ *          ...
+ *          e = APR_BUCKET_NEXT(e);
+ *      }
+ * </pre>
+ * @param  b The brigade
+ * @return The magic pointer value
+ * @deffunc apr_bucket *APR_BRIGADE_SENTINEL(apr_bucket_brigade *b)
  */
 #define APR_BRIGADE_SENTINEL(b)	APR_RING_SENTINEL(&(b)->list, apr_bucket, link)
 
@@ -271,7 +277,7 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
  * Determine if the bucket brigade is empty
  * @param b The brigade to check
  * @return true or false
- * @deffunc APR_BRIGADE_EMPTY(apr_bucket_brigade *b)
+ * @deffunc int APR_BRIGADE_EMPTY(apr_bucket_brigade *b)
  */
 #define APR_BRIGADE_EMPTY(b)	APR_RING_EMPTY(&(b)->list, apr_bucket, link)
 
@@ -296,15 +302,18 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
  * @param b The brigade to iterate over
  * @tip This is the same as either:
  * <pre>
- *		e = APR_BUCKET_FIRST(b);
- * 		while (!APR_BUCKET_SENTINEL(e)) {
- *		    ...
- * 		    e = APR_BUCKET_NEXT(e);
- * 		}
- *     OR
- * 		for (e = APR_BUCKET_FIRST(b); !APR_BUCKET_SENTINEL(e); e = APR_BUCKET_NEXT(e)) {
- *		    ...
- * 		}
+ *	e = APR_BUCKET_FIRST(b);
+ * 	while (e != APR_BRIGADE_SENTINEL(b)) {
+ *	    ...
+ * 	    e = APR_BUCKET_NEXT(e);
+ * 	}
+ *  OR
+ * 	for (e = APR_BUCKET_FIRST(b);
+ *           e != APR_BRIGADE_SENTINEL(b);
+ *           e = APR_BUCKET_NEXT(e)) {
+ *	    ...
+ * 	}
+ * </pre>
  * @deffunc void APR_BRIGADE_FOREACH(apr_bucket *e, apr_bucket_brigade *b)
  */
 #define APR_BRIGADE_FOREACH(e, b)					\
@@ -338,7 +347,7 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
  * @param b The second brigade
  * @deffunc void APR_BRIGADE_CONCAT(apr_bucket_brigade *a, apr_bucket_brigade *b)
  */
-#define APR_BRIGADE_CONCAT(a, b)						\
+#define APR_BRIGADE_CONCAT(a, b)					\
 	APR_RING_CONCAT(&(a)->list, &(b)->list, apr_bucket, link)
 
 /**
