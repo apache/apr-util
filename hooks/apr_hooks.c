@@ -62,6 +62,7 @@
 #include "apr_hooks.h"
 #include "apr_hash.h"
 #include "apr_generic_hook.h"
+#include "apr_optional.h"
 
 #if APR_HAVE_STRINGS_H
 #include <strings.h>
@@ -237,6 +238,7 @@ APU_DECLARE(void) apr_sort_hooks()
 }
     
 static apr_hash_t *s_phGenericHooks;
+static apr_hash_t *s_phOptionalFunctions;
 
 APU_DECLARE(void) apr_hook_deregister_all(void)
 {
@@ -248,6 +250,7 @@ APU_DECLARE(void) apr_hook_deregister_all(void)
     }
     s_aHooksToSort=NULL;
     s_phGenericHooks=NULL;
+    s_phOptionalFunctions=NULL;
 }
 
 APU_DECLARE(void) apr_show_hook(const char *szName,const char * const *aszPre,
@@ -325,6 +328,25 @@ APU_DECLARE(void) apr_hook_generic(const char *szName,void (*pfn)(void),
     pHook->szName=apr_current_hooking_module;
     if(apr_debug_module_hooks)
 	apr_show_hook(szName,aszPre,aszSucc);
+}
+
+/* optional function support */
+
+void (*apr_retrieve_optional_fn(const char *szName))(void)
+{
+    void (*pfn)(void);
+
+    if(!s_phOptionalFunctions)
+	return NULL;
+    return apr_hash_get(s_phOptionalFunctions,szName,strlen(szName));
+}
+
+APU_DECLARE(void) apr_register_optional_fn(const char *szName,
+					   void (*pfn)(void))
+{
+    if(!s_phOptionalFunctions)
+	s_phOptionalFunctions=apr_make_hash(apr_global_hook_pool);
+    apr_hash_set(s_phOptionalFunctions,szName,strlen(szName),pfn);
 }
 
 #if 0
