@@ -1,4 +1,7 @@
 
+top_builddir=@top_builddir@
+INCLUDES=-I$(top_builddir)/include -I$(top_builddir)/../apr/include
+
 TARGETS = sdbm.lo sdbm_hash.lo sdbm_lock.lo sdbm_pair.lo
 
 # bring in rules.mk for standard functionality

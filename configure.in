@@ -3,10 +3,12 @@ dnl Process this file with autoconf to produce a configure script
 dnl
 
 AC_PREREQ(2.13)
-AC_INIT(build/rules.mk.in)
+AC_INIT(export_vars.sh.in)
 
 AC_CONFIG_HEADER(include/private/apu_config.h)
-AC_CONFIG_AUX_DIR(build)
+AC_CONFIG_AUX_DIR(../apr/build)
+
+sinclude(build/apu_config.m4)
 
 AC_PROG_CC
 AC_PROG_AWK
@@ -122,10 +124,10 @@ dnl BSD/OS (BSDi) needs to use a different include syntax in the Makefiles
 dnl
 case "$host_alias" in
 *bsdi*)
-    INCLUDE_RULES=".include \"$top_builddir/build/rules.mk\""
+    INCLUDE_RULES=".include \"$top_builddir/../apr/build/rules.mk\""
     ;;
 *)
-    INCLUDE_RULES="include $top_builddir/build/rules.mk"
+    INCLUDE_RULES="include $top_builddir/../apr/build/rules.mk"
     ;;
 esac
 AC_SUBST(INCLUDE_RULES)
