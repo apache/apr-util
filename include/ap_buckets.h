@@ -551,4 +551,13 @@ API_EXPORT(ap_bucket *) ap_bucket_create_mmap(
 API_EXPORT(ap_bucket *) ap_bucket_make_mmap(ap_bucket *b,
 		apr_mmap_t *mm, apr_off_t start, apr_size_t length);
 
+/**
+ * Create a bucket referring to a pipe.
+ * @param thispipe The pipe to put in the bucket
+ * @return The new bucket, or NULL if allocation failed
+ * @deffunc ap_bucket *ap_bucket_create_pipe(apr_file_t *thispipe)
+ */
+API_EXPORT(ap_bucket *) ap_bucket_create_pipe(apr_file_t *thispipe);
+API_EXPORT(ap_bucket *) ap_bucket_make_pipe(ap_bucket *b, apr_file_t *thispipe);
+
 #endif
