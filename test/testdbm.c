@@ -178,7 +178,7 @@ static void doit(const cmd *act, const char *file, apr_pool_t *pool)
     extern long time();
 #endif
 
-    if (apr_dbm_open(file, pool, act->flags, &db) != APR_SUCCESS)
+    if (apr_dbm_open(&db, file, act->flags, pool) != APR_SUCCESS)
         oops("cannot open: %s", file);
 
     if ((line = (char *) malloc(LINEMAX)) == NULL)
