@@ -56,7 +56,6 @@
 #include "apr_buckets.h"
 #include <stdlib.h>
 
-/* XXX: We should obey the block flag */
 static apr_status_t socket_read(apr_bucket *a, const char **str,
 			      apr_size_t *len, apr_read_type_e block)
 {

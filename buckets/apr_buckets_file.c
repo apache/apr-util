@@ -96,7 +96,6 @@ static void file_destroy(void *data)
     free(f);
 }
 
-/* XXX: We should obey the block flag */
 static apr_status_t file_read(apr_bucket *e, const char **str,
 			      apr_size_t *len, apr_read_type_e block)
 {
