@@ -89,8 +89,13 @@ dnl
 dnl BSD/OS (BSDi) needs to use a different include syntax in the Makefiles
 dnl
 case "$host_alias" in
-*bsdi*)
-    INCLUDE_RULES=".include \"$top_builddir/../apr/build/rules.mk\""
+*bsdi* | BSD/OS)
+    # Check whether they've installed GNU make
+    if make --version > /dev/null 2>&1; then
+        INCLUDE_RULES="include $top_builddir/../apr/build/rules.mk"
+    else
+        INCLUDE_RULES=".include \"$top_builddir/../apr/build/rules.mk\""
+    fi
     ;;
 *)
     INCLUDE_RULES="include $top_builddir/../apr/build/rules.mk"

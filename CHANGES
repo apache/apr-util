@@ -1,5 +1,7 @@
 Changes with APR-util b1  
 
+  *) Fix Makefile conversion for BSD/OS.  [Cliff Woolley]
+
   *) Use APR_XtOffsetOf instead of offsetof() in the ring macros for
      portability.  [Cliff Woolley]
 
