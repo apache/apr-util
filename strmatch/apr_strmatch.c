@@ -81,23 +81,19 @@ APU_DECLARE(const apr_strmatch_pattern *)
         pattern->context = NULL;
         return pattern;
     }
-    else if (case_sensitive) {
-        pattern->compare = match_boyer_moore_horspool;
-    }
-    else {
-        pattern->compare = match_boyer_moore_horspool_nocase;
-    }
 
     shift = (int *)apr_palloc(p, sizeof(int) * NUM_CHARS);
     for (i = 0; i < NUM_CHARS; i++) {
         shift[i] = pattern->length;
     }
     if (case_sensitive) {
+        pattern->compare = match_boyer_moore_horspool;
         for (i = 0; i < pattern->length - 1; i++) {
             shift[(int)s[i]] = pattern->length - i - 1;
         }
     }
     else {
+        pattern->compare = match_boyer_moore_horspool_nocase;
         for (i = 0; i < pattern->length - 1; i++) {
             shift[apr_tolower(s[i])] = pattern->length - i - 1;
         }
