@@ -1,5 +1,0 @@
-
-TARGETS = sdbm.lo sdbm_hash.lo sdbm_lock.lo sdbm_pair.lo
-
-# bring in rules.mk for standard functionality
-@INCLUDE_RULES@
