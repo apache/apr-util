@@ -81,12 +81,13 @@ static const char *usage = "%s [-R] cat | look |... dbmname";
 
 #define DERROR	0
 #define DLOOK	1
-#define DINSERT	2
+
 #define DDELETE 3
 #define	DCAT	4
 #define DBUILD	5
 #define DPRESS	6
 #define DCREAT	7
+#define DNAME	8
 
 #define LINEMAX	8192
 
@@ -101,22 +102,23 @@ static const cmd cmds[] = {
     { "fetch", DLOOK,	 	APR_DBM_READONLY, },
     { "get", DLOOK,		APR_DBM_READONLY, },
     { "look", DLOOK,		APR_DBM_READONLY, },
-    { "add", DINSERT,		APR_DBM_READWRITE, },
-    { "insert", DINSERT,	APR_DBM_READWRITE, },
-    { "store", DINSERT,		APR_DBM_READWRITE, },
+    { "add", DBUILD,		APR_DBM_READWRITE, },
+    { "insert", DBUILD,	APR_DBM_READWRITE, },
+    { "store", DBUILD,		APR_DBM_READWRITE, },
     { "delete", DDELETE,	APR_DBM_READWRITE, },
     { "remove", DDELETE,	APR_DBM_READWRITE, },
     { "dump", DCAT,		APR_DBM_READONLY, },
     { "list", DCAT, 		APR_DBM_READONLY, },
     { "cat", DCAT,		APR_DBM_READONLY, },
+    { "build", DBUILD,          APR_DBM_RWCREATE, },			/** this one creates the DB */
+    { "creat", DCREAT,          APR_DBM_RWCREATE, },
+    { "new", DCREAT,            APR_DBM_RWCREATE, },
+    { "names", DNAME,           APR_DBM_READONLY, },
 #if 0
-    { "creat", DCREAT,		APR_DBM_RWCREATE | O_TRUNC, },
-    { "new", DCREAT,		APR_DBM_RWCREATE | O_TRUNC, },
+    {"squash", DPRESS, APR_DBM_READWRITE,},
+    {"compact", DPRESS, APR_DBM_READWRITE,},
+    {"compress", DPRESS, APR_DBM_READWRITE,},
 #endif
-    { "build", DBUILD,		APR_DBM_RWCREATE, },
-    { "squash", DPRESS,		APR_DBM_READWRITE, },
-    { "compact", DPRESS,	APR_DBM_READWRITE, },
-    { "compress", DPRESS,	APR_DBM_READWRITE, },
 };
 
 #define CTABSIZ (sizeof (cmds)/sizeof (cmd))
@@ -125,7 +127,8 @@ static void doit(const cmd *act, const char *file, apr_pool_t *pool);
 static void badk(const char *word);
 static const cmd *parse(const char *str);
 static void prdatum(FILE *stream, apr_datum_t d);
-static void oops(const char *s1, const char *s2);
+static void oops(apr_dbm_t *dbm, apr_status_t rv, const char *s1,
+		 const char *s2);
 
 
 int main(int argc, const char * const * argv)
@@ -138,6 +141,7 @@ int main(int argc, const char * const * argv)
 
     (void) apr_initialize();
     apr_pool_create(&pool, NULL);
+    atexit(apr_terminate);
 
     (void) apr_getopt_init(&os, pool, argc, argv);
 
@@ -145,17 +149,17 @@ int main(int argc, const char * const * argv)
 
     while (apr_getopt(os, "R", &optch, &optarg) == APR_SUCCESS)
         switch (optch) {
-        case 'R':	       /* raw processing  */
+        case 'R':       /* raw processing  */
             rflag++;
             break;
 
         default:
-            oops("(unknown option) usage: %s", usage);
+            oops(NULL, APR_EGENERAL, "(unknown option) usage: %s", usage);
             break;
         }
 
     if (os->ind + 2 > argc)
-        oops("usage: %s", usage);
+        oops(NULL, APR_EGENERAL, "usage: %s", usage);
 
     if ((act = parse(argv[os->ind])) == NULL)
         badk(argv[os->ind]);
@@ -163,7 +167,7 @@ int main(int argc, const char * const * argv)
     doit(act, argv[os->ind], pool);
 
     apr_pool_destroy(pool);
-    apr_terminate();
+
     return 0;
 }
 
@@ -176,17 +180,21 @@ static void doit(const cmd *act, const char *file, apr_pool_t *pool)
     char *op;
     int n;
     char *line;
+    const char *use1;
+    const char *use2;
 #ifdef TIME
     long start;
     extern long time();
 #endif
 
-    if (apr_dbm_open(&db, file, act->flags, APR_OS_DEFAULT, pool) 
-        != APR_SUCCESS)
-        oops("cannot open: %s", file);
 
-    if ((line = (char *) malloc(LINEMAX)) == NULL)
-        oops("%s: cannot get memory", "line alloc");
+    rv = apr_dbm_open(&db, file, act->flags, APR_OS_DEFAULT, pool);
+    if (rv != APR_SUCCESS)
+        oops(db, rv, "cannot open: %s", file);
+
+    if ((line = (char *) apr_palloc(pool,LINEMAX)) == NULL) {
+        oops(NULL, APR_EGENERAL, "%s: cannot get memory", "line alloc");
+    }
 
     switch (act->scode) {
 
@@ -194,6 +202,9 @@ static void doit(const cmd *act, const char *file, apr_pool_t *pool)
         while (fgets(line, LINEMAX, stdin) != NULL) {
             n = strlen(line) - 1;
             line[n] = 0;
+            if (n == 0)
+                break;
+
             key.dptr = line;
             key.dsize = n;
             rv = apr_dbm_fetch(db, key, &val);
@@ -206,12 +217,14 @@ static void doit(const cmd *act, const char *file, apr_pool_t *pool)
             fprintf(stderr, ": not found.\n");
         }
         break;
-    case DINSERT:
-        break;
+
     case DDELETE:
         while (fgets(line, LINEMAX, stdin) != NULL) {
             n = strlen(line) - 1;
             line[n] = 0;
+            if (n == 0)
+                break;
+
             key.dptr = line;
             key.dsize = n;
             if (apr_dbm_delete(db, key) != APR_SUCCESS) {
@@ -221,15 +234,21 @@ static void doit(const cmd *act, const char *file, apr_pool_t *pool)
         }
         break;
     case DCAT:
-        if (apr_dbm_firstkey(db, &key) != APR_SUCCESS)
-            oops("could not fetch first key: %s", file);
+        rv = apr_dbm_firstkey(db, &key);
+        if (rv != APR_SUCCESS)
+            oops(db, rv, "could not fetch first key: %s", file);
 
-        for (; key.dptr != 0; (void) apr_dbm_nextkey(db, &key)) {
+        while (key.dptr != NULL) {
             prdatum(stdout, key);
             putchar('\t');
-            (void) apr_dbm_fetch(db, key, &val);
+            rv = apr_dbm_fetch(db, key, &val);
+            if (rv != APR_SUCCESS)
+                oops(db, rv, "apr_dbm_fetch", "failure");
             prdatum(stdout, val);
             putchar('\n');
+            rv = apr_dbm_nextkey(db, &key);
+            if (rv != APR_SUCCESS)
+                oops(db, rv, "NextKey", "failure");
         }
         break;
     case DBUILD:
@@ -239,6 +258,9 @@ static void doit(const cmd *act, const char *file, apr_pool_t *pool)
         while (fgets(line, LINEMAX, stdin) != NULL) {
             n = strlen(line) - 1;
             line[n] = 0;
+            if (n == 0)
+                break;
+
             key.dptr = line;
             if ((op = strchr(line, '\t')) != 0) {
                 key.dsize = op - line;
@@ -247,12 +269,13 @@ static void doit(const cmd *act, const char *file, apr_pool_t *pool)
                 val.dsize = line + n - op;
             }
             else
-                oops("bad input: %s", line);
-	
-            if (apr_dbm_store(db, key, val) != APR_SUCCESS) {
+                oops(NULL, APR_EGENERAL, "bad input: %s", line);
+
+            rv = apr_dbm_store(db, key, val);
+            if (rv != APR_SUCCESS) {
                 prdatum(stderr, key);
                 fprintf(stderr, ": ");
-                oops("store: %s", "failed");
+                oops(db, rv, "store: %s", "failed");
             }
         }
 #ifdef TIME
@@ -263,6 +286,10 @@ static void doit(const cmd *act, const char *file, apr_pool_t *pool)
         break;
     case DCREAT:
         break;
+    case DNAME:
+	apr_dbm_get_usednames(pool, file, &use1, &use2);
+	fprintf(stderr, "%s %s\n", use1, use2);
+	break;
     }
 
     apr_dbm_close(db);
@@ -287,7 +314,7 @@ static const cmd *parse(const char *str)
 {
     int i = CTABSIZ;
     const cmd *p;
-	
+
     for (p = cmds; i--; p++)
         if (strcmp(p->sname, str) == 0)
             return p;
@@ -313,13 +340,25 @@ static void prdatum(FILE *stream, apr_datum_t d)
     }
 }
 
-static void oops(const char *s1, const char *s2)
+static void oops(apr_dbm_t * dbm, apr_status_t rv, const char *s1,
+		 const char *s2)
 {
+    char errbuf[200];
+
     if (progname)
         fprintf(stderr, "%s: ", progname);
     fprintf(stderr, s1, s2);
     if (errno > 0 && errno < sys_nerr)
         fprintf(stderr, " (%s)", sys_errlist[errno]);
     fprintf(stderr, "\n");
+    if (rv != APR_SUCCESS) {
+        apr_strerror(rv, errbuf, sizeof(errbuf));
+        fprintf(stderr, "APR Error %d - %s\n", rv, errbuf);
+
+        if (dbm) {
+            apr_dbm_geterror(dbm, &rv, errbuf, sizeof(errbuf));
+            fprintf(stderr, "APR_DB Error %d - %s\n", rv, errbuf);
+        }
+    }
     exit(1);
 }
