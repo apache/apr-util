@@ -470,19 +470,26 @@ APU_DECLARE(apr_status_t) apr_brigade_writev(apr_bucket_brigade *b,
        total_len += vec[i].iov_len;
     }
 
-    /* If the data to be written is very large, convert
+    /* If the data to be written is very large, try to convert
      * the iovec to transient buckets rather than copying.
      */
     if (total_len > APR_BUCKET_BUFF_SIZE) {
-        for (i = 0; i < nvec; i++) {
-            e = apr_bucket_transient_create(vec[i].iov_base, vec[i].iov_len,
-                                            b->bucket_alloc);
-            APR_BRIGADE_INSERT_TAIL(b, e);
-        }
         if (flush) {
+            for (i = 0; i < nvec; i++) {
+                e = apr_bucket_transient_create(vec[i].iov_base,
+                                                vec[i].iov_len,
+                                                b->bucket_alloc);
+                APR_BRIGADE_INSERT_TAIL(b, e);
+            }
             return flush(b, ctx);
         }
         else {
+            for (i = 0; i < nvec; i++) {
+                e = apr_bucket_heap_create((const char *) vec[i].iov_base,
+                                           vec[i].iov_len, NULL,
+                                           b->bucket_alloc);
+                APR_BRIGADE_INSERT_TAIL(b, e);
+            }
             return APR_SUCCESS;
         }
     }
