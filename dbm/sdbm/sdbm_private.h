@@ -79,30 +79,40 @@
 #define SPLTMAX	10			/* maximum allowed splits */
 
 /* for apr_sdbm_t.flags */
-#define SDBM_RDONLY	0x1	       /* data base open read-only */
+#define SDBM_RDONLY	        0x1    /* data base open read-only */
+#define SDBM_SHARED	        0x2    /* data base open for sharing */
+#define SDBM_SHARED_LOCK	0x4    /* data base locked for shared read */
+#define SDBM_EXCLUSIVE_LOCK	0x8    /* data base locked for write */
 
 struct apr_sdbm_t {
     apr_pool_t *pool;
     apr_file_t *dirf;		       /* directory file descriptor */
     apr_file_t *pagf;		       /* page file descriptor */
-    apr_int32_t flags;		       /* status/error flags, see above */
+    apr_int32_t flags;		       /* status/error flags, see below */
     long maxbno;		       /* size of dirfile in bits */
     long curbit;		       /* current bit number */
     long hmask;			       /* current hash mask */
     long blkptr;		       /* current block for nextkey */
-    int keyptr;			       /* current key for nextkey */
+    int  keyptr;		       /* current key for nextkey */
     long blkno;			       /* current page to read/write */
     long pagbno;		       /* current page in pagbuf */
     char pagbuf[PBLKSIZ];	       /* page file block buffer */
     long dirbno;		       /* current block in dirbuf */
     char dirbuf[DBLKSIZ];	       /* directory file block buffer */
+    int  lckcnt;                       /* number of calls to sdbm_lock */
 };
-
-apr_status_t sdbm_lock(apr_sdbm_t *db, int exclusive);
-apr_status_t sdbm_unlock(apr_sdbm_t *db);
 
 extern const apr_sdbm_datum_t sdbm_nullitem;
 
 long sdbm_hash(const char *str, int len);
+
+/*
+ * zero the cache
+ */
+#define SDBM_INVALIDATE_CACHE(db, finfo) \
+    do { db->dirbno = (!finfo.size) ? 0 : -1; \
+         db->pagbno = -1; \
+         db->maxbno = finfo.size * BYTESIZ; \
+    } while (0);
 
 #endif /* SDBM_PRIVATE_H */
