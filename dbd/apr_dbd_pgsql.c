@@ -499,8 +499,8 @@ static int dbd_pgsql_pvselect(apr_pool_t *pool, apr_dbd_t *sql,
                              seek, nargs, values) ;
 }
 
-static int dbd_pgsql_transaction(apr_pool_t *pool, apr_dbd_t *handle,
-                                 apr_dbd_transaction_t **trans)
+static int dbd_pgsql_start_transaction(apr_pool_t *pool, apr_dbd_t *handle,
+                                       apr_dbd_transaction_t **trans)
 {
     int ret = 0;
     PGresult *res;
@@ -627,7 +627,7 @@ APU_DECLARE_DATA const apr_dbd_driver_t apr_dbd_pgsql_driver = {
     dbd_pgsql_check_conn,
     dbd_pgsql_close,
     dbd_pgsql_select_db,
-    dbd_pgsql_transaction,
+    dbd_pgsql_start_transaction,
     dbd_pgsql_end_transaction,
     dbd_pgsql_query,
     dbd_pgsql_select,
