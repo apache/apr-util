@@ -139,9 +139,9 @@ static apr_status_t queue_destroy(void *data)
 /**
  * Initialize the apr_queue_t.
  */
-apr_status_t apr_queue_create(apr_queue_t **q, 
-                            int queue_capacity, 
-                            apr_pool_t *a)
+APU_DECLARE(apr_status_t) apr_queue_create(apr_queue_t **q, 
+                                           int queue_capacity, 
+                                           apr_pool_t *a)
 {
     apr_status_t rv;
     apr_queue_t *queue;
@@ -186,7 +186,7 @@ apr_status_t apr_queue_create(apr_queue_t **q,
  * the push operation has completed, it signals other threads waiting
  * in apr_queue_pop() that they may continue consuming sockets.
  */
-apr_status_t apr_queue_push(apr_queue_t *queue, void *data)
+APU_DECLARE(apr_status_t) apr_queue_push(apr_queue_t *queue, void *data)
 {
     apr_status_t rv;
     int need_signal=0;
@@ -249,7 +249,7 @@ apr_status_t apr_queue_push(apr_queue_t *queue, void *data)
  * the push operation has completed, it signals other threads waiting
  * in apr_queue_pop() that they may continue consuming sockets.
  */
-apr_status_t apr_queue_trypush(apr_queue_t *queue, void *data)
+APU_DECLARE(apr_status_t) apr_queue_trypush(apr_queue_t *queue, void *data)
 {
     apr_status_t rv;
     int need_signal=0;
@@ -291,7 +291,7 @@ apr_status_t apr_queue_trypush(apr_queue_t *queue, void *data)
 /**
  * not thread safe
  */
-int apr_queue_size(apr_queue_t *queue) {
+APU_DECLARE(int) apr_queue_size(apr_queue_t *queue) {
     return queue->nelts;
 }
 /**
@@ -300,7 +300,7 @@ int apr_queue_size(apr_queue_t *queue) {
  * Once retrieved, the item is placed into the address specified by
  * 'data'.
  */
-apr_status_t apr_queue_pop(apr_queue_t *queue, void **data)
+APU_DECLARE(apr_status_t) apr_queue_pop(apr_queue_t *queue, void **data)
 {
     apr_status_t rv;
     int need_signal=0;
@@ -365,7 +365,7 @@ apr_status_t apr_queue_pop(apr_queue_t *queue, void **data)
  * Once retrieved, the item is placed into the address specified by
  * 'data'.
  */
-apr_status_t apr_queue_trypop(apr_queue_t *queue, void **data)
+APU_DECLARE(apr_status_t) apr_queue_trypop(apr_queue_t *queue, void **data)
 {
     apr_status_t rv;
     int need_signal=0;
@@ -405,7 +405,7 @@ apr_status_t apr_queue_trypop(apr_queue_t *queue, void **data)
     return rv;
 }
 
-apr_status_t apr_queue_interrupt_all(apr_queue_t *queue)
+APU_DECLARE(apr_status_t) apr_queue_interrupt_all(apr_queue_t *queue)
 {
     apr_status_t rv;
     Q_DBG( "intr all", queue);    
@@ -422,7 +422,7 @@ apr_status_t apr_queue_interrupt_all(apr_queue_t *queue)
     return APR_SUCCESS;
 }
 
-apr_status_t apr_queue_term(apr_queue_t *queue)
+APU_DECLARE(apr_status_t) apr_queue_term(apr_queue_t *queue)
 {
     apr_status_t rv;
 
