@@ -273,6 +273,20 @@ APU_DECLARE(int) apr_uri_parse(apr_pool_t *p, const char *uri,
      * the reason for the gotos.  -djg
      */
     if (uri[0] == '/') {
+        /* RFC2396 #4.3 says that two leading slashes mean we have an
+         * authority component, not a path!  Fixing this looks scary
+         * with the gotos here.  But if the existing logic is valid,
+         * then presumably a goto pointing to deal_with_authority works.
+         *
+         * RFC2396 describes this as resolving an ambiguity.  In the
+         * case of three or more slashes there would seem to be no
+         * ambiguity, so it is a path after all.
+         */
+        if (uri[1] == '/' && uri[2] != '/') {
+            s = uri + 2 ;
+            goto deal_with_authority ;
+        }
+
 deal_with_path:
         /* we expect uri to point to first character of path ... remember
          * that the path could be empty -- http://foobar?query for example
@@ -316,6 +330,8 @@ deal_with_path:
 
     uptr->scheme = apr_pstrmemdup(p, uri, s - uri);
     s += 3;
+
+deal_with_authority:
     hostinfo = s;
     while ((uri_delims[*(unsigned char *)s] & NOTEND_HOSTINFO) == 0) {
         ++s;
