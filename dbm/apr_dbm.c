@@ -71,7 +71,7 @@ typedef sdbm_datum real_datum_t;
 #define APR_DBM_DELETE(f, k)	sdbm_delete((f), (k))
 #define APR_DBM_FIRSTKEY(f)	sdbm_firstkey(f)
 #define APR_DBM_NEXTKEY(f, k)	sdbm_nextkey(f)
-#define APR_DBM_FREEDATUM(f, d)	if (0) ; else	/* stop "no effect" warning */
+#define APR_DBM_FREEDPTR(dptr)	if (0) ; else	/* stop "no effect" warning */
 
 #define APR_DBM_DBMODE_RO       APR_READ
 #define APR_DBM_DBMODE_RW       (APR_READ | APR_WRITE)
@@ -90,7 +90,9 @@ typedef datum real_datum_t;
 #define APR_DBM_DELETE(f, k)	g2s(gdbm_delete((f), (k)))
 #define APR_DBM_FIRSTKEY(f)	gdbm_firstkey(f)
 #define APR_DBM_NEXTKEY(f, k)	gdbm_nextkey((f), (k))
-#define APR_DBM_FREEDATUM(f, d)	((d).dptr ? free((d).dptr) : 0)
+#define APR_DBM_FREEDPTR(dptr)	((dptr) ? free(dptr) : 0)
+
+#define NEEDS_CLEANUP
 
 #define APR_DBM_DBMODE_RO       GDBM_READER
 #define APR_DBM_DBMODE_RW       GDBM_WRITER
@@ -125,6 +127,26 @@ struct apr_dbm_t
 #define A2R_DATUM(d)    (*(real_datum_t *)&(d))
 #define R2A_DATUM(d)    (*(apr_datum_t *)&(d))
 
+
+#ifdef NEEDS_CLEANUP
+
+static apr_status_t datum_cleanup(void *dptr)
+{
+    APR_DBM_FREEDPTR(dptr);
+    return APR_SUCCESS;
+}
+
+#define REG_CLEANUP(db, pdatum) \
+    if ((pdatum)->dptr) \
+        apr_register_cleanup((db)->pool, (pdatum)->dptr, \
+                             datum_cleanup, apr_null_cleanup); \
+    else
+
+#else /* NEEDS_CLEANUP */
+
+#define REG_CLEANUP(db, pdatum) if (0) ; else   /* stop "no effect" warning */
+
+#endif /* NEEDS_CLEANUP */
 
 static apr_status_t set_error(apr_dbm_t *db)
 {
@@ -217,6 +239,8 @@ apr_status_t apr_dbm_fetch(apr_dbm_t *db, apr_datum_t key, apr_datum_t *pvalue)
 {
     *(real_datum_t *) pvalue = APR_DBM_FETCH(db->file, A2R_DATUM(key));
 
+    REG_CLEANUP(db, pvalue);
+
     /* store the error info into DB, and return a status code. Also, note
        that *pvalue should have been cleared on error. */
     return set_error(db);
@@ -272,6 +296,8 @@ apr_status_t apr_dbm_firstkey(apr_dbm_t *db, apr_datum_t *pkey)
 {
     *(real_datum_t *) pkey = APR_DBM_FIRSTKEY(db->file);
 
+    REG_CLEANUP(db, pkey);
+
     /* store the error info into DB, and return a status code. Also, note
        that *pvalue should have been cleared on error. */
     return set_error(db);
@@ -281,18 +307,20 @@ apr_status_t apr_dbm_nextkey(apr_dbm_t *db, apr_datum_t *pkey)
 {
     *(real_datum_t *) pkey = APR_DBM_NEXTKEY(db->file, A2R_DATUM(*pkey));
 
+    REG_CLEANUP(db, pkey);
+
     /* store the error info into DB, and return a status code. Also, note
        that *pvalue should have been cleared on error. */
     return set_error(db);
 }
 
-/* XXX: This is wrong - we must call freedatum after moving the
- * datum contents into the pool before we return, the user can't
- * concern themselves with free in a pool-managed application.
- */
 void apr_dbm_freedatum(apr_dbm_t *db, apr_datum_t data)
 {
-    APR_DBM_FREEDATUM(db, data);
+#ifdef NEEDS_CLEANUP
+    (void) apr_run_cleanup(db->pool, data.dptr, datum_cleanup);
+#else
+    APR_DBM_FREEDPTR(data.dptr);
+#endif
 }
 
 /* XXX: This is wrong... need to return a canonical errcode as part
