@@ -18,7 +18,7 @@ TARGETS = delete-lib $(TARGET_LIB) delete-exports aprutil.exp export_vars.h
 # bring in rules.mk for standard functionality
 @INCLUDE_RULES@
 
-SUBDIRS = buckets crypto dbm encoding hooks ldap uri xml misc strmatch
+SUBDIRS = buckets crypto dbm encoding hooks ldap uri xml misc strmatch xlate
 CLEAN_SUBDIRS = . test
 
 CLEAN_TARGETS =
