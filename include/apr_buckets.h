@@ -146,7 +146,8 @@ struct ap_bucket {
     ap_bucket *prev;
     /** The length of the data in the bucket.  This could have been implemented
      *  with a function, but this is an optimization, because the most
-     *  common thing to do will be to get the length.
+     *  common thing to do will be to get the length.  If the length is unknown,
+     *  the value of this field will be -1.
      */
     apr_off_t length;
 
