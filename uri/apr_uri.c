@@ -112,12 +112,13 @@ APU_DECLARE(apr_port_t) apr_uri_port_of_scheme(const char *scheme_str)
 {
     schemes_t *scheme;
 
-    for (scheme = schemes; scheme->name != NULL; ++scheme) {
-        if (strcasecmp(scheme_str, scheme->name) == 0) {
-            return scheme->default_port;
+    if (scheme_str) {
+        for (scheme = schemes; scheme->name != NULL; ++scheme) {
+            if (strcasecmp(scheme_str, scheme->name) == 0) {
+                return scheme->default_port;
+            }
         }
     }
-
     return 0;
 }
 
@@ -172,12 +173,26 @@ APU_DECLARE(char *) apr_uri_unparse(apr_pool_t *p,
                  uptr->port == 0 ||
                  uptr->port == apr_uri_port_of_scheme(uptr->scheme));
 
-            ret = apr_pstrcat(p,
+            if (uptr->scheme) {
+                ret = apr_pstrcat(p,
                               uptr->scheme, "://", ret,
                               lbrk, uptr->hostname, rbrk,
                               is_default_port ? "" : ":",
                               is_default_port ? "" : uptr->port_str,
                               NULL);
+            }
+            else {
+                /* A violation of RFC2396, but it is clear from section 3.2
+                 * that the : belongs above to the scheme, while // belongs
+                 * to the authority, so include the authority prefix while
+                 * omitting the "scheme:" that the user neglected to pass us.
+                 */
+                ret = apr_pstrcat(p,
+                              "//", ret, lbrk, uptr->hostname, rbrk,
+                              is_default_port ? "" : ":",
+                              is_default_port ? "" : uptr->port_str,
+                              NULL);
+            }
         }
     }
 
