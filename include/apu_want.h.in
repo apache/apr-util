@@ -61,7 +61,7 @@
  * <PRE>
  * Features:
  *
- *   APU_WANT_DB:       <@apu_db_header>
+ *   APU_WANT_DB:       <@apu_db_header@>
  *
  * Typical usage:
  *
