@@ -350,7 +350,7 @@ APU_DECLARE(apr_status_t) apr_xlate_conv_buffer(apr_xlate_t *convset,
 
              /* Sometimes, iconv is not good about setting errno. */
             case 0:
-                if (inbytes_left)
+                if (*inbytes_left)
                     status = APR_INCOMPLETE;
                 break;
 
