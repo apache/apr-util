@@ -12,14 +12,27 @@ dnl TODO: Check for --with-iconv or --with-apr-iconv, or look for
 dnl apr-iconv sources or an installed apr-iconv ...
 dnl
 
-AC_CHECK_LIB(iconv, iconv)
-AC_CHECK_FUNCS(iconv, [ have_iconv="1" ], [ have_iconv="0" ])
+AC_CHECK_FUNCS(iconv, [
+  have_iconv="1"
+], [ 
+  AC_CHECK_LIB(iconv, iconv, [
+    APR_ADDTO(APRUTIL_LIBS,[-liconv])
+    APR_ADDTO(APRUTIL_EXPORT_LIBS,[-liconv])
+    have_iconv="1"
+  ], [
+    have_iconv="0"
+  ])
+])
+
 if test "$have_iconv" = "1"; then
   APU_CHECK_ICONV_INBUF
 fi
-AC_SUBST(have_iconv)
-APR_FLAG_HEADERS(iconv.h)
 
+APR_FLAG_HEADERS(iconv.h langinfo.h)
+APR_FLAG_FUNCS(nl_langinfo)
+APR_CHECK_DEFINE(CODESET, langinfo.h, [CODESET defined in langinfo.h])
+
+AC_SUBST(have_iconv)
 ])dnl
 
 
