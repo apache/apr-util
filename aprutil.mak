@@ -40,12 +40,12 @@ ALL : "$(OUTDIR)\aprutil.lib"
 
 !ELSE 
 
-ALL : "apr - Win32 Release" "xml - Win32 Release" "$(OUTDIR)\aprutil.lib"
+ALL : "xml - Win32 Release" "apr - Win32 Release" "$(OUTDIR)\aprutil.lib"
 
 !ENDIF 
 
 !IF "$(RECURSE)" == "1" 
-CLEAN :"xml - Win32 ReleaseCLEAN" "apr - Win32 ReleaseCLEAN" 
+CLEAN :"apr - Win32 ReleaseCLEAN" "xml - Win32 ReleaseCLEAN" 
 !ELSE 
 CLEAN :
 !ENDIF 
@@ -165,12 +165,12 @@ ALL : "$(OUTDIR)\aprutil.lib"
 
 !ELSE 
 
-ALL : "apr - Win32 Debug" "xml - Win32 Debug" "$(OUTDIR)\aprutil.lib"
+ALL : "xml - Win32 Debug" "apr - Win32 Debug" "$(OUTDIR)\aprutil.lib"
 
 !ENDIF 
 
 !IF "$(RECURSE)" == "1" 
-CLEAN :"xml - Win32 DebugCLEAN" "apr - Win32 DebugCLEAN" 
+CLEAN :"apr - Win32 DebugCLEAN" "xml - Win32 DebugCLEAN" 
 !ELSE 
 CLEAN :
 !ENDIF 
@@ -728,7 +728,7 @@ NODEP_CPP_APR_X=\
 	
 
 "$(INTDIR)\apr_xml.obj" : $(SOURCE) $(DEP_CPP_APR_X) "$(INTDIR)"\
- ".\include\apu.h"
+ ".\include\private\apu_config.h" ".\include\apu.h"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
@@ -757,6 +757,13 @@ InputPath=.\include\apu.hw
 SOURCE=.\include\private\apu_config.hw
 
 !IF  "$(CFG)" == "aprutil - Win32 Release"
+
+InputPath=.\include\private\apu_config.hw
+
+".\include\private\apu_config.h"	 : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy .\include\private\apu_config.hw .\include\private\apu_config.h > nul 
+	echo Created apu_config.h from apu_config.hw 
+	
 
 !ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
 
@@ -795,34 +802,6 @@ InputPath=.\include\private\apu_select_dbm.hw
 
 !IF  "$(CFG)" == "aprutil - Win32 Release"
 
-"xml - Win32 Release" : 
-   cd ".\xml\expat\lib"
-   $(MAKE) /$(MAKEFLAGS) /F ".\xml.mak" CFG="xml - Win32 Release" 
-   cd "..\..\.."
-
-"xml - Win32 ReleaseCLEAN" : 
-   cd ".\xml\expat\lib"
-   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\xml.mak" CFG="xml - Win32 Release"\
- RECURSE=1 
-   cd "..\..\.."
-
-!ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
-
-"xml - Win32 Debug" : 
-   cd ".\xml\expat\lib"
-   $(MAKE) /$(MAKEFLAGS) /F ".\xml.mak" CFG="xml - Win32 Debug" 
-   cd "..\..\.."
-
-"xml - Win32 DebugCLEAN" : 
-   cd ".\xml\expat\lib"
-   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\xml.mak" CFG="xml - Win32 Debug" RECURSE=1\
- 
-   cd "..\..\.."
-
-!ENDIF 
-
-!IF  "$(CFG)" == "aprutil - Win32 Release"
-
 "apr - Win32 Release" : 
    cd "..\apr"
    $(MAKE) /$(MAKEFLAGS) /F ".\apr.mak" CFG="apr - Win32 Release" 
@@ -846,6 +825,34 @@ InputPath=.\include\private\apu_select_dbm.hw
    $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\apr.mak" CFG="apr - Win32 Debug" RECURSE=1\
  
    cd "..\apr-util"
+
+!ENDIF 
+
+!IF  "$(CFG)" == "aprutil - Win32 Release"
+
+"xml - Win32 Release" : 
+   cd ".\xml\expat\lib"
+   $(MAKE) /$(MAKEFLAGS) /F ".\xml.mak" CFG="xml - Win32 Release" 
+   cd "..\..\.."
+
+"xml - Win32 ReleaseCLEAN" : 
+   cd ".\xml\expat\lib"
+   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\xml.mak" CFG="xml - Win32 Release"\
+ RECURSE=1 
+   cd "..\..\.."
+
+!ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
+
+"xml - Win32 Debug" : 
+   cd ".\xml\expat\lib"
+   $(MAKE) /$(MAKEFLAGS) /F ".\xml.mak" CFG="xml - Win32 Debug" 
+   cd "..\..\.."
+
+"xml - Win32 DebugCLEAN" : 
+   cd ".\xml\expat\lib"
+   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\xml.mak" CFG="xml - Win32 Debug" RECURSE=1\
+ 
+   cd "..\..\.."
 
 !ENDIF 
 
