@@ -1,5 +1,8 @@
 Changes with APR-util 1.1.0
 
+  *) Emit the run-time link path option in apu-config after installation
+     if the user is linking with libtool.  [Justin Erenkrantz]
+
   *) Port testmd4 and testmd5 to the new test suite. [Thom May]
 
   *) Allow passing NULL inbuf/inbytes_left parameters to
