@@ -37,8 +37,11 @@ void apr_assert_success(abts_case* tc, const char* context, apr_status_t rv)
 }
 
 void initialize(void) {
-    apr_initialize();
+    if (apr_initialize() != APR_SUCCESS) {
+        abort();
+    }
     atexit(apr_terminate);
     
     apr_pool_create(&p, NULL);
+    apr_pool_tag(p, "apr-util global test pool");
 }
