@@ -22,6 +22,10 @@
 #include "apr_file_io.h"
 #include "apr_thread_proc.h"
 #include "apr_md5.h"
+#include "apr_sha1.h"
+
+#include "abts.h"
+#include "testutil.h"
 
 static struct {
     const char *password;
@@ -52,22 +56,14 @@ static struct {
 };
 static int num_passwords = sizeof(passwords) / sizeof(passwords[0]);
 
-static void check_rv(apr_status_t rv)
-{
-    if (rv != APR_SUCCESS) {
-        fprintf(stderr, "bailing\n");
-        exit(1);
-    }
-}
-
-static void test(void)
+static void test_crypt(abts_case *tc, void *data)
 {
     int i;
 
     for (i = 0; i < num_passwords; i++) {
-        apr_status_t rv = apr_password_validate(passwords[i].password,
-                                                passwords[i].hash);
-        assert(rv == APR_SUCCESS);
+        apr_assert_success(tc, "check for valid password",
+                           apr_password_validate(passwords[i].password,
+                                                 passwords[i].hash));
     }
 }
 
@@ -76,15 +72,18 @@ static void test(void)
 static void * APR_THREAD_FUNC testing_thread(apr_thread_t *thd,
                                              void *data)
 {
+    abts_case *tc = data;
     int i;
 
     for (i = 0; i < 100; i++) {
-        test();
+        test_crypt(tc, NULL);
     }
+
     return APR_SUCCESS;
 }
 
-static void thread_safe_test(apr_pool_t *p)
+/* test for threadsafe crypt() */
+static void test_threadsafe(abts_case *tc, void *data)
 {
 #define NUM_THR 20
     apr_thread_t *my_threads[NUM_THR];
@@ -92,8 +91,9 @@ static void thread_safe_test(apr_pool_t *p)
     apr_status_t rv;
     
     for (i = 0; i < NUM_THR; i++) {
-        rv = apr_thread_create(&my_threads[i], NULL, testing_thread, NULL, p);
-        check_rv(rv);
+        apr_assert_success(tc, "create test thread",
+                           apr_thread_create(&my_threads[i], NULL, 
+                                             testing_thread, tc, p));
     }
 
     for (i = 0; i < NUM_THR; i++) {
@@ -102,27 +102,38 @@ static void thread_safe_test(apr_pool_t *p)
 }
 #endif
 
-int main(void)
+static void test_shapass(abts_case *tc, void *data)
 {
-    apr_status_t rv;
-    apr_pool_t *p;
+    const char *pass = "hellojed";
+    char hash[100];
 
-    rv = apr_initialize();
-    check_rv(rv);
-    rv = apr_pool_create(&p, NULL);
-    check_rv(rv);
-    atexit(apr_terminate);
+    apr_sha1_base64(pass, strlen(pass), hash);
 
-    /* before creating any threads, test it first just to check
-     * for problems with the test driver
-     */
-    printf("dry run\n");
-    test();
+    apr_assert_success(tc, "SHA1 password validated",
+                       apr_password_validate(pass, hash));
+}
 
+static void test_md5pass(abts_case *tc, void *data)
+{
+    const char *pass = "hellojed", *salt = "sardine";
+    char hash[100];
+
+    apr_md5_encode(pass, salt, hash, sizeof hash);
+
+    apr_assert_success(tc, "MD5 password validated",
+                       apr_password_validate(pass, hash));
+}
+
+abts_suite *testpass(abts_suite *suite)
+{
+    suite = ADD_SUITE(suite);
+
+    abts_run_test(suite, test_crypt, NULL);
 #if APR_HAS_THREADS
-    printf("thread-safe test\n");
-    thread_safe_test(p);
+    abts_run_test(suite, test_threadsafe, NULL);
 #endif
+    abts_run_test(suite, test_shapass, NULL);
+    abts_run_test(suite, test_md5pass, NULL);
     
-    return 0;
+    return suite;
 }
