@@ -67,11 +67,11 @@ static apr_status_t pipe_split(ap_bucket *a, apr_off_t point)
 }
 
 /* Ignore the block arg for now.  We can fix that tomorrow. */
-static apr_status_t pipe_read(ap_bucket *b, const char **str,
-				apr_ssize_t *len, int block)
+static apr_status_t pipe_read(ap_bucket *a, const char **str,
+			      apr_ssize_t *len, int block)
 {
-    ap_bucket_pipe *bd = b->data;
-    ap_bucket *a;
+    ap_bucket_pipe *d = a->data;
+    ap_bucket *b;
     char *buf;
     apr_status_t rv;
 
@@ -81,14 +81,14 @@ static apr_status_t pipe_read(ap_bucket *b, const char **str,
     buf = malloc(IOBUFSIZE);
     *str = buf;
     *len = IOBUFSIZE;
-    if ((rv = apr_read(bd->thepipe, buf, len)) != APR_SUCCESS) {
+    if ((rv = apr_read(d->thepipe, buf, len)) != APR_SUCCESS) {
 	free(buf);
         return rv;
     }
     if (*len > 0) {
-        a = ap_bucket_create_pipe(bd->thepipe);
-        b = ap_bucket_make_heap(b, buf, *len, 0, NULL);
-	AP_RING_INSERT_AFTER(b, a, link);
+        b = ap_bucket_create_pipe(d->thepipe);
+        a = ap_bucket_make_heap(a, buf, *len, 0, NULL);
+	AP_BUCKET_INSERT_AFTER(a, b);
     }
     return APR_SUCCESS;
 }
