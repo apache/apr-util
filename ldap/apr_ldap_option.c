@@ -30,9 +30,9 @@
 
 #if APR_HAS_LDAP
 
-static int option_set_cert(apr_pool_t *pool, LDAP *ldap, const void *invalue,
+static void option_set_cert(apr_pool_t *pool, LDAP *ldap, const void *invalue,
                            apr_ldap_err_t *result);
-static int option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
+static void option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
                           apr_ldap_err_t *result);
 
 /**
