@@ -74,7 +74,11 @@ AC_SUBST(apu_use_sdbm)
 AC_SUBST(apu_use_gdbm)
 
 if test $apu_use_gdbm = 1; then
+  lib_save="$LIBS"
+  LIBS=""
   AC_CHECK_LIB(gdbm, gdbm_open)
+  APRUTIL_EXPORT_LIBS="$APRUTIL_EXPORT_LIBS $LIBS"
+  LIBS="$lib_save $LIBS"
 fi
 
 ])

@@ -35,11 +35,29 @@ dnl set up the compilation flags and stuff
 dnl
 INCLUDES="-I\$(top_builddir)/include/private -I\$(top_builddir)/include -I$APR_INCLUDES"
 
-CFLAGS="$CFLAGS $INCLUDES"
+dnl
+dnl grab flags from APR.
+dnl ### APR doesn't have "nice" names for its exports (yet), but it isn't
+dnl ### a problem to deal with them right here
+dnl
+. "$APR_SOURCE_DIR/APRVARS"
+APR_EXPORT_CPPFLAGS="$EXTRA_CPPFLAGS"
+APR_EXPORT_CFLAGS="$EXTRA_CFLAGS"
+APR_EXPORT_LIBS="$EXTRA_LIBS"
 
+dnl
+dnl Prep all the flags and stuff for compilation and export to other builds
+dnl
+CFLAGS="$CFLAGS $INCLUDES $APR_EXPORT_CFLAGS $APR_EXPORT_CPPFLAGS"
+LIBS="$LIBS $APR_EXPORT_LIBS"
 
+AC_SUBST(APRUTIL_EXPORT_LIBS)
+
+dnl
+dnl everthing is done. 
 AC_OUTPUT([
 	Makefile
+	export_vars.sh
 	build/Makefile
 	build/rules.mk
 	include/private/apu_private.h
