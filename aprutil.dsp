@@ -382,10 +382,6 @@ SOURCE=.\include\apr_optional.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\apr_ring.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\include\apr_sdbm.h
 # End Source File
 # Begin Source File
