@@ -72,11 +72,11 @@ typedef struct rmm_hdr_block_t {
     apr_rmm_off_t /* rmm_block_t */ firstfree;
 } rmm_hdr_block_t;
 
-typedef struct apr_rmm_t {
+struct apr_rmm_t {
     apr_pool_t *p;
     rmm_hdr_block_t *base;
     apr_size_t size;
-} apr_rmm_t;
+};
 
 #define MIN_BLK_SIZE 128
 
@@ -151,7 +151,7 @@ static apr_rmm_off_t find_block_of_size(apr_rmm_t *rmm, apr_size_t size)
     return 0;
 }
 
-void move_block(apr_rmm_t *rmm, apr_rmm_off_t this, int free)
+static void move_block(apr_rmm_t *rmm, apr_rmm_off_t this, int free)
 {   
     struct rmm_block_t *blk = (rmm_block_t*)((char*)rmm->base + this);
 
