@@ -52,32 +52,32 @@
  * <http://www.apache.org/>.
  */
 
-#include "ap_buckets.h"
+#include "apr_buckets.h"
 #include <stdlib.h>
 
 static apr_status_t pool_bucket_cleanup(void *data)
 {
-    ap_bucket_shared *s = data;
-    ap_bucket_shared *new;
-    ap_bucket_pool *h = s->data;
-    ap_bucket *b = h->b;
+    apr_bucket_shared *s = data;
+    apr_bucket_shared *new;
+    apr_bucket_pool *h = s->data;
+    apr_bucket *b = h->b;
     apr_size_t w;
 
-    ap_bucket_make_heap(b, h->base, b->length, 1, &w);
+    apr_bucket_make_heap(b, h->base, b->length, 1, &w);
     new = b->data;
 
     new->start = s->start;
     new->end = s->end;
 
-    ap_bucket_destroy_shared(s);
+    apr_bucket_destroy_shared(s);
     return APR_SUCCESS;
 }
 
-static apr_status_t pool_read(ap_bucket *b, const char **str, 
-			      apr_size_t *len, ap_read_type block)
+static apr_status_t pool_read(apr_bucket *b, const char **str, 
+			      apr_size_t *len, apr_read_type_e block)
 {
-    ap_bucket_shared *s = b->data;
-    ap_bucket_pool *h = s->data;
+    apr_bucket_shared *s = b->data;
+    apr_bucket_pool *h = s->data;
 
     *str = h->base + s->start;
     *len = s->end - s->start;
@@ -86,21 +86,21 @@ static apr_status_t pool_read(ap_bucket *b, const char **str,
 
 static void pool_destroy(void *data)
 {
-    ap_bucket_shared *s = data;
-    ap_bucket_pool *h = s->data;
+    apr_bucket_shared *s = data;
+    apr_bucket_pool *h = s->data;
 
     apr_kill_cleanup(h->p, data, pool_bucket_cleanup);
-    h = ap_bucket_destroy_shared(data);
+    h = apr_bucket_destroy_shared(data);
     if (h == NULL) {
 	return;
     }
     free(h);
 }
 
-APU_DECLARE(ap_bucket *) ap_bucket_make_pool(ap_bucket *b,
+APU_DECLARE(apr_bucket *) apr_bucket_make_pool(apr_bucket *b,
 		const char *buf, apr_size_t length, apr_pool_t *p)
 {
-    ap_bucket_pool *h;
+    apr_bucket_pool *h;
 
     h = malloc(sizeof(*h));
     if (h == NULL) {
@@ -113,30 +113,30 @@ APU_DECLARE(ap_bucket *) ap_bucket_make_pool(ap_bucket *b,
     h->base = (char *) buf;
     h->p    = p;
 
-    b = ap_bucket_make_shared(b, h, 0, length);
+    b = apr_bucket_make_shared(b, h, 0, length);
     if (b == NULL) {
 	free(h);
 	return NULL;
     }
 
-    b->type = &ap_pool_type;
+    b->type = &apr_bucket_type_pool;
     h->b = b;
 
     apr_register_cleanup(h->p, b->data, pool_bucket_cleanup, apr_null_cleanup);
     return b;
 }
 
-APU_DECLARE(ap_bucket *) ap_bucket_create_pool(
+APU_DECLARE(apr_bucket *) apr_bucket_create_pool(
 		const char *buf, apr_size_t length, apr_pool_t *p)
 {
-    ap_bucket_do_create(ap_bucket_make_pool(b, buf, length, p));
+    apr_bucket_do_create(apr_bucket_make_pool(b, buf, length, p));
 }
 
-APU_DECLARE_DATA const ap_bucket_type ap_pool_type = {
+APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_pool = {
     "POOL", 5,
     pool_destroy,
     pool_read,
-    ap_bucket_setaside_notimpl,
-    ap_bucket_split_shared,
-    ap_bucket_copy_shared
+    apr_bucket_setaside_notimpl,
+    apr_bucket_split_shared,
+    apr_bucket_copy_shared
 };

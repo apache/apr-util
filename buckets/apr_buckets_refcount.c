@@ -56,19 +56,19 @@
 
 #include "apr_errno.h"
 
-#include "ap_buckets.h"
+#include "apr_buckets.h"
 
-APU_DECLARE_NONSTD(apr_status_t) ap_bucket_split_shared(ap_bucket *a, apr_off_t point)
+APU_DECLARE_NONSTD(apr_status_t) apr_bucket_split_shared(apr_bucket *a, apr_off_t point)
 {
-    ap_bucket *b;
-    ap_bucket_shared *ad, *bd;
+    apr_bucket *b;
+    apr_bucket_shared *ad, *bd;
     apr_status_t rv;
 
     if (point < 0 || point > a->length) {
 	return APR_EINVAL;
     }
 
-    rv = ap_bucket_copy_shared(a, &b);
+    rv = apr_bucket_copy_shared(a, &b);
     if (rv != APR_SUCCESS) {
         return rv;
     }
@@ -81,16 +81,16 @@ APU_DECLARE_NONSTD(apr_status_t) ap_bucket_split_shared(ap_bucket *a, apr_off_t 
     b->length -= point;
     bd->start += point;
 
-    AP_BUCKET_INSERT_AFTER(a, b);
+    APR_BUCKET_INSERT_AFTER(a, b);
 
     return APR_SUCCESS;
 }
 
-APU_DECLARE_NONSTD(apr_status_t) ap_bucket_copy_shared(ap_bucket *a, ap_bucket **c)
+APU_DECLARE_NONSTD(apr_status_t) apr_bucket_copy_shared(apr_bucket *a, apr_bucket **c)
 {
-    ap_bucket *b;
-    ap_bucket_shared *ad, *bd;
-    ap_bucket_refcount *r;
+    apr_bucket *b;
+    apr_bucket_shared *ad, *bd;
+    apr_bucket_refcount *r;
 
     b = malloc(sizeof(*b));
     if (b == NULL) {
@@ -114,10 +114,10 @@ APU_DECLARE_NONSTD(apr_status_t) ap_bucket_copy_shared(ap_bucket *a, ap_bucket *
     return APR_SUCCESS;
 }
 
-APU_DECLARE(void *) ap_bucket_destroy_shared(void *data)
+APU_DECLARE(void *) apr_bucket_destroy_shared(void *data)
 {
-    ap_bucket_shared *s = data;
-    ap_bucket_refcount *r = s->data;
+    apr_bucket_shared *s = data;
+    apr_bucket_refcount *r = s->data;
 
     free(s);
     r->refcount -= 1;
@@ -129,11 +129,11 @@ APU_DECLARE(void *) ap_bucket_destroy_shared(void *data)
     }
 }
 
-APU_DECLARE(ap_bucket *) ap_bucket_make_shared(ap_bucket *b, void *data,
+APU_DECLARE(apr_bucket *) apr_bucket_make_shared(apr_bucket *b, void *data,
 					      apr_off_t start, apr_off_t end)
 {
-    ap_bucket_shared *s;
-    ap_bucket_refcount *r = data;
+    apr_bucket_shared *s;
+    apr_bucket_refcount *r = data;
 
     s = malloc(sizeof(*s));
     if (s == NULL) {
