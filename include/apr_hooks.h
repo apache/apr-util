@@ -70,7 +70,7 @@ extern "C" {
 #define APR_DECLARE_EXTERNAL_HOOK(ns,link,ret,name,args) \
 typedef ret ns##_HOOK_##name##_t args; \
 link##_DECLARE(void) ns##_hook_##name(ns##_HOOK_##name##_t *pf, \
-                                      const char* const* aszPre, \
+                                      const char * const *aszPre, \
                                       const char * const *aszSucc, int nOrder); \
 link##_DECLARE(ret) ns##_run_##name args; \
 typedef struct ns##_LINK_##name##_t \
