@@ -4,7 +4,7 @@ INCLUDES = @APRUTIL_PRIV_INCLUDES@ @APR_INCLUDES@ @APRUTIL_INCLUDES@
 
 PROGRAMS = testall testdbm testdate testxml testrmm \
 	   testreslist testqueue testxlate
-TARGETS = $(PROGRAMS)
+TARGETS = $(PROGRAMS) testdbd
 
 APRUTIL_DOTTED_VERSION=@APRUTIL_DOTTED_VERSION@
 APRUTIL_MAJOR_VERSION=@APRUTIL_MAJOR_VERSION@
@@ -32,6 +32,11 @@ testdbm_OBJECTS = testdbm.lo
 testdbm_LDADD =  $(TARGET_LIB_PATH)
 testdbm: $(testdbm_OBJECTS) $(testdbm_LDADD)
 	$(LINK) $(APRUTIL_LDFLAGS) $(testdbm_OBJECTS) $(testdbm_LDADD) $(PROGRAM_DEPENDENCIES)
+
+testdbd_OBJECTS = testdbd.lo
+testdbd_LDADD =  $(TARGET_LIB_PATH)
+testdbd: $(testdbd_OBJECTS) $(testdbd_LDADD)
+	$(LINK) $(APRUTIL_LDFLAGS) $(testdbd_OBJECTS) $(testdbd_LDADD) $(PROGRAM_DEPENDENCIES)
 
 testdate_OBJECTS = testdate.lo
 testdate_LDADD =  $(TARGET_LIB_PATH)
