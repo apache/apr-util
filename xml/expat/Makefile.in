@@ -83,7 +83,7 @@ CONFIG_HEADERS = config.h
 DISTDIR = $(PACKAGE)-$(VERSION)
 DISTRIBUTION = $(DISTDIR).tar.gz
 
-all: $(SUBDIRS)
+all: build-subdirs
 
 .PHONY: all $(SUBDIRS) clean distclean maintainer-clean dist install \
         uninstall distdir
@@ -105,9 +105,11 @@ config.h: config.h.in config.status
 	CONFIG_FILES= CONFIG_HEADERS=$(CONFIG_HEADERS) \
 	$(SHELL) ./config.status
 
-$(SUBDIRS): config.status
-	cd $@; $(MAKE)
-
+build-subdirs:
+	@list='$(SUBDIRS)'; \
+	for dir in $$list; do \
+	  cd $$dir; $(MAKE); cd ..; \
+	done
 
 clean:
 	@list='$(SUBDIRS)'; for dir in $$list; do \
