@@ -156,9 +156,7 @@ static apr_status_t mmap_bucket_setaside(apr_bucket *b, apr_pool_t *p)
     }
 
     /* duplicate apr_mmap_t into new pool */
-    /* XXX: the transfer_ownership flag on this call
-     * will go away soon.. it's ignored right now. */
-    ok = apr_mmap_dup(&new_mm, mm, p, 1);
+    ok = apr_mmap_dup(&new_mm, mm, p);
     if (ok != APR_SUCCESS) {
         return ok;
     }
