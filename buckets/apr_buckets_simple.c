@@ -127,7 +127,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_immortal_create(
  * function that co-ordinates the action of all the bucket setaside
  * functions to improve memory efficiency.
  */
-static apr_status_t transient_setaside(apr_bucket *b)
+static apr_status_t transient_setaside(apr_bucket *b, apr_pool_t *pool)
 {
     b = apr_bucket_heap_make(b, (char *)b->data + b->start, b->length, 1, NULL);
     if (b == NULL) {
@@ -159,7 +159,7 @@ const apr_bucket_type_t apr_bucket_type_immortal = {
     "IMMORTAL", 5,
     apr_bucket_destroy_notimpl,
     simple_read,
-    apr_bucket_setaside_notimpl,
+    apr_bucket_setaside_noop,
     apr_bucket_simple_split,
     apr_bucket_simple_copy
 };

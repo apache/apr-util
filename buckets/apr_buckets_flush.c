@@ -91,7 +91,7 @@ APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_flush = {
     "FLUSH", 5,
     apr_bucket_destroy_notimpl,
     flush_read,
-    apr_bucket_setaside_notimpl,
+    apr_bucket_setaside_noop,
     apr_bucket_split_notimpl,
     flush_copy
 };

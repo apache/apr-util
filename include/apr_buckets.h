@@ -177,14 +177,20 @@ struct apr_bucket_type_t {
     apr_status_t (*read)(apr_bucket *b, const char **str, apr_size_t *len, apr_read_type_e block);
     
     /**
-     * Make it possible to set aside the data. Buckets containing data that
-     *  dies when the stack is un-wound must convert the bucket into a heap
-     *  bucket. For most bucket types, though, this is a no-op and this
-     *  function will return APR_ENOTIMPL.
+     * Make it possible to set aside the data for at least as long as the
+     *  given pool. Buckets containing data that could potentially die before
+     *  this pool (e.g. the data resides on the stack, in a child pool of
+     *  the given pool, or in a disjoint pool) must somehow copy, shift, or
+     *  transform the data to have the proper lifetime.
      * @param e The bucket to convert
      * @deffunc apr_status_t setaside(apr_bucket *e)
+     * @tip Some bucket types contain data that will always outlive the
+     *      bucket itself. For example no data (EOS and FLUSH), or the data
+     *      resides in global, constant memory (IMMORTAL), or the data is on
+     *      the heap (HEAP). For these buckets, apr_bucket_setaside_noop can
+     *      be used.
      */
-    apr_status_t (*setaside)(apr_bucket *e);
+    apr_status_t (*setaside)(apr_bucket *e, apr_pool_t *pool);
 
     /**
      * Split one bucket in two at the specified position by duplicating
@@ -761,7 +767,7 @@ APU_DECLARE(int) apr_brigade_vprintf(apr_bucket_brigade *b,
  * @deffunc void apr_bucket_destroy(apr_bucket *e)
  */
 #define apr_bucket_destroy(e) do {					\
-        e->type->destroy(e->data);					\
+        (e)->type->destroy((e)->data);					\
         free(e);							\
     } while (0)
 
@@ -790,7 +796,7 @@ APU_DECLARE(int) apr_brigade_vprintf(apr_bucket_brigade *b,
  * @param block Whether the read function blocks
  * @deffunc apr_status_t apr_bucket_read(apr_bucket *e, const char **str, apr_size_t *len, apr_read_type_e block)
  */
-#define apr_bucket_read(e,str,len,block) e->type->read(e, str, len, block)
+#define apr_bucket_read(e,str,len,block) (e)e->type->read(e, str, len, block)
 
 /**
  * Setaside data so that stack data is not destroyed on returning from
@@ -798,7 +804,7 @@ APU_DECLARE(int) apr_brigade_vprintf(apr_bucket_brigade *b,
  * @param e The bucket to setaside
  * @deffunc apr_status_t apr_bucket_setaside(apr_bucket *e)
  */
-#define apr_bucket_setaside(e) e->type->setaside(e)
+#define apr_bucket_setaside(e,p) (e)->type->setaside(e,p)
 
 /**
  * Split one bucket in two.
@@ -806,7 +812,7 @@ APU_DECLARE(int) apr_brigade_vprintf(apr_bucket_brigade *b,
  * @param point The offset to split the bucket at
  * @deffunc apr_status_t apr_bucket_split(apr_bucket *e, apr_off_t point)
  */
-#define apr_bucket_split(e,point) e->type->split(e, point)
+#define apr_bucket_split(e,point) (e)->type->split(e, point)
 
 /**
  * Copy a bucket.
@@ -814,18 +820,33 @@ APU_DECLARE(int) apr_brigade_vprintf(apr_bucket_brigade *b,
  * @param c Returns a pointer to the new bucket
  * @deffunc apr_status_t apr_bucket_copy(apr_bucket *e, apr_bucket **c)
  */
-#define apr_bucket_copy(e,c) e->type->copy(e, c)
+#define apr_bucket_copy(e,c) (e)->type->copy(e, c)
 
 /* Bucket type handling */
+
+/**
+ * This function simply returns APR_SUCCESS to denote that the bucket does
+ * not require anything to happen for its setaside() function. This is
+ * appropriate for buckets that have "immortal" data -- the data will live
+ * at least as long as the bucket.
+ * @param data The bucket to setaside
+ * @param pool The pool defining the desired lifetime of the bucket data
+ * @return APR_SUCCESS
+ * @deffunc apr_status_t apr_bucket_setaside_notimpl(apr_bucket *data, apr_pool_t *pool)
+ */ 
+APU_DECLARE_NONSTD(apr_status_t) apr_bucket_setaside_noop(apr_bucket *data,
+                                                          apr_pool_t *pool);
 
 /**
  * A place holder function that signifies that the setaside function was not
  * implemented for this bucket
  * @param data The bucket to setaside
+ * @param pool The pool defining the desired lifetime of the bucket data
  * @return APR_ENOTIMPL
- * @deffunc apr_status_t apr_bucket_setaside_notimpl(apr_bucket *data)
+ * @deffunc apr_status_t apr_bucket_setaside_notimpl(apr_bucket *data, apr_pool_t *pool)
  */ 
-APU_DECLARE_NONSTD(apr_status_t) apr_bucket_setaside_notimpl(apr_bucket *data);
+APU_DECLARE_NONSTD(apr_status_t) apr_bucket_setaside_notimpl(apr_bucket *data,
+                                                             apr_pool_t *pool);
 
 /**
  * A place holder function that signifies that the split function was not
