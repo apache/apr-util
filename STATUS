@@ -1,5 +1,5 @@
 APRUTIL LIBRARY STATUS:
-Last modified at [$Date: 2000/12/02 23:44:01 $]
+Last modified at [$Date: 2000/12/03 06:28:52 $]
 
 Release:
 
@@ -43,6 +43,10 @@ Open Issues:
 	APU: Greg +0
 
     * Compatibility header to deal with renamed symbols.
+      NOTE:
+	OtherBill suggests that Apache, APR, and APR-utils all have
+	compat headers, and Apache's includes APR-util's which includes
+	APR's.
       Status:
-        apr-util/include/: Ryan +1, Greg +0
-	apache-2.0/src/include/: Greg +1, Ryan -0.5
+        apr-util/include/: Ryan +1, Greg +0, OtherBill +1
+	apache-2.0/src/include/: Greg +1, Ryan -0.5, OtherBill -0.5
