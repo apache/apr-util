@@ -164,7 +164,7 @@ static apr_status_t mmap_bucket_setaside(apr_bucket *b, apr_pool_t *p)
     }
 
     /* decrement refcount on old apr_bucket_mmap */
-    mmap_bucket_destroy(mm);
+    mmap_bucket_destroy(m);
 
     /* create new apr_bucket_mmap pointing to new apr_mmap_t */
     apr_bucket_mmap_make(b, new_mm, b->start, b->length);
