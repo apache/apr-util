@@ -55,16 +55,16 @@
 #ifndef APACHE_AP_HOOKS_H
 #define APACHE_AP_HOOKS_H
 
-#include "ap.h"
+#include "ap_config.h"
 
 /* For ap_array_header_t */
 #include "apr_lib.h"
 
-#define AP_DECLARE_HOOK(impl,ret,name,args) \
+#define AP_DECLARE_HOOK(ret,name,args) \
 typedef ret HOOK_##name args; \
-impl(void) ap_hook_##name(HOOK_##name *pf,const char * const *aszPre, \
+API_EXPORT(void) ap_hook_##name(HOOK_##name *pf,const char * const *aszPre, \
 		         const char * const *aszSucc,int nOrder); \
-impl(ret) ap_run_##name args; \
+API_EXPORT(ret) ap_run_##name args; \
 typedef struct _LINK_##name \
     { \
     HOOK_##name *pFunc; \
@@ -80,8 +80,8 @@ static struct { members } _hooks;
 #define AP_HOOK_LINK(name) \
     ap_array_header_t *link_##name;
 
-#define AP_IMPLEMENT_HOOK_BASE(impl,name) \
-impl(void) ap_hook_##name(HOOK_##name *pf,const char * const *aszPre, \
+#define AP_IMPLEMENT_HOOK_BASE(name) \
+API_EXPORT(void) ap_hook_##name(HOOK_##name *pf,const char * const *aszPre, \
 		         const char * const *aszSucc,int nOrder) \
     { \
     LINK_##name *pHook; \
@@ -105,9 +105,9 @@ impl(void) ap_hook_##name(HOOK_##name *pf,const char * const *aszPre, \
    VOID runs all
 */
 
-#define AP_IMPLEMENT_HOOK_VOID(impl,name,args_decl,args_use) \
-AP_IMPLEMENT_HOOK_BASE(impl,name) \
-impl(void) ap_run_##name args_decl \
+#define AP_IMPLEMENT_HOOK_VOID(name,args_decl,args_use) \
+AP_IMPLEMENT_HOOK_BASE(name) \
+API_EXPORT(void) ap_run_##name args_decl \
     { \
     LINK_##name *pHook; \
     int n; \
@@ -123,9 +123,9 @@ impl(void) ap_run_##name args_decl \
 /* FIXME: note that this returns ok when nothing is run. I suspect it should
    really return decline, but that breaks Apache currently - Ben
 */
-#define AP_IMPLEMENT_HOOK_RUN_ALL(impl,ret,name,args_decl,args_use,ok,decline) \
-AP_IMPLEMENT_HOOK_BASE(impl,name) \
-impl(ret) ap_run_##name args_decl \
+#define AP_IMPLEMENT_HOOK_RUN_ALL(ret,name,args_decl,args_use,ok,decline) \
+AP_IMPLEMENT_HOOK_BASE(name) \
+API_EXPORT(ret) ap_run_##name args_decl \
     { \
     LINK_##name *pHook; \
     int n; \
@@ -145,9 +145,9 @@ impl(ret) ap_run_##name args_decl \
     return ok; \
     }
 
-#define AP_IMPLEMENT_HOOK_RUN_FIRST(impl,ret,name,args_decl,args_use,decline) \
-AP_IMPLEMENT_HOOK_BASE(impl,name) \
-impl(ret) ap_run_##name args_decl \
+#define AP_IMPLEMENT_HOOK_RUN_FIRST(ret,name,args_decl,args_use,decline) \
+AP_IMPLEMENT_HOOK_BASE(name) \
+API_EXPORT(ret) ap_run_##name args_decl \
     { \
     LINK_##name *pHook; \
     int n; \
