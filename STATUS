@@ -1,5 +1,5 @@
 APRUTIL LIBRARY STATUS:						-*-text-*-
-Last modified at [$Date: 2001/05/22 20:11:04 $]
+Last modified at [$Date: 2001/05/31 05:25:02 $]
 
 Release:
     2.0a9   : released December 12, 2000
@@ -32,8 +32,13 @@ Other features that need writing:
     * write apr_brigade_(p)getline, per the hackathon
 
     * possibly move test/testdbm* to util/dbu
+      Justin says: Do we still want to do this?  testdate is now in test.
       Status: Greg +1 (volunteers)
 
+    * possibly move md5 from APR into crypto
+      Justin says:  Requires finding a suitable replacement for md5 in 
+                    apr/uuid for when we don't have random bytes available.
+      Status: Justin +1 (volunteers)
 
 Documentation that needs writing:
 
