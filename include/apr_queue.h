@@ -117,7 +117,7 @@ APU_DECLARE(apr_status_t) apr_queue_push(apr_queue_t *queue, void *data);
  * @returns APR_EOF if the queue has been terminated
  * @returns APR_SUCCESS on a successfull pop
  */
-APU_DECLARE(apr_status_t) apr_queue_pop(apr_queue_t *queue, void **data);
+APU_DECLARE(apr_status_t) apr_queue_pop(apr_queue_t *queue, void *data);
 
 /**
  * push/add a object to the queue, returning immediatly if the queue is full
@@ -141,7 +141,7 @@ APU_DECLARE(apr_status_t) apr_queue_trypush(apr_queue_t *queue, void *data);
  * @returns APR_EOF the queue has been terminated
  * @returns APR_SUCCESS on a successfull push
  */
-APU_DECLARE(apr_status_t) apr_queue_trypop(apr_queue_t *queue, void **data);
+APU_DECLARE(apr_status_t) apr_queue_trypop(apr_queue_t *queue, void *data);
 
 /**
  * returns the size of the queue.
