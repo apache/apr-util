@@ -1,5 +1,9 @@
 Changes with APR-util 0.9.4
 
+  *) SECURITY [httpd incident CAN-2003-0189] Address a thread safety
+     issue with apr_password_validate() on AIX, Linux, Mac OS X, and
+     possibly other platforms.  [Jeff Trawick, Justin Erenkrantz]
+
   *) Fix a problem with LDAP configuration which caused subsequent
      configure tests to fail since LIBS contained LDAP libraries for
      subsequent tests but LDFLAGS no longer included the path to such 
