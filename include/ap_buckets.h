@@ -504,10 +504,10 @@ AP_DECLARE(apr_status_t) ap_bucket_split(ap_bucket *e, apr_off_t point);
 
 /* Bucket type handling */
 
-AP_DECLARE(apr_status_t) ap_bucket_setaside_notimpl(ap_bucket *data);
-AP_DECLARE(apr_status_t) ap_bucket_split_notimpl(ap_bucket *data, 
+AP_DECLARE_NONSTD(apr_status_t) ap_bucket_setaside_notimpl(ap_bucket *data);
+AP_DECLARE_NONSTD(apr_status_t) ap_bucket_split_notimpl(ap_bucket *data, 
                                                  apr_off_t point);
-AP_DECLARE(void) ap_bucket_destroy_notimpl(void *data);
+AP_DECLARE_NONSTD(void) ap_bucket_destroy_notimpl(void *data);
 /* There is no ap_bucket_read_notimpl, because it is a required function
  */
 int ap_insert_bucket_type(const ap_bucket_type *type);
