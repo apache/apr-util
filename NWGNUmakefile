@@ -240,6 +240,7 @@ FILES_lib_objs = \
 	$(OBJDIR)/apr_hooks.o \
 	$(OBJDIR)/apr_md4.o \
 	$(OBJDIR)/apr_md5.o \
+	$(OBJDIR)/apr_queue.o \
 	$(OBJDIR)/apr_reslist.o \
 	$(OBJDIR)/apr_rmm.o \
 	$(OBJDIR)/apr_sha1.o \
