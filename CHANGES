@@ -1,5 +1,8 @@
 Changes with APR-util b1  
 
+  *) Add find_apu.m4 to allow third-party programs that use APR-util
+     to have a standard m4 macro for detection.  [Justin Erenkrantz]
+
   *) Add apu-config - a shell script to allow third-party programs
      easy access to APR configuration parameters.  [Justin Erenkrantz]
 
