@@ -186,7 +186,7 @@ APU_DECLARE(int) apr_date_checkmask(const char *data, const char *mask)
  */
 APU_DECLARE(apr_time_t) apr_date_parse_http(const char *date)
 {
-    apr_exploded_time_t ds;
+    apr_time_exp_t ds;
     apr_time_t result;
     int mint, mon;
     const char *monstr, *timstr;
@@ -345,7 +345,7 @@ APU_DECLARE(apr_time_t) apr_date_parse_http(const char *date)
  */
 APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
 {
-    apr_exploded_time_t ds;
+    apr_time_exp_t ds;
     apr_time_t result;
     int mint, mon;
     char *monstr, *timstr, *gmtstr;
