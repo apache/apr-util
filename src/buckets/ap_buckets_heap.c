@@ -67,6 +67,11 @@
 #define DEFAULT_BUCKET_SIZE (4096)
 #endif
 
+#ifndef max
+#define max(x,y) \
+((x) >= (y) ? (x) : (y))
+#endif
+
 static apr_status_t heap_read(ap_bucket *b, const char **str, 
 			      apr_size_t *len, ap_read_type block)
 {
@@ -101,14 +106,11 @@ APU_DECLARE(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
     }
 
     if (copy) {
-	h->base = malloc(DEFAULT_BUCKET_SIZE);
+	h->alloc_len = max(DEFAULT_BUCKET_SIZE, length);
+	h->base = malloc(h->alloc_len);
 	if (h->base == NULL) {
 	    free(h);
 	    return NULL;
-	}
-	h->alloc_len = DEFAULT_BUCKET_SIZE;
-	if (length > DEFAULT_BUCKET_SIZE) {
-	    length = DEFAULT_BUCKET_SIZE;
 	}
 	memcpy(h->base, buf, length);
     }
