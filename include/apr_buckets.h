@@ -723,14 +723,6 @@ APU_DECLARE(int) apr_brigade_vprintf(apr_bucket_brigade *b,
 
 /*  *****  Bucket Functions  *****  */
 /**
- * Initialize the core implemented bucket types.  Once this is done,
- * it is possible to add new bucket types to the server
- * @param p The pool to allocate the array from.
- * @deffunc void apr_bucket_init_types(apr_pool_t *p)
- */
-APU_DECLARE(void) apr_bucket_init_types(apr_pool_t *p);
-
-/**
  * Free the resources used by a bucket. If multiple buckets refer to
  * the same resource it is freed when the last one goes away.
  * @see apr_bucket_delete()
@@ -838,12 +830,6 @@ APU_DECLARE_NONSTD(void) apr_bucket_destroy_notimpl(void *data);
 /* There is no apr_bucket_read_notimpl, because it is a required function
  */
 
-/**
- * Register a new bucket type
- * @param type The new bucket type to register
- * @return The offset into the array in which the bucket types are stored
- */
-APU_DECLARE(int) apr_bucket_insert_type(const apr_bucket_type_t *type);
 
 /* All of the bucket types implemented by the core */
 /**
