@@ -1,5 +1,10 @@
 Changes with APR-util b1  
 
+  *) Make APR-util configure script rely on APR.  This removes the locally
+     generated copy of libtool and uses the one in APR.  Fix up how we
+     call the expat configure script.  Generate config.nice file.
+     [Justin Erenkrantz]
+
   *) The apr_bucket lengths are now consistently apr_size_t, while any
      apr_brigade lengths (short of a read) are consistently apr_off_t.
      This is required for APR_HAS_LARGE_FILES handling.  [William Rowe]
