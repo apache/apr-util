@@ -1,5 +1,10 @@
 Changes with APR-util b1  
 
+  *) Deprecate check_brigade_flush(), which had several nasty bugs, and
+     which was causing apr_brigade_write()'s logic to be less than obvious.
+     Everything is now done in a slightly rearranged apr_brigade_write().
+     [Cliff Woolley]
+
   *) Don't add /usr/include to the INCLUDES variable on expat's account.
      [Joe Orton <joe@manyfish.co.uk>]
 

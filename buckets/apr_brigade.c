@@ -349,41 +349,6 @@ APU_DECLARE(apr_status_t) apr_brigade_to_iovec(apr_bucket_brigade *b,
     return APR_SUCCESS;
 }
 
-static int check_brigade_flush(const char **str, 
-                               apr_size_t *n, apr_bucket_brigade *bb,
-                               apr_brigade_flush flush)
-{
-    apr_bucket *b = APR_BRIGADE_LAST(bb);
-
-    if (APR_BRIGADE_EMPTY(bb)) {
-        if (*n > APR_BUCKET_BUFF_SIZE) {
-            apr_bucket *e;
-            if (flush) {
-                e = apr_bucket_transient_create(*str, *n);
-            }
-            else {
-                e = apr_bucket_heap_create(*str, *n, 0);
-            }
-            APR_BRIGADE_INSERT_TAIL(bb, e);
-            return 1;
-        }
-    }
-    else if (APR_BUCKET_IS_HEAP(b)) {
-        apr_bucket_heap *h = b->data;
-
-        if (*n > (h->alloc_len - b->length)) {
-            APR_BRIGADE_INSERT_TAIL(bb, apr_bucket_transient_create(*str, *n));
-            return 1;
-        }
-    }
-    else if (*n > APR_BUCKET_BUFF_SIZE) {
-        APR_BRIGADE_INSERT_TAIL(bb, apr_bucket_transient_create(*str, *n));
-        return 1;
-    }
-
-    return 0;
-}
-
 APU_DECLARE(apr_status_t) apr_brigade_vputstrs(apr_bucket_brigade *b, 
                                                apr_brigade_flush flush,
                                                void *ctx,
@@ -416,16 +381,33 @@ APU_DECLARE(apr_status_t) apr_brigade_write(apr_bucket_brigade *b,
                                             void *ctx, 
                                             const char *str, apr_size_t nbyte)
 {
-    if (check_brigade_flush(&str, &nbyte, b, flush)) {
-        if (flush) {
-            return flush(b, ctx);
-        }
+    apr_bucket *e = APR_BRIGADE_LAST(b);
+    char *buf;
+
+    if (!APR_BRIGADE_EMPTY(b) && APR_BUCKET_IS_HEAP(e) &&
+        (e->length + nbyte <= ((apr_bucket_heap *)e->data)->alloc_len))
+    {
+        /* there is a sufficiently big buffer bucket available */
+        apr_bucket_heap *h = e->data;
+        buf = h->base + e->start + e->length;
     }
     else {
-        apr_bucket *e = APR_BRIGADE_LAST(b);
-        char *buf;
-
-        if (APR_BRIGADE_EMPTY(b) || !APR_BUCKET_IS_HEAP(e)) {
+        if (nbyte > APR_BUCKET_BUFF_SIZE) {
+            /* too big to buffer */
+            if (flush) {
+                e = apr_bucket_transient_create(str, nbyte);
+                APR_BRIGADE_INSERT_TAIL(b, e);
+                return flush(b, ctx);
+            }
+            else {
+                e = apr_bucket_heap_create(str, nbyte, 1);
+                APR_BRIGADE_INSERT_TAIL(b, e);
+                return APR_SUCCESS;
+            }
+        }
+        else {
+            /* bigger than the current buffer can handle, but we don't
+             * mind making a new buffer */
             buf = malloc(APR_BUCKET_BUFF_SIZE);
             e = apr_bucket_heap_create(buf, APR_BUCKET_BUFF_SIZE, 0);
             APR_BRIGADE_INSERT_TAIL(b, e);
@@ -436,14 +418,10 @@ APU_DECLARE(apr_status_t) apr_brigade_write(apr_bucket_brigade *b,
                               * once we put data in it below.
                               */
         }
-        else {
-            apr_bucket_heap *h = e->data;
-            buf = h->base + e->start + e->length;
-        }
-
-        memcpy(buf, str, nbyte);
-        e->length += nbyte;
     }
+
+    memcpy(buf, str, nbyte);
+    e->length += nbyte;
 
     return APR_SUCCESS;
 }
