@@ -390,6 +390,14 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
 	APR_RING_CONCAT(&(a)->list, &(b)->list, apr_bucket, link)
 
 /**
+ * Prepend brigade b onto the beginning of brigade a, leaving brigade b empty
+ * @param a The first brigade
+ * @param b The second brigade
+ */
+#define APR_BRIGADE_PREPEND(a, b)					\
+	APR_RING_PREPEND(&(a)->list, &(b)->list, apr_bucket, link)
+
+/**
  * Insert a list of buckets before a specified bucket
  * @param a The bucket to insert before
  * @param b The buckets to insert
