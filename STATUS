@@ -1,5 +1,5 @@
 APRUTIL LIBRARY STATUS:						-*-text-*-
-Last modified at [$Date: 2001/01/19 07:01:58 $]
+Last modified at [$Date: 2001/01/19 12:38:29 $]
 
 Release:
     ...on the 12th as part of Apache 2.0a9  [need specifics here]
@@ -7,12 +7,6 @@ Release:
 
 RELEASE SHOWSTOPPERS:
 
-    * release distros do not include a "test" dir. don't put it in the
-      top-level SUBDIRS list, but definitely get it cleaned for the
-      dev guys.  (Greg volunteers)
-
-    * we distribute 2 (3?) copies of sdbm in apr, and these are -public-?
-      get organized.
 
 RELEASE NON-SHOWSTOPPERS BUT WOULD BE REAL NICE TO WRAP THESE UP:
 
