@@ -82,14 +82,20 @@ else
 fi
 # If we have the realpath program, use it to resolve symlinks.
 # Otherwise, being in a symlinked dir may result in incorrect output.
+REALPATH=
 if test -x "`which realpath 2>/dev/null`"; then
-    thisdir="`realpath $thisdir`"
-    if test -d "$APU_SOURCE_DIR"; then
-        APU_SOURCE_DIR="`realpath $APU_SOURCE_DIR`"
-    fi
-    if test -n "$tmpbindir"; then
-        tmpbindir="`realpath $tmpbindir`"
-    fi
+  REALPATH=realpath
+elif test -x "`which readlink 2>/dev/null`"; then
+  REALPATH="readlink -f"
+fi
+if test -n "$REALPATH"; then
+  thisdir="`$REALPATH $thisdir`"
+  if test -d "$APU_SOURCE_DIR"; then
+    APR_SOURCE_DIR="`$REALPATH $APU_SOURCE_DIR`"
+  fi
+  if test -n "$tmpbindir"; then
+    tmpbindir="`$REALPATH $tmpbindir`"
+  fi
 fi
 if test "$tmpbindir" = "$thisdir"; then
     location=installed

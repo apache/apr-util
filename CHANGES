@@ -1,5 +1,8 @@
 Changes with APR-util 0.9.5
 
+  *) If available, use 'readlink -f' to resolve symlinks in apu-config.
+     [Justin Erenkrantz]
+
   *) Fix corrupt output from the apr_xlate_* interfaces on AIX 4.x.
      [Joe Orton]
 
