@@ -330,7 +330,22 @@ APU_DECLARE(int) apr_ldap_init(apr_pool_t *pool,
         if (!strcmp(LDAP_VENDOR_NAME, APR_LDAP_VENDOR_NOVELL) ||
             !strcmp(LDAP_VENDOR_NAME, APR_LDAP_VENDOR_NETSCAPE)) {
 #if APR_HAS_LDAPSSL_INIT
-            *ldap = ldapssl_init(hostname, portno, 1);
+            if (secure == APR_LDAP_OPT_TLS_HARD) {
+                *ldap = ldapssl_init(hostname, portno, 1);
+            }
+            else {
+                *ldap = ldapssl_init(hostname, portno, 0);
+                result->rc = ldapssl_start_tls(*ldap);
+                if (LDAP_SUCCESS != result->rc) {
+                    ldap_unbind_s(*ldap);
+                    result->reason = "LDAP: ldapssl_start_tls failed, "
+                                     "could not set security mode for "
+                                     "apr_ldap_init()";
+                    result->msg = ldap_err2string(result->rc);
+                    *ldap = NULL;
+                    return APR_EGENERAL;
+                }
+            }
 #else
             result->reason = "LDAP: SSL not yet supported by APR on "
                              "this version of the Novell/Netscape toolkit";
