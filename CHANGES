@@ -1,5 +1,7 @@
 Changes with APR-util b1  
 
+  *) apr_brigade_partition() now returns an apr_status_t. [Cliff Woolley]
+
   *) Add MD4 implementation in crypto.  [Sander Striker, Justin Erenkrantz]
 
   *) Moved httpd 2.0.18's util_date to apr_date and enhanced its parsing
