@@ -85,7 +85,7 @@ DISTRIBUTION = $(DISTDIR).tar.gz
 
 all: build-subdirs
 
-.PHONY: all $(SUBDIRS) clean distclean maintainer-clean dist install \
+.PHONY: all build-subdirs clean distclean maintainer-clean dist install \
         uninstall distdir
 
 Makefile: Makefile.in config.status
