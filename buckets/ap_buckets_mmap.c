@@ -77,10 +77,6 @@ static void mmap_destroy(void *data)
 {
     ap_bucket_mmap *m;
 
-    if (data == NULL) {
-        return;
-    }
-
     m = ap_bucket_destroy_shared(data);
     if (m == NULL) {
 	return;
