@@ -70,9 +70,10 @@ extern "C" {
 
 /**
  * @file apr_sha1.h
- * @brief SHA1 library
+ * @brief APR-UTIL SHA1 library
  */
 
+/** size of the SHA1 DIGEST */
 #define APR_SHA1_DIGESTSIZE 20
 
 /**
@@ -80,13 +81,15 @@ extern "C" {
  * hashed using our algorithm.
  */
 #define APR_SHA1PW_ID "{SHA}"
-#define APR_SHA1PW_IDLEN 5
 
-typedef struct apr_sha1_ctx_t apr_sha1_ctx_t;
+/** length of the SHA Password */
+#define APR_SHA1PW_IDLEN 5
 
 /**
  * SHA1 context structure
  */
+typedef struct apr_sha1_ctx_t apr_sha1_ctx_t;
+
 struct apr_sha1_ctx_t {
     /** message digest */
     apr_uint32_t digest[5];

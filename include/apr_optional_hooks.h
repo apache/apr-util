@@ -66,6 +66,19 @@ extern "C" {
  * @brief Apache optional hook functions
  */
 
+/**
+ * Function to implemnt the APR_OPTIONAL_HOOK Macro
+ * @internal
+ * @see APR_OPTIONAL_HOOOK
+ *
+ * @param name The name of the hook
+ * @param pfn A pointer to a function that will be called
+ * @param aszPre a NULL-terminated array of strings that name modules whose hooks should precede this one
+ * @param aszSucc a NULL-terminated array of strings that name modules whose hooks should succeed this one
+ * @param nOrder an integer determining order before honouring aszPre and aszSucc (for example HOOK_MIDDLE)
+ */
+
+
 APU_DECLARE(void) apr_optional_hook_add(const char *szName,void (*pfn)(void),
 					const char * const *aszPre,
 					const char * const *aszSucc,
@@ -86,6 +99,12 @@ APU_DECLARE(void) apr_optional_hook_add(const char *szName,void (*pfn)(void),
 	       const char * const *,int))&apr_optional_hook_add)(#name,pfn,aszPre, \
 							   aszSucc, nOrder)
 
+/**
+ * @internal
+ * return the hook structure for a give hook
+ * @param szName - the name of the function
+ */
+ 
 APU_DECLARE(apr_array_header_t *) apr_optional_hook_get(const char *szName);
 
 /**
