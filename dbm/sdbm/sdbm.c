@@ -129,7 +129,6 @@ static apr_status_t prep(apr_sdbm_t **pdb, const char *dirname, const char *pagn
                          apr_int32_t flags, apr_fileperms_t perms, apr_pool_t *p)
 {
     apr_sdbm_t *db;
-    apr_finfo_t finfo;
     apr_status_t status;
 
     *pdb = NULL;
