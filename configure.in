@@ -49,6 +49,7 @@ dnl 2. Determine what DBM backend type to use.
 dnl 3. Find Expat
 dnl
 APU_FIND_APR
+APU_FIND_LDAP
 APU_CHECK_DBM
 APU_FIND_EXPAT
 
@@ -103,10 +104,11 @@ fi
 
 dnl
 dnl everthing is done. 
-MAKEFILES="Makefile buckets/Makefile crypto/Makefile dbm/Makefile dbm/sdbm/Makefile encoding/Makefile hooks/Makefile uri/Makefile xml/Makefile misc/Makefile $test_Makefile"
+MAKEFILES="Makefile buckets/Makefile crypto/Makefile dbm/Makefile dbm/sdbm/Makefile encoding/Makefile hooks/Makefile ldap/Makefile uri/Makefile xml/Makefile misc/Makefile $test_Makefile"
 AC_OUTPUT([
     export_vars.sh
     include/private/apu_select_dbm.h
+    include/apr_ldap.h
     include/apu.h
     $MAKEFILES
 	])
