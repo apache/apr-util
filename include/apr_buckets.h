@@ -424,6 +424,7 @@ struct apr_bucket_brigade {
  * @deffunc int APR_BUCKET_IS_IMMORTAL(apr_bucket *e)
  */
 #define APR_BUCKET_IS_IMMORTAL(e)    (e->type == &apr_bucket_type_immortal)
+#if APR_HAS_MMAP
 /**
  * Determine if a bucket is a MMAP bucket
  * @param e The bucket to inspect
@@ -431,6 +432,7 @@ struct apr_bucket_brigade {
  * @deffunc int APR_BUCKET_IS_MMAP(apr_bucket *e)
  */
 #define APR_BUCKET_IS_MMAP(e)        (e->type == &apr_bucket_type_mmap)
+#endif
 /**
  * Determine if a bucket is a POOL bucket
  * @param e The bucket to inspect
@@ -535,6 +537,7 @@ struct apr_bucket_heap {
     size_t  alloc_len;
 };
 
+#if APR_HAS_MMAP
 typedef struct apr_bucket_mmap apr_bucket_mmap;
 /**
  * A bucket referring to an mmap()ed file
@@ -545,6 +548,7 @@ struct apr_bucket_mmap {
     /** The mmap this sub_bucket refers to */
     apr_mmap_t *mmap;
 };
+#endif
 
 typedef struct apr_bucket_file apr_bucket_file;
 /**
@@ -797,10 +801,12 @@ APU_DECLARE_DATA extern const apr_bucket_type_t apr_bucket_type_file;
  * heap.
  */
 APU_DECLARE_DATA extern const apr_bucket_type_t apr_bucket_type_heap;
+#if APR_HAS_MMAP
 /**
  * The MMAP bucket type.  This bucket represents an MMAP'ed file
  */
 APU_DECLARE_DATA extern const apr_bucket_type_t apr_bucket_type_mmap;
+#endif
 /**
  * The POOL bucket type.  This bucket represents a data that was allocated
  * out of a pool.  IF this bucket is still available when the pool is cleared,
@@ -1061,6 +1067,7 @@ APU_DECLARE(apr_bucket *)
                 apr_bucket_make_pool(apr_bucket *b, const char *buf, 
                                     apr_size_t length, apr_pool_t *p);
 
+#if APR_HAS_MMAP
 /**
  * Create a bucket referring to mmap()ed memory.
  * @param mmap The mmap to insert into the bucket
@@ -1087,6 +1094,7 @@ APU_DECLARE(apr_bucket *)
 APU_DECLARE(apr_bucket *) 
                 apr_bucket_make_mmap(apr_bucket *b, apr_mmap_t *mm, 
                                     apr_off_t start, apr_size_t length);
+#endif
 
 /**
  * Create a bucket referring to a socket.
