@@ -83,7 +83,6 @@
 
 #endif /* APR_HAS_MMAP */
 
-
 static void file_destroy(void *data)
 {
     if (apr_bucket_shared_destroy(data)) {
@@ -91,6 +90,34 @@ static void file_destroy(void *data)
          * done automatically when the pool gets cleaned up */
         free(data);
     }
+}
+
+static int file_make_mmap(apr_bucket *e, apr_off_t filelength,
+                           apr_off_t fileoffset, apr_pool_t *p)
+{
+    apr_bucket_file *a = e->data;
+    apr_file_t *f = a->fd;
+    apr_mmap_t *mm;
+
+    if ((filelength >= MMAP_THRESHOLD)
+        && (filelength < MMAP_LIMIT)) {
+        /* we need to protect ourselves in case we die while we've got the
+         * file mmapped */
+        apr_status_t status;
+        if ((status = apr_mmap_create(&mm, f, fileoffset, filelength, 
+                                      APR_MMAP_READ, p)) != APR_SUCCESS) {
+            mm = NULL;
+        }
+    }
+    else {
+        mm = NULL;
+    }
+    if (mm) {
+        apr_bucket_mmap_make(e, mm, 0, filelength); /*XXX: check for failure? */
+        file_destroy(a);
+        return 1;
+    }
+    return 0;
 }
 
 static apr_status_t file_read(apr_bucket *e, const char **str,
@@ -103,28 +130,9 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
     apr_status_t rv;
     apr_off_t filelength = e->length;  /* bytes remaining in file past offset */
     apr_off_t fileoffset = e->start;
-#if APR_HAS_MMAP
-    apr_mmap_t *mm = NULL;
-#endif
 
 #if APR_HAS_MMAP
-    if ((filelength >= MMAP_THRESHOLD)
-        && (filelength < MMAP_LIMIT)) {
-        /* we need to protect ourselves in case we die while we've got the
-         * file mmapped */
-        apr_status_t status;
-        apr_pool_t *p = apr_file_pool_get(f);
-        if ((status = apr_mmap_create(&mm, f, fileoffset, filelength, 
-                                      APR_MMAP_READ, p)) != APR_SUCCESS) {
-            mm = NULL;
-        }
-    }
-    else {
-        mm = NULL;
-    }
-    if (mm) {
-        apr_bucket_mmap_make(e, mm, 0, filelength); /*XXX: check for failure? */
-        file_destroy(a);
+    if (file_make_mmap(e, filelength, fileoffset, apr_file_pool_get(f))) {
         return apr_bucket_read(e, str, len, block);
     }
 #endif
@@ -200,11 +208,34 @@ APU_DECLARE(apr_bucket *) apr_bucket_file_create(apr_file_t *fd,
     return apr_bucket_file_make(b, fd, offset, len);
 }
 
+static apr_status_t file_setaside(apr_bucket *data, apr_pool_t *pool)
+{
+    apr_bucket_file *a = data->data;
+    apr_file_t *fd;
+    apr_file_t *f = a->fd;
+    apr_pool_t *p = apr_file_pool_get(f);
+    apr_off_t filelength = data->length;  /* bytes remaining in file past offset */
+    apr_off_t fileoffset = data->start;
+
+    if (apr_pool_is_ancestor(p, pool)) {
+        return APR_SUCCESS;
+    }
+
+#if APR_HAS_MMAP
+    if (file_make_mmap(data, filelength, fileoffset, p)) {
+        return APR_SUCCESS;
+    }
+#endif
+    apr_file_dup(&fd, f, p);
+    a->fd = fd;
+    return APR_SUCCESS;
+}
+
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_file = {
     "FILE", 5,
     file_destroy,
     file_read,
-    apr_bucket_setaside_notimpl,
+    file_setaside,
     apr_bucket_shared_split,
     apr_bucket_shared_copy
 };
