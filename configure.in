@@ -124,17 +124,13 @@ AC_SUBST(APRUTIL_LIBNAME)
 EXTRA_OS_LINK=""
 host_alias=`uname -s`
 case "$host_alias" in
-*BeOS*)
     dnl ### BeOS requires that ALL symbols resolve at LINK time!
     dnl ### 
     dnl ### So, if we're building on BeOS then we need to add in the
     dnl ### apr and expat libraries to the build or it'll die a truly horrible
     dnl ### death. We now use the apr-config tool to determine the correct
     dnl ### library to link against :)
-    aprlib=`$apr_config --link-libtool`
-    EXTRA_OS_LINK="$aprlib $top_builddir/xml/expat/lib/libexpat.la"
-    ;;
-*AIX*|*Darwin*)
+*AIX*|*Darwin*|*BeOS*)
     dnl need such stuff as -liconv to be specified when building libaprutil.la
     EXTRA_OS_LINK='$(APRUTIL_LDFLAGS) $(APRUTIL_LIBS)'
     ;;
