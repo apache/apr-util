@@ -413,13 +413,13 @@ SOURCE=.\libaprutil.rc
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\build\win32ver.awk
+SOURCE=..\..\build\win32\win32ver.awk
 
 !IF  "$(CFG)" == "libaprutil - Win32 Release"
 
 # PROP Ignore_Default_Tool 1
 # Begin Custom Build - Creating Version Resource
-InputPath=..\..\build\win32ver.awk
+InputPath=..\..\build\win32\win32ver.awk
 
 ".\libaprutil.rc" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	awk -f ../../build/win32/win32ver.awk libaprutil "Apache APR Utility Library"\
