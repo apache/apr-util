@@ -452,6 +452,71 @@ APU_DECLARE(apr_status_t) apr_brigade_write(apr_bucket_brigade *b,
     return APR_SUCCESS;
 }
 
+APU_DECLARE(apr_status_t) apr_brigade_writev(apr_bucket_brigade *b,
+                                             apr_brigade_flush flush,
+                                             void *ctx,
+                                             const struct iovec *vec,
+                                             apr_size_t nvec)
+{
+    apr_bucket *e = APR_BRIGADE_LAST(b);
+    apr_size_t remaining;
+    char *buf;
+    apr_size_t bytes_written = 0;
+    apr_size_t i;
+
+    /* Step 1: check if there is a heap bucket at the end
+     * of the brigade already
+     */
+    if (!APR_BRIGADE_EMPTY(b) && APR_BUCKET_IS_HEAP(e)) {
+        apr_bucket_heap *h = e->data;
+        remaining = h->alloc_len - (e->length + (apr_size_t)e->start);
+        buf = h->base + e->start + e->length;
+    }
+    else {
+        remaining = 0;
+        buf = NULL;
+    }
+
+    /* Step 2: copy the data into the heap bucket, appending
+     * a new heap bucket each time the old one becomes full
+     */
+    for (i = 0; i < nvec; i++) {
+        apr_size_t nbyte = vec[i].iov_len;
+        const char *str = (const char *)(vec[i].iov_base);
+
+        bytes_written += nbyte;
+        if (nbyte <= remaining) {
+            memcpy(buf, str, nbyte);
+            e->length += nbyte;
+            buf += nbyte;
+            remaining -= nbyte;
+        }
+        else if (nbyte < APR_BUCKET_BUFF_SIZE) {
+            buf = apr_bucket_alloc(APR_BUCKET_BUFF_SIZE, b->bucket_alloc);
+            e = apr_bucket_heap_create(buf, APR_BUCKET_BUFF_SIZE,
+                                       apr_bucket_free, b->bucket_alloc);
+            APR_BRIGADE_INSERT_TAIL(b, e);
+            memcpy(buf, str, nbyte);
+            e->length = nbyte;
+            buf += nbyte;
+            remaining = APR_BUCKET_BUFF_SIZE - nbyte;
+        }
+        else { /* String larger than APR_BUCKET_BUFF_SIZE */
+            e = apr_bucket_transient_create(str, nbyte, b->bucket_alloc);
+            APR_BRIGADE_INSERT_TAIL(b, e);
+            remaining = 0; /* create a new heap bucket for the next write */
+        }
+    }
+
+    /* Step 3: if necessary, output the brigade contents now
+     */
+    if (bytes_written >= APR_BUCKET_BUFF_SIZE) {
+        return flush(b, ctx);
+    }
+
+    return APR_SUCCESS;
+}
+
 APU_DECLARE(apr_status_t) apr_brigade_puts(apr_bucket_brigade *bb,
                                            apr_brigade_flush flush, void *ctx,
                                            const char *str)
