@@ -120,6 +120,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_mmap_make(apr_bucket *b, apr_mmap_t *mm,
     }
 
     b = apr_bucket_shared_make(b, m, start, length);
+    b->is_metadata = 0;
     b->type = &apr_bucket_type_mmap;
 
     return b;

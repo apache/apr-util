@@ -145,6 +145,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_pool_make(apr_bucket *b,
     p->list = b->list;
 
     b = apr_bucket_shared_make(b, p, 0, length);
+    b->is_metadata = 0;
     b->type = &apr_bucket_type_pool;
 
     /* pre-initialize heap bucket member */

@@ -261,6 +261,10 @@ struct apr_bucket {
     void (*free)(void *e);
     /** The freelist from which this bucket was allocated */
     apr_bucket_alloc_t *list;
+    /**
+     * Does the bucket contain metadata
+     */
+    int is_metadata;
 };
 
 /** A list of buckets */
@@ -445,6 +449,13 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
  * @param e The bucket to initialize
  */
 #define APR_BUCKET_INIT(e)	APR_RING_ELEM_INIT((e), link)
+
+/**
+ * Determind if a bucket contains metadata
+ * @param e The bucket to inspect
+ * @return true or false
+ */
+#define APR_BUCKET_IS_METADATA(e)    (e->is_metadata)
 
 /**
  * Determine if a bucket is a FLUSH bucket
