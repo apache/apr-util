@@ -133,7 +133,7 @@ APU_DECLARE(apr_status_t) apr_md5(unsigned char digest[APR_MD5_DIGESTSIZE],
  * @param password The password to encode
  * @param salt The salt to use for the encoding
  * @param result The string to store the encoded password in
- * @param nbytes The length of the string
+ * @param nbytes The size of the result buffer
  */
 APU_DECLARE(apr_status_t) apr_md5_encode(const char *password, const char *salt,
                                          char *result, apr_size_t nbytes);
