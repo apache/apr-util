@@ -79,7 +79,7 @@ static void mmap_destroy(void *data)
 {
     apr_bucket_mmap *m;
 
-    m = apr_bucket_destroy_shared(data);
+    m = apr_bucket_shared_destroy(data);
     if (m == NULL) {
 	return;
     }
@@ -89,7 +89,7 @@ static void mmap_destroy(void *data)
 /*
  * XXX: are the start and length arguments useful?
  */
-APU_DECLARE(apr_bucket *) apr_bucket_make_mmap(apr_bucket *b,
+APU_DECLARE(apr_bucket *) apr_bucket_mmap_make(apr_bucket *b,
 		apr_mmap_t *mm, apr_off_t start, apr_size_t length)
 {
     apr_bucket_mmap *m;
@@ -100,7 +100,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_make_mmap(apr_bucket *b,
     }
     m->mmap = mm;
 
-    b = apr_bucket_make_shared(b, m, start, start+length);
+    b = apr_bucket_shared_make(b, m, start, start+length);
     if (b == NULL) {
 	free(m);
 	return NULL;
@@ -112,19 +112,19 @@ APU_DECLARE(apr_bucket *) apr_bucket_make_mmap(apr_bucket *b,
 }
 
 
-APU_DECLARE(apr_bucket *) apr_bucket_create_mmap(
+APU_DECLARE(apr_bucket *) apr_bucket_mmap_create(
 		apr_mmap_t *mm, apr_off_t start, apr_size_t length)
 {
-    apr_bucket_do_create(apr_bucket_make_mmap(b, mm, start, length));
+    apr_bucket_do_create(apr_bucket_mmap_make(b, mm, start, length));
 }
 
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_mmap = {
     "MMAP", 5,
     mmap_destroy,
     mmap_read,
-    apr_bucket_setaside_notimpl,
-    apr_bucket_split_shared,
-    apr_bucket_copy_shared
+    apr_bucket_notimpl_setaside,
+    apr_bucket_shared_split,
+    apr_bucket_shared_copy
 };
 
 #endif

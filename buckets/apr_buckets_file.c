@@ -89,7 +89,7 @@ static void file_destroy(void *data)
 {
     apr_bucket_file *f;
 
-    f = apr_bucket_destroy_shared(data);
+    f = apr_bucket_shared_destroy(data);
     if (f == NULL) {
         return;
     }
@@ -117,7 +117,7 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
         /* we need to protect ourselves in case we die while we've got the
          * file mmapped */
         apr_status_t status;
-        apr_pool_t *p = apr_get_file_pool(f);
+        apr_pool_t *p = apr_file_pool_get(f);
         if ((status = apr_mmap_create(&mm, f, s->start, e->length, 
                                       APR_MMAP_READ, p)) != APR_SUCCESS) {
             mm = NULL;
@@ -127,7 +127,7 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
         mm = NULL;
     }
     if (mm) {
-        apr_bucket_make_mmap(e, mm, 0, e->length); /*XXX: check for failure? */
+        apr_bucket_mmap_make(e, mm, 0, e->length); /*XXX: check for failure? */
         file_destroy(s);
         return apr_bucket_read(e, str, len, block);
     }
@@ -146,13 +146,13 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
 
         /* Handle offset ... */
         if (s->start) {
-            rv = apr_seek(f, APR_SET, &s->start);
+            rv = apr_file_seek(f, APR_SET, &s->start);
             if (rv != APR_SUCCESS) {
                 free(buf);
                 return rv;
             }
         }
-        rv = apr_read(f, buf, len);
+        rv = apr_file_read(f, buf, len);
         if (rv != APR_SUCCESS && rv != APR_EOF) {
 	    free(buf);
             return rv;
@@ -163,12 +163,12 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
          * Change the current bucket to refer to what we read,
          * even if we read nothing because we hit EOF.
          */
-        apr_bucket_make_heap(e, buf, *len, 0, NULL); /*XXX: check for failure? */
+        apr_bucket_heap_make(e, buf, *len, 0, NULL); /*XXX: check for failure? */
         file_destroy(s);
 
         /* If we have more to read from the file, then create another bucket */
         if (length > 0) {
-            b = apr_bucket_create_file(f, s->start + (*len), length);
+            b = apr_bucket_file_create(f, s->start + (*len), length);
             APR_BUCKET_INSERT_AFTER(e, b);
         }
 #if APR_HAS_MMAP
@@ -177,7 +177,7 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
     return APR_SUCCESS;
 }
 
-APU_DECLARE(apr_bucket *) apr_bucket_make_file(apr_bucket *b, apr_file_t *fd,
+APU_DECLARE(apr_bucket *) apr_bucket_file_make(apr_bucket *b, apr_file_t *fd,
                                             apr_off_t offset, apr_size_t len)
 {
     apr_bucket_file *f;
@@ -188,7 +188,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_make_file(apr_bucket *b, apr_file_t *fd,
     }
     f->fd = fd;
 
-    b = apr_bucket_make_shared(b, f, offset, offset + len);
+    b = apr_bucket_shared_make(b, f, offset, offset + len);
     if (b == NULL) {
         free(f);
         return NULL;
@@ -199,17 +199,17 @@ APU_DECLARE(apr_bucket *) apr_bucket_make_file(apr_bucket *b, apr_file_t *fd,
     return b;
 }
 
-APU_DECLARE(apr_bucket *) apr_bucket_create_file(apr_file_t *fd,
+APU_DECLARE(apr_bucket *) apr_bucket_file_create(apr_file_t *fd,
                                               apr_off_t offset, apr_size_t len)
 {
-    apr_bucket_do_create(apr_bucket_make_file(b, fd, offset, len));
+    apr_bucket_do_create(apr_bucket_file_make(b, fd, offset, len));
 }
 
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_file = {
     "FILE", 5,
     file_destroy,
     file_read,
-    apr_bucket_setaside_notimpl,
-    apr_bucket_split_shared,
-    apr_bucket_copy_shared
+    apr_bucket_notimpl_setaside,
+    apr_bucket_shared_split,
+    apr_bucket_shared_copy
 };

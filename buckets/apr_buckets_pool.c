@@ -63,13 +63,13 @@ static apr_status_t pool_bucket_cleanup(void *data)
     apr_bucket *b = h->b;
     apr_size_t w;
 
-    apr_bucket_make_heap(b, h->base, b->length, 1, &w);
+    apr_bucket_heap_make(b, h->base, b->length, 1, &w);
     new = b->data;
 
     new->start = s->start;
     new->end = s->end;
 
-    apr_bucket_destroy_shared(s);
+    apr_bucket_shared_destroy(s);
     return APR_SUCCESS;
 }
 
@@ -89,15 +89,15 @@ static void pool_destroy(void *data)
     apr_bucket_shared *s = data;
     apr_bucket_pool *h = s->data;
 
-    apr_kill_cleanup(h->p, data, pool_bucket_cleanup);
-    h = apr_bucket_destroy_shared(data);
+    apr_pool_cleanup_kill(h->p, data, pool_bucket_cleanup);
+    h = apr_bucket_shared_destroy(data);
     if (h == NULL) {
 	return;
     }
     free(h);
 }
 
-APU_DECLARE(apr_bucket *) apr_bucket_make_pool(apr_bucket *b,
+APU_DECLARE(apr_bucket *) apr_bucket_pool_make(apr_bucket *b,
 		const char *buf, apr_size_t length, apr_pool_t *p)
 {
     apr_bucket_pool *h;
@@ -113,7 +113,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_make_pool(apr_bucket *b,
     h->base = (char *) buf;
     h->p    = p;
 
-    b = apr_bucket_make_shared(b, h, 0, length);
+    b = apr_bucket_shared_make(b, h, 0, length);
     if (b == NULL) {
 	free(h);
 	return NULL;
@@ -122,21 +122,21 @@ APU_DECLARE(apr_bucket *) apr_bucket_make_pool(apr_bucket *b,
     b->type = &apr_bucket_type_pool;
     h->b = b;
 
-    apr_register_cleanup(h->p, b->data, pool_bucket_cleanup, apr_null_cleanup);
+    apr_pool_cleanup_register(h->p, b->data, pool_bucket_cleanup, apr_pool_cleanup_null);
     return b;
 }
 
-APU_DECLARE(apr_bucket *) apr_bucket_create_pool(
+APU_DECLARE(apr_bucket *) apr_bucket_pool_create(
 		const char *buf, apr_size_t length, apr_pool_t *p)
 {
-    apr_bucket_do_create(apr_bucket_make_pool(b, buf, length, p));
+    apr_bucket_do_create(apr_bucket_pool_make(b, buf, length, p));
 }
 
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_pool = {
     "POOL", 5,
     pool_destroy,
     pool_read,
-    apr_bucket_setaside_notimpl,
-    apr_bucket_split_shared,
-    apr_bucket_copy_shared
+    apr_bucket_notimpl_setaside,
+    apr_bucket_shared_split,
+    apr_bucket_shared_copy
 };

@@ -66,17 +66,17 @@ static apr_status_t pipe_read(apr_bucket *a, const char **str,
     apr_interval_time_t timeout;
 
     if (block == APR_NONBLOCK_READ) {
-        apr_get_pipe_timeout(p, &timeout);
-        apr_set_pipe_timeout(p, 0);
+        apr_file_pipe_timeout_get(p, &timeout);
+        apr_file_pipe_timeout_set(p, 0);
     }
 
     buf = malloc(HUGE_STRING_LEN); /* XXX: check for failure? */
     *str = buf;
     *len = HUGE_STRING_LEN;
-    rv = apr_read(p, buf, len);
+    rv = apr_file_read(p, buf, len);
 
     if (block == APR_NONBLOCK_READ) {
-        apr_set_pipe_timeout(p, timeout);
+        apr_file_pipe_timeout_set(p, timeout);
     }
 
     if (rv != APR_SUCCESS && rv != APR_EOF) {
@@ -88,7 +88,7 @@ static apr_status_t pipe_read(apr_bucket *a, const char **str,
      * Change the current bucket to refer to what we read,
      * even if we read nothing because we hit EOF.
      */
-    apr_bucket_make_heap(a, buf, *len, 0, NULL);  /* XXX: check for failure? */
+    apr_bucket_heap_make(a, buf, *len, 0, NULL);  /* XXX: check for failure? */
     /*
      * If there's more to read we have to keep the rest of the pipe
      * for later.  Otherwise, we'll close the pipe.
@@ -102,17 +102,17 @@ static apr_status_t pipe_read(apr_bucket *a, const char **str,
      * new bucket.
      */
     if (*len > 0) {
-        b = apr_bucket_create_pipe(p);
+        b = apr_bucket_pipe_creat(p);
 	APR_BUCKET_INSERT_AFTER(a, b);
     }
     else if (rv == APR_EOF) {
-        apr_close(p);
+        apr_file_close(p);
         return (block == APR_NONBLOCK_READ) ? APR_EOF : APR_SUCCESS;
     }
     return APR_SUCCESS;
 }
 
-APU_DECLARE(apr_bucket *) apr_bucket_make_pipe(apr_bucket *b, apr_file_t *p)
+APU_DECLARE(apr_bucket *) apr_bucket_pipe_make(apr_bucket *b, apr_file_t *p)
 {
     /*
      * A pipe is closed when the end is reached in pipe_read().  If the
@@ -134,16 +134,16 @@ APU_DECLARE(apr_bucket *) apr_bucket_make_pipe(apr_bucket *b, apr_file_t *p)
     return b;
 }
 
-APU_DECLARE(apr_bucket *) apr_bucket_create_pipe(apr_file_t *p)
+APU_DECLARE(apr_bucket *) apr_bucket_pipe_creat(apr_file_t *p)
 {
-    apr_bucket_do_create(apr_bucket_make_pipe(b, p));
+    apr_bucket_do_create(apr_bucket_pipe_make(b, p));
 }
 
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_pipe = {
     "PIPE", 5,
-    apr_bucket_destroy_notimpl,
+    apr_bucket_notimpl_destroy,
     pipe_read,
-    apr_bucket_setaside_notimpl,
-    apr_bucket_split_notimpl,
-    apr_bucket_copy_notimpl
+    apr_bucket_notimpl_setaside,
+    apr_bucket_notimpl_split,
+    apr_bucket_notimpl_copy
 };

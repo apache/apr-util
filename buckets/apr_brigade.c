@@ -89,7 +89,7 @@ static apr_status_t apr_brigade_cleanup(void *data)
 }
 APU_DECLARE(apr_status_t) apr_brigade_destroy(apr_bucket_brigade *b)
 {
-    apr_kill_cleanup(b->p, b, apr_brigade_cleanup);
+    apr_pool_cleanup_kill(b->p, b, apr_brigade_cleanup);
     return apr_brigade_cleanup(b);
 }
 
@@ -101,7 +101,7 @@ APU_DECLARE(apr_bucket_brigade *) apr_brigade_create(apr_pool_t *p)
     b->p = p;
     APR_RING_INIT(&b->list, apr_bucket, link);
 
-    apr_register_cleanup(b->p, b, apr_brigade_cleanup, apr_brigade_cleanup);
+    apr_pool_cleanup_register(b->p, b, apr_brigade_cleanup, apr_brigade_cleanup);
     return b;
 }
 
@@ -199,7 +199,7 @@ APU_DECLARE(int) apr_brigade_vputstrs(apr_bucket_brigade *b, va_list va)
         j = strlen(x);
        
 	/* XXX: copy or not? let the caller decide? */
-        r = apr_bucket_create_heap(x, j, 1, &i);
+        r = apr_bucket_heap_create(x, j, 1, &i);
         if (i != j) {
             /* Do we need better error reporting?  */
             return -1;
@@ -245,7 +245,7 @@ APU_DECLARE(int) apr_brigade_vprintf(apr_bucket_brigade *b, const char *fmt, va_
 
     res = apr_vsnprintf(buf, 4096, fmt, va);
 
-    r = apr_bucket_create_heap(buf, strlen(buf), 1, NULL);
+    r = apr_bucket_heap_create(buf, strlen(buf), 1, NULL);
     APR_BRIGADE_INSERT_TAIL(b, r);
 
     return res;

@@ -68,7 +68,7 @@ extern "C" {
 #define APR_DECLARE_GENERIC_HOOK(ns,ret,name,args) \
 typedef ret ns##_HOOK_##name args;
 
-APU_DECLARE(void) apr_hook_generic(const char *szName,void (*pfn)(void),
+APU_DECLARE(void) apr_hook_generic_add(const char *szName,void (*pfn)(void),
 				   const char * const *aszPre,
 				   const char * const *aszSucc,int nOrder);
 
@@ -84,10 +84,10 @@ APU_DECLARE(void) apr_hook_generic(const char *szName,void (*pfn)(void),
 
 #define APR_HOOK_GENERIC(name,pfn,aszPre,aszSucc,nOrder) \
     ((void (*)(const char *,HOOK_##name *,const char * const *, \
-	       const char * const *,int))&apr_hook_generic)(#name,pfn,aszPre, \
+	       const char * const *,int))&apr_hook_generic_add)(#name,pfn,aszPre, \
 							   aszSucc, nOrder)
 
-APU_DECLARE(apr_array_header_t *) apr_generic_hook_get(const char *szName);
+APU_DECLARE(apr_array_header_t *) apr_hook_generic_get(const char *szName);
 
 /**
  * Implement a generic hook that runs until one of the functions
@@ -105,7 +105,7 @@ link##_DECLARE(ret) ns##_run_##name args_decl \
     ns##_LINK_##name *pHook; \
     int n; \
     ret rv; \
-    apr_array_header_t *pHookArray=apr_generic_hook_get(#name); \
+    apr_array_header_t *pHookArray=apr_hook_generic_get(#name); \
 \
     if(!pHookArray) \
 	return ok; \
