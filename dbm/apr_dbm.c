@@ -311,7 +311,7 @@ static apr_status_t set_error(apr_dbm_t *dbm, apr_status_t dbm_said)
 
 #if APU_USE_SDBM
 
-    if ((dbm->errcode = dbm_said) == 0) {
+    if ((dbm->errcode = dbm_said) == APR_SUCCESS) {
         dbm->errmsg = NULL;
     }
     else {
