@@ -13,12 +13,9 @@
  * limitations under the License.
  */
 
-/*
- * apu.h is generated from apu.h.in by configure -- do not edit apu.h
- */
 /* 
- * Note: This is a Windows specific version of apu.h. It is renamed to
- * apu.h at the start of a Windows build.
+ * Note: This is a NetWare specific version of apu.h. It is renamed to
+ * apu.h at the start of a NetWare build.
  */
 /* @file apu.h
  * @brief APR-Utility main file
