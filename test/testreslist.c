@@ -57,6 +57,16 @@
 #include "apr_reslist.h"
 #include "apr_thread_proc.h"
 
+#if !APR_HAS_THREADS
+
+int main(void)
+{
+    fprintf(stderr, "this program requires APR thread support\n");
+    return 0;
+}
+
+#else
+
 #define RESLIST_MIN   3
 #define RESLIST_SMAX 10
 #define RESLIST_HMAX 20
@@ -257,3 +267,4 @@ int main(void)
     return 0;
 }
 
+#endif /* APR_HAS_THREADS */
