@@ -9,3 +9,7 @@ libtool
 libaprutil.la
 aprutil.exports
 export_vars.sh
+Debug
+Release
+LibD
+LibR
