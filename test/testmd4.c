@@ -75,6 +75,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 /*
  * This is a MD4 test program based on the code published in RFC 1320.
