@@ -259,6 +259,7 @@ struct ap_bucket_brigade {
 #define AP_BUCKET_IS_TRANSIENT(e)   (e->type == &ap_transient_type)
 #define AP_BUCKET_IS_IMMORTAL(e)    (e->type == &ap_immortal_type)
 #define AP_BUCKET_IS_MMAP(e)        (e->type == &ap_mmap_type)
+#define AP_BUCKET_IS_POOL(e)        (e->type == &ap_pool_type)
 
 /**
  * General-purpose reference counting for the varous bucket types.
@@ -317,6 +318,28 @@ struct ap_bucket_simple {
     const char    *end;
 };
 
+typedef struct ap_bucket_pool ap_bucket_pool;
+
+/**
+ * A bucket referring to data allocated out of a pool
+ */
+struct ap_bucket_pool {
+    /** Number of buckets using this memory */
+    ap_bucket_refcount  refcount;
+    /** The start of the data actually allocated.  This should never be
+     * modified, it is only used to free the bucket.
+     */
+    const char *base;
+    /** The pool the data was allocated out of */
+    apr_pool_t  *p;
+    /** This is a hack, because we call ap_destroy_bucket with the ->data
+     *  pointer, so the pool cleanup needs to be registered with that pointer,
+     *  but the whole point of the cleanup is to convert the bucket to another
+     *  type.  To do that conversion, we need a pointer to the bucket itself.
+     *  This gives us a pointer to the original bucket.
+     */
+    ap_bucket *b;
+};
 
 /*  *****  Reference-counted bucket types  *****  */
 
@@ -522,6 +545,7 @@ extern const ap_bucket_type ap_eos_type;
 extern const ap_bucket_type ap_file_type;
 extern const ap_bucket_type ap_heap_type;
 extern const ap_bucket_type ap_mmap_type;
+extern const ap_bucket_type ap_pool_type;
 extern const ap_bucket_type ap_pipe_type;
 extern const ap_bucket_type ap_immortal_type;
 extern const ap_bucket_type ap_transient_type;
@@ -670,6 +694,18 @@ AP_DECLARE(ap_bucket *) ap_bucket_create_heap(
 		const char *buf, apr_size_t nbyte, int copy, apr_ssize_t *w);
 AP_DECLARE(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
 		const char *buf, apr_size_t nbyte, int copy, apr_ssize_t *w);
+
+/**
+ * Create a bucket referring to memory allocated out of a pool.
+ * @param buf The buffer to insert into the bucket
+ * @param p The pool the memory was allocated out of
+ * @return The new bucket, or NULL if allocation failed
+ * @deffunc ap_bucket *ap_bucket_create_pool(const char *buf, apr_size_t *length, apr_pool_t *p)
+ */
+AP_DECLARE(ap_bucket *) ap_bucket_create_pool(const char *buf,  
+                                            apr_size_t length, apr_pool_t *p);
+AP_DECLARE(ap_bucket *) ap_bucket_make_pool(ap_bucket *b,
+		const char *buf, apr_size_t length, apr_pool_t *p);
 
 /**
  * Create a bucket referring to mmap()ed memory.
