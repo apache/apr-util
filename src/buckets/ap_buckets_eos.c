@@ -52,7 +52,6 @@
  * <http://www.apache.org/>.
  */
 
-#include "httpd.h"
 #include "ap_buckets.h"
 #include <stdlib.h>
 
@@ -64,7 +63,7 @@ static apr_status_t eos_read(ap_bucket *b, const char **str,
     return APR_SUCCESS;
 }
 
-AP_DECLARE(ap_bucket *) ap_bucket_make_eos(ap_bucket *b)
+APR_DECLARE(ap_bucket *) ap_bucket_make_eos(ap_bucket *b)
 {
     b->length    = 0;
     b->data      = NULL;
@@ -74,7 +73,7 @@ AP_DECLARE(ap_bucket *) ap_bucket_make_eos(ap_bucket *b)
     return b;
 }
 
-AP_DECLARE(ap_bucket *) ap_bucket_create_eos(void)
+APR_DECLARE(ap_bucket *) ap_bucket_create_eos(void)
 {
     ap_bucket_do_create(ap_bucket_make_eos(b));
 }

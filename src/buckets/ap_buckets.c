@@ -54,6 +54,7 @@
 
 #include "apr.h"
 #include "apr_pools.h"
+#include "apr_tables.h"
 #include "apr_errno.h"
 
 #include <stdlib.h>
@@ -61,7 +62,6 @@
 #include <sys/uio.h>
 #endif
 
-#include "httpd.h"
 #include "ap_buckets.h"
 
 static apr_array_header_t *bucket_types;
@@ -85,13 +85,13 @@ static apr_status_t ap_brigade_cleanup(void *data)
      */
     return APR_SUCCESS;
 }
-AP_DECLARE(apr_status_t) ap_brigade_destroy(ap_bucket_brigade *b)
+APR_DECLARE(apr_status_t) ap_brigade_destroy(ap_bucket_brigade *b)
 {
     apr_kill_cleanup(b->p, b, ap_brigade_cleanup);
     return ap_brigade_cleanup(b);
 }
 
-AP_DECLARE(ap_bucket_brigade *) ap_brigade_create(apr_pool_t *p)
+APR_DECLARE(ap_bucket_brigade *) ap_brigade_create(apr_pool_t *p)
 {
     ap_bucket_brigade *b;
 
@@ -103,7 +103,7 @@ AP_DECLARE(ap_bucket_brigade *) ap_brigade_create(apr_pool_t *p)
     return b;
 }
 
-AP_DECLARE(ap_bucket_brigade *) ap_brigade_split(ap_bucket_brigade *b,
+APR_DECLARE(ap_bucket_brigade *) ap_brigade_split(ap_bucket_brigade *b,
 						 ap_bucket *e)
 {
     ap_bucket_brigade *a;
@@ -121,7 +121,7 @@ AP_DECLARE(ap_bucket_brigade *) ap_brigade_split(ap_bucket_brigade *b,
     return a;
 }
 
-AP_DECLARE(int) ap_brigade_to_iovec(ap_bucket_brigade *b, 
+APR_DECLARE(int) ap_brigade_to_iovec(ap_bucket_brigade *b, 
 				    struct iovec *vec, int nvec)
 {
     ap_bucket *e;
@@ -139,7 +139,7 @@ AP_DECLARE(int) ap_brigade_to_iovec(ap_bucket_brigade *b,
     return vec - orig;
 }
 
-AP_DECLARE(int) ap_brigade_vputstrs(ap_bucket_brigade *b, va_list va)
+APR_DECLARE(int) ap_brigade_vputstrs(ap_bucket_brigade *b, va_list va)
 {
     ap_bucket *r;
     const char *x;
@@ -166,7 +166,7 @@ AP_DECLARE(int) ap_brigade_vputstrs(ap_bucket_brigade *b, va_list va)
     return k;
 }
 
-AP_DECLARE_NONSTD(int) ap_brigade_putstrs(ap_bucket_brigade *b, ...)
+APR_DECLARE_NONSTD(int) ap_brigade_putstrs(ap_bucket_brigade *b, ...)
 {
     va_list va;
     int written;
@@ -177,7 +177,7 @@ AP_DECLARE_NONSTD(int) ap_brigade_putstrs(ap_bucket_brigade *b, ...)
     return written;
 }
 
-AP_DECLARE_NONSTD(int) ap_brigade_printf(ap_bucket_brigade *b, const char *fmt, ...)
+APR_DECLARE_NONSTD(int) ap_brigade_printf(ap_bucket_brigade *b, const char *fmt, ...)
 {
     va_list ap;
     int res;
@@ -188,7 +188,7 @@ AP_DECLARE_NONSTD(int) ap_brigade_printf(ap_bucket_brigade *b, const char *fmt, 
     return res;
 }
 
-AP_DECLARE(int) ap_brigade_vprintf(ap_bucket_brigade *b, const char *fmt, va_list va)
+APR_DECLARE(int) ap_brigade_vprintf(ap_bucket_brigade *b, const char *fmt, va_list va)
 {
     /* XXX:  This needs to be replaced with a function to printf
      * directly into a bucket.  I'm being lazy right now.  RBB
@@ -231,17 +231,17 @@ int ap_insert_bucket_type(const ap_bucket_type *type)
     return bucket_types->nelts - 1;
 }
 
-AP_DECLARE_NONSTD(apr_status_t) ap_bucket_setaside_notimpl(ap_bucket *data)
+APR_DECLARE_NONSTD(apr_status_t) ap_bucket_setaside_notimpl(ap_bucket *data)
 {
     return APR_ENOTIMPL;
 }
 
-AP_DECLARE_NONSTD(apr_status_t) ap_bucket_split_notimpl(ap_bucket *data, apr_off_t point)
+APR_DECLARE_NONSTD(apr_status_t) ap_bucket_split_notimpl(ap_bucket *data, apr_off_t point)
 {
     return APR_ENOTIMPL;
 }
 
-AP_DECLARE_NONSTD(void) ap_bucket_destroy_notimpl(void *data)
+APR_DECLARE_NONSTD(void) ap_bucket_destroy_notimpl(void *data)
 {
     return;
 }

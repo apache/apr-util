@@ -52,7 +52,8 @@
  * <http://www.apache.org/>.
  */
 
-#include "httpd.h"
+#include "apr_lib.h"
+#include "apr_file_io.h"
 #include "ap_buckets.h"
 #include <stdlib.h>
 
@@ -115,11 +116,11 @@ static apr_status_t file_read(ap_bucket *e, const char **str,
     else {
 #endif
 
-        buf = malloc(IOBUFSIZE);
+        buf = malloc(HUGE_STRING_LEN);
         *str = buf;
 
-        if (e->length > IOBUFSIZE) {
-            *len = IOBUFSIZE;
+        if (e->length > HUGE_STRING_LEN) {
+            *len = HUGE_STRING_LEN;
         }
         else {
             *len = e->length;
@@ -158,7 +159,7 @@ static apr_status_t file_read(ap_bucket *e, const char **str,
     return APR_SUCCESS;
 }
 
-AP_DECLARE(ap_bucket *) ap_bucket_make_file(ap_bucket *b, apr_file_t *fd,
+APR_DECLARE(ap_bucket *) ap_bucket_make_file(ap_bucket *b, apr_file_t *fd,
                                             apr_off_t offset, apr_size_t len)
 {
     ap_bucket_file *f;
@@ -178,7 +179,7 @@ AP_DECLARE(ap_bucket *) ap_bucket_make_file(ap_bucket *b, apr_file_t *fd,
     return b;
 }
 
-AP_DECLARE(ap_bucket *) ap_bucket_create_file(apr_file_t *fd,
+APR_DECLARE(ap_bucket *) ap_bucket_create_file(apr_file_t *fd,
                                               apr_off_t offset, apr_size_t len)
 {
     ap_bucket_do_create(ap_bucket_make_file(b, fd, offset, len));
