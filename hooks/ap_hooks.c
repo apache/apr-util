@@ -42,7 +42,7 @@ static TSort *prepare(ap_context_t *p,TSortData *pItems,int nItems)
     qsort(pItems,nItems,sizeof *pItems,crude_order);
     for(n=0 ; n < nItems ; ++n) {
 	pData[n].nPredecessors=0;
-	pData[n].ppPredecessors=ap_palloc(p,nItems*sizeof *pData[n].ppPredecessors);
+	pData[n].ppPredecessors=ap_pcalloc(p,nItems*sizeof *pData[n].ppPredecessors);
 	pData[n].pNext=NULL;
 	pData[n].pData=&pItems[n];
     }
@@ -165,6 +165,17 @@ void ap_sort_hooks()
 	HookSortEntry *pEntry=&((HookSortEntry *)s_aHooksToSort->elts)[n];
 	*pEntry->paHooks=sort_hook(*pEntry->paHooks,pEntry->szHookName);
     }
+}
+    
+void ap_hook_deregister_all(void)
+{
+    int n;    
+
+    for(n=0 ; n < s_aHooksToSort->nelts ; ++n) {
+        HookSortEntry *pEntry=&((HookSortEntry *)s_aHooksToSort->elts)[n];
+        *pEntry->paHooks=NULL;
+    }
+    s_aHooksToSort=NULL;
 }
 
 void ap_show_hook(const char *szName,const char * const *aszPre,
