@@ -2,7 +2,7 @@ TARGETS =
 PROGRAMS = testdbm
 
 top_builddir = @top_builddir@
-include $(top_builddir)/build/rules.mk
+@INCLUDE_RULES@
 
 test: $(PROGRAMS)
 
