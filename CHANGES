@@ -1,5 +1,8 @@
 Changes with APR-util b1  
 
+  *) Add detection support for FreeBSD's expat and expat2 ports.
+     [Justin Erenkrantz]
+
   *) Deprecate check_brigade_flush(), which had several nasty bugs, and
      which was causing apr_brigade_write()'s logic to be less than obvious.
      Everything is now done in a slightly rearranged apr_brigade_write().
