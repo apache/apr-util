@@ -204,7 +204,7 @@ struct ap_bucket_brigade {
      */
     apr_pool_t *p;
     /** The buckets in the brigade are on this list. */
-    AP_RING_HEAD(, ap_bucket) list;
+    AP_RING_HEAD(head, ap_bucket) list;
 };
 
 /**
