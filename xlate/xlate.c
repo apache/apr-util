@@ -52,8 +52,7 @@
  * <http://www.apache.org/>.
  */
 
-#include "apr_private.h"
-
+#include "apu.h"
 #include "apr_lib.h"
 #include "apr_strings.h"
 #include "apr_xlate.h"
