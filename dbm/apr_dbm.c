@@ -65,11 +65,9 @@
    to stop "no effect" warnings from GCC. */
 #define NOOP_FUNCTION if (0) ; else
 
-/* some of the DBM functions take a POSIX mode for creating files. use this. */
-#define POSIX_FILEMODE 0660
-
 
 #if APU_USE_SDBM
+
 #include "apr_sdbm.h"
 
 typedef SDBM *real_file_t;
@@ -92,7 +90,23 @@ typedef sdbm_datum result_datum_t;
 #define APR_DBM_DBMODE_RW       (APR_READ | APR_WRITE)
 #define APR_DBM_DBMODE_RWCREATE (APR_READ | APR_WRITE | APR_CREATE)
 
-#elif APU_USE_GDBM
+#else /* Not using SDBM: */
+
+/* Most DBM libraries take a POSIX mode for creating files.  Don't trust
+ * the mode_t type, some platforms may not support it, int is safe.
+ */
+int apr_posix_perms2mode(apr_fileperms_t perm) 
+{
+    int mode = 0;
+
+    mode |= 0700 & (perm >> 2); /* User  is off-by-2 bits */
+    mode |= 0070 & (perm >> 1); /* Group is off-by-1 bit */
+    mode |= 0007 & (perm);      /* World maps 1 for 1 */
+    return mode;
+}
+
+#if APU_USE_GDBM
+
 #include <gdbm.h>
 #include <stdlib.h>     /* for free() */
 
@@ -253,10 +267,11 @@ static apr_status_t do_nextkey(real_file_t *f, DBT *pkey, DBT *pnext)
     return db2s(dberr);
 }
 
-#else
+#else /* Not in the USE_xDBM list above */
 #error a DBM implementation was not specified
 #endif
 
+#endif /* Not USE_SDBM */
 
 struct apr_dbm_t
 {
@@ -341,7 +356,8 @@ static apr_status_t set_error(apr_dbm_t *dbm, apr_status_t dbm_said)
 }
 
 APU_DECLARE(apr_status_t) apr_dbm_open(apr_dbm_t **pdb, const char *pathname, 
-                                       int mode, apr_pool_t *pool)
+                                       apr_int32_t mode, apr_fileperms_t perm,
+                                       apr_pool_t *pool)
 {
     real_file_t file;
     int dbmode;
@@ -367,7 +383,7 @@ APU_DECLARE(apr_status_t) apr_dbm_open(apr_dbm_t **pdb, const char *pathname,
     {
         apr_status_t rv;
 
-        rv = sdbm_open(&file, pathname, dbmode, APR_OS_DEFAULT, pool);
+        rv = sdbm_open(&file, pathname, dbmode, perm, pool);
         if (rv != APR_SUCCESS)
             return rv;
     }
@@ -376,7 +392,8 @@ APU_DECLARE(apr_status_t) apr_dbm_open(apr_dbm_t **pdb, const char *pathname,
 
     {
         /* Note: stupid cast to get rid of "const" on the pathname */
-        file = gdbm_open((char *) pathname, 0, dbmode, POSIX_FILEMODE, NULL);
+        file = gdbm_open((char *) pathname, 0, dbmode,
+                         apr_posix_perms2mode(perm), NULL);
         if (file == NULL)
             return APR_EGENERAL;      /* ### need a better error */
     }
@@ -388,19 +405,21 @@ APU_DECLARE(apr_status_t) apr_dbm_open(apr_dbm_t **pdb, const char *pathname,
 
 #if DB_VER == 3
         if ((dberr = db_create(&file.bdb, NULL, 0)) == 0) {
-            if ((dberr = (*file.bdb->open)(file.bdb, pathname, NULL, DB_HASH,
-                                           dbmode, POSIX_FILEMODE)) != 0) {
+            if ((dberr = (*file.bdb->open)(file.bdb, pathname, NULL, 
+                                           DB_HASH, dbmode, 
+                                           apr_posix_perms2mode(perm))) != 0) {
                 /* close the DB handler */
                 (void) (*file.bdb->close)(file.bdb, 0);
             }
         }
         file.curs = NULL;
 #elif DB_VER == 2
-        dberr = db_open(pathname, DB_HASH, dbmode, POSIX_FILEMODE, NULL, NULL,
-                        &file.bdb);
+        dberr = db_open(pathname, DB_HASH, dbmode, apr_posix_perms2mode(perm),
+                        NULL, NULL, &file.bdb);
         file.curs = NULL;
 #else
-        file.bdb = dbopen(pathname, dbmode, POSIX_FILEMODE, DB_HASH, NULL);
+        file.bdb = dbopen(pathname, dbmode, apr_posix_perms2mode(perm),
+                          DB_HASH, NULL);
         if (file.bdb == NULL)
             return APR_EGENERAL;      /* ### need a better error */
         dberr = 0;
