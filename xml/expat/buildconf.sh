@@ -20,9 +20,9 @@ echo "Copying libtool helper files ..."
 $ltpath/libtoolize --force --copy
 
 #
-# Generate the autoconf header (include/apu_config.h) and ./configure
+# Generate the autoconf header template (config.h.in) and ./configure
 #
-echo "Creating config.h ..."
+echo "Creating config.h.in ..."
 autoheader
 
 echo "Creating configure ..."
