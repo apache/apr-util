@@ -27,11 +27,6 @@ AC_DEFUN(APU_FIND_APR,[
   AC_SUBST(APR_INCLUDES)
   AC_SUBST(APR_LIBS)
   AC_SUBST(APR_BUILD_DIR)
-
-  dnl would be nice to obsolete this; gotcha is that apr_rules.mk resides
-  dnl in a different directory to apr*.awk for a VPATH apr build.
-  APR_SOURCE_DIR="`$apr_config --srcdir`"
-  AC_SUBST(APR_SOURCE_DIR)
 ])
 
 
