@@ -393,7 +393,7 @@ if test "$expat_include_dir" = "xml/expat/lib" -o "$expat_include_dir" = "xml/ex
   expat_include_dir=$top_builddir/$bundled_subdir/lib
   expat_libs=$top_builddir/$bundled_subdir/lib/libexpat.la
   APR_XML_SUBDIRS="`echo $bundled_subdir | sed -e 's%xml/%%'`"
-fi
+else
 if test "$expat_include_dir" = "$srcdir/xml/expat/include" -o "$expat_include_dir" = "$srcdir/xml/expat/lib"; then
   dnl This is a bit of a hack.  This only works because we know that
   dnl we are working with the bundled version of the software.
@@ -403,10 +403,11 @@ if test "$expat_include_dir" = "$srcdir/xml/expat/include" -o "$expat_include_di
   expat_libs=$top_builddir/$bundled_subdir/lib/libexpat.la
   APR_XML_SUBDIRS="`echo $bundled_subdir | sed -e 's%xml/%%'`"
 fi
+fi
 AC_SUBST(APR_XML_SUBDIRS)
 
-INCLUDES="$INCLUDES -I$expat_include_dir"
-LIBS="$LIBS $expat_libs"
-APRUTIL_EXPORT_LIBS="$APRUTIL_EXPORT_LIBS $expat_libs"
+APR_ADDTO(INCLUDES, [-I$expat_include_dir])
+APR_ADDTO(LIBS, [$expat_libs])
+APR_ADDTO(APRUTIL_EXPORT_LIBS, [$expat_libs])
 dnl ### export the Expat includes?
 ])
