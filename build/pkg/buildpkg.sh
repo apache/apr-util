@@ -66,6 +66,7 @@ fi
             --with-ldap
 make
 make install DESTDIR=$TEMPDIR
+rm $TEMPDIR$PREFIX/lib/apr-util.exp
 . build/pkg/pkginfo
 cp build/pkg/pkginfo $TEMPDIR$PREFIX
 
