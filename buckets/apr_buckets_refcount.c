@@ -72,11 +72,8 @@ APU_DECLARE_NONSTD(apr_status_t) apr_bucket_shared_copy(apr_bucket *a,
                                                         apr_bucket **b)
 {
     apr_bucket_refcount *r = a->data;
-    apr_status_t rv;
 
-    if ((rv = apr_bucket_simple_copy(a, b)) != APR_SUCCESS) {
-        return rv;
-    }
+    apr_bucket_simple_copy(a, b);
     r->refcount++;
 
     return APR_SUCCESS;
