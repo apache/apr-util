@@ -62,6 +62,7 @@ LIBDIR="@libdir@"
 TOP_SRCDIR="@top_srcdir@"
 LIBS="@APRUTIL_EXPORT_LIBS@"
 INCLUDES="@APRUTIL_INCLUDES@"
+LDFLAGS="@APRUTIL_LDFLAGS@"
 
 show_usage()
 {
@@ -71,6 +72,7 @@ Usage: apu-config [OPTION]
 Known values for OPTION are:
   --prefix[=DIR]    change prefix to DIR
   --includes        print include information
+  --ldflags         print linker flags
   --libs            print library information
   --help            print this help
 EOF
@@ -106,6 +108,9 @@ while test $# -gt 0; do
     ;;
     --includes)
     echo $INCLUDES
+    ;;
+    --ldflags)
+    echo $LDFLAGS
     ;;
     --help)
     show_usage
