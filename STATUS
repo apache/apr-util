@@ -1,5 +1,5 @@
 APRUTIL LIBRARY STATUS:						-*-text-*-
-Last modified at [$Date: 2001/04/10 12:18:49 $]
+Last modified at [$Date: 2001/04/12 15:30:47 $]
 
 Release:
     2.0a9   : released December 12, 2000
@@ -13,6 +13,11 @@ RELEASE SHOWSTOPPERS:
     * add misc/version.c and related machinery once the pattern is
       laid out in APR.
 
+    * complete the efforts started by DougM for cleaner fn naming
+      conventions: see proposed name changes in renames_pending
+      and offer up any additions/vetos/clarifications.
+      DougM offered to complete the work with his nifty perl rename
+      script at the hackathon. 
 
 RELEASE NON-SHOWSTOPPERS BUT WOULD BE REAL NICE TO WRAP THESE UP:
 
