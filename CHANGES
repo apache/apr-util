@@ -1,5 +1,8 @@
 Changes with APR-util 0.9.3
 
+  *) Allow apr_date_parse_rfc to parse 'Sun, 06-Nov-1994 08:49:37 GMT' as a
+     valid date.  [Dmitri Tikhonov <dmitri@netilla.com>]
+
   *) Fix error in apu-config when symlinks are involved.
      [Garrett Rooney <rooneg@electricjellyfish.net>]
 
