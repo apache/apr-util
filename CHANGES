@@ -1,5 +1,8 @@
 Changes with APR-util b1  
 
+  *) Make clean, distclean, and extraclean consistently according to the
+     Gnu makefile guidelines.  [Justin Erenkrantz <jerenkrantz@ebuilt.com>]
+
   *) Migrate the --disable-libtool changes from APR to APR-util.
      This cleans things up, and allows more flexibility when building
      programs.  [Ryan Bloom]

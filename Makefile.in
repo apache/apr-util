@@ -16,9 +16,9 @@ CLEAN_SUBDIRS = . test build
 CLEAN_TARGETS = $(TARGET_EXPORTS)
 DISTCLEAN_TARGETS = config.cache config.log config.status \
 	include/private/apu_config.h include/private/apu_private.h \
-	include/apu.h export_vars.sh
-EXTRACLEAN_TARGETS = configure libtool aclocal.m4 \
-	include/private/apu_config.h.in
+	include/private/apu_select_dbm.h include/apu.h export_vars.sh \
+	libtool build/Makefile build/rules.mk
+EXTRACLEAN_TARGETS = configure aclocal.m4 include/private/apu_config.h.in
 
 prefix=@prefix@
 exec_prefix=@exec_prefix@
