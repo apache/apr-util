@@ -43,7 +43,7 @@ RSC=rc.exe
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
 # ADD BASE CPP /nologo /MD /W3 /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FD /c
-# ADD CPP /nologo /MD /W3 /O2 /I "./include" /I "../apr/include" /I "./include/private" /I "./src/dbm/sdbm" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" /Fd"LibR\aprutil" /FD /c
+# ADD CPP /nologo /MD /W3 /O2 /I "./include" /I "../apr/include" /I "./include/private" /I "./dbm/sdbm" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" /Fd"LibR\aprutil" /FD /c
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -68,7 +68,7 @@ RSC=rc.exe
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
 # ADD BASE CPP /nologo /MDd /W3 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FD /c
-# ADD CPP /nologo /MDd /W3 /GX /ZI /Od /I "./include" /I "../apr/include" /I "./include/private" /I "./src/dbm/sdbm" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" /Fd"LibD\aprutil" /FD /c
+# ADD CPP /nologo /MDd /W3 /GX /ZI /Od /I "./include" /I "../apr/include" /I "./include/private" /I "./dbm/sdbm" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" /Fd"LibD\aprutil" /FD /c
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -90,51 +90,51 @@ LIB32=link.exe -lib
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=.\src\buckets\ap_brigade.c
+SOURCE=.\buckets\ap_brigade.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\buckets\ap_buckets.c
+SOURCE=.\buckets\ap_buckets.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\buckets\ap_buckets_eos.c
+SOURCE=.\buckets\ap_buckets_eos.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\buckets\ap_buckets_file.c
+SOURCE=.\buckets\ap_buckets_file.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\buckets\ap_buckets_flush.c
+SOURCE=.\buckets\ap_buckets_flush.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\buckets\ap_buckets_heap.c
+SOURCE=.\buckets\ap_buckets_heap.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\buckets\ap_buckets_mmap.c
+SOURCE=.\buckets\ap_buckets_mmap.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\buckets\ap_buckets_pipe.c
+SOURCE=.\buckets\ap_buckets_pipe.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\buckets\ap_buckets_pool.c
+SOURCE=.\buckets\ap_buckets_pool.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\buckets\ap_buckets_refcount.c
+SOURCE=.\buckets\ap_buckets_refcount.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\buckets\ap_buckets_simple.c
+SOURCE=.\buckets\ap_buckets_simple.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\buckets\ap_buckets_socket.c
+SOURCE=.\buckets\ap_buckets_socket.c
 # End Source File
 # End Group
 # Begin Group "crypto"
@@ -142,7 +142,7 @@ SOURCE=.\src\buckets\ap_buckets_socket.c
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=.\src\crypto\ap_sha1.c
+SOURCE=.\crypto\ap_sha1.c
 # End Source File
 # End Group
 # Begin Group "dbm"
@@ -153,36 +153,36 @@ SOURCE=.\src\crypto\ap_sha1.c
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=.\src\dbm\sdbm\sdbm.c
+SOURCE=.\dbm\sdbm\sdbm.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\dbm\sdbm\sdbm_hash.c
+SOURCE=.\dbm\sdbm\sdbm_hash.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\dbm\sdbm\sdbm_lock.c
+SOURCE=.\dbm\sdbm\sdbm_lock.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\dbm\sdbm\sdbm_pair.c
+SOURCE=.\dbm\sdbm\sdbm_pair.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\dbm\sdbm\sdbm_pair.h
+SOURCE=.\dbm\sdbm\sdbm_pair.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\dbm\sdbm\sdbm_private.h
+SOURCE=.\dbm\sdbm\sdbm_private.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\dbm\sdbm\sdbm_tune.h
+SOURCE=.\dbm\sdbm\sdbm_tune.h
 # End Source File
 # End Group
 # Begin Source File
 
-SOURCE=.\src\dbm\apr_dbm.c
+SOURCE=.\dbm\apr_dbm.c
 # End Source File
 # End Group
 # Begin Group "encoding"
@@ -190,7 +190,7 @@ SOURCE=.\src\dbm\apr_dbm.c
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=.\src\encoding\ap_base64.c
+SOURCE=.\encoding\ap_base64.c
 # End Source File
 # End Group
 # Begin Group "hooks"
@@ -198,7 +198,7 @@ SOURCE=.\src\encoding\ap_base64.c
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=.\src\hooks\ap_hooks.c
+SOURCE=.\hooks\ap_hooks.c
 # End Source File
 # End Group
 # Begin Group "uri"
