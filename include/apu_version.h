@@ -62,13 +62,13 @@ extern "C" {
 #define APU_MINOR_VERSION       1
 
 /** patch level */
-#define APU_PATCH_VERSION       0
+#define APU_PATCH_VERSION       1
 
 /** 
  *  This symbol is defined for internal, "development" copies of APU. This
  *  symbol will be #undef'd for releases. 
  */
-/* #define APU_IS_DEV_VERSION */
+#define APU_IS_DEV_VERSION
 
 
 /** The formatted string of APU's version */
