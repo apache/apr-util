@@ -98,7 +98,7 @@ AC_CHECK_HEADER(db2/db.h, [
   apu_db_lib=db2
   apu_db_version=2
   ])])
-if test $apu_db_version != 2; then
+if test "$apu_db_version" != "2"; then
 AC_CHECK_HEADER(db.h, [
   AC_CHECK_LIB(db, db_open, [
   apu_db_header=db.h
@@ -120,7 +120,7 @@ AC_CHECK_HEADER(db3/db.h, [
   apu_db_lib=db3
   apu_db_version=3
   ])])
-if test $apu_db_version != 3; then
+if test "$apu_db_version" != "3"; then
 AC_CHECK_HEADER(db.h, [
   AC_CHECK_LIB(db, db_create, [
   apu_db_header=db.h
@@ -146,7 +146,7 @@ AC_CHECK_HEADER(db4/db.h, [
   apu_db_lib=db4
   apu_db_version=4
   ])])
-if test $apu_db_version != 4; then
+if test "$apu_db_version" != "4"; then
 AC_CHECK_HEADER(db.h, [
   AC_CHECK_LIB(db, db_create, [
     AC_CHECK_LIB(db, lock_get, [], [
@@ -188,13 +188,13 @@ AC_CHECK_HEADER(gdbm.h, AC_CHECK_LIB(gdbm, gdbm_open, [apu_have_gdbm=1]))
 
 dnl We're going to try to find the highest version of Berkeley DB supported.
 APU_CHECK_DB4
-if test $apu_db_version != 4; then
+if test "$apu_db_version" != "4"; then
   APU_CHECK_DB3
-  if test $apu_db_version != 3; then
+  if test "$apu_db_version" != "3"; then
     APU_CHECK_DB2
-    if test $apu_db_version != 2; then
+    if test "$apu_db_version" != "2"; then
       APU_CHECK_DB1
-      if test $apu_db_version != 1; then
+      if test "$apu_db_version" != "1"; then
         APU_CHECK_DB185
       fi
     fi
@@ -205,7 +205,7 @@ dnl Yes, it'd be nice if we could collate the output in an order
 dnl so that the AC_MSG_CHECKING would be output before the actual
 dnl checks, but it isn't happening now.
 AC_MSG_CHECKING(for Berkeley DB)
-if test $apu_db_version != 0; then
+if test "$apu_db_version" != "0"; then
   apu_have_db=1
   AC_MSG_RESULT(found db$apu_db_version)
 else
@@ -226,7 +226,7 @@ case "$requested" in
     apu_default_dbm=gdbm
     ;;
   db)
-    if test $apu_db_version != 0; then
+    if test "$apu_db_version" != "0"; then
       apu_use_db=1
       apu_default_dbm=db
     else
@@ -235,7 +235,7 @@ case "$requested" in
     ;;
   db1)
     APU_CHECK_DB1
-    if test $apu_db_version = 1; then
+    if test "$apu_db_version" = "1"; then
       apu_use_db=1
       apu_default_dbm=db1
     else
@@ -244,7 +244,7 @@ case "$requested" in
     ;;
   db185)
     APU_CHECK_DB185
-    if test $apu_db_version = 185; then
+    if test "$apu_db_version" = "185"; then
       apu_use_db=1
       apu_default_dbm=db185
     else
@@ -253,7 +253,7 @@ case "$requested" in
     ;;
   db2)
     APU_CHECK_DB2
-    if test $apu_db_version = 2; then
+    if test "$apu_db_version" = "2"; then
       apu_use_db=1
       apu_default_dbm=db2
     else
@@ -262,7 +262,7 @@ case "$requested" in
     ;;
   db3)
     APU_CHECK_DB3
-    if test $apu_db_version = 3; then
+    if test "$apu_db_version" = "3"; then
       apu_use_db=1
       apu_default_dbm=db3
     else
@@ -271,7 +271,7 @@ case "$requested" in
     ;;
   db4)
     APU_CHECK_DB4
-    if test $apu_db_version = 4; then
+    if test "$apu_db_version" = "4"; then
       apu_use_db=1
       apu_default_dbm=db4
     else
@@ -307,12 +307,12 @@ AC_SUBST(apu_db_version)
 
 dnl Since we have already done the AC_CHECK_LIB tests, if we have it, 
 dnl we know the library is there.
-if test $apu_have_gdbm = 1; then
+if test "$apu_have_gdbm" = "1"; then
   APR_ADDTO(APRUTIL_EXPORT_LIBS,[-lgdbm])
   APR_ADDTO(LIBS,[-lgdbm])
 fi
 
-if test $apu_db_version != 0; then
+if test "$apu_db_version" != "0"; then
   APR_ADDTO(APRUTIL_EXPORT_LIBS,[-l$apu_db_lib])
   APR_ADDTO(LIBS,[-l$apu_db_lib])
 fi
