@@ -69,12 +69,6 @@ case "$host_alias" in
     # apr and expat libraries to the build...  Grrrr...
     EXTRA_OS_LINK="$APR_BUILD_DIR/libapr.la $top_builddir/xml/expat/lib/libexpat.la"
     ;;
-AIX)
-    # On AIX, since shared library aprutil depends on shared library apr we
-    # have to specify an import file for apr.  But of course libtool should
-    # do this for us.  Darn...
-    EXTRA_OS_LINK="-Wl,-bI:$APR_BUILD_DIR/apr.exp"
-    ;;
 *)
     ;;
 esac
