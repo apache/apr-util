@@ -16,6 +16,10 @@ LibD
 LibR
 aprutil.opt
 aprutil.ncb
-*.plg
 *.
 libaprutil.rc
+*.aps
+*.plg
+*.dep
+*.mak
+*.rc
