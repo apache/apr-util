@@ -164,15 +164,6 @@ struct apr_bucket_type_t {
     void (*destroy)(void *data);
 
     /**
-     * Pointer to function used to free the bucket. This function should
-     * always be defined and it should be consistent with the memory
-     * function used to allocate the bucket. For example, if malloc() is 
-     * used to allocate the bucket, this pointer should point to free().
-     * @param e Pointer to the bucket being freed
-     */
-    void (*free)(void *e);
-
-    /**
      * Read the data from the bucket. This is guaranteed to be implemented
      *  for all bucket types.
      * @param b The bucket to read from
@@ -255,6 +246,14 @@ struct apr_bucket {
     apr_off_t start;
     /** type-dependent data hangs off this pointer */
     void *data;	
+    /**
+     * Pointer to function used to free the bucket. This function should
+     * always be defined and it should be consistent with the memory
+     * function used to allocate the bucket. For example, if malloc() is 
+     * used to allocate the bucket, this pointer should point to free().
+     * @param e Pointer to the bucket being freed
+     */
+    void (*free)(void *e);
 };
 
 /** A list of buckets */
@@ -787,7 +786,7 @@ APU_DECLARE(apr_status_t) apr_brigade_vprintf(apr_bucket_brigade *b,
  */
 #define apr_bucket_destroy(e) do {					\
         (e)->type->destroy((e)->data);					\
-        (e)->type->free(e);						\
+        (e)->free(e);							\
     } while (0)
 
 /**
