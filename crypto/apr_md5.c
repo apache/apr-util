@@ -536,25 +536,25 @@ APU_DECLARE(apr_status_t) apr_md5_encode(const char *pw, const char *salt,
     /*
      * The password first, since that is what is most unknown
      */
-    apr_md5_update(&ctx, (unsigned char *)pw, strlen(pw));
+    apr_md5_update(&ctx, pw, strlen(pw));
 
     /*
      * Then our magic string
      */
-    apr_md5_update(&ctx, (unsigned char *)apr1_id, strlen(apr1_id));
+    apr_md5_update(&ctx, apr1_id, strlen(apr1_id));
 
     /*
      * Then the raw salt
      */
-    apr_md5_update(&ctx, (unsigned char *)sp, sl);
+    apr_md5_update(&ctx, sp, sl);
 
     /*
      * Then just as many characters of the MD5(pw, salt, pw)
      */
     apr_md5_init(&ctx1);
-    apr_md5_update(&ctx1, (unsigned char *)pw, strlen(pw));
-    apr_md5_update(&ctx1, (unsigned char *)sp, sl);
-    apr_md5_update(&ctx1, (unsigned char *)pw, strlen(pw));
+    apr_md5_update(&ctx1, pw, strlen(pw));
+    apr_md5_update(&ctx1, sp, sl);
+    apr_md5_update(&ctx1, pw, strlen(pw));
     apr_md5_final(final, &ctx1);
     for (pl = strlen(pw); pl > 0; pl -= APR_MD5_DIGESTSIZE) {
         apr_md5_update(&ctx, final, 
@@ -574,7 +574,7 @@ APU_DECLARE(apr_status_t) apr_md5_encode(const char *pw, const char *salt,
             apr_md5_update(&ctx, final, 1);
         }
         else {
-            apr_md5_update(&ctx, (unsigned char *)pw, 1);
+            apr_md5_update(&ctx, pw, 1);
         }
     }
 
@@ -596,24 +596,24 @@ APU_DECLARE(apr_status_t) apr_md5_encode(const char *pw, const char *salt,
     for (i = 0; i < 1000; i++) {
         apr_md5_init(&ctx1);
         if (i & 1) {
-            apr_md5_update(&ctx1, (unsigned char *)pw, strlen(pw));
+            apr_md5_update(&ctx1, pw, strlen(pw));
         }
         else {
             apr_md5_update(&ctx1, final, APR_MD5_DIGESTSIZE);
         }
         if (i % 3) {
-            apr_md5_update(&ctx1, (unsigned char *)sp, sl);
+            apr_md5_update(&ctx1, sp, sl);
         }
 
         if (i % 7) {
-            apr_md5_update(&ctx1, (unsigned char *)pw, strlen(pw));
+            apr_md5_update(&ctx1, pw, strlen(pw));
         }
 
         if (i & 1) {
             apr_md5_update(&ctx1, final, APR_MD5_DIGESTSIZE);
         }
         else {
-            apr_md5_update(&ctx1, (unsigned char *)pw, strlen(pw));
+            apr_md5_update(&ctx1, pw, strlen(pw));
         }
         apr_md5_final(final,&ctx1);
     }
