@@ -135,8 +135,6 @@ int main(int argc, const char * const * argv)
     const char *optarg;
 
     (void) apr_initialize();
-    atexit(apr_terminate);
-
     apr_create_pool(&pool, NULL);
 
     (void) apr_initopt(&os, pool, argc, argv);
@@ -161,6 +159,9 @@ int main(int argc, const char * const * argv)
         badk(argv[os->ind]);
     os->ind++;
     doit(act, argv[os->ind], pool);
+
+    apr_destroy_pool(pool);
+    apr_terminate();
     return 0;
 }
 
