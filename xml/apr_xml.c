@@ -383,7 +383,7 @@ APU_DECLARE(apr_xml_parser *) apr_xml_parser_create(apr_pool_t *pool)
 
     parser->xp = XML_ParserCreate(NULL);
     if (parser->xp == NULL) {
-        (void) (*pool->apr_abort)(APR_ENOMEM);
+        (*apr_pool_get_abort(pool))(APR_ENOMEM);
         return NULL;
     }
 
