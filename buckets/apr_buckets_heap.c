@@ -91,8 +91,8 @@ static apr_status_t heap_split(ap_bucket *e, apr_off_t nbyte)
     b->alloc_addr = a->alloc_addr;
     b->alloc_len = a->alloc_len;
     b->end = a->end;
-    a->end = (char *) a->start + nbyte;
-    b->start = (char *) a->end + 1;
+    a->end = a->start + nbyte;
+    b->start = a->end + 1;
     newbuck->length = e->length - nbyte;
     e->length = nbyte;
 
@@ -110,7 +110,7 @@ static apr_status_t heap_split(ap_bucket *e, apr_off_t nbyte)
  * It is worth noting that if an error occurs, the buffer is in an unknown
  * state.
  */
-static apr_status_t heap_insert(ap_bucket *e, const void *buf,
+static apr_status_t heap_insert(ap_bucket *e, const char *buf,
                                 apr_size_t nbyte, apr_ssize_t *w)
 {
     int amt;
@@ -128,7 +128,7 @@ static apr_status_t heap_insert(ap_bucket *e, const void *buf,
  * leaving that for a later pass.  The basics are presented below, but this
  * is horribly broken.
  */
-    amt = b->alloc_len - ((char *)b->end - (char *)b->start);
+    amt = b->alloc_len - (b->end - b->start);
     total = 0;
     if (nbyte > amt) {
         /* loop through and write to the disk */
@@ -136,7 +136,7 @@ static apr_status_t heap_insert(ap_bucket *e, const void *buf,
     }
     /* now we know that nbyte < b->alloc_len */
     memcpy(b->end, buf, nbyte);
-    b->end = (char *)b->end + nbyte;
+    b->end = b->end + nbyte;
     *w = total + nbyte;
     return APR_SUCCESS;
 }
@@ -150,7 +150,7 @@ void ap_heap_setaside(ap_bucket *e)
     b->alloc_len  = DEFAULT_RWBUF_SIZE;
     memcpy(b->alloc_addr, a->start, e->length);
     b->start      = b->alloc_addr;
-    b->end        = (char *) b->start + e->length;
+    b->end        = b->start + e->length;
 
     e->type       = AP_BUCKET_HEAP;
     e->read       = heap_get_str;
@@ -159,7 +159,7 @@ void ap_heap_setaside(ap_bucket *e)
     e->destroy    = heap_destroy;
 }
 
-API_EXPORT(ap_bucket *) ap_bucket_heap_create(const void *buf,
+API_EXPORT(ap_bucket *) ap_bucket_heap_create(const char *buf,
                                 apr_size_t nbyte, apr_ssize_t *w)
 {
     ap_bucket *newbuf;
@@ -175,7 +175,7 @@ API_EXPORT(ap_bucket *) ap_bucket_heap_create(const void *buf,
 
     newbuf->data       = b;
     heap_insert(newbuf, buf, nbyte, w); 
-    newbuf->length     = (char *) b->end - (char *) b->start;
+    newbuf->length     = b->end - b->start;
 
     newbuf->type       = AP_BUCKET_HEAP;
     newbuf->read       = heap_get_str;

@@ -222,9 +222,9 @@ typedef struct ap_bucket_transient ap_bucket_transient;
  */
 struct ap_bucket_transient {
     /** The start of the data in the bucket */
-    const void    *start;
+    const char    *start;
     /** The end of the data in the bucket */
-    const void    *end;
+    const char    *end;
 };
 
 typedef struct ap_bucket_heap ap_bucket_heap;
@@ -236,13 +236,13 @@ struct ap_bucket_heap {
     /** The start of the data actually allocated.  This should never be
      * modified, it is only used to free the bucket.
      */
-    void    *alloc_addr;
+    char    *alloc_addr;
     /** how much memory was allocated.  This may not be necessary */
     size_t  alloc_len;
     /** Where does the data the bucket is actually referencing start */
-    void    *start;
+    char    *start;
     /** Where does the data the bucket cares about end */               
-    void    *end;
+    char    *end;
 };
 
 typedef struct ap_bucket_mmap ap_bucket_mmap;
@@ -262,9 +262,9 @@ struct ap_mmap_sub_bucket {
 /** A bucket representing an mmap object */
 struct ap_bucket_mmap {
     /** Where does this buckets section of the mmap start */
-    void      *start;
+    char      *start;
     /** Where does this buckets section of the mmap end */
-    void      *end;
+    char      *end;
     /** The mmap sub_bucket referenced by this bucket */
     ap_mmap_sub_bucket *sub;  /* The mmap and ref count */    
 };
@@ -396,9 +396,9 @@ API_EXPORT(apr_status_t) ap_bucket_destroy(ap_bucket *e);
  * @param nbyte The size of the buffer to insert.
  * @param w The number of bytes actually inserted into the bucket
  * @return The new bucket
- * @deffunc ap_bucket *ap_bucket_heap_create(const void *buf, apr_size_t nbyte, apr_ssize_t *w)
+ * @deffunc ap_bucket *ap_bucket_heap_create(const char *buf, apr_size_t nbyte, apr_ssize_t *w)
  */
-API_EXPORT(ap_bucket *) ap_bucket_heap_create(const void *buf,
+API_EXPORT(ap_bucket *) ap_bucket_heap_create(const char *buf,
                                 apr_size_t nbyte, apr_ssize_t *w);
 
 
@@ -419,9 +419,9 @@ API_EXPORT(ap_bucket *) ap_bucket_mmap_create(const apr_mmap_t *buf,
  * @param nbyte The size of the data to insert.
  * @param w The number of bytes actually inserted into the bucket
  * @return The new bucket
- * @deffunc ap_bucket *ap_bucket_transient_create(const void *buf, apr_size_t nbyte, apr_ssize_t *w)
+ * @deffunc ap_bucket *ap_bucket_transient_create(const char *buf, apr_size_t nbyte, apr_ssize_t *w)
  */
-API_EXPORT(ap_bucket *) ap_bucket_transient_create(const void *buf,
+API_EXPORT(ap_bucket *) ap_bucket_transient_create(const char *buf,
                                apr_size_t nbyte, apr_ssize_t *w);
 
 /**
