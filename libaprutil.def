@@ -44,7 +44,7 @@ ap_brigade_vprintf
 ap_brigade_vputstrs
 
 ap_debug_module_hooks
-ap_debug_module_name
+ap_current_hooking_module
 ap_global_hook_pool
 ap_hook_deregister_all
 ap_hook_sort_register
