@@ -80,13 +80,12 @@
 
 /* for apr_sdbm_t.flags */
 #define SDBM_RDONLY	0x1	       /* data base open read-only */
-#define SDBM_SHARED	0x4	       /* data base locks for shared write */
 
 struct apr_sdbm_t {
     apr_pool_t *pool;
     apr_file_t *dirf;		       /* directory file descriptor */
     apr_file_t *pagf;		       /* page file descriptor */
-    apr_int32_t flags;		       /* status/error flags, see below */
+    apr_int32_t flags;		       /* status/error flags, see above */
     long maxbno;		       /* size of dirfile in bits */
     long curbit;		       /* current bit number */
     long hmask;			       /* current hash mask */
@@ -97,7 +96,6 @@ struct apr_sdbm_t {
     char pagbuf[PBLKSIZ];	       /* page file block buffer */
     long dirbno;		       /* current block in dirbuf */
     char dirbuf[DBLKSIZ];	       /* directory file block buffer */
-    apr_status_t status;               /* track the specific last error */
 };
 
 apr_status_t sdbm_lock(apr_sdbm_t *db, int exclusive);

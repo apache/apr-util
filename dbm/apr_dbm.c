@@ -311,16 +311,13 @@ static apr_status_t set_error(apr_dbm_t *dbm, apr_status_t dbm_said)
 
 #if APU_USE_SDBM
 
-    if ((dbm->errcode = apr_sdbm_error_get(dbm->file)) == 0) {
+    if ((dbm->errcode = dbm_said) == 0) {
         dbm->errmsg = NULL;
     }
     else {
         dbm->errmsg = "I/O error occurred.";
         rv = APR_EGENERAL;        /* ### need something better */
     }
-
-    /* captured it. clear it now. */
-    apr_sdbm_error_clear(dbm->file);
 
 #elif APU_USE_GDBM
 
@@ -503,8 +500,7 @@ APU_DECLARE(int) apr_dbm_exists(apr_dbm_t *dbm, apr_datum_t key)
     {
 	apr_sdbm_datum_t value;
         if (apr_sdbm_fetch(dbm->file, &value, *ckey) != APR_SUCCESS) {
-	    apr_sdbm_error_clear(dbm->file);	/* don't need the error */
-            exists = 0;
+	    exists = 0;
         }
         else
             exists = value.dptr != NULL;
