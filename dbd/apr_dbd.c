@@ -60,6 +60,8 @@ APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool)
 #endif
 
 #else
+    ret = APR_SUCCESS;
+
 #if APU_HAVE_MYSQL
     DRIVER_LOAD("mysql", apr_dbd_mysql_driver, pool);
 #endif
