@@ -52,8 +52,8 @@
  * <http://www.apache.org/>.
  */
 
-#ifndef APR_GENERIC_HOOK_H
-#define APR_GENERIC_HOOK_H
+#ifndef APR_OPTIONAL_HOOK_H
+#define APR_OPTIONAL_HOOK_H
 
 #include "apr_tables.h"
 
@@ -62,15 +62,16 @@ extern "C" {
 #endif
 
 /**
- * @package Apache hooks functions
+ * @package Apache optional hook functions
  */
 
-APU_DECLARE(void) apr_hook_generic_add(const char *szName,void (*pfn)(void),
-				   const char * const *aszPre,
-				   const char * const *aszSucc,int nOrder);
+APU_DECLARE(void) apr_optional_hook_add(const char *szName,void (*pfn)(void),
+					const char * const *aszPre,
+					const char * const *aszSucc,
+					int nOrder);
 
 /**
- * Hook to a generic hook.
+ * Hook to an optional hook.
  *
  * @param name The name of the hook
  * @param pfn A pointer to a function that will be called
@@ -79,30 +80,29 @@ APU_DECLARE(void) apr_hook_generic_add(const char *szName,void (*pfn)(void),
  * @param nOrder an integer determining order before honouring aszPre and aszSucc (for example HOOK_MIDDLE)
  */
 
-#define APR_HOOK_GENERIC(ns,name,pfn,aszPre,aszSucc,nOrder) \
+#define APR_OPTIONAL_HOOK(ns,name,pfn,aszPre,aszSucc,nOrder) \
     ((void (*)(const char *,ns##_HOOK_##name##_t *,const char * const *, \
-	       const char * const *,int))&apr_hook_generic_add)(#name,pfn,aszPre, \
+	       const char * const *,int))&apr_optional_hook_add)(#name,pfn,aszPre, \
 							   aszSucc, nOrder)
 
-APU_DECLARE(apr_array_header_t *) apr_hook_generic_get(const char *szName);
+APU_DECLARE(apr_array_header_t *) apr_optional_hook_get(const char *szName);
 
 /**
- * Implement a generic hook that runs until one of the functions
+ * Implement an optional hook that runs until one of the functions
  * returns something other than OK or DECLINE.
  *
  * @param ret The type of the return value of the hook
  * @param name The name of the hook
  * @param args_decl The declaration of the arguments for the hook
  * @param args_used The names for the arguments for the hook
- * @deffunc int APR_IMPLEMENT_EXTERNAL_HOOK_RUN_ALL(link, name, args_decl, args_use)
  */
-#define APR_IMPLEMENT_GENERIC_HOOK_RUN_ALL(ns,link,ret,name,args_decl,args_use,ok,decline) \
+#define APR_IMPLEMENT_OPTIONAL_HOOK_RUN_ALL(ns,link,ret,name,args_decl,args_use,ok,decline) \
 link##_DECLARE(ret) ns##_run_##name args_decl \
     { \
     ns##_LINK_##name##_t *pHook; \
     int n; \
     ret rv; \
-    apr_array_header_t *pHookArray=apr_hook_generic_get(#name); \
+    apr_array_header_t *pHookArray=apr_optional_hook_get(#name); \
 \
     if(!pHookArray) \
 	return ok; \
@@ -122,4 +122,4 @@ link##_DECLARE(ret) ns##_run_##name args_decl \
 }
 #endif
 
-#endif /* APR_GENERIC_HOOK_H */
+#endif /* APR_OPTIONAL_HOOK_H */
