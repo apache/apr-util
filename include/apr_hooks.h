@@ -68,9 +68,11 @@ extern "C" {
  * @brief Apache hook functions
  */
 
+/** macro to return the prototype of the hook function */    
 #define APR_IMPLEMENT_HOOK_GET_PROTO(ns,link,name) \
 link##_DECLARE(apr_array_header_t *) ns##_hook_get_##name(void)
 
+/** macro to declare the hook correctly */    
 #define APR_DECLARE_EXTERNAL_HOOK(ns,link,ret,name,args) \
 typedef ret ns##_HOOK_##name##_t args; \
 link##_DECLARE(void) ns##_hook_##name(ns##_HOOK_##name##_t *pf, \
@@ -87,6 +89,7 @@ typedef struct ns##_LINK_##name##_t \
     int nOrder; \
     } ns##_LINK_##name##_t;
 
+/** macro to declare the hook structure */    
 #define APR_HOOK_STRUCT(members) \
 static struct { members } _hooks;
 
@@ -216,11 +219,16 @@ link##_DECLARE(ret) ns##_run_##name args_decl \
     return decline; \
     }
 
-     /* Hook orderings */
+    /* Hook orderings */
+/** run this hook first, before ANYTHING */
 #define APR_HOOK_REALLY_FIRST	(-10)
+/** run this hook first */
 #define APR_HOOK_FIRST		0
+/** run this hook somewhere */
 #define APR_HOOK_MIDDLE		10
+/** run this hook after every other hook which is defined*/
 #define APR_HOOK_LAST		20
+/** run this hook last, after EVERYTHING */
 #define APR_HOOK_REALLY_LAST	30
 
 /**
