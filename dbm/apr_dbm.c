@@ -70,20 +70,20 @@
 
 #include "apr_sdbm.h"
 
-typedef SDBM *real_file_t;
+typedef apr_sdbm_t *real_file_t;
 
-typedef sdbm_datum *cvt_datum_t;
-#define CONVERT_DATUM(cvt, pinput) ((cvt) = (sdbm_datum *)(pinput))
+typedef apr_sdbm_datum_t *cvt_datum_t;
+#define CONVERT_DATUM(cvt, pinput) ((cvt) = (apr_sdbm_datum_t *)(pinput))
 
-typedef sdbm_datum result_datum_t;
+typedef apr_sdbm_datum_t result_datum_t;
 #define RETURN_DATUM(poutput, rd) (*(poutput) = *(apr_datum_t *)&(rd))
 
-#define APR_DBM_CLOSE(f)	sdbm_close(f)
-#define APR_DBM_FETCH(f, k, v)	((v) = sdbm_fetch(f, *(k)), APR_SUCCESS)
-#define APR_DBM_STORE(f, k, v)	sdbm_store(f, *(k), *(v), SDBM_REPLACE)
-#define APR_DBM_DELETE(f, k)	sdbm_delete(f, *(k))
-#define APR_DBM_FIRSTKEY(f, k)	((k) = sdbm_firstkey(f), APR_SUCCESS)
-#define APR_DBM_NEXTKEY(f, k, nk) ((nk) = sdbm_nextkey(f), APR_SUCCESS)
+#define APR_DBM_CLOSE(f)	apr_sdbm_close(f)
+#define APR_DBM_FETCH(f, k, v)	apr_sdbm_fetch(f, &v, *(k))
+#define APR_DBM_STORE(f, k, v)	apr_sdbm_store(f, *(k), *(v), APR_SDBM_REPLACE)
+#define APR_DBM_DELETE(f, k)	apr_sdbm_delete(f, *(k))
+#define APR_DBM_FIRSTKEY(f, k)	apr_sdbm_firstkey(f, &k)
+#define APR_DBM_NEXTKEY(f, k, nk) apr_sdbm_nextkey(f, &nk)
 #define APR_DBM_FREEDPTR(dptr)	NOOP_FUNCTION
 
 #define APR_DBM_DBMODE_RO       APR_READ
@@ -311,7 +311,7 @@ static apr_status_t set_error(apr_dbm_t *dbm, apr_status_t dbm_said)
 
 #if APU_USE_SDBM
 
-    if ((dbm->errcode = sdbm_error(dbm->file)) == 0) {
+    if ((dbm->errcode = apr_sdbm_error_get(dbm->file)) == 0) {
         dbm->errmsg = NULL;
     }
     else {
@@ -320,7 +320,7 @@ static apr_status_t set_error(apr_dbm_t *dbm, apr_status_t dbm_said)
     }
 
     /* captured it. clear it now. */
-    sdbm_clearerr(dbm->file);
+    apr_sdbm_error_clear(dbm->file);
 
 #elif APU_USE_GDBM
 
@@ -383,7 +383,7 @@ APU_DECLARE(apr_status_t) apr_dbm_open(apr_dbm_t **pdb, const char *pathname,
     {
         apr_status_t rv;
 
-        rv = sdbm_open(&file, pathname, dbmode, perm, pool);
+        rv = apr_sdbm_open(&file, pathname, dbmode, perm, pool);
         if (rv != APR_SUCCESS)
             return rv;
     }
@@ -501,9 +501,13 @@ APU_DECLARE(int) apr_dbm_exists(apr_dbm_t *dbm, apr_datum_t key)
 
 #if APU_USE_SDBM
     {
-	sdbm_datum value = sdbm_fetch(dbm->file, *ckey);
-	sdbm_clearerr(dbm->file);	/* don't need the error */
-	exists = value.dptr != NULL;
+	apr_sdbm_datum_t value;
+        if (apr_sdbm_fetch(dbm->file, &value, *ckey) != APR_SUCCESS) {
+	    apr_sdbm_error_clear(dbm->file);	/* don't need the error */
+            exists = FALSE;
+        }
+        else
+            exists = value.dptr != NULL;
     }
 #elif APU_USE_GDBM
     exists = gdbm_exists(dbm->file, *ckey) != 0;

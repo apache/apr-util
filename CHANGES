@@ -1,5 +1,10 @@
 Changes with APR-util b1  
 
+  *) Namespace protect apr_sdbm, and normalize the return values (including
+     the apr_sdbm_fetch, apr_sdbm_firstkey and apr_sdbm_nextkey functions).
+     Normalized the get/clear error function names, and stores the actual 
+     apr error for apr_sdbm_error_get. [Will Rowe]
+
   *) Introduce an apr_fileperms_t argument to apr_dbm_open(). [Will Rowe]
 
   *) Removed apr_bucket_do_create() macro, which was causing warnings

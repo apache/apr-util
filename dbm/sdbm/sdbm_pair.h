@@ -66,15 +66,13 @@
 #define splpage sdbm__splpage
 
 int fitpair(char *, int);
-void  putpair(char *, sdbm_datum, sdbm_datum);
-sdbm_datum getpair(char *, sdbm_datum);
-int  delpair(char *, sdbm_datum);
+void  putpair(char *, apr_sdbm_datum_t, apr_sdbm_datum_t);
+apr_sdbm_datum_t getpair(char *, apr_sdbm_datum_t);
+int  delpair(char *, apr_sdbm_datum_t);
 int  chkpage (char *);
-sdbm_datum getnkey(char *, int);
+apr_sdbm_datum_t getnkey(char *, int);
 void splpage(char *, char *, long);
-#ifdef SEEDUPS
-int duppair(char *, sdbm_datum);
-#endif
+int duppair(char *, apr_sdbm_datum_t);
 
 #endif /* SDBM_PAIR_H */
 
