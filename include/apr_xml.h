@@ -347,6 +347,8 @@ APU_DECLARE(const char *) apr_xml_empty_elem(apr_pool_t *p,
  * @param s The string to quote
  * @param quotes If quotes is true, then replace '"' with '&quot;'.
  * @return The quoted string
+ * @note If the string does not contain special characters, it is not
+ * duplicated into the pool and the original string is returned.
  */
 APU_DECLARE(const char *) apr_xml_quote_string(apr_pool_t *p, const char *s,
                                                int quotes);
