@@ -511,7 +511,7 @@ struct apr_bucket_heap {
      */
     char    *base;
     /** how much memory was allocated */
-    size_t  alloc_len;
+    apr_size_t  alloc_len;
 };
 
 typedef struct apr_bucket_pool apr_bucket_pool;
