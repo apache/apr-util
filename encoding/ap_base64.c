@@ -63,14 +63,14 @@
  */
 
 #include "ap_base64.h"
-#ifdef CHARSET_EBCDIC
+#ifdef AP_CHARSET_EBCDIC
 #include "apr_xlate.h"
-#endif				/* CHARSET_EBCDIC */
+#endif				/* AP_CHARSET_EBCDIC */
 
 /* aaaack but it's fast and const should make it shared text page. */
 static const unsigned char pr2six[256] =
 {
-#ifndef CHARSET_EBCDIC
+#ifndef AP_CHARSET_EBCDIC
     /* ASCII table */
     64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
     64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
@@ -88,7 +88,7 @@ static const unsigned char pr2six[256] =
     64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
     64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
     64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64
-#else /*CHARSET_EBCDIC*/
+#else /*AP_CHARSET_EBCDIC*/
     /* EBCDIC table */
     64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
     64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
@@ -106,10 +106,10 @@ static const unsigned char pr2six[256] =
     64,  9, 10, 11, 12, 13, 14, 15, 16, 17, 64, 64, 64, 64, 64, 64,
     64, 64, 18, 19, 20, 21, 22, 23, 24, 25, 64, 64, 64, 64, 64, 64,
     52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 64, 64, 64, 64, 64, 64
-#endif /*CHARSET_EBCDIC*/
+#endif /*AP_CHARSET_EBCDIC*/
 };
 
-#ifdef CHARSET_EBCDIC
+#ifdef AP_CHARSET_EBCDIC
 static apr_xlate_t *xlate_to_ebcdic;
 static unsigned char os_toascii[256];
 
@@ -147,7 +147,7 @@ APR_DECLARE(apr_status_t) ap_base64init_ebcdic(apr_xlate_t *to_ascii,
 
     return APR_SUCCESS;
 }
-#endif /*CHARSET_EBCDIC*/
+#endif /*AP_CHARSET_EBCDIC*/
 
 APR_DECLARE(int) ap_base64decode_len(const char *bufcoded)
 {
@@ -166,17 +166,17 @@ APR_DECLARE(int) ap_base64decode_len(const char *bufcoded)
 
 APR_DECLARE(int) ap_base64decode(char *bufplain, const char *bufcoded)
 {
-#ifdef CHARSET_EBCDIC
+#ifdef AP_CHARSET_EBCDIC
     apr_size_t inbytes_left, outbytes_left;
-#endif				/* CHARSET_EBCDIC */
+#endif				/* AP_CHARSET_EBCDIC */
     int len;
     
     len = ap_base64decode_binary((unsigned char *) bufplain, bufcoded);
-#ifdef CHARSET_EBCDIC
+#ifdef AP_CHARSET_EBCDIC
     inbytes_left = outbytes_left = len;
     apr_xlate_conv_buffer(xlate_to_ebcdic, bufplain, &inbytes_left,
                           bufplain, &outbytes_left);
-#endif				/* CHARSET_EBCDIC */
+#endif				/* AP_CHARSET_EBCDIC */
     bufplain[len] = '\0';
     return len;
 }
@@ -239,9 +239,9 @@ APR_DECLARE(int) ap_base64encode_len(int len)
 
 APR_DECLARE(int) ap_base64encode(char *encoded, const char *string, int len)
 {
-#ifndef CHARSET_EBCDIC
+#ifndef AP_CHARSET_EBCDIC
     return ap_base64encode_binary(encoded, (const unsigned char *) string, len);
-#else				/* CHARSET_EBCDIC */
+#else				/* AP_CHARSET_EBCDIC */
     int i;
     char *p;
 
@@ -270,7 +270,7 @@ APR_DECLARE(int) ap_base64encode(char *encoded, const char *string, int len)
 
     *p++ = '\0';
     return p - encoded;
-#endif				/* CHARSET_EBCDIC */
+#endif				/* AP_CHARSET_EBCDIC */
 }
 
 /* This is the same as ap_base64encode() except on EBCDIC machines, where
