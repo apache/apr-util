@@ -84,6 +84,7 @@ APR_ADDTO(LIBS, [$APR_EXPORT_LIBS])
 
 AC_SUBST(APRUTIL_EXPORT_LIBS)
 AC_SUBST(LDFLAGS)
+APR_ADDTO(LIBS,[$APRUTIL_EXPORT_LIBS])
 
 dnl
 dnl BSD/OS (BSDi) needs to use a different include syntax in the Makefiles
