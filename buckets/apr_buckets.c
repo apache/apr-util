@@ -113,12 +113,16 @@ API_EXPORT(ap_bucket_brigade *) ap_brigade_split(ap_bucket_brigade *b,
 {
     ap_bucket_brigade *a;
     ap_bucket *f;
-    if (e == AP_BRIGADE_SENTINEL(b))
-        return NULL;
+
     a = ap_brigade_create(b->p);
-    f = AP_RING_LAST(&b->list);
-    AP_RING_UNSPLICE(e, f, link);
-    AP_RING_SPLICE_HEAD(&a->list, e, f, ap_bucket, link);
+    /* Return an empty brigade if there is nothing left in 
+     * the first brigade to split off 
+     */
+    if (e != AP_BRIGADE_SENTINEL(b)) {
+        f = AP_RING_LAST(&b->list);
+        AP_RING_UNSPLICE(e, f, link);
+        AP_RING_SPLICE_HEAD(&a->list, e, f, ap_bucket, link);
+    }
     return a;
 }
 
