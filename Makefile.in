@@ -43,7 +43,7 @@ install: $(TARGET_LIB)
 	if [ ! -d $(libdir) ]; then \
 	    @APR_SOURCE_DIR@/build/mkdir.sh $(libdir); \
 	fi; \
-	libtool --mode=install cp $(TARGET_LIB) $(libdir)
+	$(LIBTOOL) --mode=install cp $(TARGET_LIB) $(libdir)
 
 $(TARGET_LIB):
 	@objects="`find $(SUBDIRS) -name '*.lo'`" ; \
