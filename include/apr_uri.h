@@ -75,16 +75,6 @@ extern "C" {
  * @package Apache URI library
  */
 
-typedef struct schemes_t schemes_t;
-
-/** Structure to store various schemes and their default ports */
-struct schemes_t {
-    /** The name of the scheme */
-    const char *name;
-    /** The default port for the scheme */
-    apr_port_t default_port;
-};
-
 #define APU_URI_FTP_DEFAULT_PORT         21
 #define APU_URI_SSH_DEFAULT_PORT         22
 #define APU_URI_TELNET_DEFAULT_PORT      23
