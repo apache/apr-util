@@ -128,12 +128,28 @@ link##_DECLARE(void) ap_run_##name args_decl \
 	pHook[n].pFunc args_use; \
     }
 
+/**
+ * Implement a hook that has no return code, and therefore runs all of the
+ * registered functions
+ * @param name The name of the hook
+ * @param args_decl The declaration of the arguments for the hook
+ * @param args_used The names for the arguments for the hook
+ * @deffunc void AP_IMPLEMENT_VOID(name, args_decl, args_use)
+ */
 #define AP_IMPLEMENT_HOOK_VOID(name,args_decl,args_use) \
 AP_IMPLEMENT_EXTERNAL_HOOK_VOID(AP,name,args_decl,args_use)
 
 /* FIXME: note that this returns ok when nothing is run. I suspect it should
    really return decline, but that breaks Apache currently - Ben
 */
+/**
+ * Implement a hook that runs until one of the functions returns something
+ * other than OK or DECLINE
+ * @param name The name of the hook
+ * @param args_decl The declaration of the arguments for the hook
+ * @param args_used The names for the arguments for the hook
+ * @deffunc int AP_IMPLEMENT_ALL(name, args_decl, args_use)
+ */
 #define AP_IMPLEMENT_EXTERNAL_HOOK_RUN_ALL(link,ret,name,args_decl,args_use,ok,decline) \
 AP_IMPLEMENT_EXTERNAL_HOOK_BASE(link,name) \
 link##_DECLARE(ret) ap_run_##name args_decl \
@@ -159,6 +175,14 @@ link##_DECLARE(ret) ap_run_##name args_decl \
 #define AP_IMPLEMENT_HOOK_RUN_ALL(ret,name,args_decl,args_use,ok,decline) \
 AP_IMPLEMENT_EXTERNAL_HOOK_RUN_ALL(AP,ret,name,args_decl,args_use,ok,decline)
 
+/**
+ * Implement a hook that runs until the first function returns something
+ * other than DECLINE
+ * @param name The name of the hook
+ * @param args_decl The declaration of the arguments for the hook
+ * @param args_used The names for the arguments for the hook
+ * @deffunc int AP_IMPLEMENT_FIRST(name, args_decl, args_use)
+ */
 #define AP_IMPLEMENT_EXTERNAL_HOOK_RUN_FIRST(link,ret,name,args_decl,args_use,decline) \
 AP_IMPLEMENT_EXTERNAL_HOOK_BASE(link,name) \
 link##_DECLARE(ret) ap_run_##name args_decl \

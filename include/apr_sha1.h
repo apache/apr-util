@@ -87,9 +87,7 @@ typedef struct AP_SHA1_CTX AP_SHA1_CTX;
  * SHA1 context structure
  */
 struct AP_SHA1_CTX {
-    /** 
-     * message digest
-     */
+    /** message digest */
     apr_uint32_t digest[5];
     /** 64-bit bit counts */
     apr_uint32_t count_lo, count_hi;
