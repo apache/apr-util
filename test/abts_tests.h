@@ -30,7 +30,8 @@ const struct testlist {
     {testpass},
     {testmd4},
     {testmd5},
-    {testldap}
+    {testldap},
+    {testdbd}
 };
 
 #endif /* APR_TEST_INCLUDES */

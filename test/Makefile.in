@@ -3,8 +3,8 @@ VPATH = @srcdir@
 INCLUDES = @APRUTIL_PRIV_INCLUDES@ @APR_INCLUDES@ @APRUTIL_INCLUDES@
 
 PROGRAMS = testall testdbm testdate testxml testrmm \
-	   testreslist testqueue testxlate
-TARGETS = $(PROGRAMS) testdbd
+	   testreslist testqueue testxlate dbd
+TARGETS = $(PROGRAMS)
 
 APRUTIL_DOTTED_VERSION=@APRUTIL_DOTTED_VERSION@
 APRUTIL_MAJOR_VERSION=@APRUTIL_MAJOR_VERSION@
@@ -32,6 +32,11 @@ testdbm_OBJECTS = testdbm.lo
 testdbm_LDADD =  $(TARGET_LIB_PATH)
 testdbm: $(testdbm_OBJECTS) $(testdbm_LDADD)
 	$(LINK) $(APRUTIL_LDFLAGS) $(testdbm_OBJECTS) $(testdbm_LDADD) $(PROGRAM_DEPENDENCIES)
+
+dbd_OBJECTS = dbd.lo
+dbd_LDADD =  $(TARGET_LIB_PATH)
+dbd: $(dbd_OBJECTS) $(dbd_LDADD)
+	$(LINK) $(APRUTIL_LDFLAGS) $(dbd_OBJECTS) $(dbd_LDADD) $(PROGRAM_DEPENDENCIES)
 
 testdbd_OBJECTS = testdbd.lo
 testdbd_LDADD =  $(TARGET_LIB_PATH)
@@ -69,7 +74,7 @@ testxlate: $(testxlate_OBJECTS) $(testxlate_LDADD)
 	$(LINK) $(APRUTIL_LDFLAGS) $(testxlate_OBJECTS) $(testxlate_LDADD) $(PROGRAM_DEPENDENCIES)
 
 testall_OBJECTS = teststrmatch.lo testuri.lo testuuid.lo abts.lo testutil.lo \
-	testbuckets.lo testpass.lo testmd4.lo testmd5.lo testldap.lo
+	testbuckets.lo testpass.lo testmd4.lo testmd5.lo testldap.lo testdbd.lo
 testall_LDADD =  $(TARGET_LIB_PATH)
 testall: $(testall_OBJECTS) $(testall_LDADD)
 	$(LINK) $(APRUTIL_LDFLAGS) $(testall_OBJECTS) $(testall_LDADD) $(PROGRAM_DEPENDENCIES)
