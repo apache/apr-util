@@ -90,12 +90,7 @@ API_EXPORT_NONSTD(apr_status_t) ap_bucket_split_shared(ap_bucket *a, apr_off_t p
     b->length -= point;
     bd->start += point;
 
-    if (a->next) {
-	a->next->prev = b;
-    }
-    b->next = a->next;
-    b->prev = a;
-    a->next = b;
+    AP_RING_INSERT_AFTER(a, b, link);
 
     return APR_SUCCESS;
 }

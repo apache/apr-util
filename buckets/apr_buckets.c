@@ -71,25 +71,22 @@ API_EXPORT(apr_status_t) ap_bucket_destroy(ap_bucket *e)
     return APR_SUCCESS;
 }
 
-static apr_status_t ap_bucket_list_destroy(ap_bucket *e)
-{
-    ap_bucket *cur = e;
-    ap_bucket *next;
-
-    while (cur) {
-        next = cur->next;
-        ap_bucket_destroy(cur);
-        cur = next;
-    }
-    return APR_SUCCESS;
-}
 static apr_status_t ap_brigade_cleanup(void *data)
 {
     ap_bucket_brigade *b = data;
+    ap_bucket *e;
 
-    ap_bucket_list_destroy(b->head);
-    /* The brigade itself is allocated out of a pool, so we don't actually 
-     * want to free it.  If we did, we would do that free() here.
+    /*
+     * Bah! We can't use AP_RING_FOREACH here because this bucket has
+     * gone away when we dig inside it to get the next one.
+     */
+    while (!AP_RING_EMPTY(&b->list, ap_bucket, link)) {
+	e = AP_RING_FIRST(&b->list);
+	AP_RING_REMOVE(e, link);
+	ap_bucket_destroy(e);
+    }
+    /*
+     * We don't need to free(bb) because it's allocated from a pool.
      */
     return APR_SUCCESS;
 }
@@ -105,62 +102,50 @@ API_EXPORT(ap_bucket_brigade *) ap_brigade_create(apr_pool_t *p)
 
     b = apr_palloc(p, sizeof(*b));
     b->p = p;
-    b->head = b->tail = NULL;
+    AP_RING_INIT(&b->list, ap_bucket, link);
 
     apr_register_cleanup(b->p, b, ap_brigade_cleanup, ap_brigade_cleanup);
     return b;
 }
 
-API_EXPORT(void) ap_brigade_append_buckets(ap_bucket_brigade *b, 
-                                                  ap_bucket *e)
+API_EXPORT(void) ap_brigade_add_bucket(ap_bucket_brigade *b, 
+				       ap_bucket *e)
 {
-    ap_bucket *cur = e;
+    AP_RING_INSERT_TAIL(&b->list, e, link);
+}
 
-    if (b->tail) {
-        b->tail->next = e;
-        e->prev = b->tail;
-        while (cur->next) {
-           cur = cur->next;
-        }
-        b->tail = cur;
-    }
-    else {
-        b->head = b->tail = e;
-    }
+API_EXPORT(void) ap_brigade_catenate(ap_bucket_brigade *a, 
+				     ap_bucket_brigade *b)
+{
+    AP_RING_CONCAT(&a->list, &b->list, ap_bucket, link);
+}
+
+API_EXPORT(ap_bucket_brigade *) ap_brigade_split(ap_bucket_brigade *b,
+						 ap_bucket *e)
+{
+    ap_bucket_brigade *a;
+    ap_bucket *f;
+    a = ap_brigade_create(b->p);
+    f = AP_RING_LAST(&b->list);
+    AP_RING_UNSPLICE(e, f, link);
+    AP_RING_SPLICE_HEAD(&a->list, e, f, link);
+    return a;
 }
 
 API_EXPORT(int) ap_brigade_to_iovec(ap_bucket_brigade *b, 
-                                           struct iovec *vec, int nvec)
+				    struct iovec *vec, int nvec)
 {
     ap_bucket *e;
     struct iovec *orig;
 
     orig = vec;
-    e = b->head;
-    while (e && nvec) {
+    AP_RING_FOREACH(e, &b->list, ap_bucket, link) {
+	if (nvec-- == 0)
+            break;
 	e->read(e, (const char **)&vec->iov_base, &vec->iov_len, 0);
-	e = e->next;
-	--nvec;
 	++vec;
     }
     return vec - orig;
-}
-
-API_EXPORT(void) ap_brigade_catenate(ap_bucket_brigade *a, 
-                                            ap_bucket_brigade *b)
-{
-    if (b->head) {
-        if (a->tail) {
-            a->tail->next = b->head;
-        }
-        b->head->prev = a->tail;
-	a->tail = b->tail;
-        if (!a->head) {
-            a->head = b->head;
-        }
-	b->head = NULL;
-	b->tail = b->head;
-    }
 }
 
 API_EXPORT(int) ap_brigade_vputstrs(ap_bucket_brigade *b, va_list va)
@@ -184,7 +169,7 @@ API_EXPORT(int) ap_brigade_vputstrs(ap_bucket_brigade *b, va_list va)
         }
         k += i;
 
-        ap_brigade_append_buckets(b, r);
+        ap_brigade_add_bucket(b, r);
     }
 
     return k;
@@ -213,7 +198,7 @@ API_EXPORT(int) ap_brigade_vprintf(ap_bucket_brigade *b, const char *fmt, va_lis
     res = apr_vsnprintf(buf, 4096, fmt, va);
 
     r = ap_bucket_create_heap(buf, strlen(buf), 1, NULL);
-    ap_brigade_append_buckets(b, r);
+    ap_brigade_add_bucket(b, r);
 
     return res;
 }
