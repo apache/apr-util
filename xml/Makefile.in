@@ -3,7 +3,7 @@ VPATH = @srcdir@
 
 top_builddir=@top_builddir@
 top_srcdir=@abs_srcdir@
-INCLUDES=-I$(top_builddir)/include -I$(top_builddir)/include/private -I$(top_builddir)/xml/expat/lib -I$(top_srcdir)/include -I$(top_srcdir)/include/private -I$(srcdir)/lib @APR_INCLUDES@
+INCLUDES=-I$(top_builddir)/include -I$(top_builddir)/include/private -I$(top_builddir)/xml/expat/lib -I$(top_srcdir)/include -I$(top_srcdir)/include/private -I$(srcdir)/lib @APR_INCLUDES@ @APRUTIL_INCLUDES@
 
 TARGETS = apr_xml.lo
 

@@ -57,6 +57,7 @@ AC_MSG_RESULT($APR_INCLUDES)
 AC_SUBST(APR_BUILD_DIR)
 AC_SUBST(APR_SOURCE_DIR)
 AC_SUBST(APR_INCLUDES)
+dnl not sure --  AC_SUBST(APRUTIL_INCLUDES)
 ])
 
 dnl
@@ -199,7 +200,7 @@ AC_ARG_WITH([gdbm],
         AC_CHECK_HEADER(gdbm.h, AC_CHECK_LIB(gdbm, gdbm_open, [apu_have_gdbm=1]))
         if test "$apu_have_gdbm" != "0"; then
             APR_ADDTO(APRUTIL_EXPORT_LIBS, [-L$withval/lib])
-            APR_ADDTO(APR_INCLUDES, [-I$withval/include])
+            APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/include])
         fi
     fi
 ],[
@@ -490,7 +491,8 @@ APR_XML_DIR=$bundled_subdir
 AC_SUBST(APR_XML_SUBDIRS)
 AC_SUBST(APR_XML_DIR)
 
-APR_ADDTO(INCLUDES, [-I$expat_include_dir])
+dnl APR_ADDTO(INCLUDES, [-I$expat_include_dir])
+APR_ADDTO(APRUTIL_INCLUDES, [-I$expat_include_dir])
 APR_ADDTO(LIBS, [$expat_libs])
 APR_ADDTO(APRUTIL_EXPORT_LIBS, [$expat_libs])
 dnl ### export the Expat includes?
