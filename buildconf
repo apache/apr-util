@@ -19,7 +19,6 @@ fi
 # If Expat has been bundled, then go and configure the thing
 #
 if test -d xml/expat; then
-  echo "Invoking xml/expat/buildconf ..."
-  (cd xml/expat; ./buildconf)
+  echo "Invoking xml/expat/buildconf.sh ..."
+  (cd xml/expat; ./buildconf.sh)
 fi
-### expat-cvs (from SourceForge's CVS) does not have a buildconf.sh (yet)
