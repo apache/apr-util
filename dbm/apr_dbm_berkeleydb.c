@@ -375,8 +375,11 @@ static apr_status_t vt_db_nextkey(apr_dbm_t *dbm, apr_datum_t * pkey)
 
 #if DB_VER == 1
     dberr = (*f->bdb->seq)(f->bdb, &ckey, &data, R_NEXT);
-    if (dberr == RET_SPECIAL)
-        return APR_SUCCESS;
+    if (dberr == RET_SPECIAL) {
+        dberr = 0;
+        ckey.data = NULL;
+        ckey.size = 0;
+    }
 #else
     if (f->curs == NULL)
         return APR_EINVAL;
@@ -387,7 +390,7 @@ static apr_status_t vt_db_nextkey(apr_dbm_t *dbm, apr_datum_t * pkey)
         f->curs = NULL;
         dberr = 0;
         ckey.data = NULL;
-        ckey.size =0;
+        ckey.size = 0;
     }
 #endif
 
