@@ -168,9 +168,6 @@ struct apr_uri_t {
  */ 
 APU_DECLARE(apr_port_t) apr_uri_port_of_scheme(const char *scheme_str);
 
-/** @deprecated @see apr_uri_port_of_scheme */
-APU_DECLARE(apr_port_t) apr_uri_default_port_for_scheme(const char *scheme_str);
-
 /**
  * Unparse a apr_uri_t structure to an URI string.  Optionally 
  * suppress the password for security reasons.

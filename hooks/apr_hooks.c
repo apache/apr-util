@@ -394,11 +394,6 @@ APU_DECLARE(apr_opt_fn_t *) apr_dynamic_fn_retrieve(const char *szName)
 }
 
 /* Deprecated */
-APU_DECLARE(apr_opt_fn_t *) apr_retrieve_optional_fn(const char *szName)
-{
-        return apr_dynamic_fn_retrieve(szName);
-}
-
 APU_DECLARE_NONSTD(void) apr_dynamic_fn_register(const char *szName,
                                                   apr_opt_fn_t *pfn)
 {
@@ -408,13 +403,6 @@ APU_DECLARE_NONSTD(void) apr_dynamic_fn_register(const char *szName,
     if(!s_phOptionalFunctions)
 	s_phOptionalFunctions=apr_hash_make(apr_hook_global_pool);
     apr_hash_set(s_phOptionalFunctions,szName,strlen(szName),(void *)pfn);
-}
-
-/* Deprecated */
-APU_DECLARE_NONSTD(void) apr_register_optional_fn(const char *szName,
-                                                  apr_opt_fn_t *pfn)
-{
-    apr_dynamic_fn_register(szName, pfn);
 }
 
 #if 0

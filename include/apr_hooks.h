@@ -247,25 +247,16 @@ link##_DECLARE(ret) ns##_run_##name args_decl \
  */ 
 APU_DECLARE_DATA extern apr_pool_t *apr_hook_global_pool;
 
-/** @deprecated @see apr_hook_global_pool */
-APU_DECLARE_DATA extern apr_pool_t *apr_global_hook_pool;
-
 /**
  * A global variable to determine if debugging information about the
  * hooks functions should be printed
  */ 
 APU_DECLARE_DATA extern int apr_hook_debug_enabled;
 
-/** @deprecated @see apr_hook_debug_enabled */
-APU_DECLARE_DATA extern int apr_debug_module_hooks;
-
 /**
  * The name of the module that is currently registering a function
  */ 
 APU_DECLARE_DATA extern const char *apr_hook_debug_current;
-
-/** @deprecated @see apr_hook_debug_current */
-APU_DECLARE_DATA extern const char *apr_current_hooking_module;
 
 /**
  * Register a hook function to be sorted
@@ -279,9 +270,6 @@ APU_DECLARE(void) apr_hook_sort_register(const char *szHookName,
  */
 APU_DECLARE(void) apr_hook_sort_all(void);
 
-/** @deprecated @see apr_hook_sort_all */
-APU_DECLARE(void) apr_sort_hooks(void);
-
 /**
  * Print all of the information about the current hook.  This is used for
  * debugging purposes.
@@ -292,11 +280,6 @@ APU_DECLARE(void) apr_sort_hooks(void);
 APU_DECLARE(void) apr_hook_debug_show(const char *szName,
                                       const char * const *aszPre,
                                       const char * const *aszSucc);
-
-/** @deprecated @see apr_hook_debug_show */
-APU_DECLARE(void) apr_show_hook(const char *szName,
-                                const char * const *aszPre,
-                                const char * const *aszSucc);
 
 /**
  * Remove all currently registered functions.
