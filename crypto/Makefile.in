@@ -1,5 +1,0 @@
-
-TARGETS = ap_sha1.lo
-
-top_builddir = @top_builddir@
-include $(top_builddir)/build/rules.mk
