@@ -52,25 +52,65 @@
  * <http://www.apache.org/>.
  */
 
+#include "apr_file_info.h"
 #include "apr_file_io.h"
 #include "apr_sdbm.h"
 
 #include "sdbm_private.h"
+#include "sdbm_tune.h"
 
 /* NOTE: this function blocks until it acquires the lock */
-apr_status_t sdbm_lock(apr_sdbm_t *db, int exclusive)
+APU_DECLARE(apr_status_t) apr_sdbm_lock(apr_sdbm_t *db, int type)
 {
-    int type;
+    apr_status_t status;
 
-    if (exclusive)
-        type = APR_FLOCK_EXCLUSIVE;
-    else
-        type = APR_FLOCK_SHARED;
+    if (!(type == APR_FLOCK_SHARED || type == APR_FLOCK_EXCLUSIVE))
+        return APR_EINVAL;
 
-    return apr_file_lock(db->pagf, type);
+    if (db->flags & SDBM_EXCLUSIVE_LOCK) {
+        ++db->lckcnt;
+        return APR_SUCCESS;
+    }
+    else if (db->flags & SDBM_SHARED_LOCK) {
+        /*
+         * Cannot promote a shared lock to an exlusive lock
+         * in a cross-platform compatibile manner.
+         */
+        if (type == APR_FLOCK_EXCLUSIVE)
+            return APR_EINVAL;
+        ++db->lckcnt;
+        return APR_SUCCESS;
+    }
+    /*
+     * zero size: either a fresh database, or one with a single,
+     * unsplit data page: dirpage is all zeros.
+     */
+    if ((status = apr_file_lock(db->dirf, type)) == APR_SUCCESS) 
+    {
+        apr_finfo_t finfo;
+        if ((status = apr_file_info_get(&finfo, APR_FINFO_SIZE, db->dirf))
+                != APR_SUCCESS) {
+            (void) apr_file_unlock(db->dirf);
+            return status;
+        }
+
+        SDBM_INVALIDATE_CACHE(db, finfo);
+
+        ++db->lckcnt;
+        if (type == APR_FLOCK_SHARED)
+            db->flags |= SDBM_SHARED_LOCK;
+        else if (type == APR_FLOCK_EXCLUSIVE)
+            db->flags |= SDBM_EXCLUSIVE_LOCK;
+    }
+    return status;
 }
 
-apr_status_t sdbm_unlock(apr_sdbm_t *db)
+APU_DECLARE(apr_status_t) apr_sdbm_unlock(apr_sdbm_t *db)
 {
-    return apr_file_unlock(db->pagf);
+    if (!(db->flags & (SDBM_SHARED_LOCK | SDBM_EXCLUSIVE_LOCK)))
+        return APR_EINVAL;
+    if (--db->lckcnt > 0)
+        return APR_SUCCESS;
+    db->flags &= ~(SDBM_SHARED_LOCK | SDBM_EXCLUSIVE_LOCK);
+    return apr_file_unlock(db->dirf);
 }
