@@ -1,5 +1,8 @@
 Changes with APR-util b1  
 
+  *) Running "make check" in the toplevel directory or the test/ directory
+     will build and run all test programs.  [Aaron Bannert]
+
   *) Bug #9789 : NDBM support 
      [Toomas Soome <tsoome@muhv.pri.ee>, Ian Holsman]
 
