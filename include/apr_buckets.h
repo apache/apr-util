@@ -348,18 +348,6 @@ struct ap_bucket_mmap {
     apr_mmap_t *mmap;
 };
 
-/*  *****  Pipe buckets  *****  */
-
-
-typedef struct ap_bucket_pipe ap_bucket_pipe;
-
-/**
- * A bucket referring to a pipe.
- */
-struct ap_bucket_pipe {
-    apr_file_t *thepipe;
-};
-
 /*  *****  Bucket Brigade Functions  *****  */
 
 /**
