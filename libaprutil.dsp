@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib /nologo /base:"0x6EE60000" /subsystem:windows /dll /incremental:no /debug /machine:I386 /opt:ref
-# ADD LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib /nologo /base:"0x6EE60000" /subsystem:windows /dll /incremental:no /debug /machine:I386 /opt:ref
+# ADD LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib /nologo /base:"0x6EE60000" /subsystem:windows /dll /incremental:no /debug /machine:I386 /out:"Release/libaprutil-1.dll" /opt:ref
 
 !ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
 
@@ -79,7 +79,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib /nologo /base:"0x6EE60000" /subsystem:windows /dll /incremental:no /debug /machine:I386
-# ADD LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib /nologo /base:"0x6EE60000" /subsystem:windows /dll /incremental:no /debug /machine:I386
+# ADD LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib /nologo /base:"0x6EE60000" /subsystem:windows /dll /incremental:no /debug /machine:I386 /out:"Debug/libaprutil-1.dll"
 
 !ENDIF 
 
@@ -378,41 +378,6 @@ InputPath=.\include\apu.hw
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\apu_want.h.in
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\apu_want.hnw
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\apu_want.hw
-
-!IF  "$(CFG)" == "libaprutil - Win32 Release"
-
-# Begin Custom Build - Creating apu_want.h from apu_want.hw
-InputPath=.\include\apu_want.hw
-
-".\include\apu_want.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	type .\include\apu_want.hw > .\include\apu_want.h
-
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
-
-# Begin Custom Build - Creating apu_want.h from apu_want.hw
-InputPath=.\include\apu_want.hw
-
-".\include\apu_want.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	type .\include\apu_want.hw > .\include\apu_want.h
-
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
 SOURCE=.\include\private\apu_config.h.in
 # End Source File
 # Begin Source File
@@ -467,6 +432,41 @@ InputPath=.\include\private\apu_select_dbm.hw
 
 ".\include\private\apu_select_dbm.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	type .\include\private\apu_select_dbm.hw > .\include\private\apu_select_dbm.h
+
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\apu_want.h.in
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\apu_want.hnw
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\apu_want.hw
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
+# Begin Custom Build - Creating apu_want.h from apu_want.hw
+InputPath=.\include\apu_want.hw
+
+".\include\apu_want.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	type .\include\apu_want.hw > .\include\apu_want.h
+
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+# Begin Custom Build - Creating apu_want.h from apu_want.hw
+InputPath=.\include\apu_want.hw
+
+".\include\apu_want.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	type .\include\apu_want.hw > .\include\apu_want.h
 
 # End Custom Build
 
