@@ -635,7 +635,7 @@ if test "$expat_include_dir" = "xml/expat/lib" -o "$expat_include_dir" = "xml/ex
   APR_XML_SUBDIRS="`echo $bundled_subdir | sed -e 's%xml/%%'`"
   APR_ADDTO(APRUTIL_EXPORT_LIBS, [$expat_libtool])
 else
-if test "$expat_include_dir" = "$srcdir/xml/expat/include" -o "$expat_include_dir" = "$srcdir/xml/expat/lib"; then
+if test "$expat_include_dir" = "$abs_srcdir/xml/expat/include" -o "$expat_include_dir" = "$abs_srcdir/xml/expat/lib"; then
   dnl This is a bit of a hack.  This only works because we know that
   dnl we are working with the bundled version of the software.
   bundled_subdir="xml/expat"

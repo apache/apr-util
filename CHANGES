@@ -1,5 +1,8 @@
 Changes with APR-util 0.9.4
 
+  *) Fix a problem preventing the use of the bundled Expat when APR-util
+     is built stand-alone.  [Jeff Trawick]
+
   *) Use the same compiler and preprocessor for the APR-util config tests
      which were used by APR.  The user can override this via CC and CPP.
      This was done all along for the actual build, but not necessarily
