@@ -674,6 +674,7 @@ AC_DEFUN(APU_FIND_LDAPLIB,[
     ldaplib=$1
     extralib=$2
     unset ac_cv_lib_${ldaplib}_ldap_init
+    unset ac_cv_lib_${ldaplib}___ldap_init
     AC_CHECK_LIB(${ldaplib}, ldap_init, 
       [
         APR_ADDTO(APRUTIL_EXPORT_LIBS,[-l${ldaplib} ${extralib}])
@@ -722,9 +723,13 @@ dnl The iPlanet C SDK 5.0 is as yet untested...
       APU_FIND_LDAPLIB("ldapssl20")
       APU_FIND_LDAPLIB("ldap", "-llber")
       APU_FIND_LDAPLIB("ldap", "-llber -lresolv")
+      APU_FIND_LDAPLIB("ldap", "-llber -lsocket -lnsl -lresolv")
       APU_FIND_LDAPLIB("ldap", "-ldl -lpthread")
     else
-      APU_FIND_LDAPLIB($LDAPLIB)
+      APU_FIND_LDAPLIB($LIBLDAP)
+      APU_FIND_LDAPLIB($LIBLDAP, "-lresolv")
+      APU_FIND_LDAPLIB($LIBLDAP, "-lsocket -lnsl -lresolv")
+      APU_FIND_LDAPLIB($LIBLDAP, "-ldl -lpthread")
     fi
 
     test ${apu_has_ldap} != "1" && AC_MSG_ERROR(could not find an LDAP library)
