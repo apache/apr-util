@@ -247,7 +247,7 @@ SOURCE=.\xml\apr_xml.c
 # End Source File
 # End Group
 # End Group
-# Begin Group "Generated"
+# Begin Group "Generated Files"
 
 # PROP Default_Filter ""
 # Begin Source File
@@ -371,7 +371,7 @@ InputPath=.\uri\gen_uri_delims.exe
 
 # End Source File
 # End Group
-# Begin Group "External Headers"
+# Begin Group "Public Header Files"
 
 # PROP Default_Filter ""
 # Begin Source File
@@ -430,6 +430,7 @@ SOURCE=.\include\apr_xml.h
 
 SOURCE=.\include\apu_compat.h
 # End Source File
+# End Group
 # Begin Source File
 
 SOURCE=.\libaprutil.rc
@@ -463,6 +464,5 @@ InputPath=..\apr\build\win32ver.awk
 !ENDIF 
 
 # End Source File
-# End Group
 # End Target
 # End Project
