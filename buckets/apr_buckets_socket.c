@@ -130,7 +130,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_socket_make(apr_bucket *b, apr_socket_t *p)
      * so it will disappear when the connection is finished. 
      */
     b->type     = &apr_bucket_type_socket;
-    b->length   = -1;
+    b->length   = (apr_size_t)(-1);
     b->start    = -1;
     b->data     = p;
 

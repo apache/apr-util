@@ -67,12 +67,12 @@ APU_DECLARE_NONSTD(apr_status_t) apr_bucket_simple_copy(apr_bucket *a,
 }
 
 APU_DECLARE_NONSTD(apr_status_t) apr_bucket_simple_split(apr_bucket *a,
-                                                         apr_off_t point)
+                                                         apr_size_t point)
 {
     apr_bucket *b;
     apr_status_t rv;
 
-    if (point < 0 || point > a->length) {
+    if ((point > a->length) || (a->length == (apr_size_t)(-1))) {
 	return APR_EINVAL;
     }
 
