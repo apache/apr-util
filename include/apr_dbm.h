@@ -117,7 +117,7 @@ typedef struct
  * </PRE>
  * @param perm Permissions to apply to if created
  * @param cntxt The pool to use when creating the dbm
- * @tip The dbm name may not be a true file name, as many dbm packages
+ * @remark The dbm name may not be a true file name, as many dbm packages
  * append suffixes for seperate data and index files.
  */
 
@@ -140,7 +140,7 @@ APU_DECLARE(apr_status_t) apr_dbm_open_ex(apr_dbm_t **dbm, const char* type,
  * </PRE>
  * @param perm Permissions to apply to if created
  * @param cntxt The pool to use when creating the dbm
- * @tip The dbm name may not be a true file name, as many dbm packages
+ * @remark The dbm name may not be a true file name, as many dbm packages
  * append suffixes for seperate data and index files.
  */
 APU_DECLARE(apr_status_t) apr_dbm_open(apr_dbm_t **dbm, const char *name, 
@@ -174,7 +174,7 @@ APU_DECLARE(apr_status_t) apr_dbm_store(apr_dbm_t *dbm, apr_datum_t key,
  * Delete a dbm record value by key
  * @param dbm The database 
  * @param key The key datum of the record to delete
- * @tip It is not an error to delete a non-existent record.
+ * @remark It is not an error to delete a non-existent record.
  */
 APU_DECLARE(apr_status_t) apr_dbm_delete(apr_dbm_t *dbm, apr_datum_t key);
 
@@ -228,7 +228,7 @@ APU_DECLARE(char *) apr_dbm_geterror(apr_dbm_t *dbm, int *errcode,
  * @param used2 The second pathname used by apr_dbm. If only one file is
  *              used by the specific implementation, this will be set to NULL.
  * @return An error if the specified type is invalid.
- * @tip The dbm file(s) don't need to exist. This function only manipulates
+ * @remark The dbm file(s) don't need to exist. This function only manipulates
  *      the pathnames.
  */
 APU_DECLARE(apr_status_t) apr_dbm_get_usednames_ex(apr_pool_t *pool,
@@ -246,7 +246,7 @@ APU_DECLARE(apr_status_t) apr_dbm_get_usednames_ex(apr_pool_t *pool,
  * @param used1 The first pathname used by the apr_dbm implementation.
  * @param used2 The second pathname used by apr_dbm. If only one file is
  *              used by the specific implementation, this will be set to NULL.
- * @tip The dbm file(s) don't need to exist. This function only manipulates
+ * @remark The dbm file(s) don't need to exist. This function only manipulates
  *      the pathnames.
  */
 APU_DECLARE(void) apr_dbm_get_usednames(apr_pool_t *pool,

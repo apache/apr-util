@@ -102,18 +102,18 @@ extern "C" {
 #define APR_URI_SIP_DEFAULT_PORT       5060 /**< default SIP port */
 
 /** Flags passed to unparse_uri_components(): */
-/** suppress "scheme://user@site:port" */
+/** suppress "scheme://user\@site:port" */
 #define APR_URI_UNP_OMITSITEPART    (1U<<0)
 /** Just omit user */
 #define APR_URI_UNP_OMITUSER        (1U<<1)
 /** Just omit password */
 #define APR_URI_UNP_OMITPASSWORD    (1U<<2)
-/** omit "user:password@" part */
+/** omit "user:password\@" part */
 #define APR_URI_UNP_OMITUSERINFO    (APR_URI_UNP_OMITUSER | \
                                      APR_URI_UNP_OMITPASSWORD)
 /** Show plain text password (default: show XXXXXXXX) */
 #define APR_URI_UNP_REVEALPASSWORD  (1U<<3)
-/** Show "scheme://user@site:port" only */
+/** Show "scheme://user\@site:port" only */
 #define APR_URI_UNP_OMITPATHINFO    (1U<<4)
 /** Omit the "?queryarg" from the path */
 #define APR_URI_UNP_OMITQUERY       (1U<<5)
@@ -127,11 +127,11 @@ typedef struct apr_uri_t apr_uri_t;
 struct apr_uri_t {
     /** scheme ("http"/"ftp"/...) */
     char *scheme;
-    /** combined [user[:password]@]host[:port] */
+    /** combined [user[:password]\@]host[:port] */
     char *hostinfo;
-    /** user name, as in http://user:passwd@host:port/ */
+    /** user name, as in http://user:passwd\@host:port/ */
     char *user;
-    /** password, as in http://user:passwd@host:port/ */
+    /** password, as in http://user:passwd\@host:port/ */
     char *password;
     /** hostname from URI (or from Host: header) */
     char *hostname;
@@ -144,8 +144,7 @@ struct apr_uri_t {
     /** Trailing "#fragment" string, if present */
     char *fragment;
 
-    /** structure returned from gethostbyname() 
-     *  @defvar struct hostent *hostent */
+    /** structure returned from gethostbyname() */
     struct hostent *hostent;
 
     /** The port number, numeric, valid only if port_str != NULL */
@@ -179,12 +178,12 @@ APU_DECLARE(apr_port_t) apr_uri_default_port_for_scheme(const char *scheme_str);
  * @param uptr All of the parts of the uri
  * @param flags How to unparse the uri.  One of:
  * <PRE>
- *    APR_URI_UNP_OMITSITEPART        Suppress "scheme://user@site:port" 
+ *    APR_URI_UNP_OMITSITEPART        Suppress "scheme://user\@site:port" 
  *    APR_URI_UNP_OMITUSER            Just omit user 
  *    APR_URI_UNP_OMITPASSWORD        Just omit password 
- *    APR_URI_UNP_OMITUSERINFO        Omit "user:password@" part
+ *    APR_URI_UNP_OMITUSERINFO        Omit "user:password\@" part
  *    APR_URI_UNP_REVEALPASSWORD      Show plain text password (default: show XXXXXXXX)
- *    APR_URI_UNP_OMITPATHINFO        Show "scheme://user@site:port" only 
+ *    APR_URI_UNP_OMITPATHINFO        Show "scheme://user\@site:port" only 
  *    APR_URI_UNP_OMITQUERY           Omit "?queryarg" or "#fragment" 
  * </PRE>
  * @return The uri as a string

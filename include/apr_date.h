@@ -89,13 +89,13 @@ extern "C" {
  * @param data The string to compare
  * @param mask Mask characters (arbitrary maximum is 256 characters):
  * <PRE>
- *   @ - uppercase letter
- *   $ - lowercase letter
- *   & - hex digit
+ *   \@ - uppercase letter
+ *   \$ - lowercase letter
+ *   \& - hex digit
  *   # - digit
  *   ~ - digit or space
  *   * - swallow remaining characters
- *  <x> - exact match for any other character
+ *  \<x\> - exact match for any other character
  * </PRE>
  * @return 1 if the string matches, 0 otherwise
  */
@@ -128,8 +128,8 @@ APU_DECLARE(apr_time_t) apr_date_parse_http(const char *date);
  *     Sun, 6 Nov 1994 08:49:37 GMT   ; RFC 822, updated by RFC 1123
  *     Sun, 06 Nov 94 08:49:37 GMT    ; RFC 822
  *     Sun, 6 Nov 94 08:49:37 GMT     ; RFC 822
- *     Sun, 06 Nov 94 08:49 GMT       ; Unknown [drtr@ast.cam.ac.uk] 
- *     Sun, 6 Nov 94 08:49 GMT        ; Unknown [drtr@ast.cam.ac.uk]
+ *     Sun, 06 Nov 94 08:49 GMT       ; Unknown [drtr\@ast.cam.ac.uk] 
+ *     Sun, 6 Nov 94 08:49 GMT        ; Unknown [drtr\@ast.cam.ac.uk]
  *     Sun, 06 Nov 94 8:49:37 GMT     ; Unknown [Elm 70.85]
  *     Sun, 6 Nov 94 8:49:37 GMT      ; Unknown [Elm 70.85] 
  * </PRE>
