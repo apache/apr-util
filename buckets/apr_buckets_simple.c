@@ -69,7 +69,7 @@ APU_DECLARE_NONSTD(apr_status_t) apr_bucket_simple_split(apr_bucket *a,
     apr_bucket *b;
 
     if (point > a->length) {
-	return APR_EINVAL;
+        return APR_EINVAL;
     }
 
     apr_bucket_simple_copy(a, &b);
@@ -92,7 +92,8 @@ static apr_status_t simple_bucket_read(apr_bucket *b, const char **str,
 }
 
 APU_DECLARE(apr_bucket *) apr_bucket_immortal_make(apr_bucket *b,
-		const char *buf, apr_size_t length)
+                                                   const char *buf,
+                                                   apr_size_t length)
 {
     b->data   = (char *)buf;
     b->length = length;
@@ -133,7 +134,8 @@ static apr_status_t transient_bucket_setaside(apr_bucket *b, apr_pool_t *pool)
 }
 
 APU_DECLARE(apr_bucket *) apr_bucket_transient_make(apr_bucket *b,
-		const char *buf, apr_size_t length)
+                                                    const char *buf,
+                                                    apr_size_t length)
 {
     b->data   = (char *)buf;
     b->length = length;
