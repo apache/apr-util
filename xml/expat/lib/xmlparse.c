@@ -4,7 +4,7 @@ See the file COPYING for copying permission.
 */
 
 static char RCSId[]
-  = "$Header: /home/cvs/apr-util/xml/expat/lib/xmlparse.c,v 1.3 2001/06/09 09:08:26 orlikowski Exp $";
+  = "$Header: /home/cvs/apr-util/xml/expat/lib/xmlparse.c,v 1.4 2001/08/30 05:44:18 wrowe Exp $";
 
 #ifdef COMPILED_FROM_DSP
 #  include "winconfig.h"
@@ -18,8 +18,10 @@ static char RCSId[]
 #  include <string.h>
 #endif
 
+#ifndef __CYGWIN__
 #ifdef __declspec
 #  define XMLPARSEAPI __declspec(dllexport)
+#endif
 #endif
 
 #include "expat.h"
