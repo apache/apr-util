@@ -70,8 +70,8 @@ LDFLAGS="@APRUTIL_LDFLAGS@"
 
 APRUTIL_LIBNAME="@APRUTIL_LIBNAME@"
 
-APU_SOURCE_DIR="@top_srcdir@"
-APU_BUILD_DIR="@top_builddir@"
+APU_SOURCE_DIR="@abs_srcdir@"
+APU_BUILD_DIR="@abs_builddir@"
 APR_XML_EXPAT_OLD="@APR_XML_EXPAT_OLD@"
 
 show_usage()
