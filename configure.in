@@ -10,6 +10,7 @@ AC_CONFIG_AUX_DIR(../apr/build)
 
 sinclude(build/apu-conf.m4)
 sinclude(build/apu-iconv.m4)
+sinclude(build/apu-hints.m4)
 sinclude(../apr/build/apr_common.m4)
 sinclude(../apr/build/find_apr.m4)
 
@@ -28,6 +29,8 @@ if test "$abs_builddir" != "$abs_srcdir"; then
   USE_VPATH=1
 fi
 
+AC_CANONICAL_SYSTEM
+
 dnl
 dnl compute the top directory of the build
 dnl note: this is needed for LIBTOOL and exporting the bundled Expat
@@ -38,6 +41,9 @@ AC_SUBST(abs_srcdir)
 
 dnl Initialize mkdir -p functionality.
 APR_MKDIR_P_CHECK($abs_srcdir/build/mkdir.sh)
+
+dnl load os-specific hints for apr-util
+APU_PRELOAD
 
 dnl
 dnl set up the compilation flags and stuff
