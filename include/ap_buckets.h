@@ -170,10 +170,6 @@ struct ap_bucket {
      */
     apr_off_t length;
 
-    /** The file offset. Applicable for AP_BUCKET_FILE types only.
-     */
-    apr_off_t offset;
-
     /** @tip all of these function pointers may be replaced by some
      *  other means for getting to the functions, like a an index into
      *  a table.  In any case, these functions will always be available.
@@ -349,6 +345,18 @@ struct ap_bucket_mmap {
     ap_bucket_refcount  refcount;
     /** The mmap this sub_bucket refers to */
     apr_mmap_t *mmap;
+};
+
+typedef struct ap_bucket_file ap_bucket_file;
+
+/**
+ * A bucket referring to an file
+ */
+struct ap_bucket_file {
+    /** The file this bucket refers to */
+    apr_file_t *fd;
+    /** The offset into the file */
+    apr_off_t offset;
 };
 
 /*  *****  Bucket Brigade Functions  *****  */
