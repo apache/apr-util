@@ -1,5 +1,9 @@
+srcdir = @srcdir@
+VPATH = @srcdir@
+
 top_builddir=@top_builddir@
-INCLUDES=-I$(top_builddir)/include -I$(top_builddir)/include/private -I@APR_SOURCE_DIR@/include
+top_srcdir=@abs_srcdir@
+INCLUDES=-I$(top_builddir)/include -I$(top_builddir)/include/private -I$(top_srcdir)/include -I$(top_srcdir)/include @APR_INCLUDES@
 TARGETS =
 PROGRAMS = testdbm testdate testmd4 testxml
 
