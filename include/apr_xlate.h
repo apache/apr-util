@@ -95,6 +95,11 @@ typedef struct apr_xlate_t            apr_xlate_t;
  * @remark
  *  Specify APR_LOCALE_CHARSET for one of the charset
  *  names to indicate the charset of the current locale.
+ *
+ * @remark
+ *  Return APR_EINVAL if unable to procure a convset, or APR_ENOTIMPL
+ *  if charset transcoding is not available in this instance of
+ *  apr-util at all (i.e., APR_HAS_XLATE is undefined).
  * </PRE>
  */
 APU_DECLARE(apr_status_t) apr_xlate_open(apr_xlate_t **convset, 
@@ -120,6 +125,9 @@ APU_DECLARE(apr_status_t) apr_xlate_open(apr_xlate_t **convset,
  * @param convset The handle allocated by apr_xlate_open, specifying the 
  *                parameters of conversion
  * @param onoff Output: whether or not the conversion is single-byte-only
+ * @remark
+ *  Return APR_ENOTIMPL if charset transcoding is not available
+ *  in this instance of apr-util (i.e., APR_HAS_XLATE is undefined).
  */
 APU_DECLARE(apr_status_t) apr_xlate_sb_get(apr_xlate_t *convset, int *onoff);
 
@@ -136,6 +144,9 @@ APU_DECLARE(apr_status_t) apr_xlate_get_sb(apr_xlate_t *convset, int *onoff);
  * @param outbuf The address of the destination buffer
  * @param outbytes_left Input: the size of the output buffer
  *                      Output: the amount of the output buffer not yet used
+ * @remark
+ *  Return APR_ENOTIMPL if charset transcoding is not available
+ *  in this instance of apr-util (i.e., APR_HAS_XLATE is undefined).
  */
 APU_DECLARE(apr_status_t) apr_xlate_conv_buffer(apr_xlate_t *convset, 
                                                 const char *inbuf, 
@@ -172,6 +183,9 @@ APU_DECLARE(apr_int32_t) apr_xlate_conv_byte(apr_xlate_t *convset,
 /**
  * Close a codepage translation handle.
  * @param convset The codepage translation handle to close
+ * @remark
+ *  Return APR_ENOTIMPL if charset transcoding is not available
+ *  in this instance of apr-util (i.e., APR_HAS_XLATE is undefined).
  */
 APU_DECLARE(apr_status_t) apr_xlate_close(apr_xlate_t *convset);
 

@@ -187,7 +187,7 @@ static apr_status_t apr_xlate_cleanup(void *convset)
         if (iconv_(_close)(old->ich)) {
             int rv = errno;
             /* Sometimes, iconv is not good about setting errno. */
-            return rv ? rv : EINVAL;
+            return rv ? rv : APR_EINVAL;
         }
     }
 #endif
@@ -284,7 +284,7 @@ APU_DECLARE(apr_status_t) apr_xlate_open(apr_xlate_t **convset,
         if (new->ich == (iconv_(_t))-1) {
             int rv = errno;
             /* Sometimes, iconv is not good about setting errno. */
-            return rv ? rv : EINVAL;
+            return rv ? rv : APR_EINVAL;
         }
         found = 1;
         check_sbcs(new);
@@ -299,8 +299,8 @@ APU_DECLARE(apr_status_t) apr_xlate_open(apr_xlate_t **convset,
         status = APR_SUCCESS;
     }
     else {
-        status = EINVAL; /* same as what iconv() would return if it
-                            couldn't handle the pair */
+        status = APR_EINVAL; /* iconv() would return EINVAL if it
+                                couldn't handle the pair */
     }
     
     return status;
