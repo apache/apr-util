@@ -127,6 +127,10 @@ extern "C" {
 #define APR_LDAP_KEY_TYPE_DER       11
 /** PEM encoded private key */
 #define APR_LDAP_KEY_TYPE_BASE64    12
+/** PKCS#12 encoded client certificate */
+#define APR_LDAP_CERT_TYPE_PFX      13
+/** PKCS#12 encoded private key */
+#define APR_LDAP_KEY_TYPE_PFX       14
 
 /**
  * Certificate structure.

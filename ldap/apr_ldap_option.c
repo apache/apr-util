@@ -434,6 +434,12 @@ static void option_set_cert(apr_pool_t *pool, LDAP *ldap,
                                                  (void*)ents[i].password);
             result->msg = ldap_err2string(result->rc);
             break;
+        case APR_LDAP_CERT_TYPE_PFX: 
+            result->rc = ldapssl_set_client_cert((void *)ents[i].path,
+                                                 LDAPSSL_FILETYPE_P12,
+                                                 (void*)ents[i].password);
+            result->msg = ldap_err2string(result->rc);
+            break;
         case APR_LDAP_KEY_TYPE_DER:
             result->rc = ldapssl_set_client_private_key((void *)ents[i].path,
                                                         LDAPSSL_CERT_FILETYPE_DER,
@@ -443,6 +449,12 @@ static void option_set_cert(apr_pool_t *pool, LDAP *ldap,
         case APR_LDAP_KEY_TYPE_BASE64:
             result->rc = ldapssl_set_client_private_key((void *)ents[i].path,
                                                         LDAPSSL_CERT_FILETYPE_B64,
+                                                        (void*)ents[i].password);
+            result->msg = ldap_err2string(result->rc);
+            break;
+        case APR_LDAP_KEY_TYPE_PFX:
+            result->rc = ldapssl_set_client_private_key((void *)ents[i].path,
+                                                        LDAPSSL_FILETYPE_P12,
                                                         (void*)ents[i].password);
             result->msg = ldap_err2string(result->rc);
             break;
