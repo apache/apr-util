@@ -249,7 +249,7 @@ APU_DECLARE(void) apr_hook_sort_register(const char *szHookName,
     pEntry->paHooks=paHooks;
 }
 
-APU_DECLARE(void) apr_hook_sort_all()
+APU_DECLARE(void) apr_hook_sort_all(void)
 {
 #ifdef NETWARE
     get_apd
@@ -260,12 +260,6 @@ APU_DECLARE(void) apr_hook_sort_all()
 	HookSortEntry *pEntry=&((HookSortEntry *)s_aHooksToSort->elts)[n];
 	*pEntry->paHooks=sort_hook(*pEntry->paHooks,pEntry->szHookName);
     }
-}
-
-/** @deprecated @see apr_hook_sort_all */
-APU_DECLARE(void) apr_sort_hooks()
-{
-        apr_hook_sort_all();
 }
 
 #ifndef NETWARE
@@ -321,13 +315,6 @@ APU_DECLARE(void) apr_hook_debug_show(const char *szName,
 	fputc(')',stdout);
     }
     fputc('\n',stdout);
-}
-
-/** @deprecated @see apr_hook_debug_show */
-APU_DECLARE(void) apr_show_hook(const char *szName,const char * const *aszPre,
-			        const char * const *aszSucc)
-{
-        apr_hook_debug_show(szName, aszPre, aszSucc);
 }
 
 /* Optional hook support */
