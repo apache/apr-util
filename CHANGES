@@ -1,5 +1,8 @@
 Changes with APR-util 0.9.2
 
+  *) Detect OpenLDAP when used with Solaris 9. PR 13427.
+     [Gary Algier <gaa@ulticom.com>]
+
   *) Detect Berkeley DB 4.1 when compiled with --with-uniquenames
      [Thom May]
 
