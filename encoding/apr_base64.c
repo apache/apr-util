@@ -58,7 +58,7 @@
 
 /* base64 encoder/decoder. Originally part of main/util.c
  * but moved here so that support/ab and ap_sha1.c could
- * use it. This meant removing the ap_palloc()s and adding
+ * use it. This meant removing the apr_palloc()s and adding
  * ugly 'len' functions, which is quite a nasty cost.
  */
 
@@ -111,15 +111,15 @@ static const unsigned char pr2six[256] =
 };
 
 #ifdef CHARSET_EBCDIC
-static ap_xlate_t *xlate_to_ebcdic;
+static apr_xlate_t *xlate_to_ebcdic;
 static unsigned char os_toascii[256];
 
-API_EXPORT(ap_status_t) ap_base64init_ebcdic(ap_xlate_t *to_ascii,
-                                             ap_xlate_t *to_ebcdic)
+API_EXPORT(apr_status_t) ap_base64init_ebcdic(apr_xlate_t *to_ascii,
+                                             apr_xlate_t *to_ebcdic)
 {
     int i;
-    ap_size_t inbytes_left, outbytes_left;
-    ap_status_t rv;
+    apr_size_t inbytes_left, outbytes_left;
+    apr_status_t rv;
     int onoff;
     
     /* Only single-byte conversion is supported.
@@ -168,7 +168,7 @@ API_EXPORT(int) ap_base64decode_len(const char *bufcoded)
 API_EXPORT(int) ap_base64decode(char *bufplain, const char *bufcoded)
 {
 #ifdef CHARSET_EBCDIC
-    ap_size_t inbytes_left, outbytes_left;
+    apr_size_t inbytes_left, outbytes_left;
 #endif				/* CHARSET_EBCDIC */
     int len;
     
