@@ -1,4 +1,5 @@
 Changes with APR-util b1  
+  *) BerkeleyDBM v2 now checks minor level for cursor ops [Ian Holsman]
 
   *) Reading a file bucket bigger than APR_MMAP_LIMIT (4MB) now yields
      a string of 4MB mmap buckets, rather than a string of 8KB heap buckets
