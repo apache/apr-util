@@ -68,7 +68,7 @@ LIBS="@APRUTIL_EXPORT_LIBS@"
 INCLUDES="@APRUTIL_INCLUDES@"
 LDFLAGS="@APRUTIL_LDFLAGS@"
 
-APRUTIL_LIBNAME="lib@APRUTIL_LIBNAME@.la"
+APRUTIL_LIBNAME="@APRUTIL_LIBNAME@"
 
 APU_SOURCE_DIR="@top_srcdir@"
 APU_BUILD_DIR="@top_builddir@"
@@ -122,9 +122,9 @@ else
 fi
 
 if test "$location" = "installed"; then
-    LA_FILE="$libdir/$APRUTIL_LIBNAME"
+    LA_FILE="$libdir/lib${APRUTIL_LIBNAME}.la"
 else
-    LA_FILE="$thisdir/$APRUTIL_LIBNAME"
+    LA_FILE="$thisdir/lib${APRUTIL_LIBNAME}.la"
 fi
 
 flags=""
@@ -172,9 +172,9 @@ while test $# -gt 0; do
     --link-ld)
     if test "$location" = "installed"; then
         ### avoid using -L if libdir is a "standard" location like /usr/lib
-        flags="$flags -L$libdir -laprutil"
+        flags="$flags -L$libdir -l$APRUTIL_LIBNAME"
     else
-        flags="$flags -L$thisdir -l@APRUTIL_LIBNAME@"
+        flags="$flags -L$thisdir -l$APRUTIL_LIBNAME"
     fi
     ;;
     --link-libtool)
@@ -186,7 +186,7 @@ while test $# -gt 0; do
         flags="$flags $LA_FILE"
     elif test "$location" = "installed"; then
         ### avoid using -L if libdir is a "standard" location like /usr/lib
-        flags="$flags -L$libdir -l@APRUTIL_LIBNAME@"
+        flags="$flags -L$libdir -l$APRUTIL_LIBNAME"
     else
         flags="$flags $LA_FILE"
     fi
