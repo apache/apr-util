@@ -6,9 +6,9 @@
 #define ap_palloc(pool,size)	malloc(size)
 #endif
 
-API_EXPORT_VAR ap_pool_t *ap_global_hook_pool = NULL;
-API_EXPORT_VAR int ap_debug_module_hooks = FALSE;
-API_EXPORT_VAR const char *ap_debug_module_name = NULL;
+API_VAR_EXPORT ap_pool_t *ap_global_hook_pool = NULL;
+API_VAR_EXPORT int ap_debug_module_hooks = FALSE;
+API_VAR_EXPORT const char *ap_debug_module_name = NULL;
 
 /* NB: This must echo the LINK_##name structure */
 typedef struct
