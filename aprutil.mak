@@ -314,11 +314,9 @@ DEP_CPP_APR_BU=\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
-	"..\apr\include\apr_lib.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
-	"..\apr\include\apr_tables.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -362,7 +360,6 @@ DEP_CPP_APR_BUCK=\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
-	"..\apr\include\apr_lib.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
@@ -455,7 +452,6 @@ DEP_CPP_APR_BUCKETS_=\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
-	"..\apr\include\apr_lib.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
@@ -548,7 +544,6 @@ DEP_CPP_APR_BUCKETS_SO=\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
-	"..\apr\include\apr_lib.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
@@ -728,6 +723,10 @@ DEP_CPP_APR_X=\
 	".\include\apr_xml.h"\
 	".\include\apu.h"\
 	
+NODEP_CPP_APR_X=\
+	".\xml\apu_config.h"\
+	".\xml\expat.h"\
+	
 
 "$(INTDIR)\apr_xml.obj" : $(SOURCE) $(DEP_CPP_APR_X) "$(INTDIR)"\
  ".\include\apu.h"
@@ -783,12 +782,12 @@ InputPath=.\include\private\apu_select_dbm.hw
 !IF  "$(CFG)" == "aprutil - Win32 Release"
 
 "expat - Win32 Release" : 
-   cd "..\..\srclib\expat-lite"
+   cd "\clean\httpd-2.0\srclib\expat-lite"
    $(MAKE) /$(MAKEFLAGS) /F ".\expat.mak" CFG="expat - Win32 Release" 
    cd "..\apr-util"
 
 "expat - Win32 ReleaseCLEAN" : 
-   cd "..\..\srclib\expat-lite"
+   cd "\clean\httpd-2.0\srclib\expat-lite"
    $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\expat.mak" CFG="expat - Win32 Release"\
  RECURSE=1 
    cd "..\apr-util"
@@ -796,12 +795,12 @@ InputPath=.\include\private\apu_select_dbm.hw
 !ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
 
 "expat - Win32 Debug" : 
-   cd "..\..\srclib\expat-lite"
+   cd "\clean\httpd-2.0\srclib\expat-lite"
    $(MAKE) /$(MAKEFLAGS) /F ".\expat.mak" CFG="expat - Win32 Debug" 
    cd "..\apr-util"
 
 "expat - Win32 DebugCLEAN" : 
-   cd "..\..\srclib\expat-lite"
+   cd "\clean\httpd-2.0\srclib\expat-lite"
    $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\expat.mak" CFG="expat - Win32 Debug"\
  RECURSE=1 
    cd "..\apr-util"
@@ -811,12 +810,12 @@ InputPath=.\include\private\apu_select_dbm.hw
 !IF  "$(CFG)" == "aprutil - Win32 Release"
 
 "apr - Win32 Release" : 
-   cd "..\..\srclib\apr"
+   cd "\clean\httpd-2.0\srclib\apr"
    $(MAKE) /$(MAKEFLAGS) /F ".\apr.mak" CFG="apr - Win32 Release" 
    cd "..\apr-util"
 
 "apr - Win32 ReleaseCLEAN" : 
-   cd "..\..\srclib\apr"
+   cd "\clean\httpd-2.0\srclib\apr"
    $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\apr.mak" CFG="apr - Win32 Release"\
  RECURSE=1 
    cd "..\apr-util"
@@ -824,12 +823,12 @@ InputPath=.\include\private\apu_select_dbm.hw
 !ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
 
 "apr - Win32 Debug" : 
-   cd "..\..\srclib\apr"
+   cd "\clean\httpd-2.0\srclib\apr"
    $(MAKE) /$(MAKEFLAGS) /F ".\apr.mak" CFG="apr - Win32 Debug" 
    cd "..\apr-util"
 
 "apr - Win32 DebugCLEAN" : 
-   cd "..\..\srclib\apr"
+   cd "\clean\httpd-2.0\srclib\apr"
    $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\apr.mak" CFG="apr - Win32 Debug" RECURSE=1\
  
    cd "..\apr-util"
