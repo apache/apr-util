@@ -74,15 +74,27 @@
 /* they are sorted by their expected frequency */
 static schemes_t schemes[] =
 {
-    {"http",   DEFAULT_HTTP_PORT},
-    {"ftp",    DEFAULT_FTP_PORT},
-    {"https",  DEFAULT_HTTPS_PORT},
-    {"gopher", DEFAULT_GOPHER_PORT},
-    {"wais",   DEFAULT_WAIS_PORT},
-    {"nntp",   DEFAULT_NNTP_PORT},
-    {"snews",  DEFAULT_SNEWS_PORT},
-    {"prospero", DEFAULT_PROSPERO_PORT},
-    { NULL, 0xFFFF }			/* unknown port */
+    {"http",     APU_URI_HTTP_DEFAULT_PORT},
+    {"ftp",      APU_URI_FTP_DEFAULT_PORT},
+    {"https",    APU_URI_HTTPS_DEFAULT_PORT},
+    {"gopher",   APU_URI_GOPHER_DEFAULT_PORT},
+    {"ldap",     APU_URI_LDAP_DEFAULT_PORT},
+    {"nntp",     APU_URI_NNTP_DEFAULT_PORT},
+    {"snews",    APU_URI_SNEWS_DEFAULT_PORT},
+    {"imap",     APU_URI_IMAP_DEFAULT_PORT},
+    {"pop",      APU_URI_POP_DEFAULT_PORT},
+    {"sip",      APU_URI_SIP_DEFAULT_PORT},
+    {"rtsp",     APU_URI_RTSP_DEFAULT_PORT},
+    {"wais",     APU_URI_WAIS_DEFAULT_PORT},
+    {"z39.50r",  APU_URI_WAIS_DEFAULT_PORT},
+    {"z39.50s",  APU_URI_WAIS_DEFAULT_PORT},
+    {"prospero", APU_URI_PROSPERO_DEFAULT_PORT},
+    {"nfs",      APU_URI_NFS_DEFAULT_PORT},
+    {"tip",      APU_URI_TIP_DEFAULT_PORT},
+    {"acap",     APU_URI_ACAP_DEFAULT_PORT},
+    {"telnet",   APU_URI_TELNET_DEFAULT_PORT},
+    {"ssh",      APU_URI_SSH_DEFAULT_PORT},
+    { NULL, 0xFFFF }     /* unknown port */
 };
 
 APU_DECLARE(apr_port_t) apr_uri_default_port_for_scheme(const char *scheme_str)
