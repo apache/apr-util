@@ -484,70 +484,70 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
  * @param e The bucket to inspect
  * @return true or false
  */
-#define APR_BUCKET_IS_METADATA(e)    (e->type->is_metadata)
+#define APR_BUCKET_IS_METADATA(e)    ((e)->type->is_metadata)
 
 /**
  * Determine if a bucket is a FLUSH bucket
  * @param e The bucket to inspect
  * @return true or false
  */
-#define APR_BUCKET_IS_FLUSH(e)       (e->type == &apr_bucket_type_flush)
+#define APR_BUCKET_IS_FLUSH(e)       ((e)->type == &apr_bucket_type_flush)
 /**
  * Determine if a bucket is an EOS bucket
  * @param e The bucket to inspect
  * @return true or false
  */
-#define APR_BUCKET_IS_EOS(e)         (e->type == &apr_bucket_type_eos)
+#define APR_BUCKET_IS_EOS(e)         ((e)->type == &apr_bucket_type_eos)
 /**
  * Determine if a bucket is a FILE bucket
  * @param e The bucket to inspect
  * @return true or false
  */
-#define APR_BUCKET_IS_FILE(e)        (e->type == &apr_bucket_type_file)
+#define APR_BUCKET_IS_FILE(e)        ((e)->type == &apr_bucket_type_file)
 /**
  * Determine if a bucket is a PIPE bucket
  * @param e The bucket to inspect
  * @return true or false
  */
-#define APR_BUCKET_IS_PIPE(e)        (e->type == &apr_bucket_type_pipe)
+#define APR_BUCKET_IS_PIPE(e)        ((e)->type == &apr_bucket_type_pipe)
 /**
  * Determine if a bucket is a SOCKET bucket
  * @param e The bucket to inspect
  * @return true or false
  */
-#define APR_BUCKET_IS_SOCKET(e)      (e->type == &apr_bucket_type_socket)
+#define APR_BUCKET_IS_SOCKET(e)      ((e)->type == &apr_bucket_type_socket)
 /**
  * Determine if a bucket is a HEAP bucket
  * @param e The bucket to inspect
  * @return true or false
  */
-#define APR_BUCKET_IS_HEAP(e)        (e->type == &apr_bucket_type_heap)
+#define APR_BUCKET_IS_HEAP(e)        ((e)->type == &apr_bucket_type_heap)
 /**
  * Determine if a bucket is a TRANSIENT bucket
  * @param e The bucket to inspect
  * @return true or false
  */
-#define APR_BUCKET_IS_TRANSIENT(e)   (e->type == &apr_bucket_type_transient)
+#define APR_BUCKET_IS_TRANSIENT(e)   ((e)->type == &apr_bucket_type_transient)
 /**
  * Determine if a bucket is a IMMORTAL bucket
  * @param e The bucket to inspect
  * @return true or false
  */
-#define APR_BUCKET_IS_IMMORTAL(e)    (e->type == &apr_bucket_type_immortal)
+#define APR_BUCKET_IS_IMMORTAL(e)    ((e)->type == &apr_bucket_type_immortal)
 #if APR_HAS_MMAP
 /**
  * Determine if a bucket is a MMAP bucket
  * @param e The bucket to inspect
  * @return true or false
  */
-#define APR_BUCKET_IS_MMAP(e)        (e->type == &apr_bucket_type_mmap)
+#define APR_BUCKET_IS_MMAP(e)        ((e)->type == &apr_bucket_type_mmap)
 #endif
 /**
  * Determine if a bucket is a POOL bucket
  * @param e The bucket to inspect
  * @return true or false
  */
-#define APR_BUCKET_IS_POOL(e)        (e->type == &apr_bucket_type_pool)
+#define APR_BUCKET_IS_POOL(e)        ((e)->type == &apr_bucket_type_pool)
 
 /*
  * General-purpose reference counting for the various bucket types.
