@@ -40,10 +40,10 @@
  * will return APR_EGENERAL. Further LDAP specific error information
  * can be found in result_err.
  */
-APU_DECLARE(int) apr_ldap_ssl_init(apr_ldap_err_t **result_err,
+APU_DECLARE(int) apr_ldap_ssl_init(apr_pool_t *pool,
                                    const char *cert_auth_file,
                                    int cert_file_type,
-                                   apr_pool_t *pool) {
+                                   apr_ldap_err_t **result_err) {
 
     apr_ldap_err_t *result = (apr_ldap_err_t *)apr_pcalloc(pool, sizeof(apr_ldap_err_t));
     *result_err = result;
@@ -184,12 +184,12 @@ APU_DECLARE(int) apr_ldap_ssl_deinit() {
  * assumes that any certificate setup necessary has already
  * been done.
  */
-APU_DECLARE(int) apr_ldap_init(apr_ldap_err_t **result_err,
+APU_DECLARE(int) apr_ldap_init(apr_pool_t *pool,
                                LDAP **ldap,
                                const char *hostname,
                                int portno,
                                int secure,
-                               apr_pool_t *pool) {
+                               apr_ldap_err_t **result_err) {
 
     apr_ldap_err_t *result = (apr_ldap_err_t *)apr_pcalloc(pool, sizeof(apr_ldap_err_t));
     *result_err = result;
