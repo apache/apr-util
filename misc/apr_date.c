@@ -343,12 +343,26 @@ APU_DECLARE(apr_time_t) apr_date_parse_http(const char *date)
  *     Mon,  7 Jan 2002 07:21:22 GMT  ; Unknown [Postfix]
  *
  */
-APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
+
+#define TIMEPARSE(ds,hr10,hr1,min10,min1,sec10,sec1)        \
+    {                                                       \
+        ds.tm_hour = ((hr10 - '0') * 10) + (hr1 - '0');     \
+        ds.tm_min = ((min10 - '0') * 10) + (min1 - '0');    \
+        ds.tm_sec = ((sec10 - '0') * 10) + (sec1 - '0');    \
+    }
+#define TIMEPARSE_STD(ds,timstr)                            \
+    {                                                       \
+        TIMEPARSE(ds, timstr[0],timstr[1],                  \
+                      timstr[3],timstr[4],                  \
+                      timstr[6],timstr[7]);                 \
+    }
+
+APU_DECLARE(apr_time_t) apr_date_parse_rfc(const char *date)
 {
     apr_time_exp_t ds;
     apr_time_t result;
     int mint, mon;
-    char *monstr, *timstr, *gmtstr;
+    const char *monstr, *timstr, *gmtstr;
     static const int months[12] =
     {
     ('J' << 16) | ('a' << 8) | 'n', ('F' << 16) | ('e' << 8) | 'b',
@@ -389,6 +403,8 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
         monstr = date + 3;
         timstr = date + 12;
         gmtstr = date + 20;
+
+        TIMEPARSE_STD(ds, timstr);
     }
     else if (apr_date_checkmask(date, "##-@$$-## ##:##:## *")) {/* RFC 850 format  */
         ds.tm_year = ((date[7] - '0') * 10) + (date[8] - '0');
@@ -401,6 +417,8 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
         monstr = date + 3;
         timstr = date + 10;
         gmtstr = date + 19;
+
+        TIMEPARSE_STD(ds, timstr);
     }
     else if (apr_date_checkmask(date, "@$$ ~# ##:##:## ####*")) {
         /* asctime format */
@@ -420,6 +438,8 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
         monstr = date;
         timstr = date + 7;
         gmtstr = NULL;
+
+        TIMEPARSE_STD(ds, timstr);
     }
     else if (apr_date_checkmask(date, "# @$$ #### ##:##:## *")) {
         /* RFC 1123 format*/
@@ -434,6 +454,8 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
         monstr = date + 2;
         timstr = date + 11;
         gmtstr = date + 20;
+
+        TIMEPARSE_STD(ds, timstr);
     }
     else if (apr_date_checkmask(date, "## @$$ ## ##:##:## *")) {
         /* This is the old RFC 1123 date format - many many years ago, people
@@ -448,6 +470,8 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
         monstr = date + 3;
         timstr = date + 10;
         gmtstr = date + 19;
+
+        TIMEPARSE_STD(ds, timstr);
     } 
     else if (apr_date_checkmask(date, "# @$$ ## ##:##:## *")) {
         /* This is the old RFC 1123 date format - many many years ago, people
@@ -462,6 +486,8 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
         monstr = date + 2;
         timstr = date + 9;
         gmtstr = date + 18;
+
+        TIMEPARSE_STD(ds, timstr);
     } 
     else if (apr_date_checkmask(date, "## @$$ ## ##:## *")) {
         /* Loser format.  This is quite bogus.  */
@@ -474,9 +500,9 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
 
         monstr = date + 3;
         timstr = date + 10;
-        timstr[6] = '0';
-        timstr[7] = '0';
         gmtstr = NULL;
+
+        TIMEPARSE(ds, timstr[0],timstr[1], timstr[3],timstr[4], '0','0');
     } 
     else if (apr_date_checkmask(date, "# @$$ ## ##:## *")) {
         /* Loser format.  This is quite bogus.  */
@@ -489,10 +515,9 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
 
         monstr = date + 2;
         timstr = date + 9;
-
-        timstr[6] = '0';
-        timstr[7] = '0';
         gmtstr = NULL;
+
+        TIMEPARSE(ds, timstr[0],timstr[1], timstr[3],timstr[4], '0','0');
     }
     else if (apr_date_checkmask(date, "## @$$ ## #:##:## *")) {
         /* Loser format.  This is quite bogus.  */
@@ -505,9 +530,9 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
 
         monstr = date + 3;
         timstr = date + 9;
-
-        timstr[0] = '0';
         gmtstr = date + 18;
+
+        TIMEPARSE(ds, '0',timstr[1], timstr[3],timstr[4], timstr[6],timstr[7]);
     }
     else if (apr_date_checkmask(date, "# @$$ ## #:##:## *")) {
          /* Loser format.  This is quite bogus.  */
@@ -520,9 +545,9 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
 
         monstr = date + 2;
         timstr = date + 8;
-
-        timstr[0] = '0';
         gmtstr = date + 17;
+
+        TIMEPARSE(ds, '0',timstr[1], timstr[3],timstr[4], timstr[6],timstr[7]);
     }
     else if (apr_date_checkmask(date, " # @$$ #### ##:##:## *")) {   
         /* RFC 1123 format with a space instead of a leading zero. */
@@ -538,16 +563,14 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
         monstr = date + 3;
         timstr = date + 12;
         gmtstr = date + 20;
+
+        TIMEPARSE_STD(ds, timstr);
     }
     else
         return APR_DATE_BAD;
 
     if (ds.tm_mday <= 0 || ds.tm_mday > 31)
         return APR_DATE_BAD;
-
-    ds.tm_hour = ((timstr[0] - '0') * 10) + (timstr[1] - '0');
-    ds.tm_min = ((timstr[3] - '0') * 10) + (timstr[4] - '0');
-    ds.tm_sec = ((timstr[6] - '0') * 10) + (timstr[7] - '0');
 
     if ((ds.tm_hour > 23) || (ds.tm_min > 59) || (ds.tm_sec > 61)) 
         return APR_DATE_BAD;

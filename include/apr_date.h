@@ -135,7 +135,7 @@ APU_DECLARE(apr_time_t) apr_date_parse_http(const char *date);
  * @return the apr_time_t number of microseconds since 1 Jan 1970 GMT, or
  *         0 if this would be out of range or if the date is invalid.
  */
-APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date);
+APU_DECLARE(apr_time_t) apr_date_parse_rfc(const char *date);
 
 /** @} */
 #ifdef __cplusplus
