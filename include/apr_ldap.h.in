@@ -36,6 +36,7 @@
 #define APR_HAS_NETSCAPE_LDAPSDK  @apu_has_ldap_netscape@
 #define APR_HAS_SOLARIS_LDAPSDK   @apu_has_ldap_solaris@
 #define APR_HAS_NOVELL_LDAPSDK    @apu_has_ldap_novell@
+#define APR_HAS_MOZILLA_LDAPSDK   @apu_has_ldap_mozilla@
 #define APR_HAS_OPENLDAP_LDAPSDK  @apu_has_ldap_openldap@
 #define APR_HAS_MICROSOFT_LDAPSDK @apu_has_ldap_microsoft@
 #define APR_HAS_OTHER_LDAPSDK     @apu_has_ldap_other@
@@ -76,6 +77,7 @@
 #define APR_HAS_LDAP_START_TLS_S @apu_has_ldap_start_tls_s@
 #define APR_HAS_LDAP_SSLINIT @apu_has_ldap_sslinit@
 #define APR_HAS_LDAPSSL_INIT @apu_has_ldapssl_init@
+#define APR_HAS_LDAPSSL_INSTALL_ROUTINES @apu_has_ldapssl_install_routines@
 
 /*
  * Make sure the secure LDAP port is defined
