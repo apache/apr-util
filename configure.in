@@ -39,7 +39,18 @@ dnl
 dnl prep libtool
 dnl
 echo "performing libtool configuration..."
-AC_PROG_LIBTOOL
+
+AC_CANONICAL_SYSTEM
+case "$host_alias" in
+*os2*)
+    # Use a custom made libtool replacement
+    echo "using aplibtool"
+    LIBTOOL="$APR_SOURCE_DIR/build/aplibtool"
+    ;;
+*)
+    AC_PROG_LIBTOOL
+    ;;
+esac
 
 dnl
 dnl grab flags from APR.
