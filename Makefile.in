@@ -17,8 +17,7 @@ DISTCLEAN_TARGETS = config.cache config.log config.status config.sub \
 	include/private/apu_config.h include/private/apu_private.h \
 	include/apu.h export_vars.sh
 EXTRACLEAN_TARGETS = configure libtool aclocal.m4 \
-	include/private/apu_config.h.in build/config.guess build/config.sub \
-	build/ltconfig build/ltmain.sh
+	include/private/apu_config.h.in
 
 ### fix this up at some point (install location)
 libdir = /usr/local/lib
