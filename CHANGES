@@ -1,5 +1,8 @@
 Changes with APR-util b1  
 
+  *) apr_bucket_init_types() and apr_bucket_insert_type() have been
+     removed... they're not needed anymore. [Cliff Woolley]
+
   *) The apr_bucket_shared and apr_bucket_simple structures have been
      removed as an API simplification/optimization.  This should be
      transparent outside APR-util except to callers who attempt to
@@ -15,3 +18,4 @@ Changes with APR-util b1
      'apr_off_t length' rather than 'apr_off_t end', since the
      end usually had to be computed by the caller and all we
      really want is the length anyway. [Cliff Woolley]
+
