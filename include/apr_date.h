@@ -56,8 +56,8 @@
  * University of Illinois, Urbana-Champaign.
  */
 
-#ifndef APACHE_UTIL_DATE_H
-#define APACHE_UTIL_DATE_H
+#ifndef APR_DATE_H
+#define APR_DATE_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -68,12 +68,13 @@ extern "C" {
  */
 
 /*
- * util_date.h: prototypes for date parsing utility routines
+ * apr_date.h: prototypes for date parsing utility routines
  */
 
+#include "apu.h"
 #include "apr_time.h"
 
-#define BAD_DATE (apr_time_t)0
+#define APR_DATE_BAD (apr_time_t)0
 
 /**
  * Compare a string to a mask
@@ -89,9 +90,9 @@ extern "C" {
  *  <x> - exact match for any other character
  * </PRE>
  * @return 1 if the string matches, 0 otherwise
- * @deffunc int ap_checkmask(const char *data, const char *mask)
+ * @deffunc int apr_checkmask(const char *data, const char *mask)
  */
-AP_DECLARE(int) ap_checkmask(const char *data, const char *mask);
+APU_DECLARE(int) apr_checkmask(const char *data, const char *mask);
 
 /**
  * Parses an HTTP date in one of three standard forms:
@@ -103,12 +104,39 @@ AP_DECLARE(int) ap_checkmask(const char *data, const char *mask);
  * @param date The date in one of the three formats above
  * @return the apr_time_t number of microseconds since 1 Jan 1970 GMT, or
  *         0 if this would be out of range or if the date is invalid.
- * @deffunc apr_time_t ap_parseHTTPdate(const char *date)
+ * @deffunc apr_time_t apr_parseHTTPdate(const char *date)
  */
-AP_DECLARE(apr_time_t) ap_parseHTTPdate(const char *date);
+APU_DECLARE(apr_time_t) apr_parseHTTPdate(const char *date);
+
+/**
+ * Parses a string resembling an RFC 822 date.  This is meant to be
+ * leinent in its parsing of dates.  Hence, this will parse a wider 
+ * range of dates than apr_parseHTTPdate.
+ *
+ * The prominent mailer (or poster, if mailer is unknown) that has
+ * been seen in the wild is included for the unknown formats.
+ * <PRE>
+ *     Sun, 06 Nov 1994 08:49:37 GMT  ; RFC 822, updated by RFC 1123
+ *     Sunday, 06-Nov-94 08:49:37 GMT ; RFC 850, obsoleted by RFC 1036
+ *     Sun Nov  6 08:49:37 1994       ; ANSI C's asctime() format
+ *     Sun, 6 Nov 1994 08:49:37 GMT   ; RFC 822, updated by RFC 1123
+ *     Sun, 06 Nov 94 08:49:37 GMT    ; RFC 822
+ *     Sun, 6 Nov 94 08:49:37 GMT     ; RFC 822
+ *     Sun, 06 Nov 94 08:49 GMT       ; Unknown [drtr@ast.cam.ac.uk] 
+ *     Sun, 6 Nov 94 08:49 GMT        ; Unknown [drtr@ast.cam.ac.uk]
+ *     Sun, 06 Nov 94 8:49:37 GMT     ; Unknown [Elm 70.85]
+ *     Sun, 6 Nov 94 8:49:37 GMT      ; Unknown [Elm 70.85] 
+ * </PRE>
+ *
+ * @param date The date in one of the formats above
+ * @return the apr_time_t number of microseconds since 1 Jan 1970 GMT, or
+ *         0 if this would be out of range or if the date is invalid.
+ * @deffunc apr_time_t apr_parseRFCdate(char *date)
+ */
+APU_DECLARE(apr_time_t) apr_parseRFCdate(char *date);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif	/* !APACHE_UTIL_DATE_H */
+#endif	/* !APR_DATE_H */

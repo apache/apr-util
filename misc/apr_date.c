@@ -57,7 +57,7 @@
  */
 
 /*
- * util_date.c: date parsing utility routines
+ * apr_date.c: date parsing utility routines
  *     These routines are (hopefully) platform independent.
  * 
  * 27 Oct 1996  Roy Fielding
@@ -77,10 +77,7 @@
 #include <ctype.h>
 #endif
 
-#define CORE_PRIVATE
-
-#include "ap_config.h"
-#include "util_date.h"
+#include "apr_date.h"
 
 /*
  * Compare a string to a mask
@@ -93,49 +90,48 @@
  *   * - swallow remaining characters 
  *  <x> - exact match for any other character
  */
-AP_DECLARE(int) ap_checkmask(const char *data, const char *mask)
+APU_DECLARE(int) apr_checkmask(const char *data, const char *mask)
 {
     int i;
     char d;
 
     for (i = 0; i < 256; i++) {
-	d = data[i];
-	switch (mask[i]) {
-	case '\0':
-	    return (d == '\0');
+        d = data[i];
+        switch (mask[i]) {
+        case '\0':
+            return (d == '\0');
 
-	case '*':
-	    return 1;
+        case '*':
+            return 1;
 
-	case '@':
-	    if (!apr_isupper(d))
-		return 0;
-	    break;
-	case '$':
-	    if (!apr_islower(d))
-		return 0;
-	    break;
-	case '#':
-	    if (!apr_isdigit(d))
-		return 0;
-	    break;
-	case '&':
-	    if (!apr_isxdigit(d))
-		return 0;
-	    break;
-	case '~':
-	    if ((d != ' ') && !apr_isdigit(d))
-		return 0;
-	    break;
-	default:
-	    if (mask[i] != d)
-		return 0;
-	    break;
-	}
+        case '@':
+            if (!apr_isupper(d))
+                return 0;
+            break;
+        case '$':
+            if (!apr_islower(d))
+                return 0;
+            break;
+        case '#':
+            if (!apr_isdigit(d))
+                return 0;
+            break;
+        case '&':
+            if (!apr_isxdigit(d))
+                return 0;
+            break;
+        case '~':
+            if ((d != ' ') && !apr_isdigit(d))
+                return 0;
+            break;
+        default:
+            if (mask[i] != d)
+                return 0;
+            break;
+        }
     }
-    return 0;			/* We only get here if mask is corrupted (exceeds 256) */
+    return 0;          /* We only get here if mask is corrupted (exceeds 256) */
 }
-
 
 /*
  * Parses an HTTP date in one of three standard forms:
@@ -184,7 +180,7 @@ AP_DECLARE(int) ap_checkmask(const char *data, const char *mask)
  * but many changes since then.
  *
  */
-AP_DECLARE(apr_time_t) ap_parseHTTPdate(const char *date)
+APU_DECLARE(apr_time_t) apr_parseHTTPdate(const char *date)
 {
     apr_exploded_time_t ds;
     apr_time_t result;
@@ -192,99 +188,114 @@ AP_DECLARE(apr_time_t) ap_parseHTTPdate(const char *date)
     const char *monstr, *timstr;
     static const int months[12] =
     {
-	('J' << 16) | ('a' << 8) | 'n', ('F' << 16) | ('e' << 8) | 'b',
-	('M' << 16) | ('a' << 8) | 'r', ('A' << 16) | ('p' << 8) | 'r',
-	('M' << 16) | ('a' << 8) | 'y', ('J' << 16) | ('u' << 8) | 'n',
-	('J' << 16) | ('u' << 8) | 'l', ('A' << 16) | ('u' << 8) | 'g',
-	('S' << 16) | ('e' << 8) | 'p', ('O' << 16) | ('c' << 8) | 't',
-	('N' << 16) | ('o' << 8) | 'v', ('D' << 16) | ('e' << 8) | 'c'};
+    ('J' << 16) | ('a' << 8) | 'n', ('F' << 16) | ('e' << 8) | 'b',
+    ('M' << 16) | ('a' << 8) | 'r', ('A' << 16) | ('p' << 8) | 'r',
+    ('M' << 16) | ('a' << 8) | 'y', ('J' << 16) | ('u' << 8) | 'n',
+    ('J' << 16) | ('u' << 8) | 'l', ('A' << 16) | ('u' << 8) | 'g',
+    ('S' << 16) | ('e' << 8) | 'p', ('O' << 16) | ('c' << 8) | 't',
+    ('N' << 16) | ('o' << 8) | 'v', ('D' << 16) | ('e' << 8) | 'c'};
 
     if (!date)
-	return BAD_DATE;
+        return APR_DATE_BAD;
 
-    while (*date && apr_isspace(*date))	/* Find first non-whitespace char */
-	++date;
+    while (*date && apr_isspace(*date))    /* Find first non-whitespace char */
+        ++date;
 
     if (*date == '\0') 
-	return BAD_DATE;
+        return APR_DATE_BAD;
 
-    if ((date = strchr(date, ' ')) == NULL)	/* Find space after weekday */
-	return BAD_DATE;
+    if ((date = strchr(date, ' ')) == NULL)       /* Find space after weekday */
+        return APR_DATE_BAD;
 
-    ++date;			/* Now pointing to first char after space, which should be */
-    /* start of the actual date information for all 3 formats. */
+    ++date;        /* Now pointing to first char after space, which should be */
 
-    if (ap_checkmask(date, "## @$$ #### ##:##:## *")) {	/* RFC 1123 format */
-	ds.tm_year = ((date[7] - '0') * 10 + (date[8] - '0') - 19) * 100;
-	if (ds.tm_year < 0)
-	    return BAD_DATE;
+    /* start of the actual date information for all 4 formats. */
 
-	ds.tm_year += ((date[9] - '0') * 10) + (date[10] - '0');
+    if (apr_checkmask(date, "## @$$ #### ##:##:## *")) {
+        /* RFC 1123 format with two days */
+        ds.tm_year = ((date[7] - '0') * 10 + (date[8] - '0') - 19) * 100;
+        if (ds.tm_year < 0)
+            return APR_DATE_BAD;
 
-	ds.tm_mday = ((date[0] - '0') * 10) + (date[1] - '0');
+        ds.tm_year += ((date[9] - '0') * 10) + (date[10] - '0');
 
-	monstr = date + 3;
-	timstr = date + 12;
+        ds.tm_mday = ((date[0] - '0') * 10) + (date[1] - '0');
+
+        monstr = date + 3;
+        timstr = date + 12;
     }
-    else if (ap_checkmask(date, "##-@$$-## ##:##:## *")) {		/* RFC 850 format  */
-	ds.tm_year = ((date[7] - '0') * 10) + (date[8] - '0');
-	if (ds.tm_year < 70)
-	    ds.tm_year += 100;
+    else if (apr_checkmask(date, "##-@$$-## ##:##:## *")) { /* RFC 850 format */
+        ds.tm_year = ((date[7] - '0') * 10) + (date[8] - '0');
+        if (ds.tm_year < 70)
+            ds.tm_year += 100;
 
-	ds.tm_mday = ((date[0] - '0') * 10) + (date[1] - '0');
+        ds.tm_mday = ((date[0] - '0') * 10) + (date[1] - '0');
 
-	monstr = date + 3;
-	timstr = date + 10;
+        monstr = date + 3;
+        timstr = date + 10;
     }
-    else if (ap_checkmask(date, "@$$ ~# ##:##:## ####*")) {	/* asctime format  */
-	ds.tm_year = ((date[16] - '0') * 10 + (date[17] - '0') - 19) * 100;
-	if (ds.tm_year < 0) 
-	    return BAD_DATE;
+    else if (apr_checkmask(date, "@$$ ~# ##:##:## ####*")) {/* asctime format */
+        ds.tm_year = ((date[16] - '0') * 10 + (date[17] - '0') - 19) * 100;
+        if (ds.tm_year < 0) 
+            return APR_DATE_BAD;
 
-	ds.tm_year += ((date[18] - '0') * 10) + (date[19] - '0');
+        ds.tm_year += ((date[18] - '0') * 10) + (date[19] - '0');
 
-	if (date[4] == ' ')
-	    ds.tm_mday = 0;
-	else
-	    ds.tm_mday = (date[4] - '0') * 10;
+        if (date[4] == ' ')
+            ds.tm_mday = 0;
+        else
+            ds.tm_mday = (date[4] - '0') * 10;
 
-	ds.tm_mday += (date[5] - '0');
+        ds.tm_mday += (date[5] - '0');
 
-	monstr = date;
-	timstr = date + 7;
+        monstr = date;
+        timstr = date + 7;
     }
-    else 
-	return BAD_DATE;
+    else if (apr_checkmask(date, "# @$$ #### ##:##:## *")) {
+        /* RFC 1123 format with one day */
+        ds.tm_year = ((date[6] - '0') * 10 + (date[7] - '0') - 19) * 100;
+        if (ds.tm_year < 0)
+            return APR_DATE_BAD;
+
+        ds.tm_year += ((date[8] - '0') * 10) + (date[9] - '0');
+
+        ds.tm_mday = (date[0] - '0');
+
+        monstr = date + 2;
+        timstr = date + 11;
+    }
+    else
+        return APR_DATE_BAD;
 
     if (ds.tm_mday <= 0 || ds.tm_mday > 31)
-	return BAD_DATE;
+        return APR_DATE_BAD;
 
     ds.tm_hour = ((timstr[0] - '0') * 10) + (timstr[1] - '0');
     ds.tm_min = ((timstr[3] - '0') * 10) + (timstr[4] - '0');
     ds.tm_sec = ((timstr[6] - '0') * 10) + (timstr[7] - '0');
 
     if ((ds.tm_hour > 23) || (ds.tm_min > 59) || (ds.tm_sec > 61)) 
-	return BAD_DATE;
+        return APR_DATE_BAD;
 
     mint = (monstr[0] << 16) | (monstr[1] << 8) | monstr[2];
     for (mon = 0; mon < 12; mon++)
-	if (mint == months[mon])
-	    break;
+        if (mint == months[mon])
+            break;
+
     if (mon == 12)
-	return BAD_DATE;
+        return APR_DATE_BAD;
 
     if ((ds.tm_mday == 31) && (mon == 3 || mon == 5 || mon == 8 || mon == 10))
-	return BAD_DATE;
+        return APR_DATE_BAD;
 
     /* February gets special check for leapyear */
-
     if ((mon == 1) &&
-	((ds.tm_mday > 29)
-	 || ((ds.tm_mday == 29)
-	     && ((ds.tm_year & 3)
-		 || (((ds.tm_year % 100) == 0)
-		     && (((ds.tm_year % 400) != 100)))))))
-	return BAD_DATE;
+        ((ds.tm_mday > 29) || 
+        ((ds.tm_mday == 29)
+        && ((ds.tm_year & 3)
+        || (((ds.tm_year % 100) == 0)
+        && (((ds.tm_year % 400) != 100)))))))
+        return APR_DATE_BAD;
 
     ds.tm_mon = mon;
 
@@ -300,7 +311,251 @@ AP_DECLARE(apr_time_t) ap_parseHTTPdate(const char *date)
     ds.tm_usec = 0;
     ds.tm_gmtoff = 0;
     if (apr_implode_time(&result, &ds) != APR_SUCCESS) 
-	return BAD_DATE;
+        return APR_DATE_BAD;
+    
+    return result;
+}
+
+/*
+ * Parses a string resembling an RFC 822 date.  This is meant to be
+ * leinent in its parsing of dates.  Hence, this will parse a wider 
+ * range of dates than apr_parseHTTPdate.
+ *
+ * The prominent mailer (or poster, if mailer is unknown) that has
+ * been seen in the wild is included for the unknown formats.
+ *
+ *     Sun, 06 Nov 1994 08:49:37 GMT  ; RFC 822, updated by RFC 1123
+ *     Sunday, 06-Nov-94 08:49:37 GMT ; RFC 850, obsoleted by RFC 1036
+ *     Sun Nov  6 08:49:37 1994       ; ANSI C's asctime() format
+ *     Sun, 6 Nov 1994 08:49:37 GMT   ; RFC 822, updated by RFC 1123
+ *     Sun, 06 Nov 94 08:49:37 GMT    ; RFC 822
+ *     Sun, 6 Nov 94 08:49:37 GMT     ; RFC 822
+ *     Sun, 06 Nov 94 08:49 GMT       ; Unknown [drtr@ast.cam.ac.uk] 
+ *     Sun, 6 Nov 94 08:49 GMT        ; Unknown [drtr@ast.cam.ac.uk]
+ *     Sun, 06 Nov 94 8:49:37 GMT     ; Unknown [Elm 70.85]
+ *     Sun, 6 Nov 94 8:49:37 GMT      ; Unknown [Elm 70.85] 
+ *
+ */
+APU_DECLARE(apr_time_t) apr_parseRFCdate(char *date)
+{
+    apr_exploded_time_t ds;
+    apr_time_t result;
+    int mint, mon;
+    char *monstr, *timstr;
+    static const int months[12] =
+    {
+    ('J' << 16) | ('a' << 8) | 'n', ('F' << 16) | ('e' << 8) | 'b',
+    ('M' << 16) | ('a' << 8) | 'r', ('A' << 16) | ('p' << 8) | 'r',
+    ('M' << 16) | ('a' << 8) | 'y', ('J' << 16) | ('u' << 8) | 'n',
+    ('J' << 16) | ('u' << 8) | 'l', ('A' << 16) | ('u' << 8) | 'g',
+    ('S' << 16) | ('e' << 8) | 'p', ('O' << 16) | ('c' << 8) | 't',
+    ('N' << 16) | ('o' << 8) | 'v', ('D' << 16) | ('e' << 8) | 'c' };
+
+    if (!date)
+        return APR_DATE_BAD;
+
+    /* Not all dates have text months at the beginning. */
+    if (!apr_isdigit(date[0]))
+    {
+        while (*date && apr_isspace(*date)) /* Find first non-whitespace char */
+            ++date;
+
+        if (*date == '\0') 
+            return APR_DATE_BAD;
+
+        if ((date = strchr(date, ' ')) == NULL)   /* Find space after weekday */
+            return APR_DATE_BAD;
+
+        ++date;    /* Now pointing to first char after space, which should be */    }
+
+    /* start of the actual date information for all 11 formats. */
+    if (apr_checkmask(date, "## @$$ #### ##:##:## *")) {   /* RFC 1123 format */
+        ds.tm_year = ((date[7] - '0') * 10 + (date[8] - '0') - 19) * 100;
+
+        if (ds.tm_year < 0)
+            return APR_DATE_BAD;
+
+        ds.tm_year += ((date[9] - '0') * 10) + (date[10] - '0');
+
+        ds.tm_mday = ((date[0] - '0') * 10) + (date[1] - '0');
+
+        monstr = date + 3;
+        timstr = date + 12;
+    }
+    else if (apr_checkmask(date, "##-@$$-## ##:##:## *")) {/* RFC 850 format  */
+        ds.tm_year = ((date[7] - '0') * 10) + (date[8] - '0');
+
+        if (ds.tm_year < 70)
+            ds.tm_year += 100;
+
+        ds.tm_mday = ((date[0] - '0') * 10) + (date[1] - '0');
+
+        monstr = date + 3;
+        timstr = date + 10;
+    }
+    else if (apr_checkmask(date, "@$$ ~# ##:##:## ####*")) {/* asctime format */
+        ds.tm_year = ((date[16] - '0') * 10 + (date[17] - '0') - 19) * 100;
+        if (ds.tm_year < 0) 
+            return APR_DATE_BAD;
+
+        ds.tm_year += ((date[18] - '0') * 10) + (date[19] - '0');
+
+        if (date[4] == ' ')
+            ds.tm_mday = 0;
+        else
+            ds.tm_mday = (date[4] - '0') * 10;
+
+        ds.tm_mday += (date[5] - '0');
+
+        monstr = date;
+        timstr = date + 7;
+    }
+    else if (apr_checkmask(date, "# @$$ #### ##:##:## *")) {/* RFC 1123 format*/
+        ds.tm_year = ((date[6] - '0') * 10 + (date[7] - '0') - 19) * 100;
+
+        if (ds.tm_year < 0)
+            return APR_DATE_BAD;
+
+        ds.tm_year += ((date[8] - '0') * 10) + (date[9] - '0');
+        ds.tm_mday = (date[0] - '0');
+
+        monstr = date + 2;
+        timstr = date + 11;
+    }
+    else if (apr_checkmask(date, "## @$$ ## ##:##:## *")) {/* RFC 1123 format */
+        /* This is the old RFC date format - many many years ago, people
+         * used two-digit years.  Oh, how foolish.  */
+        ds.tm_year = ((date[7] - '0') * 10) + (date[8] - '0');
+
+        if (ds.tm_year < 70)
+            ds.tm_year += 100;
+
+        ds.tm_mday = ((date[0] - '0') * 10) + (date[1] - '0');
+
+        monstr = date + 3;
+        timstr = date + 10;
+
+    } 
+    else if (apr_checkmask(date, "# @$$ ## ##:##:## *")) {/* RFC 1123 format */
+        /* This is the old RFC date format - many many years ago, people
+         * used two-digit years.  Oh, how foolish.  */
+        ds.tm_year = ((date[6] - '0') * 10) + (date[7] - '0');
+
+        if (ds.tm_year < 70)
+            ds.tm_year += 100;
+
+        ds.tm_mday = (date[0] - '0');
+
+        monstr = date + 2;
+        timstr = date + 9;
+
+    } 
+    else if (apr_checkmask(date, "## @$$ ## ##:## *")) {      /* Loser format */
+        /* This is quite bogus.  */
+        ds.tm_year = ((date[7] - '0') * 10) + (date[8] - '0');
+
+        if (ds.tm_year < 70)
+            ds.tm_year += 100;
+
+        ds.tm_mday = ((date[0] - '0') * 10) + (date[1] - '0');
+
+        monstr = date + 3;
+        timstr = date + 10;
+        timstr[6] = '0';
+        timstr[7] = '0';
+    } 
+    else if (apr_checkmask(date, "# @$$ ## ##:## *")) {       /* Loser format */
+        /* This is quite bogus.  */
+        ds.tm_year = ((date[6] - '0') * 10) + (date[7] - '0');
+
+        if (ds.tm_year < 70)
+            ds.tm_year += 100;
+
+        ds.tm_mday = (date[0] - '0');
+
+        monstr = date + 2;
+        timstr = date + 9;
+
+        timstr[6] = '0';
+        timstr[7] = '0';
+    }
+    else if (apr_checkmask(date, "## @$$ ## #:##:## *")) {    /* Loser format */
+        /* This is quite bogus.  */
+        ds.tm_year = ((date[7] - '0') * 10) + (date[8] - '0');
+
+        if (ds.tm_year < 70)
+            ds.tm_year += 100;
+
+        ds.tm_mday = ((date[0] - '0') * 10) + (date[1] - '0');
+
+        monstr = date + 3;
+        timstr = date + 9;
+
+        timstr[0] = '0';
+    }
+    else if (apr_checkmask(date, "# @$$ ## #:##:## *")) {     /* Loser format */
+        /* This is quite bogus.  */
+        ds.tm_year = ((date[6] - '0') * 10) + (date[7] - '0');
+
+        if (ds.tm_year < 70)
+            ds.tm_year += 100;
+
+        ds.tm_mday = (date[0] - '0');
+
+        monstr = date + 2;
+        timstr = date + 8;
+
+        timstr[0] = '0';
+    }
+    else
+        return APR_DATE_BAD;
+
+    if (ds.tm_mday <= 0 || ds.tm_mday > 31)
+        return APR_DATE_BAD;
+
+    ds.tm_hour = ((timstr[0] - '0') * 10) + (timstr[1] - '0');
+    ds.tm_min = ((timstr[3] - '0') * 10) + (timstr[4] - '0');
+    ds.tm_sec = ((timstr[6] - '0') * 10) + (timstr[7] - '0');
+
+    if ((ds.tm_hour > 23) || (ds.tm_min > 59) || (ds.tm_sec > 61)) 
+        return APR_DATE_BAD;
+
+    mint = (monstr[0] << 16) | (monstr[1] << 8) | monstr[2];
+    for (mon = 0; mon < 12; mon++)
+        if (mint == months[mon])
+            break;
+
+    if (mon == 12)
+        return APR_DATE_BAD;
+
+    if ((ds.tm_mday == 31) && (mon == 3 || mon == 5 || mon == 8 || mon == 10))
+        return APR_DATE_BAD;
+
+    /* February gets special check for leapyear */
+
+    if ((mon == 1) &&
+        ((ds.tm_mday > 29)
+        || ((ds.tm_mday == 29)
+        && ((ds.tm_year & 3)
+        || (((ds.tm_year % 100) == 0)
+        && (((ds.tm_year % 400) != 100)))))))
+        return APR_DATE_BAD;
+
+    ds.tm_mon = mon;
+
+    /* apr_mplode_time uses tm_usec and tm_gmtoff fields, but they haven't 
+     * been set yet. 
+     * It should be safe to just zero out these values.
+     * tm_usec is the number of microseconds into the second.  HTTP only
+     * cares about second granularity.
+     * tm_gmtoff is the number of seconds off of GMT the time is.  By
+     * definition all times going through this function are in GMT, so this
+     * is zero. 
+     */
+    ds.tm_usec = 0;
+    ds.tm_gmtoff = 0;
+    if (apr_implode_time(&result, &ds) != APR_SUCCESS) 
+        return APR_DATE_BAD;
     
     return result;
 }

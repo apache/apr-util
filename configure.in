@@ -145,5 +145,6 @@ AC_OUTPUT([
 	hooks/Makefile
 	uri/Makefile
 	xml/Makefile
+	misc/Makefile
 	$test_Makefile
 	])
