@@ -197,9 +197,6 @@ LIB32_OBJS= \
 
 !IF "$(CFG)" == "xml - Win32 Release" || "$(CFG)" == "xml - Win32 Debug"
 SOURCE=.\xmlparse.c
-
-!IF  "$(CFG)" == "xml - Win32 Release"
-
 DEP_CPP_XMLPA=\
 	".\config.h"\
 	".\expat.h"\
@@ -211,26 +208,7 @@ DEP_CPP_XMLPA=\
  ".\expat.h"
 
 
-!ELSEIF  "$(CFG)" == "xml - Win32 Debug"
-
-DEP_CPP_XMLPA=\
-	".\config.h"\
-	".\expat.h"\
-	".\winconfig.h"\
-	".\xmlrole.h"\
-	".\xmltok.h"\
-	
-
-"$(INTDIR)\xmlparse.obj" : $(SOURCE) $(DEP_CPP_XMLPA) "$(INTDIR)"\
- ".\winconfig.h" ".\expat.h" ".\config.h"
-
-
-!ENDIF 
-
 SOURCE=.\xmlrole.c
-
-!IF  "$(CFG)" == "xml - Win32 Release"
-
 DEP_CPP_XMLRO=\
 	".\ascii.h"\
 	".\config.h"\
@@ -241,26 +219,7 @@ DEP_CPP_XMLRO=\
 "$(INTDIR)\xmlrole.obj" : $(SOURCE) $(DEP_CPP_XMLRO) "$(INTDIR)" ".\config.h"
 
 
-!ELSEIF  "$(CFG)" == "xml - Win32 Debug"
-
-DEP_CPP_XMLRO=\
-	".\ascii.h"\
-	".\config.h"\
-	".\winconfig.h"\
-	".\xmlrole.h"\
-	".\xmltok.h"\
-	
-
-"$(INTDIR)\xmlrole.obj" : $(SOURCE) $(DEP_CPP_XMLRO) "$(INTDIR)"\
- ".\winconfig.h" ".\config.h"
-
-
-!ENDIF 
-
 SOURCE=.\xmltok.c
-
-!IF  "$(CFG)" == "xml - Win32 Release"
-
 DEP_CPP_XMLTO=\
 	".\ascii.h"\
 	".\asciitab.h"\
@@ -277,29 +236,6 @@ DEP_CPP_XMLTO=\
 
 "$(INTDIR)\xmltok.obj" : $(SOURCE) $(DEP_CPP_XMLTO) "$(INTDIR)" ".\config.h"
 
-
-!ELSEIF  "$(CFG)" == "xml - Win32 Debug"
-
-DEP_CPP_XMLTO=\
-	".\ascii.h"\
-	".\asciitab.h"\
-	".\config.h"\
-	".\iasciitab.h"\
-	".\latin1tab.h"\
-	".\nametab.h"\
-	".\utf8tab.h"\
-	".\winconfig.h"\
-	".\xmltok.h"\
-	".\xmltok_impl.c"\
-	".\xmltok_impl.h"\
-	".\xmltok_ns.c"\
-	
-
-"$(INTDIR)\xmltok.obj" : $(SOURCE) $(DEP_CPP_XMLTO) "$(INTDIR)" ".\winconfig.h"\
- ".\config.h"
-
-
-!ENDIF 
 
 SOURCE=xmltok_impl.c
 SOURCE=xmltok_ns.c

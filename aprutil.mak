@@ -64,12 +64,12 @@ CLEAN :
 	-@erase "$(INTDIR)\apr_buckets_refcount.obj"
 	-@erase "$(INTDIR)\apr_buckets_simple.obj"
 	-@erase "$(INTDIR)\apr_buckets_socket.obj"
+	-@erase "$(INTDIR)\apr_date.obj"
 	-@erase "$(INTDIR)\apr_dbm.obj"
 	-@erase "$(INTDIR)\apr_hooks.obj"
 	-@erase "$(INTDIR)\apr_sha1.obj"
 	-@erase "$(INTDIR)\apr_uri.obj"
 	-@erase "$(INTDIR)\apr_xml.obj"
-	-@erase "$(INTDIR)\apr_date.obj"
 	-@erase "$(INTDIR)\aprutil.idb"
 	-@erase "$(INTDIR)\sdbm.obj"
 	-@erase "$(INTDIR)\sdbm_hash.obj"
@@ -139,12 +139,12 @@ LIB32_OBJS= \
 	"$(INTDIR)\apr_buckets_refcount.obj" \
 	"$(INTDIR)\apr_buckets_simple.obj" \
 	"$(INTDIR)\apr_buckets_socket.obj" \
+	"$(INTDIR)\apr_date.obj" \
 	"$(INTDIR)\apr_dbm.obj" \
 	"$(INTDIR)\apr_hooks.obj" \
 	"$(INTDIR)\apr_sha1.obj" \
 	"$(INTDIR)\apr_uri.obj" \
 	"$(INTDIR)\apr_xml.obj" \
-	"$(INTDIR)\apr_date.obj" \
 	"$(INTDIR)\sdbm.obj" \
 	"$(INTDIR)\sdbm_hash.obj" \
 	"$(INTDIR)\sdbm_lock.obj" \
@@ -195,6 +195,7 @@ CLEAN :
 	-@erase "$(INTDIR)\apr_buckets_refcount.obj"
 	-@erase "$(INTDIR)\apr_buckets_simple.obj"
 	-@erase "$(INTDIR)\apr_buckets_socket.obj"
+	-@erase "$(INTDIR)\apr_date.obj"
 	-@erase "$(INTDIR)\apr_dbm.obj"
 	-@erase "$(INTDIR)\apr_hooks.obj"
 	-@erase "$(INTDIR)\apr_sha1.obj"
@@ -270,6 +271,7 @@ LIB32_OBJS= \
 	"$(INTDIR)\apr_buckets_refcount.obj" \
 	"$(INTDIR)\apr_buckets_simple.obj" \
 	"$(INTDIR)\apr_buckets_socket.obj" \
+	"$(INTDIR)\apr_date.obj" \
 	"$(INTDIR)\apr_dbm.obj" \
 	"$(INTDIR)\apr_hooks.obj" \
 	"$(INTDIR)\apr_sha1.obj" \
@@ -776,6 +778,23 @@ NODEP_CPP_APR_X=\
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
+SOURCE=.\misc\apr_date.c
+DEP_CPP_APR_DA=\
+	"..\apr\include\apr.h"\
+	"..\apr\include\apr_errno.h"\
+	"..\apr\include\apr_lib.h"\
+	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_time.h"\
+	"..\apr\include\apr_want.h"\
+	".\include\apr_date.h"\
+	".\include\apu.h"\
+	
+
+"$(INTDIR)\apr_date.obj" : $(SOURCE) $(DEP_CPP_APR_DA) "$(INTDIR)"\
+ ".\include\apu.h"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
 SOURCE=.\include\apu.hw
 
 !IF  "$(CFG)" == "aprutil - Win32 Release"
@@ -869,12 +888,12 @@ InputPath=.\uri\gen_uri_delims.exe
 !IF  "$(CFG)" == "aprutil - Win32 Release"
 
 "apr - Win32 Release" : 
-   cd "..\..\srclib\apr"
+   cd "..\apr"
    $(MAKE) /$(MAKEFLAGS) /F ".\apr.mak" CFG="apr - Win32 Release" 
    cd "..\apr-util"
 
 "apr - Win32 ReleaseCLEAN" : 
-   cd "..\..\srclib\apr"
+   cd "..\apr"
    $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\apr.mak" CFG="apr - Win32 Release"\
  RECURSE=1 
    cd "..\apr-util"
@@ -882,12 +901,12 @@ InputPath=.\uri\gen_uri_delims.exe
 !ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
 
 "apr - Win32 Debug" : 
-   cd "..\..\srclib\apr"
+   cd "..\apr"
    $(MAKE) /$(MAKEFLAGS) /F ".\apr.mak" CFG="apr - Win32 Debug" 
    cd "..\apr-util"
 
 "apr - Win32 DebugCLEAN" : 
-   cd "..\..\srclib\apr"
+   cd "..\apr"
    $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\apr.mak" CFG="apr - Win32 Debug" RECURSE=1\
  
    cd "..\apr-util"
