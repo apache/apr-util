@@ -67,9 +67,11 @@
 #define CERTFILEDER DIRNAME "/*.der"
 #define CERTFILEB64 DIRNAME "/*.b64"
 
+#if APR_HAS_LDAP
+
 static char ldap_host[256];
 
-static int get_ldap_host()
+static int get_ldap_host(void)
 {
     apr_status_t rv;
     apr_file_t *thefile = NULL;
@@ -225,21 +227,22 @@ static void test_ldap_tls(abts_case *tc, void *data)
     }
 }
 
-static void test_ldap_mutual(abts_case *tc, void *data)
-{
-}
+#endif /* APR_HAS_LDAP */
 
 abts_suite *testldap(abts_suite *suite)
 {
+#if APR_HAS_LDAP
     apr_ldap_err_t *result = NULL;
     suite = ADD_SUITE(suite);
 
-    apr_ldap_ssl_init(p, NULL, 0,&(result));
+    apr_ldap_ssl_init(p, NULL, 0, &result);
+
     if (get_ldap_host()) {
         abts_run_test(suite, test_ldap, NULL);
         abts_run_test(suite, test_ldaps, NULL);
         abts_run_test(suite, test_ldap_tls, NULL);
     }
+#endif /* APR_HAS_LDAP */
 
     return suite;
 }
