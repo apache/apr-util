@@ -1,5 +1,5 @@
 APRUTIL LIBRARY STATUS:						-*-text-*-
-Last modified at [$Date: 2001/11/29 10:25:27 $]
+Last modified at [$Date: 2001/12/08 00:43:54 $]
 
 Release:
     2.0a9   : released December 12, 2000
@@ -22,12 +22,14 @@ RELEASE SHOWSTOPPERS:
 
 RELEASE NON-SHOWSTOPPERS BUT WOULD BE REAL NICE TO WRAP THESE UP:
 
-    * Try doing --with-dbm=db2 when you have db3 available.  No go.
-      Justin says:  We'll probably need to add logic to check first
-                    in db2/db.h when we want db2 and db3/db.h for db3.
-                    Only fallback to db.h when the above don't exist
-                    in the include path.
-
+    * Solaris's Sun Freeware (sfw) package has a busted gcc/ld setup.
+      This gcc passes -L/opt/sfw/lib to /usr/ccs/bin/ld, but does not 
+      pass -R.  Therefore, when trying to run the code using a
+      library from /opt/sfw/lib (say, libdb), the run-time linker
+      will not look in /opt/sfw/lib and the program will die.
+        Status: Workaround is to add "-R/opt/sfw/lib" to LDFLAGS.
+                Should check latest sfw package set and see if Sun
+                may have fixed this.
 
 Other bugs that need fixing:
 
