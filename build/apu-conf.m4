@@ -356,7 +356,7 @@ dnl
 AC_DEFUN(APU_FIND_EXPAT,[
 
 AC_ARG_WITH([expat],
-[ --with-expat=DIR        specify Expat location], [
+[  --with-expat=DIR        specify Expat location], [
   if test "$withval" = "yes"; then
     AC_MSG_ERROR([a directory must be specified for --with-expat])
   elif test "$withval" = "no"; then
@@ -447,9 +447,9 @@ apu_has_ldap="undef";
 apu_has_ldap_netscape_ssl="undef"
 apu_has_ldap_starttls="undef"
 
-AC_ARG_WITH(ldap-include,  --with-ldap-include=path     path to ldap include files with trailing slash)
-AC_ARG_WITH(ldap-lib,  --with-ldap-lib=path     path to ldap lib file)
-AC_ARG_WITH(ldap,  --with-ldap=library   ldap library to use,
+AC_ARG_WITH(ldap-include,[  --with-ldap-include=path  path to ldap include files with trailing slash])
+AC_ARG_WITH(ldap-lib,[  --with-ldap-lib=path    path to ldap lib file])
+AC_ARG_WITH(ldap,[  --with-ldap=library     ldap library to use],
   [
     if test -n "$with_ldap_include"; then
       APR_ADDTO(CPPFLAGS, [-I$with_ldap_include])
