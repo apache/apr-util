@@ -86,5 +86,6 @@ aprutil.exp: exports.c export_vars.c
 dox:
 	doxygen $(top_srcdir)/docs/doxygen.conf
 
+test: check
 check: $(TARGET_LIB)
 	(cd test && $(MAKE) check)
