@@ -123,7 +123,7 @@
  * part of a larger object with enough earlier fields to accommodate
  * the offsetof() computed below. You can usually ignore this caveat.
  */
-#define AP_RING_SENTINAL(hp, elem, link)				\
+#define AP_RING_SENTINEL(hp, elem, link)				\
     (struct elem *)((char *)(hp) - offsetof(struct elem, link))
 
 /*
