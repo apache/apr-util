@@ -241,6 +241,46 @@ fi
 
 ])
 
+dnl APU_SUBDIR_CONFIG
+dnl ### we should use APR's copy of this
+AC_DEFUN(APU_SUBDIR_CONFIG, [
+  # save our work to this point; this allows the sub-package to use it
+  AC_CACHE_SAVE
+
+  echo "configuring package in $1 now"
+  ac_popdir=`pwd`
+  ac_abs_srcdir=`(cd $srcdir/$1 && pwd)`
+  apr_config_subdirs="$1"
+  test -d $1 || $MKDIR $1
+  cd $1
+
+changequote(, )dnl
+      # A "../" for each directory in /$config_subdirs.
+      ac_dots=`echo $apr_config_subdirs|sed -e 's%^\./%%' -e 's%[^/]$%&/%' -e 's%[^/]*/%../%g'`
+changequote([, ])dnl
+
+  # Make the cache file name correct relative to the subdirectory.
+  case "$cache_file" in
+  /*) ac_sub_cache_file=$cache_file ;;
+  *) # Relative path.
+    ac_sub_cache_file="$ac_dots$cache_file" ;;
+  esac
+
+  # The eval makes quoting arguments work.
+  if eval $ac_abs_srcdir/configure $ac_configure_args --cache-file=$ac_sub_cache_file --srcdir=$ac_abs_srcdir $2
+  then :
+    echo "$1 configured properly"
+  else
+    echo "configure failed for $1"
+    exit 1
+  fi
+
+  cd $ac_popdir
+
+  # grab any updates from the sub-package
+  AC_CACHE_LOAD
+])dnl
+
 dnl
 dnl APU_TEST_EXPAT(directory): test if Expat is located in the specified dir
 dnl
@@ -249,7 +289,7 @@ dnl
 AC_DEFUN(APU_TEST_EXPAT,[
   AC_MSG_CHECKING(for Expat in ifelse($2,,$1,$2))
 
-  if test -r "$1/lib/expat.h"; then
+  if test -r "$1/lib/expat.h.in"; then
     dnl Expat 1.95.* distribution
     expat_include_dir="$1/lib"
     expat_libs="$1/lib/libexpat.la"
@@ -311,7 +351,7 @@ AC_ARG_WITH([expat],
 ])
 
 if test -z "$expat_include_dir"; then
-  for d in /usr /usr/local xml/expat ; do
+  for d in /usr /usr/local xml/expat-cvs xml/expat ; do
     APU_TEST_EXPAT($d)
     if test -n "$expat_include_dir"; then
       break
@@ -327,9 +367,11 @@ if test -n "$expat_old"; then
 fi
 
 dnl special-case the bundled distribution (use absolute dirs)
-if test "$expat_include_dir" = "xml/expat/lib"; then
-  expat_include_dir=$srcdir/xml/expat/lib
-  expat_libs=$top_builddir/xml/expat/lib/libexpat.la
+if test "$expat_include_dir" = "xml/expat/lib" -o "$expat_include_dir" = "xml/expat-cvs/lib"; then
+  bundled_subdir="`echo $expat_include_dir | sed -e 's%/lib%%'`"
+  APU_SUBDIR_CONFIG($bundled_subdir)
+  expat_include_dir=$srcdir/$bundled_subdir/lib
+  expat_libs=$top_builddir/$bundled_subdir/lib/libexpat.la
 fi
 
 INCLUDES="$INCLUDES -I$expat_include_dir"
