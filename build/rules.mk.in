@@ -84,6 +84,9 @@ LT_COMPILE   = $(LIBTOOL) --mode=compile $(LTFLAGS) $(COMPILE) -c $< && touch $@
 
 LINK         = $(LIBTOOL) --mode=link $(LTFLAGS) $(COMPILE) $(LDFLAGS) -o $@
 
+MKEXPORT     = $(AWK) -f $(APR_SOURCE_DIR)/build/make_export.awk
+SCANDOC      = $(APR_SOURCE_DIR)/build/scandoc.pl
+
 #
 # Standard build rules
 #
