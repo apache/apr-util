@@ -155,6 +155,14 @@ SOURCE=.\crypto\apr_md5.c
 
 SOURCE=.\crypto\apr_sha1.c
 # End Source File
+# Begin Source File
+
+SOURCE=.\crypto\getuuid.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\crypto\uuid.c
+# End Source File
 # End Group
 # Begin Group "dbm"
 
@@ -496,6 +504,10 @@ SOURCE=.\include\apr_strmatch.h
 # Begin Source File
 
 SOURCE=.\include\apr_uri.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\apr_uuid.h
 # End Source File
 # Begin Source File
 
