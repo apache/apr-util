@@ -305,6 +305,7 @@ static void test_insertfile(abts_case *tc, void *ctx)
         apr_file_close(f);
         apr_file_remove(TIF_FNAME, p);
         ABTS_NOT_IMPL(tc, "Skipped: could not create large file");
+        return;
     }
     
     bb = apr_brigade_create(p, ba);
