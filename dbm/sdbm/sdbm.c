@@ -254,7 +254,8 @@ sdbm_delete(SDBM *db, const sdbm_datum key)
 
 	if (getpage(db, exhash(key)) == APR_SUCCESS) {
 		if (!delpair(db->pagbuf, key))
-			return -1;
+                        /* ### should we define some APRUTIL codes? */
+			return APR_EGENERAL;
 /*
  * update the page file
  */
