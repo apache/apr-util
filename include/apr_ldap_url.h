@@ -103,13 +103,13 @@ typedef struct apr_ldap_url_desc_t {
  *
  * need _ext varients
  */
-APU_DECLARE(int) apr_ldap_is_ldap_url(LDAP_CONST char *url);
+APU_DECLARE(int) apr_ldap_is_ldap_url(const char *url);
 
-APU_DECLARE(int) apr_ldap_is_ldaps_url(LDAP_CONST char *url);
+APU_DECLARE(int) apr_ldap_is_ldaps_url(const char *url);
 
-APU_DECLARE(int) apr_ldap_is_ldapi_url(LDAP_CONST char *url);
+APU_DECLARE(int) apr_ldap_is_ldapi_url(const char *url);
 
-APU_DECLARE(int) apr_ldap_url_parse(LDAP_CONST char *url, 
+APU_DECLARE(int) apr_ldap_url_parse(const char *url, 
                                     apr_ldap_url_desc_t **ludpp);
 
 APU_DECLARE(void) apr_ldap_free_urldesc(apr_ldap_url_desc_t *ludp);
