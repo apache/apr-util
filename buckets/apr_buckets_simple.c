@@ -126,7 +126,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_immortal_create(
  */
 static apr_status_t transient_setaside(apr_bucket *b, apr_pool_t *pool)
 {
-    b = apr_bucket_heap_make(b, (char *)b->data + b->start, b->length, 1, NULL);
+    b = apr_bucket_heap_make(b, (char *)b->data + b->start, b->length, 1);
     if (b == NULL) {
         return APR_ENOMEM;
     }

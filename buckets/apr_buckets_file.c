@@ -180,7 +180,7 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
      * Change the current bucket to refer to what we read,
      * even if we read nothing because we hit EOF.
      */
-    apr_bucket_heap_make(e, buf, *len, 0, NULL); /*XXX: check for failure? */
+    apr_bucket_heap_make(e, buf, *len, 0);
 
     /* If we have more to read from the file, then create another bucket */
     if (filelength > 0) {
