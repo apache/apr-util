@@ -582,7 +582,6 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
                 ds.tm_gmtoff += (offset / 100) * 60 * 60;
                 ds.tm_gmtoff += (offset % 100) * 60;
                 break;
-            default:
             }
         }
     }
