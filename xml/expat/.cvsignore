@@ -1,0 +1,6 @@
+Makefile
+aclocal.m4
+configure
+libtool
+config.h.in
+config.h
