@@ -52,7 +52,6 @@
  * <http://www.apache.org/>.
  */
 
-#include "httpd.h"
 #include "ap_buckets.h"
 #include <stdlib.h>
 
@@ -88,7 +87,7 @@ static void heap_destroy(void *data)
     free(h);
 }
 
-AP_DECLARE(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
+APR_DECLARE(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
 		const char *buf, apr_size_t length, int copy, apr_size_t *w)
 {
     ap_bucket_heap *h;
@@ -135,7 +134,7 @@ AP_DECLARE(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
     return b;
 }
 
-AP_DECLARE(ap_bucket *) ap_bucket_create_heap(
+APR_DECLARE(ap_bucket *) ap_bucket_create_heap(
 		const char *buf, apr_size_t length, int copy, apr_size_t *w)
 {
     ap_bucket_do_create(ap_bucket_make_heap(b, buf, length, copy, w));

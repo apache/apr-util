@@ -52,7 +52,7 @@
  * <http://www.apache.org/>.
  */
 
-#include "httpd.h"
+#include "apr_lib.h"
 #include "ap_buckets.h"
 #include <stdlib.h>
 
@@ -71,9 +71,9 @@ static apr_status_t socket_read(ap_bucket *a, const char **str,
         apr_setsocketopt(p, APR_SO_TIMEOUT, 0);
     }
 
-    buf = malloc(IOBUFSIZE); /* XXX: check for failure? */
+    buf = malloc(HUGE_STRING_LEN); /* XXX: check for failure? */
     *str = buf;
-    *len = IOBUFSIZE;
+    *len = HUGE_STRING_LEN;
     rv = apr_recv(p, buf, len);
 
     if (block == AP_NONBLOCK_READ) {
@@ -112,7 +112,7 @@ static apr_status_t socket_read(ap_bucket *a, const char **str,
     return APR_SUCCESS;
 }
 
-AP_DECLARE(ap_bucket *) ap_bucket_make_socket(ap_bucket *b, apr_socket_t *p)
+APR_DECLARE(ap_bucket *) ap_bucket_make_socket(ap_bucket *b, apr_socket_t *p)
 {
     /*
      * XXX: We rely on a cleanup on some pool or other to actually
@@ -129,7 +129,7 @@ AP_DECLARE(ap_bucket *) ap_bucket_make_socket(ap_bucket *b, apr_socket_t *p)
     return b;
 }
 
-AP_DECLARE(ap_bucket *) ap_bucket_create_socket(apr_socket_t *p)
+APR_DECLARE(ap_bucket *) ap_bucket_create_socket(apr_socket_t *p)
 {
     ap_bucket_do_create(ap_bucket_make_socket(b, p));
 }
