@@ -74,7 +74,7 @@ static void heap_destroy(void *data)
 
     if (apr_bucket_shared_destroy(h)) {
         free(h->base);
-        free(h);
+        apr_sms_free(h->sms, h);
     }
 }
 
@@ -83,18 +83,11 @@ APU_DECLARE(apr_bucket *) apr_bucket_heap_make(apr_bucket *b,
 {
     apr_bucket_heap *h;
 
-    h = malloc(sizeof(*h));
-    if (h == NULL) {
-	return NULL;
-    }
+    h = (apr_bucket_heap *)apr_sms_malloc(b->sms, sizeof(*h));
 
     if (copy) {
 	h->alloc_len = length;
 	h->base = malloc(h->alloc_len);
-	if (h->base == NULL) {
-	    free(h);
-	    return NULL;
-	}
 	memcpy(h->base, buf, length);
     }
     else {
@@ -104,10 +97,12 @@ APU_DECLARE(apr_bucket *) apr_bucket_heap_make(apr_bucket *b,
 	h->base = (char *) buf;
 	h->alloc_len = length;
     }
+    h->sms = b->sms;
 
-    b = apr_bucket_shared_make(b, h, 0, length);
+    apr_bucket_shared_make(b, h, 0, length);
     b->type = &apr_bucket_type_heap;
 
+    /* XXX: the w parm is useless and should go away */
     if (w)
         *w = length;
 
@@ -117,10 +112,16 @@ APU_DECLARE(apr_bucket *) apr_bucket_heap_make(apr_bucket *b,
 APU_DECLARE(apr_bucket *) apr_bucket_heap_create(
 		const char *buf, apr_size_t length, int copy, apr_size_t *w)
 {
-    apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
+    apr_sms_t *sms;
+    apr_bucket *b;
 
+    if (!apr_bucket_global_sms) {
+        apr_sms_std_create(&apr_bucket_global_sms);
+    }
+    sms = apr_bucket_global_sms;
+    b = (apr_bucket *)apr_sms_malloc(sms, sizeof(*b));
     APR_BUCKET_INIT(b);
-    b->free = free;
+    b->sms = sms;
     return apr_bucket_heap_make(b, buf, length, copy, w);
 }
 

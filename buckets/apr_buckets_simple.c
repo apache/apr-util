@@ -53,14 +53,11 @@
  */
 
 #include "apr_buckets.h"
-#include <stdlib.h>
 
 APU_DECLARE_NONSTD(apr_status_t) apr_bucket_simple_copy(apr_bucket *a,
                                                         apr_bucket **b)
 {
-    if ((*b = malloc(sizeof(**b))) == NULL) {
-	return APR_ENOMEM;
-    }
+    *b = (apr_bucket *)apr_sms_malloc(a->sms, sizeof(**b));
     **b = *a;
 
     return APR_SUCCESS;
@@ -70,16 +67,12 @@ APU_DECLARE_NONSTD(apr_status_t) apr_bucket_simple_split(apr_bucket *a,
                                                          apr_size_t point)
 {
     apr_bucket *b;
-    apr_status_t rv;
 
     if ((point > a->length) || (a->length == (apr_size_t)(-1))) {
 	return APR_EINVAL;
     }
 
-    rv = apr_bucket_simple_copy(a, &b);
-    if (rv != APR_SUCCESS) {
-        return rv;
-    }
+    apr_bucket_simple_copy(a, &b);
 
     a->length  = point;
     b->length -= point;
@@ -105,17 +98,22 @@ APU_DECLARE(apr_bucket *) apr_bucket_immortal_make(apr_bucket *b,
     b->length = length;
     b->start  = 0;
     b->type   = &apr_bucket_type_immortal;
-
     return b;
 }
 
 APU_DECLARE(apr_bucket *) apr_bucket_immortal_create(
 		const char *buf, apr_size_t length)
 {
-    apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
+    apr_sms_t *sms;
+    apr_bucket *b;
 
+    if (!apr_bucket_global_sms) {
+        apr_sms_std_create(&apr_bucket_global_sms);
+    }
+    sms = apr_bucket_global_sms;
+    b = (apr_bucket *)apr_sms_malloc(sms, sizeof(*b));
     APR_BUCKET_INIT(b);
-    b->free = free;
+    b->sms = sms;
     return apr_bucket_immortal_make(b, buf, length);
 }
 
@@ -130,10 +128,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_immortal_create(
  */
 static apr_status_t transient_setaside(apr_bucket *b, apr_pool_t *pool)
 {
-    b = apr_bucket_heap_make(b, (char *)b->data + b->start, b->length, 1, NULL);
-    if (b == NULL) {
-        return APR_ENOMEM;
-    }
+    apr_bucket_heap_make(b, (char *)b->data + b->start, b->length, 1, NULL);
     return APR_SUCCESS;
 }
 
@@ -150,10 +145,16 @@ APU_DECLARE(apr_bucket *) apr_bucket_transient_make(apr_bucket *b,
 APU_DECLARE(apr_bucket *) apr_bucket_transient_create(
 		const char *buf, apr_size_t length)
 {
-    apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
+    apr_sms_t *sms;
+    apr_bucket *b;
 
+    if (!apr_bucket_global_sms) {
+        apr_sms_std_create(&apr_bucket_global_sms);
+    }
+    sms = apr_bucket_global_sms;
+    b = (apr_bucket *)apr_sms_malloc(sms, sizeof(*b));
     APR_BUCKET_INIT(b);
-    b->free = free;
+    b->sms = sms;
     return apr_bucket_transient_make(b, buf, length);
 }
 
