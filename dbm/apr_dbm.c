@@ -181,41 +181,43 @@ APU_DECLARE(char *) apr_dbm_geterror(apr_dbm_t *dbm, int *errcode,
     return errbuf;
 }
 
-APU_DECLARE(void) apr_dbm_get_usednames_ex(apr_pool_t *p, 
-                                           const char *type, 
-                                           const char *pathname,
-                                           const char **used1,
-                                           const char **used2)
+APU_DECLARE(apr_status_t) apr_dbm_get_usednames_ex(apr_pool_t *p, 
+                                                   const char *type, 
+                                                   const char *pathname,
+                                                   const char **used1,
+                                                   const char **used2)
 {
 #if APU_HAVE_GDBM
     if (!strcasecmp(type, "GDBM")) {
         (*apr_dbm_type_gdbm.getusednames)(p,pathname,used1,used2);
-        return;
+        return APR_SUCCESS;
     }
 #endif
 #if APU_HAVE_SDBM
     if (!strcasecmp(type, "SDBM")) {
         (*apr_dbm_type_sdbm.getusednames)(p,pathname,used1,used2);
-        return;
+        return APR_SUCCESS;
     }
 #endif
 #if APU_HAVE_DB
     if (!strcasecmp(type, "DB")) {
         (*apr_dbm_type_db.getusednames)(p,pathname,used1,used2);
-        return;
+        return APR_SUCCESS;
     }
 #endif
 #if APU_HAVE_NDBM
     if (!strcasecmp(type, "NDBM")) {
         (*apr_dbm_type_ndbm.getusednames)(p,pathname,used1,used2);
-        return;
+        return APR_SUCCESS;
     }
 #endif
 
     if (!strcasecmp(type, "default")) {
         (*DBM_VTABLE.getusednames)(p, pathname, used1, used2);
-        return;
+        return APR_SUCCESS;
     }
+
+    return APR_ENOTIMPL;
 } 
 
 APU_DECLARE(void) apr_dbm_get_usednames(apr_pool_t *p,
