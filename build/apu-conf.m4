@@ -544,7 +544,6 @@ else
   APR_ADDTO(APRUTIL_EXPORT_LIBS, [$expat_libs])
 fi
 fi
-fi
 APR_XML_DIR=$bundled_subdir
 APR_XML_EXPAT_OLD=$expat_old
 AC_SUBST(APR_XML_SUBDIRS)
