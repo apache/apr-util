@@ -87,7 +87,7 @@
 #include "ap_base64.h"
 #include "apr_lib.h"
 #ifdef CHARSET_EBCDIC
-#include "ebcdic.h"
+#include "apr_xlate.h"
 #endif /*CHARSET_EBCDIC*/
 
 /* a bit faster & bigger, if defined */
@@ -117,6 +117,16 @@
     E = D; D = C; C = ROT32(B,30); B = A; A = temp
 
 #define SHA_BLOCKSIZE           64
+
+#ifdef CHARSET_EBCDIC
+static ap_xlate_t *ebcdic2ascii_xlate;
+
+API_EXPORT(ap_status_t) ap_SHA1InitEBCDIC(ap_xlate_t *x)
+{
+    ebcdic2ascii_xlate = x;
+    return APR_SUCCESS;
+}
+#endif
 
 typedef unsigned char AP_BYTE;
 
@@ -279,6 +289,7 @@ API_EXPORT(void) ap_SHA1Update(AP_SHA1_CTX *sha_info, const char *buf,
 #ifdef CHARSET_EBCDIC
     int i;
     const AP_BYTE *buffer = (const AP_BYTE *) buf;
+    ap_size_t inbytes_left, outbytes_left;
 
     if ((sha_info->count_lo + ((ap_uint32_t) count << 3)) < sha_info->count_lo) {
 	++sha_info->count_hi;
@@ -291,8 +302,10 @@ API_EXPORT(void) ap_SHA1Update(AP_SHA1_CTX *sha_info, const char *buf,
 	if (i > count) {
 	    i = count;
 	}
-	ebcdic2ascii_strictly(((AP_BYTE *) sha_info->data) + sha_info->local,
-			      buffer, i);
+        inbytes_left = outbytes_left = i;
+        ap_xlate_conv_buffer(ebcdic2ascii_xlate, buffer, &inbytes_left,
+                             ((AP_BYTE *) sha_info->data) + sha_info->local,
+                             &outbytes_left);
 	count -= i;
 	buffer += i;
 	sha_info->local += i;
@@ -305,13 +318,17 @@ API_EXPORT(void) ap_SHA1Update(AP_SHA1_CTX *sha_info, const char *buf,
 	}
     }
     while (count >= SHA_BLOCKSIZE) {
-	ebcdic2ascii_strictly((AP_BYTE *)sha_info->data, buffer, SHA_BLOCKSIZE);
+        inbytes_left = outbytes_left = SHA_BLOCKSIZE;
+        ap_xlate_conv_buffer(ebcdic2ascii_xlate, buffer, &inbytes_left,
+                             (AP_BYTE *) sha_info->data, &outbytes_left);
 	buffer += SHA_BLOCKSIZE;
 	count -= SHA_BLOCKSIZE;
 	maybe_byte_reverse(sha_info->data, SHA_BLOCKSIZE);
 	sha_transform(sha_info);
     }
-    ebcdic2ascii_strictly((AP_BYTE *)sha_info->data, buffer, count);
+    inbytes_left = outbytes_left = count;
+    ap_xlate_conv_buffer(ebcdic2ascii_xlate, buffer, &inbytes_left,
+                         (AP_BYTE *) sha_info->data, &outbytes_left);
     sha_info->local = count;
 #else
     ap_SHA1Update_binary(sha_info, (const unsigned char *) buf, count);
