@@ -226,6 +226,39 @@ struct ap_bucket_brigade {
 };
 
 /**
+ * Wrappers around the RING macros to reduce the verbosity of the code
+ * that handles bucket brigades.
+ */
+#define AP_BRIGADE_SENTINEL(b)	AP_RING_SENTINEL(&(b)->list, ap_bucket, link)
+
+#define AP_BRIGADE_EMPTY(b)	AP_RING_EMPTY(&(b)->list, ap_bucket, link)
+
+#define AP_BRIGADE_FIRST(b)	AP_RING_FIRST(&(b)->list)
+#define AP_BRIGADE_LAST(b)	AP_RING_LAST(&(b)->list)
+
+#define AP_BRIGADE_FOREACH(e, b)					\
+	AP_RING_FOREACH((e), &(b)->list, ap_bucket, link)
+
+#define AP_BRIGADE_INSERT_HEAD(b, e)					\
+	AP_RING_INSERT_HEAD(&(b)->list, (e), ap_bucket, link)
+#define AP_BRIGADE_INSERT_TAIL(b, e)					\
+	AP_RING_INSERT_TAIL(&(b)->list, (e), ap_bucket, link)
+
+#define AP_BRIGADE_CONCAT(a, b)						\
+	AP_RING_CONCAT(&(a)->list, &(b)->list, ap_bucket, link)
+
+#define AP_BUCKET_INSERT_BEFORE(a, b)					\
+	AP_RING_INSERT_BEFORE((a), (b), link)
+#define AP_BUCKET_INSERT_AFTER(a, b)					\
+	AP_RING_INSERT_AFTER((a), (b), link)
+
+#define AP_BUCKET_NEXT(e)	AP_RING_NEXT((e), link)
+#define AP_BUCKET_PREV(e)	AP_RING_PREV((e), link)
+
+#define AP_BUCKET_REMOVE(e)	AP_RING_REMOVE((e), link)
+
+
+/**
  * General-purpose reference counting for the varous bucket types.
  *
  * Any bucket type that keeps track of the resources it uses (i.e.
@@ -233,8 +266,7 @@ struct ap_bucket_brigade {
  * attach a reference count to the resource so that it can be freed
  * when the last bucket that uses it goes away. Resource-sharing may
  * occur because of bucket splits or buckets that refer to globally
- * cached data.
- */
+ * cached data. */
 
 /**
  * The structure used to manage the shared resource must start with an
@@ -345,27 +377,6 @@ API_EXPORT(ap_bucket_brigade *) ap_brigade_create(apr_pool_t *p);
  * @deffunc apr_status_t ap_brigade_destroy(ap_bucket_brigade *b)
  */
 API_EXPORT(apr_status_t) ap_brigade_destroy(ap_bucket_brigade *b);
-
-/**
- * add a bucket to the end of a bucket_brigade.
- * @param b The bucket brigade to add the bucket to
- * @param e The bucket list to add
- * @deffunc void ap_brigade_append_buckets(ap_bucket_brigade *b, ap_bucket *e)
- */
-API_EXPORT(void) ap_brigade_add_bucket(ap_bucket_brigade *b,
-				       ap_bucket *e);
-
-/**
- * Concatenate bucket_brigade b onto the end of bucket_brigade a,
- * emptying bucket_brigade b in the process. Neither bucket brigade
- * can be NULL, but either one of them can be emtpy when calling this
- * function.
- * @param a The brigade to catenate to.
- * @param b The brigade to add to a.  This brigade will be empty on return
- * @deffunc void ap_brigade_catenate(ap_bucket_brigade *a, ap_bucket_brigade *b)
- */
-API_EXPORT(void) ap_brigade_catenate(ap_bucket_brigade *a, 
-				     ap_bucket_brigade *b);
 
 /**
  * Split a bucket brigade into two, such that the given bucket is the
