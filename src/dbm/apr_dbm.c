@@ -56,12 +56,10 @@
 #include "apr_errno.h"
 #include "apr_pools.h"
 
+#include "apu_private.h"
 #include "apu_dbm.h"
 
-/* ### until we get the autoconf magic going... */
-#define APU_USE_SDBM
-
-#ifdef APU_USE_SDBM
+#if APU_USE_SDBM
 #include "sdbm.h"
 
 typedef SDBM *real_file_t;
@@ -79,7 +77,7 @@ typedef sdbm_datum real_datum_t;
 #define APU_DBM_DBMODE_RW       (APR_READ | APR_WRITE)
 #define APU_DBM_DBMODE_RWCREATE (APR_READ | APR_WRITE | APR_CREATE)
 
-#elif defined(APU_USE_GDBM)
+#elif APU_USE_GDBM
 #include <gdbm.h>
 #include <stdlib.h>     /* for free() */
 
@@ -132,7 +130,7 @@ static apr_status_t set_error(apu_dbm_t *db)
 {
     apr_status_t rv = APR_SUCCESS;
 
-#if defined(APU_USE_SDBM)
+#if APU_USE_SDBM
 
     if ((db->errcode = sdbm_error(db->file)) == 0) {
         db->errmsg = NULL;
@@ -145,7 +143,7 @@ static apr_status_t set_error(apu_dbm_t *db)
     /* captured it. clear it now. */
     sdbm_clearerr(db->file);
 
-#elif defined(APU_USE_GDBM)
+#elif APU_USE_GDBM
 
     if ((db->errcode = gdbm_errno) == GDBM_NO_ERROR) {
         db->errmsg = NULL;
@@ -185,7 +183,7 @@ apr_status_t apu_dbm_open(const char *pathname, apr_pool_t *pool, int mode,
         return APR_EINVAL;
     }
 
-#ifdef APU_USE_SDBM
+#if APU_USE_SDBM
     {
         apr_status_t rv;
 
@@ -193,7 +191,7 @@ apr_status_t apu_dbm_open(const char *pathname, apr_pool_t *pool, int mode,
         if (rv != APR_SUCCESS)
             return rv;
     }
-#else
+#elif APU_USE_GDBM
     {
         /* Note: stupid cast to get rid of "const" on the pathname */
         file = gdbm_open((char *) pathname, 0, dbmode, 0660, NULL);
@@ -258,14 +256,14 @@ int apu_dbm_exists(apu_dbm_t *db, apu_datum_t key)
 {
     int exists;
 
-#ifdef APU_USE_GDBM
-    exists = gdbm_exists(db->file, A2R_DATUM(key)) != 0;
-#else
+#if APU_USE_SDBM
     {
 	sdbm_datum value = sdbm_fetch(db->file, A2R_DATUM(key));
 	sdbm_clearerr(db->file);	/* don't need the error */
 	exists = value.dptr != NULL;
     }
+#elif APU_USE_GDBM
+    exists = gdbm_exists(db->file, A2R_DATUM(key)) != 0;
 #endif
     return exists;
 }
