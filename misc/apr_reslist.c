@@ -286,7 +286,7 @@ APU_DECLARE(apr_status_t) apr_reslist_create(apr_reslist_t **reslist,
 
     /* Do some sanity checks so we don't thrash around in the
      * maintenance routine later. */
-    if (min >= smax || min >= hmax || smax > hmax || ttl < 0) {
+    if (min > smax || min > hmax || smax > hmax || ttl < 0) {
         return APR_EINVAL;
     }
 
@@ -368,6 +368,12 @@ APU_DECLARE(apr_status_t) apr_reslist_acquire(apr_reslist_t *reslist,
      * a resource to fill the slot and use it. */
     else {
         rv = create_resource(reslist, &res);
+
+        if (rv != APR_SUCCESS) {
+           apr_thread_mutex_unlock(reslist->listlock);
+           return rv;
+        }
+
         reslist->ntotal++;
         *resource = res->opaque;
         free_container(reslist, res);
