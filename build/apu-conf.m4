@@ -184,8 +184,29 @@ One of: sdbm, gdbm, db, db1, db185, db2, db3, db4])
 ],[
   requested=default
 ])
+AC_ARG_WITH([gdbm],
+[ --with-gdbm=DIR          specify GDBM location], [
+    apu_have_gdbm=0
+    if test "$withval" = "yes"; then
+      AC_CHECK_HEADER(gdbm.h, AC_CHECK_LIB(gdbm, gdbm_open, [apu_have_gdbm=1]))
+    elif test "$withval" = "no"; then
+      apu_have_gdbm=0
+    else
+        CPPFLAGS="-I$withval/include"
+        LIBS="-L$withval/lib "
 
-AC_CHECK_HEADER(gdbm.h, AC_CHECK_LIB(gdbm, gdbm_open, [apu_have_gdbm=1]))
+        AC_MSG_CHECKING(checking for gdbm in $withval)
+        AC_CHECK_HEADER(gdbm.h, AC_CHECK_LIB(gdbm, gdbm_open, [apu_have_gdbm=1]))
+        if test "$apu_have_gdbm" != "0"; then
+            APR_ADDTO(APRUTIL_EXPORT_LIBS, [-L$withval/lib])
+            APR_ADDTO(APR_INCLUDES, [-I$withval/include])
+        fi
+    fi
+],[
+    apu_have_gdbm=0
+    AC_CHECK_HEADER(gdbm.h, AC_CHECK_LIB(gdbm, gdbm_open, [apu_have_gdbm=1]))
+])
+        
 
 dnl We're going to try to find the highest version of Berkeley DB supported.
 APU_CHECK_DB4
