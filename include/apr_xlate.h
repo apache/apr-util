@@ -100,7 +100,6 @@ typedef struct apr_xlate_t            apr_xlate_t;
  *  Return APR_EINVAL if unable to procure a convset, or APR_ENOTIMPL
  *  if charset transcoding is not available in this instance of
  *  apr-util at all (i.e., APR_HAS_XLATE is undefined).
- * </PRE>
  */
 APU_DECLARE(apr_status_t) apr_xlate_open(apr_xlate_t **convset, 
                                          const char *topage, 

@@ -88,8 +88,7 @@ typedef struct apr_text apr_text;
 struct apr_text {
     /** The current piece of text */
     const char *text;
-    /** a pointer to the next piece of text 
-     *  @defvar apr_text *next */
+    /** a pointer to the next piece of text */
     struct apr_text *next;
 };
 
@@ -190,8 +189,7 @@ struct apr_xml_attr {
     /** attribute value */
     const char *value;
 
-    /** next attribute
-     *  @defvar apr_xml_attr *next */
+    /** next attribute */
     struct apr_xml_attr *next;
 };
 
@@ -209,25 +207,19 @@ struct apr_xml_elem {
     /** cdata after MY end tag */
     apr_text_header following_cdata;
 
-    /** parent element 
-     *  @defvar apr_xml_elem *parent */
+    /** parent element */
     struct apr_xml_elem *parent;	
-    /** next (sibling) element 
-     *  @defvar apr_xml_elem *next */
+    /** next (sibling) element */
     struct apr_xml_elem *next;	
-    /** first child element 
-     *  @defvar apr_xml_elem *first_child */
+    /** first child element */
     struct apr_xml_elem *first_child;
-    /** first attribute 
-     *  @defvar apr_xml_attr *attr */
+    /** first attribute */
     struct apr_xml_attr *attr;		
 
     /* used only during parsing */
-    /** last child element 
-     *  @defvar apr_xml_elem *last_child */
+    /** last child element */
     struct apr_xml_elem *last_child;
-    /** namespaces scoped by this elem 
-     *  @defvar apr_xml_ns_scope *ns_scope */
+    /** namespaces scoped by this elem */
     struct apr_xml_ns_scope *ns_scope;
 
     /* used by modules during request processing */

@@ -99,7 +99,7 @@ typedef void (apr_opt_fn_t)(void);
 APU_DECLARE_NONSTD(void) apr_dynamic_fn_register(const char *szName, 
                                                   apr_opt_fn_t *pfn);
     
-/** @deprecated @see apr_dynamic_fn_register */
+/** @internal deprecated function, see apr_dynamic_fn_register */
 APU_DECLARE_NONSTD(void) apr_register_optional_fn(const char *szName, 
                                                   apr_opt_fn_t *pfn);
 
@@ -118,7 +118,7 @@ APU_DECLARE_NONSTD(void) apr_register_optional_fn(const char *szName,
  */
 APU_DECLARE(apr_opt_fn_t *) apr_dynamic_fn_retrieve(const char *szName);
 
-/** @deprecated @see apr_dynamic_fn_retrieve */
+/** @internal deprecated function, see apr_dynamic_fn_retrieve */
 APU_DECLARE(apr_opt_fn_t *) apr_retrieve_optional_fn(const char *szName);
 
 /**
