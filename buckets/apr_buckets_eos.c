@@ -67,7 +67,6 @@ APU_DECLARE(apr_bucket *) apr_bucket_eos_make(apr_bucket *b)
     b->length      = 0;
     b->start       = 0;
     b->data        = NULL;
-    b->is_metadata = 1;
     b->type        = &apr_bucket_type_eos;
     
     return b;
@@ -84,7 +83,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_eos_create(apr_bucket_alloc_t *list)
 }
 
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_eos = {
-    "EOS", 5,
+    "EOS", 5, APR_BUCKET_METADATA,
     apr_bucket_destroy_noop,
     eos_bucket_read,
     apr_bucket_setaside_noop,

@@ -152,6 +152,11 @@ typedef struct apr_bucket_brigade apr_bucket_brigade;
 typedef struct apr_bucket apr_bucket;
 typedef struct apr_bucket_alloc_t apr_bucket_alloc_t;
 
+/** This bucket type represents actual data to send to the client. */
+#define APR_BUCKET_DATA             0
+/** This bucket type represents metadata. */
+#define APR_BUCKET_METADATA         1
+
 typedef struct apr_bucket_type_t apr_bucket_type_t;
 struct apr_bucket_type_t {
     /**
@@ -163,6 +168,10 @@ struct apr_bucket_type_t {
      * five.
      */
     int num_func;
+    /**
+     * Does the bucket contain metadata
+     */
+    int is_metadata;
     /**
      * Free the private data and any resources used by the bucket (if they
      *  aren't shared with another bucket).  This function is required to be
@@ -261,10 +270,6 @@ struct apr_bucket {
     void (*free)(void *e);
     /** The freelist from which this bucket was allocated */
     apr_bucket_alloc_t *list;
-    /**
-     * Does the bucket contain metadata
-     */
-    int is_metadata;
 };
 
 /** A list of buckets */
@@ -455,7 +460,7 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
  * @param e The bucket to inspect
  * @return true or false
  */
-#define APR_BUCKET_IS_METADATA(e)    (e->is_metadata)
+#define APR_BUCKET_IS_METADATA(e)    (e->type->is_metadata)
 
 /**
  * Determine if a bucket is a FLUSH bucket

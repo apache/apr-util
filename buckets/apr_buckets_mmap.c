@@ -120,7 +120,6 @@ APU_DECLARE(apr_bucket *) apr_bucket_mmap_make(apr_bucket *b, apr_mmap_t *mm,
     }
 
     b = apr_bucket_shared_make(b, m, start, length);
-    b->is_metadata = 0;
     b->type = &apr_bucket_type_mmap;
 
     return b;
@@ -172,7 +171,7 @@ static apr_status_t mmap_bucket_setaside(apr_bucket *data, apr_pool_t *p)
 }
 
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_mmap = {
-    "MMAP", 5,
+    "MMAP", 5, APR_BUCKET_DATA,
     mmap_bucket_destroy,
     mmap_bucket_read,
     mmap_bucket_setaside,

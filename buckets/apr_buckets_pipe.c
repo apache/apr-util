@@ -132,7 +132,6 @@ APU_DECLARE(apr_bucket *) apr_bucket_pipe_make(apr_bucket *b, apr_file_t *p)
     b->length      = (apr_size_t)(-1);
     b->start       = -1;
     b->data        = p;
-    b->is_metadata = 0;
     
     return b;
 }
@@ -149,7 +148,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_pipe_create(apr_file_t *p,
 }
 
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_pipe = {
-    "PIPE", 5,
+    "PIPE", 5, APR_BUCKET_DATA, 
     apr_bucket_destroy_noop,
     pipe_bucket_read,
     apr_bucket_setaside_notimpl,
