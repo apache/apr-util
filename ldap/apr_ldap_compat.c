@@ -14,6 +14,13 @@
  */
 
 /*
+ * WARNING: This code below is DEPRECATED in APR v1.0.
+ *
+ * It requires an overhaul, which will be available in a later release
+ * of APR. Please expect the code below to change without notice.
+ */
+
+/*
  * apr_ldap_compat.c: LDAP v2/v3 compatibility things
  * 
  * Original code from auth_ldap module for Apache v1.3:
