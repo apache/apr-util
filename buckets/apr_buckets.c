@@ -86,7 +86,7 @@ APU_DECLARE(void) apr_init_bucket_types(apr_pool_t *p)
     apr_insert_bucket_type(&apr_bucket_type_socket);
 }
 
-int apr_insert_bucket_type(const apr_bucket_type_t *type)
+APU_DECLARE(int) apr_insert_bucket_type(const apr_bucket_type_t *type)
 {
     const apr_bucket_type_t **newone;
 

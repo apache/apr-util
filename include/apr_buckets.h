@@ -778,7 +778,7 @@ APU_DECLARE_NONSTD(void) apr_bucket_destroy_notimpl(void *data);
  * @param type The new bucket type to register
  * @return The offset into the array in which the bucket types are stored
  */
-int apr_insert_bucket_type(const apr_bucket_type_t *type);
+APU_DECLARE(int) apr_insert_bucket_type(const apr_bucket_type_t *type);
 
 /* All of the bucket types implemented by the core */
 /**
