@@ -61,6 +61,7 @@
 #include "apr.h"
 #include "ap_hooks.h"
 #include "apr_hash.h"
+#include "ap_generic_hook.h"
 
 #if APR_HAVE_STRINGS_H
 #include <strings.h>
@@ -284,7 +285,7 @@ APU_DECLARE(void) ap_show_hook(const char *szName,const char * const *aszPre,
 
 /* Generic hook support */
 
-AP_DECLARE_EXTERNAL_HOOK(APU,void,_generic,(void))
+APU_DECLARE_EXTERNAL_HOOK(APU,void,_generic,(void))
 
 APU_DECLARE(apr_array_header_t *) ap_generic_hook_get(const char *szName)
 {
