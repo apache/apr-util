@@ -71,6 +71,8 @@
 #include "apr_errno.h"
 #include "apr_getopt.h"
 #include "apr_time.h"
+#define APR_WANT_STRFUNC
+#include "apr_want.h"
 
 #if APR_HAVE_STDIO_H
 #include <stdio.h>
