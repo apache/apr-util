@@ -161,7 +161,7 @@ void abts_run_test(abts_suite *ts, test_func f, void *value)
     }
     ss = ts->tail;
 
-    tc = malloc(sizeof(tc));
+    tc = malloc(sizeof(*tc));
     tc->failed = 0;
     tc->suite = ss;
     
