@@ -65,12 +65,14 @@
 #include <unistd.h>
 #endif
 
+#include "apu.h"
 #include "apr_portable.h"
 #include "apr_thread_mutex.h"
 #include "apr_thread_cond.h"
 #include "apr_errno.h"
 #include "apr_queue.h"
 
+#if APR_HAS_THREADS
 /* 
  * define this to get debug messages
  *
@@ -439,3 +441,5 @@ apr_status_t apr_queue_term(apr_queue_t *queue)
     }
     return apr_queue_interrupt_all(queue);
 }
+
+#endif /* APR_HAS_THREADS */
