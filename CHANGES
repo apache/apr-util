@@ -1,5 +1,8 @@
 Changes with APR-util 0.9.2
 
+  *) Allow apu-config to work in symlinked install directories when
+     'realpath' is available.  [Justin Erenkrantz]
+
   *) Fix bug in apr_strmatch when used with case-insensitive patterns.
      [Justin Erenkrantz]
 
