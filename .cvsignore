@@ -18,3 +18,4 @@ aprutil.opt
 aprutil.ncb
 *.plg
 *.
+libaprutil.rc
