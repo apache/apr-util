@@ -88,7 +88,7 @@ static apr_status_t pipe_read(ap_bucket *b, const char **str,
     if (*len > 0) {
         a = ap_bucket_create_pipe(bd->thepipe);
         b = ap_bucket_make_heap(b, buf, *len, 0, NULL);
-	AP_RING_INSERT_AFTER(a, b, link);
+	AP_RING_INSERT_AFTER(b, a, link);
     }
     return APR_SUCCESS;
 }
