@@ -1,5 +1,8 @@
 Changes with APR-util 1.1.0
 
+  *) Link libaprutil against the libraries on which it depends.
+     PR 11122.  [Joe Orton]
+
   *) Add apr_brigade_insert_file() function, to safely insert a file
      into a brigade, regardless of size.  [Joe Orton]
 
