@@ -201,9 +201,9 @@ struct apr_bucket_type_t {
      *  as with pipe and socket buckets), then APR_ENOTIMPL is returned.
      * @param e The bucket to split
      * @param point The offset of the first byte in the new bucket
-     * @deffunc apr_status_t split(apr_bucket *e, apr_off_t point)
+     * @deffunc apr_status_t split(apr_bucket *e, apr_size_t point)
      */
-    apr_status_t (*split)(apr_bucket *e, apr_off_t point);
+    apr_status_t (*split)(apr_bucket *e, apr_size_t point);
 
     /**
      * Copy the bucket structure (not the data), assuming that this is
@@ -233,15 +233,15 @@ struct apr_bucket {
     /** The length of the data in the bucket.  This could have been implemented
      *  with a function, but this is an optimization, because the most
      *  common thing to do will be to get the length.  If the length is unknown,
-     *  the value of this field will be -1.
+     *  the value of this field will be (apr_size_t)(-1).
      */
-    apr_off_t length;
+    apr_size_t length;
     /** The start of the data in the bucket relative to the private base
      *  pointer.  The vast majority of bucket types allow a fixed block of
      *  data to be referenced by multiple buckets, each bucket pointing to
      *  a different segment of the data.  That segment starts at base+start
      *  and ends at base+start+length.  
-     *  If the length == -1, then start == -1.
+     *  If the length == (apr_size_t)(-1), then start == -1.
      */
     apr_off_t start;
     /** type-dependent data hangs off this pointer */
@@ -652,10 +652,10 @@ APU_DECLARE(apr_status_t) apr_brigade_partition(apr_bucket_brigade *b,
  * appropriate, and/or modify start on last element 
  * @param b The brigade to consume data from
  * @param nbytes The number of bytes to consume
- * @deffunc void apr_brigade_consume(apr_bucket_brigade *b, apr_size_t nbytes)
+ * @deffunc void apr_brigade_consume(apr_bucket_brigade *b, apr_off_t nbytes)
  */
 APU_DECLARE(void) apr_brigade_consume(apr_bucket_brigade *b,
-                                      apr_size_t nbytes);
+                                      apr_off_t nbytes);
 #endif
 
 /**
@@ -663,11 +663,11 @@ APU_DECLARE(void) apr_brigade_consume(apr_bucket_brigade *b,
  * @param bb The brigade to compute the length of
  * @param read_all Read unknown-length buckets to force a size
  @ @param length Set to length of the brigade, or -1 if it has unknown-length buckets
- * @deffunc apr_status_t apr_brigade_length(apr_bucket_brigade *bb, int read_all, apr_ssize_t *length)
+ * @deffunc apr_status_t apr_brigade_length(apr_bucket_brigade *bb, int read_all, apr_off_t *length)
  */
 APU_DECLARE(apr_status_t) apr_brigade_length(apr_bucket_brigade *bb,
                                              int read_all,
-                                             apr_ssize_t *length);
+                                             apr_off_t *length);
 
 /**
  * create an iovec of the elements in a bucket_brigade... return number 
@@ -820,7 +820,7 @@ APU_DECLARE(apr_status_t) apr_brigade_vprintf(apr_bucket_brigade *b,
  * Split one bucket in two.
  * @param e The bucket to split
  * @param point The offset to split the bucket at
- * @deffunc apr_status_t apr_bucket_split(apr_bucket *e, apr_off_t point)
+ * @deffunc apr_status_t apr_bucket_split(apr_bucket *e, apr_size_t point)
  */
 #define apr_bucket_split(e,point) (e)->type->split(e, point)
 
@@ -864,10 +864,10 @@ APU_DECLARE_NONSTD(apr_status_t) apr_bucket_setaside_notimpl(apr_bucket *data,
  * @param data The bucket to split
  * @param point The location to split the bucket
  * @return APR_ENOTIMPL
- * @deffunc apr_status_t apr_bucket_split_notimpl(apr_bucket *data, apr_off_t point)
+ * @deffunc apr_status_t apr_bucket_split_notimpl(apr_bucket *data, apr_size_t point)
  */ 
 APU_DECLARE_NONSTD(apr_status_t) apr_bucket_split_notimpl(apr_bucket *data,
-                                                          apr_off_t point);
+                                                          apr_size_t point);
 
 /**
  * A place holder function that signifies that the copy function was not
@@ -969,10 +969,10 @@ APU_DECLARE_DATA extern const apr_bucket_type_t apr_bucket_type_socket;
  * @return APR_EINVAL if the point is not within the bucket;
  *         APR_ENOMEM if allocation failed;
  *         or APR_SUCCESS
- * @deffunc apr_status_t apr_bucket_simple_split(apr_bucket *b, apr_off_t point)
+ * @deffunc apr_status_t apr_bucket_simple_split(apr_bucket *b, apr_size_t point)
  */
 APU_DECLARE_NONSTD(apr_status_t) apr_bucket_simple_split(apr_bucket *b,
-                                                         apr_off_t point);
+                                                         apr_size_t point);
 
 /**
  * Copy a simple bucket.  Most non-reference-counting buckets that allow
@@ -1004,11 +1004,11 @@ APU_DECLARE_NONSTD(apr_status_t) apr_bucket_simple_copy(apr_bucket *a,
  *              relative to the private base pointer
  * @param length The length of the data in the bucket
  * @return The new bucket, or NULL if allocation failed
- * @deffunc apr_bucket *apr_bucket_shared_make(apr_bucket_refcount *r, void *data, apr_off_t start, apr_off_t length) 
+ * @deffunc apr_bucket *apr_bucket_shared_make(apr_bucket_refcount *r, void *data, apr_off_t start, apr_size_t length) 
  */
 APU_DECLARE(apr_bucket *) apr_bucket_shared_make(apr_bucket *b, void *data,
 				                 apr_off_t start, 
-                                                 apr_off_t length);
+                                                 apr_size_t length);
 
 /**
  * Decrement the refcount of the data in the bucket. This function
@@ -1031,10 +1031,10 @@ APU_DECLARE(int) apr_bucket_shared_destroy(void *data);
  * @return APR_EINVAL if the point is not within the bucket;
  *         APR_ENOMEM if allocation failed;
  *         or APR_SUCCESS
- * @deffunc apr_status_t apr_bucket_shared_split(apr_bucket *b, apr_off_t point)
+ * @deffunc apr_status_t apr_bucket_shared_split(apr_bucket *b, apr_size_t point)
  */
 APU_DECLARE_NONSTD(apr_status_t) apr_bucket_shared_split(apr_bucket *b,
-                                                         apr_off_t point);
+                                                         apr_size_t point);
 
 /**
  * Copy a refcounted bucket, incrementing the reference count. Most

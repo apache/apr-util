@@ -146,17 +146,28 @@ APU_DECLARE(apr_status_t) apr_brigade_partition(apr_bucket_brigade *b,
     }
 
     APR_BRIGADE_FOREACH(e, b) {
-        if ((point < e->length) || (e->length == -1)) {
-            /* try to split the bucket natively */
-            if ((rv = apr_bucket_split(e, point)) != APR_ENOTIMPL) {
+        if ((point > (apr_size_t)(-1)) && (e->length == (apr_size_t)(-1))) {
+            /* XXX: point is too far out to simply split this bucket,
+             * we must fix this bucket's size and keep going... */
+            if ((rv = apr_bucket_read(e, &s, &len, APR_BLOCK_READ)) 
+                    != APR_SUCCESS) {
+                return rv;
+            }
+        }
+        if ((point < e->length) || (e->length == (apr_size_t)(-1))) {
+            /* We already checked e->length -1 above, so we now
+             * trust e->length < MAX_APR_SIZE_T.
+             * First try to split the bucket natively... */
+            if ((rv = apr_bucket_split(e, (apr_size_t)point)) 
+                    != APR_ENOTIMPL) {
                 *after_point = APR_BUCKET_NEXT(e);
                 return rv;
             }
 
             /* if the bucket cannot be split, we must read from it,
              * changing its type to one that can be split */
-            if ((rv = apr_bucket_read(e, &s, &len,
-                                      APR_BLOCK_READ)) != APR_SUCCESS) {
+            if ((rv = apr_bucket_read(e, &s, &len, APR_BLOCK_READ)) 
+                    != APR_SUCCESS) {
                 return rv;
             }
 
@@ -164,7 +175,7 @@ APU_DECLARE(apr_status_t) apr_brigade_partition(apr_bucket_brigade *b,
              * might have been morphed by the apr_bucket_read() above, but
              * if it was, the length would have been adjusted appropriately */
             if (point < e->length) {
-                rv = apr_bucket_split(e, point);
+                rv = apr_bucket_split(e, (apr_size_t)point);
                 *after_point = APR_BUCKET_NEXT(e);
                 return rv;
             }
@@ -179,13 +190,13 @@ APU_DECLARE(apr_status_t) apr_brigade_partition(apr_bucket_brigade *b,
 }
 
 APU_DECLARE(apr_status_t) apr_brigade_length(apr_bucket_brigade *bb,
-                                             int read_all, apr_ssize_t *length)
+                                             int read_all, apr_off_t *length)
 {
-    apr_ssize_t total = 0;
+    apr_off_t total = 0;
     apr_bucket *bkt;
 
     APR_BRIGADE_FOREACH(bkt, bb) {
-        if (bkt->length == -1) {
+        if (bkt->length == (apr_size_t)(-1)) {
             const char *ignore;
             apr_size_t len;
             apr_status_t status;

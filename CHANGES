@@ -1,5 +1,9 @@
 Changes with APR-util b1  
 
+  *) The apr_bucket lengths are now consistently apr_size_t, while any
+     apr_brigade lengths (short of a read) are consistently apr_off_t.
+     This is required for APR_HAS_LARGE_FILES handling.  [William Rowe]
+
   *) apr_bucket_file_create() and apr_bucket_file_make() now take a pool
      parameter which is the pool into which any needed data structures
      should be created during file_read().  This is used for MMAPing the

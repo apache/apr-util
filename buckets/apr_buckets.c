@@ -67,7 +67,7 @@ APU_DECLARE_NONSTD(apr_status_t) apr_bucket_setaside_notimpl(apr_bucket *data,
 }
 
 APU_DECLARE_NONSTD(apr_status_t) apr_bucket_split_notimpl(apr_bucket *data,
-                                                          apr_off_t point)
+                                                          apr_size_t point)
 {
     return APR_ENOTIMPL;
 }

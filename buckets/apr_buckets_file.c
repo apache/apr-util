@@ -93,7 +93,7 @@ static void file_destroy(void *data)
 }
 
 #if APR_HAS_MMAP
-static int file_make_mmap(apr_bucket *e, apr_off_t filelength,
+static int file_make_mmap(apr_bucket *e, apr_size_t filelength,
                            apr_off_t fileoffset, apr_pool_t *p)
 {
     apr_bucket_file *a = e->data;
@@ -130,7 +130,7 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
     apr_bucket *b = NULL;
     char *buf;
     apr_status_t rv;
-    apr_off_t filelength = e->length;  /* bytes remaining in file past offset */
+    apr_size_t filelength = e->length;  /* bytes remaining in file past offset */
     apr_off_t fileoffset = e->start;
 #if APR_HAS_THREADS && !APR_HAS_XTHREAD_FILES
     apr_int32_t flags;
@@ -237,7 +237,7 @@ static apr_status_t file_setaside(apr_bucket *data, apr_pool_t *reqpool)
     apr_file_t *f = a->fd;
     apr_pool_t *curpool = apr_file_pool_get(f);
 #if APR_HAS_MMAP
-    apr_off_t filelength = data->length;  /* bytes remaining in file past offset */
+    apr_size_t filelength = data->length;  /* bytes remaining in file past offset */
     apr_off_t fileoffset = data->start;
 #endif
 
