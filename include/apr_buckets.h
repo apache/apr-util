@@ -646,9 +646,10 @@ APU_DECLARE(apr_bucket *) apr_brigade_partition(apr_bucket_brigade *b, apr_off_t
  * appropriate, and/or modify start on last element 
  * @param b The brigade to consume data from
  * @param nbytes The number of bytes to consume
- * @deffunc void apr_brigade_consume(apr_bucket_brigade *b, int nbytes)
+ * @deffunc void apr_brigade_consume(apr_bucket_brigade *b, apr_size_t nbytes)
  */
-APU_DECLARE(void) apr_brigade_consume(apr_bucket_brigade *b, int nbytes);
+APU_DECLARE(void) apr_brigade_consume(apr_bucket_brigade *b,
+                                      apr_size_t nbytes);
 #endif
 
 /**
@@ -666,69 +667,70 @@ APU_DECLARE(apr_status_t) apr_brigade_length(apr_bucket_brigade *bb,
  * create an iovec of the elements in a bucket_brigade... return number 
  * of elements used.  This is useful for writing to a file or to the
  * network efficiently.
- * @param The bucket brigade to create the iovec from
- * @param The iovec to create
- * @param The number of elements in the iovec
- * @return The number of iovec elements actually filled out.
- * @deffunc int apr_brigade_to_iovec(apr_bucket_brigade *b, struct iovec *vec, int nvec);
+ * @param b The bucket brigade to create the iovec from
+ * @param vec The iovec to create
+ * @param nvec The number of elements in the iovec. On return, it is the
+ *             number of iovec elements actually filled out.
+ * @deffunc apr_status_t apr_brigade_to_iovec(apr_bucket_brigade *b, struct iovec *vec, int *nvec);
  */
-APU_DECLARE(int) apr_brigade_to_iovec(apr_bucket_brigade *b, 
-				     struct iovec *vec, int nvec);
+APU_DECLARE(apr_status_t) apr_brigade_to_iovec(apr_bucket_brigade *b, 
+                                               struct iovec *vec, int *nvec);
 
 /**
  * This function writes a list of strings into a bucket brigade. 
  * @param b The bucket brigade to add to
  * @param va A list of strings to add
  * @return The number of bytes added to the brigade
- * @deffunc int apr_brigade_vputstrs(apr_bucket_brigade *b, apr_brigade_flush flush, void *ctx, va_list va)
+ * @deffunc apr_status_t apr_brigade_vputstrs(apr_bucket_brigade *b, apr_brigade_flush flush, void *ctx, va_list va)
  */
-APU_DECLARE(int) apr_brigade_vputstrs(apr_bucket_brigade *b,
-                                      apr_brigade_flush flush, void *ctx,
-                                      va_list va);
+APU_DECLARE(apr_status_t) apr_brigade_vputstrs(apr_bucket_brigade *b,
+                                               apr_brigade_flush flush,
+                                               void *ctx,
+                                               va_list va);
 
 /**
  * This function writes an string into a bucket brigade.
  * @param b The bucket brigade to add to
  * @param str The string to add
  * @return The number of bytes added to the brigade
- * @deffunc int apr_brigade_write(ap_bucket_brigade *b, apr_brigade_flush flush, void *ctx, const char *str, apr_size_t nbyte)
+ * @deffunc apr_status_t apr_brigade_write(ap_bucket_brigade *b, apr_brigade_flush flush, void *ctx, const char *str, apr_size_t nbyte)
  */
-APU_DECLARE(int) apr_brigade_write(apr_bucket_brigade *b,
-                                   apr_brigade_flush flush, void *ctx,
-                                   const char *str, apr_size_t nbyte);
+APU_DECLARE(apr_status_t) apr_brigade_write(apr_bucket_brigade *b,
+                                            apr_brigade_flush flush, void *ctx,
+                                            const char *str, apr_size_t nbyte);
 
 /**
  * This function writes an string into a bucket brigade.
  * @param b The bucket brigade to add to
  * @param str The string to add
  * @return The number of bytes added to the brigade
- * @deffunc int apr_brigade_puts(ap_bucket_brigade *b, apr_brigade_flush flush, void *ctx, const char *str)
+ * @deffunc apr_status_t apr_brigade_puts(ap_bucket_brigade *b, apr_brigade_flush flush, void *ctx, const char *str)
  */
-APU_DECLARE(int) apr_brigade_puts(apr_bucket_brigade *b,
-                                  apr_brigade_flush flush, void *ctx,
-                                  const char *str);
+APU_DECLARE(apr_status_t) apr_brigade_puts(apr_bucket_brigade *b,
+                                           apr_brigade_flush flush, void *ctx,
+                                           const char *str);
 
 /**
  * This function writes a character into a bucket brigade.
  * @param b The bucket brigade to add to
  * @param c The character to add
  * @return The number of bytes added to the brigade
- * @deffunc int apr_brigade_putc(apr_bucket_brigade *b, apr_brigade_flush flush, void *ctx, const char c)
+ * @deffunc apr_status_t apr_brigade_putc(apr_bucket_brigade *b, apr_brigade_flush flush, void *ctx, const char c)
  */
-APU_DECLARE(int) apr_brigade_putc(apr_bucket_brigade *b,
-                                  apr_brigade_flush flush, void *ctx,
-                                  const char c);
+APU_DECLARE(apr_status_t) apr_brigade_putc(apr_bucket_brigade *b,
+                                           apr_brigade_flush flush, void *ctx,
+                                           const char c);
 
 /**
  * This function writes an unspecified number of strings into a bucket brigade.
  * @param b The bucket brigade to add to
  * @param ... The strings to add
  * @return The number of bytes added to the brigade
- * @deffunc int apr_brigade_putstrs(apr_bucket_brigade *b, apr_brigade_flush flush, void *ctx, ...)
+ * @deffunc apr_status_t apr_brigade_putstrs(apr_bucket_brigade *b, apr_brigade_flush flush, void *ctx, ...)
  */
-APU_DECLARE_NONSTD(int) apr_brigade_putstrs(apr_bucket_brigade *b,
-                                            apr_brigade_flush flush,
-                                            void *ctx, ...);
+APU_DECLARE_NONSTD(apr_status_t) apr_brigade_putstrs(apr_bucket_brigade *b,
+                                                     apr_brigade_flush flush,
+                                                     void *ctx, ...);
 
 /**
  * Evaluate a printf and put the resulting string at the end 
@@ -737,11 +739,12 @@ APU_DECLARE_NONSTD(int) apr_brigade_putstrs(apr_bucket_brigade *b,
  * @param fmt The format of the string to write
  * @param ... The arguments to fill out the format
  * @return The number of bytes added to the brigade
- * @deffunc int apr_brigade_printf(apr_bucket_brigade *b, apr_brigade_flush flush, void *ctx, const char *fmt, ...) 
+ * @deffunc apr_status_t apr_brigade_printf(apr_bucket_brigade *b, apr_brigade_flush flush, void *ctx, const char *fmt, ...) 
  */
-APU_DECLARE_NONSTD(int) apr_brigade_printf(apr_bucket_brigade *b, 
-                                           apr_brigade_flush flush, void *ctx,
-                                           const char *fmt, ...)
+APU_DECLARE_NONSTD(apr_status_t) apr_brigade_printf(apr_bucket_brigade *b, 
+                                                    apr_brigade_flush flush,
+                                                    void *ctx,
+                                                    const char *fmt, ...)
         __attribute__((format(printf,4,5)));
 
 /**
@@ -751,11 +754,12 @@ APU_DECLARE_NONSTD(int) apr_brigade_printf(apr_bucket_brigade *b,
  * @param fmt The format of the string to write
  * @param va The arguments to fill out the format
  * @return The number of bytes added to the brigade
- * @deffunc int apr_brigade_vprintf(apr_bucket_brigade *b, apr_brigade_flush flush, void *ctx, const char *fmt, va_list va) 
+ * @deffunc apr_status_t apr_brigade_vprintf(apr_bucket_brigade *b, apr_brigade_flush flush, void *ctx, const char *fmt, va_list va) 
  */
-APU_DECLARE(int) apr_brigade_vprintf(apr_bucket_brigade *b, 
-                                     apr_brigade_flush flush, void *ctx,
-                                     const char *fmt, va_list va);
+APU_DECLARE(apr_status_t) apr_brigade_vprintf(apr_bucket_brigade *b, 
+                                              apr_brigade_flush flush,
+                                              void *ctx,
+                                              const char *fmt, va_list va);
 
 
 /*  *****  Bucket Functions  *****  */
