@@ -26,11 +26,7 @@ AC_DEFUN(APU_FIND_APR,[
 
   AC_SUBST(APR_INCLUDES)
   AC_SUBST(APR_LIBS)
-
-  dnl ### would be nice to obsolete these
-  APR_SOURCE_DIR="`$apr_config --srcdir`"
   AC_SUBST(APR_BUILD_DIR)
-  AC_SUBST(APR_SOURCE_DIR)
 ])
 
 
