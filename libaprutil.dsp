@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FD /c
-# ADD CPP /nologo /MD /W3 /O2 /I "./include" /I "../apr/include" /I "./include/private" /I "./dbm/sdbm" /I "./xml/expat/lib" /I "./expat/lib" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" /Fd"Release\aprutil" /FD /c
+# ADD CPP /nologo /MD /W3 /O2 /I "./include" /I "../apr/include" /I "./include/private" /I "./dbm/sdbm" /I "./xml/expat/lib" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" /Fd"Release\aprutil" /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD BASE RSC /l 0x409 /d "NDEBUG"

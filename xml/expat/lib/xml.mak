@@ -56,8 +56,9 @@ CLEAN :
 RSC=rc.exe
 CPP=cl.exe
 CPP_PROJ=/nologo /MD /W3 /O2 /I "." /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D\
- "_MBCS" /D VERSION=\"expat_1.95.1\" /D XML_MAJOR_VERSION=1 /D XML_MINOR_VERSION=95\
- /D XML_MICRO_VERSION=1 /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /c 
+ "_MBCS" /D VERSION=\"expat_1.95.1\" /D XML_MAJOR_VERSION=1 /D\
+ XML_MINOR_VERSION=95 /D XML_MICRO_VERSION=1 /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"\
+ /FD /c 
 CPP_OBJS=.\LibR/
 CPP_SBRS=.
 
@@ -127,7 +128,6 @@ ALL : "$(OUTDIR)\xml.lib"
 
 CLEAN :
 	-@erase "$(INTDIR)\vc50.idb"
-	-@erase "$(INTDIR)\vc50.pdb"
 	-@erase "$(INTDIR)\xmlparse.obj"
 	-@erase "$(INTDIR)\xmlrole.obj"
 	-@erase "$(INTDIR)\xmltok.obj"
@@ -138,10 +138,10 @@ CLEAN :
 
 RSC=rc.exe
 CPP=cl.exe
-CPP_PROJ=/nologo /MDd /W3 /GX /Zi /Od /I "." /D "WIN32" /D "_DEBUG" /D\
- "_WINDOWS" /D "_MBCS" /D VERSION=\"expat_1.95.1\" /D XML_MAJOR_VERSION=1\
- /D XML_MINOR_VERSION=95 /D XML_MICRO_VERSION=1 /Fo"$(INTDIR)\\"\
- /Fd"$(INTDIR)\\" /FD /c 
+CPP_PROJ=/nologo /MDd /W3 /GX /Od /I "." /D "WIN32" /D "_DEBUG" /D "_WINDOWS"\
+ /D "_MBCS" /D VERSION=\"expat_1.95.1\" /D XML_MAJOR_VERSION=1 /D\
+ XML_MINOR_VERSION=95 /D XML_MICRO_VERSION=1 /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"\
+ /FD /ZI /c 
 CPP_OBJS=.\LibD/
 CPP_SBRS=.
 
@@ -215,11 +215,13 @@ DEP_CPP_XMLPA=\
 DEP_CPP_XMLPA=\
 	".\config.h"\
 	".\expat.h"\
+	".\winconfig.h"\
 	".\xmlrole.h"\
 	".\xmltok.h"\
 	
 
-"$(INTDIR)\xmlparse.obj" : $(SOURCE) $(DEP_CPP_XMLPA) "$(INTDIR)" ".\config.h"
+"$(INTDIR)\xmlparse.obj" : $(SOURCE) $(DEP_CPP_XMLPA) "$(INTDIR)"\
+ ".\winconfig.h" ".\expat.h" ".\config.h"
 
 
 !ENDIF 
@@ -243,11 +245,13 @@ DEP_CPP_XMLRO=\
 DEP_CPP_XMLRO=\
 	".\ascii.h"\
 	".\config.h"\
+	".\winconfig.h"\
 	".\xmlrole.h"\
 	".\xmltok.h"\
 	
 
-"$(INTDIR)\xmlrole.obj" : $(SOURCE) $(DEP_CPP_XMLRO) "$(INTDIR)" ".\config.h"
+"$(INTDIR)\xmlrole.obj" : $(SOURCE) $(DEP_CPP_XMLRO) "$(INTDIR)"\
+ ".\winconfig.h" ".\config.h"
 
 
 !ENDIF 
@@ -283,13 +287,15 @@ DEP_CPP_XMLTO=\
 	".\latin1tab.h"\
 	".\nametab.h"\
 	".\utf8tab.h"\
+	".\winconfig.h"\
 	".\xmltok.h"\
 	".\xmltok_impl.c"\
 	".\xmltok_impl.h"\
 	".\xmltok_ns.c"\
 	
 
-"$(INTDIR)\xmltok.obj" : $(SOURCE) $(DEP_CPP_XMLTO) "$(INTDIR)" ".\config.h"
+"$(INTDIR)\xmltok.obj" : $(SOURCE) $(DEP_CPP_XMLTO) "$(INTDIR)" ".\winconfig.h"\
+ ".\config.h"
 
 
 !ENDIF 
@@ -311,7 +317,7 @@ InputPath=.\expat.h.in
 
 InputPath=.\expat.h.in
 
-".\config.h"	 : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+".\expat.h"	 : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	copy .\expat.h.in .\expat.h > nul 
 	echo Created expat.h from expat.h.in 
 	
