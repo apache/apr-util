@@ -301,9 +301,11 @@ DEP_CPP_APR_B=\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_strings.h"\
 	"..\apr\include\apr_tables.h"\
 	"..\apr\include\apr_time.h"\
@@ -326,9 +328,11 @@ DEP_CPP_APR_BU=\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -349,9 +353,11 @@ DEP_CPP_APR_BUC=\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -372,9 +378,11 @@ DEP_CPP_APR_BUCK=\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -395,9 +403,11 @@ DEP_CPP_APR_BUCKE=\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -418,9 +428,11 @@ DEP_CPP_APR_BUCKET=\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -441,9 +453,11 @@ DEP_CPP_APR_BUCKETS=\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -464,9 +478,11 @@ DEP_CPP_APR_BUCKETS_=\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -487,9 +503,11 @@ DEP_CPP_APR_BUCKETS_P=\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -510,9 +528,11 @@ DEP_CPP_APR_BUCKETS_R=\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -533,9 +553,11 @@ DEP_CPP_APR_BUCKETS_S=\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -556,9 +578,11 @@ DEP_CPP_APR_BUCKETS_SO=\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -579,6 +603,7 @@ DEP_CPP_APR_S=\
 	"..\apr\include\apr_general.h"\
 	"..\apr\include\apr_lib.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_strings.h"\
 	"..\apr\include\apr_xlate.h"\
 	".\include\apr_base64.h"\
@@ -597,7 +622,9 @@ DEP_CPP_SDBM_=\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_strings.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
@@ -619,7 +646,9 @@ DEP_CPP_SDBM_H=\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -639,7 +668,9 @@ DEP_CPP_SDBM_L=\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -660,7 +691,9 @@ DEP_CPP_SDBM_P=\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -682,7 +715,9 @@ DEP_CPP_APR_D=\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_strings.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
@@ -704,6 +739,7 @@ DEP_CPP_APR_BA=\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_general.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_xlate.h"\
 	".\include\apr_base64.h"\
 	".\include\apu.h"\
@@ -720,6 +756,7 @@ DEP_CPP_APR_H=\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_hash.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_tables.h"\
 	"..\apr\include\apr_want.h"\
 	".\include\apr_hooks.h"\
@@ -740,8 +777,10 @@ DEP_CPP_APR_U=\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_strings.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
@@ -761,6 +800,7 @@ DEP_CPP_APR_X=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_strings.h"\
 	"..\apr\include\apr_tables.h"\
 	"..\apr\include\apr_want.h"\
@@ -784,6 +824,7 @@ DEP_CPP_APR_DA=\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_lib.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_want.h"\
 	".\include\apr_date.h"\

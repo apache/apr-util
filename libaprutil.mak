@@ -177,12 +177,14 @@ OutDir=.\Debug
 
 !IF "$(RECURSE)" == "0" 
 
-ALL : "$(OUTDIR)\libaprutil.dll"
+ALL : ".\uri\uri_delims.h" ".\include\private\apu_select_dbm.h"\
+ ".\include\private\apu_config.h" ".\include\apu.h" "$(OUTDIR)\libaprutil.dll"
 
 !ELSE 
 
 ALL : "xml - Win32 Debug" "gen_uri_delims - Win32 Debug" "libapr - Win32 Debug"\
- "$(OUTDIR)\libaprutil.dll"
+ ".\uri\uri_delims.h" ".\include\private\apu_select_dbm.h"\
+ ".\include\private\apu_config.h" ".\include\apu.h" "$(OUTDIR)\libaprutil.dll"
 
 !ENDIF 
 
@@ -222,6 +224,10 @@ CLEAN :
 	-@erase "$(OUTDIR)\libaprutil.lib"
 	-@erase "$(OUTDIR)\libaprutil.map"
 	-@erase "$(OUTDIR)\libaprutil.pdb"
+	-@erase ".\include\apu.h"
+	-@erase ".\include\private\apu_config.h"
+	-@erase ".\include\private\apu_select_dbm.h"
+	-@erase ".\uri\uri_delims.h"
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
@@ -315,15 +321,20 @@ LINK32_OBJS= \
 !IF "$(CFG)" == "libaprutil - Win32 Release" || "$(CFG)" ==\
  "libaprutil - Win32 Debug"
 SOURCE=.\buckets\apr_brigade.c
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
 DEP_CPP_APR_B=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_strings.h"\
 	"..\apr\include\apr_tables.h"\
 	"..\apr\include\apr_time.h"\
@@ -339,16 +350,30 @@ DEP_CPP_APR_B=\
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+
+"$(INTDIR)\apr_brigade.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+!ENDIF 
+
 SOURCE=.\buckets\apr_buckets.c
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
 DEP_CPP_APR_BU=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -362,16 +387,30 @@ DEP_CPP_APR_BU=\
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+
+"$(INTDIR)\apr_buckets.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+!ENDIF 
+
 SOURCE=.\buckets\apr_buckets_eos.c
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
 DEP_CPP_APR_BUC=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -385,16 +424,30 @@ DEP_CPP_APR_BUC=\
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+
+"$(INTDIR)\apr_buckets_eos.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+!ENDIF 
+
 SOURCE=.\buckets\apr_buckets_file.c
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
 DEP_CPP_APR_BUCK=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -408,16 +461,30 @@ DEP_CPP_APR_BUCK=\
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+
+"$(INTDIR)\apr_buckets_file.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+!ENDIF 
+
 SOURCE=.\buckets\apr_buckets_flush.c
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
 DEP_CPP_APR_BUCKE=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -431,16 +498,30 @@ DEP_CPP_APR_BUCKE=\
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+
+"$(INTDIR)\apr_buckets_flush.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+!ENDIF 
+
 SOURCE=.\buckets\apr_buckets_heap.c
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
 DEP_CPP_APR_BUCKET=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -454,16 +535,30 @@ DEP_CPP_APR_BUCKET=\
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+
+"$(INTDIR)\apr_buckets_heap.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+!ENDIF 
+
 SOURCE=.\buckets\apr_buckets_mmap.c
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
 DEP_CPP_APR_BUCKETS=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -477,16 +572,30 @@ DEP_CPP_APR_BUCKETS=\
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+
+"$(INTDIR)\apr_buckets_mmap.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+!ENDIF 
+
 SOURCE=.\buckets\apr_buckets_pipe.c
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
 DEP_CPP_APR_BUCKETS_=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -500,16 +609,30 @@ DEP_CPP_APR_BUCKETS_=\
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+
+"$(INTDIR)\apr_buckets_pipe.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+!ENDIF 
+
 SOURCE=.\buckets\apr_buckets_pool.c
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
 DEP_CPP_APR_BUCKETS_P=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -523,16 +646,30 @@ DEP_CPP_APR_BUCKETS_P=\
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+
+"$(INTDIR)\apr_buckets_pool.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+!ENDIF 
+
 SOURCE=.\buckets\apr_buckets_refcount.c
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
 DEP_CPP_APR_BUCKETS_R=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -546,16 +683,30 @@ DEP_CPP_APR_BUCKETS_R=\
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+
+"$(INTDIR)\apr_buckets_refcount.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+!ENDIF 
+
 SOURCE=.\buckets\apr_buckets_simple.c
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
 DEP_CPP_APR_BUCKETS_S=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -569,16 +720,30 @@ DEP_CPP_APR_BUCKETS_S=\
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+
+"$(INTDIR)\apr_buckets_simple.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+!ENDIF 
+
 SOURCE=.\buckets\apr_buckets_socket.c
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
 DEP_CPP_APR_BUCKETS_SO=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -592,13 +757,26 @@ DEP_CPP_APR_BUCKETS_SO=\
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+
+"$(INTDIR)\apr_buckets_socket.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+!ENDIF 
+
 SOURCE=.\crypto\apr_sha1.c
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
 DEP_CPP_APR_S=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_general.h"\
 	"..\apr\include\apr_lib.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_strings.h"\
 	"..\apr\include\apr_xlate.h"\
 	".\include\apr_base64.h"\
@@ -611,13 +789,27 @@ DEP_CPP_APR_S=\
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+
+"$(INTDIR)\apr_sha1.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+!ENDIF 
+
 SOURCE=.\dbm\sdbm\sdbm.c
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
 DEP_CPP_SDBM_=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_strings.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
@@ -633,13 +825,27 @@ DEP_CPP_SDBM_=\
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+
+"$(INTDIR)\sdbm.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+!ENDIF 
+
 SOURCE=.\dbm\sdbm\sdbm_hash.c
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
 DEP_CPP_SDBM_H=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -653,13 +859,27 @@ DEP_CPP_SDBM_H=\
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+
+"$(INTDIR)\sdbm_hash.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+!ENDIF 
+
 SOURCE=.\dbm\sdbm\sdbm_lock.c
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
 DEP_CPP_SDBM_L=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -674,13 +894,27 @@ DEP_CPP_SDBM_L=\
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+
+"$(INTDIR)\sdbm_lock.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+!ENDIF 
+
 SOURCE=.\dbm\sdbm\sdbm_pair.c
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
 DEP_CPP_SDBM_P=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -696,13 +930,27 @@ DEP_CPP_SDBM_P=\
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+
+"$(INTDIR)\sdbm_pair.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+!ENDIF 
+
 SOURCE=.\dbm\apr_dbm.c
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
 DEP_CPP_APR_D=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_strings.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
@@ -718,12 +966,25 @@ DEP_CPP_APR_D=\
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+
+"$(INTDIR)\apr_dbm.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+!ENDIF 
+
 SOURCE=.\encoding\apr_base64.c
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
 DEP_CPP_APR_BA=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_general.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_xlate.h"\
 	".\include\apr_base64.h"\
 	".\include\apu.h"\
@@ -734,12 +995,25 @@ DEP_CPP_APR_BA=\
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+
+"$(INTDIR)\apr_base64.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+!ENDIF 
+
 SOURCE=.\hooks\apr_hooks.c
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
 DEP_CPP_APR_H=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_hash.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_tables.h"\
 	"..\apr\include\apr_want.h"\
 	".\include\apr_hooks.h"\
@@ -753,15 +1027,29 @@ DEP_CPP_APR_H=\
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+
+"$(INTDIR)\apr_hooks.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+!ENDIF 
+
 SOURCE=.\uri\apr_uri.c
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
 DEP_CPP_APR_U=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_inherit.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_strings.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
@@ -776,11 +1064,24 @@ DEP_CPP_APR_U=\
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+
+"$(INTDIR)\apr_uri.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+!ENDIF 
+
 SOURCE=.\xml\apr_xml.c
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
 DEP_CPP_APR_X=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_strings.h"\
 	"..\apr\include\apr_tables.h"\
 	"..\apr\include\apr_want.h"\
@@ -798,12 +1099,25 @@ NODEP_CPP_APR_X=\
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+
+"$(INTDIR)\apr_xml.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+!ENDIF 
+
 SOURCE=.\misc\apr_date.c
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
 DEP_CPP_APR_DA=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_lib.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_sms.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_want.h"\
 	".\include\apr_date.h"\
@@ -814,6 +1128,15 @@ DEP_CPP_APR_DA=\
  ".\include\apu.h"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
+
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+
+"$(INTDIR)\apr_date.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+!ENDIF 
 
 SOURCE=.\include\apu.hw
 
