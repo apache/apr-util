@@ -34,7 +34,7 @@ APU_DECLARE(int) apr_ldap_ssl_init(apr_pool_t *pool,
                                    int cert_file_type,
                                    apr_ldap_err_t **result_err);
 
-APU_DECLARE(int) apr_ldap_ssl_deinit();
+APU_DECLARE(int) apr_ldap_ssl_deinit(void);
 
 APU_DECLARE(int) apr_ldap_init(apr_pool_t *pool,
                                LDAP **ldap,
