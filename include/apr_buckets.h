@@ -779,7 +779,7 @@ APU_DECLARE(apr_status_t) apr_brigade_vputstrs(apr_bucket_brigade *b,
                                                va_list va);
 
 /**
- * This function writes an string into a bucket brigade.
+ * This function writes a string into a bucket brigade.
  * @param b The bucket brigade to add to
  * @param flush The flush function to use if the brigade is full
  * @param ctx The structure to pass to the flush function
@@ -792,7 +792,7 @@ APU_DECLARE(apr_status_t) apr_brigade_write(apr_bucket_brigade *b,
                                             const char *str, apr_size_t nbyte);
 
 /**
- * This function writes an string into a bucket brigade.
+ * This function writes a string into a bucket brigade.
  * @param bb The bucket brigade to add to
  * @param flush The flush function to use if the brigade is full
  * @param ctx The structure to pass to the flush function
