@@ -1,7 +1,7 @@
 top_builddir=@top_builddir@
 INCLUDES=-I$(top_builddir)/include -I$(top_builddir)/include/private -I@APR_SOURCE_DIR@/include
 TARGETS =
-PROGRAMS = testdbm testdate testmd4
+PROGRAMS = testdbm testdate testmd4 testxml
 
 # bring in rules.mk for standard functionality
 @INCLUDE_RULES@
@@ -17,6 +17,11 @@ testdate_OBJECTS = testdate.lo
 testdate_LDADD =  ../libaprutil.la @APR_SOURCE_DIR@/libapr.la
 testdate: $(testdate_OBJECTS) $(testdate_LDADD)
 	$(LINK) $(testdate_OBJECTS) $(testdate_LDADD) $(LIBS)
+
+testxml_OBJECTS = testxml.lo
+testxml_LDADD =  ../libaprutil.la @APR_SOURCE_DIR@/libapr.la ../xml/expat/lib/libexpat.la
+testxml: $(testxml_OBJECTS) $(testxml_LDADD)
+	$(LINK) $(testxml_OBJECTS) $(testxml_LDADD) $(LIBS)
 
 testmd4_OBJECTS = testmd4.lo
 testmd4_LDADD =  ../libaprutil.la @APR_SOURCE_DIR@/libapr.la
