@@ -123,6 +123,18 @@ static ap_xlate_t *ebcdic2ascii_xlate;
 
 API_EXPORT(ap_status_t) ap_SHA1InitEBCDIC(ap_xlate_t *x)
 {
+    ap_status_t rv;
+    int onoff;
+
+    /* Only single-byte conversion is supported.
+     */
+    rv = ap_xlate_get_sb(x, &onoff);
+    if (rv) {
+        return rv;
+    }
+    if (!onoff) { /* If conversion is not single-byte-only */
+        return APR_EINVAL;
+    }
     ebcdic2ascii_xlate = x;
     return APR_SUCCESS;
 }

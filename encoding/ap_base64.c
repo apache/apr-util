@@ -120,7 +120,24 @@ API_EXPORT(ap_status_t) ap_base64init_ebcdic(ap_xlate_t *to_ascii,
     int i;
     ap_size_t inbytes_left, outbytes_left;
     ap_status_t rv;
+    int onoff;
     
+    /* Only single-byte conversion is supported.
+     */
+    rv = ap_xlate_get_sb(to_ascii, &onoff);
+    if (rv) {
+        return rv;
+    }
+    if (!onoff) { /* If conversion is not single-byte-only */
+        return APR_EINVAL;
+    }
+    rv = ap_xlate_get_sb(to_ebcdic, &onoff);
+    if (rv) {
+        return rv;
+    }
+    if (!onoff) { /* If conversion is not single-byte-only */
+        return APR_EINVAL;
+    }
     xlate_to_ebcdic = to_ebcdic;
     for (i = 0; i < sizeof(os_toascii); i++) {
         os_toascii[i] = i;
