@@ -1,5 +1,5 @@
 APRUTIL LIBRARY STATUS:						-*-text-*-
-Last modified at [$Date: 2001/05/31 05:25:02 $]
+Last modified at [$Date: 2001/06/27 21:07:15 $]
 
 Release:
     2.0a9   : released December 12, 2000
@@ -21,6 +21,11 @@ RELEASE SHOWSTOPPERS:
       script at the hackathon. 
 
 RELEASE NON-SHOWSTOPPERS BUT WOULD BE REAL NICE TO WRAP THESE UP:
+
+    * mmap_setaside() should not copy the entire file into the designated
+      pool -- alternatives have been discussed on dev@apr.apache.org,
+      including the possibility of re-opening the file into the correct
+      pool and morphing the mmap bucket back down to a file bucket.
 
 
 Other bugs that need fixing:
