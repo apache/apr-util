@@ -189,6 +189,10 @@ SOURCE=.\dbm\sdbm\sdbm_tune.h
 
 SOURCE=.\dbm\apr_dbm.c
 # End Source File
+# Begin Source File
+
+SOURCE=.\dbm\apr_dbm_sdbm.c
+# End Source File
 # End Group
 # Begin Group "encoding"
 
