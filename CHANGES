@@ -1,5 +1,11 @@
 Changes with APR-util b1  
 
+  *) Don't add /usr/include to the INCLUDES variable on expat's account.
+     [Joe Orton <joe@manyfish.co.uk>]
+
+  *) Remove the autoconf 2.5x cache directory in buildconf.
+     [Joe Orton <joe@manyfish.co.uk>]
+
   *) BerkleyDB should NULL out the key if it is @EOF in vt_db_nextkey
      [Ian Holsman]
 
