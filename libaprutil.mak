@@ -42,13 +42,12 @@ ALL : "$(OUTDIR)\libaprutil.dll"
 
 !ELSE 
 
-ALL : "libexpat - Win32 Release" "libapr - Win32 Release"\
- "$(OUTDIR)\libaprutil.dll"
+ALL : "xml - Win32 Release" "libapr - Win32 Release" "$(OUTDIR)\libaprutil.dll"
 
 !ENDIF 
 
 !IF "$(RECURSE)" == "1" 
-CLEAN :"libapr - Win32 ReleaseCLEAN" "libexpat - Win32 ReleaseCLEAN" 
+CLEAN :"libapr - Win32 ReleaseCLEAN" "xml - Win32 ReleaseCLEAN" 
 !ELSE 
 CLEAN :
 !ENDIF 
@@ -155,7 +154,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\sdbm_lock.obj" \
 	"$(INTDIR)\sdbm_pair.obj" \
 	"..\apr\Release\libapr.lib" \
-	"..\expat-lite\Release\libexpat.lib"
+	".\xml\expat\lib\LibR\xml.lib"
 
 "$(OUTDIR)\libaprutil.dll" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
@@ -176,13 +175,12 @@ ALL : "$(OUTDIR)\libaprutil.dll"
 
 !ELSE 
 
-ALL : "libexpat - Win32 Debug" "libapr - Win32 Debug"\
- "$(OUTDIR)\libaprutil.dll"
+ALL : "xml - Win32 Debug" "libapr - Win32 Debug" "$(OUTDIR)\libaprutil.dll"
 
 !ENDIF 
 
 !IF "$(RECURSE)" == "1" 
-CLEAN :"libapr - Win32 DebugCLEAN" "libexpat - Win32 DebugCLEAN" 
+CLEAN :"libapr - Win32 DebugCLEAN" "xml - Win32 DebugCLEAN" 
 !ELSE 
 CLEAN :
 !ENDIF 
@@ -292,7 +290,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\sdbm_lock.obj" \
 	"$(INTDIR)\sdbm_pair.obj" \
 	"..\apr\Debug\libapr.lib" \
-	"..\expat-lite\Debug\libexpat.lib"
+	".\xml\expat\lib\LibD\xml.lib"
 
 "$(OUTDIR)\libaprutil.dll" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
@@ -741,13 +739,13 @@ DEP_CPP_APR_X=\
 	"..\apr\include\apr_strings.h"\
 	"..\apr\include\apr_tables.h"\
 	"..\apr\include\apr_want.h"\
-	"..\expat-lite\xmlparse.h"\
 	".\include\apr_xml.h"\
 	".\include\apu.h"\
 	
 NODEP_CPP_APR_X=\
 	".\xml\apu_config.h"\
 	".\xml\expat.h"\
+	".\xml\xmlparse.h"\
 	
 
 "$(INTDIR)\apr_xml.obj" : $(SOURCE) $(DEP_CPP_APR_X) "$(INTDIR)"\
@@ -804,12 +802,12 @@ InputPath=.\include\private\apu_select_dbm.hw
 !IF  "$(CFG)" == "libaprutil - Win32 Release"
 
 "libapr - Win32 Release" : 
-   cd "..\..\srclib\apr"
+   cd "..\apr"
    $(MAKE) /$(MAKEFLAGS) /F ".\libapr.mak" CFG="libapr - Win32 Release" 
    cd "..\apr-util"
 
 "libapr - Win32 ReleaseCLEAN" : 
-   cd "..\..\srclib\apr"
+   cd "..\apr"
    $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\libapr.mak" CFG="libapr - Win32 Release"\
  RECURSE=1 
    cd "..\apr-util"
@@ -817,12 +815,12 @@ InputPath=.\include\private\apu_select_dbm.hw
 !ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
 
 "libapr - Win32 Debug" : 
-   cd "..\..\srclib\apr"
+   cd "..\apr"
    $(MAKE) /$(MAKEFLAGS) /F ".\libapr.mak" CFG="libapr - Win32 Debug" 
    cd "..\apr-util"
 
 "libapr - Win32 DebugCLEAN" : 
-   cd "..\..\srclib\apr"
+   cd "..\apr"
    $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\libapr.mak" CFG="libapr - Win32 Debug"\
  RECURSE=1 
    cd "..\apr-util"
@@ -831,29 +829,29 @@ InputPath=.\include\private\apu_select_dbm.hw
 
 !IF  "$(CFG)" == "libaprutil - Win32 Release"
 
-"libexpat - Win32 Release" : 
-   cd "..\..\srclib\expat-lite"
-   $(MAKE) /$(MAKEFLAGS) /F ".\libexpat.mak" CFG="libexpat - Win32 Release" 
-   cd "..\apr-util"
+"xml - Win32 Release" : 
+   cd ".\xml\expat\lib"
+   $(MAKE) /$(MAKEFLAGS) /F ".\xml.mak" CFG="xml - Win32 Release" 
+   cd "..\..\.."
 
-"libexpat - Win32 ReleaseCLEAN" : 
-   cd "..\..\srclib\expat-lite"
-   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\libexpat.mak"\
- CFG="libexpat - Win32 Release" RECURSE=1 
-   cd "..\apr-util"
+"xml - Win32 ReleaseCLEAN" : 
+   cd ".\xml\expat\lib"
+   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\xml.mak" CFG="xml - Win32 Release"\
+ RECURSE=1 
+   cd "..\..\.."
 
 !ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
 
-"libexpat - Win32 Debug" : 
-   cd "..\..\srclib\expat-lite"
-   $(MAKE) /$(MAKEFLAGS) /F ".\libexpat.mak" CFG="libexpat - Win32 Debug" 
-   cd "..\apr-util"
+"xml - Win32 Debug" : 
+   cd ".\xml\expat\lib"
+   $(MAKE) /$(MAKEFLAGS) /F ".\xml.mak" CFG="xml - Win32 Debug" 
+   cd "..\..\.."
 
-"libexpat - Win32 DebugCLEAN" : 
-   cd "..\..\srclib\expat-lite"
-   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\libexpat.mak" CFG="libexpat - Win32 Debug"\
- RECURSE=1 
-   cd "..\apr-util"
+"xml - Win32 DebugCLEAN" : 
+   cd ".\xml\expat\lib"
+   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\xml.mak" CFG="xml - Win32 Debug" RECURSE=1\
+ 
+   cd "..\..\.."
 
 !ENDIF 
 
