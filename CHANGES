@@ -1,5 +1,7 @@
 Changes with APR-util 1.1.1
 
+  *) Fix memory leak in buckets when using APR_POOL_DEBUG mode. [Joe Schaefer]
+
   *) find_apu.m4: Try installed APR-util before bundled copy if --with-apr-util
      not passed to configure.  [Justin Erenkrantz]
 
