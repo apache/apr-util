@@ -75,6 +75,8 @@ int main (void)
     const char *input2 = "string that contains a pattern...";
     const char *input3 = "pattern at the start of a string";
     const char *input4 = "string that ends with a pattern";
+    const char *input5 = "patter\200n not found, negative chars in input";
+    const char *input6 = "patter\200n, negative chars, contains pattern...";
 
     (void) apr_initialize();
     apr_pool_create(&pool, NULL);
@@ -146,6 +148,20 @@ int main (void)
 
     printf("testing match at end of string...");
     if (apr_strmatch(pattern, input4, strlen(input4)) != input4 + 24) {
+        printf("FAILED\n");
+        exit(1);
+    }
+    printf("OK\n");
+
+    printf("testing invalid match with negative chars in intput string...");
+    if (apr_strmatch(pattern, input5, strlen(input5)) != NULL) {
+        printf("FAILED\n");
+        exit(1);
+    }
+    printf("OK\n");
+
+    printf("testing valid match with negative chars in intput string...");
+    if (apr_strmatch(pattern, input6, strlen(input6)) != input6 + 35) {
         printf("FAILED\n");
         exit(1);
     }
