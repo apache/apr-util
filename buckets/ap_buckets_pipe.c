@@ -75,17 +75,24 @@ static apr_status_t pipe_read(ap_bucket *b, const char **str,
     apr_size_t l;
     apr_ssize_t toss;
     char buf[IOBUFSIZE];
+    apr_status_t rv;
 
-    apr_read(bd->thepipe, buf, len);
-    l = *len;
-    ap_memcpy(str, buf, len);
-    a = ap_bucket_create_heap(buf, l, 0, &toss);
+    *len = IOBUFSIZE;
+    if ((rv = apr_read(bd->thepipe, buf, len)) != APR_SUCCESS) {
+        return rv;
+    }
+    *str = buf;
+    if (*len > 0) {
+        l = *len;
+        a = ap_bucket_create_pipe(bd->thepipe);
+        
+        b = ap_bucket_make_heap(b, buf, l, 1, &toss);
 
-    a->prev = b->prev;
-    b->prev->next = a;
-    a->next = b;
-    b->prev = a;
-
+        b->next->prev = a;
+        a->next = b->next;
+        b->next = a;
+        a->prev = b;
+    }
     return APR_SUCCESS;
 }
 
