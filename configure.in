@@ -105,7 +105,7 @@ case "$host_alias" in
     aprlib=`$APR_BUILD_DIR/apr-config --link-libtool`
     EXTRA_OS_LINK="$aprlib $top_builddir/xml/expat/lib/libexpat.la"
     ;;
-*AIX*)
+*AIX*|*Darwin*)
     dnl need such stuff as -liconv to be specified when building libaprutil.la
     EXTRA_OS_LINK='$(APRUTIL_LIBS)'
     ;;
