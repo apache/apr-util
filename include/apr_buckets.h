@@ -90,12 +90,12 @@ typedef enum {
  * a complex data stream that can be passed through a layered IO
  * system without unnecessary copying. A longer overview follows...
  *
- * A bucket brigade is a doubly linked list of buckets, so we
+ * A bucket brigade is a doubly linked list (ring) of buckets, so we
  * aren't limited to inserting at the front and removing at the end.
  * Buckets are only passed around as members of a brigade, although
  * singleton buckets can occur for short periods of time.
  *
- * Buckets are data stores of varous types. They can refer to data in
+ * Buckets are data stores of various types. They can refer to data in
  * memory, or part of a file or mmap area, or the output of a process,
  * etc. Buckets also have some type-dependent accessor functions:
  * read, split, copy, setaside, and destroy.
@@ -210,7 +210,7 @@ struct apr_bucket_type_t {
 };
 
 /**
- * apr_bucket_t structures are allocated on the malloc() heap and
+ * apr_bucket structures are allocated on the malloc() heap and
  * their lifetime is controlled by the parent apr_bucket_brigade
  * structure. Buckets can move from one brigade to another e.g. by
  * calling apr_brigade_concat(). In general the data in a bucket has
@@ -243,7 +243,7 @@ struct apr_bucket_brigade {
     apr_pool_t *p;
     /** The buckets in the brigade are on this list. */
     /*
-     * XXX: the apr_bucket_list structure doesn't actually need a name tag
+     * The apr_bucket_list structure doesn't actually need a name tag
      * because it has no existence independent of struct apr_bucket_brigade;
      * the ring macros are designed so that you can leave the name tag
      * argument empty in this situation but apparently the Windows compiler
