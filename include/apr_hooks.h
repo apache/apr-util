@@ -60,6 +60,10 @@
 /* For ap_array_header_t */
 #include "apr_lib.h"
 
+/**
+ * @package Apache hooks functions
+ */
+
 #define AP_DECLARE_HOOK(ret,name,args) \
 typedef ret HOOK_##name args; \
 API_EXPORT(void) ap_hook_##name(HOOK_##name *pf,const char * const *aszPre, \
@@ -174,15 +178,54 @@ API_EXPORT(ret) ap_run_##name args_decl \
 #define AP_HOOK_LAST		20
 #define AP_HOOK_REALLY_LAST	30
 
+/**
+ * The global pool used to allocate any memory needed by the hooks.
+ * @defvar ap_pool_t *ap_global_hook_pool
+ */ 
 extern API_VAR_EXPORT ap_pool_t *ap_global_hook_pool;
+
+/**
+ * A global variable to determine if debugging information about the
+ * hooks functions should be printed
+ * @defvar ap_pool_t *ap_debug_module_hooks
+ */ 
 extern API_VAR_EXPORT int ap_debug_module_hooks;
+
+/**
+ * The name of the module that is currently registering a function
+ * @defvar ap_pool_t *ap_debug_module_name
+ */ 
 extern API_VAR_EXPORT const char *ap_debug_module_name;
 
+/**
+ * Register a hook function to be sorted
+ * @param szHookName The name of the Hook the function is registered for
+ * @param aHooks The array which stores all of the functions for this hook
+ * @deffunc void ap_hook_sort_register(const char *szHookName, ap_arry_header_t **aHooks)
+ */
 API_EXPORT(void) ap_hook_sort_register(const char *szHookName, 
                                       ap_array_header_t **aHooks);
+/**
+ * Sort all of the registerd functions for a given hook
+ * @deffunc void ap_sort_hooks(void)
+ */
 API_EXPORT(void) ap_sort_hooks(void);
+
+/**
+ * Print all of the information about the current hook.  This is used for
+ * debugging purposes.
+ * @param szName The name of the hook
+ * @param aszPre All of the functions in the predecessor array
+ * @param aszSucc All of the functions in the successor array
+ * @deffunc void ap_show_hook(const char *szName, const char *const *aszPre, const char *const *aszSucc)
+ */
 API_EXPORT(void) ap_show_hook(const char *szName,const char * const *aszPre,
                              const char * const *aszSucc);
+
+/**
+ * Remove all currently registered functions.
+ * @deffunc void ap_hook_deregister_all(void)
+ */
 API_EXPORT(void) ap_hook_deregister_all(void);
 
 #endif /* ndef(AP_HOOKS_H) */
