@@ -202,6 +202,7 @@ CLEAN :
 	-@erase "$(INTDIR)\apr_sha1.obj"
 	-@erase "$(INTDIR)\apr_xml.obj"
 	-@erase "$(INTDIR)\aprutil.idb"
+	-@erase "$(INTDIR)\aprutil.pdb"
 	-@erase "$(INTDIR)\sdbm.obj"
 	-@erase "$(INTDIR)\sdbm_hash.obj"
 	-@erase "$(INTDIR)\sdbm_lock.obj"
@@ -216,10 +217,10 @@ CLEAN :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP=cl.exe
-CPP_PROJ=/nologo /MDd /W3 /GX /Od /I "./include" /I "../apr/include" /I\
+CPP_PROJ=/nologo /MDd /W3 /GX /Zi /Od /I "./include" /I "../apr/include" /I\
  "./include/private" /I "./dbm/sdbm" /I "./xml/expat/lib" /I "./expat/lib" /D\
  "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM"\
- /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\aprutil" /FD /ZI /c 
+ /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\aprutil" /FD /c 
 CPP_OBJS=.\Debug/
 CPP_SBRS=.
 
@@ -824,12 +825,12 @@ InputPath=.\include\private\apu_select_dbm.hw
 
 "libapr - Win32 Release" : 
    cd "..\apr"
-   $(MAKE) /$(MAKEFLAGS) /F ".\libapr.mak" CFG="libapr - Win32 Release" 
+   $(MAKE) /$(MAKEFLAGS) /F .\libapr.mak CFG="libapr - Win32 Release" 
    cd "..\apr-util"
 
 "libapr - Win32 ReleaseCLEAN" : 
    cd "..\apr"
-   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\libapr.mak" CFG="libapr - Win32 Release"\
+   $(MAKE) /$(MAKEFLAGS) CLEAN /F .\libapr.mak CFG="libapr - Win32 Release"\
  RECURSE=1 
    cd "..\apr-util"
 
@@ -837,12 +838,12 @@ InputPath=.\include\private\apu_select_dbm.hw
 
 "libapr - Win32 Debug" : 
    cd "..\apr"
-   $(MAKE) /$(MAKEFLAGS) /F ".\libapr.mak" CFG="libapr - Win32 Debug" 
+   $(MAKE) /$(MAKEFLAGS) /F .\libapr.mak CFG="libapr - Win32 Debug" 
    cd "..\apr-util"
 
 "libapr - Win32 DebugCLEAN" : 
    cd "..\apr"
-   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\libapr.mak" CFG="libapr - Win32 Debug"\
+   $(MAKE) /$(MAKEFLAGS) CLEAN /F .\libapr.mak CFG="libapr - Win32 Debug"\
  RECURSE=1 
    cd "..\apr-util"
 

@@ -192,6 +192,7 @@ CLEAN :
 	-@erase "$(INTDIR)\apr_sha1.obj"
 	-@erase "$(INTDIR)\apr_xml.obj"
 	-@erase "$(INTDIR)\aprutil.idb"
+	-@erase "$(INTDIR)\aprutil.pdb"
 	-@erase "$(INTDIR)\sdbm.obj"
 	-@erase "$(INTDIR)\sdbm_hash.obj"
 	-@erase "$(INTDIR)\sdbm_lock.obj"
@@ -203,10 +204,10 @@ CLEAN :
 
 RSC=rc.exe
 CPP=cl.exe
-CPP_PROJ=/nologo /MDd /W3 /GX /Od /I "./include" /I "../apr/include" /I\
+CPP_PROJ=/nologo /MDd /W3 /GX /Zi /Od /I "./include" /I "../apr/include" /I\
  "./include/private" /I "./dbm/sdbm" /I "./xml/expat/lib" /D "_DEBUG" /D "WIN32"\
  /D "_WINDOWS" /D "APR_DECLARE_STATIC" /D "APU_DECLARE_STATIC" /D "APU_USE_SDBM"\
- /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\aprutil" /FD /ZI /c 
+ /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\aprutil" /FD /c 
 CPP_OBJS=.\LibD/
 CPP_SBRS=.
 
@@ -804,26 +805,25 @@ InputPath=.\include\private\apu_select_dbm.hw
 
 "apr - Win32 Release" : 
    cd "..\apr"
-   $(MAKE) /$(MAKEFLAGS) /F ".\apr.mak" CFG="apr - Win32 Release" 
+   $(MAKE) /$(MAKEFLAGS) /F .\apr.mak CFG="apr - Win32 Release" 
    cd "..\apr-util"
 
 "apr - Win32 ReleaseCLEAN" : 
    cd "..\apr"
-   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\apr.mak" CFG="apr - Win32 Release"\
- RECURSE=1 
+   $(MAKE) /$(MAKEFLAGS) CLEAN /F .\apr.mak CFG="apr - Win32 Release" RECURSE=1\
+ 
    cd "..\apr-util"
 
 !ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
 
 "apr - Win32 Debug" : 
    cd "..\apr"
-   $(MAKE) /$(MAKEFLAGS) /F ".\apr.mak" CFG="apr - Win32 Debug" 
+   $(MAKE) /$(MAKEFLAGS) /F .\apr.mak CFG="apr - Win32 Debug" 
    cd "..\apr-util"
 
 "apr - Win32 DebugCLEAN" : 
    cd "..\apr"
-   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\apr.mak" CFG="apr - Win32 Debug" RECURSE=1\
- 
+   $(MAKE) /$(MAKEFLAGS) CLEAN /F .\apr.mak CFG="apr - Win32 Debug" RECURSE=1 
    cd "..\apr-util"
 
 !ENDIF 
