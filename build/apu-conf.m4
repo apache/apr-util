@@ -390,46 +390,6 @@ fi
 
 ])
 
-dnl APU_SUBDIR_CONFIG
-dnl ### we should use APR's copy of this
-AC_DEFUN(APU_SUBDIR_CONFIG, [
-  # save our work to this point; this allows the sub-package to use it
-  AC_CACHE_SAVE
-
-  echo "configuring package in $1 now"
-  ac_popdir=`pwd`
-  ac_abs_srcdir=`(cd $srcdir/$1 && pwd)`
-  apr_config_subdirs="$1"
-  test -d $1 || $MKDIR $1
-  cd $1
-
-changequote(, )dnl
-      # A "../" for each directory in /$config_subdirs.
-      ac_dots=`echo $apr_config_subdirs|sed -e 's%^\./%%' -e 's%[^/]$%&/%' -e 's%[^/]*/%../%g'`
-changequote([, ])dnl
-
-  # Make the cache file name correct relative to the subdirectory.
-  case "$cache_file" in
-  /*) ac_sub_cache_file=$cache_file ;;
-  *) # Relative path.
-    ac_sub_cache_file="$ac_dots$cache_file" ;;
-  esac
-
-  # The eval makes quoting arguments work.
-  if eval $ac_abs_srcdir/configure $ac_configure_args --cache-file=$ac_sub_cache_file --srcdir=$ac_abs_srcdir $2
-  then :
-    echo "$1 configured properly"
-  else
-    echo "configure failed for $1"
-    exit 1
-  fi
-
-  cd $ac_popdir
-
-  # grab any updates from the sub-package
-  AC_CACHE_LOAD
-])dnl
-
 dnl
 dnl APU_TEST_EXPAT(directory): test if Expat is located in the specified dir
 dnl
@@ -537,7 +497,7 @@ fi
 dnl special-case the bundled distribution (use absolute dirs)
 if test "$expat_include_dir" = "xml/expat/lib" -o "$expat_include_dir" = "xml/expat-cvs/lib"; then
   bundled_subdir="`echo $expat_include_dir | sed -e 's%/lib%%'`"
-  APU_SUBDIR_CONFIG($bundled_subdir)
+  APR_SUBDIR_CONFIG($bundled_subdir)
   expat_include_dir=$top_builddir/$bundled_subdir/lib
   expat_libs=$top_builddir/$bundled_subdir/lib/libexpat.la
   APR_XML_SUBDIRS="`echo $bundled_subdir | sed -e 's%xml/%%'`"
@@ -546,7 +506,7 @@ if test "$expat_include_dir" = "$srcdir/xml/expat/include" -o "$expat_include_di
   dnl This is a bit of a hack.  This only works because we know that
   dnl we are working with the bundled version of the software.
   bundled_subdir="xml/expat"
-  APU_SUBDIR_CONFIG($bundled_subdir)
+  APR_SUBDIR_CONFIG($bundled_subdir)
   expat_include_dir=$top_builddir/$bundled_subdir/lib
   expat_libs=$top_builddir/$bundled_subdir/lib/libexpat.la
   APR_XML_SUBDIRS="`echo $bundled_subdir | sed -e 's%xml/%%'`"
