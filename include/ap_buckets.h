@@ -555,6 +555,7 @@ APR_DECLARE(apr_status_t) ap_brigade_destroy(ap_bucket_brigade *b);
 APR_DECLARE(ap_bucket_brigade *) ap_brigade_split(ap_bucket_brigade *b,
 						 ap_bucket *e);
 
+#if APR_NOT_DONE_YET
 /**
  * consume nbytes from beginning of b -- call ap_bucket_destroy as
  * appropriate, and/or modify start on last element 
@@ -563,6 +564,7 @@ APR_DECLARE(ap_bucket_brigade *) ap_brigade_split(ap_bucket_brigade *b,
  * @deffunc void ap_brigade_consume(ap_bucket_brigade *b, int nbytes)
  */
 APR_DECLARE(void) ap_brigade_consume(ap_bucket_brigade *b, int nbytes);
+#endif
 
 /**
  * create an iovec of the elements in a bucket_brigade... return number 
