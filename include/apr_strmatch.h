@@ -110,9 +110,7 @@ APU_DECLARE(const char *) apr_strmatch(const apr_strmatch_pattern *pattern,
  * @param case_sensitive Whether the matching should be case-sensitive
  * @return a pointer to the compiled pattern, or NULL if compilation fails
  */
-APU_DECLARE(const apr_strmatch_pattern *)
-         apr_strmatch_precompile(apr_pool_t *p, const char *s,
-                                 int case_sensitive);
+APU_DECLARE(const apr_strmatch_pattern *) apr_strmatch_precompile(apr_pool_t *p, const char *s, int case_sensitive);
 
 /** @} */
 #ifdef __cplusplus
