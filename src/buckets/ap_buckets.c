@@ -142,7 +142,7 @@ AP_DECLARE(int) ap_brigade_vputstrs(ap_bucket_brigade *b, va_list va)
     ap_bucket *r;
     const char *x;
     int j, k;
-    apr_ssize_t i;
+    apr_size_t i;
 
     for (k = 0;;) {
         x = va_arg(va, const char *);
