@@ -93,7 +93,7 @@ APU_DECLARE_NONSTD(apr_status_t) apr_bucket_simple_split(apr_bucket *a,
 static apr_status_t simple_read(apr_bucket *b, const char **str, 
 				apr_size_t *len, apr_read_type_e block)
 {
-    *str = b->data + b->start;
+    *str = (char *)b->data + b->start;
     *len = b->length;
     return APR_SUCCESS;
 }
@@ -126,7 +126,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_immortal_create(
  */
 static apr_status_t transient_setaside(apr_bucket *b)
 {
-    b = apr_bucket_heap_make(b, b->data+b->start, b->length, 1, NULL);
+    b = apr_bucket_heap_make(b, (char *)b->data + b->start, b->length, 1, NULL);
     if (b == NULL) {
         return APR_ENOMEM;
     }
