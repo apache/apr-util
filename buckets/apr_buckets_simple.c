@@ -108,11 +108,6 @@ static apr_status_t simple_read(ap_bucket *b, const char **str,
     return APR_SUCCESS;
 }
 
-static void simple_destroy(ap_bucket *b)
-{
-    free(b->data);
-}
-
 API_EXPORT(ap_bucket *) ap_bucket_make_immortal(ap_bucket *b,
 		const char *buf, apr_size_t length)
 {
@@ -129,7 +124,7 @@ API_EXPORT(ap_bucket *) ap_bucket_make_immortal(ap_bucket *b,
     b->type     = AP_BUCKET_IMMORTAL;
     b->length   = length;
     b->setaside = NULL;
-    b->destroy  = simple_destroy;
+    b->destroy  = free;
     b->split    = simple_split;
     b->read     = simple_read;
     b->data     = bd;
