@@ -632,7 +632,7 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(const char *date)
      */
     ds.tm_usec = 0;
 
-    if (apr_implode_gmt(&result, &ds) != APR_SUCCESS) 
+    if (apr_time_exp_gmt_get(&result, &ds) != APR_SUCCESS) 
         return APR_DATE_BAD;
     
     return result;
