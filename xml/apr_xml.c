@@ -61,19 +61,12 @@
 
 #include "apr_xml.h"
 
-#ifdef WIN32
-/* Quick ugly hack to get win32 building ... until I discover
- * the hidden purpose in life for apu_config.h
- */
-#include "xmlparse.h"
-#else
 #include "apu_config.h"
 
 #ifdef APR_HAVE_OLD_EXPAT
 #include "xmlparse.h"
 #else
 #include "expat.h"
-#endif
 #endif
 
 #define DEBUG_CR "\r\n"

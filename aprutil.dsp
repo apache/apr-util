@@ -252,6 +252,35 @@ InputPath=.\include\apu.hw
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\private\apu_config.hw
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\include\private\apu_config.hw
+
+".\include\private\apu_config.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy .\include\private\apu_config.hw .\include\private\apu_config.h > nul 
+	echo Created apu_config.h from apu_config.hw 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\include\private\apu_config.hw
+
+".\include\private\apu_config.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy .\include\private\apu_config.hw .\include\private\apu_config.h > nul 
+	echo Created apu_config.h from apu_config.hw 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\private\apu_select_dbm.hw
 
 !IF  "$(CFG)" == "aprutil - Win32 Release"
