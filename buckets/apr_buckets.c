@@ -208,11 +208,11 @@ API_EXPORT(int) ap_brigade_vprintf(ap_bucket_brigade *b, const char *fmt, va_lis
      */
     char buf[4096];
     ap_bucket *r;
-    int res, i;
+    int res;
 
     res = apr_vsnprintf(buf, 4096, fmt, va);
 
-    r = ap_bucket_create_heap(buf, strlen(buf), 1, &i);
+    r = ap_bucket_create_heap(buf, strlen(buf), 1, NULL);
     ap_brigade_append_buckets(b, r);
 
     return res;
