@@ -80,9 +80,9 @@ static apr_status_t ap_brigade_cleanup(void *data)
      * Bah! We can't use AP_RING_FOREACH here because this bucket has
      * gone away when we dig inside it to get the next one.
      */
-    while (!AP_RING_EMPTY(&b->list, ap_bucket, link)) {
-	e = AP_RING_FIRST(&b->list);
-	AP_RING_REMOVE(e, link);
+    while (!AP_BRIGADE_EMPTY(b)) {
+	e = AP_BRIGADE_FIRST(b);
+	AP_BUCKET_REMOVE(e);
 	ap_bucket_destroy(e);
     }
     /*
@@ -108,18 +108,6 @@ API_EXPORT(ap_bucket_brigade *) ap_brigade_create(apr_pool_t *p)
     return b;
 }
 
-API_EXPORT(void) ap_brigade_add_bucket(ap_bucket_brigade *b, 
-				       ap_bucket *e)
-{
-    AP_RING_INSERT_TAIL(&b->list, e, ap_bucket, link);
-}
-
-API_EXPORT(void) ap_brigade_catenate(ap_bucket_brigade *a, 
-				     ap_bucket_brigade *b)
-{
-    AP_RING_CONCAT(&a->list, &b->list, ap_bucket, link);
-}
-
 API_EXPORT(ap_bucket_brigade *) ap_brigade_split(ap_bucket_brigade *b,
 						 ap_bucket *e)
 {
@@ -139,7 +127,7 @@ API_EXPORT(int) ap_brigade_to_iovec(ap_bucket_brigade *b,
     struct iovec *orig;
 
     orig = vec;
-    AP_RING_FOREACH(e, &b->list, ap_bucket, link) {
+    AP_BRIGADE_FOREACH(e, b) {
 	if (nvec-- == 0)
             break;
 	e->read(e, (const char **)&vec->iov_base, &vec->iov_len, 0);
@@ -169,7 +157,7 @@ API_EXPORT(int) ap_brigade_vputstrs(ap_bucket_brigade *b, va_list va)
         }
         k += i;
 
-        ap_brigade_add_bucket(b, r);
+        AP_BRIGADE_INSERT_TAIL(b, r);
     }
 
     return k;
@@ -198,7 +186,7 @@ API_EXPORT(int) ap_brigade_vprintf(ap_bucket_brigade *b, const char *fmt, va_lis
     res = apr_vsnprintf(buf, 4096, fmt, va);
 
     r = ap_bucket_create_heap(buf, strlen(buf), 1, NULL);
-    ap_brigade_add_bucket(b, r);
+    AP_BRIGADE_INSERT_TAIL(b, r);
 
     return res;
 }
