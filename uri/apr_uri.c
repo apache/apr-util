@@ -69,6 +69,16 @@
 
 #include "apr_uri.h"
 
+typedef struct schemes_t schemes_t;
+
+/** Structure to store various schemes and their default ports */
+struct schemes_t {
+    /** The name of the scheme */
+    const char *name;
+    /** The default port for the scheme */
+    apr_port_t default_port;
+};
+
 /* Some WWW schemes and their default ports; this is basically /etc/services */
 /* This will become global when the protocol abstraction comes */
 /* As the schemes are searched by a linear search, */
