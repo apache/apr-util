@@ -98,7 +98,7 @@ struct apr_xlate_t {
     char *sbcs_table;
 #if APU_HAVE_ICONV
     iconv_t ich;
-#else APU_HAVE_APR_ICONV
+#elif APU_HAVE_APR_ICONV
     apr_iconv_t ich;
 #endif
 };
@@ -173,7 +173,7 @@ static void check_sbcs(apr_xlate_t *convset)
         /* TODO: add the table to the cache */
     }
 }
-#elif defined(APU_HAVE_APR_ICONV)
+#elif APU_HAVE_APR_ICONV
 static void check_sbcs(apr_xlate_t *convset)
 {
     char inbuf[256], outbuf[256];
