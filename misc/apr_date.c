@@ -340,6 +340,8 @@ APU_DECLARE(apr_time_t) apr_date_parse_http(const char *date)
  *     Sun, 6 Nov 94 08:49 GMT        ; Unknown [drtr@ast.cam.ac.uk]
  *     Sun, 06 Nov 94 8:49:37 GMT     ; Unknown [Elm 70.85]
  *     Sun, 6 Nov 94 8:49:37 GMT      ; Unknown [Elm 70.85] 
+ *     Mon,  7 Jan 2002 07:21:22 GMT  ; Unknown [Postfix]
+ *     Mon,  7 Jan 2002 07:21:22      ; Unknown [Postfix]
  *
  */
 APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
@@ -522,6 +524,21 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
 
         timstr[0] = '0';
         gmtstr = date + 17;
+    }
+    else if (apr_date_checkmask(date, " # @$$ #### ##:##:## *")) {   
+        /* RFC 1123 format with a space instead of a leading zero. */
+	ds.tm_year = ((date[7] - '0') * 10 + (date[8] - '0') - 19) * 100;
+
+        if (ds.tm_year < 0)
+            return APR_DATE_BAD;
+
+        ds.tm_year += ((date[9] - '0') * 10) + (date[10] - '0');
+
+        ds.tm_mday = (date[1] - '0');
+
+        monstr = date + 3;
+        timstr = date + 12;
+        gmtstr = date + 20;
     }
     else
         return APR_DATE_BAD;
