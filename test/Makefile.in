@@ -10,7 +10,16 @@ TARGETS = $(PROGRAMS)
 @INCLUDE_RULES@
 PROGRAM_DEPENDENCIES = @APRUTIL_LDFLAGS@ @APRUTIL_LIBS@
 
-test: $(PROGRAMS)
+all: $(PROGRAMS)
+
+check: $(PROGRAMS)
+	for prog in $(PROGRAMS); do \
+		./$$prog \
+		if test $$i = 255; then \
+			echo "$$prog failed"; \
+			break; \
+		fi \
+	done
 
 testdbm_OBJECTS = testdbm.lo
 testdbm_LDADD =  ../libaprutil.la

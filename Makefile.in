@@ -105,6 +105,9 @@ aprutil.exp: exports.c export_vars.h
 dox:
 	doxygen $(top_srcdir)/docs/doxygen.conf
 
+check: $(TARGET_LIB)
+	(cd test && $(MAKE) check)
+
 
 .PHONY: delete-lib delete-exports
 .NOTPARALLEL: delete-lib delete-exports
