@@ -65,7 +65,7 @@
 #include "ap_config.h"
 #include "ap_base64.h"
 #ifdef CHARSET_EBCDIC
-#include "ebcdic.h"
+#include "apr_xlate.h"
 #endif				/* CHARSET_EBCDIC */
 
 /* aaaack but it's fast and const should make it shared text page. */
@@ -110,6 +110,29 @@ static const unsigned char pr2six[256] =
 #endif /*CHARSET_EBCDIC*/
 };
 
+#ifdef CHARSET_EBCDIC
+static ap_xlate_t *xlate_to_ebcdic;
+static unsigned char os_toascii[256];
+
+API_EXPORT(ap_status_t) ap_base64init_ebcdic(ap_xlate_t *to_ascii,
+                                             ap_xlate_t *to_ebcdic)
+{
+    int i;
+    ap_size_t inbytes_left, outbytes_left;
+    ap_status_t rv;
+    
+    xlate_to_ebcdic = to_ebcdic;
+    for (i = 0; i < sizeof(os_toascii); i++) {
+        os_toascii[i] = i;
+    }
+    inbytes_left = outbytes_left = sizeof(os_toascii);
+    ap_xlate_conv_buffer(to_ascii, os_toascii, &inbytes_left,
+                         os_toascii, &outbytes_left);
+
+    return APR_SUCCESS;
+}
+#endif /*CHARSET_EBCDIC*/
+
 API_EXPORT(int) ap_base64decode_len(const char *bufcoded)
 {
     int nbytesdecoded;
@@ -128,20 +151,21 @@ API_EXPORT(int) ap_base64decode_len(const char *bufcoded)
 API_EXPORT(int) ap_base64decode(char *bufplain, const char *bufcoded)
 {
 #ifdef CHARSET_EBCDIC
-    int i;
+    ap_size_t inbytes_left, outbytes_left;
 #endif				/* CHARSET_EBCDIC */
     int len;
     
     len = ap_base64decode_binary((unsigned char *) bufplain, bufcoded);
 #ifdef CHARSET_EBCDIC
-    for (i = 0; i < len; i++)
-	bufplain[i] = os_toebcdic[bufplain[i]];
+    inbytes_left = outbytes_left = len;
+    ap_xlate_conv_buffer(xlate_to_ebcdic, bufplain, &inbytes_left,
+                         bufplain, &outbytes_left);
 #endif				/* CHARSET_EBCDIC */
     bufplain[len] = '\0';
     return len;
 }
 
-/* This is the same as ap_base64udecode() except on EBCDIC machines, where
+/* This is the same as ap_base64decode() except on EBCDIC machines, where
  * the conversion of the output to ebcdic is left out.
  */
 API_EXPORT(int) ap_base64decode_binary(unsigned char *bufplain,
