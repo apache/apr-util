@@ -352,14 +352,13 @@ APU_DECLARE(int) apr_ldap_url_parse_ext(apr_pool_t *pool,
             return APR_EGENERAL;
         }
         *r++ = '\0';
-        q = strchr( r, ':' );
+        q = strrchr( r, ':' );
     } else {
-        q = strchr( url, ':' );
+        q = strrchr( url, ':' );
     }
 
     if ( q != NULL ) {
-        *q++ = '\0';
-        apr_ldap_pvt_hex_unescape( q );
+        apr_ldap_pvt_hex_unescape( ++q );
 
         if( *q == '\0' ) {
             result->reason = "Bad LDAP URL while parsing.";
