@@ -52,7 +52,7 @@
  * <http://www.apache.org/>.
  */
 
-#include "httpd.h"
+#include "apr_lib.h"
 #include "ap_buckets.h"
 #include <stdlib.h>
 
@@ -71,9 +71,9 @@ static apr_status_t pipe_read(ap_bucket *a, const char **str,
         apr_set_pipe_timeout(p, 0);
     }
 
-    buf = malloc(IOBUFSIZE); /* XXX: check for failure? */
+    buf = malloc(HUGE_STRING_LEN); /* XXX: check for failure? */
     *str = buf;
-    *len = IOBUFSIZE;
+    *len = HUGE_STRING_LEN;
     rv = apr_read(p, buf, len);
 
     if (block == AP_NONBLOCK_READ) {
@@ -112,7 +112,7 @@ static apr_status_t pipe_read(ap_bucket *a, const char **str,
     return APR_SUCCESS;
 }
 
-AP_DECLARE(ap_bucket *) ap_bucket_make_pipe(ap_bucket *b, apr_file_t *p)
+APR_DECLARE(ap_bucket *) ap_bucket_make_pipe(ap_bucket *b, apr_file_t *p)
 {
     /*
      * A pipe is closed when the end is reached in pipe_read().  If the
@@ -134,7 +134,7 @@ AP_DECLARE(ap_bucket *) ap_bucket_make_pipe(ap_bucket *b, apr_file_t *p)
     return b;
 }
 
-AP_DECLARE(ap_bucket *) ap_bucket_create_pipe(apr_file_t *p)
+APR_DECLARE(ap_bucket *) ap_bucket_create_pipe(apr_file_t *p)
 {
     ap_bucket_do_create(ap_bucket_make_pipe(b, p));
 }

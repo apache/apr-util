@@ -52,7 +52,6 @@
  * <http://www.apache.org/>.
  */
 
-#include "httpd.h"
 #include "ap_buckets.h"
 #include <stdlib.h>
 
@@ -102,7 +101,7 @@ static apr_status_t simple_read(ap_bucket *b, const char **str,
     return APR_SUCCESS;
 }
 
-AP_DECLARE(ap_bucket *) ap_bucket_make_immortal(ap_bucket *b,
+APR_DECLARE(ap_bucket *) ap_bucket_make_immortal(ap_bucket *b,
 		const char *buf, apr_size_t length)
 {
     ap_bucket_simple *bd;
@@ -122,7 +121,7 @@ AP_DECLARE(ap_bucket *) ap_bucket_make_immortal(ap_bucket *b,
     return b;
 }
 
-AP_DECLARE(ap_bucket *) ap_bucket_create_immortal(
+APR_DECLARE(ap_bucket *) ap_bucket_create_immortal(
 		const char *buf, apr_size_t length)
 {
     ap_bucket_do_create(ap_bucket_make_immortal(b, buf, length));
@@ -155,7 +154,7 @@ static apr_status_t transient_setaside(ap_bucket *b)
     return APR_SUCCESS;
 }
 
-AP_DECLARE(ap_bucket *) ap_bucket_make_transient(ap_bucket *b,
+APR_DECLARE(ap_bucket *) ap_bucket_make_transient(ap_bucket *b,
 		const char *buf, apr_size_t length)
 {
     b = ap_bucket_make_immortal(b, buf, length);
@@ -166,7 +165,7 @@ AP_DECLARE(ap_bucket *) ap_bucket_make_transient(ap_bucket *b,
     return b;
 }
 
-AP_DECLARE(ap_bucket *) ap_bucket_create_transient(
+APR_DECLARE(ap_bucket *) ap_bucket_create_transient(
 		const char *buf, apr_size_t length)
 {
     ap_bucket_do_create(ap_bucket_make_transient(b, buf, length));

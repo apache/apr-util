@@ -52,7 +52,6 @@
  * <http://www.apache.org/>.
  */
 
-#include "httpd.h"
 #include "ap_buckets.h"
 #include <stdlib.h>
 
@@ -98,7 +97,7 @@ static void pool_destroy(void *data)
     free(h);
 }
 
-AP_DECLARE(ap_bucket *) ap_bucket_make_pool(ap_bucket *b,
+APR_DECLARE(ap_bucket *) ap_bucket_make_pool(ap_bucket *b,
 		const char *buf, apr_size_t length, apr_pool_t *p)
 {
     ap_bucket_pool *h;
@@ -127,7 +126,7 @@ AP_DECLARE(ap_bucket *) ap_bucket_make_pool(ap_bucket *b,
     return b;
 }
 
-AP_DECLARE(ap_bucket *) ap_bucket_create_pool(
+APR_DECLARE(ap_bucket *) ap_bucket_create_pool(
 		const char *buf, apr_size_t length, apr_pool_t *p)
 {
     ap_bucket_do_create(ap_bucket_make_pool(b, buf, length, p));
