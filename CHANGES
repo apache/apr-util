@@ -1,5 +1,8 @@
 Changes with APR-util 0.9.4
 
+  *) Make the version of the db library APU built against visible.
+     [Thom May]
+
   *) Fix a problem with VPATH builds copying the APR rules.mk into the
      source directory rather than the build directory.  [Justin Erenkrantz]
 

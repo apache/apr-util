@@ -73,6 +73,7 @@ APRUTIL_LIBNAME="@APRUTIL_LIBNAME@"
 APU_SOURCE_DIR="@abs_srcdir@"
 APU_BUILD_DIR="@abs_builddir@"
 APR_XML_EXPAT_OLD="@APR_XML_EXPAT_OLD@"
+APU_DB_VERSION="@apu_db_version@"
 
 show_usage()
 {
@@ -91,6 +92,7 @@ Known values for OPTION are:
   --link-libtool    print the libtool inputs for linking to APR-util
   --apu-la-file     print the path to the .la file, if available
   --old-expat       indicate if APR-util was built against an old expat
+  --db-version      print the DB version
   --version         print APR-util's version as a dotted triple
   --help            print this help
 
@@ -236,6 +238,10 @@ while test $# -gt 0; do
     else
         echo "$APR_XML_EXPAT_OLD"
     fi
+    exit 0
+    ;;
+    --db-version)
+    echo $APU_DB_VERSION
     exit 0
     ;;
     --help)

@@ -117,8 +117,9 @@
 /* found version @apu_db_version@ */
 /* this is only required for compiling dbm/apr_dbm_berkeleydb */
 #include <@apu_db_header@>
-#endif
-#endif
+#endif /* APU_DBM_BERKELEYDB_PRIVATE */
+#define APU_HAVE_DB_VERSION    @apu_db_version@
+#endif /* APU_HAVE_DB */
 
 #define APU_HAVE_APR_ICONV     0
 #define APU_HAVE_ICONV         @have_iconv@
