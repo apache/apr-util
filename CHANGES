@@ -3,10 +3,6 @@ Changes with APR-util 1.0
   *) Add timeout feature to apr_reslist_acquire().  
      [Mladen Turk <mturk apache.org>]
 
-  *) Fixed a bug in apr_rmm that would cause it to mishandle blocks of
-     a size close to the one requested from the allocator.
-     [Kevin Wang <xwang_tech yahoo.com>]
-
   *) Add SHA1 support to apr_password_validate.
      [Paul Querna <chip force-elite.com>]
 
@@ -18,6 +14,14 @@ Changes with APR-util 1.0
   *) The following header files have been removed:
 
      apu_compat.h
+
+Changes with APR-util 0.9.5
+   
+  *) Fix xlate.c compile failure on AIX 5.2.  PR 25701.  [Jeff Trawick]
+
+  *) Fixed a bug in apr_rmm that would cause it to mishandle blocks of
+     a size close to the one requested from the allocator.
+     [Kevin Wang <xwang_tech yahoo.com>]
 
 Changes with APR-util 0.9.4
 
