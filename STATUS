@@ -1,5 +1,5 @@
 APRUTIL LIBRARY STATUS:						-*-text-*-
-Last modified at [$Date: 2001/04/10 11:45:11 $]
+Last modified at [$Date: 2001/04/10 12:18:49 $]
 
 Release:
     2.0a9   : released December 12, 2000
@@ -11,7 +11,7 @@ RELEASE SHOWSTOPPERS:
       [Will voulenteers - is on it]
 
     * add misc/version.c and related machinery once the pattern is
-      layed out in APR.
+      laid out in APR.
 
 
 RELEASE NON-SHOWSTOPPERS BUT WOULD BE REAL NICE TO WRAP THESE UP:
