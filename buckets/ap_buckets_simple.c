@@ -201,7 +201,7 @@ const ap_bucket_type ap_immortal_type = {
 
 APU_DECLARE_DATA const ap_bucket_type ap_transient_type = {
     "TRANSIENT", 5,
-    ap_bucket_destroy_notimpl, 
+    free, 
     simple_read,
     transient_setaside,
     simple_split,
