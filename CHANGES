@@ -1,3 +1,7 @@
+Changes with APR-util 1.0.2
+
+  *) Add a build script to create a solaris package. [Graham Leggett]
+
 Changes with APR-util 1.0.1
 
   *) Add support for Berkeley DB 4.3.  [Jani Averbach <jaa jaa.iki.fi>]
