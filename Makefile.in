@@ -36,7 +36,7 @@ delete-lib:
 	fi
 
 install: $(TARGET_LIB)
-        if [ ! -d $(includedir) ]; then \
+	if [ ! -d $(includedir) ]; then \
             @APR_SOURCE_DIR@/build/mkdir.sh $(includedir); \
         fi; \
         cp include/*.h $(includedir); \
