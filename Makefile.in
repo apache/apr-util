@@ -35,7 +35,7 @@ DISTCLEAN_TARGETS = config.cache config.log config.status libtool \
 	include/private/apu_config.h include/private/apu_private.h \
 	include/private/apu_select_dbm.h include/apr_ldap.h include/apu.h \
 	export_vars.sh $(APU_CONFIG) build/rules.mk include/apu_want.h \
-	apr-util.pc
+	apr-util.pc build/pkg/pkginfo
 EXTRACLEAN_TARGETS = configure aclocal.m4 include/private/apu_config.h.in \
 	exports.c build-outputs.mk \
 	build/apr_common.m4 build/find_apr.m4 build/install.sh \
@@ -88,4 +88,4 @@ dox:
 
 test: check
 check: $(TARGET_LIB)
-	(cd test && $(MAKE) check)
+	cd test && $(MAKE) check
