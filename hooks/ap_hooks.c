@@ -32,7 +32,7 @@ static int crude_order(const void *a_,const void *b_)
     return a->nOrder-b->nOrder;
 }
 
-static TSort *prepare(pool *p,TSortData *pItems,int nItems)
+static TSort *prepare(ap_context_t *p,TSortData *pItems,int nItems)
 {
     TSort *pData=ap_palloc(p,nItems*sizeof *pData);
     int n;
@@ -111,13 +111,14 @@ static TSort *tsort(TSort *pData,int nItems)
     return pHead;
 }
 
-static array_header *sort_hook(array_header *pHooks,const char *szName)
+static ap_array_header_t *sort_hook(ap_array_header_t *pHooks,const char *szName)
 {
-    pool *p=ap_make_sub_pool(g_pHookPool);
+    ap_context_t *p;
     TSort *pSort;
-    array_header *pNew;
+    ap_array_header_t *pNew;
     int n;
 
+    ap_create_context(g_pHookPool, NULL, &p);
     pSort=prepare(p,(TSortData *)pHooks->elts,pHooks->nelts);
     tsort(pSort,pHooks->nelts);
     pNew=ap_make_array(g_pHookPool,pHooks->nelts,sizeof(TSortData));
@@ -136,14 +137,14 @@ static array_header *sort_hook(array_header *pHooks,const char *szName)
     return pNew;
 }
 
-static array_header *s_aHooksToSort;
+static ap_array_header_t *s_aHooksToSort;
 typedef struct
 {
     const char *szHookName;
-    array_header **paHooks;
+    ap_array_header_t **paHooks;
 } HookSortEntry;
 
-void ap_hook_sort_register(const char *szHookName,array_header **paHooks)
+void ap_hook_sort_register(const char *szHookName,ap_array_header_t **paHooks)
 {
     HookSortEntry *pEntry;
 
