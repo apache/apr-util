@@ -150,9 +150,6 @@ static apr_xlate_t *xlate_ebcdic_to_ascii; /* used in apr_md4_encode() */
  */
 APU_DECLARE(apr_status_t) apr_md4_init(apr_md4_ctx_t *context)
 {
-    if (!context)
-        return APR_EINVAL;
-    
     context->count[0] = context->count[1] = 0;
 
     /* Load magic initialization constants. */
@@ -179,9 +176,6 @@ APU_DECLARE(apr_status_t) apr_md4_set_xlate(apr_md4_ctx_t *context,
     apr_status_t rv;
     int is_sb;
 
-    if (!context)
-        return APR_EINVAL;
-    
     /* TODO: remove the single-byte-only restriction from this code
      */
     rv = apr_xlate_get_sb(xlate, &is_sb);
@@ -209,9 +203,6 @@ APU_DECLARE(apr_status_t) apr_md4_update(apr_md4_ctx_t *context,
     apr_size_t inbytes_left, outbytes_left;
 #endif
 
-    if (!context)
-        return APR_EINVAL;
-    
     /* Compute number of bytes mod 64 */
     idx = (unsigned int)((context->count[0] >> 3) & 0x3F);
 
@@ -292,9 +283,6 @@ APU_DECLARE(apr_status_t) apr_md4_final(
     unsigned char bits[8];
     unsigned int idx, padLen;
 
-    if (!context)
-        return APR_EINVAL;
-    
     /* Save number of bits */
     Encode(bits, context->count, 8);
 
