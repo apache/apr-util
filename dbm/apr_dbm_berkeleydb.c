@@ -199,9 +199,6 @@ static apr_status_t vt_db_open(apr_dbm_t **pdb, const char *pathname,
         int dberr;
 
 #if DB_VER >= 3
-#if DB_VER == 4
-        dbmode |= DB_AUTO_COMMIT;
-#endif
         if ((dberr = db_create(&file.bdb, NULL, 0)) == 0) {
             if ((dberr = (*file.bdb->open)(file.bdb,
 #if DB_VER == 4
@@ -288,11 +285,6 @@ static apr_status_t vt_db_store(apr_dbm_t *dbm, apr_datum_t key,
     apr_status_t rv;
     DBT ckey = { 0 };
     DBT cvalue = { 0 };
-#if DB_VER == 4
-    int flags = DB_AUTO_COMMIT;
-#else
-    int flags = 0;
-#endif
 
     ckey.data = key.dptr;
     ckey.size = key.dsize;
@@ -304,7 +296,7 @@ static apr_status_t vt_db_store(apr_dbm_t *dbm, apr_datum_t key,
                                          TXN_ARG
                                          &ckey,
                                          &cvalue,
-                                         flags));
+                                         0));
 
     /* store any error info into DBM, and return a status code. */
     return set_error(dbm, rv);
@@ -314,11 +306,6 @@ static apr_status_t vt_db_del(apr_dbm_t *dbm, apr_datum_t key)
 {
     apr_status_t rv;
     DBT ckey = { 0 };
-#if DB_VER == 4
-    int flags = DB_AUTO_COMMIT;
-#else
-    int flags = 0;
-#endif
 
     ckey.data = key.dptr;
     ckey.size = key.dsize;
@@ -326,7 +313,7 @@ static apr_status_t vt_db_del(apr_dbm_t *dbm, apr_datum_t key)
     rv = db2s((*GET_BDB(dbm->file)->del)(GET_BDB(dbm->file),
                                          TXN_ARG
                                          &ckey,
-                                         flags));
+                                         0));
 
     /* store any error info into DBM, and return a status code. */
     return set_error(dbm, rv);
