@@ -50,7 +50,7 @@ install: $(TARGET_LIB)
 
 $(TARGET_LIB):
 	@objects="`find $(SUBDIRS) -name expat -prune -o -name '*.@so_ext@' -print`"; \
-	    $(LINK) @lib_target@ @EXPAT_LINK@
+	    $(LINK) @lib_target@ @EXTRA_OS_LINK@
 
 delete-exports:
 	@if test -f $(TARGET_EXPORTS); then \

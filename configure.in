@@ -60,21 +60,20 @@ lib_target=$APR_LIB_TARGET
 AC_SUBST(so_ext)
 AC_SUBST(lib_target)
 
-LDFLAGS=""
-EXPAT_LINK=""
+EXTRA_OS_LINK=""
+host_alias=`uname -s`
 case "$host_alias" in
-*beos*)
+*BeOS*)
     # Horrible Hack !!!
-    # if we're building a shared lib then we need to add in the
-    # apr library to the build...
-    LDFLAGS="$APR_SOURCE_DIR/libapr.la"
-    EXPAT_LINK="\$(top_builddir)/xml/expat/lib/libexpat.so"
+    # if we're building on BeOS then we need to add in the
+    # apr and expat libraries to the build...  Grrrr...
+    EXTRA_OS_LINK="$APR_SOURCE_DIR/libapr.la $top_builddir/xml/expat/lib/libexpat.la"
     ;;
 *)
     ;;
 esac
 
-AC_SUBST(EXPAT_LINK)
+AC_SUBST(EXTRA_OS_LINK)
 
 dnl
 dnl Prep all the flags and stuff for compilation and export to other builds
