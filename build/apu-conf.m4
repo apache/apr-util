@@ -575,7 +575,6 @@ AC_DEFUN(APU_FIND_LDAPLIB,[
     unset ac_cv_lib_${ldaplib}_ldap_init
     AC_CHECK_LIB(${ldaplib}, ldap_init, 
       [
-dnl        APR_ADDTO(CPPFLAGS,[-DAPU_HAS_LDAP])
         APR_ADDTO(APRUTIL_EXPORT_LIBS,[-l${ldaplib} ${extralib}])
         APR_ADDTO(APRUTIL_LIBS,[-l${ldaplib} ${extralib}])
         AC_CHECK_LIB(${ldaplib}, ldapssl_install_routines, apu_has_ldap_netscape_ssl="define", , ${extralib})
@@ -601,11 +600,15 @@ AC_ARG_WITH(ldap-include,[  --with-ldap-include=path  path to ldap include files
 AC_ARG_WITH(ldap-lib,[  --with-ldap-lib=path    path to ldap lib file])
 AC_ARG_WITH(ldap,[  --with-ldap=library     ldap library to use],
   [
+    save_cppflags="$CPPFLAGS"
+    save_ldflags="$LDFLAGS"
     if test -n "$with_ldap_include"; then
-      APR_ADDTO(CPPFLAGS, [-I$with_ldap_include])
+      CPPFLAGS="$CPPFLAGS -I$with_ldap_include"
+      APR_ADDTO(APRUTIL_INCLUDES, [-I$with_ldap_include])
     fi
     if test -n "$with_ldap_lib"; then
-      APR_ADDTO(LDFLAGS, [-L$with_ldap_lib])
+      LDFLAGS="$LDFLAGS -L$with_ldap_lib"
+      APR_ADDTO(APRUTIL_LDFLAGS, [-L$with_ldap_lib])
     fi
 
     LIBLDAP="$withval"
@@ -629,6 +632,9 @@ dnl The iPlanet C SDK 5.0 is as yet untested...
     AC_CHECK_HEADERS(ldap.h, ldap_h=["#include <ldap.h>"])
     AC_CHECK_HEADERS(lber.h, lber_h=["#include <lber.h>"])
     AC_CHECK_HEADERS(ldap_ssl.h, ldap_ssl_h=["#include <ldap_ssl.h>"])
+
+    CPPFLAGS=$save_cppflags
+    LDFLAGS=$save_ldflags
   ])
 
 AC_SUBST(ldap_h)
