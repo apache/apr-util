@@ -59,7 +59,7 @@ extern "C" {
  * Minor API changes that do not cause binary compatibility problems.
  * Should be reset to 0 when upgrading APU_MAJOR_VERSION
  */
-#define APU_MINOR_VERSION       1
+#define APU_MINOR_VERSION       2
 
 /** patch level */
 #define APU_PATCH_VERSION       0
