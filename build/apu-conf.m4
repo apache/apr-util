@@ -286,11 +286,22 @@ dnl The iPlanet C SDK 5.0 is as yet untested...
     AC_CHECK_LIB(lber, ber_init)
 
     AC_CHECK_HEADERS(lber.h, lber_h=["#include <lber.h>"])
-    AC_CHECK_HEADERS(ldap.h, ldap_h=["#include <ldap.h>"], [],
-[#if HAVE_LBER_H
-# include <lber.h>
-# endif
-])
+
+    # Solaris has a problem in <ldap.h> which prevents it from
+    # being included by itself.  Check for <ldap.h> manually,
+    # including lber.h first.
+    AC_CACHE_CHECK([for ldap.h], [apr_cv_hdr_ldap_h],
+    [AC_TRY_CPP(
+    [#ifdef HAVE_LBER_H
+    #include <lber.h>
+    #endif
+    #include <ldap.h>
+    ], [apr_cv_hdr_ldap_h=yes], [apr_cv_hdr_ldap_h=no])])
+    if test "$apr_cv_hdr_ldap_h" = "yes"; then
+      ldap_h=["#include <ldap.h>"]
+      AC_DEFINE([HAVE_LDAP_H], 1, [Defined if ldap.h is present])
+    fi
+
     AC_CHECK_HEADERS(ldap_ssl.h, ldap_ssl_h=["#include <ldap_ssl.h>"])
 
     CPPFLAGS=$save_cppflags
