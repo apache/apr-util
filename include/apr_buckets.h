@@ -229,6 +229,13 @@ struct apr_bucket {
      *  the value of this field will be -1.
      */
     apr_off_t length;
+    /** The start of the data in the bucket relative to the private base
+     *  pointer.  The vast majority of bucket types allow a fixed block of
+     *  data to be referenced by multiple buckets, each bucket pointing to
+     *  a different segment of the data.  That segment starts at base+start
+     *  and ends at base+start+length.  If length == -1, start == -1.
+     */
+    apr_off_t start;
     /** type-dependent data hangs off this pointer */
     void *data;	
 };
@@ -489,39 +496,8 @@ struct apr_bucket_refcount {
     int          refcount;
 };
 
-typedef struct apr_bucket_shared apr_bucket_shared;
-/**
- * The data pointer of a refcounted bucket points to an
- * apr_bucket_shared structure which describes the region of the shared
- * object that this bucket refers to. The apr_bucket_shared isn't a
- * fully-fledged bucket type: it is a utility type that proper bucket
- * types are based on.
- */
-struct apr_bucket_shared {
-    /** start of the data in the bucket relative to the private base pointer */
-    apr_off_t start;
-    /** end of the data in the bucket relative to the private base pointer */
-    apr_off_t end;
-    /** pointer to the real private data of the bucket,
-     * which starts with an apr_bucket_refcount */
-    void *data;
-};
+/*  *****  Reference-counted bucket types  *****  */
 
-/*  *****  Non-reference-counted bucket types  *****  */
-
-
-typedef struct apr_bucket_simple apr_bucket_simple;
-/**
- * TRANSIENT and IMMORTAL buckets don't have much to do with looking
- * after the memory that they refer to so they share a lot of their
- * implementation.
- */
-struct apr_bucket_simple {
-    /** The start of the data in the bucket */
-    const char    *start;
-    /** The end of the data in the bucket */
-    const char    *end;
-};
 
 typedef struct apr_bucket_pool apr_bucket_pool;
 /**
@@ -544,9 +520,6 @@ struct apr_bucket_pool {
      */
     apr_bucket *b;
 };
-
-/*  *****  Reference-counted bucket types  *****  */
-
 
 typedef struct apr_bucket_heap apr_bucket_heap;
 /**
@@ -858,7 +831,7 @@ APU_DECLARE_NONSTD(apr_status_t)
  * A place holder function that signifies that the destroy function was not
  * implemented for this bucket
  * @param data The bucket to destroy
- * @deffunc void apr_bucket_destroy(apr_bucket *data)
+ * @deffunc void apr_bucket_destroy_notimpl(void *data)
  */ 
 APU_DECLARE_NONSTD(void) apr_bucket_destroy_notimpl(void *data);
 
@@ -926,7 +899,40 @@ APU_DECLARE_DATA extern const apr_bucket_type_t apr_bucket_type_transient;
  */
 APU_DECLARE_DATA extern const apr_bucket_type_t apr_bucket_type_socket;
 
-/*  *****  Shared reference-counted buckets  *****  */
+
+/*  *****  Simple buckets  *****  */
+
+/**
+ * Split a simple bucket into two at the given point.  Most non-reference
+ * counting buckets that allow multiple references to the same block of
+ * data (eg transient and immortal) will use this as their split function
+ * without any additional type-specific handling.
+ * @param b The bucket to be split
+ * @param point The offset of the first byte in the new bucket
+ * @return APR_EINVAL if the point is not within the bucket;
+ *         APR_ENOMEM if allocation failed;
+ *         or APR_SUCCESS
+ * @deffunc apr_status_t apr_bucket_simple_split(apr_bucket *b, apr_off_t point)
+ */
+APU_DECLARE_NONSTD(apr_status_t) apr_bucket_simple_split(apr_bucket *b,
+                                                         apr_off_t point);
+
+/**
+ * Copy a simple bucket.  Most non-reference-counting buckets that allow
+ * multiple references to the same block of data (eg transient and immortal)
+ * will use this as their copy function without any additional type-specific
+ * handling.
+ * @param a The bucket to copy
+ * @param b Returns a pointer to the new bucket
+ * @return APR_ENOMEM if allocation failed;
+ *         or APR_SUCCESS
+ * @deffunc apr_status_t apr_bucket_simple_copy(apr_bucket *a, apr_bucket **b)
+ */
+APU_DECLARE_NONSTD(apr_status_t) apr_bucket_simple_copy(apr_bucket *a,
+                                                        apr_bucket **b);
+
+
+/*  *****  Shared, reference-counted buckets  *****  */
 
 /**
  * Initialize a bucket containing reference-counted data that may be
@@ -934,30 +940,26 @@ APU_DECLARE_DATA extern const apr_bucket_type_t apr_bucket_type_socket;
  * initialize its type-dependent fields, and allocate and initialize
  * its own private data structure. This function should only be called
  * by type-specific bucket creation functions.
- * @param b The bucket to initialize,
- *          or NULL if a new one should be allocated
+ * @param b The bucket to initialize
  * @param data A pointer to the private data structure
  *             with the reference count at the start
  * @param start The start of the data in the bucket
  *              relative to the private base pointer
- * @param end The end of the data in the bucket
- *            relative to the private base pointer
+ * @param length The length of the data in the bucket
  * @return The new bucket, or NULL if allocation failed
- * @deffunc apr_bucket *apr_bucket_shared_make(apr_bucket_refcount *r, apr_off_t start, apr_off_t end) 
+ * @deffunc apr_bucket *apr_bucket_shared_make(apr_bucket_refcount *r, apr_off_t start, apr_off_t length) 
  */
-APU_DECLARE(apr_bucket *) 
-                apr_bucket_shared_make(apr_bucket *b, void *data,
-				      apr_off_t start, apr_off_t end);
+APU_DECLARE(apr_bucket *) apr_bucket_shared_make(apr_bucket *b, void *data,
+				      apr_off_t start, apr_off_t length);
 
 /**
- * Decrement the refcount of the data in the bucket and free the
- * apr_bucket_shared structure. This function should only be called by
- * type-specific bucket destruction functions.
+ * Decrement the refcount of the data in the bucket. This function
+ * should only be called by type-specific bucket destruction functions.
  * @param data The private data pointer from the bucket to be destroyed
  * @return NULL if nothing needs to be done,
  *         otherwise a pointer to the private data structure which
  *         must be destroyed because its reference count is zero
- * @deffunc void *apr_bucket_shared_destroy(apr_bucket *b)
+ * @deffunc void *apr_bucket_shared_destroy(void *data)
  */
 APU_DECLARE(void *) apr_bucket_shared_destroy(void *data);
 
@@ -973,24 +975,24 @@ APU_DECLARE(void *) apr_bucket_shared_destroy(void *data);
  *         or APR_SUCCESS
  * @deffunc apr_status_t apr_bucket_shared_split(apr_bucket *b, apr_off_t point)
  */
-APU_DECLARE_NONSTD(apr_status_t) 
-                       apr_bucket_shared_split(apr_bucket *b, apr_off_t point);
+APU_DECLARE_NONSTD(apr_status_t) apr_bucket_shared_split(apr_bucket *b,
+                                                         apr_off_t point);
 
 /**
  * Copy a refcounted bucket, incrementing the reference count. Most
  * reference-counting bucket types will be able to use this function
  * as their copy function without any additional type-specific handling.
  * @param a The bucket to copy
- * @param c Returns a pointer to the new bucket
+ * @param b Returns a pointer to the new bucket
  * @return APR_ENOMEM if allocation failed;
            or APR_SUCCESS
- * @deffunc apr_status_t apr_bucket_shared_copy(apr_bucket *a, apr_bucket **c)
+ * @deffunc apr_status_t apr_bucket_shared_copy(apr_bucket *a, apr_bucket **b)
  */
-APU_DECLARE_NONSTD(apr_status_t) 
-                       apr_bucket_shared_copy(apr_bucket *a, apr_bucket **c);
+APU_DECLARE_NONSTD(apr_status_t) apr_bucket_shared_copy(apr_bucket *a,
+                                                        apr_bucket **b);
 
 
-/*  *****  Functions to Create Buckets of varying type  *****  */
+/*  *****  Functions to Create Buckets of varying types  *****  */
 /*
  * Each bucket type foo has two initialization functions:
  * apr_bucket_make_foo which sets up some already-allocated memory as a
@@ -1017,7 +1019,7 @@ APU_DECLARE_NONSTD(apr_status_t)
 	    free(b);				\
 	    return NULL;			\
 	}					\
-	APR_RING_ELEM_INIT(ap__b, link);		\
+	APR_RING_ELEM_INIT(ap__b, link);	\
 	return ap__b;				\
     } while(0)
 

@@ -72,8 +72,8 @@ static apr_status_t flush_copy(apr_bucket *e, apr_bucket **c)
 APU_DECLARE(apr_bucket *) apr_bucket_flush_make(apr_bucket *b)
 {
     b->length    = 0;
+    b->start     = 0;
     b->data      = NULL;
-
     b->type      = &apr_bucket_type_flush;
     
     return b;

@@ -60,8 +60,6 @@ static apr_status_t pipe_read(apr_bucket *a, const char **str,
 			      apr_size_t *len, apr_read_type_e block)
 {
     apr_file_t *p = a->data;
-    apr_bucket_shared *s;
-    apr_bucket_heap *h;
     char *buf;
     apr_status_t rv;
     apr_interval_time_t timeout;
@@ -86,15 +84,6 @@ static apr_status_t pipe_read(apr_bucket *a, const char **str,
         return rv;
     }
     /*
-     * Change the current bucket to refer to what we read,
-     * even if we read nothing because we hit EOF.
-     */
-    apr_bucket_heap_make(a, buf, *len, 0, NULL);  /* XXX: check for failure? */
-    s = a->data;
-    h = s->data;
-    h->alloc_len = HUGE_STRING_LEN; /* note the real buffer size */
-    *str = buf;
-    /*
      * If there's more to read we have to keep the rest of the pipe
      * for later.  Otherwise, we'll close the pipe.
      * XXX: Note that more complicated bucket types that 
@@ -107,11 +96,26 @@ static apr_status_t pipe_read(apr_bucket *a, const char **str,
      * new bucket.
      */
     if (*len > 0) {
+        apr_bucket_heap *h;
+        /* Change the current bucket to refer to what we read */
+        /* XXX: check for failure? */
+        a = apr_bucket_heap_make(a, buf, *len, 0, NULL);
+        h = a->data;
+        h->alloc_len = HUGE_STRING_LEN; /* note the real buffer size */
+        *str = buf;
         APR_BUCKET_INSERT_AFTER(a, apr_bucket_pipe_create(p));
     }
-    else if (rv == APR_EOF) {
-        apr_file_close(p);
-        return (block == APR_NONBLOCK_READ) ? APR_EOF : APR_SUCCESS;
+    else {
+        free(buf);
+        a = apr_bucket_immortal_make(a, "", 0);
+        *str = a->data;
+        if (rv == APR_EOF) {
+            apr_file_close(p);
+            if (block == APR_NONBLOCK_READ) {
+                /* XXX: this is bogus, should return APR_SUCCESS */
+                return APR_EOF;
+            }
+        }
     }
     return APR_SUCCESS;
 }
@@ -133,6 +137,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_pipe_make(apr_bucket *b, apr_file_t *p)
      */
     b->type     = &apr_bucket_type_pipe;
     b->length   = -1;
+    b->start    = -1;
     b->data     = p;
 
     return b;

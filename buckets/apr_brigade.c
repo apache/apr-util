@@ -239,18 +239,15 @@ static int check_brigade_flush(const char **str,
     }
 
     if (APR_BUCKET_IS_HEAP(b)) {
-        apr_bucket_shared *s = b->data;
-        apr_bucket_heap *h = s->data;
+        apr_bucket_heap *h = b->data;
 
-        if (*n > (h->alloc_len - (s->end - s->start))) {
-            apr_bucket *e = apr_bucket_transient_create(*str, *n);
-            APR_BRIGADE_INSERT_TAIL(bb, e);
+        if (*n > (h->alloc_len - b->length)) {
+            APR_BRIGADE_INSERT_TAIL(bb, apr_bucket_transient_create(*str, *n));
             return 1;
         }
     }
     else if (*n > APR_BUCKET_BUFF_SIZE) {
-        apr_bucket *e = apr_bucket_transient_create(*str, *n);
-        APR_BRIGADE_INSERT_TAIL(bb, e);
+        APR_BRIGADE_INSERT_TAIL(bb, apr_bucket_transient_create(*str, *n));
         return 1;
     }
 
@@ -282,40 +279,31 @@ APU_DECLARE(int) apr_brigade_putc(apr_bucket_brigade *b,
     return apr_brigade_write(b, flush, ctx, &c, 1);
 }
 
-APU_DECLARE(int) apr_brigade_write(apr_bucket_brigade *b, 
+APU_DECLARE(int) apr_brigade_write(apr_bucket_brigade *bb, 
                                    apr_brigade_flush flush, void *ctx, 
                                    const char *str, apr_size_t nbyte)
 {
-    if (check_brigade_flush(&str, &nbyte, b, flush)) {
+    if (check_brigade_flush(&str, &nbyte, bb, flush)) {
         if (flush) {
-            return flush(b, ctx);
+            return flush(bb, ctx);
         }
     }
     else {
-        apr_bucket *buck = APR_BRIGADE_LAST(b);
-        apr_bucket_shared *s;
-        apr_bucket_heap *h;
+        apr_bucket *b = APR_BRIGADE_LAST(bb);
         char *buf;
 
-        if (!APR_BUCKET_IS_HEAP(buck) || APR_BRIGADE_EMPTY(b)) {
+        if (APR_BRIGADE_EMPTY(bb) || !APR_BUCKET_IS_HEAP(b)) {
             buf = malloc(APR_BUCKET_BUFF_SIZE);
-
-            buck = apr_bucket_heap_create(buf, APR_BUCKET_BUFF_SIZE, 0, NULL);
-            s = buck->data;
-            s->start = s->end = 0;
-            h = s->data;
-
-            APR_BRIGADE_INSERT_TAIL(b, buck);
+            b = apr_bucket_heap_create(buf, APR_BUCKET_BUFF_SIZE, 0, NULL);
+            APR_BRIGADE_INSERT_TAIL(bb, b);
         }
         else {
-            s = buck->data;
-            h = s->data;
-
-            buf = h->base + s->end;
+            apr_bucket_heap *h = b->data;
+            buf = h->base + b->start + b->length;
         }
 
         memcpy(buf, str, nbyte);
-        s->end += nbyte;
+        b->length += nbyte;
     }
     return nbyte;
 }

@@ -61,17 +61,16 @@
 static apr_status_t mmap_read(apr_bucket *b, const char **str, 
 			      apr_size_t *length, apr_read_type_e block)
 {
-    apr_bucket_shared *s = b->data;
-    apr_bucket_mmap *m = s->data;
+    apr_bucket_mmap *m = b->data;
     apr_status_t ok;
     void *addr;
     
-    ok = apr_mmap_offset(&addr, m->mmap, s->start);
+    ok = apr_mmap_offset(&addr, m->mmap, b->start);
     if (ok != APR_SUCCESS) {
 	return ok;
     }
     *str = addr;
-    *length = s->end - s->start;
+    *length = b->length;
     return APR_SUCCESS;
 }
 
@@ -83,6 +82,7 @@ static void mmap_destroy(void *data)
     if (m == NULL) {
 	return;
     }
+    /* XXX: apr_mmap_delete(m->mmap)? */
     free(m);
 }
 
@@ -100,12 +100,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_mmap_make(apr_bucket *b,
     }
     m->mmap = mm;
 
-    b = apr_bucket_shared_make(b, m, start, start+length);
-    if (b == NULL) {
-	free(m);
-	return NULL;
-    }
-
+    b = apr_bucket_shared_make(b, m, start, length);
     b->type     = &apr_bucket_type_mmap;
 
     return b;
