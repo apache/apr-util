@@ -233,13 +233,10 @@ static apr_status_t write_page(apr_sdbm_t *db, const char *buf, long pagno)
     apr_status_t status;
     apr_off_t off = OFF_PAG(pagno);
     
-    if ((status = apr_file_seek(db->pagf, APR_SET, &off)) != APR_SUCCESS ||
-        (status = apr_file_write_full(db->pagf, buf, PBLKSIZ, NULL)) 
-                != APR_SUCCESS) {
-        return status;
-    }
-    
-    return APR_SUCCESS;
+    if ((status = apr_file_seek(db->pagf, APR_SET, &off)) == APR_SUCCESS)
+        status = apr_file_write_full(db->pagf, buf, PBLKSIZ, NULL);
+
+    return status;
 }
 
 apr_status_t apr_sdbm_delete(apr_sdbm_t *db, const apr_sdbm_datum_t key)
@@ -259,10 +256,8 @@ apr_status_t apr_sdbm_delete(apr_sdbm_t *db, const apr_sdbm_datum_t key)
         /*
          * update the page file
          */
-        if ((status = write_page(db, db->pagbuf, db->pagbno)) != APR_SUCCESS)
-            return status;
-
-        return APR_SUCCESS;
+        status = write_page(db, db->pagbuf, db->pagbno);
+        return status;
     }
 
     return APR_EACCES;
@@ -308,13 +303,8 @@ apr_status_t apr_sdbm_store(apr_sdbm_t *db, apr_sdbm_datum_t key,
          * and update the page file.
          */
         (void) putpair(db->pagbuf, key, val);
-
-        if ((status = write_page(db, db->pagbuf, db->pagbno)) != APR_SUCCESS)
-            return status;
-
-        return APR_SUCCESS;
-    }
-    
+        status = write_page(db, db->pagbuf, db->pagbno);
+    }    
     return status;
 }
 
@@ -414,10 +404,8 @@ static apr_status_t read_from(apr_file_t *f, void *buf,
             memset(buf, 0, len);
             status = APR_SUCCESS;
         }
-        return status;
     }
-
-    return APR_SUCCESS;
+    return status;
 }
 
 /*
@@ -431,9 +419,8 @@ apr_status_t apr_sdbm_firstkey(apr_sdbm_t *db, apr_sdbm_datum_t *key)
      */
     apr_status_t status;
     if ((status = read_from(db->pagf, db->pagbuf, OFF_PAG(0), PBLKSIZ))
-                != APR_SUCCESS) {
+                != APR_SUCCESS)
         return status;
-    }
 
     db->pagbno = 0;
     db->blkptr = 0;
@@ -540,13 +527,10 @@ static apr_status_t setdbit(apr_sdbm_t *db, long dbit)
         db->maxbno += DBLKSIZ * BYTESIZ;
 
     off = OFF_DIR(dirb);
-    if (((status = apr_file_seek(db->dirf, APR_SET, &off)) != APR_SUCCESS)
-        || (status = apr_file_write_full(db->dirf, db->dirbuf, DBLKSIZ,
-                                   NULL)) != APR_SUCCESS) {
-        return status;
-    }
+    if ((status = apr_file_seek(db->dirf, APR_SET, &off)) == APR_SUCCESS)
+        status = apr_file_write_full(db->dirf, db->dirbuf, DBLKSIZ, NULL);
 
-    return APR_SUCCESS;
+    return status;
 }
 
 /*
