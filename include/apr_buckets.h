@@ -447,7 +447,7 @@ API_EXPORT(void *) ap_bucket_destroy_shared(void *data);
  *         or APR_SUCCESS
  * @deffunc API_EXPORT(apr_status_t) ap_bucket_shared_split(ap_bucket *b, apr_off_t point)
  */
-API_EXPORT(apr_status_t) ap_bucket_split_shared(ap_bucket *b, apr_off_t point);
+API_EXPORT_NONSTD(apr_status_t) ap_bucket_split_shared(ap_bucket *b, apr_off_t point);
 
 
 /*  *****  Functions to Create Buckets of varying type  *****  */

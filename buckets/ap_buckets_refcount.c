@@ -58,7 +58,7 @@
 
 #include "ap_buckets.h"
 
-API_EXPORT(apr_status_t) ap_bucket_split_shared(ap_bucket *a, apr_off_t point)
+API_EXPORT_NONSTD(apr_status_t) ap_bucket_split_shared(ap_bucket *a, apr_off_t point)
 {
     ap_bucket *b;
     ap_bucket_shared *ad, *bd;
