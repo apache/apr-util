@@ -393,6 +393,10 @@ AC_DEFUN(APU_TEST_EXPAT,[
     dnl Expat 1.95.* distribution
     expat_include_dir="$1/lib"
     expat_libs="$1/lib/libexpat.la"
+  elif test -r "$1/include/expat.h"; then
+    dnl Expat 1.95.* installation
+    expat_include_dir="$1/include"
+    expat_libs="$1/lib/libexpat.la"
   elif test -r "$1/xmlparse.h"; then
     dnl maybe an expat-lite. use this dir for both includes and libs
     expat_include_dir="$1"
