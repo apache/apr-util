@@ -107,7 +107,7 @@ case "$host_alias" in
     ;;
 *AIX*|*Darwin*)
     dnl need such stuff as -liconv to be specified when building libaprutil.la
-    EXTRA_OS_LINK='$(APRUTIL_LIBS)'
+    EXTRA_OS_LINK='$(APRUTIL_LDFLAGS) $(APRUTIL_LIBS)'
     ;;
 *)
     ;;
