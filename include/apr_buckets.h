@@ -500,6 +500,9 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
 /**
  * Remove all zero length buckets from the brigade.
  * @param b The bucket brigade
+ * @deprecated CAUTION: This macro will be removed from the API soon, as it
+ *             is *not* safe to remove zero-length buckets from a brigade
+ *             arbitrarily; metadata buckets are zero-length.
  */
 #define APR_BRIGADE_NORMALIZE(b)       \
 do { \
