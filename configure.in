@@ -79,7 +79,7 @@ AC_OUTPUT([
 	export_vars.sh
 	build/Makefile
 	build/rules.mk
-	include/private/apu_private.h
+	include/private/apu_select_dbm.h
         include/apu.h
 	buckets/Makefile
 	crypto/Makefile

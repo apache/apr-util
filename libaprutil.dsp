@@ -253,27 +253,27 @@ InputPath=.\include\apu.hw
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\private\apu_private.hw
+SOURCE=.\include\private\apu_select_dbm.hw
 
 !IF  "$(CFG)" == "libaprutil - Win32 Release"
 
 # Begin Custom Build
-InputPath=.\include\private\apu_private.hw
+InputPath=.\include\private\apu_select_dbm.hw
 
-".\include\private\apu_private.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	copy .\include\private\apu_private.hw .\include\private\apu_private.h > nul 
-	echo Created apu_private.h from apu_private.hw 
+".\include\private\apu_select_dbm.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy .\include\private\apu_select_dbm.hw .\include\private\apu_select_dbm.h > nul 
+	echo Created apu_select_dbm.h from apu_select_dbm.hw 
 	
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
 
 # Begin Custom Build
-InputPath=.\include\private\apu_private.hw
+InputPath=.\include\private\apu_select_dbm.hw
 
-".\include\private\apu_private.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	copy .\include\private\apu_private.hw .\include\private\apu_private.h > nul 
-	echo Created apu_private.h from apu_private.hw 
+".\include\private\apu_select_dbm.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy .\include\private\apu_select_dbm.hw .\include\private\apu_select_dbm.h > nul 
+	echo Created apu_select_dbm.h from apu_select_dbm.hw 
 	
 # End Custom Build
 
