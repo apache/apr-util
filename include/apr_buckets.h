@@ -559,8 +559,6 @@ struct apr_bucket_file {
     apr_bucket_refcount  refcount;
     /** The file this bucket refers to */
     apr_file_t *fd;
-    /** The offset into the file */
-    apr_off_t offset;
 };
 
 /*  *****  Bucket Brigade Functions  *****  */

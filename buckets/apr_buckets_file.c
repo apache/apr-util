@@ -107,7 +107,7 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
          * file mmapped */
         apr_status_t status;
         apr_pool_t *p = APR_GET_POOL(f);
-        if ((status = apr_mmap_create(&mm, f, a->offset, e->length, 
+        if ((status = apr_mmap_create(&mm, f, s->start, e->length, 
                                       APR_MMAP_READ, p)) != APR_SUCCESS) {
             mm = NULL;
         }
@@ -133,8 +133,8 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
         }
 
         /* Handle offset ... */
-        if (a->offset) {
-            rv = apr_seek(f, APR_SET, &a->offset);
+        if (s->start) {
+            rv = apr_seek(f, APR_SET, &s->start);
             if (rv != APR_SUCCESS) {
                 free(buf);
                 return rv;
@@ -155,7 +155,7 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
 
         /* If we have more to read from the file, then create another bucket */
         if (length > 0) {
-            b = apr_bucket_create_file(f, a->offset + (*len), length);
+            b = apr_bucket_create_file(f, s->start + (*len), length);
             APR_BUCKET_INSERT_AFTER(e, b);
         }
 #if APR_HAS_MMAP
@@ -168,6 +168,7 @@ static apr_status_t file_split(apr_bucket *e, apr_off_t offset)
 {
     apr_bucket *b;
     apr_bucket_shared *s;
+    apr_bucket_shared *temp = e->data;
     apr_bucket_file *f;
 
     apr_bucket_split_shared(e, offset);
@@ -175,7 +176,7 @@ static apr_status_t file_split(apr_bucket *e, apr_off_t offset)
 
     s = b->data;
     f = s->data;
-    f->offset = offset;
+    s->start = offset + temp->start;
 
     return APR_SUCCESS;
 }
@@ -190,7 +191,6 @@ APU_DECLARE(apr_bucket *) apr_bucket_make_file(apr_bucket *b, apr_file_t *fd,
         return NULL;
     }
     f->fd = fd;
-    f->offset = offset;
 
     b = apr_bucket_make_shared(b, f, offset, offset + len);
     if (b == NULL) {
