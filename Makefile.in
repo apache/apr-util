@@ -1,6 +1,7 @@
 #
 # Top-level Makefile for APRUTIL
 #
+CPP = @CPP@
 
 INCLUDES=-I./include -I../include -I@APR_SOURCE_DIR@/include
 
