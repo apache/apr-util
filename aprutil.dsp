@@ -149,6 +149,10 @@ SOURCE=.\crypto\apr_md4.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\crypto\apr_md5.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\crypto\apr_sha1.c
 # End Source File
 # End Group
@@ -460,6 +464,10 @@ SOURCE=.\include\apr_hooks.h
 # Begin Source File
 
 SOURCE=.\include\apr_md4.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\apr_md5.h
 # End Source File
 # Begin Source File
 
