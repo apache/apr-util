@@ -83,7 +83,7 @@ Known values for OPTION are:
   --prefix[=DIR]    change prefix to DIR
   --bindir          print location where binaries are installed
   --includes        print include information
-  --includedir      print location where includes are installed
+  --includedir      print location where headers are installed
   --ldflags         print linker flags
   --libs            print library information
   --srcdir          print APR-util source directory
