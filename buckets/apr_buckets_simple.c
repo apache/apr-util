@@ -194,7 +194,7 @@ const apr_bucket_type_t apr_bucket_type_immortal = {
     "IMMORTAL", 5,
     free,
     simple_read,
-    apr_bucket_notimpl_setaside,
+    apr_bucket_setaside_notimpl,
     simple_split,
     simple_copy
 };
