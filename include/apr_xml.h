@@ -29,9 +29,6 @@
 #include "apr_file_io.h"
 
 #include "apu.h"
-#if APR_CHARSET_EBCDIC
-#include "apr_xlate.h"
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -334,19 +331,6 @@ APU_DECLARE(int) apr_xml_insert_uri(apr_array_header_t *uri_array,
 
 /** Get the URI item for this XML element */
 #define APR_XML_GET_URI_ITEM(ary, i) (((const char * const *)(ary)->elts)[i])
-
-#if APR_CHARSET_EBCDIC
-/**
- * Convert parsed tree in EBCDIC 
- * @param p The pool to allocate out of
- * @param pdoc The apr_xml_doc to convert.
- * @param xlate The translation handle to use.
- * @return Any errors found during conversion.
- */
-APU_DECLARE(apr_status_t) apr_xml_parser_convert_doc(apr_pool_t *p,
-                                                     apr_xml_doc *pdoc,
-                                                     apr_xlate_t *convset);
-#endif
 
 #ifdef __cplusplus
 }
