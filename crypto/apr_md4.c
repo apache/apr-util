@@ -150,6 +150,9 @@ static apr_xlate_t *xlate_ebcdic_to_ascii; /* used in apr_md4_encode() */
  */
 APU_DECLARE(apr_status_t) apr_md4_init(apr_md4_ctx_t *context)
 {
+    if (!context)
+        return APR_EINVAL;
+    
     context->count[0] = context->count[1] = 0;
 
     /* Load magic initialization constants. */
@@ -176,6 +179,9 @@ APU_DECLARE(apr_status_t) apr_md4_set_xlate(apr_md4_ctx_t *context,
     apr_status_t rv;
     int is_sb;
 
+    if (!context)
+        return APR_EINVAL;
+    
     /* TODO: remove the single-byte-only restriction from this code
      */
     rv = apr_xlate_get_sb(xlate, &is_sb);
@@ -191,8 +197,8 @@ APU_DECLARE(apr_status_t) apr_md4_set_xlate(apr_md4_ctx_t *context,
 #endif /* APR_HAS_XLATE */
 
 /* MD4 block update operation. Continues an MD4 message-digest
-   operation, processing another message block, and updating the
-   context.
+ * operation, processing another message block, and updating the
+ * context.
  */
 APU_DECLARE(apr_status_t) apr_md4_update(apr_md4_ctx_t *context,
                                          const unsigned char *input,
@@ -203,6 +209,9 @@ APU_DECLARE(apr_status_t) apr_md4_update(apr_md4_ctx_t *context,
     apr_size_t inbytes_left, outbytes_left;
 #endif
 
+    if (!context)
+        return APR_EINVAL;
+    
     /* Compute number of bytes mod 64 */
     idx = (unsigned int)((context->count[0] >> 3) & 0x3F);
 
@@ -274,7 +283,7 @@ APU_DECLARE(apr_status_t) apr_md4_update(apr_md4_ctx_t *context,
 }
 
 /* MD4 finalization. Ends an MD4 message-digest operation, writing the
-   the message digest and zeroizing the context.
+ * the message digest and zeroizing the context.
  */
 APU_DECLARE(apr_status_t) apr_md4_final(
                                     unsigned char digest[APR_MD4_DIGESTSIZE],
@@ -283,6 +292,9 @@ APU_DECLARE(apr_status_t) apr_md4_final(
     unsigned char bits[8];
     unsigned int idx, padLen;
 
+    if (!context)
+        return APR_EINVAL;
+    
     /* Save number of bits */
     Encode(bits, context->count, 8);
 
@@ -306,6 +318,23 @@ APU_DECLARE(apr_status_t) apr_md4_final(
     memset(context, 0, sizeof(*context));
     
     return APR_SUCCESS;
+}
+
+/* MD4 computation in one step (init, update, final)
+ */
+APU_DECLARE(apr_status_t) apr_md4(unsigned char digest[APR_MD4_DIGESTSIZE],
+                                  const unsigned char *input,
+                                  apr_size_t inputLen)
+{
+    apr_md4_ctx_t ctx;
+    apr_status_t rv;
+
+    apr_md4_init(&ctx);
+
+    if ((rv = apr_md4_update(&ctx, input, inputLen)) != APR_SUCCESS)
+        return rv;
+
+    return apr_md4_final(digest, &ctx);
 }
 
 /* MD4 basic transformation. Transforms state based on block. */
