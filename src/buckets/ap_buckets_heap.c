@@ -56,132 +56,90 @@
 #include "ap_buckets.h"
 #include <stdlib.h>
 
-#ifndef DEFAULT_RWBUF_SIZE
-#define DEFAULT_RWBUF_SIZE (4096)
+/*
+ * The size of heap bucket memory allocations.
+ * XXX: This is currently a guess and should be adjusted to an
+ * empirically good value.
+ */
+#ifndef DEFAULT_BUCKET_SIZE
+#define DEFAULT_BUCKET_SIZE (4096)
 #endif
 
-void ap_heap_setaside(ap_bucket *e);
-
-static apr_status_t heap_get_str(ap_bucket *e, const char **str, 
-                                 apr_ssize_t *len, int block)
+static apr_status_t heap_read(ap_bucket *b, const char **str, 
+			      apr_ssize_t *len, int block)
 {
-    ap_bucket_heap *b = (ap_bucket_heap *)e->data;
-    *str = b->start;
-    *len = e->length;
+    ap_bucket_shared *s = b->data;
+    ap_bucket_heap *h = s->data;
+
+    *str = h->base + s->start;
+    *len = s->end - s->start;
     return APR_SUCCESS;
 }
 
-static void heap_destroy(ap_bucket *e)
+static void heap_destroy(ap_bucket *b)
 {
-    ap_bucket_heap *d = (ap_bucket_heap *)e->data;
-    free(d->alloc_addr);
+    ap_bucket_heap *h;
+
+    h = ap_bucket_destroy_shared(b);
+    if (h == NULL) {
+	return;
+    }
+    free(h->base);
+    free(h);
 }
 
-static apr_status_t heap_split(ap_bucket *e, apr_off_t nbyte)
+API_EXPORT(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
+		const char *buf, apr_size_t length, int copy, apr_ssize_t *w)
 {
-    ap_bucket *newbuck;
-    ap_bucket_heap *a = (ap_bucket_heap *)e;
-    ap_bucket_heap *b;
-    apr_ssize_t dump; 
+    ap_bucket_heap *h;
 
-    newbuck = ap_bucket_heap_create(a->alloc_addr, a->alloc_len, &dump);
-    b = (ap_bucket_heap *)newbuck->data;
-
-    b->alloc_addr = a->alloc_addr;
-    b->alloc_len = a->alloc_len;
-    b->end = a->end;
-    a->end = a->start + nbyte;
-    b->start = a->end + 1;
-    newbuck->length = e->length - nbyte;
-    e->length = nbyte;
-
-    newbuck->prev = e;
-    newbuck->next = e->next;
-    e->next = newbuck;
-
-    return APR_SUCCESS;
-}
-
-/*
- * save nbyte bytes to the bucket.
- * Only returns fewer than nbyte if an error occurred.
- * Returns -1 if no bytes were written before the error occurred.
- * It is worth noting that if an error occurs, the buffer is in an unknown
- * state.
- */
-static apr_status_t heap_insert(ap_bucket *e, const char *buf,
-                                apr_size_t nbyte, apr_ssize_t *w)
-{
-    int amt;
-    int total;
-    ap_bucket_heap *b = (ap_bucket_heap *)e->data;
-
-    if (nbyte == 0) {
-        *w = 0;
-        return APR_SUCCESS;
+    h = malloc(sizeof(*h));
+    if (h == NULL) {
+	return NULL;
     }
 
-/*
- * At this point, we need to make sure we aren't trying to write too much
- * data to the bucket.  We will need to write to the dist here, but I am
- * leaving that for a later pass.  The basics are presented below, but this
- * is horribly broken.
- */
-    amt = b->alloc_len - (b->end - b->start);
-    total = 0;
-    if (nbyte > amt) {
-        /* loop through and write to the disk */
-        /* Replace the heap buckets with file buckets */
+    if (copy) {
+	h->base = malloc(DEFAULT_BUCKET_SIZE);
+	if (h->base == NULL) {
+	    free(h);
+	    return NULL;
+	}
+	h->alloc_len = DEFAULT_BUCKET_SIZE;
+	if (length > DEFAULT_BUCKET_SIZE) {
+	    length = DEFAULT_BUCKET_SIZE;
+	}
+	memcpy(h->base, buf, length);
     }
-    /* now we know that nbyte < b->alloc_len */
-    memcpy(b->end, buf, nbyte);
-    b->end = b->end + nbyte;
-    *w = total + nbyte;
-    return APR_SUCCESS;
+    else {
+	/* XXX: we lose the const qualifier here which indicates
+         * there's something screwy with the API...
+	 */
+	h->base = (char *) buf;
+	h->alloc_len = length;
+    }
+
+    b = ap_bucket_make_shared(b, h, 0, length);
+    if (b == NULL) {
+	if (copy) {
+	    free(h->base);
+	}
+	free(h);
+	return NULL;
+    }
+
+    b->type     = AP_BUCKET_HEAP;
+    b->split    = ap_bucket_split_shared;
+    b->destroy  = heap_destroy;
+    b->read     = heap_read;
+    b->setaside = NULL;
+
+    *w = length;
+
+    return b;
 }
 
-void ap_heap_setaside(ap_bucket *e)
+API_EXPORT(ap_bucket *) ap_bucket_create_heap(
+		const char *buf, apr_size_t length, int copy, apr_ssize_t *w)
 {
-    ap_bucket_transient *a = (ap_bucket_transient *)e;
-    ap_bucket_heap *b = calloc(1, sizeof(*b));
-
-    b->alloc_addr = calloc(DEFAULT_RWBUF_SIZE, 1);
-    b->alloc_len  = DEFAULT_RWBUF_SIZE;
-    memcpy(b->alloc_addr, a->start, e->length);
-    b->start      = b->alloc_addr;
-    b->end        = b->start + e->length;
-
-    e->type       = AP_BUCKET_HEAP;
-    e->read       = heap_get_str;
-    e->setaside   = NULL;
-    e->split      = heap_split;
-    e->destroy    = heap_destroy;
+    ap_bucket_do_create(ap_bucket_make_heap(b, buf, length, copy, w));
 }
-
-API_EXPORT(ap_bucket *) ap_bucket_heap_create(const char *buf,
-                                apr_size_t nbyte, apr_ssize_t *w)
-{
-    ap_bucket *newbuf;
-    ap_bucket_heap *b;
-
-    newbuf = calloc(1, sizeof(*newbuf));
-    b = malloc(sizeof(*b));
-    
-    b->alloc_addr = calloc(DEFAULT_RWBUF_SIZE, 1);
-    b->alloc_len  = DEFAULT_RWBUF_SIZE;
-    b->start      = b->alloc_addr;
-    b->end        = b->alloc_addr;
-
-    newbuf->data       = b;
-    heap_insert(newbuf, buf, nbyte, w); 
-    newbuf->length     = b->end - b->start;
-
-    newbuf->type       = AP_BUCKET_HEAP;
-    newbuf->read       = heap_get_str;
-    newbuf->setaside   = NULL;
-    newbuf->split      = heap_split;
-    newbuf->destroy    = heap_destroy;
-
-    return newbuf;
-}
-

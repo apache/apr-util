@@ -176,7 +176,8 @@ API_EXPORT(int) ap_brigade_vputstrs(ap_bucket_brigade *b, va_list va)
             break;
         j = strlen(x);
        
-        r = ap_bucket_heap_create(x, j, &i);
+	/* XXX: copy or not? let the caller decide? */
+        r = ap_bucket_create_heap(x, j, 1, &i);
         if (i != j) {
             /* Do we need better error reporting?  */
             return -1;
@@ -202,7 +203,7 @@ API_EXPORT(int) ap_brigade_printf(ap_bucket_brigade *b, const char *fmt, ...)
 
 API_EXPORT(int) ap_brigade_vprintf(ap_bucket_brigade *b, const char *fmt, va_list va)
 {
-    /* THIS IS A HACK.  This needs to be replaced with a function to printf
+    /* XXX:  This needs to be replaced with a function to printf
      * directly into a bucket.  I'm being lazy right now.  RBB
      */
     char buf[4096];
@@ -211,7 +212,7 @@ API_EXPORT(int) ap_brigade_vprintf(ap_bucket_brigade *b, const char *fmt, va_lis
 
     res = apr_vsnprintf(buf, 4096, fmt, va);
 
-    r = ap_bucket_heap_create(buf, strlen(buf), &i);
+    r = ap_bucket_create_heap(buf, strlen(buf), 1, &i);
     ap_brigade_append_buckets(b, r);
 
     return res;
