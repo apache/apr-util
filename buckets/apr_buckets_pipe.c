@@ -67,31 +67,28 @@ static apr_status_t pipe_split(ap_bucket *a, apr_off_t point)
 }
 
 /* Ignore the block arg for now.  We can fix that tomorrow. */
-static apr_status_t pipe_read(ap_bucket *b, const char **str, 
+static apr_status_t pipe_read(ap_bucket *b, const char **str,
 				apr_ssize_t *len, int block)
 {
     ap_bucket_pipe *bd = b->data;
     ap_bucket *a;
-    apr_size_t l;
-    apr_ssize_t toss;
-    char buf[IOBUFSIZE];
+    char *buf;
     apr_status_t rv;
 
+    /*
+     * XXX: We need to obey the block flag
+     */
+    buf = malloc(IOBUFSIZE);
+    *str = buf;
     *len = IOBUFSIZE;
     if ((rv = apr_read(bd->thepipe, buf, len)) != APR_SUCCESS) {
+	free(buf);
         return rv;
     }
-    if (*len > 0) {
-        l = *len;
+    if (len > 0) {
         a = ap_bucket_create_pipe(bd->thepipe);
-        
-        /* XXX ap_bucket_make_heap() can decide not to copy all our data;
-         * either handle it here or ensure that IOBUFSIZE < 
-         * DEFAULT_BUCKET_SIZE;
-         */
-        b = ap_bucket_make_heap(b, buf, l, 1, &toss);
-        b->read(b, str, len, block); /* set str to new location of data */
-
+        b = ap_bucket_make_heap(b, buf, *len, 0, NULL);
+	
         if (b->next) {
             b->next->prev = a;
         }

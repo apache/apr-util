@@ -540,7 +540,8 @@ API_EXPORT(ap_bucket *) ap_bucket_make_transient(ap_bucket *b,
  * @param buf The buffer to insert into the bucket
  * @param nbyte The size of the buffer to insert.
  * @param copy Whether to copy the data into newly-allocated memory or not
- * @param w The number of bytes actually copied into the bucket
+ * @param w The number of bytes actually copied into the bucket.
+ *          If copy is zero then this return value can be ignored by passing a NULL pointer.
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_create_heap(const char *buf, apr_size_t nbyte, apr_ssize_t *w)
  */
