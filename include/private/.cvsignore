@@ -2,3 +2,4 @@ apu_config.h.in
 apu_config.h
 apu_select_dbm.h
 apu_private.h
+uri_delims.h
