@@ -1,5 +1,45 @@
 #!/bin/sh
 
+# Default place to look for apr source.  Can be overridden with 
+#   --with-apr=[directory]
+apr_src_dir=../apr
+
+while test $# -gt 0 
+do
+  # Normalize
+  case "$1" in
+  -*=*) optarg=`echo "$1" | sed 's/[-_a-zA-Z0-9]*=//'` ;;
+  *) optarg= ;;
+  esac
+
+  case "$1" in
+  --with-apr=*)
+  apr_src_dir=$optarg
+  ;;
+  esac
+
+  shift
+done
+
+if test -d "$apr_src_dir"
+then
+  echo ""
+  echo "Looking for apr source in $apr_src_dir"
+else
+  echo ""
+  echo "Problem finding apr source in $apr_src_dir."
+  echo "Use:"
+  echo "  --with-apr=[directory]" 
+  exit 1
+fi
+
+# Remove some files, then copy them from apr source tree
+rm -f build/apr_common.m4 build/find_apr.m4 build/install.sh \
+      build/config.guess build/config.sub
+cp $apr_src_dir/build/apr_common.m4 $apr_src_dir/build/find_apr.m4 \
+   $apr_src_dir/build/install.sh $apr_src_dir/build/config.guess  \
+   $apr_src_dir/build/config.sub build
+
 # Remove aclocal.m4 as it'll break some builds...
 rm -rf aclocal.m4 autom4te*.cache
 

@@ -1,5 +1,5 @@
 APRUTIL LIBRARY STATUS:						-*-text-*-
-Last modified at [$Date: 2002/09/13 23:15:22 $]
+Last modified at [$Date: 2003/01/22 17:45:20 $]
 
 Release:
 
@@ -11,10 +11,6 @@ Release:
 
 
 RELEASE SHOWSTOPPERS:
-
-    * Separate apr build process so that apr-util can build on its own.
-
-      Suggestions: Create an apr-build subproject and start using it.
 
 RELEASE NON-SHOWSTOPPERS BUT WOULD BE REAL NICE TO WRAP THESE UP:
 
