@@ -93,5 +93,6 @@ AC_OUTPUT([
 	hooks/Makefile
 	uri/Makefile
 	xml/Makefile
+	xml/expat/Makefile
 	$test_Makefile
 	])
