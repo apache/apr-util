@@ -211,6 +211,10 @@ SOURCE=.\ldap\apr_ldap_init.c
 
 SOURCE=.\ldap\apr_ldap_url.c
 # End Source File
+# Begin Source File
+
+SOURCE=.\ldap\apr_ldap_option.c
+# End Source File
 # End Group
 # Begin Group "misc"
 

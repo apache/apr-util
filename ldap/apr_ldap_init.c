@@ -298,6 +298,16 @@ APU_DECLARE(int) apr_ldap_ssl_deinit(void) {
  * to hide the complexity setup from the user. This function
  * assumes that any certificate setup necessary has already
  * been done.
+ *
+ * If SSL or STARTTLS needs to be enabled, and the underlying
+ * toolkit supports it, the following values are accepted for
+ * secure:
+ *
+ * APR_LDAP_OPT_TLS_NEVER: No encryption
+ * APR_LDAP_OPT_TLS_HARD: SSL encryption (ldaps://)
+ * APR_LDAP_OPT_TLS_DEMAND: Force STARTTLS on ldap://
+ * APR_LDAP_OPT_TLS_ALLOW: Allow STARTTLS on ldap://
+ * APR_LDAP_OPT_TLS_TRY: Optionally try STARTLS on ldap://
  */
 APU_DECLARE(int) apr_ldap_init(apr_pool_t *pool,
                                LDAP **ldap,
@@ -333,19 +343,20 @@ APU_DECLARE(int) apr_ldap_init(apr_pool_t *pool,
 #ifdef LDAP_OPT_X_TLS
             *ldap = ldap_init(hostname, portno);
             if (NULL != *ldap) {
-                int SSLmode = LDAP_OPT_X_TLS_HARD;
+                int SSLmode = secure;
                 result->rc = ldap_set_option(*ldap, LDAP_OPT_X_TLS, &SSLmode);
                 if (LDAP_SUCCESS != result->rc) {
                     ldap_unbind_s(*ldap);
-                    result->reason = "LDAP: ldap_set_option - "
-                                     "LDAP_OPT_X_TLS_HARD failed";
+                    result->reason = "LDAP: ldap_set_option failed, "
+                                     "could not set security mode for "
+                                     "apr_ldap_init()";
                     result->msg = ldap_err2string(result->rc);
                     *ldap = NULL;
                     return APR_EGENERAL;
                 }
             }
 #else
-            result->reason = "LDAP: SSL not yet supported by APR on this "
+            result->reason = "LDAP: SSL/TLS not yet supported by APR on this "
                              "version of the OpenLDAP toolkit";
             return APR_ENOTIMPL;
 #endif
@@ -353,13 +364,46 @@ APU_DECLARE(int) apr_ldap_init(apr_pool_t *pool,
 
         /* microsoft toolkit */
         else if (!strcmp(LDAP_VENDOR_NAME, APR_LDAP_VENDOR_MICROSOFT)) {
+            if (APR_LDAP_OPT_TLS_HARD == secure) {
 #if APR_HAS_LDAP_SSLINIT
-            *ldap = ldap_sslinit((char *)hostname, portno, 1);
+                *ldap = ldap_sslinit((char *)hostname, portno, 1);
 #else
-            result->reason = "LDAP: SSL not yet supported by APR on "
-                             "this version of the Microsoft toolkit";
-            return APR_ENOTIMPL;
+                result->reason = "LDAP: ldap_sslinit() not yet supported by APR on "
+                                 "this version of the Microsoft toolkit";
+                return APR_ENOTIMPL;
 #endif
+            }
+            else {
+#if APR_HAS_LDAP_START_TLS_S
+                if (APR_LDAP_OPT_TLS_DEMAND == secure) {
+                    *ldap = ldap_init(hostname, portno);
+                    if (NULL != *ldap) {
+                        result->rc = ldap_start_tls_s(*ldap, NULL, NULL, NULL, NULL);
+                        if (LDAP_SUCCESS != result->rc) {
+                            ldap_unbind_s(*ldap);
+                            result->reason = "LDAP: ldap_start_tls_s() failed, "
+                                             "could not set STARTTLS mode for "
+                                             "apr_ldap_init()";
+                            result->msg = ldap_err2string(result->rc);
+                            *ldap = NULL;
+                            return APR_EGENERAL;
+                        }
+                    }
+                }
+                else {
+                    result->reason = "LDAP: APR_LDAP_OPT_TLS_ALLOW and "
+                                     "APR_LDAP_OPT_TLS_TRY are not supported "
+                                     "by APR on this version of the Microsoft "
+                                     "toolkit. Use APR_LDAP_OPT_TLS_DEMAND "
+                                     "instead to enable STARTTLS";
+                    return APR_ENOTIMPL;
+                }
+#else
+                result->reason = "LDAP: ldap_start_tls_s() not yet supported "
+                                 "by APR on this version of the Microsoft toolkit";
+                return APR_ENOTIMPL;
+#endif
+            }
         }
 
         /* sun toolkit */

@@ -1,18 +1,5 @@
 Changes with APR-util 1.1.0
 
-  *) Rework the LDAP toolkit detection to be more accurate than "OpenLDAP
-     detected regardless", while remaining backwards compatible with v1.0.
-     [Graham Leggett]
-
-  *) Fix the detection of ldap.h on Solaris - it needs lber.h to be
-     defined first. [Graham Leggett]
-
-  *) Add a build script to create a solaris package. [Graham Leggett]
-  
-  *) Added the apr_ldap_ssl_add_cert() API to allow multiple certificates
-     to be stored and used when establishing an SSL connection to different
-     LDAP servers. [Brad Nicholes]
-     
   *) Emit the run-time link path option in apu-config after installation
      if the user is linking with libtool.  [Justin Erenkrantz]
 
@@ -28,6 +15,24 @@ Changes with APR-util 1.1.0
 
   *) Add apr_brigade_insert_file() function, to safely insert a file
      into a brigade, regardless of size.  [Joe Orton]
+
+Changes with APR-util 1.0.2
+
+  *) Teach apr_ldap_init() how to handle STARTTLS in addition to the existing
+     SSL support. Add apr_ldap_option API. [Graham Leggett]
+
+  *) Rework the LDAP toolkit detection to be more accurate than "OpenLDAP
+     detected regardless", while remaining backwards compatible with v1.0.
+     [Graham Leggett]
+
+  *) Added the apr_ldap_ssl_add_cert() API to allow multiple certificates
+     to be stored and used when establishing an SSL connection to different
+     LDAP servers. [Brad Nicholes]
+
+  *) Fix the detection of ldap.h on Solaris - it needs lber.h to be
+     defined first. [Graham Leggett]
+
+  *) Add a build script to create a solaris package. [Graham Leggett]
 
 Changes with APR-util 1.0.1
 
