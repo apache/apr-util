@@ -782,12 +782,12 @@ InputPath=.\include\private\apu_select_dbm.hw
 !IF  "$(CFG)" == "aprutil - Win32 Release"
 
 "expat - Win32 Release" : 
-   cd "\clean\httpd-2.0\srclib\expat-lite"
+   cd "..\..\srclib\expat-lite"
    $(MAKE) /$(MAKEFLAGS) /F ".\expat.mak" CFG="expat - Win32 Release" 
    cd "..\apr-util"
 
 "expat - Win32 ReleaseCLEAN" : 
-   cd "\clean\httpd-2.0\srclib\expat-lite"
+   cd "..\..\srclib\expat-lite"
    $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\expat.mak" CFG="expat - Win32 Release"\
  RECURSE=1 
    cd "..\apr-util"
@@ -795,12 +795,12 @@ InputPath=.\include\private\apu_select_dbm.hw
 !ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
 
 "expat - Win32 Debug" : 
-   cd "\clean\httpd-2.0\srclib\expat-lite"
+   cd "..\..\srclib\expat-lite"
    $(MAKE) /$(MAKEFLAGS) /F ".\expat.mak" CFG="expat - Win32 Debug" 
    cd "..\apr-util"
 
 "expat - Win32 DebugCLEAN" : 
-   cd "\clean\httpd-2.0\srclib\expat-lite"
+   cd "..\..\srclib\expat-lite"
    $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\expat.mak" CFG="expat - Win32 Debug"\
  RECURSE=1 
    cd "..\apr-util"
@@ -810,12 +810,12 @@ InputPath=.\include\private\apu_select_dbm.hw
 !IF  "$(CFG)" == "aprutil - Win32 Release"
 
 "apr - Win32 Release" : 
-   cd "\clean\httpd-2.0\srclib\apr"
+   cd "..\..\srclib\apr"
    $(MAKE) /$(MAKEFLAGS) /F ".\apr.mak" CFG="apr - Win32 Release" 
    cd "..\apr-util"
 
 "apr - Win32 ReleaseCLEAN" : 
-   cd "\clean\httpd-2.0\srclib\apr"
+   cd "..\..\srclib\apr"
    $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\apr.mak" CFG="apr - Win32 Release"\
  RECURSE=1 
    cd "..\apr-util"
@@ -823,12 +823,12 @@ InputPath=.\include\private\apu_select_dbm.hw
 !ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
 
 "apr - Win32 Debug" : 
-   cd "\clean\httpd-2.0\srclib\apr"
+   cd "..\..\srclib\apr"
    $(MAKE) /$(MAKEFLAGS) /F ".\apr.mak" CFG="apr - Win32 Debug" 
    cd "..\apr-util"
 
 "apr - Win32 DebugCLEAN" : 
-   cd "\clean\httpd-2.0\srclib\apr"
+   cd "..\..\srclib\apr"
    $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\apr.mak" CFG="apr - Win32 Debug" RECURSE=1\
  
    cd "..\apr-util"
