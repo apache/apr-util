@@ -89,6 +89,7 @@
 #ifdef CHARSET_EBCDIC
 #include "apr_xlate.h"
 #endif /*CHARSET_EBCDIC*/
+#include <string.h>
 
 /* a bit faster & bigger, if defined */
 #define UNROLL_LOOPS
