@@ -210,27 +210,27 @@ APU_DECLARE(apr_bucket *) apr_bucket_file_create(apr_file_t *fd,
     return apr_bucket_file_make(b, fd, offset, len);
 }
 
-static apr_status_t file_setaside(apr_bucket *data, apr_pool_t *pool)
+static apr_status_t file_setaside(apr_bucket *data, apr_pool_t *reqpool)
 {
     apr_bucket_file *a = data->data;
     apr_file_t *fd;
     apr_file_t *f = a->fd;
-    apr_pool_t *p = apr_file_pool_get(f);
+    apr_pool_t *curpool = apr_file_pool_get(f);
 #if APR_HAS_MMAP
     apr_off_t filelength = data->length;  /* bytes remaining in file past offset */
     apr_off_t fileoffset = data->start;
 #endif
 
-    if (apr_pool_is_ancestor(p, pool)) {
+    if (apr_pool_is_ancestor(curpool, reqpool)) {
         return APR_SUCCESS;
     }
 
 #if APR_HAS_MMAP
-    if (file_make_mmap(data, filelength, fileoffset, p)) {
+    if (file_make_mmap(data, filelength, fileoffset, reqpool)) {
         return APR_SUCCESS;
     }
 #endif
-    apr_file_dup(&fd, f, p);
+    apr_file_dup(&fd, f, reqpool);
     a->fd = fd;
     return APR_SUCCESS;
 }
