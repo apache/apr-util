@@ -64,29 +64,6 @@
 
 static apr_array_header_t *bucket_types;
 
-AP_DECLARE(apr_status_t) ap_bucket_destroy(ap_bucket *e)
-{
-    e->type->destroy(e->data);
-    free(e);
-    return APR_SUCCESS;
-}
-
-AP_DECLARE(apr_status_t) ap_bucket_read(ap_bucket *e, const char **str, 
-                                        apr_ssize_t *len, int block)
-{
-    return e->type->read(e, str, len, block);
-}
-
-AP_DECLARE(apr_status_t) ap_bucket_setaside(ap_bucket *e)
-{
-    return e->type->setaside(e);
-}
-
-AP_DECLARE(apr_status_t) ap_bucket_split(ap_bucket *e, apr_off_t point)
-{
-    return e->type->split(e, point);
-}
-
 static apr_status_t ap_brigade_cleanup(void *data)
 {
     ap_bucket_brigade *b = data;
