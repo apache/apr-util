@@ -63,21 +63,22 @@ struct apr_bucket_alloc_t {
     int x; /* temporary... some compilers trigger an error on empty structure defs */
 };
 
-APU_DECLARE(apr_bucket_alloc_t *) apr_bucket_alloc_create(apr_pool_t *p)
+APU_DECLARE_NONSTD(apr_bucket_alloc_t *) apr_bucket_alloc_create(apr_pool_t *p)
 {
     return (apr_bucket_alloc_t *)0xFECCFECC;
 }
 
-APU_DECLARE(void) apr_bucket_alloc_destroy(apr_bucket_alloc_t *list)
+APU_DECLARE_NONSTD(void) apr_bucket_alloc_destroy(apr_bucket_alloc_t *list)
 {
 }
 
-APU_DECLARE(void *) apr_bucket_alloc(apr_size_t size, apr_bucket_alloc_t *list)
+APU_DECLARE_NONSTD(void *) apr_bucket_alloc(apr_size_t size, 
+                                            apr_bucket_alloc_t *list)
 {
     return malloc(size);
 }
 
-APU_DECLARE(void) apr_bucket_free(void *block)
+APU_DECLARE_NONSTD(void) apr_bucket_free(void *block)
 {
     free(block);
 }

@@ -103,6 +103,10 @@ SOURCE=.\buckets\apr_buckets.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\buckets\apr_buckets_alloc.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\buckets\apr_buckets_eos.c
 # End Source File
 # Begin Source File
