@@ -1,5 +1,8 @@
 Changes with APR-util b1  
 
+  *) BerkleyDB should NULL out the key if it is @EOF in vt_db_nextkey
+     [Ian Holsman]
+
   *) Add ability to natively fetch and split brigades based on LF lines.
      [Justin Erenkrantz]
 
