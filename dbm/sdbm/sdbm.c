@@ -85,11 +85,8 @@ static apr_status_t makroom(apr_sdbm_t *, long, int);
 /*
  * useful macros
  */
-#define SDBM_IOERR	0x2	       /* data base I/O error */
-
 #define bad(x)		((x).dptr == NULL || (x).dsize <= 0)
 #define exhash(item)	sdbm_hash((item).dptr, (item).dsize)
-#define ioerr(db,stat)	((db)->status = (stat))
 
 /* ### Does anything need these externally? */
 #define sdbm_dirfno(db)	((db)->dirf)
@@ -143,7 +140,7 @@ static apr_status_t prep(apr_sdbm_t **pdb, const char *dirname, const char *pagn
      * flag for RDONLY if needed.
      */
     if (!(flags & APR_WRITE)) {
-        db->flags = SDBM_RDONLY;
+        db->flags |= SDBM_RDONLY;
     }
 
     flags |= APR_BINARY | APR_READ;
@@ -228,7 +225,6 @@ apr_status_t apr_sdbm_fetch(apr_sdbm_t *db, apr_sdbm_datum_t *val,
         return APR_SUCCESS;
     }
 
-    ioerr(db, status);
     return status;
 }
 
@@ -240,7 +236,6 @@ static apr_status_t write_page(apr_sdbm_t *db, const char *buf, long pagno)
     if ((status = apr_file_seek(db->pagf, APR_SET, &off)) != APR_SUCCESS ||
         (status = apr_file_write_full(db->pagf, buf, PBLKSIZ, NULL)) 
                 != APR_SUCCESS) {
-        ioerr(db, status);
         return status;
     }
     
@@ -270,7 +265,6 @@ apr_status_t apr_sdbm_delete(apr_sdbm_t *db, const apr_sdbm_datum_t key)
         return APR_SUCCESS;
     }
 
-    ioerr(db, status);
     return APR_EACCES;
 }
 
@@ -321,7 +315,6 @@ apr_status_t apr_sdbm_store(apr_sdbm_t *db, apr_sdbm_datum_t key,
         return APR_SUCCESS;
     }
     
-    ioerr(db, status);
     return status;
 }
 
@@ -439,7 +432,6 @@ apr_status_t apr_sdbm_firstkey(apr_sdbm_t *db, apr_sdbm_datum_t *key)
     apr_status_t status;
     if ((status = read_from(db->pagf, db->pagbuf, OFF_PAG(0), PBLKSIZ))
                 != APR_SUCCESS) {
-        ioerr(db, status);
         return status;
     }
 
@@ -488,8 +480,7 @@ static apr_status_t getpage(apr_sdbm_t *db, long hash)
          * ### we make it so in read_from anyway.
          */
         if ((status = read_from(db->pagf, db->pagbuf, OFF_PAG(pagb), PBLKSIZ)) 
-            != APR_SUCCESS) {
-            ioerr(db, status);
+                    != APR_SUCCESS) {
             return status;
         }
 
@@ -580,16 +571,16 @@ static apr_status_t getnext(apr_sdbm_datum_t *key, apr_sdbm_t *db)
             apr_off_t off = OFF_PAG(db->blkptr);
             if ((status = apr_file_seek(db->pagf, APR_SET, &off) 
                         != APR_SUCCESS))
-                return ioerr(db, status);
+                return status;
         }
 
         db->pagbno = db->blkptr;
         /* ### EOF acceptable here too? */
         if ((status = apr_file_read_full(db->pagf, db->pagbuf, PBLKSIZ, NULL))
                     != APR_SUCCESS)
-            return ioerr(db, status);
+            return status;
         if (!chkpage(db->pagbuf))
-            return ioerr(db, APR_EGENERAL);     /* ### need better error */
+            return APR_EGENERAL;     /* ### need better error */
     }
 
     /* NOTREACHED */
@@ -601,12 +592,3 @@ int apr_sdbm_rdonly(apr_sdbm_t *db)
     return (db->flags & SDBM_RDONLY) != 0;
 }
 
-apr_status_t apr_sdbm_error_get(apr_sdbm_t *db)
-{
-    return db->status;
-}
-
-void apr_sdbm_error_clear(apr_sdbm_t *db)
-{
-    db->status = APR_SUCCESS;
-}
