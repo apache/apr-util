@@ -1,5 +1,12 @@
 Changes with APR-util b1  
 
+  *) Dropped the "w" parameter from apr_bucket_heap_create() and
+     apr_bucket_heap_make().  That parameter was originally intended
+     to return the amount of data copied into the bucket, but it
+     ended up being unnecessary because that amount is invariant from
+     the size of the data and is available as b->length in the
+     resulting bucket anyway.  [Cliff Woolley]
+
   *) Fix Makefile conversion for BSD/OS.  [Cliff Woolley]
 
   *) Use APR_XtOffsetOf instead of offsetof() in the ring macros for

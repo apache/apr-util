@@ -1139,26 +1139,20 @@ APU_DECLARE(apr_bucket *) apr_bucket_transient_make(apr_bucket *b,
  * @param buf The buffer to insert into the bucket
  * @param nbyte The size of the buffer to insert.
  * @param copy Whether to copy the data into newly-allocated memory or not
- * @param w The number of bytes actually copied into the bucket.
- *          If copy is zero then this return value can be ignored by passing a NULL pointer.
  * @return The new bucket, or NULL if allocation failed
  */
 APU_DECLARE(apr_bucket *) apr_bucket_heap_create(const char *buf, 
-                                                 apr_size_t nbyte, int copy, 
-                                                 apr_size_t *w);
+                                                 apr_size_t nbyte, int copy);
 /**
  * Make the bucket passed in a bucket refer to heap data
  * @param b The bucket to make into a HEAP bucket
  * @param buf The buffer to insert into the bucket
  * @param nbyte The size of the buffer to insert.
  * @param copy Whether to copy the data into newly-allocated memory or not
- * @param w The number of bytes actually copied into the bucket.
- *          If copy is zero then this return value can be ignored by passing a NULL pointer.
  * @return The new bucket, or NULL if allocation failed
  */
 APU_DECLARE(apr_bucket *) apr_bucket_heap_make(apr_bucket *b, const char *buf,
-                                               apr_size_t nbyte, int copy, 
-                                               apr_size_t *w);
+                                               apr_size_t nbyte, int copy);
 
 /**
  * Create a bucket referring to memory allocated from a pool.
