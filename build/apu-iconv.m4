@@ -22,33 +22,44 @@ dnl
 AC_DEFUN(APU_FIND_ICONV,[
 
 apu_iconv_dir="unknown"
+have_apr_iconv="0"
 AC_ARG_WITH(iconv,[  --with-iconv[=DIR]        path to iconv installation],
   [ apu_iconv_dir="$withval"
     if test "$apu_iconv_dir" != "yes"; then
       APR_ADDTO(CPPFLAGS,[-I$apu_iconv_dir/include])
       APR_ADDTO(LDFLAGS,[-L$apu_iconv_dir/lib])
     fi
+    if test -f "$apu_iconv_dir/include/api_version.h"; then
+      have_apr_iconv="1"
+      have_iconv="0"
+      APR_REMOVEFROM(LIBS,[-lapriconv])
+      AC_MSG_RESULT("Using apr-iconv")
+    fi
   ])
 
-AC_CHECK_HEADER(iconv.h, [
-  APU_TRY_ICONV([ have_iconv="1" ], [
+if test "$have_apr_iconv" != "1"; then
+  AC_CHECK_HEADER(iconv.h, [
+    APU_TRY_ICONV([ have_iconv="1" ], [
 
-   APR_ADDTO(LIBS,[-liconv])
+    APR_ADDTO(LIBS,[-liconv])
 
-   APU_TRY_ICONV([
-     APR_ADDTO(APRUTIL_LIBS,[-liconv])
-     APR_ADDTO(APRUTIL_EXPORT_LIBS,[-liconv])
-     have_iconv="1" ],
-     [ have_iconv="0" ])
+    APU_TRY_ICONV([
+      APR_ADDTO(APRUTIL_LIBS,[-liconv])
+      APR_ADDTO(APRUTIL_EXPORT_LIBS,[-liconv])
+      have_iconv="1" ],
+      [ have_iconv="0" ])
 
-   APR_REMOVEFROM(LIBS,[-liconv])
+    APR_REMOVEFROM(LIBS,[-liconv])
 
- ])
-], [ have_iconv="0" ])
+    ])
+  ], [ have_iconv="0" ])
+fi
 
 if test "$apu_iconv_dir" != "unknown"; then
   if test "$have_iconv" != "1"; then
-    AC_MSG_ERROR([iconv support requested, but not found])
+    if test "$have_apr_iconv" != "1"; then 
+      AC_MSG_ERROR([iconv support requested, but not found])
+    fi
   fi
   APR_REMOVEFROM(CPPFLAGS,[-I$apu_iconv_dir/include])
   APR_REMOVEFROM(LDFLAGS,[-L$apu_iconv_dir/lib])
@@ -65,6 +76,7 @@ APR_FLAG_FUNCS(nl_langinfo)
 APR_CHECK_DEFINE(CODESET, langinfo.h, [CODESET defined in langinfo.h])
 
 AC_SUBST(have_iconv)
+AC_SUBST(have_apr_iconv)
 ])dnl
 
 dnl
