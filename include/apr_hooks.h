@@ -98,7 +98,7 @@ link##_DECLARE(void) ap_hook_##name(HOOK_##name *pf,const char * const *aszPre, 
     pHook->aszPredecessors=aszPre; \
     pHook->aszSuccessors=aszSucc; \
     pHook->nOrder=nOrder; \
-    pHook->szName=ap_debug_module_name; \
+    pHook->szName=ap_current_hooking_module; \
     if(ap_debug_module_hooks) \
 	ap_show_hook(#name,aszPre,aszSucc); \
     }
@@ -226,7 +226,7 @@ extern APU_DECLARE_DATA int ap_debug_module_hooks;
  * The name of the module that is currently registering a function
  * @defvar apr_pool_t *ap_debug_module_name
  */ 
-extern APU_DECLARE_DATA const char *ap_debug_module_name;
+extern APU_DECLARE_DATA const char *ap_current_hooking_module;
 
 /**
  * Register a hook function to be sorted
