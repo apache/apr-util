@@ -37,6 +37,9 @@ APU_BUILD_DIR="@abs_builddir@"
 APR_XML_EXPAT_OLD="@APR_XML_EXPAT_OLD@"
 APU_DB_VERSION="@apu_db_version@"
 
+# NOTE: the following line is modified during 'make install': alter with care!
+location=@APU_CONFIG_LOCATION@
+
 show_usage()
 {
     cat << EOF
@@ -73,32 +76,6 @@ if test $# -eq 0; then
     exit 1
 fi
 
-thisdir="`dirname $0`"
-thisdir="`cd $thisdir && pwd`"
-if test -d $bindir; then
-    tmpbindir="`cd $bindir && pwd`"
-else
-    tmpbindir=""
-fi
-# If we have the realpath program, use it to resolve symlinks.
-# Otherwise, being in a symlinked dir may result in incorrect output.
-if test -x "`which realpath 2>/dev/null`"; then
-    thisdir="`realpath $thisdir`"
-    if test -d "$APU_SOURCE_DIR"; then
-        APU_SOURCE_DIR="`realpath $APU_SOURCE_DIR`"
-    fi
-    if test -n "$tmpbindir"; then
-        tmpbindir="`realpath $tmpbindir`"
-    fi
-fi
-if test "$tmpbindir" = "$thisdir"; then
-    location=installed
-elif test "$APU_SOURCE_DIR" = "$thisdir"; then
-    location=source
-else
-    location=build
-fi
-
 if test "$location" = "installed"; then
     LA_FILE="$libdir/lib${APRUTIL_LIBNAME}.la"
 
@@ -106,7 +83,7 @@ if test "$location" = "installed"; then
     LDFLAGS=`echo "$LDFLAGS" | sed -e "s $APU_BUILD_DIR/xml/expat $prefix g"`
     INCLUDES=`echo "$INCLUDES" | sed -e "s $APU_BUILD_DIR/xml/expat $prefix g" -e "s -I$prefix/lib  g"`
 else
-    LA_FILE="$thisdir/lib${APRUTIL_LIBNAME}.la"
+    LA_FILE="$APU_BUILD_DIR/lib${APRUTIL_LIBNAME}.la"
 fi
 
 flags=""
@@ -141,7 +118,7 @@ while test $# -gt 0; do
         flags="$APU_SOURCE_DIR/include"
     else
         # this is for VPATH builds
-        flags="$thisdir/include $APU_SOURCE_DIR/include"
+        flags="$APU_BUILD_DIR/include $APU_SOURCE_DIR/include"
     fi
     echo $flags
     exit 0
@@ -153,7 +130,7 @@ while test $# -gt 0; do
         flags="$flags -I$APU_SOURCE_DIR/include $INCLUDES"
     else
         # this is for VPATH builds
-        flags="$flags -I$thisdir/include -I$APU_SOURCE_DIR/include $INCLUDES"
+        flags="$flags -I$APU_BUILD_DIR/include -I$APU_SOURCE_DIR/include $INCLUDES"
     fi
     ;;
     --ldflags)
@@ -172,7 +149,7 @@ while test $# -gt 0; do
         ### avoid using -L if libdir is a "standard" location like /usr/lib
         flags="$flags -L$libdir -l$APRUTIL_LIBNAME"
     else
-        flags="$flags -L$thisdir -l$APRUTIL_LIBNAME"
+        flags="$flags -L$APU_BUILD_DIR -l$APRUTIL_LIBNAME"
     fi
     ;;
     --link-libtool)
