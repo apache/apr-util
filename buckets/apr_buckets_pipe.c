@@ -52,7 +52,6 @@
  * <http://www.apache.org/>.
  */
 
-#include "apr_lib.h"
 #include "apr_buckets.h"
 #include <stdlib.h>
 
@@ -70,7 +69,7 @@ static apr_status_t pipe_read(apr_bucket *a, const char **str,
     }
 
     *str = NULL;
-    *len = HUGE_STRING_LEN;
+    *len = APR_BUCKET_BUFF_SIZE;
     buf = malloc(*len); /* XXX: check for failure? */
 
     rv = apr_file_read(p, buf, len);
@@ -101,7 +100,7 @@ static apr_status_t pipe_read(apr_bucket *a, const char **str,
         /* XXX: check for failure? */
         a = apr_bucket_heap_make(a, buf, *len, 0, NULL);
         h = a->data;
-        h->alloc_len = HUGE_STRING_LEN; /* note the real buffer size */
+        h->alloc_len = APR_BUCKET_BUFF_SIZE; /* note the real buffer size */
         *str = buf;
         APR_BUCKET_INSERT_AFTER(a, apr_bucket_pipe_create(p));
     }

@@ -54,7 +54,6 @@
 
 #include "apr.h"
 #include "apr_general.h"
-#include "apr_lib.h"
 #include "apr_file_io.h"
 #include "apr_buckets.h"
 #include <stdlib.h>
@@ -132,7 +131,9 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
     }
 #endif
 
-    *len = (filelength > HUGE_STRING_LEN) ? HUGE_STRING_LEN : filelength;
+    *len = (filelength > APR_BUCKET_BUFF_SIZE)
+               ? APR_BUCKET_BUFF_SIZE
+               : filelength;
     *str = NULL;  /* in case we die prematurely */
     buf = malloc(*len);
 
