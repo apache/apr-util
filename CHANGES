@@ -1,5 +1,9 @@
 Changes with APR-util b1  
 
+  *) Migrate the --without-libtool changes from APR to APR-util.
+     This cleans things up, and allows more flexibility when building
+     programs.  [Ryan Bloom]
+
   *) Allow APR-util to be compiled without libtool.  The default is
      to use libtool, but it can turned off with --without-libtool
      on the configure command.  [Ryan Bloom]
