@@ -90,7 +90,7 @@ extern "C" {
  *  <x> - exact match for any other character
  * </PRE>
  * @return 1 if the string matches, 0 otherwise
- * @deffunc int apr_checkmask(const char *data, const char *mask)
+ * @deffunc int apr_date_checkmask(const char *data, const char *mask)
  */
 APU_DECLARE(int) apr_date_checkmask(const char *data, const char *mask);
 
