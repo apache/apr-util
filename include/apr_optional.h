@@ -84,7 +84,11 @@ typedef ret APR_OPTIONAL_FN_TYPE(name) args
 /* XXX: This doesn't belong here, then!
  * Private function! DO NOT USE! 
  */
-APU_DECLARE_NONSTD(void) apr_register_optional_fn(const char *szName,void (*pfn)(void));
+
+typedef void (apr_opt_fn_t)(void);
+
+APU_DECLARE(void) apr_register_optional_fn(const char *szName, apr_opt_fn_t *pfn);
+    
 
 /**
  * Register an optional function. This can be later retrieved, type-safely, by
@@ -96,7 +100,7 @@ APU_DECLARE_NONSTD(void) apr_register_optional_fn(const char *szName,void (*pfn)
 	((void (*)(const char *,APR_OPTIONAL_FN_TYPE(name) *))&apr_register_optional_fn)(#name,name)
 
 /* Private function! DO NOT USE! */
-APU_DECLARE_DATA void (*apr_retrieve_optional_fn(const char *szName))(void);
+APU_DECLARE(apr_opt_fn_t *) apr_retrieve_optional_fn(const char *szName);
 
 /**
  * Retrieve an optional function. Returns NULL if the function is not present.
