@@ -65,14 +65,6 @@
 #if APU_HAVE_DB 
 #include "apr_dbm_private.h"
 
-/* this is used in a few places to define a noop "function". it is needed
-   to stop "no effect" warnings from GCC. */
-#define NOOP_FUNCTION if (0) ; else
-
-/* ### define defaults for now; these will go away in a while */
-#define REGISTER_CLEANUP(dbm, pdatum) NOOP_FUNCTION
-#define SET_FILE(pdb, f) ((pdb)->file = (f))
-
 /*
  * We pick up all varieties of Berkeley DB through db.h (included through
  * apu_select_dbm.h). This code has been compiled/tested against DB1,
@@ -98,18 +90,6 @@ typedef struct {
 #endif
 } real_file_t;
 
-#undef SET_FILE
-#define SET_FILE(pdb, f) ((pdb)->file = apr_pmemdup((pdb)->pool, \
-                                                    &(f), sizeof(f)))
-
-typedef DBT cvt_datum_t;
-#define CONVERT_DATUM(cvt, pinput) (memset(&(cvt), 0, sizeof(cvt)), \
-                                    (cvt).data = (pinput)->dptr, \
-                                    (cvt).size = (pinput)->dsize)
-
-typedef DBT result_datum_t;
-#define RETURN_DATUM(poutput, rd) ((poutput)->dptr = (rd).data, \
-                                   (poutput)->dsize = (rd).size)
 
 #if DB_VER == 1
 #define TXN_ARG
@@ -119,19 +99,7 @@ typedef DBT result_datum_t;
 
 #define GET_BDB(f)      (((real_file_t *)(f))->bdb)
 
-#if DB_VER == 1
-#define APR_DBM_CLOSE(f)        ((*GET_BDB(f)->close)(GET_BDB(f)))
-#else
-#define APR_DBM_CLOSE(f)        ((*GET_BDB(f)->close)(GET_BDB(f), 0))
-#endif
-
 #define do_fetch(bdb, k, v)     ((*(bdb)->get)(bdb, TXN_ARG &(k), &(v), 0))
-#define APR_DBM_FETCH(f, k, v)  db2s(do_fetch(GET_BDB(f), k, v))
-#define APR_DBM_STORE(f, k, v)  db2s((*GET_BDB(f)->put)(GET_BDB(f), TXN_ARG &(k), &(v), 0))
-#define APR_DBM_DELETE(f, k)    db2s((*GET_BDB(f)->del)(GET_BDB(f), TXN_ARG &(k), 0))
-#define APR_DBM_FIRSTKEY(f, k)  do_firstkey(f, &(k))
-#define APR_DBM_NEXTKEY(f, k, nk) do_nextkey(f, &(k), &(nk))
-#define APR_DBM_FREEDPTR(dptr)  NOOP_FUNCTION
 
 #if DB_VER == 1
 #include <sys/fcntl.h>
@@ -146,6 +114,11 @@ typedef DBT result_datum_t;
 #define APR_DBM_DBMODE_RWTRUNC  DB_TRUNCATE
 #endif /* DBVER == 1 */
 
+/* --------------------------------------------------------------------------
+**
+** UTILITY FUNCTIONS
+*/
+
 /* map a DB error to an apr_status_t */
 static apr_status_t db2s(int dberr)
 {
@@ -157,68 +130,6 @@ static apr_status_t db2s(int dberr)
     return APR_SUCCESS;
 }
 
-/* handle the FIRSTKEY functionality */
-static apr_status_t do_firstkey(real_file_t *f, DBT *pkey)
-{
-    int dberr;
-    DBT data;
-
-    memset(pkey, 0, sizeof(DBT));
-
-    memset(&data, 0, sizeof(DBT));
-#if DB_VER == 1
-    dberr = (*f->bdb->seq)(f->bdb, pkey, &data, R_FIRST);
-#else
-    if ((dberr = (*f->bdb->cursor)(f->bdb, NULL, &f->curs
-#if DB_VER == 3
-                                   , 0
-#elif (DB_VERSION_MAJOR == 2) && (DB_VERSION_MINOR > 5) 
-                                   , 0
-
-#endif
-                                   )) == 0) {
-        dberr = (*f->curs->c_get)(f->curs, pkey, &data, DB_FIRST);
-        if (dberr == DB_NOTFOUND) {
-            memset(pkey, 0, sizeof(*pkey));
-            (*f->curs->c_close)(f->curs);
-            f->curs = NULL;
-            return APR_SUCCESS;
-        }
-    }
-#endif
-
-    return db2s(dberr);
-}
-
-/* handle the NEXTKEY functionality */
-static apr_status_t do_nextkey(real_file_t *f, DBT *pkey, DBT *pnext)
-{
-    int dberr;
-    DBT data = { 0 };
-
-    memset(pnext, 0, sizeof(*pnext));
-
-#if DB_VER == 1
-    dberr = (*f->bdb->seq)(f->bdb, pkey, &data, R_NEXT);
-    if (dberr == RET_SPECIAL)
-        return APR_SUCCESS;
-#else
-    if (f->curs == NULL)
-        return APR_EINVAL;
-
-    dberr = (*f->curs->c_get)(f->curs, pkey, &data, DB_NEXT);
-    if (dberr == DB_NOTFOUND) {
-        (*f->curs->c_close)(f->curs);
-        f->curs = NULL;
-        return APR_SUCCESS;
-    }
-#endif
-
-    pnext->data = pkey->data;
-    pnext->size = pkey->size;
-
-    return db2s(dberr);
-}
 
 static apr_status_t set_error(apr_dbm_t *dbm, apr_status_t dbm_said)
 {
@@ -310,7 +221,7 @@ static apr_status_t vt_db_open(apr_dbm_t **pdb, const char *pathname,
     *pdb = apr_pcalloc(pool, sizeof(**pdb));
     (*pdb)->pool = pool;
     (*pdb)->type = &apr_dbm_type_db;
-    SET_FILE(*pdb, file);
+    (*pdb)->file = apr_pmemdup(pool, &file, sizeof(file));
 
     /* ### register a cleanup to close the DBM? */
 
@@ -319,37 +230,57 @@ static apr_status_t vt_db_open(apr_dbm_t **pdb, const char *pathname,
 
 static void vt_db_close(apr_dbm_t *dbm)
 {
-    APR_DBM_CLOSE(dbm->file);
+    (*GET_BDB(dbm->file)->close)(GET_BDB(dbm->file)
+#if DB_VER != 1
+                                 , 0
+#endif
+        );
 }
 
 static apr_status_t vt_db_fetch(apr_dbm_t *dbm, apr_datum_t key,
                                 apr_datum_t * pvalue)
 {
-    apr_status_t rv;
-    cvt_datum_t ckey;
-    result_datum_t rd = { 0 };
+    DBT ckey = { 0 };
+    DBT rd = { 0 };
+    int dberr;
 
-    CONVERT_DATUM(ckey, &key);
-    rv = APR_DBM_FETCH(dbm->file, ckey, rd);
-    RETURN_DATUM(pvalue, rd);
+    ckey.data = key.dptr;
+    ckey.size = key.dsize;
 
-    REGISTER_CLEANUP(dbm, pvalue);
+    dberr = do_fetch(GET_BDB(dbm->file), ckey, rd);
+
+    /* "not found" is not an error. return zero'd value. */
+    if (dberr == DB_NOTFOUND) {
+        memset(&rd, 0, sizeof(rd));
+        dberr = 0;
+    }
+
+    pvalue->dptr = rd.data;
+    pvalue->dsize = rd.size;
 
     /* store the error info into DBM, and return a status code. Also, note
        that *pvalue should have been cleared on error. */
-    return set_error(dbm, rv);
+    return set_error(dbm, db2s(dberr));
 }
 
 static apr_status_t vt_db_store(apr_dbm_t *dbm, apr_datum_t key,
                                 apr_datum_t value)
 {
     apr_status_t rv;
-    cvt_datum_t ckey;
-    cvt_datum_t cvalue;
+    DBT ckey = { 0 };
+    DBT cvalue = { 0 };
 
-    CONVERT_DATUM(ckey, &key);
-    CONVERT_DATUM(cvalue, &value);
-    rv = APR_DBM_STORE(dbm->file, ckey, cvalue);
+    ckey.data = key.dptr;
+    ckey.size = key.dsize;
+
+    cvalue.data = value.dptr;
+    cvalue.size = value.dsize;
+
+    rv = db2s((*GET_BDB(dbm->file)->put)(GET_BDB(dbm->file),
+                                         TXN_ARG
+                                         &ckey,
+                                         &cvalue,
+                                         0));
 
     /* store any error info into DBM, and return a status code. */
     return set_error(dbm, rv);
@@ -358,10 +289,15 @@ static apr_status_t vt_db_store(apr_dbm_t *dbm, apr_datum_t key,
 static apr_status_t vt_db_del(apr_dbm_t *dbm, apr_datum_t key)
 {
     apr_status_t rv;
-    cvt_datum_t ckey;
+    DBT ckey = { 0 };
 
-    CONVERT_DATUM(ckey, &key);
-    rv = APR_DBM_DELETE(dbm->file, ckey);
+    ckey.data = key.dptr;
+    ckey.size = key.dsize;
+
+    rv = db2s((*GET_BDB(dbm->file)->del)(GET_BDB(dbm->file),
+                                         TXN_ARG
+                                         &ckey,
+                                         0));
 
     /* store any error info into DBM, and return a status code. */
     return set_error(dbm, rv);
@@ -387,37 +323,76 @@ static int vt_db_exists(apr_dbm_t *dbm, apr_datum_t key)
 
 static apr_status_t vt_db_firstkey(apr_dbm_t *dbm, apr_datum_t * pkey)
 {
-    apr_status_t rv;
-    result_datum_t rd;
+    real_file_t *f = dbm->file;
+    DBT first = { 0 };
+    DBT data = { 0 };
+    int dberr;
 
-    rv = APR_DBM_FIRSTKEY(dbm->file, rd);
-    RETURN_DATUM(pkey, rd);
+#if DB_VER == 1
+    dberr = (*f->bdb->seq)(f->bdb, &first, &data, R_FIRST);
+#else
+    if ((dberr = (*f->bdb->cursor)(f->bdb, NULL, &f->curs
+#if DB_VER == 3
+                                , 0
+#elif (DB_VERSION_MAJOR == 2) && (DB_VERSION_MINOR > 5) 
+                                , 0
 
-    REGISTER_CLEANUP(dbm, pkey);
+#endif
+             )) == 0) {
+        dberr = (*f->curs->c_get)(f->curs, &first, &data, DB_FIRST);
+        if (dberr == DB_NOTFOUND) {
+            memset(&first, 0, sizeof(first));
+            (*f->curs->c_close)(f->curs);
+            f->curs = NULL;
+            dberr = 0;
+        }
+    }
+#endif
+
+    pkey->dptr = first.data;
+    pkey->dsize = first.size;
 
     /* store any error info into DBM, and return a status code. */
-    return set_error(dbm, rv);
+    return set_error(dbm, db2s(dberr));
 }
 
 static apr_status_t vt_db_nextkey(apr_dbm_t *dbm, apr_datum_t * pkey)
 {
-    apr_status_t rv;
-    cvt_datum_t ckey;
-    result_datum_t rd;
+    real_file_t *f = dbm->file;
+    DBT ckey = { 0 };
+    DBT data = { 0 };
+    int dberr;
 
-    CONVERT_DATUM(ckey, pkey);
-    rv = APR_DBM_NEXTKEY(dbm->file, ckey, rd);
-    RETURN_DATUM(pkey, rd);
+    ckey.data = pkey->dptr;
+    ckey.size = pkey->dsize;
 
-    REGISTER_CLEANUP(dbm, pkey);
+#if DB_VER == 1
+    dberr = (*f->bdb->seq)(f->bdb, &ckey, &data, R_NEXT);
+    if (dberr == RET_SPECIAL)
+        return APR_SUCCESS;
+#else
+    if (f->curs == NULL)
+        return APR_EINVAL;
+
+    dberr = (*f->curs->c_get)(f->curs, &ckey, &data, DB_NEXT);
+    if (dberr == DB_NOTFOUND) {
+        (*f->curs->c_close)(f->curs);
+        f->curs = NULL;
+        dberr = 0;
+    }
+#endif
+
+    pkey->dptr = ckey.data;
+    pkey->dsize = ckey.size;
 
     /* store any error info into DBM, and return a status code. */
+    /* ### or use db2s(dberr) instead of APR_SUCCESS? */
     return set_error(dbm, APR_SUCCESS);
 }
 
 static void vt_db_freedatum(apr_dbm_t *dbm, apr_datum_t data)
 {
-    APR_DBM_FREEDPTR(data.dptr);
+    /* nothing to do */
 }
 
 static void vt_db_usednames(apr_pool_t *pool, const char *pathname,
