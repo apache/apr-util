@@ -57,71 +57,106 @@
 
 static apr_status_t pool_bucket_cleanup(void *data)
 {
-    apr_bucket_pool *h = data;
-    apr_bucket *b = h->b;
-    apr_off_t start  = b->start;
-    apr_off_t length = b->length;
+    apr_bucket_pool *p = data;
 
-    b = apr_bucket_heap_make(b, h->base, b->length, 1, NULL);
-    b->start  = start;
-    b->length = length;
     /*
-     * XXX: this is fubar... only the *first* apr_bucket to reference
-     * the bucket is changed to a heap bucket... ALL references must
-     * be changed or at least "notified" in some way.  Fix is in the
-     * works.  --jcw
+     * If the pool gets cleaned up, we have to copy the data out
+     * of the pool and onto the heap.  But the apr_buckets out there
+     * that point to this pool bucket need to be notified such that
+     * they can morph themselves into a regular heap bucket the next
+     * time they try to read.  To avoid having to manipulate
+     * reference counts and b->data pointers, the apr_bucket_pool
+     * actually _contains_ an apr_bucket_heap as its first element,
+     * so the two share their apr_bucket_refcount member, and you
+     * can typecast a pool bucket struct to make it look like a
+     * regular old heap bucket struct.
      */
+    p->heap.base = malloc(p->heap.alloc_len);
+    memcpy(p->heap.base, p->base, p->heap.alloc_len);
+    p->base = NULL;
+    p->pool = NULL;
+
     return APR_SUCCESS;
 }
 
 static apr_status_t pool_read(apr_bucket *b, const char **str, 
 			      apr_size_t *len, apr_read_type_e block)
 {
-    apr_bucket_pool *h = b->data;
+    apr_bucket_pool *p = b->data;
+    const char *base = p->base;
 
-    *str = h->base + b->start;
+    if (p->pool == NULL) {
+        /*
+         * pool has been cleaned up... masquerade as a heap bucket from now
+         * on. subsequent bucket operations will use the heap bucket code.
+         */
+        b->type = &apr_bucket_type_heap;
+        base = p->heap.base;
+    }
+    *str = base + b->start;
     *len = b->length;
     return APR_SUCCESS;
 }
 
 static void pool_destroy(void *data)
 {
-    apr_bucket_pool *h = data;
+    apr_bucket_pool *p = data;
 
-    apr_pool_cleanup_kill(h->p, data, pool_bucket_cleanup);
-    if (apr_bucket_shared_destroy(data)) {
-        free(h);
+    /* If the pool is cleaned up before the last reference goes
+     * away, buckets that have performed at least one read will
+     * have been turned into heap buckets, so heap_destroy() takes
+     * over.  If the very last reference to be destroyed now
+     * considers itself a heap bucket, we don't have to worry about
+     * it anymore... free() in heap_destroy() thinks it's freeing
+     * an apr_bucket_heap, when in reality it's freeing the whole
+     * apr_bucket_pool for us.  We have to be a little careful, though,
+     * because it's _possible_ the very last reference to be destroyed
+     * has never been read since the pool was cleaned up, in which
+     * case we have to avoid deregistering a pool cleanup that
+     * has already taken place.
+     */
+    if (apr_bucket_shared_destroy(p)) {
+        if (p->pool) {
+            apr_pool_cleanup_kill(p->pool, p, pool_bucket_cleanup);
+        }
+        free(p);
     }
 }
 
 APU_DECLARE(apr_bucket *) apr_bucket_pool_make(apr_bucket *b,
-		const char *buf, apr_size_t length, apr_pool_t *p)
+                      const char *buf, apr_size_t length, apr_pool_t *pool)
 {
-    apr_bucket_pool *h;
+    apr_bucket_pool *p;
 
-    h = malloc(sizeof(*h));
-    if (h == NULL) {
+    p = malloc(sizeof(*p));
+    if (p == NULL) {
 	return NULL;
     }
 
     /* XXX: we lose the const qualifier here which indicates
      * there's something screwy with the API...
      */
-    h->base = (char *) buf;
-    h->p    = p;
+    /* XXX: why is this?  buf is const, p->base is const... what's
+     * the problem?  --jcw */
+    p->base = (char *) buf;
+    p->pool = pool;
 
-    b = apr_bucket_shared_make(b, h, 0, length);
+    b = apr_bucket_shared_make(b, p, 0, length);
     b->type = &apr_bucket_type_pool;
-    h->b = b;  /* XXX: see comment in pool_bucket_cleanup() */
 
-    apr_pool_cleanup_register(h->p, b->data, pool_bucket_cleanup, apr_pool_cleanup_null);
+    /* pre-initialize heap bucket member */
+    p->heap.alloc_len = length;
+    p->heap.base      = NULL;
+
+    apr_pool_cleanup_register(p->pool, p, pool_bucket_cleanup,
+                              apr_pool_cleanup_null);
     return b;
 }
 
 APU_DECLARE(apr_bucket *) apr_bucket_pool_create(
-		const char *buf, apr_size_t length, apr_pool_t *p)
+		const char *buf, apr_size_t length, apr_pool_t *pool)
 {
-    apr_bucket_do_create(apr_bucket_pool_make(b, buf, length, p));
+    apr_bucket_do_create(apr_bucket_pool_make(b, buf, length, pool));
 }
 
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_pool = {
