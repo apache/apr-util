@@ -13,6 +13,7 @@ typedef struct
     const char *szName;
     const char * const *aszPredecessors;
     const char * const *aszSuccessors;
+    int nOrder;
     } TSortData;
 
 typedef struct tsort_
@@ -23,11 +24,20 @@ typedef struct tsort_
     struct tsort_ *pNext;
     } TSort;
 
+static int crude_order(const void *a_,const void *b_)
+    {
+    const TSortData *a=a_;
+    const TSortData *b=b_;
+
+    return a->nOrder-b->nOrder;
+    }
+
 static TSort *prepare(pool *p,TSortData *pItems,int nItems)
     {
     TSort *pData=ap_palloc(p,nItems*sizeof *pData);
     int n;
 
+    qsort(pItems,nItems,sizeof *pItems,crude_order);
     for(n=0 ; n < nItems ; ++n)
 	{
 	pData[n].nPredecessors=0;
