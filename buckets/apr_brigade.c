@@ -67,6 +67,10 @@
 #include <sys/uio.h>
 #endif
 
+static apr_status_t brigade_cleanup(void *data) 
+{
+    return apr_brigade_cleanup(data);
+}
 APU_DECLARE(apr_status_t) apr_brigade_cleanup(void *data)
 {
     apr_bucket_brigade *b = data;
@@ -88,7 +92,7 @@ APU_DECLARE(apr_status_t) apr_brigade_cleanup(void *data)
 
 APU_DECLARE(apr_status_t) apr_brigade_destroy(apr_bucket_brigade *b)
 {
-    apr_pool_cleanup_kill(b->p, b, apr_brigade_cleanup);
+    apr_pool_cleanup_kill(b->p, b, brigade_cleanup);
     return apr_brigade_cleanup(b);
 }
 
@@ -101,7 +105,7 @@ APU_DECLARE(apr_bucket_brigade *) apr_brigade_create(apr_pool_t *p)
 
     APR_RING_INIT(&b->list, apr_bucket, link);
 
-    apr_pool_cleanup_register(b->p, b, apr_brigade_cleanup, apr_brigade_cleanup);
+    apr_pool_cleanup_register(b->p, b, brigade_cleanup, brigade_cleanup);
     return b;
 }
 
