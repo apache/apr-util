@@ -73,8 +73,6 @@ typedef datum result_datum_t;
 #define APR_DBM_NEXTKEY(f, k, nk) ((nk) = gdbm_nextkey(f, *(k)), APR_SUCCESS)
 #define APR_DBM_FREEDPTR(dptr)	((dptr) ? free(dptr) : 0)
 
-/* ### in apr_dbm_freedatum(), run the cleanup */
-#define NEEDS_CLEANUP
 
 #undef REGISTER_CLEANUP
 #define REGISTER_CLEANUP(dbm, pdatum) \
@@ -107,6 +105,26 @@ static apr_status_t datum_cleanup(void *dptr)
     return APR_SUCCESS;
 }
 
+static apr_status_t set_error(apr_dbm_t *dbm, apr_status_t dbm_said)
+{
+    apr_status_t rv = APR_SUCCESS;
+
+    /* ### ignore whatever the DBM said (dbm_said); ask it explicitly */
+
+    if ((dbm->errcode = gdbm_errno) == GDBM_NO_ERROR) {
+        dbm->errmsg = NULL;
+    }
+    else {
+        dbm->errmsg = gdbm_strerror(gdbm_errno);
+        rv = APR_EGENERAL;        /* ### need something better */
+    }
+
+    /* captured it. clear it now. */
+    gdbm_errno = GDBM_NO_ERROR;
+
+    return rv;
+}
+
 /* --------------------------------------------------------------------------
 **
 ** DEFINE THE VTABLE FUNCTIONS FOR GDBM
@@ -122,7 +140,7 @@ static apr_status_t vt_gdbm_open(apr_dbm_t **dbm, const char *name,
 
 static void vt_gdbm_close(apr_dbm_t *dbm)
 {
-    abort();
+    APR_DBM_CLOSE(dbm->file);
 }
 
 static apr_status_t vt_gdbm_fetch(apr_dbm_t *dbm, apr_datum_t key,
@@ -172,13 +190,14 @@ static char * vt_gdbm_geterror(apr_dbm_t *dbm, int *errcode, char *errbuf,
 
 static void vt_gdbm_freedatum(apr_dbm_t *dbm, apr_datum_t data)
 {
-    abort();
+    (void) apr_pool_cleanup_run(dbm->pool, data.dptr, datum_cleanup);
 }
 
 static void vt_gdbm_usednames(apr_pool_t *pool, const char *pathname,
                               const char **used1, const char **used2)
 {
-    abort();
+    *used1 = apr_pstrdup(pool, pathname);
+    *used2 = NULL;
 }
 
 

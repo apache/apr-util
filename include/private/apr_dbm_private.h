@@ -120,10 +120,10 @@ typedef struct {
     void (*freedatum)(apr_dbm_t *dbm, apr_datum_t data);
 
     /** Get the names that the DBM will use for a given pathname. */
-    void (*apr_dbm_get_usednames)(apr_pool_t *pool,
-                                  const char *pathname,
-                                  const char **used1,
-                                  const char **used2);
+    void (*getusednames)(apr_pool_t *pool,
+                         const char *pathname,
+                         const char **used1,
+                         const char **used2);
 
 } apr_dbm_type_t;
 
