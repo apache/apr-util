@@ -191,6 +191,7 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
         b->length = filelength;
         b->data   = a;
         b->type   = &apr_bucket_type_file;
+        b->free   = free;
         APR_BUCKET_INSERT_AFTER(e, b);
     }
     else {
