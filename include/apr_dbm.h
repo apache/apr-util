@@ -66,29 +66,30 @@ extern "C" {
 #endif
 
 /**
- * @package APR-UTIL DBM library
+ * @file apr_dbm.h
+ * @brief APR-UTIL DBM library
  */
 
 /**
  * Structure for referencing a dbm
- * @defvar apr_dbm_t
  */
 typedef struct apr_dbm_t apr_dbm_t;
 
 /**
  * Structure for referencing the datum record within a dbm
- * @defvar apr_datum_t
  */
 typedef struct
 {
+    /** pointer to the 'data' to retrieve/store in the DBM */
     char *dptr;
+    /** size of the 'data' to retreive/store in the DBM */
     apr_size_t dsize;
 } apr_datum_t;
 
 /* modes to open the DB */
-#define APR_DBM_READONLY        1       /* open for read-only access */
-#define APR_DBM_READWRITE       2       /* open for read-write access */
-#define APR_DBM_RWCREATE        3       /* open for r/w, create if needed */
+#define APR_DBM_READONLY        1       /**< open for read-only access */
+#define APR_DBM_READWRITE       2       /**< open for read-write access */
+#define APR_DBM_RWCREATE        3       /**< open for r/w, create if needed */
 
 /**
  * Open a dbm file by file name
