@@ -52,9 +52,6 @@
  * <http://www.apache.org/>.
  */
 
-/* James Clark's Expat parser */
-#include "xmlparse.h"
-
 #include "apr.h"
 #include "apr_strings.h"
 
@@ -63,7 +60,13 @@
 #include "apr_want.h"
 
 #include "apr_xml.h"
+#include "apu_config.h"
 
+#ifdef APR_HAVE_OLD_EXPAT
+#include "xmlparse.h"
+#else
+#include "expat.h"
+#endif
 
 #define DEBUG_CR "\r\n"
 
