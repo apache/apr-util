@@ -76,6 +76,8 @@ static void heap_destroy(void *data)
     }
 }
 
+/* Warning: if you change this function, be sure to
+ * change apr_bucket_pool_make() too! */
 APU_DECLARE(apr_bucket *) apr_bucket_heap_make(apr_bucket *b, const char *buf,
                                                apr_size_t length,
                                                void (*free_func)(void *data))
