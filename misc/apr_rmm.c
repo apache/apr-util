@@ -76,6 +76,7 @@ struct apr_rmm_t {
     apr_pool_t *p;
     rmm_hdr_block_t *base;
     apr_size_t size;
+    apr_anylock_t lock;
 };
 
 #define MIN_BLK_SIZE 128
@@ -202,15 +203,27 @@ static void move_block(apr_rmm_t *rmm, apr_rmm_off_t this, int free)
     }
 }
 
-APU_DECLARE(apr_status_t) apr_rmm_init(apr_rmm_t **rmm, void *base, apr_size_t size,
+APU_DECLARE(apr_status_t) apr_rmm_init(apr_rmm_t **rmm, apr_anylock_t *lock, 
+                                       void *base, apr_size_t size,
                                        apr_pool_t *p)
 {
+    apr_status_t rv;
     rmm_block_t *blk;
+    apr_anylock_t nulllock;
+    
+    if (!lock) {
+        nulllock.type = apr_anylock_none;
+        nulllock.lock.rw = NULL;
+        lock = &nulllock;
+    }
+    if ((rv = APR_ANYLOCK_LOCK(lock)) != APR_SUCCESS)
+        return rv;
 
     (*rmm) = (apr_rmm_t *)apr_pcalloc(p, sizeof(apr_rmm_t));
     (*rmm)->p = p;
     (*rmm)->base = base;
     (*rmm)->size = size;
+    (*rmm)->lock = *lock;
 
     (*rmm)->base->abssize = size;
     (*rmm)->base->firstused = 0;
@@ -222,13 +235,18 @@ APU_DECLARE(apr_status_t) apr_rmm_init(apr_rmm_t **rmm, void *base, apr_size_t s
     blk->prev = 0;
     blk->next = 0;
 
+    APR_ANYLOCK_UNLOCK(lock);
     return APR_SUCCESS;
 }
 
 APU_DECLARE(apr_status_t) apr_rmm_destroy(apr_rmm_t *rmm)
 {
+    apr_status_t rv;
     rmm_block_t *blk;
 
+    if ((rv = APR_ANYLOCK_LOCK(&rmm->lock)) != APR_SUCCESS) {
+        return rv;
+    }
     /* Blast it all --- no going back :) */
     if (rmm->base->firstused) {
         apr_rmm_off_t this = rmm->base->firstused;
@@ -250,42 +268,65 @@ APU_DECLARE(apr_status_t) apr_rmm_destroy(apr_rmm_t *rmm)
     }
     rmm->base->abssize = 0;
     rmm->size = 0;
+
+    APR_ANYLOCK_UNLOCK(&rmm->lock);
     return APR_SUCCESS;
 }
 
-APU_DECLARE(apr_status_t) apr_rmm_attach(apr_rmm_t **rmm, void *base, 
-                                         apr_pool_t *p)
+APU_DECLARE(apr_status_t) apr_rmm_attach(apr_rmm_t **rmm, apr_anylock_t *lock,
+                                         void *base, apr_pool_t *p)
 {
+    apr_anylock_t nulllock;
+
+    if (!lock) {
+        nulllock.type = apr_anylock_none;
+        nulllock.lock.rw = NULL;
+        lock = &nulllock;
+    }
+
     /* sanity would be good here */
     (*rmm) = (apr_rmm_t *)apr_pcalloc(p, sizeof(apr_rmm_t));
     (*rmm)->p = p;
     (*rmm)->base = base;
     (*rmm)->size = (*rmm)->base->abssize;
-
+    (*rmm)->lock = *lock;
     return APR_SUCCESS;
 }
 
 APU_DECLARE(apr_status_t) apr_rmm_detach(apr_rmm_t *rmm) 
 {
-    /* A noop until we introduce locking/refcounts */
+    /* A noop until we introduce locked/refcounts */
     return APR_SUCCESS;
 }
 
 APU_DECLARE(apr_rmm_off_t) apr_rmm_malloc(apr_rmm_t *rmm, apr_size_t reqsize)
 {
-    apr_rmm_off_t this = find_block_of_size(rmm, reqsize + sizeof(rmm_block_t));
+    apr_status_t rv;
+    apr_rmm_off_t this;
+    
+    if ((rv = APR_ANYLOCK_LOCK(&rmm->lock)) != APR_SUCCESS)
+        return rv;
+
+    this = find_block_of_size(rmm, reqsize + sizeof(rmm_block_t));
 
     if (this) {
         move_block(rmm, this, 0);
         this += sizeof(rmm_block_t);
     }
 
+    APR_ANYLOCK_UNLOCK(&rmm->lock);
     return this;
 }
 
 APU_DECLARE(apr_rmm_off_t) apr_rmm_calloc(apr_rmm_t *rmm, apr_size_t reqsize)
 {
-    apr_rmm_off_t this = find_block_of_size(rmm, reqsize + sizeof(rmm_block_t));
+    apr_status_t rv;
+    apr_rmm_off_t this;
+        
+    if ((rv = APR_ANYLOCK_LOCK(&rmm->lock)) != APR_SUCCESS)
+        return rv;
+
+    this = find_block_of_size(rmm, reqsize + sizeof(rmm_block_t));
 
     if (this) {
         move_block(rmm, this, 0);
@@ -293,11 +334,13 @@ APU_DECLARE(apr_rmm_off_t) apr_rmm_calloc(apr_rmm_t *rmm, apr_size_t reqsize)
         memset((char*)rmm->base + this, 0, reqsize);
     }
 
+    APR_ANYLOCK_UNLOCK(&rmm->lock);
     return this;
 }
 
 APU_DECLARE(apr_status_t) apr_rmm_free(apr_rmm_t *rmm, apr_rmm_off_t this)
 {
+    apr_status_t rv;
     struct rmm_block_t *blk;
 
     /* A little sanity check is always healthy, especially here.
@@ -311,14 +354,19 @@ APU_DECLARE(apr_status_t) apr_rmm_free(apr_rmm_t *rmm, apr_rmm_off_t this)
 
     blk = (rmm_block_t*)((char*)rmm->base + this);
 
+    if ((rv = APR_ANYLOCK_LOCK(&rmm->lock)) != APR_SUCCESS) {
+        return rv;
+    }
     if (blk->prev) {
         struct rmm_block_t *prev = (rmm_block_t*)((char*)rmm->base + blk->prev);
         if (prev->next != this) {
+            APR_ANYLOCK_UNLOCK(&rmm->lock);
             return APR_EINVAL;
         }
     }
     else {
         if (rmm->base->firstused != this) {
+            APR_ANYLOCK_UNLOCK(&rmm->lock);
             return APR_EINVAL;
         }
     }
@@ -326,6 +374,7 @@ APU_DECLARE(apr_status_t) apr_rmm_free(apr_rmm_t *rmm, apr_rmm_off_t this)
     if (blk->next) {
         struct rmm_block_t *next = (rmm_block_t*)((char*)rmm->base + blk->next);
         if (next->prev != this) {
+            APR_ANYLOCK_UNLOCK(&rmm->lock);
             return APR_EINVAL;
         }
     }
@@ -334,6 +383,7 @@ APU_DECLARE(apr_status_t) apr_rmm_free(apr_rmm_t *rmm, apr_rmm_off_t this)
      */
     move_block(rmm, this, 1);
     
+    APR_ANYLOCK_UNLOCK(&rmm->lock);
     return APR_SUCCESS;
 }
 
