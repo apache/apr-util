@@ -34,3 +34,4 @@ BuildLog.htm
 *.vcproj
 autom4te.cache
 build-outputs.mk
+.make.dirs
