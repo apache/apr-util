@@ -155,9 +155,9 @@ struct ap_bucket_type {
      * @param len The amount of data read.
      * @param block Should this read function block if there is more data that
      *              cannot be read immediately.
-     * @deffunc apr_status_t read(ap_bucket *b, const char **str, apr_ssize_t *len, ap_read_type block)
+     * @deffunc apr_status_t read(ap_bucket *b, const char **str, apr_size_t *len, ap_read_type block)
      */
-    apr_status_t (*read)(ap_bucket *b, const char **str, apr_ssize_t *len, ap_read_type block);
+    apr_status_t (*read)(ap_bucket *b, const char **str, apr_size_t *len, ap_read_type block);
     
     /** Make it possible to set aside the data. For most bucket types this is
      *  a no-op; buckets containing data that dies when the stack is un-wound
@@ -505,7 +505,7 @@ void ap_init_bucket_types(apr_pool_t *p);
  * @param str The location to store the data in
  * @param len The amount of data read
  * @param block Whether the read function blocks
- * @deffunc apr_status_t ap_bucket_read(ap_bucket *e, const char **str, apr_ssize_t *len, ap_read_type block)
+ * @deffunc apr_status_t ap_bucket_read(ap_bucket *e, const char **str, apr_size_t *len, ap_read_type block)
  */
 #define ap_bucket_read(e,str,len,block) e->type->read(e, str, len, block)
 
@@ -653,7 +653,7 @@ AP_DECLARE(ap_bucket *) ap_bucket_make_flush(ap_bucket *b);
  * @param buf The data to insert into the bucket
  * @param nbyte The size of the data to insert.
  * @return The new bucket, or NULL if allocation failed
- * @deffunc ap_bucket *ap_bucket_create_transient(const char *buf, apr_size_t nbyte, apr_ssize_t *w)
+ * @deffunc ap_bucket *ap_bucket_create_transient(const char *buf, apr_size_t nbyte, apr_size_t *w)
  */
 AP_DECLARE(ap_bucket *) ap_bucket_create_immortal(
 		const char *buf, apr_size_t nbyte);
@@ -665,7 +665,7 @@ AP_DECLARE(ap_bucket *) ap_bucket_make_immortal(ap_bucket *b,
  * @param buf The data to insert into the bucket
  * @param nbyte The size of the data to insert.
  * @return The new bucket, or NULL if allocation failed
- * @deffunc ap_bucket *ap_bucket_create_transient(const char *buf, apr_size_t nbyte, apr_ssize_t *w)
+ * @deffunc ap_bucket *ap_bucket_create_transient(const char *buf, apr_size_t nbyte, apr_size_t *w)
  */
 AP_DECLARE(ap_bucket *) ap_bucket_create_transient(
 		const char *buf, apr_size_t nbyte);
@@ -685,12 +685,12 @@ AP_DECLARE(ap_bucket *) ap_bucket_make_transient(ap_bucket *b,
  * @param w The number of bytes actually copied into the bucket.
  *          If copy is zero then this return value can be ignored by passing a NULL pointer.
  * @return The new bucket, or NULL if allocation failed
- * @deffunc ap_bucket *ap_bucket_create_heap(const char *buf, apr_size_t nbyte, int copy, apr_ssize_t *w)
+ * @deffunc ap_bucket *ap_bucket_create_heap(const char *buf, apr_size_t nbyte, int copy, apr_size_t *w)
  */
 AP_DECLARE(ap_bucket *) ap_bucket_create_heap(
-		const char *buf, apr_size_t nbyte, int copy, apr_ssize_t *w);
+		const char *buf, apr_size_t nbyte, int copy, apr_size_t *w);
 AP_DECLARE(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
-		const char *buf, apr_size_t nbyte, int copy, apr_ssize_t *w);
+		const char *buf, apr_size_t nbyte, int copy, apr_size_t *w);
 
 /**
  * Create a bucket referring to memory allocated out of a pool.
@@ -711,7 +711,7 @@ AP_DECLARE(ap_bucket *) ap_bucket_make_pool(ap_bucket *b,
  *              that this bucket refers to
  * @param length The number of bytes referred to by this bucket
  * @return The new bucket, or NULL if allocation failed
- * @deffunc ap_bucket *ap_bucket_create_mmap(const apr_mmap_t *buf, apr_size_t nbyte, apr_ssize_t *w)
+ * @deffunc ap_bucket *ap_bucket_create_mmap(const apr_mmap_t *buf, apr_size_t nbyte, apr_size_t *w)
  */
 AP_DECLARE(ap_bucket *) ap_bucket_create_mmap(
 		apr_mmap_t *mm, apr_off_t start, apr_size_t length);

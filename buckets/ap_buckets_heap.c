@@ -66,7 +66,7 @@
 #endif
 
 static apr_status_t heap_read(ap_bucket *b, const char **str, 
-			      apr_ssize_t *len, ap_read_type block)
+			      apr_size_t *len, ap_read_type block)
 {
     ap_bucket_shared *s = b->data;
     ap_bucket_heap *h = s->data;
@@ -89,7 +89,7 @@ static void heap_destroy(void *data)
 }
 
 AP_DECLARE(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
-		const char *buf, apr_size_t length, int copy, apr_ssize_t *w)
+		const char *buf, apr_size_t length, int copy, apr_size_t *w)
 {
     ap_bucket_heap *h;
 
@@ -136,7 +136,7 @@ AP_DECLARE(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
 }
 
 AP_DECLARE(ap_bucket *) ap_bucket_create_heap(
-		const char *buf, apr_size_t length, int copy, apr_ssize_t *w)
+		const char *buf, apr_size_t length, int copy, apr_size_t *w)
 {
     ap_bucket_do_create(ap_bucket_make_heap(b, buf, length, copy, w));
 }

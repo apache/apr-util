@@ -62,7 +62,7 @@ static apr_status_t pool_bucket_cleanup(void *data)
     ap_bucket_shared *new;
     ap_bucket_pool *h = s->data;
     ap_bucket *b = h->b;
-    apr_ssize_t w;
+    apr_size_t w;
 
     ap_bucket_make_heap(b, h->base, b->length, 1, &w);
     new = b->data;
@@ -75,7 +75,7 @@ static apr_status_t pool_bucket_cleanup(void *data)
 }
 
 static apr_status_t pool_read(ap_bucket *b, const char **str, 
-			      apr_ssize_t *len, ap_read_type block)
+			      apr_size_t *len, ap_read_type block)
 {
     ap_bucket_shared *s = b->data;
     ap_bucket_pool *h = s->data;

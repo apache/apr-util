@@ -57,7 +57,7 @@
 #include <stdlib.h>
 
 static apr_status_t mmap_read(ap_bucket *b, const char **str, 
-			      apr_ssize_t *length, ap_read_type block)
+			      apr_size_t *length, ap_read_type block)
 {
     ap_bucket_shared *s = b->data;
     ap_bucket_mmap *m = s->data;

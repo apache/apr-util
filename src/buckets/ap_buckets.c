@@ -124,7 +124,7 @@ AP_DECLARE(int) ap_brigade_to_iovec(ap_bucket_brigade *b,
 {
     ap_bucket *e;
     struct iovec *orig;
-    apr_ssize_t iov_len;
+    apr_size_t iov_len;
 
     orig = vec;
     AP_BRIGADE_FOREACH(e, b) {

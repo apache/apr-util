@@ -59,7 +59,7 @@
 
 /* XXX: We should obey the block flag */
 static apr_status_t socket_read(ap_bucket *a, const char **str,
-			      apr_ssize_t *len, ap_read_type block)
+			      apr_size_t *len, ap_read_type block)
 {
     apr_socket_t *p = a->data;
     ap_bucket *b;
