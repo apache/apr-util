@@ -22,8 +22,11 @@ cross_compile_warning="warning: AC_TRY_RUN called without default to allow cross
 #
 # Note: we always replace the files, and we copy (rather than link) them.
 #
+# Note: This bundled version of expat will not always replace the
+# files since we have a special config.guess/config.sub that we
+# want to ensure is used.
 echo "Copying libtool helper files ..."
-$libtoolize --force --copy
+$libtoolize --copy --automake
 
 #
 # Generate the autoconf header template (config.h.in) and ./configure
