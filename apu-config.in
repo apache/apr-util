@@ -110,20 +110,24 @@ fi
 thisdir="`dirname $0`"
 thisdir="`cd $thisdir && pwd`"
 if test -d $bindir; then
-  tmpbindir="`cd $bindir && pwd`"
+    tmpbindir="`cd $bindir && pwd`"
 else
-  tmpbindir=""
+    tmpbindir=""
 fi
 if test "$tmpbindir" = "$thisdir"; then
-  location=installed
+    location=installed
 elif test "$APU_SOURCE_DIR" = "$thisdir"; then
-  location=source
+    location=source
 else
-  location=build
+    location=build
 fi
 
 if test "$location" = "installed"; then
     LA_FILE="$libdir/lib${APRUTIL_LIBNAME}.la"
+
+        LIBS=`echo "$LIBS"     | sed "s $APU_BUILD_DIR/xml/expat $prefix g"`
+     LDFLAGS=`echo "$LDFLAGS"  | sed "s $APU_BUILD_DIR/xml/expat $prefix g"`
+    INCLUDES=`echo "$INCLUDES" | sed "s $APU_BUILD_DIR/xml/expat $prefix g"`
 else
     LA_FILE="$thisdir/lib${APRUTIL_LIBNAME}.la"
 fi
@@ -151,9 +155,6 @@ while test $# -gt 0; do
     exit 0
     ;;
     --libs)
-    if test "$location" = "installed" && test -f $prefix/lib/libexpat.la; then
-      LIBS=`echo "$LIBS" | sed "s $APU_BUILD_DIR/xml/expat $prefix g"`
-    fi
     flags="$flags $LIBS"
     ;;
     --includes)
