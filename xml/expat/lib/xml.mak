@@ -128,6 +128,7 @@ ALL : "$(OUTDIR)\xml.lib"
 
 CLEAN :
 	-@erase "$(INTDIR)\vc50.idb"
+	-@erase "$(INTDIR)\vc50.pdb"
 	-@erase "$(INTDIR)\xmlparse.obj"
 	-@erase "$(INTDIR)\xmlrole.obj"
 	-@erase "$(INTDIR)\xmltok.obj"
@@ -138,10 +139,10 @@ CLEAN :
 
 RSC=rc.exe
 CPP=cl.exe
-CPP_PROJ=/nologo /MDd /W3 /GX /Od /I "." /D "WIN32" /D "_DEBUG" /D "_WINDOWS"\
- /D "_MBCS" /D VERSION=\"expat_1.95.1\" /D XML_MAJOR_VERSION=1 /D\
+CPP_PROJ=/nologo /MDd /W3 /GX /Zi /Od /I "." /D "WIN32" /D "_DEBUG" /D\
+ "_WINDOWS" /D "_MBCS" /D VERSION=\"expat_1.95.1\" /D XML_MAJOR_VERSION=1 /D\
  XML_MINOR_VERSION=95 /D XML_MICRO_VERSION=1 /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\"\
- /FD /ZI /c 
+ /FD /c 
 CPP_OBJS=.\LibD/
 CPP_SBRS=.
 
