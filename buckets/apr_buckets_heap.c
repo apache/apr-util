@@ -87,21 +87,21 @@ APU_DECLARE(apr_bucket *) apr_bucket_heap_make(apr_bucket *b, const char *buf,
     h = apr_bucket_alloc(sizeof(*h), b->list);
 
     if (!free_func) {
-	h->alloc_len = length;
-	h->base = apr_bucket_alloc(h->alloc_len, b->list);
-	if (h->base == NULL) {
-	    apr_bucket_free(h);
-	    return NULL;
-	}
+        h->alloc_len = length;
+        h->base = apr_bucket_alloc(h->alloc_len, b->list);
+        if (h->base == NULL) {
+            apr_bucket_free(h);
+            return NULL;
+        }
         h->free_func = apr_bucket_free;
-	memcpy(h->base, buf, length);
+        memcpy(h->base, buf, length);
     }
     else {
-	/* XXX: we lose the const qualifier here which indicates
+        /* XXX: we lose the const qualifier here which indicates
          * there's something screwy with the API...
-	 */
-	h->base = (char *) buf;
-	h->alloc_len = length;
+         */
+        h->base = (char *) buf;
+        h->alloc_len = length;
         h->free_func = free_func;
     }
 

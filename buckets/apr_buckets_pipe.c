@@ -78,7 +78,7 @@ static apr_status_t pipe_bucket_read(apr_bucket *a, const char **str,
     }
 
     if (rv != APR_SUCCESS && rv != APR_EOF) {
-	apr_bucket_free(buf);
+        apr_bucket_free(buf);
         return rv;
     }
     /*
