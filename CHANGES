@@ -1,5 +1,13 @@
 Changes with APR-util 1.0.2
 
+  *) Rework the LDAP toolkit detection to be more accurate than "OpenLDAP
+     detected regardless", while remaining backwards compatible with v1.0.
+     [Graham Leggett]
+
+  *) Added the apr_ldap_ssl_add_cert() API to allow multiple certificates
+     to be stored and used when establishing an SSL connection to different
+     LDAP servers. [Brad Nicholes]
+     
   *) Fix the detection of ldap.h on Solaris - it needs lber.h to be
      defined first. [Graham Leggett]
 
