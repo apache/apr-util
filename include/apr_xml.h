@@ -52,8 +52,8 @@
  * <http://www.apache.org/>.
  */
 
-#ifndef UTIL_XML_H
-#define UTIL_XML_H
+#ifndef APR_XML_H
+#define APR_XML_H
 
 #include "apr_pools.h"
 #include "apr_tables.h"
@@ -234,16 +234,50 @@ struct apr_xml_doc {
     apr_array_header_t *namespaces;
 };
 
-#if 0
+
+typedef struct apr_xml_parser apr_xml_parser;
+
 /**
- * Get XML post data and parse it
- * @param r The current request
- * @param pdoc The XML post data
- * @return HTTP status code
- * @deffunc int ap_xml_parse_input(request_rec *r, apr_xml_doc **pdoc)
+ * Create an XML parser
+ * @param pool The pool for allocating the parser and the parse results.
+ * @return The new parser.
  */
-APU_DECLARE(int) ap_xml_parse_input(request_rec *r, apr_xml_doc **pdoc);
-#endif
+APU_DECLARE(apr_xml_parser *) apr_xml_parser_create(apr_pool_t *pool);
+
+/**
+ * Feed input into the parser
+ * @param parser The XML parser for parsing this data.
+ * @param data The data to parse.
+ * @param len The length of the data.
+ * @return Any errors found during parsing.
+ * @tip Use apr_xml_parser_geterror() to get more error information.
+ */
+APU_DECLARE(apr_status_t) apr_xml_parser_feed(apr_xml_parser *parser,
+                                              const char *data,
+                                              apr_size_t len);
+
+/**
+ * Terminate the parsing and return the result
+ * @param parser The XML parser for parsing this data.
+ * @param pdoc The resulting parse information. May be NULL to simply
+ *             terminate the parsing without fetching the info.
+ * @return Any errors found during the final stage of parsing.
+ * @tip Use apr_xml_parser_geterror() to get more error information.
+ */
+APU_DECLARE(apr_status_t) apr_xml_parser_done(apr_xml_parser *parser,
+                                              apr_xml_doc **pdoc);
+
+/**
+ * Fetch additional error information from the parser.
+ * @param parser The XML parser to query for errors.
+ * @param errbuf A buffer for storing error text.
+ * @param errbufsize The length of the error text buffer.
+ * @return The error buffer
+ */
+APU_DECLARE(char *) apr_xml_parser_geterror(apr_xml_parser *parser,
+                                            char *errbuf,
+                                            apr_size_t errbufsize);
+
 
 /**
  * Converts an XML element tree to flat text 
@@ -320,4 +354,4 @@ APU_DECLARE(int) apr_xml_insert_uri(apr_array_header_t *uri_array,
 }
 #endif
 
-#endif /* UTIL_XML_H */
+#endif /* APR_XML_H */
