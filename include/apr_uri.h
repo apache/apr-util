@@ -103,12 +103,12 @@ extern "C" {
 #define APR_URI_UNP_OMITPATHINFO	(1U<<4)	/* Show "scheme://user@site:port" only */
 #define APR_URI_UNP_OMITQUERY	        (1U<<5)	/* Omit the "?queryarg" from the path */
 
-typedef struct apr_uri_components apr_uri_components;
+typedef struct apr_uri_t apr_uri_t;
 
 /**
  * A structure to encompass all of the fields in a uri
  */
-struct apr_uri_components {
+struct apr_uri_t {
     /** scheme ("http"/"ftp"/...) */
     char *scheme;
     /** combined [user[:password]@]host[:port] */
@@ -155,7 +155,7 @@ struct apr_uri_components {
 APU_DECLARE(apr_port_t) apr_uri_default_port_for_scheme(const char *scheme_str);
 
 /**
- * Unparse a apr_uri_components structure to an URI string.  Optionally 
+ * Unparse a apr_uri_t structure to an URI string.  Optionally 
  * suppress the password for security reasons.
  * @param p The pool to allocate out of
  * @param uptr All of the parts of the uri
@@ -170,36 +170,36 @@ APU_DECLARE(apr_port_t) apr_uri_default_port_for_scheme(const char *scheme_str);
  *    APR_URI_UNP_OMITQUERY           Omit the "?queryarg" from the path 
  * </PRE>
  * @return The uri as a string
- * @deffunc char * apr_uri_unparse_components(apr_pool_t *p, const apr_uri_components *uptr, unsigned flags)
+ * @deffunc char * apr_uri_unparse(apr_pool_t *p, const apr_uri_t *uptr, unsigned flags)
  */
-APU_DECLARE(char *) apr_uri_unparse_components(apr_pool_t *p, 
-                                               const apr_uri_components *uptr,
+APU_DECLARE(char *) apr_uri_unparse(apr_pool_t *p, 
+                                               const apr_uri_t *uptr,
                                                unsigned flags);
 
 /**
- * Parse a given URI, fill in all supplied fields of a apr_uri_components
+ * Parse a given URI, fill in all supplied fields of a apr_uri_t
  * structure. This eliminates the necessity of extracting host, port,
  * path, query info repeatedly in the modules.
  * @param p The pool to allocate out of
  * @param uri The uri to parse
- * @param uptr The apr_uri_components to fill out
+ * @param uptr The apr_uri_t to fill out
  * @return An HTTP status code
- * @deffunc int apr_uri_parse_components(apr_pool_t *p, const char *uri, apr_uri_components *uptr)
+ * @deffunc int apr_uri_parse(apr_pool_t *p, const char *uri, apr_uri_t *uptr)
  */
-APU_DECLARE(int) apr_uri_parse_components(apr_pool_t *p, const char *uri, 
-                                          apr_uri_components *uptr);
+APU_DECLARE(int) apr_uri_parse(apr_pool_t *p, const char *uri, 
+                                          apr_uri_t *uptr);
 
 /**
  * Special case for CONNECT parsing: it comes with the hostinfo part only
  * @param p The pool to allocate out of
  * @param hostinfo The hostinfo string to parse
- * @param uptr The apr_uri_components to fill out
+ * @param uptr The apr_uri_t to fill out
  * @return An HTTP status code
- * @deffunc int apr_parse_hostinfo_components(apr_pool_t *p, const char *hostinfo, apr_uri_components *uptr)
+ * @deffunc int apr_parse_hostinfo_components(apr_pool_t *p, const char *hostinfo, apr_uri_t *uptr)
  */
-APU_DECLARE(int) apr_uri_parse_hostinfo_components(apr_pool_t *p, 
+APU_DECLARE(int) apr_uri_parse_hostinfo(apr_pool_t *p, 
                                                    const char *hostinfo, 
-                                                   apr_uri_components *uptr);
+                                                   apr_uri_t *uptr);
 
 #ifdef __cplusplus
 }
