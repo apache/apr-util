@@ -121,7 +121,7 @@
 #ifdef CHARSET_EBCDIC
 static ap_xlate_t *ebcdic2ascii_xlate;
 
-API_EXPORT(ap_status_t) ap_SHA1InitEBCDIC(ap_xlate_t *x)
+AP_EXPORT(ap_status_t) ap_SHA1InitEBCDIC(ap_xlate_t *x)
 {
     ap_status_t rv;
     int onoff;
@@ -242,7 +242,7 @@ static void maybe_byte_reverse(ap_uint32_t *buffer, int count)
 
 /* initialize the SHA digest */
 
-API_EXPORT(void) ap_SHA1Init(AP_SHA1_CTX *sha_info)
+AP_EXPORT(void) ap_SHA1Init(AP_SHA1_CTX *sha_info)
 {
     sha_info->digest[0] = 0x67452301L;
     sha_info->digest[1] = 0xefcdab89L;
@@ -256,9 +256,9 @@ API_EXPORT(void) ap_SHA1Init(AP_SHA1_CTX *sha_info)
 
 /* update the SHA digest */
 
-API_EXPORT(void) ap_SHA1Update_binary(AP_SHA1_CTX *sha_info,
-				      const unsigned char *buffer,
-				      unsigned int count)
+AP_EXPORT(void) ap_SHA1Update_binary(AP_SHA1_CTX *sha_info,
+                                     const unsigned char *buffer,
+                                     unsigned int count)
 {
     unsigned int i;
 
@@ -295,8 +295,8 @@ API_EXPORT(void) ap_SHA1Update_binary(AP_SHA1_CTX *sha_info,
     sha_info->local = count;
 }
 
-API_EXPORT(void) ap_SHA1Update(AP_SHA1_CTX *sha_info, const char *buf,
-			       unsigned int count)
+AP_EXPORT(void) ap_SHA1Update(AP_SHA1_CTX *sha_info, const char *buf,
+                              unsigned int count)
 {
 #ifdef CHARSET_EBCDIC
     int i;
@@ -349,8 +349,8 @@ API_EXPORT(void) ap_SHA1Update(AP_SHA1_CTX *sha_info, const char *buf,
 
 /* finish computing the SHA digest */
 
-API_EXPORT(void) ap_SHA1Final(unsigned char digest[SHA_DIGESTSIZE],
-                              AP_SHA1_CTX *sha_info)
+AP_EXPORT(void) ap_SHA1Final(unsigned char digest[SHA_DIGESTSIZE],
+                             AP_SHA1_CTX *sha_info)
 {
     int count, i, j;
     ap_uint32_t lo_bit_count, hi_bit_count, k;
@@ -384,7 +384,7 @@ API_EXPORT(void) ap_SHA1Final(unsigned char digest[SHA_DIGESTSIZE],
 }
 
 
-API_EXPORT(void) ap_sha1_base64(const char *clear, int len, char *out)
+AP_EXPORT(void) ap_sha1_base64(const char *clear, int len, char *out)
 {
     int l;
     AP_SHA1_CTX context;
