@@ -39,16 +39,20 @@ typedef struct {
     size_t sz;
     size_t index;
 } apr_dbd_results;
+
 typedef struct {
     int n;
     apr_dbd_results *res;
 } apr_dbd_row;
+
 typedef struct apr_dbd_prepared {
     const char *name;
     int prepared;
 } apr_dbd_prepared;
 
-#define dbd_pgsql_is_success(x) (((x)==PGRES_EMPTY_QUERY)||((x)==PGRES_COMMAND_OK)||((x)==PGRES_TUPLES_OK))
+#define dbd_pgsql_is_success(x) (((x) == PGRES_EMPTY_QUERY) \
+                                 || ((x) == PGRES_COMMAND_OK) \
+                                 || ((x) == PGRES_TUPLES_OK))
 
 #define APR_DBD_INTERNAL
 #include "apr_dbd.h"
@@ -106,6 +110,7 @@ static int dbd_pgsql_select(apr_pool_t *pool, apr_dbd_t *sql,
     }
     return 0;
 }
+
 static int dbd_pgsql_get_row(apr_pool_t *pool, apr_dbd_results *res,
                              apr_dbd_row **rowp, int rownum)
 {
@@ -147,7 +152,8 @@ static int dbd_pgsql_get_row(apr_pool_t *pool, apr_dbd_results *res,
             if (res->res) {
                 res->ntuples = PQntuples(res->res);
                 while (res->ntuples == 0) {
-                  /* if we got an empty result, clear it, wait a mo, try again */
+                    /* if we got an empty result, clear it, wait a mo, try
+                     * again */
                     PQclear(res->res);
                     apr_sleep(100000);        /* 0.1 secs */
                     res->res = PQgetResult(res->handle);
@@ -169,14 +175,17 @@ static int dbd_pgsql_get_row(apr_pool_t *pool, apr_dbd_results *res,
     }
     return 0;
 }
+
 static const char *dbd_pgsql_get_entry(const apr_dbd_row *row, int n)
 {
     return PQgetvalue(row->res->res, row->n, n);
 }
+
 static const char *dbd_pgsql_error(apr_dbd_t *sql, int n)
 {
     return PQerrorMessage(sql);
 }
+
 static int dbd_pgsql_query(apr_dbd_t *sql, apr_dbd_transaction *trans,
                            int *nrows, const char *query)
 {
@@ -203,6 +212,7 @@ static int dbd_pgsql_query(apr_dbd_t *sql, apr_dbd_transaction *trans,
     }
     return ret;
 }
+
 static const char *dbd_pgsql_escape(apr_pool_t *pool, const char *arg,
                                     apr_dbd_t *sql)
 {
@@ -211,6 +221,7 @@ static const char *dbd_pgsql_escape(apr_pool_t *pool, const char *arg,
     PQescapeString(ret, arg, len);
     return ret;
 }
+
 static int dbd_pgsql_prepare(apr_pool_t *pool, apr_dbd_t *sql,
                              const char *query, const char *label,
                              apr_dbd_prepared **statement)
@@ -326,6 +337,7 @@ static int dbd_pgsql_prepare(apr_pool_t *pool, apr_dbd_t *sql,
 
     return ret;
 }
+
 static int dbd_pgsql_pquery(apr_pool_t *pool, apr_dbd_t *sql,
                             apr_dbd_transaction *trans, int *nrows,
                             apr_dbd_prepared *statement, int nargs,
@@ -355,6 +367,7 @@ static int dbd_pgsql_pquery(apr_pool_t *pool, apr_dbd_t *sql,
     }
     return ret;
 }
+
 static int dbd_pgsql_pvquery(apr_pool_t *pool, apr_dbd_t *sql,
                              apr_dbd_transaction *trans, int *nrows,
                              apr_dbd_prepared *statement, ...)
@@ -379,6 +392,7 @@ static int dbd_pgsql_pvquery(apr_pool_t *pool, apr_dbd_t *sql,
     values[nargs] = NULL;
     return dbd_pgsql_pquery(pool, sql, trans, nrows, statement, nargs, values);
 }
+
 static int dbd_pgsql_pselect(apr_pool_t *pool, apr_dbd_t *sql,
                              apr_dbd_transaction *trans,
                              apr_dbd_results **results,
@@ -425,10 +439,12 @@ static int dbd_pgsql_pselect(apr_pool_t *pool, apr_dbd_t *sql,
     }
     else {
         if (statement->prepared) {
-            rv = PQsendQueryPrepared(sql, statement->name, nargs, values,0,0,0);
+            rv = PQsendQueryPrepared(sql, statement->name, nargs, values,0,0,
+                                     0);
         }
         else {
-            rv = PQsendQueryParams(sql, statement->name, nargs, 0, values,0,0,0);
+            rv = PQsendQueryParams(sql, statement->name, nargs, 0, values,0,0,
+                                   0);
         }
         if (rv == 0) {
             if (trans) {
@@ -448,6 +464,7 @@ static int dbd_pgsql_pselect(apr_pool_t *pool, apr_dbd_t *sql,
     }
     return ret;
 }
+
 static int dbd_pgsql_pvselect(apr_pool_t *pool, apr_dbd_t *sql,
                               apr_dbd_transaction *trans,
                               apr_dbd_results **results,
@@ -475,6 +492,7 @@ static int dbd_pgsql_pvselect(apr_pool_t *pool, apr_dbd_t *sql,
     return dbd_pgsql_pselect(pool, sql, trans, results, statement,
                              seek, nargs, values) ;
 }
+
 static int dbd_pgsql_transaction(apr_pool_t *pool, apr_dbd_t *handle,
                                  apr_dbd_transaction **trans)
 {
@@ -496,6 +514,7 @@ static int dbd_pgsql_transaction(apr_pool_t *pool, apr_dbd_t *handle,
     }
     return ret;
 }
+
 static int dbd_pgsql_end_transaction(apr_dbd_transaction *trans)
 {
     PGresult *res;
@@ -521,15 +540,18 @@ static int dbd_pgsql_end_transaction(apr_dbd_transaction *trans)
     }
     return ret;
 }
+
 static apr_dbd_t *dbd_pgsql_open(apr_pool_t *pool, const char *params)
 {
     return PQconnectdb(params);
 }
+
 static apr_status_t dbd_pgsql_close(apr_dbd_t *handle)
 {
     PQfinish(handle);
     return APR_SUCCESS;
 }
+
 static apr_status_t dbd_pgsql_check_conn(apr_pool_t *pool,
                                          apr_dbd_t *handle)
 {
@@ -541,19 +563,23 @@ static apr_status_t dbd_pgsql_check_conn(apr_pool_t *pool,
     }
     return APR_SUCCESS;
 }
+
 static int dbd_pgsql_select_db(apr_pool_t *pool, apr_dbd_t *handle,
                                const char *name)
 {
     return APR_ENOTIMPL;
 }
+
 static void *dbd_pgsql_native(apr_dbd_t *handle)
 {
     return handle;
 }
+
 static int dbd_pgsql_num_cols(apr_dbd_results* res)
 {
     return res->sz;
 }
+
 static int dbd_pgsql_num_tuples(apr_dbd_results* res)
 {
     if (res->random) {
@@ -563,6 +589,7 @@ static int dbd_pgsql_num_tuples(apr_dbd_results* res)
         return -1;
     }
 }
+
 APU_DECLARE_DATA const apr_dbd_driver_t apr_dbd_pgsql_driver = {
     "pgsql",
     NULL,
