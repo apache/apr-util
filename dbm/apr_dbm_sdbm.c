@@ -54,8 +54,10 @@
 
 #include "apr_dbm_private.h"
 
-
 #include "apr_sdbm.h"
+#if APR_HAVE_STDLIB_H
+#include <stdlib.h>  /* For abort() */
+#endif
 
 typedef apr_sdbm_t *real_file_t;
 
