@@ -1,5 +1,10 @@
 Changes with APR-util 1.1.0
 
+  *) Allow passing NULL inbuf/inbytes_left parameters to
+     apr_xlate_conv_buffer(), required to correctly terminate the
+     output buffer for some stateful character set encodings.
+     [Joe Orton]
+
   *) Link libaprutil against the libraries on which it depends.
      PR 11122.  [Joe Orton]
 
