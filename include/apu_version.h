@@ -17,17 +17,9 @@
 #ifndef APU_VERSION_H
 #define APU_VERSION_H
 
-#include "apr_version.h"
-
-#include "apu.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /**
  * @file apu_version.h
- * @brief 
+ * @brief APR-util Versioning Interface
  * 
  * APR-util's Version
  *
@@ -45,6 +37,7 @@ extern "C" {
  *     http://apr.apache.org/versioning.html
  */
 
+
 /* The numeric compile-time version constants. These constants are the
  * authoritative version numbers for APU. 
  */
@@ -56,28 +49,70 @@ extern "C" {
  */
 #define APU_MAJOR_VERSION       1
 
-/** 
+/** minor version
  * Minor API changes that do not cause binary compatibility problems.
- * Should be reset to 0 when upgrading APU_MAJOR_VERSION
+ * Reset to 0 when upgrading APU_MAJOR_VERSION
  */
 #define APU_MINOR_VERSION       2
 
-/** patch level */
+/** patch level 
+ * The Patch Level never includes API changes, simply bug fixes.
+ * Reset to 0 when upgrading APR_MINOR_VERSION
+ */
 #define APU_PATCH_VERSION       0
 
 /** 
- *  This symbol is defined for internal, "development" copies of APU. This
- *  symbol will be #undef'd for releases. 
+ * The symbol APU_IS_DEV_VERSION is only defined for internal,
+ * "development" copies of APU.  It is undefined for released versions
+ * of APU.
  */
 #define APU_IS_DEV_VERSION
 
 
+#if defined(APU_IS_DEV_VERSION) || defined(DOXYGEN)
+/** Internal: string form of the "is dev" flag */
+#define APU_IS_DEV_STRING "-dev"
+#else
+#define APU_IS_DEV_STRING ""
+#endif
+
+
+#ifndef APU_STRINGIFY
+/** Properly quote a value as a string in the C preprocessor */
+#define APU_STRINGIFY(n) APU_STRINGIFY_HELPER(n)
+/** Helper macro for APU_STRINGIFY */
+#define APU_STRINGIFY_HELPER(n) #n
+#endif
+
 /** The formatted string of APU's version */
 #define APU_VERSION_STRING \
-     APR_STRINGIFY(APU_MAJOR_VERSION) "." \
-     APR_STRINGIFY(APU_MINOR_VERSION) "." \
-     APR_STRINGIFY(APU_PATCH_VERSION) \
+     APU_STRINGIFY(APU_MAJOR_VERSION) "." \
+     APU_STRINGIFY(APU_MINOR_VERSION) "." \
+     APU_STRINGIFY(APU_PATCH_VERSION) \
      APU_IS_DEV_STRING
+
+/** An alternative formatted string of APR's version */
+/* macro for Win32 .rc files using numeric csv representation */
+#define APU_VERSION_STRING_CSV APU_MAJOR_VERSION ##, \
+                             ##APU_MINOR_VERSION ##, \
+                             ##APU_PATCH_VERSION
+
+
+#ifndef APU_VERSION_ONLY
+
+/* The C language API to access the version at run time, 
+ * as opposed to compile time.  APU_VERSION_ONLY may be defined 
+ * externally when preprocessing apr_version.h to obtain strictly 
+ * the C Preprocessor macro declarations.
+ */
+
+#include "apr_version.h"
+
+#include "apu.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * Return APR-util's version information information in a numeric form.
@@ -90,16 +125,10 @@ APU_DECLARE(void) apu_version(apr_version_t *pvsn);
 /** Return APU's version information as a string. */
 APU_DECLARE(const char *) apu_version_string(void);
 
-
-/** Internal: string form of the "is dev" flag */
-#ifdef APU_IS_DEV_VERSION
-#define APU_IS_DEV_STRING "-dev"
-#else
-#define APU_IS_DEV_STRING ""
-#endif
-
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* APU_VERSION_H */
+#endif /* ndef APU_VERSION_ONLY */
+
+#endif /* ndef APU_VERSION_H */
