@@ -145,7 +145,7 @@ APU_DECLARE(apr_status_t) apr_md5_set_xlate(apr_md5_ctx_t *context,
  * @param inputLen The length of the next message block
  */
 APU_DECLARE(apr_status_t) apr_md5_update(apr_md5_ctx_t *context,
-                                         const unsigned char *input,
+                                         const void *input,
                                          apr_size_t inputLen);
 
 /**
@@ -164,7 +164,7 @@ APU_DECLARE(apr_status_t) apr_md5_final(unsigned char digest[MD5_DIGESTSIZE],
  * @param inputLen The length of the message block
  */
 APU_DECLARE(apr_status_t) apr_md5(unsigned char digest[MD5_DIGESTSIZE],
-                                  const unsigned char *input,
+                                  const void *input,
                                   apr_size_t inputLen);
 
 /**
