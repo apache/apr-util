@@ -110,7 +110,6 @@ extern "C" {
 #define APU_IS_DEV_VERSION
 
 
-
 /** The formatted string of APU's version */
 #define APU_VERSION_STRING \
      APR_STRINGIFY(APU_MAJOR_VERSION) "." \
