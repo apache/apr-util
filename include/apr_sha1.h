@@ -83,15 +83,15 @@ typedef struct {
     int local;                      /* unprocessed amount in data */
 } AP_SHA1_CTX;
 
-API_EXPORT(void) ap_sha1_base64(const char *clear, int len, char *out);
-API_EXPORT(void) ap_SHA1Init(AP_SHA1_CTX *context);
-API_EXPORT(void) ap_SHA1Update(AP_SHA1_CTX *context, const char *input,
-			       unsigned int inputLen);
-API_EXPORT(void) ap_SHA1Update_binary(AP_SHA1_CTX *context,
-				      const unsigned char *input,
-				      unsigned int inputLen);
-API_EXPORT(void) ap_SHA1Final(unsigned char digest[SHA_DIGESTSIZE],
-                              AP_SHA1_CTX *context);
+AP_EXPORT(void) ap_sha1_base64(const char *clear, int len, char *out);
+AP_EXPORT(void) ap_SHA1Init(AP_SHA1_CTX *context);
+AP_EXPORT(void) ap_SHA1Update(AP_SHA1_CTX *context, const char *input,
+                              unsigned int inputLen);
+AP_EXPORT(void) ap_SHA1Update_binary(AP_SHA1_CTX *context,
+                                     const unsigned char *input,
+                                     unsigned int inputLen);
+AP_EXPORT(void) ap_SHA1Final(unsigned char digest[SHA_DIGESTSIZE],
+                             AP_SHA1_CTX *context);
 
 #ifdef __cplusplus
 }

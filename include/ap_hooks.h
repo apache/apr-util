@@ -55,14 +55,16 @@
 #ifndef APACHE_AP_HOOKS_H
 #define APACHE_AP_HOOKS_H
 
+#include "ap.h"
+
 /* For ap_array_header_t */
 #include "apr_lib.h"
 
-#define AP_DECLARE_HOOK(ret,name,args) \
+#define AP_DECLARE_HOOK(impl,ret,name,args) \
 typedef ret HOOK_##name args; \
-void ap_hook_##name(HOOK_##name *pf,const char * const *aszPre, \
-		    const char * const *aszSucc,int nOrder); \
-ret ap_run_##name args; \
+impl(void) ap_hook_##name(HOOK_##name *pf,const char * const *aszPre, \
+		         const char * const *aszSucc,int nOrder); \
+impl(ret) ap_run_##name args; \
 typedef struct _LINK_##name \
     { \
     HOOK_##name *pFunc; \
@@ -78,9 +80,9 @@ static struct { members } _hooks;
 #define AP_HOOK_LINK(name) \
     ap_array_header_t *link_##name;
 
-#define AP_IMPLEMENT_HOOK_BASE(name) \
-void ap_hook_##name(HOOK_##name *pf,const char * const *aszPre, \
-		    const char * const *aszSucc,int nOrder) \
+#define AP_IMPLEMENT_HOOK_BASE(impl,name) \
+impl(void) ap_hook_##name(HOOK_##name *pf,const char * const *aszPre, \
+		         const char * const *aszSucc,int nOrder) \
     { \
     LINK_##name *pHook; \
     if(!_hooks.link_##name) \
@@ -103,9 +105,9 @@ void ap_hook_##name(HOOK_##name *pf,const char * const *aszPre, \
    VOID runs all
 */
 
-#define AP_IMPLEMENT_HOOK_VOID(name,args_decl,args_use) \
-AP_IMPLEMENT_HOOK_BASE(name) \
-void ap_run_##name args_decl \
+#define AP_IMPLEMENT_HOOK_VOID(impl,name,args_decl,args_use) \
+AP_IMPLEMENT_HOOK_BASE(impl,name) \
+impl(void) ap_run_##name args_decl \
     { \
     LINK_##name *pHook; \
     int n; \
@@ -121,9 +123,9 @@ void ap_run_##name args_decl \
 /* FIXME: note that this returns ok when nothing is run. I suspect it should
    really return decline, but that breaks Apache currently - Ben
 */
-#define AP_IMPLEMENT_HOOK_RUN_ALL(ret,name,args_decl,args_use,ok,decline) \
-AP_IMPLEMENT_HOOK_BASE(name) \
-ret ap_run_##name args_decl \
+#define AP_IMPLEMENT_HOOK_RUN_ALL(impl,ret,name,args_decl,args_use,ok,decline) \
+AP_IMPLEMENT_HOOK_BASE(impl,name) \
+impl(ret) ap_run_##name args_decl \
     { \
     LINK_##name *pHook; \
     int n; \
@@ -143,9 +145,9 @@ ret ap_run_##name args_decl \
     return ok; \
     }
 
-#define AP_IMPLEMENT_HOOK_RUN_FIRST(ret,name,args_decl,args_use,decline) \
-AP_IMPLEMENT_HOOK_BASE(name) \
-ret ap_run_##name args_decl \
+#define AP_IMPLEMENT_HOOK_RUN_FIRST(impl,ret,name,args_decl,args_use,decline) \
+AP_IMPLEMENT_HOOK_BASE(impl,name) \
+impl(ret) ap_run_##name args_decl \
     { \
     LINK_##name *pHook; \
     int n; \
@@ -172,14 +174,15 @@ ret ap_run_##name args_decl \
 #define AP_HOOK_LAST		20
 #define AP_HOOK_REALLY_LAST	30
 
-extern ap_pool_t *g_pHookPool;
-extern int g_bDebugHooks;
-extern const char *g_szCurrentHookName;
+extern AP_EXPORT_VAR ap_pool_t *g_pHookPool;
+extern AP_EXPORT_VAR int g_bDebugHooks;
+extern AP_EXPORT_VAR const char *g_szCurrentHookName;
 
-void ap_hook_sort_register(const char *szHookName, ap_array_header_t **aHooks);
-void ap_sort_hooks(void);
-void ap_show_hook(const char *szName,const char * const *aszPre,
-		  const char * const *aszSucc);
-void ap_hook_deregister_all(void);
+AP_EXPORT(void) ap_hook_sort_register(const char *szHookName, 
+                                      ap_array_header_t **aHooks);
+AP_EXPORT(void) ap_sort_hooks(void);
+AP_EXPORT(void) ap_show_hook(const char *szName,const char * const *aszPre,
+                             const char * const *aszSucc);
+AP_EXPORT(void) ap_hook_deregister_all(void);
 
 #endif /* ndef(AP_HOOKS_H) */
