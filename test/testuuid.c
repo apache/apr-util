@@ -13,45 +13,43 @@
  * limitations under the License.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-
+#include "test_aprutil.h"
 #include "apr_general.h"
 #include "apr_uuid.h"
 
-
-int main(int argc, char **argv)
+static void test_uuid_parse(CuTest *tc)
 {
     apr_uuid_t uuid;
     apr_uuid_t uuid2;
     char buf[APR_UUID_FORMATTED_LENGTH + 1];
-    int retcode = 0;
-
-    apr_initialize();
-    atexit(apr_terminate);
 
     apr_uuid_get(&uuid);
     apr_uuid_format(buf, &uuid);
-    printf("UUID: %s\n", buf);
 
     apr_uuid_parse(&uuid2, buf);
-    if (memcmp(&uuid, &uuid2, sizeof(uuid)) == 0)
-        printf("Parse appears to work.\n");
-    else {
-        printf("ERROR: parse produced a different UUID.\n");
-        retcode = 1;
-    }
+    CuAssert(tc, "parse produced a different UUID",
+             memcmp(&uuid, &uuid2, sizeof(uuid)) == 0);
+}
 
-    apr_uuid_format(buf, &uuid2);
-    printf("parsed/reformatted UUID: %s\n", buf);
+static void test_gen2(CuTest *tc)
+{
+    apr_uuid_t uuid;
+    apr_uuid_t uuid2;
 
     /* generate two of them quickly */
     apr_uuid_get(&uuid);
     apr_uuid_get(&uuid2);
-    apr_uuid_format(buf, &uuid);
-    printf("UUID 1: %s\n", buf);
-    apr_uuid_format(buf, &uuid2);
-    printf("UUID 2: %s\n", buf);
 
-    return retcode;
+    CuAssert(tc, "generated the same UUID twice",
+             memcmp(&uuid, &uuid2, sizeof(uuid)) != 0);
+}
+
+CuSuite *testuuid(void)
+{
+    CuSuite *suite = CuSuiteNew("UUID");
+
+    SUITE_ADD_TEST(suite, test_uuid_parse);
+    SUITE_ADD_TEST(suite, test_gen2);
+
+    return suite;
 }
