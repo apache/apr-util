@@ -20,12 +20,17 @@ cross_compile_warning="warning: AC_TRY_RUN called without default to allow cross
 #
 # Create the libtool helper files
 #
-# Note: we always replace the files, and we copy (rather than link) them.
+# Note: we copy (rather than link) the files.
 #
 # Note: This bundled version of expat will not always replace the
 # files since we have a special config.guess/config.sub that we
 # want to ensure is used.
 echo "Copying libtool helper files ..."
+
+# Remove any libtool files so one can switch between libtool 1.3
+# and libtool 1.4 by simply rerunning the buildconf script.
+(cd conftools ; rm -f ltconfig ltmain.sh)
+
 $libtoolize --copy --automake
 
 #
