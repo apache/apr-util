@@ -1438,7 +1438,6 @@ APU_DECLARE(apr_bucket *) apr_bucket_file_make(apr_bucket *b, apr_file_t *fd,
                                                apr_off_t offset,
                                                apr_size_t len, apr_pool_t *p);
 
-#if APR_HAS_MMAP
 /**
  * Enable or disable memory-mapping for a FILE bucket (default is enabled)
  * @param b The bucket
@@ -1447,7 +1446,6 @@ APU_DECLARE(apr_bucket *) apr_bucket_file_make(apr_bucket *b, apr_file_t *fd,
  */
 APU_DECLARE(apr_status_t) apr_bucket_file_enable_mmap(apr_bucket *b,
                                                       int enabled);
-#endif /* APR_HAS_MMAP */
 
 /** @} */
 #ifdef __cplusplus
