@@ -57,64 +57,65 @@
 #include "ap_buckets.h"
 #include <stdlib.h>
 
-static apr_status_t pipe_split(ap_bucket *a, apr_off_t point)
-{
-    /* Splitting a pipe doesn't really make any sense, because as we read
-     * it becomes a heap bucket.  I am leaving this in because I may be wrong,
-     * but it just returns an error, and I expect it to go away immediately
-     */
-    return APR_ENOTIMPL;
-}
-
-/* Ignore the block arg for now.  We can fix that tomorrow. */
+/* XXX: We should obey the block flag */
 static apr_status_t pipe_read(ap_bucket *a, const char **str,
 			      apr_ssize_t *len, int block)
 {
-    ap_bucket_pipe *d = a->data;
+    apr_file_t *p = a->data;
     ap_bucket *b;
     char *buf;
     apr_status_t rv;
 
-    /*
-     * XXX: We need to obey the block flag
-     */
-    buf = malloc(IOBUFSIZE);
+    buf = malloc(IOBUFSIZE); /* XXX: check for failure? */
     *str = buf;
     *len = IOBUFSIZE;
-    if ((rv = apr_read(d->thepipe, buf, len)) != APR_SUCCESS) {
+    rv = apr_read(p, buf, len);
+    if (rv != APR_SUCCESS && rv != APR_EOF) {
 	free(buf);
         return rv;
     }
+    /*
+     * Change the current bucket to refer to what we read,
+     * even if we read nothing because we hit EOF.
+     */
+    ap_bucket_make_heap(a, buf, *len, 0, NULL);  /* XXX: check for failure? */
+    /*
+     * If there's more to read we have to keep the rest of the pipe
+     * for later. XXX: Note that more complicated bucket types that
+     * refer to data not in memory and must therefore have a read()
+     * function similar to this one should be wary of copying this
+     * code because if they have a destroy function they probably
+     * want to migrate the bucket's subordinate structure from the
+     * old bucket to a raw new one and adjust it as appropriate,
+     * rather than destroying the old one and creating a completely
+     * new bucket.
+     */
     if (*len > 0) {
-        b = ap_bucket_create_pipe(d->thepipe);
-        a = ap_bucket_make_heap(a, buf, *len, 0, NULL);
+        b = ap_bucket_create_pipe(p);
 	AP_BUCKET_INSERT_AFTER(a, b);
     }
     return APR_SUCCESS;
 }
 
-API_EXPORT(ap_bucket *) ap_bucket_make_pipe(ap_bucket *b, apr_file_t *thispipe)
+API_EXPORT(ap_bucket *) ap_bucket_make_pipe(ap_bucket *b, apr_file_t *p)
 {
-    ap_bucket_pipe *bd;
-
-    bd = malloc(sizeof(*bd));
-    if (bd == NULL) {
-	return NULL;
-    }
-    bd->thepipe = thispipe;
-
+    /*
+     * XXX: We rely on a cleanup on some pool or other to actually
+     * destroy the pipe. We should probably explicitly call apr to
+     * destroy it instead.
+     */
     b->type     = AP_BUCKET_PIPE;
     b->length   = -1;
     b->setaside = NULL;
-    b->destroy  = free;
+    b->destroy  = NULL;
     b->split    = NULL;
     b->read     = pipe_read;
-    b->data     = bd;
+    b->data     = p;
 
     return b;
 }
 
-API_EXPORT(ap_bucket *) ap_bucket_create_pipe(apr_file_t *thispipe)
+API_EXPORT(ap_bucket *) ap_bucket_create_pipe(apr_file_t *p)
 {
-    ap_bucket_do_create(ap_bucket_make_pipe(b, thispipe));
+    ap_bucket_do_create(ap_bucket_make_pipe(b, p));
 }
