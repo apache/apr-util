@@ -59,6 +59,7 @@
 #define APR_WANT_MEMFUNC
 #define APR_WANT_STRFUNC
 #include "apr_want.h"
+#include "apr_general.h"
 
 #include "apu.h"
 #include "apu_select_dbm.h"
