@@ -167,6 +167,36 @@ APU_DECLARE(apr_bucket *) apr_brigade_partition(apr_bucket_brigade *b, apr_off_t
     return NULL;
 }
 
+APU_DECLARE(apr_status_t) apr_brigade_length(apr_bucket_brigade *bb,
+                                             int read_all, apr_ssize_t *length)
+{
+    apr_ssize_t total = 0;
+    apr_bucket *bkt;
+
+    APR_BRIGADE_FOREACH(bkt, bb) {
+        if (bkt->length == -1) {
+            const char *ignore;
+            apr_size_t len;
+            apr_status_t status;
+
+            if (!read_all) {
+                *length = -1;
+                return APR_SUCCESS;
+            }
+
+            if ((status = apr_bucket_read(bkt, &ignore, &len,
+                                          APR_BLOCK_READ)) != APR_SUCCESS) {
+                return status;
+            }
+        }
+
+        total += bkt->length;
+    }
+
+    *length = total;
+    return APR_SUCCESS;
+}
+
 APU_DECLARE(int) apr_brigade_to_iovec(apr_bucket_brigade *b, 
 				    struct iovec *vec, int nvec)
 {

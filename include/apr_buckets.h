@@ -80,7 +80,10 @@ extern "C" {
 
 #define APR_BUCKET_BUFF_SIZE 9000
 
-typedef enum {APR_BLOCK_READ, APR_NONBLOCK_READ} apr_read_type_e;
+typedef enum {
+    APR_BLOCK_READ,
+    APR_NONBLOCK_READ
+} apr_read_type_e;
 
 /*
  * The one-sentence buzzword-laden overview: Bucket brigades represent
@@ -618,6 +621,17 @@ APU_DECLARE(apr_bucket *) apr_brigade_partition(apr_bucket_brigade *b, apr_off_t
  */
 APU_DECLARE(void) apr_brigade_consume(apr_bucket_brigade *b, int nbytes);
 #endif
+
+/**
+ * Return the total length of the brigade.
+ * @param bb The brigade to compute the length of
+ * @param read_all Read unknown-length buckets to force a size
+ @ @param length Set to length of the brigade, or -1 if it has unknown-length buckets
+ * @deffunc apr_status_t apr_brigade_length(apr_bucket_brigade *bb, int read_all)
+ */
+APU_DECLARE(apr_status_t) apr_brigade_length(apr_bucket_brigade *bb,
+                                             int read_all,
+                                             apr_ssize_t *length);
 
 /**
  * create an iovec of the elements in a bucket_brigade... return number 
