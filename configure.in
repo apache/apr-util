@@ -92,13 +92,13 @@ case "$host_alias" in
 *bsdi* | BSD/OS)
     # Check whether they've installed GNU make
     if make --version > /dev/null 2>&1; then
-        INCLUDE_RULES="include $top_builddir/../apr/build/rules.mk"
+        INCLUDE_RULES="include $APR_BUILD_DIR/build/rules.mk"
     else
-        INCLUDE_RULES=".include \"$top_builddir/../apr/build/rules.mk\""
+        INCLUDE_RULES=".include \"$APR_BUILD_DIR/build/rules.mk\""
     fi
     ;;
 *)
-    INCLUDE_RULES="include $top_builddir/../apr/build/rules.mk"
+    INCLUDE_RULES="include $APR_BUILD_DIR/build/rules.mk"
     ;;
 esac
 AC_SUBST(INCLUDE_RULES)
