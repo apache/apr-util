@@ -72,27 +72,41 @@
  */
 
 /*
- * The basic concept behind bucket brigades.....
+ * The one-sentence buzzword-laden overview: Bucket brigades represent
+ * a complex data stream that can be passed through a layered IO
+ * system without unnecessary copying. A longer overview follows...
  *
  * A bucket brigade is a doubly linked list of buckets, so we
  * aren't limited to inserting at the front and removing at the end.
  * Buckets are only passed around as members of a brigade, although
  * singleton buckets can occur for short periods of time.
  *
- * Buckets are data stores. They can be files, mmap areas, or just
- * pre-allocated memory. Along with that data come some functions to
- * access it. The functions are relatively simple: read, split,
- * setaside, and destroy.
+ * Buckets are data stores of varous types. They can refer to data in
+ * memory, or part of a file or mmap area, or the output of a process,
+ * etc. Buckets also have some type-dependent accessor functions:
+ * read, split, setaside, and destroy.
  *
- * read reads a string of data.  Currently, it assumes we read all of the 
- * data in the bucket.  This should be changed to only read the specified 
- * amount.
+ * read returns the address and size of the data in the bucket. If the
+ * data isn't in memory then it is read in and the bucket changes type
+ * so that it can refer to the new location of the data. If all the
+ * data doesn't fit in the bucket then a new bucket is inserted into
+ * the brigade to hold the rest of it.
  *
- * split makes one bucket into two at the specified location.
+ * split divides the data in a bucket into two regions. After a split
+ * the original bucket refers to the first part of the data and a new
+ * bucket inserted into the brigade after the original bucket refers
+ * to the second part of the data. Reference counts are maintained as
+ * necessary.
  *
- * setaside ensures that the data in the bucket has a long enough lifetime.
+ * setaside ensures that the data in the bucket has a long enough
+ * lifetime. Sometimes it is convenient to create a bucket referring
+ * to data on the stack in the expectation that it will be consumed
+ * (output to the network) before the stack is unwound. If that
+ * expectation turns out not to be valid, the setaside function is
+ * called to move the data somewhere safer.
  *
- * free destroys the data associated with the bucket.
+ * destroy maintains the reference counts on the resources used by a
+ * bucket and frees them if necessary.
  *
  * To write a bucket brigade, they are first made into an iovec, so that we
  * don't write too little data at one time.  Currently we ignore compacting the
