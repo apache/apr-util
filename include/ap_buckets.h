@@ -179,7 +179,7 @@ struct ap_bucket_type {
 
 /**
  * ap_bucket_t structures are allocated on the malloc() heap and
- * their lifetime is controlled by the parent ap_brigade_t
+ * their lifetime is controlled by the parent ap_bucket_brigade
  * structure. Buckets can move from one brigade to another e.g. by
  * calling ap_brigade_concat(). In general the data in a bucket has
  * the same lifetime as the bucket and is freed when the bucket is
