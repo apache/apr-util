@@ -464,11 +464,17 @@ APU_DECLARE(apr_status_t) apr_sdbm_firstkey(apr_sdbm_t *db,
     /*
      * start at page 0
      */
-    status = read_from(db->pagf, db->pagbuf, OFF_PAG(0), PBLKSIZ);
+    if ((status = read_from(db->pagf, db->pagbuf, OFF_PAG(0), PBLKSIZ))
+                == APR_SUCCESS) {
+        db->pagbno = 0;
+        db->blkptr = 0;
+        db->keyptr = 0;
+        status = getnext(key, db);
+    }
 
     (void) apr_sdbm_unlock(db);
 
-    return getnext(key, db);
+    return status;
 }
 
 APU_DECLARE(apr_status_t) apr_sdbm_nextkey(apr_sdbm_t *db, 
