@@ -76,12 +76,6 @@ static apr_status_t socket_read(apr_bucket *a, const char **str,
 
     if (block == APR_NONBLOCK_READ) {
         apr_setsocketopt(p, APR_SO_TIMEOUT, timeout);
-        /* There was nothing to read right now, so treat it as okay and 
-         * return a 0-length brigade (see below). */
-        if (APR_STATUS_IS_EAGAIN(rv)) {
-            *len = 0;
-            rv = APR_SUCCESS;
-        }
     }
 
     if (rv != APR_SUCCESS && rv != APR_EOF) {
