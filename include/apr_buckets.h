@@ -250,6 +250,7 @@ struct ap_bucket_brigade {
 
 #define AP_BUCKET_REMOVE(e)	AP_RING_REMOVE((e), link)
 
+#define AP_BUCKET_IS_FLUSH(e)       (e->type == &ap_flush_type)
 #define AP_BUCKET_IS_EOS(e)         (e->type == &ap_eos_type)
 #define AP_BUCKET_IS_FILE(e)        (e->type == &ap_file_type)
 #define AP_BUCKET_IS_PIPE(e)        (e->type == &ap_pipe_type)
@@ -516,6 +517,7 @@ AP_DECLARE_NONSTD(void) ap_bucket_destroy_notimpl(void *data);
 int ap_insert_bucket_type(const ap_bucket_type *type);
 
 /* All of the bucket types implemented by the core */
+extern const ap_bucket_type ap_flush_type;
 extern const ap_bucket_type ap_eos_type;
 extern const ap_bucket_type ap_file_type;
 extern const ap_bucket_type ap_heap_type;
@@ -608,13 +610,22 @@ AP_DECLARE_NONSTD(apr_status_t) ap_bucket_split_shared(ap_bucket *b, apr_off_t p
 
 /**
  * Create an End of Stream bucket.  This indicates that there is no more data
- * coming from down the filter stack
+ * coming from down the filter stack.  All filters should flush at this point.
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_create_eos(void)
  */
 AP_DECLARE(ap_bucket *) ap_bucket_create_eos(void);
 AP_DECLARE(ap_bucket *) ap_bucket_make_eos(ap_bucket *b);
 
+/**
+ * Create a flush  bucket.  This indicates that filters should flush their
+ * data.  There is no garauntee that they will flush it, but this is the
+ * best we can do.
+ * @return The new bucket, or NULL if allocation failed
+ * @deffunc ap_bucket *ap_bucket_create_flush(void)
+ */
+AP_DECLARE(ap_bucket *) ap_bucket_create_flush(void);
+AP_DECLARE(ap_bucket *) ap_bucket_make_flush(ap_bucket *b);
 
 /**
  * Create a bucket referring to long-lived data.
