@@ -153,14 +153,14 @@ int main (void)
     }
     printf("OK\n");
 
-    printf("testing invalid match with negative chars in intput string...");
+    printf("testing invalid match with negative chars in input string...");
     if (apr_strmatch(pattern, input5, strlen(input5)) != NULL) {
         printf("FAILED\n");
         exit(1);
     }
     printf("OK\n");
 
-    printf("testing valid match with negative chars in intput string...");
+    printf("testing valid match with negative chars in input string...");
     if (apr_strmatch(pattern, input6, strlen(input6)) != input6 + 35) {
         printf("FAILED\n");
         exit(1);
