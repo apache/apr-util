@@ -57,7 +57,7 @@
 #include <stdlib.h>
 
 static apr_status_t flush_read(ap_bucket *b, const char **str, 
-                                apr_ssize_t *len, ap_read_type block)
+                                apr_size_t *len, ap_read_type block)
 {
     *str = NULL;
     *len = 0;
