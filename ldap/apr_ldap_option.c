@@ -145,9 +145,12 @@ static void option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
 #if APR_HAS_LDAPSSL_INSTALL_ROUTINES
     if (tls == APR_LDAP_SSL) {
         result->rc = ldapssl_install_routines(ldap);
+#ifdef LDAP_OPT_SSL
+        /* apparently Netscape and Mozilla need this too, Solaris doesn't */
         if (result->rc == LDAP_SUCCESS) {
             result->rc = ldap_set_option(ldap, LDAP_OPT_SSL, LDAP_OPT_ON);
         }
+#endif
         if (result->rc != LDAP_SUCCESS) {
             result->msg = ldap_err2string(result->rc);
             result->reason = "LDAP: Could not switch SSL on for this "
@@ -349,8 +352,8 @@ static void option_set_cert(apr_pool_t *pool, LDAP *ldap,
     if (result->rc == LDAP_SUCCESS) {
         if (nickname) {
             result->rc = ldapssl_enable_clientauth(ldap, "",
-                                                   password,
-                                                   nickname);
+                                                   (char *)password,
+                                                   (char *)nickname);
             if (result->rc != LDAP_SUCCESS) {
                 result->reason = "LDAP: could not set client certificate: "
                                  "ldapssl_enable_clientauth() failed.";
