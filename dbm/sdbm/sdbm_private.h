@@ -66,9 +66,8 @@
 #include "apr_file_io.h"
 #include "apr_errno.h" /* for apr_status_t */
 
-/* increase the block/page size and what can be inserted */
-
-#if 1
+#if 0
+/* if the block/page size is increased, it breaks perl SDBM compatibility */
 #define DBLKSIZ 16384
 #define PBLKSIZ 8192
 #define PAIRMAX 8008			/* arbitrary on PBLKSIZ-N */
