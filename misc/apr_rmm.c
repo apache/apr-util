@@ -321,7 +321,7 @@ union grainbit {
     long *pl;
 };
 
-static const apr_size_t grain = sizeof(union grainbit);
+static const apr_size_t grain = APR_ALIGN_DEFAULT(sizeof(union grainbit));
 
 APU_DECLARE(apr_rmm_off_t) apr_rmm_malloc(apr_rmm_t *rmm, apr_size_t reqsize)
 {
