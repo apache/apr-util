@@ -43,7 +43,7 @@ RSC=rc.exe
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
 # ADD BASE CPP /nologo /MD /W3 /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /FD /c
-# ADD CPP /nologo /MD /W3 /O2 /I "." /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D VERSION=\"expat_1.95.1\" /FD /c
+# ADD CPP /nologo /MD /W3 /O2 /I "." /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D VERSION=\"expat_1.95.1\" /D XML_MAJOR_VERSION=1 /D XML_MINOR_VERSION=95 /D XML_MICRO_VERSION=1 /FD /c
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -68,7 +68,7 @@ RSC=rc.exe
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
 # ADD BASE CPP /nologo /MDd /W3 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /FD /c
-# ADD CPP /nologo /MDd /W3 /GX /ZI /Od /I "." /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D VERSION=\"expat_1.95.1\" /FD /c
+# ADD CPP /nologo /MDd /W3 /GX /ZI /Od /I "." /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D VERSION=\"expat_1.95.1\" /D XML_MAJOR_VERSION=1 /D XML_MINOR_VERSION=95 /D XML_MICRO_VERSION=1 /FD /c
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo

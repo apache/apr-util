@@ -725,9 +725,15 @@ typedef struct {
 XML_Expat_Version XMLPARSEAPI
 XML_ExpatVersionInfo(void);
 
+#ifndef XML_MAJOR_VERSION
 #define XML_MAJOR_VERSION @EXPAT_MAJOR_VERSION@
+#endif
+#ifndef XML_MINOR_VERSION
 #define XML_MINOR_VERSION @EXPAT_MINOR_VERSION@
+#endif
+#ifndef XML_MICRO_VERSION
 #define XML_MICRO_VERSION @EXPAT_EDIT@
+#endif
 
 #ifdef __cplusplus
 }
