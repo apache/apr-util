@@ -231,6 +231,10 @@ SOURCE=.\misc\apr_queue.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\misc\apr_reslist.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\misc\apr_rmm.c
 # End Source File
 # End Group
@@ -512,6 +516,10 @@ SOURCE=.\include\apr_optional_hooks.h
 # Begin Source File
 
 SOURCE=.\include\apr_queue.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\apr_reslist.h
 # End Source File
 # Begin Source File
 
