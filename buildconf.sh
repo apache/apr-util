@@ -8,7 +8,12 @@ autoheader
 
 echo "Creating configure ..."
 ### do some work to toss config.cache?
-autoconf
+if autoconf; then
+  :
+else
+  echo "autoconf failed"
+  exit 1
+fi
 
 #
 # If Expat has been bundled, then go and configure the thing
