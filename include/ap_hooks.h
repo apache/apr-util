@@ -56,6 +56,9 @@ ret ap_run_##name args \
     return rv_final; \
     }
 
+#define RUN_ALL			1
+#define RUN_TO_FIRST_ERROR	0
+
 #define IMPLEMENT_HOOK(ret,name,args,args2,run_all,ok,decline) \
 	IMPLEMENT_HOOK_BASE(ret,ret r_;,r_=,r_,name,args,args2,run_all,r_ != decline,r_ != ok,run_all ? ok : decline)
 #define IMPLEMENT_VOID_HOOK(name,args,args2,run_all) \
