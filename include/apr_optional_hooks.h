@@ -62,7 +62,8 @@ extern "C" {
 #endif
 
 /**
- * @package Apache optional hook functions
+ * @file apr_optional_hooks.h
+ * @brief Apache optional hook functions
  */
 
 APU_DECLARE(void) apr_optional_hook_add(const char *szName,void (*pfn)(void),
