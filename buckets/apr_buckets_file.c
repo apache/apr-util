@@ -205,7 +205,6 @@ APU_DECLARE(apr_bucket *) apr_bucket_file_make(apr_bucket *b, apr_file_t *fd,
 #endif
 
     b = apr_bucket_shared_make(b, f, offset, len);
-    b->is_metadata = 0;
     b->type = &apr_bucket_type_file;
 
     return b;
@@ -265,7 +264,7 @@ static apr_status_t file_bucket_setaside(apr_bucket *data, apr_pool_t *reqpool)
 }
 
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_file = {
-    "FILE", 5,
+    "FILE", 5, APR_BUCKET_DATA,
     file_bucket_destroy,
     file_bucket_read,
     file_bucket_setaside,

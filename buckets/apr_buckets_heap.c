@@ -106,7 +106,6 @@ APU_DECLARE(apr_bucket *) apr_bucket_heap_make(apr_bucket *b, const char *buf,
     }
 
     b = apr_bucket_shared_make(b, h, 0, length);
-    b->is_metadata = 0;
     b->type = &apr_bucket_type_heap;
 
     return b;
@@ -126,7 +125,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_heap_create(const char *buf,
 }
 
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_heap = {
-    "HEAP", 5,
+    "HEAP", 5, APR_BUCKET_DATA,
     heap_bucket_destroy,
     heap_bucket_read,
     apr_bucket_setaside_noop,

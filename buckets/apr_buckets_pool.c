@@ -145,7 +145,6 @@ APU_DECLARE(apr_bucket *) apr_bucket_pool_make(apr_bucket *b,
     p->list = b->list;
 
     b = apr_bucket_shared_make(b, p, 0, length);
-    b->is_metadata = 0;
     b->type = &apr_bucket_type_pool;
 
     /* pre-initialize heap bucket member */
@@ -172,7 +171,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_pool_create(const char *buf,
 }
 
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_pool = {
-    "POOL", 5,
+    "POOL", 5, APR_BUCKET_DATA,
     pool_bucket_destroy,
     pool_bucket_read,
     apr_bucket_setaside_noop, /* don't need to setaside thanks to the cleanup*/
