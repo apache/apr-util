@@ -1,3 +1,8 @@
+Changes with APR-util 1.1.1
+
+  *) find_apu.m4: Try installed APR-util before bundled copy if --with-apr-util
+     not passed to configure.  [Justin Erenkrantz]
+
 Changes with APR-util 1.1.0
 
   *) LDAP: Move all certificate initialisation, and the creation of SSL
