@@ -30,7 +30,13 @@
 #include "expat.h"
 #endif
 
+#include "ascii.h"
+
 #define DEBUG_CR "\r\n"
+
+static const char APR_KW_xmlns[] = { ASCII_x, ASCII_m, ASCII_l, ASCII_n, ASCII_s, '\0' };
+static const char APR_KW_xmlns_lang[] = { ASCII_x, ASCII_m, ASCII_l, ASCII_COLON, ASCII_l, ASCII_a, ASCII_n, ASCII_g, '\0' };
+static const char APR_KW_DAV[] = { ASCII_D, ASCII_A, ASCII_V, ASCII_COLON, '\0' };
 
 /* errors related to namespace processing */
 #define APR_XML_NS_ERROR_UNKNOWN_PREFIX (-1000)
@@ -38,9 +44,9 @@
 
 /* test for a namespace prefix that begins with [Xx][Mm][Ll] */
 #define APR_XML_NS_IS_RESERVED(name) \
-	( (name[0] == 'X' || name[0] == 'x') && \
-	  (name[1] == 'M' || name[1] == 'm') && \
-	  (name[2] == 'L' || name[2] == 'l') )
+	( (name[0] == ASCII_X || name[0] == ASCII_x) && \
+	  (name[1] == ASCII_M || name[1] == ASCII_m) && \
+	  (name[2] == ASCII_L || name[2] == ASCII_l) )
 
 
 /* the real (internal) definition of the parser context */
@@ -167,12 +173,12 @@ static void start_handler(void *userdata, const char *name, const char **attrs)
     for (prev = NULL, attr = elem->attr;
 	 attr;
 	 attr = attr->next) {
-	if (strncmp(attr->name, "xmlns", 5) == 0) {
+	if (strncmp(attr->name, APR_KW_xmlns, 5) == 0) {
 	    const char *prefix = &attr->name[5];
 	    apr_xml_ns_scope *ns_scope;
 
 	    /* test for xmlns:foo= form and xmlns= form */
-	    if (*prefix == ':') {
+	    if (*prefix == ASCII_COLON) {
                 /* a namespace prefix declaration must have a
                    non-empty value. */
                 if (attr->value[0] == '\0') {
@@ -206,7 +212,7 @@ static void start_handler(void *userdata, const char *name, const char **attrs)
 
 	    /* Note: prev will not be advanced since we just removed "attr" */
 	}
-	else if (strcmp(attr->name, "xml:lang") == 0) {
+	else if (strcmp(attr->name, APR_KW_xmlns_lang) == 0) {
 	    /* save away the language (in quoted form) */
 	    elem->lang = apr_xml_quote_string(parser->p, attr->value, 1);
 
@@ -234,7 +240,7 @@ static void start_handler(void *userdata, const char *name, const char **attrs)
 	elem->lang = elem->parent->lang;
 
     /* adjust the element's namespace */
-    colon = strchr(elem_name, ':');
+    colon = strchr(elem_name, ASCII_COLON);
     if (colon == NULL) {
 	/*
 	 * The element is using the default namespace, which will always
@@ -266,7 +272,7 @@ static void start_handler(void *userdata, const char *name, const char **attrs)
          */
         char *attr_name = (char *)attr->name;
 
-	colon = strchr(attr_name, ':');
+	colon = strchr(attr_name, ASCII_COLON);
 	if (colon == NULL) {
 	    /*
 	     * Attributes do NOT use the default namespace. Therefore,
@@ -348,7 +354,7 @@ APU_DECLARE(apr_xml_parser *) apr_xml_parser_create(apr_pool_t *pool)
     parser->doc->namespaces = apr_array_make(pool, 5, sizeof(const char *));
 
     /* ### is there a way to avoid hard-coding this? */
-    apr_xml_insert_uri(parser->doc->namespaces, "DAV:");
+    apr_xml_insert_uri(parser->doc->namespaces, APR_KW_DAV);
 
     parser->xp = XML_ParserCreate(NULL);
     if (parser->xp == NULL) {
@@ -882,3 +888,67 @@ APU_DECLARE(int) apr_xml_insert_uri(apr_array_header_t *uri_array,
     *pelt = uri;		/* assume uri is const or in a pool */
     return uri_array->nelts - 1;
 }
+
+/* convert the element to EBCDIC */
+#if APR_CHARSET_EBCDIC
+static apr_status_t apr_xml_parser_convert_elem(apr_xml_elem *e,
+                                                apr_xlate_t *convset)
+{
+    apr_xml_attr *a;
+    apr_xml_elem *ec;
+    apr_text *t;
+    apr_size_t inbytes_left, outbytes_left;
+
+    inbytes_left = outbytes_left = strlen(e->name);
+    apr_xlate_conv_buffer(convset, e->name,  &inbytes_left, (char *) e->name, &outbytes_left);
+
+    for (t = e->first_cdata.first; t != NULL; t = t->next) {
+        inbytes_left = outbytes_left = strlen(t->text);
+        apr_xlate_conv_buffer(convset, t->text, &inbytes_left, (char *) t->text, &outbytes_left);
+    }
+
+    for (t = e->following_cdata.first;  t != NULL; t = t->next) {
+        inbytes_left = outbytes_left = strlen(t->text);
+        apr_xlate_conv_buffer(convset, t->text, &inbytes_left, (char *) t->text, &outbytes_left);
+    }
+
+    for (a = e->attr; a != NULL; a = a->next) {
+        inbytes_left = outbytes_left = strlen(a->name);
+        apr_xlate_conv_buffer(convset, a->name, &inbytes_left, (char *) a->name, &outbytes_left);
+        inbytes_left = outbytes_left = strlen(a->value);
+        apr_xlate_conv_buffer(convset, a->value, &inbytes_left, (char *) a->value, &outbytes_left);
+    }
+
+    for (ec = e->first_child; ec != NULL; ec = ec->next)
+            apr_xml_parser_convert_elem(ec, convset);
+    return APR_SUCCESS;
+}
+
+/* convert the whole document to EBCDIC */
+APU_DECLARE(apr_status_t) apr_xml_parser_convert_doc(apr_pool_t *pool,
+                                                     apr_xml_doc *pdoc,
+                                                     apr_xlate_t *convset)
+{
+    /* Don't convert the namespaces: they are constant! */
+    if (pdoc->namespaces != NULL) {
+        int i;
+        apr_array_header_t *namespaces;
+        namespaces = apr_array_make(pool, pdoc->namespaces->nelts, sizeof(const char *));
+        if (namespaces == NULL)
+            return APR_ENOMEM;
+        for (i = 0; i < pdoc->namespaces->nelts; i++) {
+            apr_size_t inbytes_left, outbytes_left;
+            char *ptr = (char *) APR_XML_GET_URI_ITEM(pdoc->namespaces, i);
+            ptr = apr_pstrdup(pool, ptr);
+            if ( ptr == NULL)
+                return APR_ENOMEM;
+            inbytes_left = outbytes_left = strlen(ptr);
+            apr_xlate_conv_buffer(convset, ptr, &inbytes_left, ptr, &outbytes_left);
+            apr_xml_insert_uri(namespaces, ptr);
+        }
+        pdoc->namespaces = namespaces;
+    }
+    apr_xml_parser_convert_elem(pdoc->root, convset);
+    return APR_SUCCESS;
+}
+#endif
