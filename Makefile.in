@@ -17,6 +17,7 @@ APRUTIL_LIBS = @APRUTIL_LIBS@
 TARGET_LIB = lib@APRUTIL_LIBNAME@.la
 INSTALL_SUBDIRS = @APR_XML_DIR@
 EXTRA_SOURCE_DIRS = @APR_XML_DIR@
+EXTRA_OS_LINK=@EXTRA_OS_LINK@
 
 TARGETS = $(TARGET_LIB) aprutil.exp export_vars.h
 
@@ -69,7 +70,7 @@ install: $(TARGET_LIB)
 	chmod 755 $(DESTDIR)$(bindir)/apu-config
 
 $(TARGET_LIB): $(OBJECTS)
-	$(LINK) @lib_target@ $(ALL_LIBS)
+	$(LINK) @lib_target@ $(ALL_LIBS) $(EXTRA_OS_LINK)
 
 exports.c: $(HEADERS)
 	$(AWK) -f @APR_SOURCE_DIR@/build/make_exports.awk $(HEADERS) > $@
