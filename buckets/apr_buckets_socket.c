@@ -148,6 +148,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_socket_create(apr_socket_t *p)
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_socket = {
     "SOCKET", 5,
     apr_bucket_destroy_noop,
+    free,
     socket_read,
     apr_bucket_setaside_notimpl, 
     apr_bucket_split_notimpl,
