@@ -448,36 +448,35 @@ APU_DECLARE(apr_status_t) apr_brigade_write(apr_bucket_brigade *b,
     return APR_SUCCESS;
 }
 
-APU_DECLARE(apr_status_t) apr_brigade_puts(apr_bucket_brigade *b,
+APU_DECLARE(apr_status_t) apr_brigade_puts(apr_bucket_brigade *bb,
                                            apr_brigade_flush flush, void *ctx,
                                            const char *str)
 {
-    apr_bucket *e = APR_BRIGADE_LAST(b);
-    if (!APR_BRIGADE_EMPTY(b) && APR_BUCKET_IS_HEAP(e)) {
+    apr_bucket *bkt = APR_BRIGADE_LAST(bb);
+    if (!APR_BRIGADE_EMPTY(bb) && APR_BUCKET_IS_HEAP(bkt)) {
         /* If there is some space available in a heap bucket
          * at the end of the brigade, start copying the string
          */
-        apr_bucket_heap *h = e->data;
-        char *buf = h->base + e->start + e->length;
-        apr_size_t bytes_avail = h->alloc_len - e->length;
-        const char *s = str;
+        apr_bucket_heap *h = bkt->data;
+        char *buf = h->base + bkt->start + bkt->length;
+        apr_size_t bytes_avail = h->alloc_len - bkt->length;
+        const char *saved_start = str;
 
-        while (bytes_avail && *s) {
-            *buf++ = *s++;
+        while (bytes_avail && *str) {
+            *buf++ = *str++;
             bytes_avail--;
         }
-        e->length += (s - str);
-        if (!*s) {
+        bkt->length += (str - saved_start);
+        if (!*str) {
             return APR_SUCCESS;
         }
-        str = s;
     }
 
     /* If the string has not been copied completely to the brigade,
      * delegate the remaining work to apr_brigade_write(), which
      * knows how to grow the brigade
      */
-    return apr_brigade_write(b, flush, ctx, str, strlen(str));
+    return apr_brigade_write(bb, flush, ctx, str, strlen(str));
 }
 
 APU_DECLARE_NONSTD(apr_status_t) apr_brigade_putstrs(apr_bucket_brigade *b, 
