@@ -79,17 +79,17 @@ static const char *progname;
 static int rflag;
 static const char *usage = "%s [-R] cat | look |... dbmname";
 
-#define DERROR	0
-#define DLOOK	1
+#define DERROR      0
+#define DLOOK       1
 
-#define DDELETE 3
-#define	DCAT	4
-#define DBUILD	5
-#define DPRESS	6
-#define DCREAT	7
-#define DNAME	8
+#define DDELETE     3
+#define DCAT        4
+#define DBUILD      5
+#define DPRESS      6
+#define DCREAT      7
+#define DNAME       8
 
-#define LINEMAX	8192
+#define LINEMAX     8192
 
 typedef struct {
     const char *sname;
@@ -99,25 +99,25 @@ typedef struct {
 
 static const cmd cmds[] = {
 
-    { "fetch", DLOOK,	 	APR_DBM_READONLY, },
-    { "get", DLOOK,		APR_DBM_READONLY, },
-    { "look", DLOOK,		APR_DBM_READONLY, },
-    { "add", DBUILD,		APR_DBM_READWRITE, },
-    { "insert", DBUILD,	APR_DBM_READWRITE, },
-    { "store", DBUILD,		APR_DBM_READWRITE, },
-    { "delete", DDELETE,	APR_DBM_READWRITE, },
-    { "remove", DDELETE,	APR_DBM_READWRITE, },
-    { "dump", DCAT,		APR_DBM_READONLY, },
-    { "list", DCAT, 		APR_DBM_READONLY, },
-    { "cat", DCAT,		APR_DBM_READONLY, },
-    { "build", DBUILD,          APR_DBM_RWCREATE, },			/** this one creates the DB */
-    { "creat", DCREAT,          APR_DBM_RWCREATE, },
-    { "new", DCREAT,            APR_DBM_RWCREATE, },
-    { "names", DNAME,           APR_DBM_READONLY, },
+    { "fetch",   DLOOK,   APR_DBM_READONLY, },
+    { "get",     DLOOK,   APR_DBM_READONLY, },
+    { "look",    DLOOK,   APR_DBM_READONLY, },
+    { "add",     DBUILD,  APR_DBM_READWRITE, },
+    { "insert",  DBUILD,  APR_DBM_READWRITE, },
+    { "store",   DBUILD,  APR_DBM_READWRITE, },
+    { "delete",  DDELETE, APR_DBM_READWRITE, },
+    { "remove",  DDELETE, APR_DBM_READWRITE, },
+    { "dump",    DCAT,    APR_DBM_READONLY, },
+    { "list",    DCAT,    APR_DBM_READONLY, },
+    { "cat",     DCAT,    APR_DBM_READONLY, },
+    { "build",   DBUILD,  APR_DBM_RWCREATE, },     /** this one creates the DB */
+    { "creat",   DCREAT,  APR_DBM_RWCREATE, },
+    { "new",     DCREAT,  APR_DBM_RWCREATE, },
+    { "names",   DNAME,   APR_DBM_READONLY, },
 #if 0
-    {"squash", DPRESS, APR_DBM_READWRITE,},
-    {"compact", DPRESS, APR_DBM_READWRITE,},
-    {"compress", DPRESS, APR_DBM_READWRITE,},
+    {"squash",   DPRESS,  APR_DBM_READWRITE, },
+    {"compact",  DPRESS,  APR_DBM_READWRITE, },
+    {"compress", DPRESS,  APR_DBM_READWRITE, },
 #endif
 };
 
@@ -128,7 +128,7 @@ static void badk(const char *word);
 static const cmd *parse(const char *str);
 static void prdatum(FILE *stream, apr_datum_t d);
 static void oops(apr_dbm_t *dbm, apr_status_t rv, const char *s1,
-		 const char *s2);
+                 const char *s2);
 
 
 int main(int argc, const char * const * argv)
@@ -187,14 +187,11 @@ static void doit(const cmd *act, const char *file, apr_pool_t *pool)
     extern long time();
 #endif
 
-
     rv = apr_dbm_open(&db, file, act->flags, APR_OS_DEFAULT, pool);
     if (rv != APR_SUCCESS)
         oops(db, rv, "cannot open: %s", file);
 
-    if ((line = (char *) apr_palloc(pool,LINEMAX)) == NULL) {
-        oops(NULL, APR_EGENERAL, "%s: cannot get memory", "line alloc");
-    }
+    line = (char *) apr_palloc(pool,LINEMAX);
 
     switch (act->scode) {
 
@@ -287,9 +284,9 @@ static void doit(const cmd *act, const char *file, apr_pool_t *pool)
     case DCREAT:
         break;
     case DNAME:
-	apr_dbm_get_usednames(pool, file, &use1, &use2);
-	fprintf(stderr, "%s %s\n", use1, use2);
-	break;
+        apr_dbm_get_usednames(pool, file, &use1, &use2);
+        fprintf(stderr, "%s %s\n", use1, use2);
+        break;
     }
 
     apr_dbm_close(db);
@@ -301,10 +298,13 @@ static void badk(const char *word)
 
     if (progname)
         fprintf(stderr, "%s: ", progname);
+
     fprintf(stderr, "bad keywd %s. use one of\n", word);
+
     for (i = 0; i < (int)CTABSIZ; i++)
         fprintf(stderr, "%-8s%c", cmds[i].sname,
                 ((i + 1) % 6 == 0) ? '\n' : ' ');
+
     fprintf(stderr, "\n");
     exit(1);
     /*NOTREACHED*/
@@ -341,7 +341,7 @@ static void prdatum(FILE *stream, apr_datum_t d)
 }
 
 static void oops(apr_dbm_t * dbm, apr_status_t rv, const char *s1,
-		 const char *s2)
+                 const char *s2)
 {
     char errbuf[200];
 
