@@ -28,7 +28,12 @@ abs_builddir=`pwd`
 
 if test "$abs_builddir" != "$abs_srcdir"; then
   USE_VPATH=1
+  APU_CONFIG_LOCATION=build
+else
+  APU_CONFIG_LOCATION=source
 fi
+
+AC_SUBST(APU_CONFIG_LOCATION)
 
 AC_CANONICAL_SYSTEM
 

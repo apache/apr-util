@@ -15,6 +15,7 @@ exports.c
 export_vars.h
 export_vars.sh
 apu-config
+apu-config.out
 Debug
 Release
 LibD
