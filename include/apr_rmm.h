@@ -56,11 +56,11 @@
 #define APR_RMM_H
 /** 
  * @file apr_rmm.h
- * @brief APR Relocatable Memory Management Routines
+ * @brief APR-UTIL Relocatable Memory Management Routines
  */
 /**
- * @defgroup APR_RMM Relocatable Memory Management Routines
- * @ingroup APR
+ * @defgroup APR_Util_RMM Relocatable Memory Management Routines
+ * @ingroup APR_Util
  * @{
  */
 
