@@ -9,6 +9,7 @@ AC_CONFIG_HEADER(include/private/apu_config.h)
 AC_CONFIG_AUX_DIR(../apr/build)
 
 sinclude(build/apu-conf.m4)
+sinclude(build/apu-iconv.m4)
 sinclude(../apr/build/apr_common.m4)
 sinclude(../apr/build/find_apr.m4)
 
@@ -52,11 +53,13 @@ dnl
 dnl 1. Find the APR includes directory and (possibly) the source (base) dir.
 dnl 2. Determine what DBM backend type to use.
 dnl 3. Find Expat
+dnl 4. Find an iconv library
 dnl
 APU_FIND_APR
 APU_FIND_LDAP
 APU_CHECK_DBM
 APU_FIND_EXPAT
+APU_FIND_ICONV
 
 so_ext=$APR_SO_EXT
 lib_target=$APR_LIB_TARGET

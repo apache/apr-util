@@ -55,10 +55,6 @@
 /*
  * apu.h is generated from apu.h.in by configure -- do not edit apu.h
  */
-/* 
- * Note: This is a Windows specific version of apu.h. It is renamed to
- * apu.h at the start of a Windows build.
- */
 /* @file apu.h
  * @brief APR-Utility main file
  */
@@ -124,7 +120,8 @@
 #endif
 
 #define APU_HAVE_APR_ICONV     0
-#define APR_HAS_XLATE          APR_HAVE_ICONV
+#define APU_HAVE_ICONV         @have_iconv@
+#define APR_HAS_XLATE          (APU_HAVE_APR_ICONV || APU_HAVE_ICONV)
 
 #endif /* APU_H */
 /** @} */
