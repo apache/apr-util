@@ -229,9 +229,10 @@ APU_DECLARE(apr_status_t) apr_md5_set_xlate(apr_md5_ctx_t *context,
  * context.
  */
 APU_DECLARE(apr_status_t) apr_md5_update(apr_md5_ctx_t *context,
-                                         const unsigned char *input,
+                                         const void *_input,
                                          apr_size_t inputLen)
 {
+    const unsigned char *input = _input;
     unsigned int i, idx, partLen;
 #if APR_HAS_XLATE
     apr_size_t inbytes_left, outbytes_left;
@@ -348,9 +349,10 @@ APU_DECLARE(apr_status_t) apr_md5_final(unsigned char digest[MD5_DIGESTSIZE],
 /* MD5 in one step (init, update, final)
  */
 APU_DECLARE(apr_status_t) apr_md5(unsigned char digest[MD5_DIGESTSIZE],
-                                  const unsigned char *input,
+                                  const void *_input,
                                   apr_size_t inputLen)
 {
+    const unsigned char *input = _input;
     apr_md5_ctx_t ctx;
     apr_status_t rv;
 
