@@ -87,7 +87,7 @@ APU_DECLARE(int) apr_ldap_ssl_init(apr_pool_t *pool,
                     ldapssl_client_deinit();
                     result->reason = apr_psprintf (pool, 
                                                    "LDAP: Invalid certificate or path: "
-                                                   "Could not add trushted cert %s", 
+                                                   "Could not add trusted cert %s", 
                                                    cert_auth_file);
                 }
             }
