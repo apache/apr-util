@@ -1,7 +1,7 @@
 top_builddir=@top_builddir@
 INCLUDES=-I$(top_builddir)/include -I$(top_builddir)/include/private -I$(top_builddir)/../apr/include -I$(srcdir)../../apr/include -I$(srcdir)../include -I$(srcdir)../include/private
 
-TARGETS = apr_dbm.lo
+TARGETS = apr_dbm.lo @DBM_OBJECT_FILE@
 
 # bring in rules.mk for standard functionality
 @INCLUDE_RULES@
