@@ -1,5 +1,10 @@
 Changes with APR-util b1  
 
+  *) Install libaprutil support libraries before installing libaprutil
+     itself, since on some platforms libaprutil is relinked during
+     make install and the support libraries need to exist already.
+     [Jeff Trawick]
+
   *) Added a Resource List API for threadsafe access to persistent
      and dynamically created user-defined resources.  [Aaron Bannert]
 
