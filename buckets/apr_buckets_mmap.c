@@ -53,7 +53,8 @@
  */
 
 #include "apr_buckets.h"
-#include "apr.h"
+#define APR_WANT_MEMFUNC
+#include "apr_want.h"
 #include <stdlib.h>
 
 #if APR_HAS_MMAP
