@@ -315,7 +315,7 @@ APU_DECLARE(apr_status_t) apr_md5_update(apr_md5_ctx_t *context,
 /* MD5 finalization. Ends an MD5 message-digest operation, writing the
  * the message digest and zeroizing the context.
  */
-APU_DECLARE(apr_status_t) apr_md5_final(unsigned char digest[MD5_DIGESTSIZE],
+APU_DECLARE(apr_status_t) apr_md5_final(unsigned char digest[APR_MD5_DIGESTSIZE],
                                         apr_md5_ctx_t *context)
 {
     unsigned char bits[8];
@@ -338,7 +338,7 @@ APU_DECLARE(apr_status_t) apr_md5_final(unsigned char digest[MD5_DIGESTSIZE],
     apr_md5_update(context, bits, 8);
 
     /* Store state in digest */
-    Encode(digest, context->state, MD5_DIGESTSIZE);
+    Encode(digest, context->state, APR_MD5_DIGESTSIZE);
 
     /* Zeroize sensitive information. */
     memset(context, 0, sizeof(*context));
@@ -348,7 +348,7 @@ APU_DECLARE(apr_status_t) apr_md5_final(unsigned char digest[MD5_DIGESTSIZE],
 
 /* MD5 in one step (init, update, final)
  */
-APU_DECLARE(apr_status_t) apr_md5(unsigned char digest[MD5_DIGESTSIZE],
+APU_DECLARE(apr_status_t) apr_md5(unsigned char digest[APR_MD5_DIGESTSIZE],
                                   const void *_input,
                                   apr_size_t inputLen)
 {
@@ -368,7 +368,7 @@ APU_DECLARE(apr_status_t) apr_md5(unsigned char digest[MD5_DIGESTSIZE],
 static void MD5Transform(apr_uint32_t state[4], const unsigned char block[64])
 {
     apr_uint32_t a = state[0], b = state[1], c = state[2], d = state[3],
-                 x[MD5_DIGESTSIZE];
+                 x[APR_MD5_DIGESTSIZE];
 
     Decode(x, block, 64);
 
@@ -528,7 +528,7 @@ APU_DECLARE(apr_status_t) apr_md5_encode(const char *pw, const char *salt,
 
     char passwd[120], *p;
     const char *sp, *ep;
-    unsigned char final[MD5_DIGESTSIZE];
+    unsigned char final[APR_MD5_DIGESTSIZE];
     apr_ssize_t sl, pl, i;
     apr_md5_ctx_t ctx, ctx1;
     unsigned long l;
@@ -590,9 +590,9 @@ APU_DECLARE(apr_status_t) apr_md5_encode(const char *pw, const char *salt,
     apr_md5_update(&ctx1, (unsigned char *)sp, sl);
     apr_md5_update(&ctx1, (unsigned char *)pw, strlen(pw));
     apr_md5_final(final, &ctx1);
-    for (pl = strlen(pw); pl > 0; pl -= MD5_DIGESTSIZE) {
+    for (pl = strlen(pw); pl > 0; pl -= APR_MD5_DIGESTSIZE) {
         apr_md5_update(&ctx, final, 
-                      (pl > MD5_DIGESTSIZE) ? MD5_DIGESTSIZE : pl);
+                      (pl > APR_MD5_DIGESTSIZE) ? APR_MD5_DIGESTSIZE : pl);
     }
 
     /*
@@ -633,7 +633,7 @@ APU_DECLARE(apr_status_t) apr_md5_encode(const char *pw, const char *salt,
             apr_md5_update(&ctx1, (unsigned char *)pw, strlen(pw));
         }
         else {
-            apr_md5_update(&ctx1, final, MD5_DIGESTSIZE);
+            apr_md5_update(&ctx1, final, APR_MD5_DIGESTSIZE);
         }
         if (i % 3) {
             apr_md5_update(&ctx1, (unsigned char *)sp, sl);
@@ -644,7 +644,7 @@ APU_DECLARE(apr_status_t) apr_md5_encode(const char *pw, const char *salt,
         }
 
         if (i & 1) {
-            apr_md5_update(&ctx1, final, MD5_DIGESTSIZE);
+            apr_md5_update(&ctx1, final, APR_MD5_DIGESTSIZE);
         }
         else {
             apr_md5_update(&ctx1, (unsigned char *)pw, strlen(pw));
