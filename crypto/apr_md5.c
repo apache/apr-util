@@ -676,7 +676,8 @@ APU_DECLARE(apr_status_t) apr_md5_encode(const char *pw, const char *salt,
 }
 
 #if !defined(WIN32) && !defined(BEOS) && !defined(NETWARE)
-#if defined(APU_CRYPT_THREADSAFE) || !APR_HAS_THREADS
+#if defined(APU_CRYPT_THREADSAFE) || !APR_HAS_THREADS || \
+    defined(CRYPT_R_CRYPTD) || defined(CRYPT_R_STRUCT_CRYPT_DATA)
 
 #define crypt_mutex_lock()
 #define crypt_mutex_unlock()
