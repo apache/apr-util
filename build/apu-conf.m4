@@ -70,7 +70,21 @@ AC_CHECK_HEADER(db1/db.h, [
   apu_db_header=db1/db.h
   apu_db_lib=db1
   apu_db_version=1
+  ])])
+if test "$apu_db_version" != "1"; then
+AC_CHECK_HEADER(db.h, [
+  AC_CHECK_LIB(c, dbopen, [
+  apu_db_header=db.h
+  apu_db_lib=
+  apu_db_version=1
+  ], [
+  AC_CHECK_LIB(db1, dbopen, [
+  apu_db_header=db.h
+  apu_db_lib=db1
+  apu_db_version=1
   ])])])
+fi
+])
 
 dnl
 dnl APU_CHECK_DB185: is DB1.85 present?
@@ -387,8 +401,10 @@ if test "$apu_have_gdbm" = "1"; then
 fi
 
 if test "$apu_db_version" != "0"; then
-  APR_ADDTO(APRUTIL_EXPORT_LIBS,[-l$apu_db_lib])
-  APR_ADDTO(LIBS,[-l$apu_db_lib])
+  if test -n "$apu_db_lib"; then
+    APR_ADDTO(APRUTIL_EXPORT_LIBS,[-l$apu_db_lib])
+    APR_ADDTO(LIBS,[-l$apu_db_lib])
+  fi
 fi
 
 ])
