@@ -314,11 +314,9 @@ DEP_CPP_APR_BU=\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
-	"..\apr\include\apr_lib.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
-	"..\apr\include\apr_tables.h"\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
@@ -362,7 +360,6 @@ DEP_CPP_APR_BUCK=\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
-	"..\apr\include\apr_lib.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
@@ -455,7 +452,6 @@ DEP_CPP_APR_BUCKETS_=\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
-	"..\apr\include\apr_lib.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
@@ -548,7 +544,6 @@ DEP_CPP_APR_BUCKETS_SO=\
 	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
-	"..\apr\include\apr_lib.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
@@ -727,6 +722,10 @@ DEP_CPP_APR_X=\
 	"..\expat-lite\xmlparse.h"\
 	".\include\apr_xml.h"\
 	".\include\apu.h"\
+	
+NODEP_CPP_APR_X=\
+	".\xml\apu_config.h"\
+	".\xml\expat.h"\
 	
 
 "$(INTDIR)\apr_xml.obj" : $(SOURCE) $(DEP_CPP_APR_X) "$(INTDIR)"\
