@@ -151,3 +151,6 @@ uninstall:
 	@list='$(SUBDIRS)'; for dir in $$list; do \
 	  cd $$dir; $(MAKE) uninstall; cd ..; \
 	done
+
+depend:
+	echo SOMEONE SHOULD MAKE THIS DO SOMETHING!!!
