@@ -150,8 +150,8 @@ APU_DECLARE(apr_status_t) apr_brigade_partition(apr_bucket_brigade *b,
         if ((point > (apr_size_t)(-1)) && (e->length == (apr_size_t)(-1))) {
             /* XXX: point is too far out to simply split this bucket,
              * we must fix this bucket's size and keep going... */
-            if ((rv = apr_bucket_read(e, &s, &len, block)) 
-                    != APR_SUCCESS) {
+            if ((rv = apr_bucket_read(e, &s, &len, block)) != APR_SUCCESS) {
+                *after_point = e;
                 return rv;
             }
         }
@@ -167,8 +167,8 @@ APU_DECLARE(apr_status_t) apr_brigade_partition(apr_bucket_brigade *b,
 
             /* if the bucket cannot be split, we must read from it,
              * changing its type to one that can be split */
-            if ((rv = apr_bucket_read(e, &s, &len, block)) 
-                    != APR_SUCCESS) {
+            if ((rv = apr_bucket_read(e, &s, &len, block)) != APR_SUCCESS) {
+                *after_point = e;
                 return rv;
             }
 
