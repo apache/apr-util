@@ -122,23 +122,3 @@ AC_OUTPUT([
     include/apu.h
     $MAKEFILES
 	])
-
-dnl #----------------------------- Fixup Makefiles for VPATH support
- 
-changequote({,})
- 
-if test -n "$USE_VPATH"; then
-  for makefile in $MAKEFILES; do
-    dir=`echo $makefile|sed 's%[^/][^/]*$%%'`
-    (cat <<EOF
-srcdir = $abs_srcdir/$dir
-VPATH  = $abs_srcdir/$dir
- 
-EOF
-)    |  cat - $makefile > tmp
-    cp tmp $makefile
-  done
-  rm -f tmp
-fi
- 
-changequote([,])

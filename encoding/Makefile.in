@@ -1,6 +1,9 @@
+srcdir = @srcdir@
+VPATH = @srcdir@
 
 top_builddir=@top_builddir@
-INCLUDES=-I$(top_builddir)/include -I$(top_builddir)/../apr/include -I$(srcdir)../../apr/include -I$(srcdir)../include
+top_srcdir=@abs_srcdir@
+INCLUDES=-I$(top_builddir)/include -I$(top_srcdir)/include @APR_INCLUDES@
 
 TARGETS = apr_base64.lo
 

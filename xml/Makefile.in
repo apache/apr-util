@@ -1,6 +1,9 @@
+srcdir = @srcdir@
+VPATH = @srcdir@
 
 top_builddir=@top_builddir@
-INCLUDES=-I$(top_builddir)/include -I$(top_builddir)/include/private -I$(top_builddir)/../apr/include -I$(top_builddir)/xml/expat/lib -I$(srcdir)../../apr/include -I$(srcdir)../include -I$(srcdir)../../include/private -I$(srcdir)/lib
+top_srcdir=@abs_srcdir@
+INCLUDES=-I$(top_builddir)/include -I$(top_builddir)/include/private -I$(top_builddir)/xml/expat/lib -I$(top_srcdir)/include -I$(top_srcdir)/include/private -I$(srcdir)/lib @APR_INCLUDES@
 
 TARGETS = apr_xml.lo
 
