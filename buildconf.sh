@@ -4,7 +4,7 @@
 # Build aclocal.m4 from libtool's libtool.m4 and our own M4 files.
 #
 ### we may need to get smarter with these two lines (e.g. PrintPath)
-ltpath=`which libtoolize`
+ltpath=`build/PrintPath libtoolize`
 ltpath=`dirname $ltpath`
 ltfile=`cd $ltpath/../share/aclocal ; pwd`/libtool.m4
 echo "Incorporating $ltfile into aclocal.m4 ..."
