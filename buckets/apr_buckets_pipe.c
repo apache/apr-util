@@ -71,6 +71,7 @@ static apr_status_t pipe_read(ap_bucket *a, const char **str,
     *len = IOBUFSIZE;
     rv = apr_read(p, buf, len);
     if (rv != APR_SUCCESS && rv != APR_EOF) {
+        *str = NULL;
 	free(buf);
         return rv;
     }
@@ -81,7 +82,8 @@ static apr_status_t pipe_read(ap_bucket *a, const char **str,
     ap_bucket_make_heap(a, buf, *len, 0, NULL);  /* XXX: check for failure? */
     /*
      * If there's more to read we have to keep the rest of the pipe
-     * for later. XXX: Note that more complicated bucket types that
+     * for later.  Otherwise, we'll close the pipe.
+     * XXX: Note that more complicated bucket types that 
      * refer to data not in memory and must therefore have a read()
      * function similar to this one should be wary of copying this
      * code because if they have a destroy function they probably
@@ -94,15 +96,18 @@ static apr_status_t pipe_read(ap_bucket *a, const char **str,
         b = ap_bucket_create_pipe(p);
 	AP_BUCKET_INSERT_AFTER(a, b);
     }
+    else {
+        apr_close(p);
+    }
     return APR_SUCCESS;
 }
 
 AP_DECLARE(ap_bucket *) ap_bucket_make_pipe(ap_bucket *b, apr_file_t *p)
 {
     /*
-     * XXX: We rely on a cleanup on some pool or other to actually
-     * destroy the pipe. We should probably explicitly call apr to
-     * destroy it instead.
+     * A pipe is closed when the end is reached in pipe_read().  If the
+     * pipe isn't read to the end (e.g., error path), the pipe will be
+     * closed when its pool goes away.
      *
      * Note that typically the pipe is allocated from the request pool
      * so it will disappear when the request is finished. However the
