@@ -61,6 +61,9 @@
 #include "apr.h"
 #include "ap_hooks.h"
 
+#if APR_HAVE_STRINGS_H
+#include <strings.h>
+#endif
 
 #if 0
 #define apr_palloc(pool,size)	malloc(size)
