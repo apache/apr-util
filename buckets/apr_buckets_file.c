@@ -131,57 +131,53 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
         file_destroy(s);
         return apr_bucket_read(e, str, len, block);
     }
-    else {
 #endif
 
-        buf = malloc(HUGE_STRING_LEN);
-        *str = buf;
+    buf = malloc(HUGE_STRING_LEN);
+    *str = buf;
 
-        if (e->length > HUGE_STRING_LEN) {
-            *len = HUGE_STRING_LEN;
-        }
-        else {
-            *len = e->length;
-        }
+    if (e->length > HUGE_STRING_LEN) {
+        *len = HUGE_STRING_LEN;
+    }
+    else {
+        *len = e->length;
+    }
 
-        /* Handle offset ... */
-        if (s->start) {
-            rv = apr_file_seek(f, APR_SET, &s->start);
-            if (rv != APR_SUCCESS) {
-                free(buf);
-                return rv;
-            }
-        }
-        rv = apr_file_read(f, buf, len);
-        if (rv != APR_SUCCESS && rv != APR_EOF) {
-	    free(buf);
+    /* Handle offset ... */
+    if (s->start) {
+        rv = apr_file_seek(f, APR_SET, &s->start);
+        if (rv != APR_SUCCESS) {
+            free(buf);
             return rv;
         }
-        length -= *len;
-
-        /*
-         * Change the current bucket to refer to what we read,
-         * even if we read nothing because we hit EOF.
-         */
-        apr_bucket_heap_make(e, buf, *len, 0, NULL); /*XXX: check for failure? */
-        /* If we have more to read from the file, then create another bucket */
-        if (length > 0) {
-            /* for efficiency, we can just build a new apr_bucket struct
-             * to wrap around the existing shared+file bucket */
-            s->start += (*len);
-            b = malloc(sizeof(*b));
-            b->data = s;
-            b->type = &apr_bucket_type_file;
-            b->length = length;
-            APR_BUCKET_INSERT_AFTER(e, b);
-        }
-        else {
-            file_destroy(s);
-        }
-
-#if APR_HAS_MMAP
     }
-#endif
+    rv = apr_file_read(f, buf, len);
+    if (rv != APR_SUCCESS && rv != APR_EOF) {
+        free(buf);
+        return rv;
+    }
+    length -= *len;
+
+    /*
+     * Change the current bucket to refer to what we read,
+     * even if we read nothing because we hit EOF.
+     */
+    apr_bucket_heap_make(e, buf, *len, 0, NULL); /*XXX: check for failure? */
+    /* If we have more to read from the file, then create another bucket */
+    if (length > 0) {
+        /* for efficiency, we can just build a new apr_bucket struct
+         * to wrap around the existing shared+file bucket */
+        s->start += (*len);
+        b = malloc(sizeof(*b));
+        b->data = s;
+        b->type = &apr_bucket_type_file;
+        b->length = length;
+        APR_BUCKET_INSERT_AFTER(e, b);
+    }
+    else {
+        file_destroy(s);
+    }
+
     return APR_SUCCESS;
 }
 
