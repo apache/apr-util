@@ -896,29 +896,49 @@ static apr_status_t apr_xml_parser_convert_elem(apr_xml_elem *e,
     apr_xml_elem *ec;
     apr_text *t;
     apr_size_t inbytes_left, outbytes_left;
+    apr_status_t status;
 
     inbytes_left = outbytes_left = strlen(e->name);
-    apr_xlate_conv_buffer(convset, e->name,  &inbytes_left, (char *) e->name, &outbytes_left);
+    status = apr_xlate_conv_buffer(convset, e->name,  &inbytes_left, (char *) e->name, &outbytes_left);
+    if (status) {
+        return status;
+    }
 
     for (t = e->first_cdata.first; t != NULL; t = t->next) {
         inbytes_left = outbytes_left = strlen(t->text);
-        apr_xlate_conv_buffer(convset, t->text, &inbytes_left, (char *) t->text, &outbytes_left);
+        status = apr_xlate_conv_buffer(convset, t->text, &inbytes_left, (char *) t->text, &outbytes_left);
+        if (status) {
+            return status;
+        }
     }
 
     for (t = e->following_cdata.first;  t != NULL; t = t->next) {
         inbytes_left = outbytes_left = strlen(t->text);
-        apr_xlate_conv_buffer(convset, t->text, &inbytes_left, (char *) t->text, &outbytes_left);
+        status = apr_xlate_conv_buffer(convset, t->text, &inbytes_left, (char *) t->text, &outbytes_left);
+        if (status) {
+            return status;
+        }
     }
 
     for (a = e->attr; a != NULL; a = a->next) {
         inbytes_left = outbytes_left = strlen(a->name);
-        apr_xlate_conv_buffer(convset, a->name, &inbytes_left, (char *) a->name, &outbytes_left);
+        status = apr_xlate_conv_buffer(convset, a->name, &inbytes_left, (char *) a->name, &outbytes_left);
+        if (status) {
+            return status;
+        }
         inbytes_left = outbytes_left = strlen(a->value);
-        apr_xlate_conv_buffer(convset, a->value, &inbytes_left, (char *) a->value, &outbytes_left);
+        status = apr_xlate_conv_buffer(convset, a->value, &inbytes_left, (char *) a->value, &outbytes_left);
+        if (status) {
+            return status;
+        }
     }
 
-    for (ec = e->first_child; ec != NULL; ec = ec->next)
-            apr_xml_parser_convert_elem(ec, convset);
+    for (ec = e->first_child; ec != NULL; ec = ec->next) {
+        status = apr_xml_parser_convert_elem(ec, convset);
+        if (status) {
+            return status;
+        }
+    }
     return APR_SUCCESS;
 }
 
@@ -927,6 +947,7 @@ APU_DECLARE(apr_status_t) apr_xml_parser_convert_doc(apr_pool_t *pool,
                                                      apr_xml_doc *pdoc,
                                                      apr_xlate_t *convset)
 {
+    apr_status_t status;
     /* Don't convert the namespaces: they are constant! */
     if (pdoc->namespaces != NULL) {
         int i;
@@ -941,12 +962,14 @@ APU_DECLARE(apr_status_t) apr_xml_parser_convert_doc(apr_pool_t *pool,
             if ( ptr == NULL)
                 return APR_ENOMEM;
             inbytes_left = outbytes_left = strlen(ptr);
-            apr_xlate_conv_buffer(convset, ptr, &inbytes_left, ptr, &outbytes_left);
+            status = apr_xlate_conv_buffer(convset, ptr, &inbytes_left, ptr, &outbytes_left);
+            if (status) {
+                return status;
+            }
             apr_xml_insert_uri(namespaces, ptr);
         }
         pdoc->namespaces = namespaces;
     }
-    apr_xml_parser_convert_elem(pdoc->root, convset);
-    return APR_SUCCESS;
+    return apr_xml_parser_convert_elem(pdoc->root, convset);
 }
 #endif
