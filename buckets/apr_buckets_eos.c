@@ -63,12 +63,6 @@ static apr_status_t eos_read(apr_bucket *b, const char **str,
     return APR_SUCCESS;
 }
 
-static apr_status_t eos_copy(apr_bucket *e, apr_bucket **c)
-{
-    *c = apr_bucket_eos_create();
-    return APR_SUCCESS;
-}
-
 APU_DECLARE(apr_bucket *) apr_bucket_eos_make(apr_bucket *b)
 {
     b->length    = 0;
@@ -94,5 +88,5 @@ APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_eos = {
     eos_read,
     apr_bucket_setaside_noop,
     apr_bucket_split_notimpl,
-    eos_copy
+    apr_bucket_simple_copy
 };
