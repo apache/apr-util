@@ -73,11 +73,8 @@
  */
 
 #if   defined(DB_VERSION_MAJOR) && (DB_VERSION_MAJOR == 4)
-/* DB 4.1 has an altered open() argument list. */
-#if   defined(DB_VERSION_MINOR) && (DB_VERSION_MINOR >= 1)
-#define DB_NEED_OPEN_TXN_ARG
-#endif
-/* Otherwise, DB4 can be treated as DB3. */
+/* At this time, there are no differences from our perspective between
+ * DB3 and DB4. */
 #define DB_VER 3
 #elif defined(DB_VERSION_MAJOR) && (DB_VERSION_MAJOR == 3)
 #define DB_VER 3
@@ -198,11 +195,7 @@ static apr_status_t vt_db_open(apr_dbm_t **pdb, const char *pathname,
 
 #if DB_VER == 3
         if ((dberr = db_create(&file.bdb, NULL, 0)) == 0) {
-            if ((dberr = (*file.bdb->open)(file.bdb,
-#ifdef DB_NEED_OPEN_TXN_ARG
-                                           NULL,
-#endif
-                                           pathname, NULL, 
+            if ((dberr = (*file.bdb->open)(file.bdb, pathname, NULL, 
                                            DB_HASH, dbmode, 
                                            apr_posix_perms2mode(perm))) != 0) {
                 /* close the DB handler */
