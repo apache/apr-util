@@ -1,5 +1,9 @@
 Changes with APR-util 1.0
 
+  *) Overhaul support for LDAP URL parsing. Instead of using incompatible
+     URL parsers and memory that needs freeing, apr-util provides a parser
+     which parses the URL and allocates memory from a pool. [Graham Leggett]
+
   *) Remove support for LDAP v2.0 SDK toolkits. This will be added
      back properly later assuming there is demand for it. In the mean
      time, please use an LDAP v3.0 SDK toolkit. [Graham Leggett]
