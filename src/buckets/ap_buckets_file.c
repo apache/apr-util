@@ -52,13 +52,14 @@
  * <http://www.apache.org/>.
  */
 
+#include "apr.h"
 #include "apr_lib.h"
 #include "apr_file_io.h"
 #include "ap_buckets.h"
 #include <stdlib.h>
 
 /* Allow Apache to use ap_mmap */
-#ifdef AP_USE_MMAP_FILES
+#ifdef APR_HAS_MMAP
 #include "apr_mmap.h"
 
 /* mmap support for static files based on ideas from John Heidemann's
@@ -80,7 +81,7 @@
 #ifndef MMAP_LIMIT
 #define MMAP_LIMIT              (4*1024*1024)
 #endif
-#endif /* AP_USE_MMAP_FILES */
+#endif /* APR_HAS_MMAP */
 
 
 /* XXX: We should obey the block flag */
@@ -92,11 +93,11 @@ static apr_status_t file_read(ap_bucket *e, const char **str,
     ap_bucket *b = NULL;
     char *buf;
     apr_status_t rv;
-#ifdef AP_USE_MMAP_FILES
+#ifdef APR_HAS_MMAP
     apr_mmap_t *mm = NULL;
 #endif
 
-#ifdef AP_USE_MMAP_FILES
+#ifdef APR_HAS_MMAP
     if ((e->length >= MMAP_THRESHOLD)
         && (e->length < MMAP_LIMIT)) {
         /* we need to protect ourselves in case we die while we've got the
@@ -154,7 +155,7 @@ static apr_status_t file_read(ap_bucket *e, const char **str,
             b = ap_bucket_create_file(f, 0, e->length);
             AP_BUCKET_INSERT_AFTER(e, b);
         }
-#ifdef AP_USE_MMAP_FILES
+#ifdef APR_HAS_MMAP
     }
 #endif
     return APR_SUCCESS;
