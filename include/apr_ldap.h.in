@@ -77,7 +77,6 @@
 #define APR_HAS_LDAP_SSLINIT @apu_has_ldap_sslinit@
 #define APR_HAS_LDAPSSL_INIT @apu_has_ldapssl_init@
 
-
 /*
  * Make sure the secure LDAP port is defined
  */
