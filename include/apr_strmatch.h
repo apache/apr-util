@@ -62,6 +62,10 @@
  * @file apr_strmatch.h
  * @brief APR-UTIL string matching routines
  */
+
+#include "apu.h"
+#include "apr_pools.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -72,17 +76,13 @@ extern "C" {
  * @{
  */
 
-#include "apu.h"
-#include "apr_pools.h"
-
-
 typedef struct apr_strmatch_pattern apr_strmatch_pattern;
 /**
  * Precompiled search pattern
  */
 struct apr_strmatch_pattern {
     const char *(*compare)(const apr_strmatch_pattern *this_pattern,
-                            const char *s, apr_size_t slen);
+                           const char *s, apr_size_t slen);
     const char *pattern;
     apr_size_t length;
     void *context;  /* hook for subclasses to add precomputed metadata */
