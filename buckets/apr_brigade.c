@@ -53,7 +53,7 @@
  */
 
 #include "apr.h"
-#include "apr_lib.h"
+#include "apr_strings.h"
 #include "apr_pools.h"
 #include "apr_tables.h"
 #include "apr_buckets.h"
