@@ -1,7 +1,7 @@
 /* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2001-2003 The Apache Software Foundation.  All rights
+ * Copyright (c) 2001-2004 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -105,9 +105,10 @@ APU_DECLARE_NONSTD(void) apr_dynamic_fn_register(const char *szName,
  * confusingly but correctly, the function itself can be static!
  * @param name The name of the function
  */
-#define APR_REGISTER_OPTIONAL_FN(name) \
-    (((void (*)(const char *, APR_OPTIONAL_FN_TYPE(name) *)) \
-               &apr_dynamic_fn_register)(#name,name))
+#define APR_REGISTER_OPTIONAL_FN(name) do { \
+  APR_OPTIONAL_FN_TYPE(name) *apu__opt = name; \
+  apr_dynamic_fn_register(#name,(apr_opt_fn_t *)apu__opt); \
+} while (0)
 
 /** @internal
  * Private function! DO NOT USE! 
