@@ -55,6 +55,7 @@
  *
  */
 
+#include "httpd.h"
 #include "apr_private.h"
 #include "apr_pools.h"
 #include "apr_lib.h"
@@ -63,7 +64,7 @@
 #include <sys/uio.h>
 #include "ap_buckets.h"
 
-APR_EXPORT(apr_status_t) ap_bucket_destroy(ap_bucket *e)
+API_EXPORT(apr_status_t) ap_bucket_destroy(ap_bucket *e)
 {
     if (e->destroy) {
         e->destroy(e);
@@ -85,7 +86,7 @@ static apr_status_t ap_bucket_list_destroy(ap_bucket *e)
     return APR_SUCCESS;
 }
 
-APR_EXPORT(apr_status_t) ap_brigade_destroy(void *data)
+API_EXPORT(apr_status_t) ap_brigade_destroy(void *data)
 {
     ap_bucket_brigade *b = data;
 
@@ -98,7 +99,7 @@ APR_EXPORT(apr_status_t) ap_brigade_destroy(void *data)
     return APR_SUCCESS;
 }
 
-APR_EXPORT(ap_bucket_brigade *) ap_brigade_create(apr_pool_t *p)
+API_EXPORT(ap_bucket_brigade *) ap_brigade_create(apr_pool_t *p)
 {
     ap_bucket_brigade *b;
 
@@ -111,7 +112,7 @@ APR_EXPORT(ap_bucket_brigade *) ap_brigade_create(apr_pool_t *p)
     return b;
 }
 
-APR_EXPORT(void) ap_brigade_append_buckets(ap_bucket_brigade *b, 
+API_EXPORT(void) ap_brigade_append_buckets(ap_bucket_brigade *b, 
                                                   ap_bucket *e)
 {
     ap_bucket *cur = e;
@@ -129,7 +130,7 @@ APR_EXPORT(void) ap_brigade_append_buckets(ap_bucket_brigade *b,
     }
 }
 
-APR_EXPORT(int) ap_brigade_to_iovec(ap_bucket_brigade *b, 
+API_EXPORT(int) ap_brigade_to_iovec(ap_bucket_brigade *b, 
                                            struct iovec *vec, int nvec)
 {
     ap_bucket *e;
@@ -146,7 +147,7 @@ APR_EXPORT(int) ap_brigade_to_iovec(ap_bucket_brigade *b,
     return vec - orig;
 }
 
-APR_EXPORT(void) ap_brigade_catenate(ap_bucket_brigade *a, 
+API_EXPORT(void) ap_brigade_catenate(ap_bucket_brigade *a, 
                                             ap_bucket_brigade *b)
 {
     if (b->head) {
@@ -163,7 +164,7 @@ APR_EXPORT(void) ap_brigade_catenate(ap_bucket_brigade *a,
     }
 }
 
-APR_EXPORT(int) ap_brigade_vputstrs(ap_bucket_brigade *b, va_list va)
+API_EXPORT(int) ap_brigade_vputstrs(ap_bucket_brigade *b, va_list va)
 {
     ap_bucket *r;
     const char *x;
@@ -189,7 +190,7 @@ APR_EXPORT(int) ap_brigade_vputstrs(ap_bucket_brigade *b, va_list va)
     return k;
 }
 
-APR_EXPORT(int) ap_brigade_printf(ap_bucket_brigade *b, const char *fmt, ...)
+API_EXPORT(int) ap_brigade_printf(ap_bucket_brigade *b, const char *fmt, ...)
 {
     va_list ap;
     int res;
@@ -200,7 +201,7 @@ APR_EXPORT(int) ap_brigade_printf(ap_bucket_brigade *b, const char *fmt, ...)
     return res;
 }
 
-APR_EXPORT(int) ap_brigade_vprintf(ap_bucket_brigade *b, const char *fmt, va_list va)
+API_EXPORT(int) ap_brigade_vprintf(ap_bucket_brigade *b, const char *fmt, va_list va)
 {
     /* THIS IS A HACK.  This needs to be replaced with a function to printf
      * directly into a bucket.  I'm being lazy right now.  RBB
