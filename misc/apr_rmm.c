@@ -111,8 +111,8 @@ static apr_rmm_off_t find_block_of_size(apr_rmm_t *rmm, apr_size_t size)
     while (next) {
         struct rmm_block_t *blk = (rmm_block_t*)((char*)rmm->base + next);
 
-    if (blk->size == size)
-        return next;
+        if (blk->size == size)
+            return next;
 
         if (blk->size >= size) {
             /* XXX: sub optimal algorithm 
