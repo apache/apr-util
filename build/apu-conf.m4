@@ -13,9 +13,7 @@ AC_DEFUN(APU_FIND_APR,[
     AC_MSG_ERROR(APR could not be located. Please use the --with-apr option.)
   fi
 
-  changequote(<<,>>)dnl
-  APR_BUILD_DIR="`echo $apr_config | sed 's,/[^/]*$,,'`"
-  changequote([,])dnl
+  APR_BUILD_DIR="`$apr_config --installbuilddir`"
 
   dnl make APR_BUILD_DIR an absolute directory (we'll need it in the
   dnl sub-projects in some cases)

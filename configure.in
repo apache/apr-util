@@ -102,7 +102,7 @@ case "$host_alias" in
     dnl ### apr and expat libraries to the build or it'll die a truly horrible
     dnl ### death. We now use the apr-config tool to determine the correct
     dnl ### library to link against :)
-    aprlib=`$APR_BUILD_DIR/apr-config --link-libtool`
+    aprlib=`$apr_config --link-libtool`
     EXTRA_OS_LINK="$aprlib $top_builddir/xml/expat/lib/libexpat.la"
     ;;
 *AIX*|*Darwin*)
@@ -128,7 +128,7 @@ AC_SUBST(APRUTIL_LIBS)
 AC_SUBST(LDFLAGS)
 
 dnl copy apr's rules.mk into our build directory.
-cp $APR_BUILD_DIR/build/apr_rules.mk $abs_srcdir/build/rules.mk
+cp $APR_BUILD_DIR/apr_rules.mk $abs_srcdir/build/rules.mk
 
 dnl
 dnl BSD/OS (BSDi) needs to use a different include syntax in the Makefiles
