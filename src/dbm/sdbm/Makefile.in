@@ -1,0 +1,5 @@
+
+TARGETS = sdbm.lo sdbm_hash.lo sdbm_lock.lo sdbm_pair.lo
+
+top_builddir = @top_builddir@
+include $(top_builddir)/build/rules.mk

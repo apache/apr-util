@@ -1,0 +1,5 @@
+config.guess
+config.sub
+ltconfig
+ltmain.sh
+rules.mk
