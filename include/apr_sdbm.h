@@ -69,8 +69,8 @@ typedef struct apr_sdbm_t apr_sdbm_t;
 
 /* utility functions */
 int apr_sdbm_rdonly(apr_sdbm_t *db);
-int apr_sdbm_error_get(apr_sdbm_t *db);
-int apr_sdbm_error_clear(apr_sdbm_t *db);
+apr_status_t apr_sdbm_error_get(apr_sdbm_t *db);
+void apr_sdbm_error_clear(apr_sdbm_t *db);
 
 typedef struct {
     char *dptr;
