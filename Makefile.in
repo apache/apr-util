@@ -4,6 +4,7 @@
 
 TARGET_LIB = libaprutil.la
 TARGET_EXPORTS = aprutil.exports
+INSTALL_SUBDIRS = @APR_XML_DIR@
 
 TARGETS = delete-lib $(TARGET_LIB) delete-exports $(TARGET_EXPORTS)
 
@@ -42,7 +43,12 @@ install: $(TARGET_LIB)
 	if [ ! -d $(libdir) ]; then \
 	    @APR_SOURCE_DIR@/build/mkdir.sh $(libdir); \
 	fi; \
-	$(LIBTOOL) --mode=install cp $(TARGET_LIB) $(libdir)
+	$(LIBTOOL) --mode=install cp $(TARGET_LIB) $(libdir); \
+	if test -n "$(INSTALL_SUBDIRS)"; then \
+		for i in $(INSTALL_SUBDIRS); do \
+			( cd $$i ; $(MAKE) install ); \
+		done \
+	fi
 
 $(TARGET_LIB):
 	@objects="`find $(SUBDIRS) -name expat -prune -o -name '*.@so_ext@' -print`"; \
