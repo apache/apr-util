@@ -109,6 +109,9 @@ static apr_status_t socket_read(ap_bucket *a, const char **str,
         b = ap_bucket_create_socket(p);
 	AP_BUCKET_INSERT_AFTER(a, b);
     }
+    else if (rv == APR_EOF && block == AP_NONBLOCK_READ) {
+        return APR_EOF;
+    }
     return APR_SUCCESS;
 }
 
