@@ -57,9 +57,6 @@
 #include "ap_buckets.h"
 #include <stdlib.h>
 
-static int immortal_type;
-static int transient_type;
-
 /*
  * We can't simplify this function by using an ap_bucket_make function
  * because we aren't sure of the exact type of this bucket.
@@ -106,6 +103,9 @@ static apr_status_t simple_read(ap_bucket *b, const char **str,
     return APR_SUCCESS;
 }
 
+ap_bucket_type ap_immortal_type = { "IMMORTAL", 4, free, simple_read,
+                          ap_bucket_setaside_notimpl, simple_split };
+
 API_EXPORT(ap_bucket *) ap_bucket_make_immortal(ap_bucket *b,
 		const char *buf, apr_size_t length)
 {
@@ -119,7 +119,7 @@ API_EXPORT(ap_bucket *) ap_bucket_make_immortal(ap_bucket *b,
     bd->start   = buf;
     bd->end     = buf+length;
 
-    b->type     = immortal_type;
+    b->type     = &ap_immortal_type;
     b->length   = length;
     b->data     = bd;
 
@@ -134,19 +134,7 @@ API_EXPORT(ap_bucket *) ap_bucket_create_immortal(
 
 void ap_bucket_immortal_register(apr_pool_t *p)
 {
-    ap_bucket_type type;
-
-    type.setaside = NULL;
-    type.destroy  = free;
-    type.split    = simple_split;
-    type.read     = simple_read;
-
-    immortal_type = ap_insert_bucket_type(&type);
-}
-
-int ap_immortal_type(void)
-{
-    return immortal_type;
+    ap_insert_bucket_type(&ap_immortal_type);
 }
 
 /*
@@ -176,6 +164,9 @@ static apr_status_t transient_setaside(ap_bucket *b)
     return APR_SUCCESS;
 }
 
+ap_bucket_type ap_transient_type = { "TRANSIENT", 4, ap_bucket_destroy_notimpl, 
+                                simple_read, transient_setaside, simple_split };
+
 API_EXPORT(ap_bucket *) ap_bucket_make_transient(ap_bucket *b,
 		const char *buf, apr_size_t length)
 {
@@ -183,7 +174,7 @@ API_EXPORT(ap_bucket *) ap_bucket_make_transient(ap_bucket *b,
     if (b == NULL) {
 	return NULL;
     }
-    b->type = transient_type;
+    b->type = &ap_transient_type;
     return b;
 }
 
@@ -195,17 +186,6 @@ API_EXPORT(ap_bucket *) ap_bucket_create_transient(
 
 void ap_bucket_transient_register(apr_pool_t *p)
 {
-    ap_bucket_type type;
-
-    type.destroy = NULL;
-    type.read = simple_read;
-    type.setaside = transient_setaside;
-    type.split = simple_split;
-
-    transient_type = ap_insert_bucket_type(&type);
+    ap_insert_bucket_type(&ap_transient_type);
 }
 
-int ap_transient_type(void)
-{
-    return transient_type;
-}
