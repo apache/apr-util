@@ -1,5 +1,5 @@
 APRUTIL LIBRARY STATUS:						-*-text-*-
-Last modified at [$Date: 2001/01/13 11:56:24 $]
+Last modified at [$Date: 2001/01/13 13:28:00 $]
 
 Release:
     ...on the 12th as part of Apache 2.0a9  [need specifics here]
@@ -11,7 +11,7 @@ RELEASE SHOWSTOPPERS:
       Bill notes - recent problems on win32 would have been averted if the
       author noticed their names didn't match their linkage declarations.
       Status:
-        APR: Ryan +1, Greg +1, David +1
+        APR: Ryan +1, Greg +1, David +1, Jim +1
         apu: wrowe +1
 
     * Many linkage errors are gpfaulting Apache/win32 in various configs
@@ -23,6 +23,7 @@ RELEASE SHOWSTOPPERS:
     * Source code layout needs to be decided for apr and apr-util.  There
       has been some discussion about adding a src/ directory to apr or removing
       it from apr-util/.  Either way, this needs to be decided.
+      Status: See vote in apr/STATUS
 
     * release distros do not include a "test" dir. don't put it in the
       top-level SUBDIRS list, but definitely get it cleaned for the
