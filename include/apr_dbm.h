@@ -86,7 +86,7 @@ typedef struct
 {
     /** pointer to the 'data' to retrieve/store in the DBM */
     char *dptr;
-    /** size of the 'data' to retreive/store in the DBM */
+    /** size of the 'data' to retrieve/store in the DBM */
     apr_size_t dsize;
 } apr_datum_t;
 
@@ -94,7 +94,7 @@ typedef struct
 #define APR_DBM_READONLY        1       /**< open for read-only access */
 #define APR_DBM_READWRITE       2       /**< open for read-write access */
 #define APR_DBM_RWCREATE        3       /**< open for r/w, create if needed */
-#define APR_DBM_RWTRUNC         4       /**< open for r/w, truncating a existing
+#define APR_DBM_RWTRUNC         4       /**< open for r/w, truncating an existing
                                           DB if present */
 /**
  * Open a dbm file by file name and type of DBM
@@ -112,7 +112,7 @@ typedef struct
  *           APR_DBM_READONLY   open for read-only access
  *           APR_DBM_READWRITE  open for read-write access
  *           APR_DBM_RWCREATE   open for r/w, create if needed
- *           APR_DBM_RWTRUNC    open for r/w, truncatate if already there
+ *           APR_DBM_RWTRUNC    open for r/w, truncate if already there
  * </PRE>
  * @param perm Permissions to apply to if created
  * @param cntxt The pool to use when creating the dbm
@@ -136,7 +136,7 @@ APU_DECLARE(apr_status_t) apr_dbm_open_ex(apr_dbm_t **dbm, const char* type,
  *           APR_DBM_READONLY   open for read-only access
  *           APR_DBM_READWRITE  open for read-write access
  *           APR_DBM_RWCREATE   open for r/w, create if needed
- *           APR_DBM_RWTRUNC    open for r/w, truncatate if already there
+ *           APR_DBM_RWTRUNC    open for r/w, truncate if already there
  * </PRE>
  * @param perm Permissions to apply to if created
  * @param cntxt The pool to use when creating the dbm
