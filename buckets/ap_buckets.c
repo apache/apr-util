@@ -250,17 +250,17 @@ int ap_insert_bucket_type(const ap_bucket_type *type)
     return bucket_types->nelts - 1;
 }
 
-AP_DECLARE(apr_status_t) ap_bucket_setaside_notimpl(ap_bucket *data)
+AP_DECLARE_NONSTD(apr_status_t) ap_bucket_setaside_notimpl(ap_bucket *data)
 {
     return APR_ENOTIMPL;
 }
 
-AP_DECLARE(apr_status_t) ap_bucket_split_notimpl(ap_bucket *data, apr_off_t point)
+AP_DECLARE_NONSTD(apr_status_t) ap_bucket_split_notimpl(ap_bucket *data, apr_off_t point)
 {
     return APR_ENOTIMPL;
 }
 
-AP_DECLARE(void) ap_bucket_destroy_notimpl(void *data)
+AP_DECLARE_NONSTD(void) ap_bucket_destroy_notimpl(void *data)
 {
     return;
 }
