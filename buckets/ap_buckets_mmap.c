@@ -64,7 +64,6 @@ static apr_status_t mmap_read(ap_bucket *b, const char **str,
     apr_status_t ok;
     void *addr;
     
-#ifdef AP_USE_MMAP_FILES
     ok = apr_mmap_offset(&addr, m->mmap, s->start);
     if (ok != APR_SUCCESS) {
 	return ok;
@@ -72,9 +71,6 @@ static apr_status_t mmap_read(ap_bucket *b, const char **str,
     *str = addr;
     *length = s->end - s->start;
     return APR_SUCCESS;
-#else
-    return APR_ENOTIMPL;
-#endif
 }
 
 static void mmap_destroy(void *data)
@@ -96,7 +92,6 @@ AP_DECLARE(ap_bucket *) ap_bucket_make_mmap(ap_bucket *b,
 {
     ap_bucket_mmap *m;
 
-#ifdef AP_USE_MMAP_FILES
     m = malloc(sizeof(*m));
     if (m == NULL) {
 	return NULL;
@@ -112,20 +107,13 @@ AP_DECLARE(ap_bucket *) ap_bucket_make_mmap(ap_bucket *b,
     b->type     = &ap_mmap_type;
 
     return b;
-#else
-    return APR_ENOTIMPL;
-#endif
 }
 
 
 AP_DECLARE(ap_bucket *) ap_bucket_create_mmap(
 		apr_mmap_t *mm, apr_off_t start, apr_size_t length)
 {
-#ifdef AP_USE_MMAP_FILES
     ap_bucket_do_create(ap_bucket_make_mmap(b, mm, start, length));
-#else
-    return APR_ENOTIMPL;
-#endif
 }
 
 const ap_bucket_type ap_mmap_type = {
