@@ -59,7 +59,6 @@
 #include "apr_general.h"
 #include "apr_mmap.h"
 #include "apr_errno.h"
-#include "apr_private.h"
 #ifdef HAVE_SYS_UIO_H
 #include <sys/uio.h>	/* for struct iovec */
 #endif
