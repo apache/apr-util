@@ -2,8 +2,8 @@ VPATH = @srcdir@
 
 INCLUDES = @APR_INCLUDES@ @APRUTIL_INCLUDES@ @APRUTIL_PRIV_INCLUDES@
 
-TARGETS =
 PROGRAMS = testdbm testdate testmd4 testxml testrmm
+TARGETS = $(PROGRAMS)
 
 # bring in rules.mk for standard functionality
 @INCLUDE_RULES@
