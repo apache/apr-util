@@ -343,8 +343,8 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
 
 /**
  * Insert a list of buckets before a specified bucket
- * @param a The buckets to insert
- * @param b The bucket to insert before
+ * @param a The bucket to insert before
+ * @param b The buckets to insert
  * @deffunc void APR_BUCKET_INSERT_BEFORE(apr_bucket *a, apr_bucket *b)
  */
 #define APR_BUCKET_INSERT_BEFORE(a, b) do {				\
@@ -354,8 +354,8 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
 
 /**
  * Insert a list of buckets after a specified bucket
- * @param a The buckets to insert
- * @param b The bucket to insert after
+ * @param a The bucket to insert after
+ * @param b The buckets to insert
  * @deffunc void APR_BUCKET_INSERT_AFTER(apr_bucket *a, apr_bucket *b)
  */
 #define APR_BUCKET_INSERT_AFTER(a, b) do {				\
