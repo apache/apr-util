@@ -102,8 +102,16 @@ APU_DECLARE(apr_status_t) apr_xlate_sb_get(apr_xlate_t *convset, int *onoff);
  * @param outbytes_left Input: the size of the output buffer
  *                      Output: the amount of the output buffer not yet used
  * @remark
- *  Return APR_ENOTIMPL if charset transcoding is not available
- *  in this instance of apr-util (i.e., APR_HAS_XLATE is undefined).
+ * Returns APR_ENOTIMPL if charset transcoding is not available
+ * in this instance of apr-util (i.e., APR_HAS_XLATE is undefined).
+ * Returns APR_INCOMPLETE if the input buffer ends in an incomplete
+ * multi-byte character.
+ *
+ * To correctly terminate the output buffer for some multi-byte
+ * character set encodings, a final call must be made to this function
+ * after the complete input string has been converted, passing
+ * the inbuf and inbytes_left parameters as NULL.  (Note that this
+ * mode only works from version 1.1.0 onwards)
  */
 APU_DECLARE(apr_status_t) apr_xlate_conv_buffer(apr_xlate_t *convset, 
                                                 const char *inbuf, 
