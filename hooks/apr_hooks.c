@@ -380,7 +380,7 @@ APU_DECLARE_NONSTD(void) apr_dynamic_fn_register(const char *szName,
 APU_DECLARE_NONSTD(void) apr_register_optional_fn(const char *szName,
                                                   apr_opt_fn_t *pfn)
 {
-        return apr_dynamic_fn_register(szName, pfn);
+    apr_dynamic_fn_register(szName, pfn);
 }
 
 #if 0
