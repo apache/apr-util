@@ -76,10 +76,14 @@
 /*
  * We pick up all varieties of Berkeley DB through db.h (included through
  * apu_select_dbm.h). This code has been compiled/tested against DB1,
- * DB_185, DB2, and DB3.
+ * DB_185, DB2, DB3, and DB4.
  */
 
-#if   defined(DB_VERSION_MAJOR) && (DB_VERSION_MAJOR == 3)
+#if   defined(DB_VERSION_MAJOR) && (DB_VERSION_MAJOR == 4)
+/* At this time, there are no differences from our perspective between
+ * DB3 and DB4. */
+#define DB_VER 3
+#elif defined(DB_VERSION_MAJOR) && (DB_VERSION_MAJOR == 3)
 #define DB_VER 3
 #elif defined(DB_VERSION_MAJOR) && (DB_VERSION_MAJOR == 2)
 #define DB_VER 2
