@@ -117,8 +117,11 @@ dnl everthing is done.
 MAKEFILES="Makefile buckets/Makefile crypto/Makefile dbm/Makefile dbm/sdbm/Makefile encoding/Makefile hooks/Makefile ldap/Makefile uri/Makefile xml/Makefile misc/Makefile $test_Makefile"
 AC_OUTPUT([
     export_vars.sh
+    apu-config
     include/private/apu_select_dbm.h
     include/apr_ldap.h
     include/apu.h
     $MAKEFILES
 	])
+
+chmod +x apu-config
