@@ -7,36 +7,36 @@ TARGETS = $(PROGRAMS)
 
 # bring in rules.mk for standard functionality
 @INCLUDE_RULES@
-LIBS = @APRUTIL_LDFLAGS@ @LIBS@
+PROGRAM_DEPENDENCIES = @APRUTIL_LDFLAGS@ @APRUTIL_LIBS@
 
 test: $(PROGRAMS)
 
 testdbm_OBJECTS = testdbm.lo
 testdbm_LDADD =  ../libaprutil.la
 testdbm: $(testdbm_OBJECTS) $(testdbm_LDADD)
-	$(LINK) $(testdbm_OBJECTS) $(testdbm_LDADD) $(LIBS)
+	$(LINK) $(testdbm_OBJECTS) $(testdbm_LDADD) $(PROGRAM_DEPENDENCIES)
 
 testdate_OBJECTS = testdate.lo
 testdate_LDADD =  ../libaprutil.la
 testdate: $(testdate_OBJECTS) $(testdate_LDADD)
-	$(LINK) $(testdate_OBJECTS) $(testdate_LDADD) $(LIBS)
+	$(LINK) $(testdate_OBJECTS) $(testdate_LDADD) $(PROGRAM_DEPENDENCIES)
 
 testxml_OBJECTS = testxml.lo
 testxml_LDADD =  ../libaprutil.la
 testxml: $(testxml_OBJECTS) $(testxml_LDADD)
-	$(LINK) $(testxml_OBJECTS) $(testxml_LDADD) $(LIBS)
+	$(LINK) $(testxml_OBJECTS) $(testxml_LDADD) $(PROGRAM_DEPENDENCIES)
 
 testmd4_OBJECTS = testmd4.lo
 testmd4_LDADD =  ../libaprutil.la
 testmd4: $(testmd4_OBJECTS) $(testmd4_LDADD)
-	$(LINK) $(testmd4_OBJECTS) $(testmd4_LDADD) $(LIBS)
+	$(LINK) $(testmd4_OBJECTS) $(testmd4_LDADD) $(PROGRAM_DEPENDENCIES)
 
 testrmm_OBJECTS = testrmm.lo
 testrmm_LDADD =  ../libaprutil.la
 testrmm: $(testrmm_OBJECTS) $(testrmm_LDADD)
-	$(LINK) $(testrmm_OBJECTS) $(testrmm_LDADD) $(LIBS)
+	$(LINK) $(testrmm_OBJECTS) $(testrmm_LDADD) $(PROGRAM_DEPENDENCIES)
 
 teststrmatch_OBJECTS = teststrmatch.lo
 teststrmatch_LDADD =  ../libaprutil.la
 teststrmatch: $(teststrmatch_OBJECTS) $(teststrmatch_LDADD)
-	$(LINK) $(teststrmatch_OBJECTS) $(teststrmatch_LDADD) $(LIBS)
+	$(LINK) $(teststrmatch_OBJECTS) $(teststrmatch_LDADD) $(PROGRAM_DEPENDENCIES)
