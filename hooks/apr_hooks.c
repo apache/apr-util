@@ -159,7 +159,7 @@ static TSort *tsort(TSort *pData,int nItems)
 
 	for(n=0 ; ; ++n) {
 	    if(n == nItems)
-		assert(0);      /* // we have a loop... */
+		assert(0);      /* we have a loop... */
 	    if(!pData[n].pNext && !pData[n].nPredecessors)
 		break;
 	}
@@ -168,7 +168,7 @@ static TSort *tsort(TSort *pData,int nItems)
 	else
 	    pHead=&pData[n];
 	pTail=&pData[n];
-	pTail->pNext=pTail;     /* // fudge it so it looks linked */
+	pTail->pNext=pTail;     /* fudge it so it looks linked */
 	for(i=0 ; i < nItems ; ++i)
 	    for(k=0 ; pData[i].ppPredecessors[k] ; ++k)
 		if(pData[i].ppPredecessors[k] == &pData[n]) {
@@ -176,7 +176,7 @@ static TSort *tsort(TSort *pData,int nItems)
 		    break;
 		}
     }
-    pTail->pNext=NULL;  /* // unfudge the tail */
+    pTail->pNext=NULL;  /* unfudge the tail */
     return pHead;
 }
 
