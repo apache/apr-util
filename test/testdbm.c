@@ -408,11 +408,6 @@ static void oops(apr_dbm_t * dbm, apr_status_t rv, const char *s1,
         fprintf(stderr, "%s: ", progname);
     }
     fprintf(stderr, s1, s2);
-#if !defined(sun)
-    if (errno > 0 && errno < sys_nerr)
-        fprintf(stderr, " (%s)", sys_errlist[errno]);
-#endif
-
     fprintf(stderr, "\n");
 
     if (rv != APR_SUCCESS) {
