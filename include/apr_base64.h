@@ -56,8 +56,8 @@
  * Tsirigotis <panos@alumni.cs.colorado.edu> for xinetd.
  */
 
-#ifndef APACHE_BASE64_H
-#define APACHE_BASE64_H
+#ifndef APR_BASE64_H
+#define APR_BASE64_H
 
 #include "apu.h"
 #include "apr_general.h"
@@ -146,4 +146,4 @@ APU_DECLARE(int) apr_base64decode_binary(unsigned char * plain_dst,
 }
 #endif
 
-#endif	/* !APACHE_BASE64_H */
+#endif	/* !APR_BASE64_H */
