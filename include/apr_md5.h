@@ -140,7 +140,7 @@ APU_DECLARE(apr_status_t) apr_md5_encode(const char *password, const char *salt,
 
 
 /**
- * Validate hashes created by APR-supported algorithms: md5 and base64.
+ * Validate hashes created by APR-supported algorithms: md5 and sha1.
  * hashes created by crypt are supported only on platforms that provide
  * crypt(3), so don't rely on that function unless you know that your
  * application will be run only on platforms that support it.  On platforms
