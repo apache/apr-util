@@ -21,11 +21,6 @@ AC_DEFUN(APU_FIND_APR,[
   dnl sub-projects in some cases)
   APR_BUILD_DIR="`cd $APR_BUILD_DIR && pwd`"
 
-  dnl ### need to get rid of these two lines
-  dnl ### used for: CC, CPP, ...
-  . "$APR_BUILD_DIR/APRVARS"
-
-
   APR_INCLUDES="`$apr_config --includes`"
   APR_LIBS="`$apr_config --link-libtool --libs`"
 
