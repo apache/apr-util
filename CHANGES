@@ -1,5 +1,7 @@
 Changes with APR-util 0.9.7
 
+  *) Fix linking problem on cygwin.  [Max Bowsher <maxb ukf.net>]
+
 Changes with APR-util 0.9.6
 
   *) Fix the detection of ldap.h on Solaris - it needs lber.h to be

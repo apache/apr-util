@@ -135,7 +135,7 @@ case "$host_alias" in
     dnl ### apr and expat libraries to the build or it'll die a truly horrible
     dnl ### death. We now use the apr-config tool to determine the correct
     dnl ### library to link against :)
-*AIX*|*Darwin*|*BeOS*)
+*AIX*|*Darwin*|*BeOS*|CYGWIN*)
     dnl need such stuff as -liconv to be specified when building libaprutil.la
     EXTRA_OS_LINK='$(APRUTIL_LDFLAGS) $(APRUTIL_LIBS)'
     ;;
