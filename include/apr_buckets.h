@@ -470,9 +470,13 @@ void ap_init_bucket_types(apr_pool_t *p);
  * free the resources used by a bucket. If multiple buckets refer to
  * the same resource it is freed when the last one goes away.
  * @param e The bucket to destroy
- * @deffunc apr_status_t ap_bucket_destroy(ap_bucket *e)
+ * @deffunc void ap_bucket_destroy(ap_bucket *e)
  */
-AP_DECLARE(apr_status_t) ap_bucket_destroy(ap_bucket *e);
+#define ap_bucket_destroy(e) \
+    { \
+    e->type->destroy(e->data); \
+    free(e); \
+    }
 
 /**
  * read the data from the bucket
@@ -482,8 +486,7 @@ AP_DECLARE(apr_status_t) ap_bucket_destroy(ap_bucket *e);
  * @param block Whether the read function blocks
  * @deffunc apr_status_t ap_bucket_read(ap_bucket *e, const char **str, apr_ssize_t *len, int block)
  */
-AP_DECLARE(apr_status_t) ap_bucket_read(ap_bucket *e, const char **str,
-                                        apr_ssize_t *len, int block);
+#define ap_bucket_read(e,str,len,block) e->type->read(e, str, len, block)
 
 /**
  * Setaside data so that stack data is not destroyed on returning from
@@ -491,7 +494,7 @@ AP_DECLARE(apr_status_t) ap_bucket_read(ap_bucket *e, const char **str,
  * @param e The bucket to setaside
  * @deffunc apr_status_t ap_bucket_setaside(ap_bucket *e)
  */
-AP_DECLARE(apr_status_t) ap_bucket_setaside(ap_bucket *e);
+#define ap_bucket_setaside(e) e->type->setaside(e)
 
 /**
  * Split one bucket in two.
@@ -499,7 +502,7 @@ AP_DECLARE(apr_status_t) ap_bucket_setaside(ap_bucket *e);
  * @param point The location to split the bucket at
  * @deffunc apr_status_t ap_bucket_split(ap_bucket *e, apr_off_t point)
  */
-AP_DECLARE(apr_status_t) ap_bucket_split(ap_bucket *e, apr_off_t point);
+#define ap_bucket_split(e,point) e->type->split(e, point)
 
 
 /* Bucket type handling */
