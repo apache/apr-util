@@ -1,5 +1,5 @@
 APRUTIL LIBRARY STATUS:						-*-text-*-
-Last modified at [$Date: 2001/01/24 02:23:19 $]
+Last modified at [$Date: 2001/01/24 09:10:05 $]
 
 Release:
     2.0a9   : released December 12, 2000
@@ -9,9 +9,6 @@ RELEASE SHOWSTOPPERS:
 
     * Need apu_compat.h to track the latest renames
       [Will voulenteers - is on it]
-
-    * need apr_dbm query function to ask for pathnames used
-      Status: Greg volunteers
 
 RELEASE NON-SHOWSTOPPERS BUT WOULD BE REAL NICE TO WRAP THESE UP:
 
