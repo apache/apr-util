@@ -186,7 +186,8 @@ APU_DECLARE(apr_status_t) apr_brigade_partition(apr_bucket_brigade *b,
         }
         point -= e->length;
     }
-    return APR_EINVAL;
+    *after_point = APR_BRIGADE_SENTINEL(b); 
+    return APR_INCOMPLETE;
 }
 
 APU_DECLARE(apr_status_t) apr_brigade_length(apr_bucket_brigade *bb,
