@@ -196,6 +196,11 @@ apu_have_db=0
 apu_db_header=db.h		# default so apu_select_dbm.h is syntactically correct
 apu_db_version=0
 
+if test -n "$apu_db_xtra_libs"; then
+  saveddbxtralibs="$LIBS"
+  LIBS="$apu_db_xtra_libs $LIBS"
+fi
+
 AC_ARG_WITH(dbm,
   [  --with-dbm=DBM          choose the DBM type to use.
                           DBM={sdbm,gdbm,ndbm,db,db1,db185,db2,db3,db4}],[
@@ -428,6 +433,10 @@ Use one of: sdbm, gdbm, ndbm, db, db1, db185, db2, db3, db4])
     ;;
 esac
 
+if test -n "$apu_db_xtra_libs"; then
+  LIBS="$saveddbxtralibs"
+fi
+
 dnl Yes, it'd be nice if we could collate the output in an order
 dnl so that the AC_MSG_CHECKING would be output before the actual
 dnl checks, but it isn't happening now.
@@ -463,6 +472,10 @@ if test "$apu_db_version" != "0"; then
   if test -n "$apu_db_lib"; then
     APR_ADDTO(APRUTIL_EXPORT_LIBS,[-l$apu_db_lib])
     APR_ADDTO(APRUTIL_LIBS,[-l$apu_db_lib])
+    if test -n "apu_db_xtra_libs"; then
+      APR_ADDTO(APRUTIL_EXPORT_LIBS,[$apu_db_xtra_libs])
+      APR_ADDTO(APRUTIL_LIBS,[$apu_db_xtra_libs])
+    fi
   fi
 fi
 

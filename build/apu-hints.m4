@@ -24,6 +24,9 @@ if test "x$apu_preload_done" != "xyes" ; then
     *-solaris2*)
         APR_SETIFNULL(apu_iconv_inbuf_const, [1])
         ;;
+    *-sco3.2v5*)
+	APR_SETIFNULL(apu_db_xtra_libs, [-lsocket])
+	;;
     esac
 
 fi
