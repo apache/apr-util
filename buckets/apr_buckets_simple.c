@@ -83,8 +83,8 @@ APU_DECLARE_NONSTD(apr_status_t) apr_bucket_simple_split(apr_bucket *a,
     return APR_SUCCESS;
 }
 
-static apr_status_t simple_read(apr_bucket *b, const char **str, 
-				apr_size_t *len, apr_read_type_e block)
+static apr_status_t simple_bucket_read(apr_bucket *b, const char **str, 
+                                       apr_size_t *len, apr_read_type_e block)
 {
     *str = (char *)b->data + b->start;
     *len = b->length;
@@ -123,7 +123,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_immortal_create(const char *buf,
  * function that co-ordinates the action of all the bucket setaside
  * functions to improve memory efficiency.
  */
-static apr_status_t transient_setaside(apr_bucket *b, apr_pool_t *pool)
+static apr_status_t transient_bucket_setaside(apr_bucket *b, apr_pool_t *pool)
 {
     b = apr_bucket_heap_make(b, (char *)b->data + b->start, b->length, NULL);
     if (b == NULL) {
@@ -157,7 +157,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_transient_create(const char *buf,
 const apr_bucket_type_t apr_bucket_type_immortal = {
     "IMMORTAL", 5,
     apr_bucket_destroy_noop,
-    simple_read,
+    simple_bucket_read,
     apr_bucket_setaside_noop,
     apr_bucket_simple_split,
     apr_bucket_simple_copy
@@ -166,8 +166,8 @@ const apr_bucket_type_t apr_bucket_type_immortal = {
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_transient = {
     "TRANSIENT", 5,
     apr_bucket_destroy_noop, 
-    simple_read,
-    transient_setaside,
+    simple_bucket_read,
+    transient_bucket_setaside,
     apr_bucket_simple_split,
     apr_bucket_simple_copy
 };

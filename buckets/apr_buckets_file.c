@@ -67,7 +67,7 @@
 
 #endif /* APR_HAS_MMAP */
 
-static void file_destroy(void *data)
+static void file_bucket_destroy(void *data)
 {
     apr_bucket_file *f = data;
 
@@ -102,13 +102,13 @@ static int file_make_mmap(apr_bucket *e, apr_size_t filelength,
         return 0;
     }
     apr_bucket_mmap_make(e, mm, 0, filelength);
-    file_destroy(a);
+    file_bucket_destroy(a);
     return 1;
 }
 #endif
 
-static apr_status_t file_read(apr_bucket *e, const char **str,
-			      apr_size_t *len, apr_read_type_e block)
+static apr_status_t file_bucket_read(apr_bucket *e, const char **str,
+                                     apr_size_t *len, apr_read_type_e block)
 {
     apr_bucket_file *a = e->data;
     apr_file_t *f = a->fd;
@@ -181,7 +181,7 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
         APR_BUCKET_INSERT_AFTER(e, b);
     }
     else {
-        file_destroy(a);
+        file_bucket_destroy(a);
     }
 
     *str = buf;
@@ -217,7 +217,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_file_create(apr_file_t *fd,
     return apr_bucket_file_make(b, fd, offset, len, p);
 }
 
-static apr_status_t file_setaside(apr_bucket *data, apr_pool_t *reqpool)
+static apr_status_t file_bucket_setaside(apr_bucket *data, apr_pool_t *reqpool)
 {
     apr_bucket_file *a = data->data;
     apr_file_t *fd = NULL;
@@ -248,9 +248,9 @@ static apr_status_t file_setaside(apr_bucket *data, apr_pool_t *reqpool)
 
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_file = {
     "FILE", 5,
-    file_destroy,
-    file_read,
-    file_setaside,
+    file_bucket_destroy,
+    file_bucket_read,
+    file_bucket_setaside,
     apr_bucket_shared_split,
     apr_bucket_shared_copy
 };
