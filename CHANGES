@@ -1,5 +1,8 @@
 Changes with APR-util 0.9.2
 
+  *) Add apr_ldap.hw for Windows build.
+     [Andre Schild <A.Schild@aarboard.ch>]
+
   *) Add IPv6 literal address support to apr_uri_parse(), apr_uri_unparse(), 
      and apr_uri_parse_hostinfo().  PR 11887  [Jeff Trawick]
 
