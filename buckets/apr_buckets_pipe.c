@@ -64,7 +64,11 @@ static apr_status_t pipe_bucket_read(apr_bucket *a, const char **str,
 
     if (block == APR_NONBLOCK_READ) {
         apr_file_pipe_timeout_get(p, &timeout);
-        apr_file_pipe_timeout_set(p, 0);
+        // Only mess with the timeout if we are in a blocking state
+        //  otherwise we are already nonblocking so don't worry about it.
+        if (timeout < 0) {
+            apr_file_pipe_timeout_set(p, 0);
+        }
     }
 
     *str = NULL;
