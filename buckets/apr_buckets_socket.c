@@ -71,7 +71,7 @@ static apr_status_t socket_bucket_read(apr_bucket *a, const char **str,
     *len = APR_BUCKET_BUFF_SIZE;
     buf = apr_bucket_alloc(*len, a->list); /* XXX: check for failure? */
 
-    rv = apr_recv(p, buf, len);
+    rv = apr_socket_recv(p, buf, len);
 
     if (block == APR_NONBLOCK_READ) {
         apr_socket_timeout_set(p, timeout);
