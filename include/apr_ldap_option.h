@@ -89,18 +89,19 @@
  * May have one or more client certificates set per connection with a type of
  * APR_LDAP_CERT*, and keys with APR_LDAP_KEY*.
  */
-#define APR_LDAP_CA_TYPE_UNKNOWN  0
-#define APR_LDAP_CA_TYPE_DER      1
-#define APR_LDAP_CA_TYPE_BASE64   2
-#define APR_LDAP_CA_TYPE_CERT7_DB 3
-#define APR_LDAP_CA_TYPE_SECMOD 4
-#define APR_LDAP_CERT_TYPE_UNKNOWN 5
-#define APR_LDAP_CERT_TYPE_DER 6
-#define APR_LDAP_CERT_TYPE_BASE64 7
-#define APR_LDAP_CERT_TYPE_KEY3_DB 8
-#define APR_LDAP_KEY_TYPE_UNKNOWN 9
-#define APR_LDAP_KEY_TYPE_DER 10
-#define APR_LDAP_KEY_TYPE_BASE64 11
+#define APR_LDAP_CA_TYPE_UNKNOWN    0
+#define APR_LDAP_CA_TYPE_DER        1
+#define APR_LDAP_CA_TYPE_BASE64     2
+#define APR_LDAP_CA_TYPE_CERT7_DB   3
+#define APR_LDAP_CA_TYPE_SECMOD     4
+#define APR_LDAP_CERT_TYPE_UNKNOWN  5
+#define APR_LDAP_CERT_TYPE_DER      6
+#define APR_LDAP_CERT_TYPE_BASE64   7
+#define APR_LDAP_CERT_TYPE_KEY3_DB  8
+#define APR_LDAP_CERT_TYPE_NICKNAME 9
+#define APR_LDAP_KEY_TYPE_UNKNOWN   10
+#define APR_LDAP_KEY_TYPE_DER       11
+#define APR_LDAP_KEY_TYPE_BASE64    12
 
 typedef struct apr_ldap_opt_tls_cert_t apr_ldap_opt_tls_cert_t;
 struct apr_ldap_opt_tls_cert_t {
