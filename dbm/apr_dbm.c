@@ -67,24 +67,20 @@
 #include "apr_dbm_private.h"
 
 /* ### note: the setting of DBM_VTABLE will go away once we have multiple
-   ### DBMs in here. */
+   ### DBMs in here. 
+   ### Well, that day is here.  So, do we remove DBM_VTABLE and the old
+   ### API entirely?  Oh, what to do.  We need an APU_DEFAULT_DBM #define.
+   ### Sounds like a job for autoconf. */
 
 #if APU_USE_SDBM
-
 #define DBM_VTABLE apr_dbm_type_sdbm
-
 #elif APU_USE_GDBM
-
 #define DBM_VTABLE apr_dbm_type_gdbm
-
 #elif APU_USE_DB
-
 #define DBM_VTABLE apr_dbm_type_db
-
 #else /* Not in the USE_xDBM list above */
 #error a DBM implementation was not specified
 #endif
-
 
 APU_DECLARE(apr_status_t) apr_dbm_open_ex(apr_dbm_t **pdb, const char*type, 
                                        const char *pathname, 
@@ -96,7 +92,6 @@ APU_DECLARE(apr_status_t) apr_dbm_open_ex(apr_dbm_t **pdb, const char*type,
         return (*apr_dbm_type_gdbm.open)(pdb, pathname, mode, perm, pool);
     }
 #endif
-
 #if APU_HAVE_SDBM
     if (!strcasecmp(type, "SDBM")) {
         return (*apr_dbm_type_sdbm.open)(pdb, pathname, mode, perm, pool);
@@ -177,11 +172,12 @@ APU_DECLARE(char *) apr_dbm_geterror(apr_dbm_t *dbm, int *errcode,
         (void) apr_cpystrn(errbuf, dbm->errmsg, errbufsize);
     return errbuf;
 }
+
 APU_DECLARE(void) apr_dbm_get_usednames_ex(apr_pool_t *p, 
-                                        const char*type, 
-                                        const char *pathname,
-                                        const char **used1,
-                                        const char **used2)
+                                           const char *type, 
+                                           const char *pathname,
+                                           const char **used1,
+                                           const char **used2)
 {
 #if APU_HAVE_GDBM
     if (!strcasecmp(type, "GDBM")) {
@@ -189,7 +185,6 @@ APU_DECLARE(void) apr_dbm_get_usednames_ex(apr_pool_t *p,
         return;
     }
 #endif
-
 #if APU_HAVE_SDBM
     if (!strcasecmp(type, "SDBM")) {
         (*apr_dbm_type_sdbm.getusednames)(p,pathname,used1,used2);

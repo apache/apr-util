@@ -61,11 +61,9 @@
 #include "apu.h"
 
 #if APU_HAVE_GDBM 
-
 #include "apr_dbm_private.h"
 
 #include <gdbm.h>
-
 
 /* this is used in a few places to define a noop "function". it is needed
    to stop "no effect" warnings from GCC. */
@@ -83,14 +81,13 @@ typedef datum *cvt_datum_t;
 typedef datum result_datum_t;
 #define RETURN_DATUM(poutput, rd) (*(poutput) = *(apr_datum_t *)&(rd))
 
-#define APR_DBM_CLOSE(f)	gdbm_close(f)
-#define APR_DBM_FETCH(f, k, v)	((v) = gdbm_fetch(f, *(k)), APR_SUCCESS)
-#define APR_DBM_STORE(f, k, v)	g2s(gdbm_store(f, *(k), *(v), GDBM_REPLACE))
-#define APR_DBM_DELETE(f, k)	g2s(gdbm_delete(f, *(k)))
-#define APR_DBM_FIRSTKEY(f, k)	((k) = gdbm_firstkey(f), APR_SUCCESS)
+#define APR_DBM_CLOSE(f)        gdbm_close(f)
+#define APR_DBM_FETCH(f, k, v)  ((v) = gdbm_fetch(f, *(k)), APR_SUCCESS)
+#define APR_DBM_STORE(f, k, v)  g2s(gdbm_store(f, *(k), *(v), GDBM_REPLACE))
+#define APR_DBM_DELETE(f, k)    g2s(gdbm_delete(f, *(k)))
+#define APR_DBM_FIRSTKEY(f, k)  ((k) = gdbm_firstkey(f), APR_SUCCESS)
 #define APR_DBM_NEXTKEY(f, k, nk) ((nk) = gdbm_nextkey(f, *(k)), APR_SUCCESS)
-#define APR_DBM_FREEDPTR(dptr)	((dptr) ? free(dptr) : 0)
-
+#define APR_DBM_FREEDPTR(dptr)  ((dptr) ? free(dptr) : 0)
 
 #undef REGISTER_CLEANUP
 #define REGISTER_CLEANUP(dbm, pdatum) \
