@@ -1,6 +1,8 @@
 #ifndef APACHE_AP_HOOKS_H
 #define APACHE_AP_HOOKS_H
 
+extern int g_bDebugHooks;
+
 #define DECLARE_HOOK(ret,name,args) \
 typedef ret HOOK_##name args; \
 void ap_hook_##name(HOOK_##name *pf); \
@@ -24,6 +26,8 @@ void ap_hook_##name(HOOK_##name *pf) \
     pHook->pNext=_hooks.link_##name; \
     pHook->pFunc=pf; \
     _hooks.link_##name=pHook; \
+    if(g_bDebugHooks) \
+	puts("  Hooked " #name); \
     } \
 ret ap_run_##name args \
     { \
