@@ -91,6 +91,7 @@ APU_DECLARE(void) apr_optional_hook_add(const char *szName,void (*pfn)(void),
 /**
  * Hook to an optional hook.
  *
+ * @param ns The namespace prefix of the hook functions
  * @param name The name of the hook
  * @param pfn A pointer to a function that will be called
  * @param aszPre a NULL-terminated array of strings that name modules whose hooks should precede this one
@@ -105,20 +106,24 @@ APU_DECLARE(void) apr_optional_hook_add(const char *szName,void (*pfn)(void),
 
 /**
  * @internal
- * return the hook structure for a give hook
  * @param szName - the name of the function
+ * @return the hook structure for a given hook
  */
- 
 APU_DECLARE(apr_array_header_t *) apr_optional_hook_get(const char *szName);
 
 /**
  * Implement an optional hook that runs until one of the functions
  * returns something other than OK or DECLINE.
  *
+ * @param ns The namespace prefix of the hook functions
+ * @param link The linkage declaration prefix of the hook
+ * @param ret The type of the return value of the hook
  * @param ret The type of the return value of the hook
  * @param name The name of the hook
  * @param args_decl The declaration of the arguments for the hook
- * @param args_used The names for the arguments for the hook
+ * @param args_use The names for the arguments for the hook
+ * @param ok Success value
+ * @param decline Decline value
  */
 #define APR_IMPLEMENT_OPTIONAL_HOOK_RUN_ALL(ns,link,ret,name,args_decl,args_use,ok,decline) \
 link##_DECLARE(ret) ns##_run_##name args_decl \

@@ -75,8 +75,9 @@ typedef struct apr_queue_t apr_queue_t;
 
 /** 
  * create a FIFO queue
+ * @param queue The new queue
  * @param queue_capacity maximum size of the queue
- * @pool to use
+ * @param a pool to allocate queue from
  */
 apr_status_t apr_queue_create(apr_queue_t **queue, 
                             int queue_capacity, 
@@ -86,7 +87,7 @@ apr_status_t apr_queue_create(apr_queue_t **queue,
  * push/add a object to the queue, blocking if the queue is already full
  *
  * @param queue the queue
- * @param the data
+ * @param data the data
  * @returns APR_EINTR the blocking was interrupted (try again)
  * @returns APR_EOF the queue has been terminated
  * @returns APR_SUCCESS on a successfull push
@@ -97,7 +98,7 @@ apr_status_t apr_queue_push(apr_queue_t *queue, void *data);
  * pop/get an object from the queue, blocking if the queue is already empty
  *
  * @param queue the queue
- * @param the data
+ * @param data the data
  * @returns APR_EINTR the blocking was interrupted (try again)
  * @returns APR_EOF if the queue has been terminated
  * @returns APR_SUCCESS on a successfull pop
@@ -108,7 +109,7 @@ apr_status_t apr_queue_pop(apr_queue_t *queue, void **data);
  * push/add a object to the queue, returning immediatly if the queue is full
  *
  * @param queue the queue
- * @param the data
+ * @param data the data
  * @returns APR_EINTR the blocking operation was interrupted (try again)
  * @returns APR_EAGAIN the queue is full
  * @returns APR_EOF the queue has been terminated
@@ -120,7 +121,7 @@ apr_status_t apr_queue_trypush(apr_queue_t *queue, void *data);
  * pop/get an object to the queue, returning immediatly if the queue is empty
  *
  * @param queue the queue
- * @param the data
+ * @param data the data
  * @returns APR_EINTR the blocking operation was interrupted (try again)
  * @returns APR_EAGAIN the queue is empty
  * @returns APR_EOF the queue has been terminated

@@ -92,13 +92,15 @@ typedef struct {
 } apr_sdbm_datum_t;
 
 /* The extensions used for the database files */
+/** SDBM Directory file extension */
 #define APR_SDBM_DIRFEXT	".dir"
+/** SDBM page file extension */
 #define APR_SDBM_PAGFEXT	".pag"
 
 /* flags to sdbm_store */
-#define APR_SDBM_INSERT     0
-#define APR_SDBM_REPLACE    1
-#define APR_SDBM_INSERTDUP  2
+#define APR_SDBM_INSERT     0   /**< Insert */
+#define APR_SDBM_REPLACE    1   /**< Replace */
+#define APR_SDBM_INSERTDUP  2   /**< Insert with duplicates */
 
 /**
  * Open an sdbm database by file name
@@ -113,8 +115,8 @@ typedef struct {
  *           APR_DELONCLOSE     delete the sdbm when closed
  *           APR_SHARELOCK      support locking across process/machines
  * </PRE>
- * @param perm Permissions to apply to if created
- * @param pool The pool to use when creating the sdbm
+ * @param perms Permissions to apply to if created
+ * @param p The pool to use when creating the sdbm
  * @remark The sdbm name is not a true file name, as sdbm appends suffixes 
  * for seperate data and index files.
  */
@@ -186,7 +188,7 @@ APU_DECLARE(apr_status_t) apr_sdbm_delete(apr_sdbm_t *db,
 
 /**
  * Retrieve the first record key from a dbm
- * @param dbm The database 
+ * @param db The database 
  * @param key The key datum of the first record
  * @remark The keys returned are not ordered.  To traverse the list of keys
  * for an sdbm opened with APR_SHARELOCK, the caller must use apr_sdbm_lock

@@ -120,6 +120,13 @@ APU_DECLARE(apr_status_t) apr_rmm_detach(apr_rmm_t *rmm);
  * @param reqsize How much memory to allocate
  */
 APU_DECLARE(apr_rmm_off_t) apr_rmm_malloc(apr_rmm_t *rmm, apr_size_t reqsize);
+
+/**
+ * Realloc memory from the block of relocatable memory.
+ * @param rmm The relocatable memory block
+ * @param entity The memory allocation to realloc
+ * @param reqsize The new size
+ */
 APU_DECLARE(apr_rmm_off_t) apr_rmm_realloc(apr_rmm_t *rmm, void *entity, apr_size_t reqsize);
 
 /**

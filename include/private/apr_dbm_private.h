@@ -130,12 +130,15 @@ typedef struct {
  */
 struct apr_dbm_t
 { 
+    /** Associated pool */
     apr_pool_t *pool;
 
     /** pointer to DB Implementation Specific data */
     void *file;
 
+    /** Current integer error code */
     int errcode;
+    /** Current string error code */
     const char *errmsg;
 
     /** the type of DBM */
