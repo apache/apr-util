@@ -191,7 +191,7 @@ APU_DECLARE(ap_bucket *) ap_bucket_create_file(apr_file_t *fd,
 
 APU_DECLARE_DATA const ap_bucket_type ap_file_type = {
     "FILE", 5,
-    ap_bucket_destroy_notimpl,
+    free,
     file_read,
     ap_bucket_setaside_notimpl,
     ap_bucket_split_notimpl,
