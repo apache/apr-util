@@ -119,7 +119,7 @@ static void MDString(char *string)
     unsigned int len = strlen(string);
 
     apr_md4_init(&context);
-    apr_md4_update(&context, string, len);
+    apr_md4_update(&context, (unsigned char *)string, len);
     apr_md4_final(digest, &context);
 
     apr_file_printf (out, "MD4 (\"%s\") = ", string);
@@ -189,7 +189,7 @@ static void MDFile(char *filename)
 {
     apr_file_t *file;
     apr_md4_ctx_t context;
-    int len = 1024;
+    apr_size_t len = 1024;
     unsigned char buffer[1024], digest[APR_MD4_DIGESTSIZE];
 
     if (apr_file_open(&file, filename, APR_READ, APR_OS_DEFAULT, local_pool) 
@@ -217,7 +217,7 @@ static void MDFile(char *filename)
 static void MDFilter(void)
 {
     apr_md4_ctx_t context;
-    int len = 16;
+    apr_size_t len = 16;
     unsigned char buffer[16], digest[16];
 
     apr_md4_init(&context);
