@@ -116,8 +116,11 @@
 #define APU_HAVE_DB     0
 
 #if APU_HAVE_DB
+#if APU_DBM_BERKELEYDB_PRIVATE 
+/* this is only required for compiling dbm/apr_dbm_berkeleydb */
 /* found version @db_version@ */
 #include <db.h>
+#endif
 #endif
 
 

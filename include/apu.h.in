@@ -116,8 +116,11 @@
 #define APU_HAVE_DB     @apu_have_db@
 
 #if APU_HAVE_DB
+#if APU_DBM_BERKELEYDB_PRIVATE 
 /* found version @apu_db_version@ */
+/* this is only required for compiling dbm/apr_dbm_berkeleydb */
 #include <@apu_db_header@>
+#endif
 #endif
 
 
