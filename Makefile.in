@@ -62,7 +62,6 @@ install: $(TARGET_LIB)
 	if [ -n "$(top_blddir)" ]; then \
 		cp -p $(top_blddir)/include/*.h $(DESTDIR)$(includedir); \
 	fi;
-	
 	if [ ! -d $(DESTDIR)$(libdir) ]; then \
 	    @APR_SOURCE_DIR@/build/mkdir.sh $(DESTDIR)$(libdir); \
 	fi;
@@ -88,8 +87,8 @@ delete-exports:
 	    headers="`find include/*.h -newer aprutil.exp -print`" ; \
 	    if test -n "$$headers"; then \
 		echo Found newer headers. Will rebuild aprutil.exp. ; \
-		echo $(RM) -f aprutil.exp ; \
-		$(RM) -f aprutil.exp ; \
+		echo $(RM) -f aprutil.exp exports.c export_vars.h ; \
+		$(RM) -f aprutil.exp exports.c export_vars.h; \
 	    fi \
 	fi
 
