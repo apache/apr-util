@@ -58,10 +58,11 @@
 #include <stdlib.h>
 
 /* XXX: We should obey the block flag */
-static apr_status_t file_read(ap_bucket *a, const char **str,
+static apr_status_t file_read(ap_bucket *e, const char **str,
 			      apr_ssize_t *len, int block)
 {
-    apr_file_t *f = (apr_file_t *) a->data;
+    ap_bucket_file *a = (ap_bucket_file *)e->data;
+    apr_file_t *f = (apr_file_t *) a->fd;
     ap_bucket *b = NULL;
     char *buf;
     apr_status_t rv;
@@ -69,11 +70,11 @@ static apr_status_t file_read(ap_bucket *a, const char **str,
     buf = malloc(IOBUFSIZE);
     *str = buf;
 
-    if (a->length > IOBUFSIZE) {
+    if (e->length > IOBUFSIZE) {
         *len = IOBUFSIZE;
     }
     else {
-        *len = a->length;
+        *len = e->length;
     }
 
     /* Handle offset ... */
@@ -97,12 +98,12 @@ static apr_status_t file_read(ap_bucket *a, const char **str,
      * Change the current bucket to refer to what we read,
      * even if we read nothing because we hit EOF.
      */
-    ap_bucket_make_heap(a, buf, *len, 0, NULL);  /* XXX: check for failure? */
+    ap_bucket_make_heap(e, buf, *len, 0, NULL);  /* XXX: check for failure? */
 
     /* If we have more to read from the file, then create another bucket */
     if (*len > 0) {
-        b = ap_bucket_create_file(f, 0, a->length);
-	AP_BUCKET_INSERT_AFTER(a, b);
+        b = ap_bucket_create_file(f, 0, e->length);
+        AP_BUCKET_INSERT_AFTER(e, b);
     }
     return APR_SUCCESS;
 }
@@ -110,10 +111,19 @@ static apr_status_t file_read(ap_bucket *a, const char **str,
 API_EXPORT(ap_bucket *) ap_bucket_make_file(ap_bucket *b, apr_file_t *fd,
                                             apr_off_t offset, apr_size_t len)
 {
+    ap_bucket_file *f;
+
+    f = malloc(sizeof(*f));
+    if (f == NULL) {
+        return NULL;
+    }
+ 
+    f->fd = fd;
+    f->offset = offset;
+
     b->type = AP_BUCKET_FILE;
-    b->data = fd;
+    b->data = f;
     b->length = len;
-    b->offset = offset;
     b->destroy = NULL;
     b->read = file_read;
     b->setaside = NULL;
