@@ -281,7 +281,7 @@ SOURCE=.\include\apr_ldap.hnw
 
 SOURCE=.\include\apr_ldap.hw
 
-!IF  "$(CFG)" == "libaprutil - Win32 Release"
+!IF  "$(CFG)" == "aprutil - Win32 Release"
 
 # Begin Custom Build - Creating apr_ldap.h from apr_ldap.hw 
 InputPath=.\include\apr_ldap.hw
@@ -291,7 +291,7 @@ InputPath=.\include\apr_ldap.hw
 	
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+!ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
 
 # Begin Custom Build - Creating apr_ldap.h from apr_ldap.hw 
 InputPath=.\include\apr_ldap.hw
