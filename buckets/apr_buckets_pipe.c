@@ -96,7 +96,7 @@ static apr_status_t pipe_read(apr_bucket *a, const char **str,
     if (*len > 0) {
         apr_bucket_heap *h;
         /* Change the current bucket to refer to what we read */
-        a = apr_bucket_heap_make(a, buf, *len, 0);
+        a = apr_bucket_heap_make(a, buf, *len, apr_bucket_free);
         h = a->data;
         h->alloc_len = APR_BUCKET_BUFF_SIZE; /* note the real buffer size */
         *str = buf;
