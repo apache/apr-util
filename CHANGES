@@ -1,5 +1,9 @@
 Changes with APR-util b1  
 
+  *) Introduce the apr_rmm api, to allow relocatable memory management
+     of address-independent data stores, such as shared memory.
+     [William Rowe]
+
   *) Rework and fix VPATH-build support.  [Justin Erenkrantz]
 
   *) Add support for Berkeley DB4.  [Justin Erenkrantz]
