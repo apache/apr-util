@@ -341,7 +341,6 @@ APU_DECLARE(apr_time_t) apr_date_parse_http(const char *date)
  *     Sun, 06 Nov 94 8:49:37 GMT     ; Unknown [Elm 70.85]
  *     Sun, 6 Nov 94 8:49:37 GMT      ; Unknown [Elm 70.85] 
  *     Mon,  7 Jan 2002 07:21:22 GMT  ; Unknown [Postfix]
- *     Mon,  7 Jan 2002 07:21:22      ; Unknown [Postfix]
  *
  */
 APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
