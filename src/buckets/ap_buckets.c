@@ -65,7 +65,7 @@
 API_EXPORT(apr_status_t) ap_bucket_destroy(ap_bucket *e)
 {
     if (e->destroy) {
-        e->destroy(e);
+        e->destroy(e->data);
     }
     free(e);
     return APR_SUCCESS;

@@ -158,8 +158,9 @@ struct ap_bucket {
     /**
      * Free the private data and any resources used by the bucket
      * (if they aren't shared with another bucket).
+     * @param data The private data pointer from the bucket to be destroyed
      */
-    void (*destroy)(ap_bucket *e);                /* can be NULL */
+    void (*destroy)(void *data);
 
     /** Read the data from the bucket.
      * @param b The bucket to read from
@@ -427,12 +428,12 @@ API_EXPORT(ap_bucket *) ap_bucket_make_shared(ap_bucket *b, void *data,
  * Decrement the refcount of the data in the bucket and free the
  * ap_bucket_shared structure. This function should only be called by
  * type-specific bucket destruction functions.
- * @param b The bucket to be destroyed
+ * @param data The private data pointer from the bucket to be destroyed
  * @return NULL if nothing needs to be done,
  *         otherwise a pointer to the private data structure which
  *         must be destroyed because its reference count is zero
  * @deffunc API_EXPORT(void *) ap_bucket_shared_destroy(ap_bucket *b) */
-API_EXPORT(void *) ap_bucket_destroy_shared(ap_bucket *b);
+API_EXPORT(void *) ap_bucket_destroy_shared(void *data);
 
 /**
  * Split a bucket into two at the given point, and adjust the refcount
