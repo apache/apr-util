@@ -258,7 +258,7 @@ struct ap_bucket_brigade {
 #define AP_BUCKET_IS_HEAP(e)        (e->type == &ap_heap_type)
 #define AP_BUCKET_IS_TRANSIENT(e)   (e->type == &ap_transient_type)
 #define AP_BUCKET_IS_IMMORTAL(e)    (e->type == &ap_immortal_type)
-#define AP_BUCKET_IS_mmap(e)        (e->type == &ap_mmap_type)
+#define AP_BUCKET_IS_MMAP(e)        (e->type == &ap_mmap_type)
 
 /**
  * General-purpose reference counting for the varous bucket types.
