@@ -13,7 +13,7 @@ TARGET_LIB_PATH = ../lib@APRUTIL_LIBNAME@.la
 # bring in rules.mk for standard functionality
 @INCLUDE_RULES@
 PROGRAM_DEPENDENCIES = @APRUTIL_LIBS@
-APRUTIL_LDFLAGS = @APRUTIL_LDFLAGS@
+APRUTIL_LDFLAGS = @APRUTIL_LDFLAGS@ -no-install
 
 all: $(PROGRAMS)
 
@@ -85,4 +85,9 @@ testpass_OBJECTS = testpass.lo
 testpass_LDADD =  $(TARGET_LIB_PATH)
 testpass: $(testpass_OBJECTS) $(testpass_LDADD)
 	$(LINK) $(APRUTIL_LDFLAGS) $(testpass_OBJECTS) $(testpass_LDADD) $(PROGRAM_DEPENDENCIES)
+
+testxlate_OBJECTS = testxlate.lo
+testxlate_LDADD =  $(TARGET_LIB_PATH)
+testxlate: $(testxlate_OBJECTS) $(testxlate_LDADD)
+	$(LINK) $(APRUTIL_LDFLAGS) $(testxlate_OBJECTS) $(testxlate_LDADD) $(PROGRAM_DEPENDENCIES)
 
