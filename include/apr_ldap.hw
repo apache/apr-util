@@ -36,6 +36,7 @@
 #define APR_HAS_NETSCAPE_LDAPSDK    0
 #define APR_HAS_SOLARIS_LDAPSDK     0
 #define APR_HAS_NOVELL_LDAPSDK      0
+#define APR_HAS_MOZILLA_LDAPSDK     0
 #define APR_HAS_OPENLDAP_LDAPSDK    0
 #define APR_HAS_MICROSOFT_LDAPSDK   1
 #define APR_HAS_OTHER_LDAPSDK       0
@@ -74,12 +75,8 @@
 #define APR_HAS_LDAP_START_TLS_S 0
 #define APR_HAS_LDAP_SSLINIT 1
 #define APR_HAS_LDAPSSL_INIT 0
+#define APR_HAS_LDAPSSL_INSTALL_ROUTINES 0
 
-/*
- * On Windows, ldap_start_tls_s is defined with 5 parameters instead
- * of the standard 3.
- */
-#define APR_HAS_LDAP_START_TLS_S5 1
 
 /*
  * Make sure the secure LDAP port is defined
