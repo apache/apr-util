@@ -67,7 +67,7 @@
 #include "apr_errno.h" /* for apr_status_t */
 
 #if 0
-/* if the block/page size is increased, it breaks perl SDBM compatibility */
+/* if the block/page size is increased, it breaks perl apr_sdbm_t compatibility */
 #define DBLKSIZ 16384
 #define PBLKSIZ 8192
 #define PAIRMAX 8008			/* arbitrary on PBLKSIZ-N */
@@ -78,10 +78,11 @@
 #endif
 #define SPLTMAX	10			/* maximum allowed splits */
 
-/* for SDBM.flags */
+/* for apr_sdbm_t.flags */
 #define SDBM_RDONLY	0x1	       /* data base open read-only */
-					/* for a single insertion */
-struct SDBM {
+#define SDBM_SHARED	0x4	       /* data base locks for shared write */
+
+struct apr_sdbm_t {
     apr_pool_t *pool;
     apr_file_t *dirf;		       /* directory file descriptor */
     apr_file_t *pagf;		       /* page file descriptor */
@@ -96,11 +97,14 @@ struct SDBM {
     char pagbuf[PBLKSIZ];	       /* page file block buffer */
     long dirbno;		       /* current block in dirbuf */
     char dirbuf[DBLKSIZ];	       /* directory file block buffer */
+    apr_status_t status;               /* track the specific last error */
 };
 
-apr_status_t sdbm_lock(SDBM *db, int exclusive);
-apr_status_t sdbm_unlock(SDBM *db);
+apr_status_t sdbm_lock(apr_sdbm_t *db, int exclusive);
+apr_status_t sdbm_unlock(apr_sdbm_t *db);
 
-extern const sdbm_datum sdbm_nullitem;
+extern const apr_sdbm_datum_t sdbm_nullitem;
+
+long sdbm_hash(const char *str, int len);
 
 #endif /* SDBM_PRIVATE_H */

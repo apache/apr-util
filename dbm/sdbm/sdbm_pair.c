@@ -119,8 +119,8 @@ int need;
 void
 putpair(pag, key, val)
 char *pag;
-sdbm_datum key;
-sdbm_datum val;
+apr_sdbm_datum_t key;
+apr_sdbm_datum_t val;
 {
 	register int n;
 	register int off;
@@ -145,14 +145,14 @@ sdbm_datum val;
 	ino[0] += 2;
 }
 
-sdbm_datum
+apr_sdbm_datum_t
 getpair(pag, key)
 char *pag;
-sdbm_datum key;
+apr_sdbm_datum_t key;
 {
 	register int i;
 	register int n;
-	sdbm_datum val;
+	apr_sdbm_datum_t val;
 	register short *ino = (short *) pag;
 
 	if ((n = ino[0]) == 0)
@@ -166,23 +166,21 @@ sdbm_datum key;
 	return val;
 }
 
-#ifdef SEEDUPS
 int
 duppair(pag, key)
 char *pag;
-sdbm_datum key;
+apr_sdbm_datum_t key;
 {
 	register short *ino = (short *) pag;
 	return ino[0] > 0 && seepair(pag, ino[0], key.dptr, key.dsize) > 0;
 }
-#endif
 
-sdbm_datum
+apr_sdbm_datum_t
 getnkey(pag, num)
 char *pag;
 int num;
 {
-	sdbm_datum key;
+	apr_sdbm_datum_t key;
 	register int off;
 	register short *ino = (short *) pag;
 
@@ -201,7 +199,7 @@ int num;
 int
 delpair(pag, key)
 char *pag;
-sdbm_datum key;
+apr_sdbm_datum_t key;
 {
 	register int n;
 	register int i;
@@ -296,8 +294,8 @@ char *pag;
 char *new;
 long sbit;
 {
-	sdbm_datum key;
-	sdbm_datum val;
+	apr_sdbm_datum_t key;
+	apr_sdbm_datum_t val;
 
 	register int n;
 	register int off = PBLKSIZ;

@@ -58,7 +58,7 @@
 #include "sdbm_private.h"
 
 /* NOTE: this function blocks until it acquires the lock */
-apr_status_t sdbm_lock(SDBM *db, int exclusive)
+apr_status_t sdbm_lock(apr_sdbm_t *db, int exclusive)
 {
     int type;
 
@@ -70,7 +70,7 @@ apr_status_t sdbm_lock(SDBM *db, int exclusive)
     return apr_file_lock(db->pagf, type);
 }
 
-apr_status_t sdbm_unlock(SDBM *db)
+apr_status_t sdbm_unlock(apr_sdbm_t *db)
 {
     return apr_file_unlock(db->pagf);
 }
