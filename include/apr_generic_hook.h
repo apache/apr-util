@@ -83,7 +83,7 @@ APU_DECLARE(void) ap_hook_generic(const char *szName,void (*pfn)(void),
 	       const char * const *,int))&ap_hook_generic)(#name,pfn,aszPre, \
 							   aszSucc, nOrder)
 
-apr_array_header_t *ap_generic_hook_get(const char *szName);
+APU_DECLARE(apr_array_header_t *) ap_generic_hook_get(const char *szName);
 
 /**
  * Implement a generic hook that runs until one of the functions
