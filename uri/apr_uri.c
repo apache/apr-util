@@ -357,11 +357,11 @@ deal_with_host:
         if (*hostinfo == '[') {
             v6_offset1 = 1;
             v6_offset2 = 2;
-            s = uri;
-            do {
-                --s;
-            } while (s >= hostinfo && *s != ':' && *s != ']');
-            if (s < hostinfo || *s == ']') {
+            s = memchr(hostinfo, ']', uri - hostinfo);
+            if (s == NULL) {
+                return APR_EGENERAL;
+            }
+            if (*++s != ':') {
                 s = NULL; /* no port */
             }
         }
