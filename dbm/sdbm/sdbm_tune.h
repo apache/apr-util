@@ -67,13 +67,6 @@
 #define BYTESIZ		8
 
 /*
- * important tuning parms (hah)
- */
-
-#define SEEDUPS			/* always detect duplicates */
-#define BADMESS			/* generate a message for worst case:
-				   cannot make room after SPLTMAX splits */
-/*
  * misc
  */
 #ifdef DEBUG
@@ -81,8 +74,5 @@
 #else
 #define debug(x)
 #endif
-
-apr_status_t sdbm_fd_lock(int fd, int readonly);
-apr_status_t sdbm_fd_unlock(int fd);
 
 #endif /* SDBM_TUNE_H */

@@ -76,11 +76,11 @@
 /*
  * forward
  */
-static int getdbit (SDBM *, long);
-static apr_status_t setdbit(SDBM *, long);
-static apr_status_t getpage(SDBM *db, long);
-static sdbm_datum getnext(SDBM *db);
-static apr_status_t makroom(SDBM *, long, int);
+static int getdbit (apr_sdbm_t *, long);
+static apr_status_t setdbit(apr_sdbm_t *, long);
+static apr_status_t getpage(apr_sdbm_t *db, long);
+static apr_status_t getnext(apr_sdbm_datum_t *key, apr_sdbm_t *db);
+static apr_status_t makroom(apr_sdbm_t *, long, int);
 
 /*
  * useful macros
@@ -89,7 +89,7 @@ static apr_status_t makroom(SDBM *, long, int);
 
 #define bad(x)		((x).dptr == NULL || (x).dsize <= 0)
 #define exhash(item)	sdbm_hash((item).dptr, (item).dsize)
-#define ioerr(db)	((db)->flags |= SDBM_IOERR)
+#define ioerr(db,stat)	((db)->status = stat)
 
 /* ### Does anything need these externally? */
 #define sdbm_dirfno(db)	((db)->dirf)
@@ -109,11 +109,11 @@ static long masks[] = {
         001777777777, 003777777777, 007777777777, 017777777777
 };
 
-const sdbm_datum sdbm_nullitem = { NULL, 0 };
+const apr_sdbm_datum_t sdbm_nullitem = { NULL, 0 };
 
 static apr_status_t database_cleanup(void *data)
 {
-    SDBM *db = data;
+    apr_sdbm_t *db = data;
 
     (void) apr_file_close(db->dirf);
     (void) sdbm_unlock(db);
@@ -123,19 +123,10 @@ static apr_status_t database_cleanup(void *data)
     return APR_SUCCESS;
 }
 
-apr_status_t sdbm_open(SDBM **db, const char *file, apr_int32_t flags, 
-                       apr_fileperms_t perms, apr_pool_t *p)
-{
-    char *dirname = apr_pstrcat(p, file, SDBM_DIRFEXT, NULL);
-    char *pagname = apr_pstrcat(p, file, SDBM_PAGFEXT, NULL);
-    
-    return sdbm_prep(db, dirname, pagname, flags, perms, p);
-}
-
-apr_status_t sdbm_prep(SDBM **pdb, const char *dirname, const char *pagname,
+apr_status_t prep(apr_sdbm_t **pdb, const char *dirname, const char *pagname,
                        apr_int32_t flags, apr_fileperms_t perms, apr_pool_t *p)
 {
-    SDBM *db;
+    apr_sdbm_t *db;
     apr_finfo_t finfo;
     apr_status_t status;
 
@@ -209,24 +200,39 @@ error:
     return status;
 }
 
-void sdbm_close(SDBM *db)
+apr_status_t apr_sdbm_open(apr_sdbm_t **db, const char *file, 
+                           apr_int32_t flags, apr_fileperms_t perms,
+                           apr_pool_t *p)
 {
-    (void) apr_pool_cleanup_run(db->pool, db, database_cleanup);
+    char *dirname = apr_pstrcat(p, file, SDBM_DIRFEXT, NULL);
+    char *pagname = apr_pstrcat(p, file, SDBM_PAGFEXT, NULL);
+    
+    return prep(db, dirname, pagname, flags, perms, p);
 }
 
-sdbm_datum sdbm_fetch(SDBM *db, sdbm_datum key)
+apr_status_t apr_sdbm_close(apr_sdbm_t *db)
 {
+    return apr_pool_cleanup_run(db->pool, db, database_cleanup);
+}
+
+apr_status_t apr_sdbm_fetch(apr_sdbm_t *db, apr_sdbm_datum_t *val, 
+                            apr_sdbm_datum_t key)
+{
+    apr_status_t status;
     if (db == NULL || bad(key))
-        return sdbm_nullitem;
+        return APR_EINVAL;
 
-    if (getpage(db, exhash(key)) == APR_SUCCESS)
-        return getpair(db->pagbuf, key);
+    if ((status = getpage(db, exhash(key))) == APR_SUCCESS) {
+        *val = getpair(db->pagbuf, key);
+        /* ### do we want a not-found result? */
+        return APR_SUCCESS;
+    }
 
-    ioerr(db);
-    return sdbm_nullitem;
+    ioerr(db, status);
+    return status;
 }
 
-static apr_status_t write_page(SDBM *db, const char *buf, long pagno)
+static apr_status_t write_page(apr_sdbm_t *db, const char *buf, long pagno)
 {
     apr_status_t status;
     apr_off_t off = OFF_PAG(pagno);
@@ -234,23 +240,23 @@ static apr_status_t write_page(SDBM *db, const char *buf, long pagno)
     if ((status = apr_file_seek(db->pagf, APR_SET, &off)) != APR_SUCCESS ||
         (status = apr_file_write_full(db->pagf, buf, PBLKSIZ, NULL)) 
                 != APR_SUCCESS) {
-        ioerr(db);
+        ioerr(db, status);
         return status;
     }
     
     return APR_SUCCESS;
 }
 
-apr_status_t sdbm_delete(SDBM *db, const sdbm_datum key)
+apr_status_t apr_sdbm_delete(apr_sdbm_t *db, const apr_sdbm_datum_t key)
 {
     apr_status_t status;
 
     if (db == NULL || bad(key))
         return APR_EINVAL;
-    if (sdbm_rdonly(db))
+    if (apr_sdbm_rdonly(db))
         return APR_EINVAL;
 
-    if (getpage(db, exhash(key)) == APR_SUCCESS) {
+    if ((status = getpage(db, exhash(key))) == APR_SUCCESS) {
         if (!delpair(db->pagbuf, key))
             /* ### should we define some APRUTIL codes? */
             return APR_EGENERAL;
@@ -264,11 +270,12 @@ apr_status_t sdbm_delete(SDBM *db, const sdbm_datum key)
         return APR_SUCCESS;
     }
 
-    ioerr(db);
+    ioerr(db, status);
     return APR_EACCES;
 }
 
-apr_status_t sdbm_store(SDBM *db, sdbm_datum key, sdbm_datum val, int flags)
+apr_status_t apr_sdbm_store(apr_sdbm_t *db, apr_sdbm_datum_t key, 
+                            apr_sdbm_datum_t val, int flags)
 {
     int need;
     register long hash;
@@ -276,7 +283,7 @@ apr_status_t sdbm_store(SDBM *db, sdbm_datum key, sdbm_datum val, int flags)
 
     if (db == NULL || bad(key))
         return APR_EINVAL;
-    if (sdbm_rdonly(db))
+    if (apr_sdbm_rdonly(db))
         return APR_EINVAL;
 
     need = key.dsize + val.dsize;
@@ -292,12 +299,10 @@ apr_status_t sdbm_store(SDBM *db, sdbm_datum key, sdbm_datum val, int flags)
          * if we need to replace, delete the key/data pair
          * first. If it is not there, ignore.
          */
-        if (flags == SDBM_REPLACE)
+        if (flags == APR_SDBM_REPLACE)
             (void) delpair(db->pagbuf, key);
-#ifdef SEEDUPS
-        else if (duppair(db->pagbuf, key))
+        else if (!(flags & APR_SDBM_INSERTDUP) && duppair(db->pagbuf, key))
             return APR_EEXIST;
-#endif
         /*
          * if we do not have enough room, we have to split.
          */
@@ -316,7 +321,7 @@ apr_status_t sdbm_store(SDBM *db, sdbm_datum key, sdbm_datum val, int flags)
         return APR_SUCCESS;
     }
     
-    ioerr(db);
+    ioerr(db, status);
     return status;
 }
 
@@ -325,7 +330,7 @@ apr_status_t sdbm_store(SDBM *db, sdbm_datum key, sdbm_datum val, int flags)
  * this routine will attempt to make room for SPLTMAX times before
  * giving up.
  */
-static apr_status_t makroom(SDBM *db, long hash, int need)
+static apr_status_t makroom(apr_sdbm_t *db, long hash, int need)
 {
     long newp;
     char twin[PBLKSIZ];
@@ -426,32 +431,34 @@ static apr_status_t read_from(apr_file_t *f, void *buf,
  * the following two routines will break if
  * deletions aren't taken into account. (ndbm bug)
  */
-sdbm_datum sdbm_firstkey(SDBM *db)
+apr_status_t apr_sdbm_firstkey(apr_sdbm_t *db, apr_sdbm_datum_t *key)
 {
     /*
      * start at page 0
      */
-    if (read_from(db->pagf, db->pagbuf, OFF_PAG(0), PBLKSIZ) != APR_SUCCESS) {
-        ioerr(db);
-        return sdbm_nullitem;
+    apr_status_t status;
+    if ((status = read_from(db->pagf, db->pagbuf, OFF_PAG(0), PBLKSIZ))
+                != APR_SUCCESS) {
+        ioerr(db, status);
+        return status;
     }
 
     db->pagbno = 0;
     db->blkptr = 0;
     db->keyptr = 0;
 
-    return getnext(db);
+    return getnext(key, db);
 }
 
-sdbm_datum sdbm_nextkey(SDBM *db)
+apr_status_t apr_sdbm_nextkey(apr_sdbm_t *db, apr_sdbm_datum_t *key)
 {
-    return getnext(db);
+    return getnext(key, db);
 }
 
 /*
  * all important binary tree traversal
  */
-static apr_status_t getpage(SDBM *db, long hash)
+static apr_status_t getpage(apr_sdbm_t *db, long hash)
 {
     register int hbit;
     register long dbit;
@@ -482,7 +489,7 @@ static apr_status_t getpage(SDBM *db, long hash)
          */
         if ((status = read_from(db->pagf, db->pagbuf, OFF_PAG(pagb), PBLKSIZ)) 
             != APR_SUCCESS) {
-            ioerr(db);		    
+            ioerr(db, status);
             return status;
         }
 
@@ -495,7 +502,7 @@ static apr_status_t getpage(SDBM *db, long hash)
     return APR_SUCCESS;
 }
 
-static int getdbit(SDBM *db, long dbit)
+static int getdbit(apr_sdbm_t *db, long dbit)
 {
     register long c;
     register long dirb;
@@ -516,7 +523,7 @@ static int getdbit(SDBM *db, long dbit)
     return db->dirbuf[c % DBLKSIZ] & (1 << dbit % BYTESIZ);
 }
 
-static apr_status_t setdbit(SDBM *db, long dbit)
+static apr_status_t setdbit(apr_sdbm_t *db, long dbit)
 {
     register long c;
     register long dirb;
@@ -555,15 +562,14 @@ static apr_status_t setdbit(SDBM *db, long dbit)
 * getnext - get the next key in the page, and if done with
 * the page, try the next page in sequence
 */
-static sdbm_datum getnext(SDBM *db)
+static apr_status_t getnext(apr_sdbm_datum_t *key, apr_sdbm_t *db)
 {
-    sdbm_datum key;
-
+    apr_status_t status;
     for (;;) {
         db->keyptr++;
-        key = getnkey(db->pagbuf, db->keyptr);
-        if (key.dptr != NULL)
-            return key;
+        *key = getnkey(db->pagbuf, db->keyptr);
+        if (key->dptr != NULL)
+            return APR_SUCCESS;
         /*
          * we either run out, or there is nothing on this page..
          * try the next one... If we lost our position on the
@@ -572,35 +578,36 @@ static sdbm_datum getnext(SDBM *db)
         db->keyptr = 0;
         if (db->pagbno != db->blkptr++) {
             apr_off_t off = OFF_PAG(db->blkptr);
-            if (apr_file_seek(db->pagf, APR_SET, &off) != APR_SUCCESS)
+            if ((status = apr_file_seek(db->pagf, APR_SET, &off) 
+                        != APR_SUCCESS))
                 break;
         }
 
         db->pagbno = db->blkptr;
         /* ### EOF acceptable here too? */
-        if (apr_file_read_full(db->pagf, db->pagbuf, PBLKSIZ, NULL) 
-                != APR_SUCCESS)
+        if ((status = apr_file_read_full(db->pagf, db->pagbuf, PBLKSIZ, NULL))
+                    != APR_SUCCESS)
             break;
         if (!chkpage(db->pagbuf))
             break;
     }
     
-    ioerr(db);
-    return sdbm_nullitem;
+    ioerr(db, status);
+    return status;
 }
 
 
-int sdbm_rdonly(SDBM *db)
+int apr_sdbm_rdonly(apr_sdbm_t *db)
 {
     return ((db)->flags & SDBM_RDONLY);
 }
 
-int sdbm_error(SDBM *db)
+apr_status_t apr_sdbm_error_get(apr_sdbm_t *db)
 {
-    return ((db)->flags & SDBM_IOERR);
+    return ((db)->status);
 }
 
-int sdbm_clearerr(SDBM *db)
+int apr_sdbm_error_clear(apr_sdbm_t *db)
 {
-    return ((db)->flags &= ~SDBM_IOERR);  /* ouch */
+    return ((db)->status = APR_SUCCESS);
 }

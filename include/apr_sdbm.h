@@ -65,17 +65,17 @@
 #include "apr_errno.h"
 #include "apr_file_io.h"   /* for apr_fileperms_t */
 
-typedef struct SDBM SDBM;
+typedef struct apr_sdbm_t apr_sdbm_t;
 
 /* utility functions */
-int sdbm_rdonly(SDBM *db);
-int sdbm_error(SDBM *db);
-int sdbm_clearerr(SDBM *db);
+int apr_sdbm_rdonly(apr_sdbm_t *db);
+int apr_sdbm_error_get(apr_sdbm_t *db);
+int apr_sdbm_error_clear(apr_sdbm_t *db);
 
 typedef struct {
     char *dptr;
     int dsize;
-} sdbm_datum;
+} apr_sdbm_datum_t;
 
 /* The extensions used for the database files */
 #define SDBM_DIRFEXT	".dir"
@@ -83,28 +83,22 @@ typedef struct {
 
 /* Standard dbm interface */
 
-apr_status_t sdbm_open(SDBM **db, const char *filename, apr_int32_t flags,
-                       apr_fileperms_t perms, apr_pool_t *p);
+apr_status_t apr_sdbm_open(apr_sdbm_t **db, const char *filename, 
+                           apr_int32_t flags, apr_fileperms_t perms, 
+                           apr_pool_t *p);
 
-void sdbm_close(SDBM *db); /* ### should return value? */
+apr_status_t apr_sdbm_close(apr_sdbm_t *db);
 
-sdbm_datum sdbm_fetch(SDBM *db, sdbm_datum key);
-apr_status_t sdbm_delete(SDBM *db, const sdbm_datum key);
+apr_status_t apr_sdbm_fetch(apr_sdbm_t *db, apr_sdbm_datum_t *val, apr_sdbm_datum_t key);
+apr_status_t apr_sdbm_delete(apr_sdbm_t *db, const apr_sdbm_datum_t key);
 
 /* * flags to sdbm_store */
-#define SDBM_INSERT	0
-#define SDBM_REPLACE	1
-apr_status_t sdbm_store(SDBM *db, sdbm_datum key, sdbm_datum value, int flags);
-sdbm_datum sdbm_firstkey(SDBM *db);
-sdbm_datum sdbm_nextkey(SDBM *db);
-
-/*
- * other
- */
-apr_status_t sdbm_prep(SDBM **db, const char *dirname, const char *pagname,
-                       apr_int32_t flags, apr_fileperms_t perms,
-                       apr_pool_t *pool);
-
-long sdbm_hash(const char *str, int len);
+#define APR_SDBM_INSERT     0
+#define APR_SDBM_REPLACE    1
+#define APR_SDBM_INSERTDUP  2
+apr_status_t apr_sdbm_store(apr_sdbm_t *db, apr_sdbm_datum_t key, 
+                            apr_sdbm_datum_t value, int flags);
+apr_status_t apr_sdbm_firstkey(apr_sdbm_t *db, apr_sdbm_datum_t *key);
+apr_status_t apr_sdbm_nextkey(apr_sdbm_t *db, apr_sdbm_datum_t *key);
 
 #endif /* APR_SDBM_H */
