@@ -248,16 +248,17 @@ APU_DECLARE(apr_status_t) apr_brigade_flatten(apr_bucket_brigade *bb,
 
         /* XXX: It appears that overflow of the final bucket
          * is DISCARDED without any warning to the caller.
+         *
+         * No, we only copy the data up to their requested size.  -- jre
          */
         memcpy(c, str, str_len);
 
         c += str_len;
         actual += str_len;
 
-        /* XXX: Is this a bug in actual == *len or did we intend to
-         * flatten all trailing 0 byte buckets?
-         */
-        if (actual > *len) {
+        /* This could probably be actual == *len, but be safe from stray
+         * photons. */
+        if (actual >= *len) {
             break;
         }
     }
