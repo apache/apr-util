@@ -52,43 +52,53 @@
  * <http://www.apache.org/>.
  */
 
+#include "apr_lib.h"
 #include "ap_buckets.h"
-#include <stdlib.h>
 
-static apr_status_t flush_read(ap_bucket *b, const char **str, 
-                                apr_size_t *len, ap_read_type block)
+APR_DECLARE(apr_status_t) ap_bucket_split_any(ap_bucket *e, apr_off_t point)
 {
-    *str = NULL;
-    *len = 0;
-    return APR_SUCCESS;
+    apr_status_t rv;
+    const char *str;
+    apr_size_t len;
+
+    /* try to split this bucket directly */
+    rv = ap_bucket_split(e, point);
+    if (rv != APR_ENOTIMPL) {
+        return rv;
+    }
+
+    /* if the bucket cannot be split, we must read from it,
+     * changing its type to one that can be split */
+    if (point < 0) {
+        return APR_EINVAL;
+    }
+    rv = ap_bucket_read(e, &str, &len, AP_BLOCK_READ);
+    if (rv != APR_SUCCESS) {
+        return rv;
+    }
+    if (point > len) {
+        return APR_EINVAL;
+    }
+    return ap_bucket_split(e, point);
 }
 
-static apr_status_t flush_copy(ap_bucket *e, ap_bucket **c)
+APR_DECLARE(apr_status_t) ap_bucket_copy_any(ap_bucket *e, ap_bucket **c)
 {
-    *c = ap_bucket_create_flush();
-    return APR_SUCCESS;
+    apr_status_t rv;
+    const char *str;
+    apr_size_t len;
+
+    /* try to copy the bucket directly */
+    rv = ap_bucket_copy(e, c);
+    if (rv != APR_ENOTIMPL) {
+        return rv;
+    }
+
+    /* if the bucket cannot be copied, we must read from it,
+     * changing its type to one that can be copied */
+    rv = ap_bucket_read(e, &str, &len, AP_BLOCK_READ);
+    if (rv != APR_SUCCESS) {
+        return rv;
+    }
+    return ap_bucket_copy(e, c);
 }
-
-APR_DECLARE(ap_bucket *) ap_bucket_make_flush(ap_bucket *b)
-{
-    b->length    = 0;
-    b->data      = NULL;
-
-    b->type      = &ap_flush_type;
-    
-    return b;
-}
-
-APR_DECLARE(ap_bucket *) ap_bucket_create_flush(void)
-{
-    ap_bucket_do_create(ap_bucket_make_flush(b));
-}
-
-APR_DECLARE_DATA const ap_bucket_type ap_flush_type = {
-    "FLUSH", 5,
-    ap_bucket_destroy_notimpl,
-    flush_read,
-    ap_bucket_setaside_notimpl,
-    ap_bucket_split_notimpl,
-    flush_copy
-};

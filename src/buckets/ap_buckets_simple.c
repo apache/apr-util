@@ -59,14 +59,10 @@
  * We can't simplify this function by using an ap_bucket_make function
  * because we aren't sure of the exact type of this bucket.
  */
-static apr_status_t simple_split(ap_bucket *a, apr_off_t point)
+static apr_status_t simple_copy(ap_bucket *a, ap_bucket **c)
 {
     ap_bucket *b;
     ap_bucket_simple *ad, *bd;
-
-    if (point < 0 || point > a->length) {
-	return APR_EINVAL;
-    }
 
     b = malloc(sizeof(*b)); 
     if (b == NULL) {
@@ -81,6 +77,29 @@ static apr_status_t simple_split(ap_bucket *a, apr_off_t point)
     ad = a->data;
     b->data = bd;
     *bd = *ad;
+
+    *c = b;
+
+    return APR_SUCCESS;
+}
+
+static apr_status_t simple_split(ap_bucket *a, apr_off_t point)
+{
+    ap_bucket *b;
+    ap_bucket_simple *ad, *bd;
+    apr_status_t rv;
+
+    if (point < 0 || point > a->length) {
+	return APR_EINVAL;
+    }
+
+    rv = simple_copy(a, &b);
+    if (rv != APR_SUCCESS) {
+        return rv;
+    }
+
+    ad = a->data;
+    bd = b->data;
 
     a->length = point;
     ad->end = ad->start + point;
@@ -172,17 +191,19 @@ APR_DECLARE(ap_bucket *) ap_bucket_create_transient(
 }
 
 const ap_bucket_type ap_immortal_type = {
-    "IMMORTAL", 4,
+    "IMMORTAL", 5,
     free,
     simple_read,
     ap_bucket_setaside_notimpl,
-    simple_split
+    simple_split,
+    simple_copy
 };
 
 APR_DECLARE_DATA const ap_bucket_type ap_transient_type = {
-    "TRANSIENT", 4,
+    "TRANSIENT", 5,
     ap_bucket_destroy_notimpl, 
     simple_read,
     transient_setaside,
-    simple_split
+    simple_split,
+    simple_copy
 };

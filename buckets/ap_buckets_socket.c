@@ -135,9 +135,10 @@ APR_DECLARE(ap_bucket *) ap_bucket_create_socket(apr_socket_t *p)
 }
 
 APR_DECLARE_DATA const ap_bucket_type ap_socket_type = {
-    "SOCKET", 4,
+    "SOCKET", 5,
     ap_bucket_destroy_notimpl,
     socket_read,
     ap_bucket_setaside_notimpl, 
-    ap_bucket_split_notimpl
+    ap_bucket_split_notimpl,
+    ap_bucket_copy_notimpl
 };

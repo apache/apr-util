@@ -241,7 +241,10 @@ APR_DECLARE_NONSTD(apr_status_t) ap_bucket_split_notimpl(ap_bucket *data, apr_of
 {
     return APR_ENOTIMPL;
 }
-
+APR_DECLARE_NONSTD(apr_status_t) ap_bucket_copy_notimpl(ap_bucket *e, ap_bucket **c)
+{
+    return APR_ENOTIMPL;
+}
 APR_DECLARE_NONSTD(void) ap_bucket_destroy_notimpl(void *data)
 {
     return;

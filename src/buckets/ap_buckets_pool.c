@@ -133,9 +133,10 @@ APR_DECLARE(ap_bucket *) ap_bucket_create_pool(
 }
 
 APR_DECLARE_DATA const ap_bucket_type ap_pool_type = {
-    "POOL", 4,
+    "POOL", 5,
     pool_destroy,
     pool_read,
     ap_bucket_setaside_notimpl,
-    ap_bucket_split_shared
+    ap_bucket_split_shared,
+    ap_bucket_copy_shared
 };
