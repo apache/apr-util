@@ -155,7 +155,7 @@ APU_DECLARE(apr_status_t) apr_md5_update(apr_md5_ctx_t *context,
  * @param digest The final MD5 digest
  * @param context The MD5 content we are finalizing.
  */
-APU_DECLARE(apr_status_t) apr_md5_final(unsigned char digest[MD5_DIGESTSIZE],
+APU_DECLARE(apr_status_t) apr_md5_final(unsigned char digest[APR_MD5_DIGESTSIZE],
                                         apr_md5_ctx_t *context);
 
 /**
@@ -164,7 +164,7 @@ APU_DECLARE(apr_status_t) apr_md5_final(unsigned char digest[MD5_DIGESTSIZE],
  * @param input The message block to use
  * @param inputLen The length of the message block
  */
-APU_DECLARE(apr_status_t) apr_md5(unsigned char digest[MD5_DIGESTSIZE],
+APU_DECLARE(apr_status_t) apr_md5(unsigned char digest[APR_MD5_DIGESTSIZE],
                                   const void *input,
                                   apr_size_t inputLen);
 

@@ -91,7 +91,7 @@ static void try(const void *buf, apr_size_t bufLen, apr_xlate_t *xlate,
 {
     int i;
     apr_md5_ctx_t context;
-    unsigned char hash[MD5_DIGESTSIZE];
+    unsigned char hash[APR_MD5_DIGESTSIZE];
     
     printf("Trying translation %d\n", cur + 1);
 
@@ -110,14 +110,14 @@ static void try(const void *buf, apr_size_t bufLen, apr_xlate_t *xlate,
     STD_TEST_NEQ("    apr_md5_final", apr_md5_final(hash, &context))
 
     printf("     (MD5 hash : ");
-    for (i = 0; i < MD5_DIGESTSIZE; i++) {
+    for (i = 0; i < APR_MD5_DIGESTSIZE; i++) {
         printf("%02x",hash[i]);
     }
     
     printf(")\n");
 
     printf("%-60s", "    Checking hash against expected");
-    if (memcmp(hash, digest, MD5_DIGESTSIZE)) {
+    if (memcmp(hash, digest, APR_MD5_DIGESTSIZE)) {
         /* This is a fatal error...report on stderr */
         fprintf(stderr, "The digest is not as expected!\n");
 #if 'A' != 0x41
