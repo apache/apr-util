@@ -129,6 +129,6 @@ AC_OUTPUT([
     include/apr_ldap.h
     include/apu.h
     $MAKEFILES
-	])
-
+	],[
 chmod +x apu-config
+])
