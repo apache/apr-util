@@ -1,5 +1,8 @@
 Changes with APR-util b1  
 
+  *) Allow LTFLAGS to be overridden by the configure command-line
+     (default="--silent") and introduce LT_LDFLAGS.  [Roy Fielding]
+
   *) Add APR_SHARELOCK support to apr_sdbm_open(), locking read operations
      with a shared lock and all write ops with an excl lock.  [Will Rowe]
 

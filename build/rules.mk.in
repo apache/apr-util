@@ -69,12 +69,11 @@ LIBTOOL=@LIBTOOL@
 CFLAGS=@CFLAGS@
 LIBS=@LIBS@
 LDFLAGS=@LDFLAGS@
+LTFLAGS=@LTFLAGS@
+LT_LDFLAGS=@LT_LDFLAGS@
 
 RM=@RM@
 SHELL=@SHELL@
-
-### make LTFLAGS somewhat variable?
-LTFLAGS = --silent
 
 #
 # Basic macro setup
@@ -103,10 +102,9 @@ all-recursive depend-recursive clean-recursive distclean-recursive \
   extraclean-recursive:
 	@otarget=`echo $@ | sed s/-recursive//`; \
 	list='$(SUBDIRS)'; \
-	ttarget=`echo $otarget | sed s/.*clean.*/clean/`; \
-	if test x"$ttarget" = "xclean"; then \
-	    list='$(SUBDIRS) $(CLEAN_SUBDIRS)'; \
-	fi; \
+	case $$otarget in *clean) \
+	    list='$(SUBDIRS) $(CLEAN_SUBDIRS)';; \
+	esac; \
 	for i in $$list; do \
 	    if test -d "$$i"; then \
 		target="$$otarget"; \
