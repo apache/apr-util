@@ -6,11 +6,12 @@ dnl library. It provides a standardized mechanism for using APU. It supports
 dnl embedding APU into the application source, or locating an installed
 dnl copy of APU.
 dnl
-dnl APR_FIND_APU([srcdir])
+dnl APR_FIND_APU([srcdir, path])
 dnl
 dnl   where srcdir is the location of the bundled APU source directory, or
 dnl   empty if source is not bundled.
-dnl
+dnl   where path is the prefix to the location where the bundled APU will
+dnl   will be built.
 dnl
 dnl Sets the following variables on exit:
 dnl
@@ -58,15 +59,6 @@ AC_DEFUN(APR_FIND_APU, [
 
   preserve_LIBS="$LIBS"
   preserve_LDFLAGS="$LDFLAGS"
-  preserve_CFLAGS="$CFLAGS"
-
-  dnl We're going to be running our tests with gcc not libtool.  So,
-  dnl attempt to setup APR correctly for the interim period.  We just
-  dnl need to link not run, so -lapr should be fine if everything else
-  dnl has been setup.
-  if test -n "$apr_la_file"; then
-    LIBS="$LIBS -lapr"  
-  fi
 
   AC_MSG_CHECKING(for APR-util)
   AC_ARG_WITH(apr-util,
@@ -78,38 +70,23 @@ AC_DEFUN(APR_FIND_APU, [
 
     if test -x "$withval/bin/apu-config"; then
        apu_config="$withval/bin/apu-config"
-       dnl FIXME: Convert libexpat.la to -lexpat
-       APU_LIBS=`$withval/bin/apu-config --libs`
-       TMP_WITHVAL=`echo "$withval/lib/libexpat.la" | sed 's/\\//\\\\\\//g'`
-       APU_LIBS=`echo $APU_LIBS | sed "s/$TMP_WITHVAL/-lexpat/g"`
-       LIBS="$LIBS $APU_LIBS"
+       apu_found="yes"
+       apu_libdir="$withval/lib"
+       apu_includes="-I$withval/include"
     else
-       apu_config=""
-    fi
-
-    LIBS="$LIBS -laprutil"
-    LDFLAGS="$preserve_LDFLAGS -L$withval/lib"
-    AC_TRY_LINK_FUNC(apr_uri_parse, [
-      if test -f "$withval/include/apu.h"; then
-        dnl found an installed version of APU
-        apu_found="yes"
-        apu_libdir="$withval/lib"
-        apu_includes="-I$withval/include"
-      fi
-    ], [
-      dnl look for a build tree (note: already configured/built)
-      if test -f "$withval/libaprutil.la"; then
+       dnl look for a build tree (note: already configured/built)
+       if test -f "$withval/libaprutil.la"; then
         apu_found="yes"
         apu_libdir=""
         apu_la_file="$withval/libaprutil.la"
-        if test -x $withval/apu-config; then
+        if test -x "$withval/apu-config"; then
           apu_config="$withval/apu-config"
         else
           apu_config=""
         fi
         apu_includes="-I$withval/include"
       fi
-    ])
+    fi
 
     dnl if --with-apr is used, then the target prefix/directory must be valid
     if test "$apu_found" != "yes"; then
@@ -153,14 +130,19 @@ installed APU, nor an APR-util build directory.])
     if test "$apu_found" = "no" && test -n "$1" && test -x "$1/configure"; then
       apu_found="reconfig"
       apu_srcdir="$1"
+      if test -n "$2"; then
+        apu_builddir="$2/"
+      else
+        apu_builddir=""
+      fi
       apu_libdir=""
-      apu_la_file="$apu_srcdir/libaprutil.la"
-      if test -f "$apu_srcdir/apu-config.in"; then
-        apu_config="$apu_srcdir/apu-config"
+      apu_la_file="$apu_builddir$apu_srcdir/libaprutil.la"
+      if test -f "$apu_builddir$apu_srcdir/apu-config.in"; then
+        apu_config="$apu_builddir$apu_srcdir/apu-config"
       else
         apu_config=""
       fi
-      apu_includes="-I$apu_srcdir/include"
+      apu_includes="-I$apu_builddir$apu_srcdir/include"
     fi
   ])
 
@@ -171,7 +153,6 @@ installed APU, nor an APR-util build directory.])
   fi
 
   AC_MSG_RESULT($apu_found)
-  CFLAGS="$preserve_CFLAGS"
   LIBS="$preserve_LIBS"
   LDFLAGS="$preserve_LDFLAGS"
 ])
