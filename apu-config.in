@@ -173,19 +173,10 @@ while test $# -gt 0; do
     fi
     ;;
     --link-libtool)
-    if test -f "$LA_FILE"; then
-        flags="$flags $LA_FILE"
-    elif test "$location" = "installed"; then
-        ### avoid using -L if libdir is a "standard" location like /usr/lib
-        flags="$flags -L$libdir -laprutil"
-    else
-        flags="$flags -L$thisdir -laprutil"
-    fi
+    flags="$flags $LA_FILE"
     ;;
     --apu-la-file)
-    if test -f "$LA_FILE"; then
-        flags="$flags $LA_FILE"
-    fi
+    flags="$flags $LA_FILE"
     ;;
     --old-expat)
     if test ! -n "$APR_XML_EXPAT_OLD"; then
