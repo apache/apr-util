@@ -78,7 +78,7 @@ extern "C" {
  * @package Bucket Brigades
  */
 
-#define APR_BUCKET_BUFF_SIZE 9000
+#define APR_BUCKET_BUFF_SIZE 8192
 
 typedef enum {
     APR_BLOCK_READ,
