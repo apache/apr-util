@@ -93,8 +93,7 @@ APU_DECLARE(apr_status_t) apr_brigade_cleanup(void *data)
 
 APU_DECLARE(apr_status_t) apr_brigade_destroy(apr_bucket_brigade *b)
 {
-    apr_pool_cleanup_kill(b->p, b, brigade_cleanup);
-    return apr_brigade_cleanup(b);
+    return apr_pool_cleanup_run(b->p, b, brigade_cleanup);
 }
 
 APU_DECLARE(apr_bucket_brigade *) apr_brigade_create(apr_pool_t *p,
