@@ -84,9 +84,6 @@ static void mmap_destroy(void *data)
     free(m);
 }
 
-ap_bucket_type ap_mmap_type = { "MMAP", 4, mmap_destroy, mmap_read,
-                          ap_bucket_setaside_notimpl, ap_bucket_split_shared };
-
 /*
  * XXX: are the start and length arguments useful?
  */
@@ -119,8 +116,10 @@ API_EXPORT(ap_bucket *) ap_bucket_create_mmap(
     ap_bucket_do_create(ap_bucket_make_mmap(b, mm, start, length));
 }
 
-void ap_bucket_mmap_register(apr_pool_t *p)
-{
-    ap_insert_bucket_type(&ap_mmap_type);
-}
-
+const ap_bucket_type ap_mmap_type = {
+    "MMAP", 4,
+    mmap_destroy,
+    mmap_read,
+    ap_bucket_setaside_notimpl,
+    ap_bucket_split_shared
+};

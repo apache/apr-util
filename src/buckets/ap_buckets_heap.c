@@ -88,9 +88,6 @@ static void heap_destroy(void *data)
     free(h);
 }
 
-ap_bucket_type ap_heap_type = { "HEAP", 4, heap_destroy, heap_read,
-                          ap_bucket_setaside_notimpl, ap_bucket_split_shared };
-
 API_EXPORT(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
 		const char *buf, apr_size_t length, int copy, apr_ssize_t *w)
 {
@@ -144,8 +141,10 @@ API_EXPORT(ap_bucket *) ap_bucket_create_heap(
     ap_bucket_do_create(ap_bucket_make_heap(b, buf, length, copy, w));
 }
 
-void ap_bucket_heap_register(apr_pool_t *p)
-{
-    ap_insert_bucket_type(&ap_heap_type);
-}
-
+const ap_bucket_type ap_heap_type = {
+    "HEAP", 4,
+    heap_destroy,
+    heap_read,
+    ap_bucket_setaside_notimpl,
+    ap_bucket_split_shared
+};
