@@ -14,6 +14,7 @@ sinclude(build/apu-hints.m4)
 sinclude(build/apr_common.m4)
 sinclude(build/find_apr.m4)
 sinclude(build/dbm.m4)
+sinclude(build/dbd.m4)
 
 dnl Generate ./config.nice for reproducing runs of configure
 dnl 
@@ -117,6 +118,7 @@ dnl Find Expat
 dnl Find an iconv library
 APU_FIND_LDAP
 APU_CHECK_DBM
+APU_CHECK_DBD
 APU_FIND_EXPAT
 APU_FIND_ICONV
 
