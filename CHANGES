@@ -1,5 +1,8 @@
 Changes with APR-util 0.9.2
 
+  *) Have buildconf copy required files from apr so that apr-util can build
+     on its own.  [Craig Rodrigues <rodrigc@attbi.com>]
+
   *) Detect OpenLDAP when used with Solaris 9. PR 13427.
      [Gary Algier <gaa@ulticom.com>]
 
