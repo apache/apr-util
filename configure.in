@@ -195,6 +195,7 @@ MAKEFILES="Makefile $test_Makefile"
 AC_OUTPUT([
     export_vars.sh
     apu-config
+    apr-util.pc
     include/private/apu_select_dbm.h
     include/apr_ldap.h
     include/apu.h
