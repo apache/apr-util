@@ -59,7 +59,7 @@
 #include "apr_md5.h"
 #include "apr_xlate.h"
 #include "apr_general.h"
-#include "test_apr.h"
+#include "test_apu.h"
 
 int cur; 
 
