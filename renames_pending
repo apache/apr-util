@@ -1,21 +1,2 @@
 Symbol renames pending for apr-util (keep ordered and complete, please!)
 
-apr_dynamic_fn_register   from apr_register_optional_fn
-apr_dynamic_fn_retrieve   from apr_retrieve_optional_fn
-
-apr_hook_debug_enabled    from apr_debug_module_hooks
-apr_hook_debug_current    from apr_current_hooking_module
-apr_hook_debug_show       from apr_show_hook
-
-apr_hook_global_pool      from apr_global_hook_pool
-apr_hook_sort_all         from apr_sort_hooks
-
-apr_uri_port_of_scheme    from apr_uri_default_port_for_scheme
-apr_uri_unparse           from apr_uri_unparse_components
-apr_uri_parse             from apr_uri_parse_components
-apr_uri_parse_hostinfo    from apr_uri_parse_hostinfo_components
-
-apr_uri_t                 from apr_uri_components
-
-All APR_URI_*             from all APU_URI_* symbols
-All APR_UNP_*             from all UNP_* symbols

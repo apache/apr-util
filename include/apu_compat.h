@@ -90,8 +90,8 @@
 #define ap_hook_deregister_all apr_hook_deregister_all
 /** @deprecated @see apr_hook_sort_register */
 #define ap_hook_sort_register apr_hook_sort_register
-/** @deprecated @see apr_show_hook */
-#define ap_show_hook apr_show_hook
+/** @deprecated @see apr_hook_debug_show */
+#define ap_show_hook apr_hook_debug_show
 
 /* --------------------------------------------------------------------
  * the following symbols were moved from httpd-2.0/.../util_date.[ch]
