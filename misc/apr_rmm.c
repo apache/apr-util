@@ -126,7 +126,7 @@ static apr_rmm_off_t find_block_of_size(apr_rmm_t *rmm, apr_size_t size)
         next = blk->next;
     }
 
-    if (bestsize - size > sizeof(struct rmm_block_t*)) {
+    if (bestsize - size > sizeof(rmm_block_t)) {
         struct rmm_block_t *blk = (rmm_block_t*)((char*)rmm->base + best);
         struct rmm_block_t *new = (rmm_block_t*)((char*)rmm->base + best + size);
 
@@ -138,7 +138,7 @@ static apr_rmm_off_t find_block_of_size(apr_rmm_t *rmm, apr_size_t size)
         blk->next = best + size;
 
         if (new->next) {
-            blk = (rmm_block_t*)((char*)rmm->base + blk->next);
+            blk = (rmm_block_t*)((char*)rmm->base + new->next);
             blk->prev = best + size;
         }
     }
