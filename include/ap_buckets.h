@@ -951,7 +951,7 @@ APU_DECLARE(ap_bucket *) ap_bucket_make_flush(ap_bucket *b);
  * @param buf The data to insert into the bucket
  * @param nbyte The size of the data to insert.
  * @return The new bucket, or NULL if allocation failed
- * @deffunc ap_bucket *ap_bucket_create_transient(const char *buf, apr_size_t nbyte, apr_size_t *w)
+ * @deffunc ap_bucket *ap_bucket_create_immortal(const char *buf, apr_size_t nbyte, apr_size_t *w)
  */
 APU_DECLARE(ap_bucket *) ap_bucket_create_immortal(
 		const char *buf, apr_size_t nbyte);
@@ -1029,7 +1029,7 @@ APU_DECLARE(ap_bucket *) ap_bucket_create_pool(const char *buf,
                                             apr_size_t length, apr_pool_t *p);
 /**
  * Make the bucket passed in a bucket refer to pool data
- * @param b The bucket to make into a HEAP bucket
+ * @param b The bucket to make into a pool bucket
  * @param buf The buffer to insert into the bucket
  * @param p The pool the memory was allocated out of
  * @return The new bucket, or NULL if allocation failed
