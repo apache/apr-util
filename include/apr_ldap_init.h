@@ -30,6 +30,10 @@
 
 #if APR_HAS_LDAP
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /**
  * APR LDAP SSL Initialise function
  *
@@ -120,6 +124,10 @@ APU_DECLARE(int) apr_ldap_init(apr_pool_t *pool,
  */
 APU_DECLARE(int) apr_ldap_info(apr_pool_t *pool,
                                apr_ldap_err_t **result_err);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* APR_HAS_LDAP */
 

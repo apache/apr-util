@@ -31,6 +31,10 @@
 #include "apu.h"
 #include "apr_pools.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /** Structure to access an exploded LDAP URL */
 typedef struct apr_ldap_url_desc_t {
     struct  apr_ldap_url_desc_t  *lud_next;
@@ -100,6 +104,10 @@ APU_DECLARE(int) apr_ldap_url_parse(apr_pool_t *pool,
                                     const char *url_in,
                                     apr_ldap_url_desc_t **ludpp,
                                     apr_ldap_err_t **result_err);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* APR_HAS_LDAP */
 

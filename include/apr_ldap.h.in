@@ -95,6 +95,9 @@
 #error Support for LDAP v2.0 toolkits has been removed from apr-util. Please use an LDAP v3.0 toolkit.
 #endif 
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /**
  * This structure allows the C LDAP API error codes to be returned
@@ -106,6 +109,10 @@ typedef struct apr_ldap_err_t {
     const char *msg;
     int rc;
 } apr_ldap_err_t;
+
+#ifdef __cplusplus
+}
+#endif
 
 #include "apr_ldap_url.h"
 #include "apr_ldap_init.h"
