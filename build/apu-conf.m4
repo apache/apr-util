@@ -372,7 +372,9 @@ if test "$expat_include_dir" = "xml/expat/lib" -o "$expat_include_dir" = "xml/ex
   APU_SUBDIR_CONFIG($bundled_subdir)
   expat_include_dir=$srcdir/$bundled_subdir/lib
   expat_libs=$top_builddir/$bundled_subdir/lib/libexpat.la
+  APR_XML_SUBDIRS="`echo $bundled_subdir | sed -e 's%xml/%%'`"
 fi
+AC_SUBST(APR_XML_SUBDIRS)
 
 INCLUDES="$INCLUDES -I$expat_include_dir"
 LIBS="$LIBS $expat_libs"
