@@ -145,21 +145,22 @@ static TSort *tsort(TSort *pData,int nItems)
 	for(n=0 ; ; ++n) {
 	    if(n == nItems)
 		assert(0);      /* we have a loop... */
-	    if(!pData[n].pNext)
-		break;
-	}
-	if(pData[n].nPredecessors) {
-	    for(k=0 ; ; ++k) {
-		assert(k < nItems);
-		if(pData[n].ppPredecessors[k])
+	    if(!pData[n].pNext) {
+		if(pData[n].nPredecessors) {
+		    for(k=0 ; ; ++k) {
+			assert(k < nItems);
+			if(pData[n].ppPredecessors[k])
+			    break;
+		    }
+		    for(i=0 ; ; ++i) {
+			assert(i < nItems);
+			if(&pData[i] == pData[n].ppPredecessors[k]) {
+			    n=i-1;
+			    break;
+			}
+		    }
+		} else
 		    break;
-	    }
-	    for(i=0 ; ; ++i) {
-		assert(i < nItems);
-		if(&pData[i] == pData[n].ppPredecessors[k]) {
-		    n=i;
-		    break;
-		}
 	    }
 	}
 	if(pTail)
