@@ -58,6 +58,10 @@ install: $(TARGET_LIB)
 	if [ ! -d $(DESTDIR)$(libdir) ]; then \
 	    @APR_SOURCE_DIR@/build/mkdir.sh $(DESTDIR)$(libdir); \
 	fi;
+	if [ ! -d $(DESTDIR)$(libdir)/pkgconfig ]; then \
+	    @APR_SOURCE_DIR@/build/mkdir.sh $(DESTDIR)$(libdir)/pkgconfig; \
+	fi;
+	cp -p apr-util.pc $(DESTDIR)$(libdir)/pkgconfig;
 	list='$(INSTALL_SUBDIRS)'; for i in $$list; do \
 		( cd $$i ; $(MAKE) DESTDIR=$(DESTDIR) install ); \
 	done
