@@ -164,13 +164,13 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
          * even if we read nothing because we hit EOF.
          */
         apr_bucket_heap_make(e, buf, *len, 0, NULL); /*XXX: check for failure? */
-        file_destroy(s);
-
         /* If we have more to read from the file, then create another bucket */
         if (length > 0) {
             b = apr_bucket_file_create(f, s->start + (*len), length);
             APR_BUCKET_INSERT_AFTER(e, b);
         }
+        file_destroy(s);
+
 #if APR_HAS_MMAP
     }
 #endif
