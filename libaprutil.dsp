@@ -565,7 +565,7 @@ SOURCE=..\apr\build\win32ver.awk
 InputPath=..\apr\build\win32ver.awk
 
 ".\libaprutil.rc" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	awk -f ../apr/build/win32ver.awk libaprutil "Apache APR Utility Library"  ../../include/ap_release.h > .\libaprutil.rc
+	awk -f ../apr/build/win32ver.awk libaprutil.dll "Apache APR Utility Library"  ../../include/ap_release.h > .\libaprutil.rc
 
 # End Custom Build
 
@@ -576,7 +576,7 @@ InputPath=..\apr\build\win32ver.awk
 InputPath=..\apr\build\win32ver.awk
 
 ".\libaprutil.rc" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	awk -f ../apr/build/win32ver.awk libaprutil "Apache APR Utility Library"  ../../include/ap_release.h > .\libaprutil.rc
+	awk -f ../apr/build/win32ver.awk libaprutil.dll "Apache APR Utility Library"  ../../include/ap_release.h > .\libaprutil.rc
 
 # End Custom Build
 
