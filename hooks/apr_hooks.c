@@ -336,7 +336,7 @@ APU_DECLARE_DATA void (*apr_retrieve_optional_fn(const char *szName))(void)
 {
     if(!s_phOptionalFunctions)
 	return NULL;
-    return apr_hash_get(s_phOptionalFunctions,szName,strlen(szName));
+    return (void(*)(void))apr_hash_get(s_phOptionalFunctions,szName,strlen(szName));
 }
 
 APU_DECLARE_NONSTD(void) apr_register_optional_fn(const char *szName,
@@ -344,7 +344,7 @@ APU_DECLARE_NONSTD(void) apr_register_optional_fn(const char *szName,
 {
     if(!s_phOptionalFunctions)
 	s_phOptionalFunctions=apr_make_hash(apr_global_hook_pool);
-    apr_hash_set(s_phOptionalFunctions,szName,strlen(szName),pfn);
+    apr_hash_set(s_phOptionalFunctions,szName,strlen(szName),(void *)pfn);
 }
 
 #if 0
