@@ -1,5 +1,7 @@
 
 TARGETS = apr_xml.lo
 
+SUBDIRS=expat
+
 # bring in rules.mk for standard functionality
 @INCLUDE_RULES@
