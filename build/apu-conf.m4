@@ -243,7 +243,10 @@ AC_SUBST(apu_use_gdbm)
 AC_SUBST(apu_use_db)
 AC_SUBST(db_header)
 
+DBM_OBJECT_FILE=apr_dbm_sdbm.lo
+
 if test $apu_use_gdbm = 1; then
+  DBM_OBJECT_FILE=apr_dbm_gdbm.lo
   lib_save="$LIBS"
   LIBS=""
   AC_CHECK_LIB(gdbm, gdbm_open)
@@ -252,10 +255,14 @@ if test $apu_use_gdbm = 1; then
 fi
 
 if test $apu_use_db = 1; then
+  DBM_OBJECT_FILE=apr_dbm_berkeleydb.lo
   dnl ### use AC_CHECK_LIB?
   LIBS="$LIBS -l$db_lib"
   APRUTIL_EXPORT_LIBS="$APRUTIL_EXPORT_LIBS -l$db_lib"
 fi
+
+dnl build and link this object into apr_dbm
+AC_SUBST(DBM_OBJECT_FILE)
 
 ])
 

@@ -62,33 +62,21 @@
 
 #include "apu_select_dbm.h"
 #include "apr_dbm.h"
-
-
-/* this is used in a few places to define a noop "function". it is needed
-   to stop "no effect" warnings from GCC. */
-#define NOOP_FUNCTION if (0) ; else
-
-/* ### define defaults for now; these will go away in a while */
-#define REGISTER_CLEANUP(dbm, pdatum) NOOP_FUNCTION
-#define SET_FILE(pdb, f) ((pdb)->file = (f))
-
+#include "apr_dbm_private.h"
 
 /* ### note: the setting of DBM_VTABLE will go away once we have multiple
    ### DBMs in here. */
 
 #if APU_USE_SDBM
 
-#include "apr_dbm_sdbm.c"
 #define DBM_VTABLE apr_dbm_type_sdbm
 
 #elif APU_USE_GDBM
 
-#include "apr_dbm_gdbm.c"
 #define DBM_VTABLE apr_dbm_type_gdbm
 
 #elif APU_USE_DB
 
-#include "apr_dbm_berkeleydb.c"
 #define DBM_VTABLE apr_dbm_type_db
 
 #else /* Not in the USE_xDBM list above */
@@ -101,91 +89,10 @@ APU_DECLARE(apr_status_t) apr_dbm_open(apr_dbm_t **pdb, const char *pathname,
                                        apr_int32_t mode, apr_fileperms_t perm,
                                        apr_pool_t *pool)
 {
-    real_file_t file;
-    int dbmode;
+    /* ### one day, a DBM type name will be passed and we'll need to look it
+       ### up. for now, it is constant. */
 
-    *pdb = NULL;
-
-    switch (mode) {
-    case APR_DBM_READONLY:
-        dbmode = APR_DBM_DBMODE_RO;
-        break;
-    case APR_DBM_READWRITE:
-        dbmode = APR_DBM_DBMODE_RW;
-        break;
-    case APR_DBM_RWCREATE:
-        dbmode = APR_DBM_DBMODE_RWCREATE;
-        break;
-    case APR_DBM_RWTRUNC:
-        dbmode = APR_DBM_DBMODE_RWTRUNC;
-        break;
-    default:
-        return APR_EINVAL;
-    }
-
-#if APU_USE_SDBM
-
-    {
-        apr_status_t rv;
-
-        rv = apr_sdbm_open(&file, pathname, dbmode, perm, pool);
-        if (rv != APR_SUCCESS)
-            return rv;
-    }
-
-#elif APU_USE_GDBM
-
-    {
-        /* Note: stupid cast to get rid of "const" on the pathname */
-        file = gdbm_open((char *) pathname, 0, dbmode,
-                         apr_posix_perms2mode(perm), NULL);
-        if (file == NULL)
-            return APR_EGENERAL;      /* ### need a better error */
-    }
-
-#elif APU_USE_DB
-
-    {
-        int dberr;
-
-#if DB_VER == 3
-        if ((dberr = db_create(&file.bdb, NULL, 0)) == 0) {
-            if ((dberr = (*file.bdb->open)(file.bdb, pathname, NULL, 
-                                           DB_HASH, dbmode, 
-                                           apr_posix_perms2mode(perm))) != 0) {
-                /* close the DB handler */
-                (void) (*file.bdb->close)(file.bdb, 0);
-            }
-        }
-        file.curs = NULL;
-#elif DB_VER == 2
-        dberr = db_open(pathname, DB_HASH, dbmode, apr_posix_perms2mode(perm),
-                        NULL, NULL, &file.bdb);
-        file.curs = NULL;
-#else
-        file.bdb = dbopen(pathname, dbmode, apr_posix_perms2mode(perm),
-                          DB_HASH, NULL);
-        if (file.bdb == NULL)
-            return APR_EGENERAL;      /* ### need a better error */
-        dberr = 0;
-#endif
-        if (dberr != 0)
-            return db2s(dberr);
-    }
-
-#else
-#error apr_dbm_open has not been coded for this database type
-#endif /* switch on database types */
-
-    /* we have an open database... return it */
-    *pdb = apr_pcalloc(pool, sizeof(**pdb));
-    (*pdb)->pool = pool;
-    (*pdb)->type = &DBM_VTABLE;
-    SET_FILE(*pdb, file);
-
-    /* ### register a cleanup to close the DBM? */
-
-    return APR_SUCCESS;
+    return (*DBM_VTABLE.open)(pdb, pathname, mode, perm, pool);
 }
 
 APU_DECLARE(void) apr_dbm_close(apr_dbm_t *dbm)
@@ -196,112 +103,33 @@ APU_DECLARE(void) apr_dbm_close(apr_dbm_t *dbm)
 APU_DECLARE(apr_status_t) apr_dbm_fetch(apr_dbm_t *dbm, apr_datum_t key,
                                         apr_datum_t *pvalue)
 {
-    apr_status_t rv;
-    cvt_datum_t ckey;
-    result_datum_t rd;
-
-    CONVERT_DATUM(ckey, &key);
-#if APU_USE_DB
-    memset(&rd,0,sizeof(rd));
-#endif
-    rv = APR_DBM_FETCH(dbm->file, ckey, rd);
-    RETURN_DATUM(pvalue, rd);
-
-    REGISTER_CLEANUP(dbm, pvalue);
-
-    /* store the error info into DBM, and return a status code. Also, note
-       that *pvalue should have been cleared on error. */
-    return set_error(dbm, rv);
+    return (*dbm->type->fetch)(dbm, key, pvalue);
 }
 
 APU_DECLARE(apr_status_t) apr_dbm_store(apr_dbm_t *dbm, apr_datum_t key,
                                         apr_datum_t value)
 {
-    apr_status_t rv;
-    cvt_datum_t ckey;
-    cvt_datum_t cvalue;
-
-    CONVERT_DATUM(ckey, &key);
-    CONVERT_DATUM(cvalue, &value);
-    rv = APR_DBM_STORE(dbm->file, ckey, cvalue);
-
-    /* store any error info into DBM, and return a status code. */
-    return set_error(dbm, rv);
+    return (*dbm->type->store)(dbm, key, value);
 }
 
 APU_DECLARE(apr_status_t) apr_dbm_delete(apr_dbm_t *dbm, apr_datum_t key)
 {
-    apr_status_t rv;
-    cvt_datum_t ckey;
-
-    CONVERT_DATUM(ckey, &key);
-    rv = APR_DBM_DELETE(dbm->file, ckey);
-
-    /* store any error info into DBM, and return a status code. */
-    return set_error(dbm, rv);
+    return (*dbm->type->del)(dbm, key);
 }
 
 APU_DECLARE(int) apr_dbm_exists(apr_dbm_t *dbm, apr_datum_t key)
 {
-    int exists;
-    cvt_datum_t ckey;
-
-    CONVERT_DATUM(ckey, &key);
-
-#if APU_USE_SDBM
-    {
-	apr_sdbm_datum_t value;
-        if (apr_sdbm_fetch(dbm->file, &value, *ckey) != APR_SUCCESS) {
-	    exists = 0;
-        }
-        else
-            exists = value.dptr != NULL;
-    }
-#elif APU_USE_GDBM
-    exists = gdbm_exists(dbm->file, *ckey) != 0;
-#elif APU_USE_DB
-    {
-        DBT data;
-        int dberr = do_fetch(GET_BDB(dbm->file), ckey, data);
-
-        /* DB returns DB_NOTFOUND if it doesn't exist. but we want to say
-           that *any* error means it doesn't exist. */
-        exists = dberr == 0;
-    }
-#else
-#error apr_dbm_exists has not been coded for this database type
-#endif
-    return exists;
+    return (*dbm->type->exists)(dbm, key);
 }
 
 APU_DECLARE(apr_status_t) apr_dbm_firstkey(apr_dbm_t *dbm, apr_datum_t *pkey)
 {
-    apr_status_t rv;
-    result_datum_t rd;
-
-    rv = APR_DBM_FIRSTKEY(dbm->file, rd);
-    RETURN_DATUM(pkey, rd);
-
-    REGISTER_CLEANUP(dbm, pkey);
-
-    /* store any error info into DBM, and return a status code. */
-    return set_error(dbm, rv);
+    return (*dbm->type->firstkey)(dbm, pkey);
 }
 
 APU_DECLARE(apr_status_t) apr_dbm_nextkey(apr_dbm_t *dbm, apr_datum_t *pkey)
 {
-    apr_status_t rv;
-    cvt_datum_t ckey;
-    result_datum_t rd;
-
-    CONVERT_DATUM(ckey, pkey);
-    rv = APR_DBM_NEXTKEY(dbm->file, ckey, rd);
-    RETURN_DATUM(pkey, rd);
-
-    REGISTER_CLEANUP(dbm, pkey);
-
-    /* store any error info into DBM, and return a status code. */
-    return set_error(dbm, APR_SUCCESS);
+    return (*dbm->type->nextkey)(dbm, pkey);
 }
 
 APU_DECLARE(void) apr_dbm_freedatum(apr_dbm_t *dbm, apr_datum_t data)
@@ -329,8 +157,8 @@ APU_DECLARE(void) apr_dbm_get_usednames(apr_pool_t *p,
                                         const char **used1,
                                         const char **used2)
 {
-    /* ### one day, we will pass in a DBM name and need to look it up.
-       ### for now, it is constant. */
+    /* ### one day, a DBM type name will be passed and we'll need to look it
+       ### up. for now, it is constant. */
 
     (*DBM_VTABLE.getusednames)(p, pathname, used1, used2);
 }
