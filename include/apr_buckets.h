@@ -776,7 +776,7 @@ APU_DECLARE(apr_status_t) apr_brigade_flatten(apr_bucket_brigade *bb,
 
 /**
  * Creates a pool-allocated string representing a flat bucket brigade
- * @param bb The bucket brigade to create the iovec from
+ * @param bb The bucket brigade to create the char array from
  * @param c On return, the allocated char array
  * @param len On return, the length of the char array.
  * @param pool The pool to allocate the string from.
