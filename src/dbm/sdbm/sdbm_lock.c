@@ -53,8 +53,8 @@
  */
 
 #include "apr_file_io.h"
+#include "apr_sdbm.h"
 
-#include "sdbm.h"
 #include "sdbm_private.h"
 
 /* NOTE: this function blocks until it acquires the lock */

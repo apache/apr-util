@@ -60,16 +60,15 @@
  * core routines
  */
 
-
-#include "sdbm.h"
-#include "sdbm_tune.h"
-#include "sdbm_pair.h"
-#include "sdbm_private.h"
-
 #include "apr.h"
 #include "apr_file_io.h"
 #include "apr_strings.h"
 #include "apr_errno.h"
+#include "apr_sdbm.h"
+
+#include "sdbm_tune.h"
+#include "sdbm_pair.h"
+#include "sdbm_private.h"
 
 #include <string.h>     /* for memset() */
 #include <stdlib.h>     /* for malloc() and free() */

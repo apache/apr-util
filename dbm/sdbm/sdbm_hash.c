@@ -61,7 +61,7 @@
  * hashing routine
  */
 
-#include "sdbm.h"
+#include "apr_sdbm.h"
 
 /*
  * polynomial conversion ignoring overflows
