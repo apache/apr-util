@@ -85,6 +85,8 @@ struct apr_queue_t {
     unsigned int        in;    /**< next empty location */
     unsigned int        out;   /**< next filled location */
     unsigned int        bounds;/**< max size of queue */
+    unsigned int        full_waiters;
+    unsigned int        empty_waiters;
     apr_thread_mutex_t *one_big_mutex;
     apr_thread_cond_t  *not_empty;
     apr_thread_cond_t  *not_full;
@@ -169,6 +171,8 @@ APU_DECLARE(apr_status_t) apr_queue_create(apr_queue_t **q,
     queue->in = 0;
     queue->out = 0;
     queue->terminated = 0;
+    queue->full_waiters = 0;
+    queue->empty_waiters = 0;
 
     apr_pool_cleanup_register(a, queue, queue_destroy, apr_pool_cleanup_null);
 
@@ -183,7 +187,6 @@ APU_DECLARE(apr_status_t) apr_queue_create(apr_queue_t **q,
 APU_DECLARE(apr_status_t) apr_queue_push(apr_queue_t *queue, void *data)
 {
     apr_status_t rv;
-    int need_signal = 0;
 
     if (queue->terminated) {
         return APR_EOF; /* no more elements ever again */
@@ -196,7 +199,9 @@ APU_DECLARE(apr_status_t) apr_queue_push(apr_queue_t *queue, void *data)
 
     if (apr_queue_full(queue)) {
         if (!queue->terminated) {
+            queue->full_waiters++;
             rv = apr_thread_cond_wait(queue->not_full, queue->one_big_mutex);
+            queue->full_waiters--;
             if (rv != APR_SUCCESS) {
                 apr_thread_mutex_unlock(queue->one_big_mutex);
                 return rv;
@@ -218,16 +223,11 @@ APU_DECLARE(apr_status_t) apr_queue_push(apr_queue_t *queue, void *data)
         }
     }
 
-    /* if we were empty then signal that we aren't */
-    if (apr_queue_empty(queue)) {
-        need_signal = 1;
-    }
-
     queue->data[queue->in] = data;
     queue->in = (queue->in + 1) % queue->bounds;
     queue->nelts++;
 
-    if (need_signal == 1) {
+    if (queue->empty_waiters) {
         Q_DBG("sig !empty", queue);
         rv = apr_thread_cond_signal(queue->not_empty);
         if (rv != APR_SUCCESS) {
@@ -248,7 +248,7 @@ APU_DECLARE(apr_status_t) apr_queue_push(apr_queue_t *queue, void *data)
 APU_DECLARE(apr_status_t) apr_queue_trypush(apr_queue_t *queue, void *data)
 {
     apr_status_t rv;
-    int need_signal = 0;
+
     if (queue->terminated) {
         return APR_EOF; /* no more elements ever again */
     }
@@ -262,17 +262,12 @@ APU_DECLARE(apr_status_t) apr_queue_trypush(apr_queue_t *queue, void *data)
         rv = apr_thread_mutex_unlock(queue->one_big_mutex);
         return APR_EAGAIN;
     }
-
-    /* if we were empty then signal that we aren't */
-    if (apr_queue_empty(queue)) {
-        need_signal = 1;
-    }
     
     queue->data[queue->in] = data;
     queue->in = (queue->in + 1) % queue->bounds;
     queue->nelts++;
 
-    if (need_signal == 1) {
+    if (queue->empty_waiters) {
         Q_DBG("sig !empty", queue);
         rv  = apr_thread_cond_signal(queue->not_empty);
         if (rv != APR_SUCCESS) {
@@ -301,7 +296,6 @@ APU_DECLARE(unsigned int) apr_queue_size(apr_queue_t *queue) {
 APU_DECLARE(apr_status_t) apr_queue_pop(apr_queue_t *queue, void **data)
 {
     apr_status_t rv;
-    int need_signal = 0;
 
     if (queue->terminated) {
         return APR_EOF; /* no more elements ever again */
@@ -315,7 +309,9 @@ APU_DECLARE(apr_status_t) apr_queue_pop(apr_queue_t *queue, void **data)
     /* Keep waiting until we wake up and find that the queue is not empty. */
     if (apr_queue_empty(queue)) {
         if (!queue->terminated) {
+            queue->empty_waiters++;
             rv = apr_thread_cond_wait(queue->not_empty, queue->one_big_mutex);
+            queue->empty_waiters--;
             if (rv != APR_SUCCESS) {
                 apr_thread_mutex_unlock(queue->one_big_mutex);
                 return rv;
@@ -336,15 +332,12 @@ APU_DECLARE(apr_status_t) apr_queue_pop(apr_queue_t *queue, void **data)
             }
         }
     } 
-    if (apr_queue_full(queue)) {
-        need_signal = 1;
-    }
 
     *data = &queue->data[queue->out];
     queue->nelts--;
 
     queue->out = (queue->out + 1) % queue->bounds;
-    if (need_signal == 1) {
+    if (queue->full_waiters) {
         Q_DBG("signal !full", queue);
         rv = apr_thread_cond_signal(queue->not_full);
         if (rv != APR_SUCCESS) {
@@ -366,7 +359,6 @@ APU_DECLARE(apr_status_t) apr_queue_pop(apr_queue_t *queue, void **data)
 APU_DECLARE(apr_status_t) apr_queue_trypop(apr_queue_t *queue, void **data)
 {
     apr_status_t rv;
-    int need_signal = 0;
 
     if (queue->terminated) {
         return APR_EOF; /* no more elements ever again */
@@ -382,15 +374,12 @@ APU_DECLARE(apr_status_t) apr_queue_trypop(apr_queue_t *queue, void **data)
         rv = apr_thread_mutex_unlock(queue->one_big_mutex);
         return APR_EAGAIN;
     } 
-    if (apr_queue_full(queue)) {
-        need_signal = 1;
-    }
 
     *data = &queue->data[queue->out];
     queue->nelts--;
 
     queue->out = (queue->out + 1) % queue->bounds;
-    if (need_signal == 1) {
+    if (queue->full_waiters) {
         Q_DBG("signal !full", queue);
         rv = apr_thread_cond_signal(queue->not_full);
         if (rv != APR_SUCCESS) {
