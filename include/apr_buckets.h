@@ -520,8 +520,9 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
  * @param b The bucket brigade
  */
 #define APR_BRIGADE_NORMALIZE(b)       \
+do { \
+    apr_bucket *e; \
     do {  \
-        apr_bucket *e; \
         e = APR_BRIGADE_FIRST(b); \
         if (e->length == 0) { \
             apr_bucket *d; \
@@ -530,7 +531,8 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
             e = d; \
         } \
         e = APR_BUCKET_NEXT(e); \
-    } while (e != APR_BRIGADE_SENTINEL(b)) 
+    } while (!APR_BRIGADE_EMPTY(b) && (e != APR_BRIGADE_SENTINEL(b))); \
+} while (0)
 
 /*
  * General-purpose reference counting for the various bucket types.
