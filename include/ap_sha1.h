@@ -61,7 +61,7 @@
 #ifndef APACHE_SHA1_H
 #define APACHE_SHA1_H
 
-#include "ap.h"
+#include "ap_config.h"
 
 #ifdef __cplusplus
 extern "C" {

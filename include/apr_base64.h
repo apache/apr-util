@@ -59,7 +59,7 @@
 #ifndef APACHE_BASE64_H
 #define APACHE_BASE64_H
 
-#include "ap.h"
+#include "ap_config.h"
 
 #ifdef __cplusplus
 extern "C" {
