@@ -1,7 +1,15 @@
 Changes with APR-util b1  
+
+  *) Reading a file bucket bigger than APR_MMAP_LIMIT (4MB) now yields
+     a string of 4MB mmap buckets, rather than a string of 8KB heap buckets
+     plus a 4MB mmap bucket.  To accomodate this, the mmap bucket destroy
+     function explicitly deletes the apr_mmap_t after last reference
+     to avoid having too much of a large file mapped at once if possible.
+     [Cliff Woolley]
+
   *) Multi-DBM support (via apr_dbm_open_ex [Ian Holsman])
 
-  *) Use apr_mmap_dup in MMap Bucket [Brian Pane <bpane@pacbell.net>]
+  *) Use apr_mmap_dup in mmap_setaside().  [Brian Pane <bpane@pacbell.net>]
 
   *) Dropped the "w" parameter from apr_bucket_heap_create() and
      apr_bucket_heap_make().  That parameter was originally intended

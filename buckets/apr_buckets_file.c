@@ -84,15 +84,25 @@ static int file_make_mmap(apr_bucket *e, apr_size_t filelength,
     apr_bucket_file *a = e->data;
     apr_mmap_t *mm;
 
-    if (APR_MMAP_CANDIDATE(filelength) &&
-        (apr_mmap_create(&mm, a->fd, fileoffset, filelength,
-                         APR_MMAP_READ, p) == APR_SUCCESS))
-    {
-        apr_bucket_mmap_make(e, mm, 0, filelength);
-        file_destroy(a);
-        return 1;
+    if (filelength > APR_MMAP_LIMIT) {
+        if (apr_mmap_create(&mm, a->fd, fileoffset, APR_MMAP_LIMIT,
+                            APR_MMAP_READ, p) != APR_SUCCESS) {
+            return 0;
+        }
+        else {
+            apr_bucket_split(e, APR_MMAP_LIMIT);
+            filelength = APR_MMAP_LIMIT;
+        }
     }
-    return 0;
+    else if ((filelength >= APR_MMAP_THRESHOLD) &&
+             (apr_mmap_create(&mm, a->fd, fileoffset, filelength,
+                              APR_MMAP_READ, p) != APR_SUCCESS))
+    {
+        return 0;
+    }
+    apr_bucket_mmap_make(e, mm, 0, filelength);
+    file_destroy(a);
+    return 1;
 }
 #endif
 

@@ -80,8 +80,9 @@ static void mmap_destroy(void *data)
     apr_bucket_mmap *m = data;
 
     if (apr_bucket_shared_destroy(m)) {
-        /* no need to apr_mmap_delete(m->mmap) here... it will
-         * get done automatically when the pool gets cleaned up. */
+        /* if we are the owner of the mmaped region, apr_mmap_delete will
+         * munmap it for us.  if we're not, it's essentially a noop. */
+        apr_mmap_delete(m->mmap);
         free(m);
     }
 }
