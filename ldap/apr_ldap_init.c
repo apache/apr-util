@@ -145,12 +145,7 @@ APU_DECLARE(int) apr_ldap_init(apr_pool_t *pool,
     *result_err = result;
 
 #if APR_HAS_NOVELL_LDAPSDK
-    if (secure == APR_LDAP_SSL) {
-        *ldap = ldapssl_init(hostname, portno, 1);
-    }
-    else {
-        *ldap = ldapssl_init(hostname, portno, 0);
-    }
+    *ldap = ldapssl_init(hostname, portno, 0);
 #else
     *ldap = ldap_init((char *)hostname, portno);
 #endif
