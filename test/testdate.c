@@ -16,6 +16,14 @@
 #include <time.h>
 #include "apr_date.h"
 
+#ifndef srand48
+#define srand48 srandom
+#endif
+
+#ifndef mrand48
+#define mrand48 random
+#endif
+
 void gm_timestr_822(char *ts, apr_time_t sec);
 void gm_timestr_850(char *ts, apr_time_t sec);
 void gm_timestr_ccc(char *ts, apr_time_t sec);
