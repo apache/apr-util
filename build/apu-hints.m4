@@ -24,7 +24,7 @@ if test "x$apu_preload_done" != "xyes" ; then
     *-hp-hpux11.*)
         APR_SETIFNULL(apu_crypt_threadsafe, [1])
         ;;
-    *-ibm-aix*)
+    *-ibm-aix4*|*-ibm-aix5.1*)
         APR_SETIFNULL(apu_iconv_inbuf_const, [1])
         ;;
     *-ibm-os390)
