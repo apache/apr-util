@@ -121,6 +121,7 @@ AP_DECLARE(ap_bucket *) ap_bucket_make_pool(ap_bucket *b,
     }
 
     b->type = &ap_pool_type;
+    h->b = b;
 
     apr_register_cleanup(h->p, b->data, pool_bucket_cleanup, apr_null_cleanup);
     return b;
