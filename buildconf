@@ -65,3 +65,6 @@ if test -d xml/expat; then
   echo "Invoking xml/expat/buildconf.sh ..."
   (cd xml/expat; ./buildconf.sh)
 fi
+
+# Remove autoconf cache again
+rm -rf autom4te*.cache

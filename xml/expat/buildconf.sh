@@ -60,4 +60,7 @@ echo "Creating configure ..."
 ### do some work to toss config.cache?
 ${AUTOCONF:-autoconf} 2>&1 | grep -v "$cross_compile_warning"
 
+# Remove autoconf caches
+rm -rf autom4te*.cache
+
 exit 0
