@@ -320,7 +320,7 @@ static int test_pquery(apr_pool_t* pool, apr_dbd_t* handle,
     apr_dbd_transaction_t *trans =0;
 
     rv = apr_dbd_prepare(driver, pool, handle, query, label, &statement);
-    //rv = apr_dbd_prepare(driver, pool, handle, query, NULL, &statement);
+    /* rv = apr_dbd_prepare(driver, pool, handle, query, NULL, &statement); */
     if (rv) {
         printf("Prepare statement failed!\n%s\n",
                apr_dbd_error(driver, handle, rv));
