@@ -198,9 +198,9 @@ void ap_bucket_transient_register(apr_pool_t *p)
     ap_bucket_type type;
 
     type.destroy = NULL;
-    type.read = NULL;
+    type.read = simple_read;
     type.setaside = transient_setaside;
-    type.split = NULL;
+    type.split = simple_split;
 
     transient_type = ap_insert_bucket_type(&type);
 }
