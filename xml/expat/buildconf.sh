@@ -3,7 +3,7 @@
 #
 # Find libtoolize
 #
-libtoolize=`conftools/PrintPath glibtoolize libtoolize`
+libtoolize=`conftools/PrintPath glibtoolize libtoolize libtoolize15 libtoolize14`
 if [ "x$libtoolize" = "x" ]; then
     echo "libtoolize not found in path"
     exit 1
