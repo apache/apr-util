@@ -89,7 +89,7 @@ static apr_rmm_off_t find_block_by_offset(apr_rmm_t *rmm, apr_rmm_off_t next,
     while (next) {
         struct rmm_block_t *blk = (rmm_block_t*)((char*)rmm->base + next);
 
-	if (find == next)
+        if (find == next)
             return next;
 
         /* Overshot? */
@@ -97,7 +97,7 @@ static apr_rmm_off_t find_block_by_offset(apr_rmm_t *rmm, apr_rmm_off_t next,
             return includes ? prev : 0;
 
         prev = next;
-	next = blk->next;
+        next = blk->next;
     }
     return 0;
 }
@@ -111,8 +111,8 @@ static apr_rmm_off_t find_block_of_size(apr_rmm_t *rmm, apr_size_t size)
     while (next) {
         struct rmm_block_t *blk = (rmm_block_t*)((char*)rmm->base + next);
 
-	if (blk->size == size)
-	    return next;
+    if (blk->size == size)
+        return next;
 
         if (blk->size >= size) {
             /* XXX: sub optimal algorithm 
@@ -125,7 +125,7 @@ static apr_rmm_off_t find_block_of_size(apr_rmm_t *rmm, apr_size_t size)
             }
         }
 
-	next = blk->next;
+        next = blk->next;
     }
 
     if (bestsize - size > MIN_BLK_SIZE) {
