@@ -26,7 +26,7 @@ TARGETS = $(TARGET_LIB) aprutil.exp export_vars.h
 
 CLEAN_SUBDIRS = test
 
-CLEAN_TARGETS = exports.c export_vars.h aprutil.exp
+CLEAN_TARGETS = exports.c export_vars.h aprutil.exp .make.dirs
 DISTCLEAN_TARGETS = config.cache config.log config.status libtool \
 	include/private/apu_config.h include/private/apu_private.h \
 	include/private/apu_select_dbm.h include/apr_ldap.h include/apu.h \
