@@ -402,6 +402,13 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
 #define APR_BUCKET_REMOVE(e)	APR_RING_REMOVE((e), link)
 
 /**
+ * Initialize a new bucket's prev/next pointers
+ * @param e The bucket to initialize
+ * @deffunc void APR_BUCKET_INIT(apr_bucket *e)
+ */
+#define APR_BUCKET_INIT(e)	APR_RING_ELEM_INIT((e), link);
+
+/**
  * Determine if a bucket is a FLUSH bucket
  * @param e The bucket to inspect
  * @return true or false
@@ -1013,25 +1020,6 @@ APU_DECLARE_NONSTD(apr_status_t) apr_bucket_shared_copy(apr_bucket *a,
  * other code should call apr_bucket_create_foo. All the initialization
  * functions change nothing if they fail.
  */
-
-/*
- * This macro implements the guts of apr_bucket_create_foo
- */
-#define apr_bucket_do_create(do_make)		\
-    do {					\
-	apr_bucket *b, *ap__b;			\
-	b = calloc(1, sizeof(*b));		\
-	if (b == NULL) {			\
-	    return NULL;			\
-	}					\
-	ap__b = do_make;			\
-	if (ap__b == NULL) {			\
-	    free(b);				\
-	    return NULL;			\
-	}					\
-	APR_RING_ELEM_INIT(ap__b, link);	\
-	return ap__b;				\
-    } while(0)
 
 /**
  * Create an End of Stream bucket.  This indicates that there is no more data

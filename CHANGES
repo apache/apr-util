@@ -1,5 +1,10 @@
 Changes with APR-util b1  
 
+  *) Removed apr_bucket_do_create() macro, which was causing warnings
+     about unreachable code in some compilers (notably MSVC).  What
+     used to be done by this macro is now done inline in the various
+     apr_bucket_foo_create() functions.  [Cliff Woolley]
+
   *) Make clean, distclean, and extraclean consistently according to the
      Gnu makefile guidelines.  [Justin Erenkrantz <jerenkrantz@ebuilt.com>]
 

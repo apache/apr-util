@@ -144,7 +144,10 @@ APU_DECLARE(apr_bucket *) apr_bucket_pipe_make(apr_bucket *b, apr_file_t *p)
 
 APU_DECLARE(apr_bucket *) apr_bucket_pipe_create(apr_file_t *p)
 {
-    apr_bucket_do_create(apr_bucket_pipe_make(b, p));
+    apr_bucket *b = (apr_bucket *)calloc(1, sizeof(*b));
+
+    APR_BUCKET_INIT(b);
+    return apr_bucket_pipe_make(b, p);
 }
 
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_pipe = {

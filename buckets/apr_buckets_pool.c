@@ -156,7 +156,10 @@ APU_DECLARE(apr_bucket *) apr_bucket_pool_make(apr_bucket *b,
 APU_DECLARE(apr_bucket *) apr_bucket_pool_create(
 		const char *buf, apr_size_t length, apr_pool_t *pool)
 {
-    apr_bucket_do_create(apr_bucket_pool_make(b, buf, length, pool));
+    apr_bucket *b = (apr_bucket *)calloc(1, sizeof(*b));
+
+    APR_BUCKET_INIT(b);
+    return apr_bucket_pool_make(b, buf, length, pool);
 }
 
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_pool = {
