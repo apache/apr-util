@@ -218,8 +218,14 @@ AC_DEFUN(APU_FIND_LDAPLIB,[
       [
         APR_ADDTO(APRUTIL_EXPORT_LIBS,[-l${ldaplib} ${extralib}])
         APR_ADDTO(APRUTIL_LIBS,[-l${ldaplib} ${extralib}])
-        AC_CHECK_LIB(${ldaplib}, ldapssl_install_routines, apu_has_ldap_netscape_ssl="1", , ${extralib})
-        AC_CHECK_LIB(${ldaplib}, ldap_start_tls_s, apu_has_ldap_starttls="1", , ${extralib})
+        AC_CHECK_LIB(${ldaplib}, ldapssl_client_init, apu_has_ldapssl_client_init="1", , ${extralib})
+        AC_CHECK_LIB(${ldaplib}, ldapssl_client_deinit, apu_has_ldapssl_client_deinit="1", , ${extralib})
+        AC_CHECK_LIB(${ldaplib}, ldapssl_add_trusted_cert, apu_has_ldapssl_add_trusted_cert="1", , ${extralib})
+        AC_CHECK_LIB(${ldaplib}, ldap_start_tls_s, apu_has_ldap_start_tls_s="1", , ${extralib})
+        AC_CHECK_LIB(${ldaplib}, ldap_sslinit, apu_has_ldap_sslinit="1", , 
+${extralib})
+        AC_CHECK_LIB(${ldaplib}, ldapssl_init, apu_has_ldapssl_init="1", ,     
+${extralib})
         apu_has_ldap="1";
       ], , ${extralib})
   fi
@@ -234,8 +240,12 @@ AC_DEFUN(APU_FIND_LDAP,[
 echo $ac_n "${nl}checking for ldap support..."
 
 apu_has_ldap="0";
-apu_has_ldap_netscape_ssl="0"
-apu_has_ldap_starttls="0"
+apu_has_ldapssl_client_init="0"
+apu_has_ldapssl_client_deinit="0"
+apu_has_ldapssl_add_trusted_cert="0"
+apu_has_ldap_start_tls_s="0"
+apu_has_ldapssl_init="0"
+apu_has_ldap_sslinit="0"
 
 AC_ARG_WITH(ldap-include,[  --with-ldap-include=path  path to ldap include files with trailing slash])
 AC_ARG_WITH(ldap-lib,[  --with-ldap-lib=path    path to ldap lib file])
@@ -291,8 +301,12 @@ dnl The iPlanet C SDK 5.0 is as yet untested...
 AC_SUBST(ldap_h)
 AC_SUBST(lber_h)
 AC_SUBST(ldap_ssl_h)
-AC_SUBST(apu_has_ldap_netscape_ssl)
-AC_SUBST(apu_has_ldap_starttls)
+AC_SUBST(apu_has_ldapssl_client_init)
+AC_SUBST(apu_has_ldapssl_client_deinit)
+AC_SUBST(apu_has_ldapssl_add_trusted_cert)
+AC_SUBST(apu_has_ldap_start_tls_s)
+AC_SUBST(apu_has_ldapssl_init)
+AC_SUBST(apu_has_ldap_sslinit)
 AC_SUBST(apu_has_ldap)
 
 ])

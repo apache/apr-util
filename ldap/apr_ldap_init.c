@@ -46,91 +46,201 @@ APU_DECLARE(int) apr_ldap_ssl_init(apr_pool_t *pool,
                                    int cert_file_type,
                                    apr_ldap_err_t **result_err) {
 
+    apr_ldap_err_t *result;
+
+    if (cert_auth_file) {
+        return apr_ldap_ssl_add_cert(pool,
+                                     cert_auth_file,
+                                     cert_file_type,
+                                     result_err);
+    }
+    else {
+        result = (apr_ldap_err_t *)apr_pcalloc(pool, sizeof(apr_ldap_err_t));
+        *result_err = result;
+#if APR_HAS_LDAP_SSL /* compiled with ssl support */
+
+        /* Novell needs special initialisation */
+        if (!strcmp(LDAP_VENDOR_NAME, APR_LDAP_VENDOR_NOVELL)) {
+
+#if APR_HAS_LDAPSSL_CLIENT_INIT
+            result->rc = ldapssl_client_init(NULL, NULL);
+
+            if (LDAP_SUCCESS == result->rc) {
+                return APR_SUCCESS;
+            }
+            else {
+                result->msg = ldap_err2string(result-> rc);
+                result->reason = apr_pstrdup (pool, "LDAP: Could not "
+                                                    "initialize SSL");
+                return APR_EGENERAL;
+            }
+#else
+            result->reason = "LDAP: ldapssl_client_init() function not "
+                             "supported by this Novell SDK. SSL not "
+                             "initialised";
+            result->rc = -1;
+#endif
+
+        }
+
+#endif
+    }
+
+    /* if no cert_auth_file was passed, we assume SSL support
+     * is possible, as we have not been specifically told otherwise.
+     */
+    return APR_SUCCESS;
+
+} 
+
+
+/**
+ * APR LDAP SSL add client certificate function.
+ *
+ * This function sets up an optional client certificate to be used
+ * when connecting to the remote LDAP server.
+ * If SSL support is not available on this platform, or a problem
+ * was encountered while trying to set the certificate, the function
+ * will return APR_EGENERAL. Further LDAP specific error information
+ * can be found in result_err.
+ */
+APU_DECLARE(int) apr_ldap_ssl_add_cert(apr_pool_t *pool,
+                                       const char *cert_auth_file,
+                                       int cert_file_type,
+                                       apr_ldap_err_t **result_err) {
+
     apr_ldap_err_t *result = (apr_ldap_err_t *)apr_pcalloc(pool, sizeof(apr_ldap_err_t));
     *result_err = result;
 
     if (cert_auth_file) {
 #if APR_HAS_LDAP_SSL /* compiled with ssl support */
 
-#if APR_HAS_NETSCAPE_LDAPSDK 
+        /* Netscape SDK */
+        if (!strcmp(LDAP_VENDOR_NAME, APR_LDAP_VENDOR_NETSCAPE)) {
 
-        /* Netscape sdk only supports a cert7.db file 
-         */
-        if (cert_file_type == APR_LDAP_CA_TYPE_CERT7_DB) {
-            result->rc = ldapssl_client_init(cert_auth_file, NULL);
-        }
-        else {
-            result->reason = "LDAP: Invalid certificate type: "
-                             "CERT7_DB type required";
+#if APR_HAS_LDAP_SSL_CLIENT_INIT
+            /* Netscape sdk only supports a cert7.db file 
+             */
+            if (cert_file_type == APR_LDAP_CA_TYPE_CERT7_DB) {
+                result->rc = ldapssl_client_init(cert_auth_file, NULL);
+            }
+            else {
+                result->reason = "LDAP: Invalid certificate type: "
+                                 "CERT7_DB type required";
+                result->rc = -1;
+            }
+#else
+            result->reason = "LDAP: ldapssl_client_init() function not "
+                             "supported by this Netscape SDK. Certificate "
+                             "authority file not set";
             result->rc = -1;
+#endif
+
         }
 
-#elif APR_HAS_NOVELL_LDAPSDK
-        
-        /* Novell SDK supports DER or BASE64 files
-         */
-        if (cert_file_type == APR_LDAP_CA_TYPE_DER  ||
-            cert_file_type == APR_LDAP_CA_TYPE_BASE64 ) {
+        /* Novell SDK */
+        else if (!strcmp(LDAP_VENDOR_NAME, APR_LDAP_VENDOR_NOVELL)) {
 
-            result->rc = ldapssl_client_init(NULL, NULL);
-            if (LDAP_SUCCESS == result->rc) {
-                if (cert_file_type == APR_LDAP_CA_TYPE_BASE64) {
-                    result->rc = ldapssl_add_trusted_cert((void*)cert_auth_file, 
+#if APR_HAS_LDAPSSL_CLIENT_INIT && APR_HAS_LDAPSSL_ADD_TRUSTED_CERT && APR_HAS_LDAPSSL_CLIENT_DEINIT
+            /* Novell SDK supports DER or BASE64 files
+             */
+            if (cert_file_type == APR_LDAP_CA_TYPE_DER  ||
+                cert_file_type == APR_LDAP_CA_TYPE_BASE64 ) {
+
+                result->rc = ldapssl_client_init(NULL, NULL);
+                if (LDAP_SUCCESS == result->rc) {
+                    if (cert_file_type == APR_LDAP_CA_TYPE_BASE64) {
+                        result->rc = ldapssl_add_trusted_cert((void*)cert_auth_file, 
                                                   LDAPSSL_CERT_FILETYPE_B64);
-                }
-                else {
-                    result->rc = ldapssl_add_trusted_cert((void*)cert_auth_file, 
+                    }
+                    else {
+                        result->rc = ldapssl_add_trusted_cert((void*)cert_auth_file, 
                                                   LDAPSSL_CERT_FILETYPE_DER);
-                }
+                    }
 
-                if (LDAP_SUCCESS != result->rc) {
-                    ldapssl_client_deinit();
-                    result->reason = apr_psprintf (pool, 
-                                                   "LDAP: Invalid certificate or path: "
-                                                   "Could not add trusted cert %s", 
-                                                   cert_auth_file);
+                    if (LDAP_SUCCESS != result->rc) {
+                        ldapssl_client_deinit();
+                        result->reason = apr_psprintf(pool, 
+                                                      "LDAP: Invalid certificate "
+                                                      "or path: Could not add "
+                                                      "trusted cert %s", 
+                                                      cert_auth_file);
+                    }
                 }
             }
-        }
-        else {
-            result->reason = "LDAP: Invalid certificate type: "
-                             "DER or BASE64 type required";
-            result->rc = -1;
-        }
-
-#elif APR_HAS_OPENLDAP_LDAPSDK
-
-        /* OpenLDAP SDK supports BASE64 files
-         */
-        if (cert_file_type == APR_LDAP_CA_TYPE_BASE64) {
-            result->rc = ldap_set_option(NULL, LDAP_OPT_X_TLS_CACERTFILE, cert_auth_file);
-        }
-        else {
-            result->reason = "LDAP: Invalid certificate type: "
-                             "BASE64 type required";
-            result->rc = -1;
-        }
-
-#elif APR_HAS_MICROSOFT_LDAPSDK
-            
-        /* Microsoft SDK use the registry certificate store - always
-         * assume support is always available
-         */
-        result->rc = LDAP_SUCCESS;
+            else {
+                result->reason = "LDAP: Invalid certificate type: "
+                                 "DER or BASE64 type required";
+                result->rc = -1;
+            }
 
 #else
+            result->reason = "LDAP: ldapssl_client_init(), "
+                             "ldapssl_add_trusted_cert() or "
+                             "ldapssl_client_deinit() functions not supported "
+                             "by this Novell SDK. Certificate authority file "
+                             "not set";
+            result->rc = -1;
+#endif
+        }
 
-        /* unknown toolkit type, assume no support available */
-        result->reason = "LDAP: Attempt to set certificate store failed. "
-                  "Toolkit type not recognised as supporting SSL.";
-        result->rc = -1;
+        /* openldap SDK */
+        else if (!strcmp(LDAP_VENDOR_NAME, APR_LDAP_VENDOR_OPENLDAP)) {
+#ifdef LDAP_OPT_X_TLS_CACERTFILE
 
-#endif /* APR_HAS_NETSCAPE_LDAPSDK */
+            /* OpenLDAP SDK supports BASE64 files
+             */
+            if (cert_file_type == APR_LDAP_CA_TYPE_BASE64) {
+                result->rc = ldap_set_option(NULL,
+                                             LDAP_OPT_X_TLS_CACERTFILE,
+                                             cert_auth_file);
+            }
+            else {
+                result->reason = "LDAP: Invalid certificate type: "
+                                 "BASE64 type required";
+                result->rc = -1;
+            }
+
+#else
+            result->reason = "LDAP: LDAP_OPT_X_TLS_CACERTFILE not "
+                             "defined by this OpenLDAP SDK. Certificate "
+                             "authority file not set";
+            result->rc = -1;
+#endif
+        }
+
+        /* microsoft SDK */
+        else if (!strcmp(LDAP_VENDOR_NAME, APR_LDAP_VENDOR_MICROSOFT)) {
+
+            /* Microsoft SDK use the registry certificate store - always
+             * assume support is always available
+             */
+            result->rc = LDAP_SUCCESS;
+
+        }
+
+        /* Sun SDK */
+        else if (!strcmp(LDAP_VENDOR_NAME, APR_LDAP_VENDOR_SUN)) {
+            result->reason = "LDAP: Attempt to set certificate store failed. "
+                             "APR does not yet know how to set a certificate "
+                             "store on the Sun toolkit";
+            result->rc = -1;
+        }
+
+        /* SDK not recognised */
+        else {
+
+            /* unknown toolkit type, assume no support available */
+            result->reason = "LDAP: Attempt to set certificate store failed. "
+                             "Toolkit type not recognised by APR as supporting "
+                             "SSL";
+            result->rc = -1;
+        }
 
 #else  /* not compiled with SSL Support */
 
         result->reason = "LDAP: Attempt to set certificate store failed. "
-                  "Not built with SSL support.";
+                         "Not built with SSL support";
         result->rc = -1;
 
 #endif /* APR_HAS_LDAP_SSL */
@@ -169,7 +279,7 @@ APU_DECLARE(int) apr_ldap_ssl_init(apr_pool_t *pool,
  */
 APU_DECLARE(int) apr_ldap_ssl_deinit(void) {
 
-#if APR_HAS_LDAP_SSL && APR_HAS_NOVELL_LDAPSDK
+#if APR_HAS_LDAP_SSL && APR_HAS_LDAPSSL_CLIENT_DEINIT
     ldapssl_client_deinit();
 #endif
     return APR_SUCCESS;
@@ -201,38 +311,68 @@ APU_DECLARE(int) apr_ldap_init(apr_pool_t *pool,
 
     /* clear connection requested */
     if (!secure) {
-#if APR_HAS_MICROSOFT_LDAPSDK
         *ldap = ldap_init((char *)hostname, portno);
-#else
-        *ldap = ldap_init(hostname, portno);
-#endif
     }
     else { /* ssl connnection requested */
 #if APR_HAS_LDAP_SSL
-#if APR_HAS_NOVELL_LDAPSDK 
-        *ldap = ldapssl_init(hostname, portno, 1);
-#elif APR_HAS_NETSCAPE_LDAPSDK
-        *ldap = ldapssl_init(hostname, portno, 1);
-#elif APR_HAS_OPENLDAP_LDAPSDK
-        *ldap = ldap_init(hostname, portno);
-        if (NULL != *ldap) {
-            int SSLmode = LDAP_OPT_X_TLS_HARD;
-            result->rc = ldap_set_option(*ldap, LDAP_OPT_X_TLS, &SSLmode);
-            if (LDAP_SUCCESS != result->rc) {
-                ldap_unbind_s(*ldap);
-                result->reason = "LDAP: ldap_set_option - LDAP_OPT_X_TLS_HARD failed";
-                result->msg = ldap_err2string(result->rc);
-                *ldap = NULL;
-                /* @todo make proper APR error codes for LDAP codes */
-                return APR_EGENERAL;
-            }
-        }
-#elif APR_HAS_MICROSOFT_LDAPSDK
-        *ldap = ldap_sslinit((char *)hostname, portno, 1);
+
+        /* novell / netscape toolkit */
+        if (!strcmp(LDAP_VENDOR_NAME, APR_LDAP_VENDOR_NOVELL) ||
+            !strcmp(LDAP_VENDOR_NAME, APR_LDAP_VENDOR_NETSCAPE)) {
+#if APR_HAS_LDAPSSL_INIT
+            *ldap = ldapssl_init(hostname, portno, 1);
 #else
+            result->reason = "LDAP: SSL not yet supported by APR on "
+                             "this version of the Novell/Netscape toolkit";
+            return APR_ENOTIMPL;
+#endif
+        }
+
+        /* openldap toolkit */
+        else if (!strcmp(LDAP_VENDOR_NAME, APR_LDAP_VENDOR_OPENLDAP)) {
+#ifdef LDAP_OPT_X_TLS
+            *ldap = ldap_init(hostname, portno);
+            if (NULL != *ldap) {
+                int SSLmode = LDAP_OPT_X_TLS_HARD;
+                result->rc = ldap_set_option(*ldap, LDAP_OPT_X_TLS, &SSLmode);
+                if (LDAP_SUCCESS != result->rc) {
+                    ldap_unbind_s(*ldap);
+                    result->reason = "LDAP: ldap_set_option - "
+                                     "LDAP_OPT_X_TLS_HARD failed";
+                    result->msg = ldap_err2string(result->rc);
+                    *ldap = NULL;
+                    return APR_EGENERAL;
+                }
+            }
+#else
+            result->reason = "LDAP: SSL not yet supported by APR on this "
+                             "version of the OpenLDAP toolkit";
+            return APR_ENOTIMPL;
+#endif
+        }
+
+        /* microsoft toolkit */
+        else if (!strcmp(LDAP_VENDOR_NAME, APR_LDAP_VENDOR_MICROSOFT)) {
+#if APR_HAS_LDAP_SSLINIT
+            *ldap = ldap_sslinit((char *)hostname, portno, 1);
+#else
+            result->reason = "LDAP: SSL not yet supported by APR on "
+                             "this version of the Microsoft toolkit";
+            return APR_ENOTIMPL;
+#endif
+        }
+
+        /* sun toolkit */
+        else if (!strcmp(LDAP_VENDOR_NAME, APR_LDAP_VENDOR_SUN)) {
+            result->reason = "LDAP: SSL not yet supported by APR on "
+                             "this version of the Sun toolkit";
+            return APR_ENOTIMPL;
+        }
+
         /* unknown toolkit - return not implemented */
-        return APR_ENOTIMPL;
-#endif /* APR_HAS_NOVELL_LDAPSDK */
+        else {
+            return APR_ENOTIMPL;
+        }
 #endif /* APR_HAS_LDAP_SSL */
     }
 
@@ -260,18 +400,9 @@ APU_DECLARE(int) apr_ldap_info(apr_pool_t *pool, apr_ldap_err_t **result_err)
     apr_ldap_err_t *result = (apr_ldap_err_t *)apr_pcalloc(pool, sizeof(apr_ldap_err_t));
     *result_err = result;
 
-#if APR_HAS_NETSCAPE_LDAPSDK 
-    result->reason = "APR LDAP: Built with Netscape LDAP SDK";
-#elif APR_HAS_NOVELL_LDAPSDK
-    result->reason = "APR LDAP: Built with Novell LDAP SDK";
-#elif APR_HAS_OPENLDAP_LDAPSDK
-    result->reason = "APR LDAP: Built with OpenLDAP LDAP SDK";
-#elif APR_HAS_MICROSOFT_LDAPSDK
-    result->reason = "APR LDAP: Built with Microsoft LDAP SDK";
-#else
-    result->reason = "APR LDAP: Built with an unknown LDAP SDK";
-#endif
-
+    result->reason = "APR LDAP: Built with "
+                     LDAP_VENDOR_NAME
+                     " LDAP SDK";
     return APR_SUCCESS;
     
 }
