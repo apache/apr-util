@@ -307,7 +307,7 @@ static void doit(const cmd *act, const char*type, const char *file,
                 }
             }
             fputs("OK\n", stderr);
-            fputs("Testing retrieval: ", stderr);
+            fputs("Testing existence/retrieval: ", stderr);
             for (i = 0; i < 10; i++) {
                 int j;
                 char c, keydata[10];
@@ -316,6 +316,10 @@ static void doit(const cmd *act, const char*type, const char *file,
                 }
                 key.dptr = keydata;
                 key.dsize = 10;
+                if (!apr_dbm_exists(db, key)) {
+                    prdatum(stderr, key);
+                    oops(db, 0, "exists: %s", "failed");
+                }
                 rv = apr_dbm_fetch(db, key, &val);
                 if (rv != APR_SUCCESS || val.dsize != 10 ||
                     (strncmp(val.dptr, valdata, 10) != 0) ) { 
