@@ -479,6 +479,43 @@ APU_DECLARE(char *) apr_xml_parser_geterror(apr_xml_parser *parser,
     return errbuf;
 }
 
+APU_DECLARE(apr_status_t) apr_xml_parse_file(apr_pool_t *p,
+                                             apr_xml_parser **parser,
+                                             apr_xml_doc **ppdoc,
+                                             apr_file_t *xmlfd,
+                                             int buffer_length)
+{
+    apr_status_t rv;
+    char *buffer;
+    apr_size_t length;
+
+    *parser = apr_xml_parser_create(p);
+    if (*parser == NULL) {
+        /* FIXME: returning an error code would be nice,
+         * but we dont get one ;( */
+        return APR_EGENERAL;
+    }
+    buffer = apr_palloc(p, buffer_length);
+    length = buffer_length;
+
+    rv = apr_file_read(xmlfd, buffer, &length);
+
+    while (rv == APR_SUCCESS) {
+        rv = apr_xml_parser_feed(*parser, buffer, length);
+        if (rv != APR_SUCCESS) {
+            return rv;
+        }
+
+        length = buffer_length;
+        rv = apr_file_read(xmlfd, buffer, &length);
+    }
+    if (rv != APR_EOF) {
+        return rv;
+    }
+    rv = apr_xml_parser_done(*parser, ppdoc);
+    *parser = NULL;
+    return rv;
+}
 
 APU_DECLARE(void) apr_text_append(apr_pool_t * p, apr_text_header *hdr,
                                   const char *text)

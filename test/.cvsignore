@@ -5,3 +5,4 @@ Makefile
 testdbm
 testmd4
 testdate
+testxml
