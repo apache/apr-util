@@ -80,10 +80,13 @@ APU_FIND_APR
 dnl
 dnl even though we use apr_rules.mk for building apr-util, we need
 dnl to grab CC and CPP ahead of time so that apr-util config tests
-dnl use the same compiler as APR
+dnl use the same compiler as APR; we need the same compiler options
+dnl and feature test macros as well
 dnl
 APR_SETIFNULL(CC, `$apr_config --cc`)
 APR_SETIFNULL(CPP, `$apr_config --cpp`)
+APR_ADDTO(CFLAGS, `$apr_config --cflags`)
+APR_ADDTO(CPPFLAGS, `$apr_config --cppflags`)
 
 dnl Find LDAP library
 dnl Determine what DBM backend type to use.
