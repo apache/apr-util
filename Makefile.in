@@ -25,13 +25,12 @@ TARGETS = delete-lib $(TARGET_LIB) delete-exports aprutil.exp export_vars.h
 SUBDIRS = buckets crypto dbm encoding hooks ldap uri xml misc strmatch xlate
 CLEAN_SUBDIRS = . test
 
-CLEAN_TARGETS =
+CLEAN_TARGETS = exports.c export_vars.h aprutil.exp
 DISTCLEAN_TARGETS = config.cache config.log config.status libtool \
 	include/private/apu_config.h include/private/apu_private.h \
 	include/private/apu_select_dbm.h include/apr_ldap.h include/apu.h \
-	export_vars.sh aprutil.exp apu-config
-EXTRACLEAN_TARGETS = configure aclocal.m4 include/private/apu_config.h.in \
-	exports.c export_vars.h
+	export_vars.sh apu-config
+EXTRACLEAN_TARGETS = configure aclocal.m4 include/private/apu_config.h.in
 
 prefix=@prefix@
 exec_prefix=@exec_prefix@
