@@ -74,3 +74,20 @@ fi
 
 # Remove autoconf cache again
 rm -rf autom4te*.cache
+
+# Create RPM Spec file
+if [ -f `which cut` ]; then
+  echo rebuilding rpm spec file
+  ( REVISION=`build/get-version.sh all include/apu_version.h APU`
+    VERSION=`echo $REVISION | cut -d- -s -f1`
+    RELEASE=`echo $REVISION | cut -d- -s -f2`
+    if [ "x$VERSION" = "x" ]; then
+      VERSION=$REVISION
+      RELEASE=1
+    fi
+    cat ./build/rpm/apr-util.spec.in | \
+    sed -e "s/APU_VERSION/$VERSION/" \
+        -e "s/APU_RELEASE/$RELEASE/" \
+    > apr-util.spec )
+fi
+
