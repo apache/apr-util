@@ -391,6 +391,10 @@ SOURCE=.\include\apr_sha1.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\apr_uri.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\apr_xml.h
 # End Source File
 # Begin Source File
