@@ -31,8 +31,6 @@ extern "C" {
  */
 #if APR_HAS_THREADS
 #include "apr_reslist.h"
-APU_DECLARE(apr_status_t) apr_reslist_invalidate(apr_reslist_t *reslist,
-                                                 void *resource);
 #endif
 
 /* These are opaque structs.  Instantiation is up to each backend */
