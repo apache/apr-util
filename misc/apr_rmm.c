@@ -316,18 +316,11 @@ APU_DECLARE(apr_status_t) apr_rmm_detach(apr_rmm_t *rmm)
     return APR_SUCCESS;
 }
 
-union grainbit {
-    long l;
-    long *pl;
-};
-
-static const apr_size_t grain = APR_ALIGN_DEFAULT(sizeof(union grainbit));
-
 APU_DECLARE(apr_rmm_off_t) apr_rmm_malloc(apr_rmm_t *rmm, apr_size_t reqsize)
 {
     apr_rmm_off_t this;
     
-    reqsize = (1 + (reqsize - 1) / grain) * grain;
+    reqsize = APR_ALIGN_DEFAULT(reqsize);
 
     APR_ANYLOCK_LOCK(&rmm->lock);
 
@@ -346,7 +339,7 @@ APU_DECLARE(apr_rmm_off_t) apr_rmm_calloc(apr_rmm_t *rmm, apr_size_t reqsize)
 {
     apr_rmm_off_t this;
         
-    reqsize = (1 + (reqsize - 1) / grain) * grain;
+    reqsize = APR_ALIGN_DEFAULT(reqsize);
 
     APR_ANYLOCK_LOCK(&rmm->lock);
 
@@ -372,7 +365,7 @@ APU_DECLARE(apr_rmm_off_t) apr_rmm_realloc(apr_rmm_t *rmm, void *entity,
         return apr_rmm_malloc(rmm, reqsize);
     }
 
-    reqsize = (1 + (reqsize - 1) / grain) * grain;
+    reqsize = APR_ALIGN_DEFAULT(reqsize);
     old = apr_rmm_offset_get(rmm, entity);
 
     if ((this = apr_rmm_malloc(rmm, reqsize)) == 0) {
