@@ -57,20 +57,20 @@
  */
 
 /*
- * util_uri.c: URI related utility things
+ * apr_uri.c: URI related utility things
  * 
  */
 
+#include <stdlib.h>
+
+#include "apu.h"
 #include "apr.h"
 #include "apr_strings.h"
 
 #define APR_WANT_STRFUNC
 #include "apr_want.h"
 
-#include "ap_config.h"
-#include "httpd.h"
-#include "http_log.h"
-#include "util_uri.h"
+#include "apr_uri.h"
 
 /* Some WWW schemes and their default ports; this is basically /etc/services */
 /* This will become global when the protocol abstraction comes */
@@ -89,8 +89,7 @@ static schemes_t schemes[] =
     { NULL, 0xFFFF }			/* unknown port */
 };
 
-
-AP_DECLARE(apr_port_t) ap_default_port_for_scheme(const char *scheme_str)
+APU_DECLARE(apr_port_t) apr_uri_default_port_for_scheme(const char *scheme_str)
 {
     schemes_t *scheme;
 
@@ -101,17 +100,12 @@ AP_DECLARE(apr_port_t) ap_default_port_for_scheme(const char *scheme_str)
     return 0;
 }
 
-AP_DECLARE(apr_port_t) ap_default_port_for_request(const request_rec *r)
-{
-    return (r->parsed_uri.scheme)
-	? ap_default_port_for_scheme(r->parsed_uri.scheme)
-	: 0;
-}
-
-/* Unparse a uri_components structure to an URI string.
+/* Unparse a apr_uri_components structure to an URI string.
  * Optionally suppress the password for security reasons.
  */
-AP_DECLARE(char *) ap_unparse_uri_components(apr_pool_t *p, const uri_components *uptr, unsigned flags)
+APU_DECLARE(char *) apr_uri_unparse_components(apr_pool_t *p, 
+                                               const apr_uri_components *uptr, 
+                                               unsigned flags)
 {
     char *ret = "";
 
@@ -135,7 +129,7 @@ AP_DECLARE(char *) ap_unparse_uri_components(apr_pool_t *p, const uri_components
 	    is_default_port =
 		(uptr->port_str == NULL ||
 		 uptr->port == 0 ||
-		 uptr->port == ap_default_port_for_scheme(uptr->scheme));
+		 uptr->port == apr_uri_default_port_for_scheme(uptr->scheme));
 
 	    ret = apr_pstrcat (p,
 			uptr->scheme, "://", ret, 
@@ -202,7 +196,8 @@ AP_DECLARE(char *) ap_unparse_uri_components(apr_pool_t *p, const uri_components
  *  - fills in fields of uri_components *uptr
  *  - none on any of the r->* fields
  */
-AP_DECLARE(int) ap_parse_uri_components(apr_pool_t *p, const char *uri, uri_components *uptr)
+APU_DECLARE(int) apr_uri_parse_components(apr_pool_t *p, const char *uri, 
+                                          apr_uri_components *uptr)
 {
     const char *s;
     const char *s1;
@@ -233,11 +228,11 @@ deal_with_path:
 	    uptr->path = apr_pstrndup(p, uri, s - uri);
 	}
 	if (*s == 0) {
-	    return HTTP_OK;
+	    return APR_SUCCESS;
 	}
 	if (*s == '?') {
 	    ++s;
-	    s1 = ap_strchr_c(s, '#');
+	    s1 = strchr(s, '#');
 	    if (s1) {
 		uptr->fragment = apr_pstrdup(p, s1 + 1);
 		uptr->query = apr_pstrndup(p, s, s1 - s);
@@ -245,11 +240,11 @@ deal_with_path:
 	    else {
 		uptr->query = apr_pstrdup(p, s);
 	    }
-	    return HTTP_OK;
+	    return APR_SUCCESS;
 	}
 	/* otherwise it's a fragment */
 	uptr->fragment = apr_pstrdup(p, s + 1);
-	return HTTP_OK;
+	return APR_SUCCESS;
     }
 
     /* find the scheme: */
@@ -301,9 +296,9 @@ deal_with_host:
 		goto deal_with_path;
 	    }
 	    /* Invalid characters after ':' found */
-	    return HTTP_BAD_REQUEST;
+	    return APR_EGENERAL;
 	}
-	uptr->port = ap_default_port_for_scheme(uptr->scheme);
+	uptr->port = apr_uri_default_port_for_scheme(uptr->scheme);
 	goto deal_with_path;
     }
 
@@ -326,7 +321,9 @@ deal_with_host:
  * currently at http://www.mcom.com/newsref/std/tunneling_ssl.html
  * for the format of the "CONNECT host:port HTTP/1.0" request
  */
-AP_DECLARE(int) ap_parse_hostinfo_components(apr_pool_t *p, const char *hostinfo, uri_components *uptr)
+APU_DECLARE(int) apr_uri_parse_hostinfo_components(apr_pool_t *p, 
+                                                   const char *hostinfo, 
+                                                   apr_uri_components *uptr)
 {
     const char *s;
     char *endstr;
@@ -341,9 +338,9 @@ AP_DECLARE(int) ap_parse_hostinfo_components(apr_pool_t *p, const char *hostinfo
     /* We expect hostinfo to point to the first character of
      * the hostname.  There must be a port, separated by a colon
      */
-    s = ap_strchr_c(hostinfo, ':');
+    s = strchr(hostinfo, ':');
     if (s == NULL) {
-	return HTTP_BAD_REQUEST;
+	return APR_EGENERAL;
     }
     uptr->hostname = apr_pstrndup(p, hostinfo, s - hostinfo);
     ++s;
@@ -351,9 +348,9 @@ AP_DECLARE(int) ap_parse_hostinfo_components(apr_pool_t *p, const char *hostinfo
     if (*s != '\0') {
 	uptr->port = (unsigned short) strtol(uptr->port_str, &endstr, 10);
 	if (*endstr == '\0') {
-	    return HTTP_OK;
+	    return APR_SUCCESS;
 	}
 	/* Invalid characters after ':' found */
     }
-    return HTTP_BAD_REQUEST;
+    return APR_EGENERAL;
 }
