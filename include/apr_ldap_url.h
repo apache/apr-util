@@ -16,19 +16,10 @@
 #ifndef APR_LDAP_URL_H
 #define APR_LDAP_URL_H
 
-#include "apr_ldap.h"
-
 #if APR_HAS_LDAP
-#if APR_HAS_LDAP_URL_PARSE
 
-#define apr_ldap_url_desc_t             LDAPURLDesc
-#define apr_ldap_is_ldap_url(url)       ldap_is_ldap_url(url)
-#define apr_ldap_is_ldaps_url(url)      ldap_is_ldaps_url(url)
-#define apr_ldap_is_ldapi_url(url)      ldap_is_ldapi_url(url)
-#define apr_ldap_url_parse(url, ludpp)  ldap_url_parse(url, ludpp)
-#define apr_ldap_free_urldesc(ludp)     ldap_free_urldesc(ludp)
-
-#else /* ! APR_HAS_LDAP_URL_PARSE */
+#include "apu.h"
+#include "apr_pools.h"
 
 /*
  * types for ldap URL handling
@@ -46,24 +37,23 @@ typedef struct apr_ldap_url_desc_t {
     int     lud_crit_exts;
 } apr_ldap_url_desc_t;
 
-#ifndef LDAP_URL_SUCCESS
-#define LDAP_URL_SUCCESS          0x00    /* Success */
-#define LDAP_URL_ERR_MEM          0x01    /* can't allocate memory space */
-#define LDAP_URL_ERR_PARAM        0x02    /* parameter is bad */
-#define LDAP_URL_ERR_BADSCHEME    0x03    /* URL doesn't begin with "ldap[si]://" */
-#define LDAP_URL_ERR_BADENCLOSURE 0x04    /* URL is missing trailing ">" */
-#define LDAP_URL_ERR_BADURL       0x05    /* URL is bad */
-#define LDAP_URL_ERR_BADHOST      0x06    /* host port is bad */
-#define LDAP_URL_ERR_BADATTRS     0x07    /* bad (or missing) attributes */
-#define LDAP_URL_ERR_BADSCOPE     0x08    /* scope string is invalid (or missing) */
-#define LDAP_URL_ERR_BADFILTER    0x09    /* bad or missing filter */
-#define LDAP_URL_ERR_BADEXTS      0x0a    /* bad or missing extensions */
+#ifndef APR_LDAP_URL_SUCCESS
+#define APR_LDAP_URL_SUCCESS          0x00    /* Success */
+#define APR_LDAP_URL_ERR_MEM          0x01    /* can't allocate memory space */
+#define APR_LDAP_URL_ERR_PARAM        0x02    /* parameter is bad */
+#define APR_LDAP_URL_ERR_BADSCHEME    0x03    /* URL doesn't begin with "ldap[si]://" */
+#define APR_LDAP_URL_ERR_BADENCLOSURE 0x04    /* URL is missing trailing ">" */
+#define APR_LDAP_URL_ERR_BADURL       0x05    /* URL is bad */
+#define APR_LDAP_URL_ERR_BADHOST      0x06    /* host port is bad */
+#define APR_LDAP_URL_ERR_BADATTRS     0x07    /* bad (or missing) attributes */
+#define APR_LDAP_URL_ERR_BADSCOPE     0x08    /* scope string is invalid (or missing) */
+#define APR_LDAP_URL_ERR_BADFILTER    0x09    /* bad or missing filter */
+#define APR_LDAP_URL_ERR_BADEXTS      0x0a    /* bad or missing extensions */
 #endif
 
 /*
  * in url.c
  *
- * need _ext varients
  */
 APU_DECLARE(int) apr_ldap_is_ldap_url(const char *url);
 
@@ -71,12 +61,15 @@ APU_DECLARE(int) apr_ldap_is_ldaps_url(const char *url);
 
 APU_DECLARE(int) apr_ldap_is_ldapi_url(const char *url);
 
-APU_DECLARE(int) apr_ldap_url_parse(const char *url, 
-                                    apr_ldap_url_desc_t **ludpp);
+APU_DECLARE(int) apr_ldap_url_parse_ext(apr_pool_t *pool,
+                                        const char *url_in,
+                                        apr_ldap_url_desc_t **ludpp,
+                                        apr_ldap_err_t **result_err);
 
-APU_DECLARE(void) apr_ldap_free_urldesc(apr_ldap_url_desc_t *ludp);
-
-#endif /* ! APR_HAS_LDAP_URL_PARSE */
+APU_DECLARE(int) apr_ldap_url_parse(apr_pool_t *pool,
+                                    const char *url_in,
+                                    apr_ldap_url_desc_t **ludpp,
+                                    apr_ldap_err_t **result_err);
 
 #endif /* APR_HAS_LDAP */
 
