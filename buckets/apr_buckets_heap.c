@@ -53,10 +53,10 @@
  */
 
 #include "apr_buckets.h"
+#define APR_WANT_MEMFUNC
+#define APR_WANT_STRFUNC
+#include "apr_want.h"
 #include <stdlib.h>
-#if APR_HAVE_STRINGS_H
-#include <strings.h>
-#endif
 
 static apr_status_t heap_read(apr_bucket *b, const char **str, 
 			      apr_size_t *len, apr_read_type_e block)

@@ -58,11 +58,11 @@
 #include "apr_tables.h"
 #include "apr_buckets.h"
 #include "apr_errno.h"
+#define APR_WANT_MEMFUNC
+#define APR_WANT_STRFUNC
+#include "apr_want.h"
 
 #include <stdlib.h>
-#if APR_HAVE_STRINGS_H
-#include <strings.h>
-#endif
 #if APR_HAVE_SYS_UIO_H
 #include <sys/uio.h>
 #endif

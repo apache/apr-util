@@ -63,10 +63,9 @@
 #include "apr_hash.h"
 #include "apr_optional_hooks.h"
 #include "apr_optional.h"
-
-#if APR_HAVE_STRINGS_H
-#include <strings.h>
-#endif
+#define APR_WANT_MEMFUNC
+#define APR_WANT_STRFUNC
+#include "apr_want.h"
 
 #if 0
 #define apr_palloc(pool,size)	malloc(size)

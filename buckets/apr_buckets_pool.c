@@ -54,6 +54,8 @@
 
 #include "apr_buckets.h"
 #include <stdlib.h>
+#define APR_WANT_MEMFUNC
+#include "apr_want.h"
 
 static apr_status_t pool_bucket_cleanup(void *data)
 {
