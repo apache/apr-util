@@ -52,11 +52,6 @@
  * <http://www.apache.org/>.
  */
 
-/* 
- * Note: This is a Windows specific version of apu.h. It is renamed to
- * apu.h at the start of a Windows build.
- */
-
 #ifndef APU_H
 #define APU_H
 
