@@ -132,6 +132,9 @@ APU_DECLARE(apr_status_t) apr_reslist_create(apr_reslist_t **reslist,
  * FIXME: Should this block until all resources become available,
  *        or maybe just destroy all the free ones, or maybe destroy
  *        them even though they might be in use by something else?
+ *        Currently it will abort if there are resources that haven't
+ *        been released, so there is an assumption that all resources
+ *        have been released to the list before calling this function.
  * @param reslist The reslist to destroy
  */
 APU_DECLARE(apr_status_t) apr_reslist_destroy(apr_reslist_t *reslist);
