@@ -1,7 +1,10 @@
 APRUTIL LIBRARY STATUS:						-*-text-*-
-Last modified at [$Date: 2001/12/08 00:43:54 $]
+Last modified at [$Date: 2002/05/31 00:08:20 $]
 
 Release:
+
+    0.9.0-dev : in progress
+
     2.0a9   : released December 12, 2000
 
 
@@ -13,12 +16,27 @@ RELEASE SHOWSTOPPERS:
 
     * add misc/version.c and related machinery once the pattern is
       laid out in APR.
+      --> APR has completed the model, but still needs some work for
+          passing this information to libtool for versioning the
+	  shared libs. we can (at least) start with the header and
+	  implementation code.
 
     * complete the efforts started by DougM for cleaner fn naming
       conventions: see proposed name changes in renames_pending
       and offer up any additions/vetos/clarifications.
       DougM offered to complete the work with his nifty perl rename
       script at the hackathon. 
+
+    * move md5 from APR into crypto
+      Will Rowe outlined this move in:
+           <5.1.0.14.2.20020511174016.00b8c468@pop3.rowe-clan.net>
+      Justin says:  Requires finding a suitable replacement for md5 in 
+                    apr/uuid for when we don't have random bytes
+		    available.
+      Greg says: showstopper because of the move of functions from one
+                 lib to another
+      Status: Justin +1 (volunteers), Greg +1
+
 
 RELEASE NON-SHOWSTOPPERS BUT WOULD BE REAL NICE TO WRAP THESE UP:
 
@@ -37,16 +55,9 @@ Other bugs that need fixing:
 
 Other features that need writing:
 
-    * write apr_brigade_(p)getline, per the hackathon
-
     * possibly move test/testdbm* to util/dbu
       Justin says: Do we still want to do this?  testdate is now in test.
       Status: Greg +1 (volunteers)
-
-    * possibly move md5 from APR into crypto
-      Justin says:  Requires finding a suitable replacement for md5 in 
-                    apr/uuid for when we don't have random bytes available.
-      Status: Justin +1 (volunteers)
 
 Documentation that needs writing:
 
