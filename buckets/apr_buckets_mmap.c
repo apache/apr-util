@@ -122,7 +122,7 @@ APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_mmap = {
     "MMAP", 5,
     mmap_destroy,
     mmap_read,
-    apr_bucket_notimpl_setaside,
+    apr_bucket_setaside_notimpl,
     apr_bucket_shared_split,
     apr_bucket_shared_copy
 };
