@@ -220,7 +220,7 @@ struct apr_xml_elem {
 
     /* used by modules during request processing */
     /** Place for modules to store private data */
-    void *private;
+    void *priv;
 };
 
 #define APR_XML_ELEM_IS_EMPTY(e) ((e)->first_child == NULL && \
