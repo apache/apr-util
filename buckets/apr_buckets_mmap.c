@@ -115,11 +115,35 @@ APU_DECLARE(apr_bucket *) apr_bucket_mmap_create(
     return apr_bucket_mmap_make(b, mm, start, length);
 }
 
+static apr_status_t mmap_setaside(apr_bucket *data, apr_pool_t *p)
+{
+    apr_bucket_mmap *m;
+    apr_mmap_t *mm;
+    char *base;
+    void *addr;
+    apr_status_t ok;
+
+    m = data->data;
+    mm = m->mmap;
+    if (apr_pool_is_ancestor(mm->cntxt, p)) {
+        return APR_SUCCESS;
+    }
+    
+    base = apr_pcalloc(p, data->length);
+    ok = apr_mmap_offset(&addr, m->mmap, data->start);
+    if (ok != APR_SUCCESS) {
+        return ok;
+    }
+    memcpy(base, addr, data->length);
+    data = apr_bucket_pool_make(data, base, data->length, p);
+    return APR_SUCCESS;
+}
+
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_mmap = {
     "MMAP", 5,
     mmap_destroy,
     mmap_read,
-    apr_bucket_setaside_notimpl,
+    mmap_setaside,
     apr_bucket_shared_split,
     apr_bucket_shared_copy
 };
