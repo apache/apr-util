@@ -1,5 +1,5 @@
 APRUTIL LIBRARY STATUS:						-*-text-*-
-Last modified at [$Date: 2001/05/17 13:36:52 $]
+Last modified at [$Date: 2001/05/22 20:11:04 $]
 
 Release:
     2.0a9   : released December 12, 2000
@@ -30,9 +30,6 @@ Other bugs that need fixing:
 Other features that need writing:
 
     * write apr_brigade_(p)getline, per the hackathon
-
-    * populate src/uri from Apache
-      Status: Justin looks like he's attacking this at the moment
 
     * possibly move test/testdbm* to util/dbu
       Status: Greg +1 (volunteers)
