@@ -1,5 +1,7 @@
 Changes with APR-util b1  
 
+  *) Look for expat in lib64 directories.  [Peter Poeml <poeml@suse.de>]
+
   *) Faster implementation of apr_brigade_puts()  [Brian Pane]
 
   *) Fixed a segfault in apr_date_parse_rfc() for some date formats

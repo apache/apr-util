@@ -414,6 +414,13 @@ AC_DEFUN(APU_TEST_EXPAT,[
     expat_libs="-lexpat"
     expat_libtool="$1/lib/libexpat.la"
   elif test -r "$1/include/expat.h" -a \
+    -r "$1/lib64/libexpat.la"; then
+    dnl Expat 1.95.* installation on certain 64-bit platforms (with libtool)
+    expat_include_dir="$1/include"
+    expat_ldflags="-L$1/lib64"
+    expat_libs="-lexpat"
+    expat_libtool="$1/lib64/libexpat.la"
+  elif test -r "$1/include/expat.h" -a \
     -r "$1/lib/libexpat.a"; then
     dnl Expat 1.95.* installation (without libtool)
     dnl FreeBSD textproc/expat2
