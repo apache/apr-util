@@ -84,8 +84,8 @@ static int file_make_mmap(apr_bucket *e, apr_size_t filelength,
     apr_bucket_file *a = e->data;
     apr_mmap_t *mm;
 
-    if ((filelength >= MMAP_THRESHOLD) &&
-        (filelength < MMAP_LIMIT) &&
+    if ((filelength >= APR_MMAP_THRESHOLD) &&
+        (filelength < APR_MMAP_LIMIT) &&
         (apr_mmap_create(&mm, a->fd, fileoffset, filelength,
                          APR_MMAP_READ, p) == APR_SUCCESS))
     {
