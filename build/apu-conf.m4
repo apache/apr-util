@@ -23,6 +23,8 @@ AC_DEFUN(APU_FIND_APR,[
 
   APR_INCLUDES="`$apr_config --includes`"
   APR_LIBS="`$apr_config --link-libtool --libs`"
+  APR_SO_EXT="`$apr_config --apr-so-ext`"
+  APR_LIB_TARGET="`$apr_config --apr-lib-target`"
 
   AC_SUBST(APR_INCLUDES)
   AC_SUBST(APR_LIBS)
