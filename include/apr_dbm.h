@@ -100,70 +100,83 @@ typedef struct
  *           APR_DBM_RWCREATE   open for r/w, create if needed
  * </PRE>
  * @param cntxt The pool to use when creating the dbm
+ * @deffunc apr_status_t apr_dbm_open(apr_dbm_t **dbm, const char *name, int mode
  * @tip The dbm name may not be a true file name, as many dbm packages
  * append suffixes for seperate data and index files.
  */
-apr_status_t apr_dbm_open(apr_dbm_t **dbm, const char *name, int mode,
-                          apr_pool_t *cntxt);
+APU_DECLARE(apr_status_t) apr_dbm_open(apr_dbm_t **dbm, const char *name, 
+                                       int mode, apr_pool_t *cntxt);
 /**
  * Close a dbm file previously opened by apr_dbm_open
  * @param dbm The database to close
+ * @deffunc void apr_dbm_close(apr_dbm_t *db)
  */
-void apr_dbm_close(apr_dbm_t *db);
+APU_DECLARE(void) apr_dbm_close(apr_dbm_t *db);
 /**
  * Fetch a dbm record value by key
  * @param dbm The database 
  * @param key The key datum to find this record
  * @param value The value datum retrieved for this record
+ * @deffunc apr_status_t apr_dbm_fetch(apr_dbm_t *dbm, apr_datum_t key
  */
-apr_status_t apr_dbm_fetch(apr_dbm_t *dbm, apr_datum_t key,
-                           apr_datum_t *pvalue);
+APU_DECLARE(apr_status_t) apr_dbm_fetch(apr_dbm_t *dbm, apr_datum_t key,
+                                        apr_datum_t *pvalue);
 /**
  * Store a dbm record value by key
  * @param dbm The database 
  * @param key The key datum to store this record by
  * @param value The value datum to store in this record
+ * @deffunc apr_status_t apr_dbm_store(apr_dbm_t *dbm, apr_datum_t key, apr_datum_t value)
  */
-apr_status_t apr_dbm_store(apr_dbm_t *dbm, apr_datum_t key, apr_datum_t value);
+APU_DECLARE(apr_status_t) apr_dbm_store(apr_dbm_t *dbm, apr_datum_t key, 
+                                        apr_datum_t value);
+
 /**
  * Delete a dbm record value by key
  * @param dbm The database 
  * @param key The key datum of the record to delete
+ * @deffunc apr_status_t apr_dbm_delete(apr_dbm_t *dbm, apr_datum_t key)
  */
-apr_status_t apr_dbm_delete(apr_dbm_t *dbm, apr_datum_t key);
+APU_DECLARE(apr_status_t) apr_dbm_delete(apr_dbm_t *dbm, apr_datum_t key);
+
 /**
  * Search for a key within the dbm
  * @param dbm The database 
  * @param key The datum describing a key to test
+ * @deffunc int apr_dbm_exists(apr_dbm_t *dbm, apr_datum_t key)
  */
-int apr_dbm_exists(apr_dbm_t *dbm, apr_datum_t key);
+APU_DECLARE(int) apr_dbm_exists(apr_dbm_t *dbm, apr_datum_t key);
+
 /**
  * Retrieve the first record key from a dbm
  * @param dbm The database 
  * @param key The key datum of the first record
+ * @deffunc apr_status_t apr_dbm_firstkey(apr_dbm_t *dbm, apr_datum_t *pkey)
  */
-apr_status_t apr_dbm_firstkey(apr_dbm_t *dbm, apr_datum_t *pkey);
+APU_DECLARE(apr_status_t) apr_dbm_firstkey(apr_dbm_t *dbm, apr_datum_t *pkey);
+
 /**
  * Retrieve the next record key from a dbm
  * @param dbm The database 
  * @param key The key datum of the next record
+ * @deffunc apr_status_t apr_dbm_nextkey(apr_dbm_t *dbm, apr_datum_t *pkey)
  */
-apr_status_t apr_dbm_nextkey(apr_dbm_t *dbm, apr_datum_t *pkey);
+APU_DECLARE(apr_status_t) apr_dbm_nextkey(apr_dbm_t *dbm, apr_datum_t *pkey);
 
 /* XXX: This is bogus.  If this is a pool-managed dbm wrapper, we
  * don't free datum.  If it isn't why pass pools? 
+ * @deffunc void apr_dbm_freedatum(apr_dbm_t *dbm, apr_datum_t data)
  */
-void apr_dbm_freedatum(apr_dbm_t *dbm, apr_datum_t data);
+APU_DECLARE(void) apr_dbm_freedatum(apr_dbm_t *dbm, apr_datum_t data);
 
 /* XXX: Need to change errcode to be handled canonically, and modify
  * the prototype to follow apr_dso_error etc.
+ * @deffunc void apr_dbm_geterror(apr_dbm_t *dbm, int *errcode, const char **errmsg)
  */
-void apr_dbm_geterror(apr_dbm_t *dbm, int *errcode, const char **errmsg);
+APU_DECLARE(void) apr_dbm_geterror(apr_dbm_t *dbm, int *errcode, const char **errmsg);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif	/* !APR_DBM_H */
-
-

@@ -100,7 +100,8 @@ APU_DECLARE(int) ap_base64encode_len(int len);
  * @return the length of the encoded string
  * @deffunc int ap_base64encode(char *coded_dst, const char *plain_src, int len_plain_src)
  */ 
-APU_DECLARE(int) ap_base64encode(char * coded_dst, const char *plain_src,int len_plain_src);
+APU_DECLARE(int) ap_base64encode(char * coded_dst, const char *plain_src, 
+                                 int len_plain_src);
 
 /**
  * Encode an EBCDIC string using base64encoding.
@@ -110,7 +111,9 @@ APU_DECLARE(int) ap_base64encode(char * coded_dst, const char *plain_src,int len
  * @return the length of the encoded string
  * @deffunc int ap_base64encode_binary(char *coded_dst, const char *plain_src, int len_plain_src)
  */ 
-APU_DECLARE(int) ap_base64encode_binary(char * coded_dst, const unsigned char *plain_src,int len_plain_src);
+APU_DECLARE(int) ap_base64encode_binary(char * coded_dst, 
+                                        const unsigned char *plain_src,
+                                        int len_plain_src);
 
 /**
  * Determine the length of a plain text string given the encoded version
@@ -136,7 +139,8 @@ APU_DECLARE(int) ap_base64decode(char * plain_dst, const char *coded_src);
  * @return the length of the plain text string
  * @deffunc int ap_base64decode_binary(char *plain_dst, const char *coded_src)
  */ 
-APU_DECLARE(int) ap_base64decode_binary(unsigned char * plain_dst, const char *coded_src);
+APU_DECLARE(int) ap_base64decode_binary(unsigned char * plain_dst, 
+                                        const char *coded_src);
 
 #ifdef __cplusplus
 }
