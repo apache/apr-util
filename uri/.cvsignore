@@ -1,4 +1,6 @@
 Makefile
+gen_uri_delims
+uri_delims.h
 *.lo
 *.la
 .libs
