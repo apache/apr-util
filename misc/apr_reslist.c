@@ -216,6 +216,7 @@ static apr_status_t reslist_maint(apr_reslist_t *reslist)
         /* Create the resource */
         rv = create_resource(reslist, &res);
         if (rv != APR_SUCCESS) {
+            free_container(reslist, res);
             apr_thread_mutex_unlock(reslist->listlock);
             return rv;
         }
