@@ -1,5 +1,8 @@
 Changes with APR-util b1  
 
+  *) Changed file_bucket_setaside() to use apr_file_setaside() instead
+     of turning the file bucket into an mmap bucket.  [Brian Pane]
+
   *) Install libaprutil support libraries before installing libaprutil
      itself, since on some platforms libaprutil is relinked during
      make install and the support libraries need to exist already.
