@@ -221,6 +221,101 @@ APU_DECLARE(apr_status_t) apr_brigade_length(apr_bucket_brigade *bb,
     return APR_SUCCESS;
 }
 
+APU_DECLARE(apr_status_t) apr_brigade_getline(apr_bucket_brigade *bb,
+                                              char *c, apr_size_t *len)
+{
+    apr_size_t actual = 0;
+    apr_bucket *b;
+ 
+    APR_BRIGADE_FOREACH(b, bb) {
+        const char *str;
+        apr_size_t str_len;
+        apr_status_t status;
+
+        status = apr_bucket_read(b, &str, &str_len, APR_BLOCK_READ);
+        if (status != APR_SUCCESS) {
+            return status;
+        }
+
+        /* If we would overflow. */
+        if (*len < actual + str_len) {
+            str_len = *len - actual;
+        }
+
+        memcpy(c, str, str_len);
+
+        c += str_len;
+        actual += str_len;
+
+        if (*len < actual) {
+            break;
+        }
+    }
+
+    *len = actual;
+    return APR_SUCCESS;
+}
+
+APU_DECLARE(char *) apr_brigade_pgetline(apr_bucket_brigade *bb,
+                                         apr_pool_t *pool)
+{
+    apr_off_t tmp;
+    apr_size_t actual;
+    char *c;
+
+    apr_brigade_length(bb, 1, &tmp);
+    actual = tmp;
+    
+    c = apr_palloc(pool, actual + 1);
+    
+    apr_brigade_getline(bb, c, &actual);
+    c[actual] = '\0';
+
+    return APR_SUCCESS;
+}
+
+APU_DECLARE(apr_status_t) apr_brigade_split_line(apr_bucket_brigade *bbOut,
+                                                 apr_bucket_brigade *bbIn,
+                                                 apr_read_type_e block,
+                                                 apr_size_t maxbytes)
+{
+    apr_size_t readbytes = 0;
+
+    while (!APR_BRIGADE_EMPTY(bbIn)) {
+        const char *pos;
+        const char *str;
+        apr_size_t len;
+        apr_status_t rv;
+        apr_bucket *e;
+
+        e = APR_BRIGADE_FIRST(bbIn);
+        rv = apr_bucket_read(e, &str, &len, block);
+
+        if (rv != APR_SUCCESS) {
+            return rv;
+        }
+
+        pos = memchr(str, APR_ASCII_LF, len);
+        /* We found a match. */
+        if (pos != NULL) {
+            apr_bucket_split(e, pos - str + 1);
+            APR_BUCKET_REMOVE(e);
+            APR_BRIGADE_INSERT_TAIL(bbOut, e);
+            return APR_SUCCESS;
+        }
+        APR_BUCKET_REMOVE(e);
+        APR_BRIGADE_INSERT_TAIL(bbOut, e);
+        readbytes += len;
+        /* We didn't find an APR_ASCII_LF within the maximum line length. */
+        if (readbytes >= maxbytes) {
+            break;
+        }
+    }
+
+    return APR_SUCCESS;
+}
+
+
 APU_DECLARE(apr_status_t) apr_brigade_to_iovec(apr_bucket_brigade *b, 
                                                struct iovec *vec, int *nvec)
 {
