@@ -122,6 +122,33 @@ APR_DECLARE(ap_bucket_brigade *) ap_brigade_split(ap_bucket_brigade *b,
     return a;
 }
 
+APR_DECLARE(apr_status_t) ap_bucket_split_any(ap_bucket *e, apr_off_t point)
+{
+    apr_status_t rv;
+    const char *str;
+    apr_size_t len;
+
+    /* try to split this bucket directly */
+    rv = ap_bucket_split(e, point);
+    if (rv != APR_ENOTIMPL) {
+        return rv;
+    }
+
+    /* if the bucket cannot be split, we must read from it,
+     * changing its type to one that can be split */
+    if (point < 0) {
+        return APR_EINVAL;
+    }
+    rv = ap_bucket_read(e, &str, &len, AP_BLOCK_READ);
+    if (rv != APR_SUCCESS) {
+        return rv;
+    }
+    if (point > len) {
+        return APR_EINVAL;
+    }
+    return ap_bucket_split(e, point);
+}
+
 APR_DECLARE(int) ap_brigade_to_iovec(ap_bucket_brigade *b, 
 				    struct iovec *vec, int nvec)
 {
