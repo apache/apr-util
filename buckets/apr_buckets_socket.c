@@ -60,11 +60,11 @@ static apr_status_t socket_bucket_read(apr_bucket *a, const char **str,
     apr_socket_t *p = a->data;
     char *buf;
     apr_status_t rv;
-    apr_int32_t timeout;
+    apr_interval_time_t timeout;
 
     if (block == APR_NONBLOCK_READ) {
-        apr_getsocketopt(p, APR_SO_TIMEOUT, &timeout);
-        apr_setsocketopt(p, APR_SO_TIMEOUT, 0);
+        apr_socket_timeout_get(p, &timeout);
+        apr_socket_timeout_set(p, 0);
     }
 
     *str = NULL;
@@ -74,7 +74,7 @@ static apr_status_t socket_bucket_read(apr_bucket *a, const char **str,
     rv = apr_recv(p, buf, len);
 
     if (block == APR_NONBLOCK_READ) {
-        apr_setsocketopt(p, APR_SO_TIMEOUT, timeout);
+        apr_socket_timeout_set(p, timeout);
     }
 
     if (rv != APR_SUCCESS && rv != APR_EOF) {
