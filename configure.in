@@ -10,6 +10,7 @@ AC_CONFIG_AUX_DIR(../apr/build)
 
 sinclude(build/apu-conf.m4)
 sinclude(../apr/build/apr_common.m4)
+sinclude(../apr/build/find_apr.m4)
 
 dnl Generate ./config.nice for reproducing runs of configure
 dnl 
@@ -37,11 +38,15 @@ AC_SUBST(abs_srcdir)
 dnl
 dnl set up the compilation flags and stuff
 dnl
-APR_ADDTO(INCLUDES, [-I\$(top_builddir)/include/private -I\$(top_builddir)/include])
 
+APRUTIL_INCLUDES="-I$top_builddir/include"
+APRUTIL_PRIV_INCLUDES="-I$top_builddir/include/private"
 if test -n "$USE_VPATH"; then
-    APR_ADDTO(INCLUDES, [-I\$(top_srcdir)/include])
+    APRUTIL_PRIV_INCLUDES="$APRUTIL_PRIV_INCLUDES -I$abs_srcdir/include/private"
+    APRUTIL_INCLUDES="$APRUTIL_INCLUDES -I$abs_srcdir/include"
 fi
+AC_SUBST(APRUTIL_INCLUDES)
+AC_SUBST(APRUTIL_PRIV_INCLUDES)
 
 dnl
 dnl 1. Find the APR includes directory and (possibly) the source (base) dir.
@@ -53,10 +58,6 @@ APU_FIND_LDAP
 APU_CHECK_DBM
 APU_FIND_EXPAT
 
-dnl Add in the INCLUDES from APR
-APR_ADDTO(INCLUDES, [$APR_INCLUDES])
-dnl Add in the Includes from APR-UTIL
-APR_ADDTO(INCLUDES, [$APRUTIL_INCLUDES])
 so_ext=$APR_SO_EXT
 lib_target=$APR_LIB_TARGET
 AC_SUBST(so_ext)
@@ -66,9 +67,12 @@ EXTRA_OS_LINK=""
 host_alias=`uname -s`
 case "$host_alias" in
 *BeOS*)
-    # Horrible Hack !!!
-    # if we're building on BeOS then we need to add in the
-    # apr and expat libraries to the build...  Grrrr...
+    dnl ### Horrible Hack !!!
+    dnl ### if we're building on BeOS then we need to add in the
+    dnl ### apr and expat libraries to the build...  Grrrr...
+    dnl
+    dnl ### we should use $apr_config --link-libtool probably...
+    dnl ### or at least $apr_config --apr-la-file
     EXTRA_OS_LINK="$APR_BUILD_DIR/libapr.la $top_builddir/xml/expat/lib/libexpat.la"
     ;;
 *)
@@ -80,9 +84,7 @@ AC_SUBST(EXTRA_OS_LINK)
 dnl
 dnl Prep all the flags and stuff for compilation and export to other builds
 dnl
-APR_ADDTO(CFLAGS, [$CFLAGS $INCLUDES $APR_EXPORT_CFLAGS $APR_EXPORT_CPPFLAGS])
-APR_ADDTO(LIBS, [$APR_EXPORT_LIBS])
-APR_ADDTO(INCLUDES, [$APRUTIL_INCLUDES])
+APR_ADDTO(LIBS, [$APR_LIBS])
 
 AC_SUBST(APRUTIL_EXPORT_LIBS)
 AC_SUBST(APRUTIL_INCLUDES)
