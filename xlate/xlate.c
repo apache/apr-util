@@ -177,7 +177,9 @@ static apr_status_t apr_xlate_cleanup(void *convset)
 
     if (old->ich != (iconv_t)-1) {
         if (iconv_close(old->ich)) {
-            return errno;
+            int rv = errno;
+            /* Sometimes, iconv is not good about setting errno. */
+            return rv ? rv : EINVAL;
         }
     }
 #endif
@@ -270,7 +272,9 @@ APU_DECLARE(apr_status_t) apr_xlate_open(apr_xlate_t **convset,
     if (!found) {
         new->ich = iconv_open(topage, frompage);
         if (new->ich == (iconv_t)-1) {
-            return errno;
+            int rv = errno;
+            /* Sometimes, iconv is not good about setting errno. */
+            return rv ? rv : EINVAL;
         }
         found = 1;
         check_sbcs(new);
@@ -327,19 +331,30 @@ APU_DECLARE(apr_status_t) apr_xlate_conv_buffer(apr_xlate_t *convset,
          * c) the error condition where the input is invalid
          */
         if (translated == (apr_size_t)-1) {
-            switch (errno) {
+            int rv = errno;
+            switch (rv) {
+
             case E2BIG:  /* out of space on output */
                 status = 0; /* change table lookup code below if you
                                make this an error */
                 break;
+
             case EINVAL: /* input character not complete (yet) */
                 status = APR_INCOMPLETE;
                 break;
+
             case EILSEQ: /* bad input byte */
                 status = APR_EINVAL;
                 break;
+
+             /* Sometimes, iconv is not good about setting errno. */
+            case 0:
+                status = APR_INCOMPLETE;
+                break;
+
             default:
-                status = errno;
+                status = rv;
+                break;
             }
         }
     }
