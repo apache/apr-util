@@ -334,8 +334,6 @@ APU_DECLARE(void) apr_hook_generic(const char *szName,void (*pfn)(void),
 
 APU_DECLARE_DATA void (*apr_retrieve_optional_fn(const char *szName))(void)
 {
-    void (*pfn)(void);
-
     if(!s_phOptionalFunctions)
 	return NULL;
     return apr_hash_get(s_phOptionalFunctions,szName,strlen(szName));
