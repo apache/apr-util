@@ -382,7 +382,7 @@ AC_DEFUN(APU_CHECK_DB41, [
   fi
   APU_CHECK_BERKELEY_DB("4", "1", "-1",
     "$places",
-    "db4/db.h db.h",
+    "db41/db.h db4/db.h db.h",
     "db-4.1 db4 db"
   )
   if test "$apu_have_db" = "1"; then
@@ -403,7 +403,7 @@ AC_DEFUN(APU_CHECK_DB42, [
   fi
   APU_CHECK_BERKELEY_DB("4", "2", "-1",
     "$places",
-    "db4/db.h db.h",
+    "db42/db.h db4/db.h db.h",
     "db-4.2 db4 db"
   )
   if test "$apu_have_db" = "1"; then
