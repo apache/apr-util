@@ -1,5 +1,16 @@
 Changes with APR-util b1  
 
+  *) prefix UNP_* flags with APR_URI_
+
+     rename:
+     apr_uri_components                  -> apr_uri_t
+     apr_uri_unparse_components          -> apr_uri_unparse
+     apr_uri_parse_components            -> apr_uri_parse
+     apr_uri_parse_hostinfo_components   -> apr_uri_parse_hostinfo
+
+     s/APU_URI_/APR_URI_/g
+     [Perl]
+
   *) Landed the link-to-LDAP to the build process, and the LDAP v2/v3
      compatibility functions.
      [Dave Carrigan <dave@rudedog.org>, Graham Leggett]
