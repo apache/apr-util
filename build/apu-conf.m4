@@ -236,7 +236,104 @@ fi
 if test $apu_use_db = 1; then
   dnl ### use AC_CHECK_LIB?
   LIBS="$LIBS -l$db_lib"
-  APRUTIL_EXPORT_LIBS="$APRUTIL_EXPORT_LIBS $LIBS"
+  APRUTIL_EXPORT_LIBS="$APRUTIL_EXPORT_LIBS -l$db_lib"
 fi
 
+])
+
+dnl
+dnl APU_TEST_EXPAT(directory): test if Expat is located in the specified dir
+dnl
+dnl if present: sets expat_include_dir, expat_libs, possibly expat_old
+dnl
+AC_DEFUN(APU_TEST_EXPAT,[
+  AC_MSG_CHECKING(for Expat in ifelse($2,,$1,$2))
+
+  if test -r "$1/lib/expat.h"; then
+    dnl Expat 1.95.* distribution
+    expat_include_dir="$1/lib"
+    expat_libs="$1/lib/libexpat.la"
+  elif test -r "$1/xmlparse.h"; then
+    dnl maybe an expat-lite. use this dir for both includes and libs
+    expat_include_dir="$1"
+    expat_libs="$1/libexpat.la"
+    expat_old=yes
+  elif test -r "$1/include/xmlparse.h"; then
+    dnl ### who is this?
+    expat_include_dir="$1/include"
+    expat_libs="-L$1/lib -lexpat"
+    expat_old=yes
+  elif test -r "$1/include/xml/xmlparse.h"; then
+    dnl ### who is this?
+    expat_include_dir="$1/include/xml"
+    expat_libs="-L$1/lib -lexpat"
+    expat_old=yes
+  elif test -r "$1/include/xmltok/xmlparse.h"; then
+    dnl Debian distribution
+    expat_include_dir="$1/include/xmltok"
+    expat_libs="-L$1/lib -lxmlparse -lxmltok"
+    expat_old=yes
+  elif test -r "$1/xmlparse/xmlparse.h"; then
+    dnl Expat 1.0 or 1.1 source directory
+    expat_include_dir="$1/xmlparse"
+    expat_libs="-L$1 -lexpat"
+    expat_old=yes
+  fi
+  dnl ### test for installed Expat 1.95.* distros
+
+  if test -n "$expat_include_dir"; then
+    dnl ### more info about what we found there? version? using .la?
+    AC_MSG_RESULT(yes)
+  else
+    AC_MSG_RESULT(no)
+  fi
+])
+
+
+dnl
+dnl APU_FIND_EXPAT: figure out where EXPAT is located (or use bundled)
+dnl
+AC_DEFUN(APU_FIND_EXPAT,[
+
+AC_ARG_WITH([expat],
+[ --with-expat=DIR        specify Expat location], [
+  if test "$withval" = "yes"; then
+    AC_MSG_ERROR([a directory must be specified for --with-expat])
+  elif test "$withval" = "no"; then
+    AC_MSG_ERROR([Expat cannot be disabled (at this time)])
+  else
+    abs_expatdir="`cd $withval && pwd`"
+    APU_TEST_EXPAT($abs_expatdir, $withval)
+    if test -z "$expat_include_dir"; then
+      AC_MSG_ERROR([Expat was not found (or recognized) in \"$withval\"])
+    fi
+  fi
+])
+
+if test -z "$expat_include_dir"; then
+  for d in /usr /usr/local xml/expat ; do
+    APU_TEST_EXPAT($d)
+    if test -n "$expat_include_dir"; then
+      break
+    fi
+  done
+fi
+if test -z "$expat_include_dir"; then
+  AC_MSG_ERROR([could not locate Expat. use --with-expat])
+fi
+
+if test -n "$expat_old"; then
+  AC_DEFINE(APR_HAVE_OLD_EXPAT, 1, [define if Expat 1.0 or 1.1 was found])
+fi
+
+dnl special-case the bundled distribution (use absolute dirs)
+if test "$expat_include_dir" = "xml/expat/lib"; then
+  expat_include_dir=$srcdir/xml/expat/lib
+  expat_libs=$top_builddir/xml/expat/lib/libexpat.la
+fi
+
+INCLUDES="$INCLUDES -I$expat_include_dir"
+LIBS="$LIBS $expat_libs"
+APRUTIL_EXPORT_LIBS="$APRUTIL_EXPORT_LIBS $expat_libs"
+dnl ### export the Expat includes?
 ])

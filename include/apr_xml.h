@@ -52,8 +52,6 @@
  * <http://www.apache.org/>.
  */
 
-#if 0
-
 #ifndef APR_XML_H
 #define APR_XML_H
 
@@ -65,8 +63,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#ifdef APR_NOT_AVAILABLE_YET
 
 /**
  * @package Apache XML library
@@ -354,12 +350,8 @@ APU_DECLARE(int) apr_xml_insert_uri(apr_array_header_t *uri_array,
                                     const char *uri);
 #define APR_XML_GET_URI_ITEM(ary, i) (((const char * const *)(ary)->elts)[i])
 
-#endif /* APR_NOT_AVAILABLE_YET */
-
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* APR_XML_H */
-
-#endif /* 0 */
