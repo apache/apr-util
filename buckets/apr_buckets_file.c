@@ -166,10 +166,18 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
         apr_bucket_heap_make(e, buf, *len, 0, NULL); /*XXX: check for failure? */
         /* If we have more to read from the file, then create another bucket */
         if (length > 0) {
-            b = apr_bucket_file_create(f, s->start + (*len), length);
+            /* for efficiency, we can just build a new apr_bucket struct
+             * to wrap around the existing shared+file bucket */
+            s->start += (*len);
+            b = malloc(sizeof(*b));
+            b->data = s;
+            b->type = &apr_bucket_type_file;
+            b->length = length;
             APR_BUCKET_INSERT_AFTER(e, b);
         }
-        file_destroy(s);
+        else {
+            file_destroy(s);
+        }
 
 #if APR_HAS_MMAP
     }
