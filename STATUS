@@ -1,5 +1,5 @@
 APRUTIL LIBRARY STATUS:						-*-text-*-
-Last modified at [$Date: 2001/01/24 10:24:00 $]
+Last modified at [$Date: 2001/04/10 11:45:11 $]
 
 Release:
     2.0a9   : released December 12, 2000
@@ -9,6 +9,10 @@ RELEASE SHOWSTOPPERS:
 
     * Need apu_compat.h to track the latest renames
       [Will voulenteers - is on it]
+
+    * add misc/version.c and related machinery once the pattern is
+      layed out in APR.
+
 
 RELEASE NON-SHOWSTOPPERS BUT WOULD BE REAL NICE TO WRAP THESE UP:
 
@@ -22,7 +26,9 @@ Other bugs that need fixing:
 
 Other features that need writing:
 
-    * populate src/uri and src/xml from Apache
+    * write apr_brigade_(p)getline, per the hackathon
+
+    * populate src/uri from Apache
 
     * possibly move test/testdbm* to util/dbu
       Status: Greg +1 (volunteers)
