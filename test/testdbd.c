@@ -40,7 +40,7 @@ static int create_table(apr_pool_t* pool, apr_dbd_t* handle,
         "col1 varchar(40) not null,"
         "col2 varchar(40),"
         "col3 integer)" ;
-    rv = apr_dbd_query(driver, handle, NULL, &nrows, statement);
+    rv = apr_dbd_query(driver, handle, &nrows, statement);
     return rv;
 }
 static int drop_table(apr_pool_t* pool, apr_dbd_t* handle,
@@ -49,7 +49,7 @@ static int drop_table(apr_pool_t* pool, apr_dbd_t* handle,
     int rv = 0;
     int nrows;
     const char *statement = "DROP TABLE apr_dbd_test" ;
-    rv = apr_dbd_query(driver, handle, NULL, &nrows, statement);
+    rv = apr_dbd_query(driver, handle, &nrows, statement);
     return rv;
 }
 static int insert_rows(apr_pool_t* pool, apr_dbd_t* handle,
@@ -66,7 +66,7 @@ static int insert_rows(apr_pool_t* pool, apr_dbd_t* handle,
         "INSERT into apr_dbd_test values ('qwerty', 'foo', 0);"
         "INSERT into apr_dbd_test values ('asdfgh', 'bar', 1);"
     ;
-    rv = apr_dbd_query(driver, handle, NULL, &nrows, statement);
+    rv = apr_dbd_query(driver, handle, &nrows, statement);
     if (rv) {
         const char* stmt[] = {
             "INSERT into apr_dbd_test (col1) values ('foo');",
@@ -79,7 +79,7 @@ static int insert_rows(apr_pool_t* pool, apr_dbd_t* handle,
         printf("Compound insert failed; trying statements one-by-one\n") ;
         for (i=0; stmt[i] != NULL; ++i) {
             statement = stmt[i];
-            rv = apr_dbd_query(driver, handle, NULL, &nrows, statement);
+            rv = apr_dbd_query(driver, handle, &nrows, statement);
             if (rv) {
                 nerrors++;
             }
@@ -96,11 +96,11 @@ static int invalid_op(apr_pool_t* pool, apr_dbd_t* handle,
     int rv = 0;
     int nrows;
     const char *statement = "INSERT into apr_dbd_test1 (col2) values ('foo')" ;
-    rv = apr_dbd_query(driver, handle, NULL, &nrows, statement);
+    rv = apr_dbd_query(driver, handle, &nrows, statement);
     printf("invalid op returned %d (should be nonzero).  Error msg follows\n", rv);
     printf("'%s'\n", apr_dbd_error(driver, handle, rv));
     statement = "INSERT into apr_dbd_test (col1, col2) values ('bar', 'foo')" ;
-    rv = apr_dbd_query(driver, handle, NULL, &nrows, statement);
+    rv = apr_dbd_query(driver, handle, &nrows, statement);
     printf("valid op returned %d (should be zero; error shouldn't affect subsequent ops)\n", rv);
     return rv;
 }
@@ -114,7 +114,7 @@ static int select_sequential(apr_pool_t* pool, apr_dbd_t* handle,
     const char* statement = "SELECT * FROM apr_dbd_test ORDER BY col1, col2";
     apr_dbd_results_t *res = NULL;
     apr_dbd_row_t *row = NULL;
-    rv = apr_dbd_select(driver,pool,handle,NULL,&res,statement,0);
+    rv = apr_dbd_select(driver,pool,handle,&res,statement,0);
     if (rv) {
         printf("Select failed: %s", apr_dbd_error(driver, handle, rv));
         return rv;
@@ -145,7 +145,7 @@ static int select_random(apr_pool_t* pool, apr_dbd_t* handle,
     const char* statement = "SELECT * FROM apr_dbd_test ORDER BY col1, col2";
     apr_dbd_results_t *res = NULL;
     apr_dbd_row_t *row = NULL;
-    rv = apr_dbd_select(driver,pool,handle,NULL,&res,statement,1);
+    rv = apr_dbd_select(driver,pool,handle,&res,statement,1);
     if (rv) {
         printf("Select failed: %s", apr_dbd_error(driver, handle, rv));
         return rv;
@@ -209,7 +209,7 @@ static int test_transactions(apr_pool_t* pool, apr_dbd_t* handle,
         return rv;
     }
     statement = "UPDATE apr_dbd_test SET col2 = 'failed'";
-    rv = apr_dbd_query(driver, handle, trans, &nrows, statement);
+    rv = apr_dbd_query(driver, handle, &nrows, statement);
     if (rv) {
         printf("Update failed: '%s'\n", apr_dbd_error(driver, handle, rv));
         apr_dbd_transaction_end(driver, pool, trans);
@@ -218,12 +218,12 @@ static int test_transactions(apr_pool_t* pool, apr_dbd_t* handle,
     printf("%d rows updated\n", nrows);
 
     statement = "INSERT INTO apr_dbd_test1 (col3) values (3)";
-    rv = apr_dbd_query(driver, handle, trans, &nrows, statement);
+    rv = apr_dbd_query(driver, handle, &nrows, statement);
     if (!rv) {
         printf("Oops, invalid op succeeded but shouldn't!\n");
     }
     statement = "INSERT INTO apr_dbd_test values ('zzz', 'aaa', 3)";
-    rv = apr_dbd_query(driver, handle, trans, &nrows, statement);
+    rv = apr_dbd_query(driver, handle, &nrows, statement);
     printf("Valid insert returned %d.  Should be nonzero (fail) because transaction is bad\n", rv) ;
 
     rv = apr_dbd_transaction_end(driver, pool, trans);
@@ -245,7 +245,7 @@ static int test_transactions(apr_pool_t* pool, apr_dbd_t* handle,
         return rv;
     }
     statement = "UPDATE apr_dbd_test SET col2 = 'success'";
-    rv = apr_dbd_query(driver, handle, trans, &nrows, statement);
+    rv = apr_dbd_query(driver, handle, &nrows, statement);
     if (rv) {
         printf("Update failed: '%s'\n", apr_dbd_error(driver, handle, rv));
         apr_dbd_transaction_end(driver, pool, trans);
@@ -253,7 +253,7 @@ static int test_transactions(apr_pool_t* pool, apr_dbd_t* handle,
     }
     printf("%d rows updated\n", nrows);
     statement = "INSERT INTO apr_dbd_test values ('aaa', 'zzz', 3)";
-    rv = apr_dbd_query(driver, handle, trans, &nrows, statement);
+    rv = apr_dbd_query(driver, handle, &nrows, statement);
     printf("Valid insert returned %d.  Should be zero (OK)\n", rv) ;
     rv = apr_dbd_transaction_end(driver, pool, trans);
     if (rv) {
@@ -284,7 +284,7 @@ static int test_pselect(apr_pool_t* pool, apr_dbd_t* handle,
                apr_dbd_error(driver, handle, rv));
         return rv;
     }
-    rv = driver->pvselect(pool, handle, NULL, &res, statement, 0, "3", NULL);
+    rv = driver->pvselect(pool, handle, &res, statement, 0, "3", NULL);
     if (rv) {
         printf("Exec of prepared statement failed!\n%s\n",
                apr_dbd_error(driver, handle, rv));
@@ -327,7 +327,7 @@ static int test_pquery(apr_pool_t* pool, apr_dbd_t* handle,
         return rv;
     }
     apr_dbd_transaction_start(driver, pool, handle, &trans);
-    rv = driver->pvquery(pool, handle, trans, &nrows, statement,
+    rv = driver->pvquery(pool, handle, &nrows, statement,
                          "prepared", "insert", "2", NULL);
     apr_dbd_transaction_end(driver, pool, trans);
     if (rv) {

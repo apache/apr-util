@@ -116,19 +116,16 @@ typedef struct apr_dbd_driver_t {
     /** query: execute an SQL query that doesn't return a result set
      *
      *  @param handle - the connection
-     *  @param transaction - current transaction.  May be null.
      *  @param nrows - number of rows affected.
      *  @param statement - the SQL statement to execute
      *  @return 0 for success or error code
      */
-    int (*query)(apr_dbd_t *handle, apr_dbd_transaction_t *trans,
-                 int *nrows, const char *statement);
+    int (*query)(apr_dbd_t *handle, int *nrows, const char *statement);
 
     /** select: execute an SQL query that returns a result set
      *
      *  @param pool - pool to allocate the result set
      *  @param handle - the connection
-     *  @param transaction - current transaction.  May be null.
      *  @param res - pointer to result set pointer.  May point to NULL on entry
      *  @param statement - the SQL statement to execute
      *  @param random - 1 to support random access to results (seek any row);
@@ -136,8 +133,7 @@ typedef struct apr_dbd_driver_t {
      *                    (async access - faster)
      *  @return 0 for success or error code
      */
-    int (*select)(apr_pool_t *pool, apr_dbd_t *handle,
-                  apr_dbd_transaction_t *trans, apr_dbd_results_t **res,
+    int (*select)(apr_pool_t *pool, apr_dbd_t *handle, apr_dbd_results_t **res,
                   const char *statement, int random);
 
     /** num_cols: get the number of columns in a results set
@@ -212,21 +208,18 @@ typedef struct apr_dbd_driver_t {
      *
      *  @param pool - working pool
      *  @param handle - the connection
-     *  @param trans - current transaction.  May be null.
      *  @param nrows - number of rows affected.
      *  @param statement - the prepared statement to execute
      *  @param ... - args to prepared statement
      *  @return 0 for success or error code
      */
-    int (*pvquery)(apr_pool_t *pool, apr_dbd_t *handle,
-                  apr_dbd_transaction_t *trans, int *nrows,
-                  apr_dbd_prepared_t *statement, ...);
+    int (*pvquery)(apr_pool_t *pool, apr_dbd_t *handle, int *nrows,
+                   apr_dbd_prepared_t *statement, ...);
 
     /** pvselect: select using a prepared statement + args
      *
      *  @param pool - working pool
      *  @param handle - the connection
-     *  @param trans - current transaction.  May be null.
      *  @param res - pointer to query results.  May point to NULL on entry
      *  @param statement - the prepared statement to execute
      *  @param random - Whether to support random-access to results
@@ -234,29 +227,26 @@ typedef struct apr_dbd_driver_t {
      *  @return 0 for success or error code
      */
     int (*pvselect)(apr_pool_t *pool, apr_dbd_t *handle,
-                    apr_dbd_transaction_t *trans, apr_dbd_results_t **res,
+                    apr_dbd_results_t **res,
                     apr_dbd_prepared_t *statement, int random, ...);
 
     /** pquery: query using a prepared statement + args
      *
      *  @param pool - working pool
      *  @param handle - the connection
-     *  @param trans - current transaction.  May be null.
      *  @param nrows - number of rows affected.
      *  @param statement - the prepared statement to execute
      *  @param nargs - number of args to prepared statement
      *  @param args - args to prepared statement
      *  @return 0 for success or error code
      */
-    int (*pquery)(apr_pool_t *pool, apr_dbd_t *handle,
-                  apr_dbd_transaction_t *trans, int *nrows,
+    int (*pquery)(apr_pool_t *pool, apr_dbd_t *handle, int *nrows,
                   apr_dbd_prepared_t *statement, int nargs, const char **args);
 
     /** pselect: select using a prepared statement + args
      *
      *  @param pool - working pool
      *  @param handle - the connection
-     *  @param trans - current transaction.  May be null.
      *  @param res - pointer to query results.  May point to NULL on entry
      *  @param statement - the prepared statement to execute
      *  @param random - Whether to support random-access to results
@@ -265,9 +255,8 @@ typedef struct apr_dbd_driver_t {
      *  @return 0 for success or error code
      */
     int (*pselect)(apr_pool_t *pool, apr_dbd_t *handle,
-                   apr_dbd_transaction_t *trans, apr_dbd_results_t **res,
-                   apr_dbd_prepared_t *statement, int random, int nargs,
-                   const char **args);
+                   apr_dbd_results_t **res, apr_dbd_prepared_t *statement,
+                   int random, int nargs, const char **args);
 
 
 } apr_dbd_driver_t;
@@ -408,17 +397,15 @@ APU_DECLARE(int) apr_dbd_transaction_end(apr_dbd_driver_t *driver,
  *
  *  @param driver - the driver
  *  @param handle - the connection
- *  @param transaction - current transaction.  May be null.
  *  @param nrows - number of rows affected.
  *  @param statement - the SQL statement to execute
  *  @return 0 for success or error code
  */
 APU_DECLARE(int) apr_dbd_query(apr_dbd_driver_t *driver, apr_dbd_t *handle,
-                               apr_dbd_transaction_t *trans, int *nrows,
-                               const char *statement);
+                               int *nrows, const char *statement);
 #else
-#define apr_dbd_query(driver,handle,trans,nrows,statement) \
-        (driver)->query((handle),(trans),(nrows),(statement))
+#define apr_dbd_query(driver,handle,nrows,statement) \
+        (driver)->query((handle),(nrows),(statement))
 #endif
 
 #ifdef DOXYGEN
@@ -427,7 +414,6 @@ APU_DECLARE(int) apr_dbd_query(apr_dbd_driver_t *driver, apr_dbd_t *handle,
  *  @param driver - the driver
  *  @param pool - pool to allocate the result set
  *  @param handle - the connection
- *  @param transaction - current transaction.  May be null.
  *  @param res - pointer to result set pointer.  May point to NULL on entry
  *  @param statement - the SQL statement to execute
  *  @param random - 1 to support random access to results (seek any row);
@@ -436,12 +422,11 @@ APU_DECLARE(int) apr_dbd_query(apr_dbd_driver_t *driver, apr_dbd_t *handle,
  *  @return 0 for success or error code
  */
 APU_DECLARE(int) apr_dbd_select(apr_dbd_driver_t *driver, apr_pool_t *pool,
-                                apr_dbd_t *handle, apr_dbd_transaction_t *trans,
-                                apr_dbd_results_t *res, const char *statement,
-                                int random);
+                                apr_dbd_t *handle, apr_dbd_results_t *res,
+                                const char *statement, int random);
 #else
-#define apr_dbd_select(driver,pool,handle,trans,res,statement,random) \
-        (driver)->select((pool),(handle),(trans),(res),(statement),(random))
+#define apr_dbd_select(driver,pool,handle,res,statement,random) \
+        (driver)->select((pool),(handle),(res),(statement),(random))
 #endif
 
 #ifdef DOXYGEN
@@ -572,7 +557,6 @@ APU_DECLARE(int) apr_dbd_prepare(apr_dbd_driver_t *driver, apr_pool_t *pool,
  *  @param driver - the driver
  *  @param pool - working pool
  *  @param handle - the connection
- *  @param trans - current transaction.  May be null.
  *  @param nrows - number of rows affected.
  *  @param statement - the prepared statement to execute
  *  @param nargs - number of args to prepared statement
@@ -580,12 +564,12 @@ APU_DECLARE(int) apr_dbd_prepare(apr_dbd_driver_t *driver, apr_pool_t *pool,
  *  @return 0 for success or error code
  */
 APU_DECLARE(int) apr_dbd_pquery(apr_dbd_driver_t *driver, apr_pool_t *pool,
-                                apr_dbd_t *handle, apr_dbd_transaction_t *trans,
-                                int *nrows, apr_dbd_prepared_t *statement,
-                                int nargs, const char **args);
+                                apr_dbd_t *handle, int *nrows,
+                                apr_dbd_prepared_t *statement, int nargs,
+                                const char **args);
 #else
-#define apr_dbd_pquery(driver,pool,handle,trans,nrows,statement,nargs,args) \
-        (driver)->pquery((pool),(handle),(trans),(nrows),(statement), \
+#define apr_dbd_pquery(driver,pool,handle,nrows,statement,nargs,args) \
+        (driver)->pquery((pool),(handle),(nrows),(statement), \
                          (nargs),(args))
 #endif
 
@@ -595,7 +579,6 @@ APU_DECLARE(int) apr_dbd_pquery(apr_dbd_driver_t *driver, apr_pool_t *pool,
  *  @param driver - the driver
  *  @param pool - working pool
  *  @param handle - the connection
- *  @param trans - current transaction.  May be null.
  *  @param res - pointer to query results.  May point to NULL on entry
  *  @param statement - the prepared statement to execute
  *  @param random - Whether to support random-access to results
@@ -604,13 +587,12 @@ APU_DECLARE(int) apr_dbd_pquery(apr_dbd_driver_t *driver, apr_pool_t *pool,
  *  @return 0 for success or error code
  */
 APU_DECLARE(int) apr_dbd_pselect(apr_dbd_driver_t *driver, apr_pool_t *pool,
-                                 apr_dbd_t *handle, apr_dbd_transaction_t *trans,
-                                 apr_dbd_results_t **res,
+                                 apr_dbd_t *handle, apr_dbd_results_t **res,
                                  apr_dbd_prepared_t *statement, int random,
                                  int nargs, const char **args);
 #else
-#define apr_dbd_pselect(driver,pool,handle,trans,res,statement,random,nargs,args) \
-        (driver)->pselect((pool),(handle),(trans),(res),(statement), \
+#define apr_dbd_pselect(driver,pool,handle,res,statement,random,nargs,args) \
+        (driver)->pselect((pool),(handle),(res),(statement), \
                           (random),(nargs),(args))
 #endif
 
