@@ -24,6 +24,7 @@
 #include <libpq-fe.h>
 
 #include "apr_strings.h"
+#include "apr_time.h"
 
 #define QUERY_MAX_ARGS 40
 
