@@ -81,14 +81,13 @@ AC_OUTPUT([
 	build/rules.mk
 	include/private/apu_private.h
         include/apu.h
-	src/Makefile
-	src/buckets/Makefile
-	src/crypto/Makefile
-	src/dbm/Makefile
-	src/dbm/sdbm/Makefile
-	src/encoding/Makefile
-	src/hooks/Makefile
-	src/uri/Makefile
-	src/xml/Makefile
+	buckets/Makefile
+	crypto/Makefile
+	dbm/Makefile
+	dbm/sdbm/Makefile
+	encoding/Makefile
+	hooks/Makefile
+	uri/Makefile
+	xml/Makefile
 	$test_Makefile
 	])
