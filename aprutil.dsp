@@ -241,7 +241,7 @@ SOURCE=.\xml\apr_xml.c
 # End Source File
 # End Group
 # End Group
-# Begin Group "Generated"
+# Begin Group "Generated Files"
 
 # PROP Default_Filter ""
 # Begin Source File
@@ -365,7 +365,7 @@ InputPath=.\uri\gen_uri_delims.exe
 
 # End Source File
 # End Group
-# Begin Group "External Headers"
+# Begin Group "Public Header Files"
 
 # PROP Default_Filter ""
 # Begin Source File
