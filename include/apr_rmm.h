@@ -149,6 +149,12 @@ APU_DECLARE(void *) apr_rmm_addr_get(apr_rmm_t *rmm, apr_rmm_off_t entity);
  */
 APU_DECLARE(apr_rmm_off_t) apr_rmm_offset_get(apr_rmm_t *rmm, void* entity);
 
+/**
+ * Compute the required overallocation of memory needed to fit n allocs
+ * @param n The number of alloc/calloc regions desired
+ */
+APU_DECLARE(apr_size_t) apr_rmm_overhead_get(int n);
+
 #ifdef __cplusplus
 }
 #endif
