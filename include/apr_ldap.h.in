@@ -107,24 +107,24 @@
 /* LDAP header files */
 
 #if APR_HAS_NETSCAPE_LDAPSDK
-@ldap_h@
 @lber_h@
+@ldap_h@
 #if APR_HAS_LDAP_SSL 
 @ldap_ssl_h@
 #endif
 #endif
 
 #if APR_HAS_NOVELL_LDAPSDK
-@ldap_h@
 @lber_h@
+@ldap_h@
 #if APR_HAS_LDAP_SSL 
 @ldap_ssl_h@
 #endif
 #endif
 
 #if APR_HAS_OPENLDAP_LDAPSDK
-@ldap_h@
 @lber_h@
+@ldap_h@
 #endif
 
 /* LDAPv2 SDKs don't use const parameters in their prototypes.  
