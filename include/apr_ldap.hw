@@ -1,4 +1,4 @@
-/* Copyright 2000-2004 The Apache Software Foundation
+/* Copyright 2002-2004 The Apache Software Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,9 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#include "apr.h"
-#include "apu.h"
 
 /*
  * apr_ldap.h is generated from apr_ldap.h.in by configure -- do not edit apr_ldap.h
@@ -32,91 +29,81 @@
  * @{
  */
 
-
-/*
- * This switches LDAP support on or off.
- */
-
 /* this will be defined if LDAP support was compiled into apr-util */
 #define APR_HAS_LDAP		  1
 
-/* this whole thing disappears if LDAP is not enabled */
+
+/*
+ * Handle the case when LDAP is disabled - switch everything off by default
+ */
 #if !APR_HAS_LDAP
 
+/*
+ * The following #defines are DEPRECATED and should not be used. They do
+ * not work properly anyway.
+ */
 #define APR_HAS_NETSCAPE_LDAPSDK    0
 #define APR_HAS_NOVELL_LDAPSDK      0
 #define APR_HAS_OPENLDAP_LDAPSDK    0
 #define APR_HAS_MICROSOFT_LDAPSDK   0
 #define APR_HAS_OTHER_LDAPSDK       0
-
 #define APR_HAS_LDAP_SSL            0
-#define APR_HAS_LDAP_URL_PARSE    0
+#define APR_HAS_LDAP_URL_PARSE      0
 
 
+/*
+ * Handle the case when LDAP is enabled
+ */
 #else /* ldap support available */
 
-
-   /* There a several LDAPv3 SDKs available on various platforms
-    * define which LDAP SDK is used 
-   */
-#define APR_HAS_NETSCAPE_LDAPSDK    0
-#define APR_HAS_NOVELL_LDAPSDK      0
-#define APR_HAS_OPENLDAP_LDAPSDK    0
-#define APR_HAS_MICROSOFT_LDAPSDK   1
-#define APR_HAS_OTHER_LDAPSDK       0
-
-   /* define if LDAP SSL support is available 
-   */
-#define APR_HAS_LDAP_SSL            1
-
-   /* If no APR_HAS_xxx_LDAPSDK is defined error out
-    * Define if the SDK supports the ldap_url_parse function 
-   */
-#if APR_HAS_NETSCAPE_LDAPSDK 
-   #define APR_HAS_LDAP_URL_PARSE      1
-#elif APR_HAS_NOVELL_LDAPSDK 
-   #define APR_HAS_LDAP_URL_PARSE      1
-#elif APR_HAS_OPENLDAP_LDAPSDK
-   #define APR_HAS_LDAP_URL_PARSE      1
-#elif APR_HAS_MICROSOFT_LDAPSDK
-   #define APR_HAS_LDAP_URL_PARSE      0
-#elif APR_HAS_OTHER_LDAPSDK
-   #define APR_HAS_LDAP_URL_PARSE      0
-#else
-   #define APR_HAS_LDAP_URL_PARSE      0
-   #error "ERROR no LDAP SDK defined!"
-#endif
-
-/* LDAP header files */
-
-#if APR_HAS_NETSCAPE_LDAPSDK
-#include <ldap.h>
-#include <lber.h>
-#if APR_HAS_LDAP_SSL 
-#include <ldap_ssl.h>
-#endif
-#endif
-
-#if APR_HAS_NOVELL_LDAPSDK
-#include <ldap.h>
-#include <lber.h>
-#if APR_HAS_LDAP_SSL 
-#include <ldap_ssl.h>
-#endif
-#endif
-
-#if APR_HAS_OPENLDAP_LDAPSDK
-#include <ldap.h>
-#include <lber.h>
-#endif
-
-/* Included in Windows 2000 and later, earlier 9x/NT 4.0 clients
- * will need to obtain the Active Directory Client Extensions.
+/*
+ * The following #defines are DEPRECATED and should not be used for
+ * anything. They remain to maintain binary compatibility.
+ * The original code defined the OPENLDAP SDK as present regardless
+ * of what really was there, which was way bogus. In addition, the
+ * apr_ldap_url_parse*() functions have been rewritten specifically for
+ * APR, so the APR_HAS_LDAP_URL_PARSE macro is forced to zero.
  */
-#if APR_HAS_MICROSOFT_LDAPSDK
+#define APR_HAS_MICROSOFT_LDAPSDK 1 
+#define APR_HAS_LDAP_SSL 1
+#define APR_HAS_LDAP_URL_PARSE 0
+
+
+/*
+ * Include the standard LDAP header files.
+ */
+
 #include <winldap.h>
-#define LDAPS_PORT LDAP_SSL_PORT
+
+
+/*
+ * Vendor LDAP toolkits that we identify
+ */
+#define APR_LDAP_VENDOR_NOVELL "Novell"
+#define APR_LDAP_VENDOR_NETSCAPE "Netscape Communications Corp."
+#define APR_LDAP_VENDOR_MICROSOFT "Microsoft Corporation."
+#define APR_LDAP_VENDOR_OPENLDAP "OpenLDAP"
+#define APR_LDAP_VENDOR_SUN "Sun Microsystems Inc."
+
+
+/*
+ * Detected standard functions
+ */
+#define APR_HAS_LDAPSSL_CLIENT_INIT 0
+#define APR_HAS_LDAPSSL_CLIENT_DEINIT 0
+#define APR_HAS_LDAPSSL_ADD_TRUSTED_CERT 0
+#define APR_HAS_LDAP_START_TLS_S 0
+#define APR_HAS_LDAP_SSLINIT 1
+#define APR_HAS_LDAPSSL_INIT 0
+
+
+/*
+ * Make sure the secure LDAP port is defined
+ */
+#ifndef LDAPS_PORT
+#define LDAPS_PORT 636  /* ldaps:/// default LDAP over TLS port */
 #endif
+
 
 /* Note: Macros defining const casting has been removed in APR v1.0,
  * pending real support for LDAP v2.0 toolkits.
@@ -126,6 +113,7 @@
 #if LDAP_VERSION_MAX <= 2
 #error Support for LDAP v2.0 toolkits has been removed from apr-util. Please use an LDAP v3.0 toolkit.
 #endif 
+
 
 /**
  * This structure allows the C LDAP API error codes to be returned
@@ -140,6 +128,7 @@ typedef struct apr_ldap_err_t {
 
 #include "apr_ldap_url.h"
 #include "apr_ldap_init.h"
+
 
 /** @} */
 #endif /* APR_HAS_LDAP */
