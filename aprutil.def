@@ -30,10 +30,12 @@ ap_bucket_create_flush
 ap_bucket_create_heap
 ap_bucket_create_immortal
 ap_bucket_create_pipe
+ap_bucket_create_mmap
 ap_file_type
 ap_flush_type
 ap_pipe_type
 ap_eos_type
+ap_mmap_type
 
 ap_brigade_create
 ap_brigade_destroy
@@ -48,3 +50,14 @@ ap_hook_deregister_all
 ap_hook_sort_register
 ap_show_hook
 ap_sort_hooks
+
+apr_dbm_open
+apr_dbm_geterror
+apr_dbm_close
+apr_dbm_fetch
+apr_dbm_store
+apr_dbm_delete
+apr_dbm_exists
+apr_dbm_firstkey
+apr_dbm_nextkey
+apr_dbm_freedatum
