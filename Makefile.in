@@ -33,6 +33,7 @@ bindir=@bindir@
 libdir=@libdir@
 includedir=@includedir@
 top_srcdir=@top_srcdir@
+top_blddir=@top_builddir@
 
 EXPORT_FILES = $(top_srcdir)/include/*.h
 
@@ -50,7 +51,12 @@ install: $(TARGET_LIB)
 	if [ ! -d $(includedir) ]; then \
 	    @APR_SOURCE_DIR@/build/mkdir.sh $(includedir); \
 	fi;
-	cp include/*.h $(includedir)
+	cp -p $(top_srcdir)/include/*.h $(includedir)
+
+	if [ -n "$(top_blddir)" ]; then \
+		cp -p $(top_blddir)/include/*.h $(includedir);
+	fi;
+	
 	if [ ! -d $(libdir) ]; then \
 	    @APR_SOURCE_DIR@/build/mkdir.sh $(libdir); \
 	fi;
