@@ -63,10 +63,7 @@
 #include "apu.h"
 
 #if APU_HAVE_DB 
-
 #include "apr_dbm_private.h"
-
-
 
 /* this is used in a few places to define a noop "function". it is needed
    to stop "no effect" warnings from GCC. */
@@ -97,7 +94,6 @@ typedef struct {
 #endif
 } real_file_t;
 
-
 #undef SET_FILE
 #define SET_FILE(pdb, f) ((pdb)->file = apr_pmemdup((pdb)->pool, \
                                                     &(f), sizeof(f)))
@@ -120,25 +116,25 @@ typedef DBT result_datum_t;
 #define GET_BDB(f)      (((real_file_t *)(f))->bdb)
 
 #if DB_VER == 1
-#define APR_DBM_CLOSE(f)	((*GET_BDB(f)->close)(GET_BDB(f)))
+#define APR_DBM_CLOSE(f)        ((*GET_BDB(f)->close)(GET_BDB(f)))
 #else
-#define APR_DBM_CLOSE(f)	((*GET_BDB(f)->close)(GET_BDB(f), 0))
+#define APR_DBM_CLOSE(f)        ((*GET_BDB(f)->close)(GET_BDB(f), 0))
 #endif
 
-#define do_fetch(bdb, k, v)       ((*(bdb)->get)(bdb, TXN_ARG &(k), &(v), 0))
-#define APR_DBM_FETCH(f, k, v)	db2s(do_fetch(GET_BDB(f), k, v))
-#define APR_DBM_STORE(f, k, v)	db2s((*GET_BDB(f)->put)(GET_BDB(f), TXN_ARG &(k), &(v), 0))
-#define APR_DBM_DELETE(f, k)	db2s((*GET_BDB(f)->del)(GET_BDB(f), TXN_ARG &(k), 0))
+#define do_fetch(bdb, k, v)     ((*(bdb)->get)(bdb, TXN_ARG &(k), &(v), 0))
+#define APR_DBM_FETCH(f, k, v)  db2s(do_fetch(GET_BDB(f), k, v))
+#define APR_DBM_STORE(f, k, v)  db2s((*GET_BDB(f)->put)(GET_BDB(f), TXN_ARG &(k), &(v), 0))
+#define APR_DBM_DELETE(f, k)    db2s((*GET_BDB(f)->del)(GET_BDB(f), TXN_ARG &(k), 0))
 #define APR_DBM_FIRSTKEY(f, k)  do_firstkey(f, &(k))
 #define APR_DBM_NEXTKEY(f, k, nk) do_nextkey(f, &(k), &(nk))
-#define APR_DBM_FREEDPTR(dptr)	NOOP_FUNCTION
+#define APR_DBM_FREEDPTR(dptr)  NOOP_FUNCTION
 
 #if DB_VER == 1
 #include <sys/fcntl.h>
 #define APR_DBM_DBMODE_RO       O_RDONLY
 #define APR_DBM_DBMODE_RW       O_RDWR
 #define APR_DBM_DBMODE_RWCREATE (O_CREAT | O_RDWR)
-#define APR_DBM_DBMODE_RWTRUNC (O_CREAT | O_RDWR|O_TRUNC)
+#define APR_DBM_DBMODE_RWTRUNC  (O_CREAT | O_RDWR | O_TRUNC)
 #else
 #define APR_DBM_DBMODE_RO       DB_RDONLY
 #define APR_DBM_DBMODE_RW       0
@@ -151,7 +147,7 @@ static apr_status_t db2s(int dberr)
 {
     if (dberr != 0) {
         /* ### need to fix this */
-        return APR_OS_START_USEERR+dberr;
+        return APR_OS_START_USEERR + dberr;
     }
 
     return APR_SUCCESS;
@@ -163,9 +159,9 @@ static apr_status_t do_firstkey(real_file_t *f, DBT *pkey)
     int dberr;
     DBT data;
 
-    memset(pkey,0,sizeof(DBT));
+    memset(pkey, 0, sizeof(DBT));
 
-    memset(&data,0,sizeof(DBT));
+    memset(&data, 0, sizeof(DBT));
 #if DB_VER == 1
     dberr = (*f->bdb->seq)(f->bdb, pkey, &data, R_FIRST);
 #else
@@ -231,7 +227,7 @@ static apr_status_t set_error(apr_dbm_t *dbm, apr_status_t dbm_said)
         /* ### need to fix. dberr was tossed in db2s(). */
         /* ### use db_strerror() */
         dbm->errcode = dbm_said;
-        dbm->errmsg = db_strerror( dbm_said - APR_OS_START_USEERR);
+        dbm->errmsg = db_strerror(dbm_said - APR_OS_START_USEERR);
         rv = dbm_said;
     }
 
