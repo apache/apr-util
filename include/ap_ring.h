@@ -71,7 +71,8 @@
 #include <stddef.h>
 
 /*
- * A ring is a kind of doubly-linked list.
+ * A ring is a kind of doubly-linked list that can be manipulated
+ * without knowing where its head is.
  */
 
 /*
@@ -119,9 +120,9 @@
  * elements in the ring, computed from the address of the ring's head.
  *
  * Note that for strict C standards compliance you should put the
- * AP_RING_ENTRY first in struct elem_tag unless the head is always
- * part of a larger object with enough earlier fields to accommodate
- * the offsetof() computed below. You can usually ignore this caveat.
+ * AP_RING_ENTRY first in struct elem unless the head is always part
+ * of a larger object with enough earlier fields to accommodate the
+ * offsetof() computed below. You can usually ignore this caveat.
  */
 #define AP_RING_SENTINEL(hp, elem, link)				\
     (struct elem *)((char *)(hp) - offsetof(struct elem, link))
@@ -175,6 +176,10 @@
 #define AP_RING_INSERT_AFTER(lep, nep, link)				\
 	AP_RING_SPLICE_AFTER((lep), (nep), (nep), link)
 
+/*
+ * These macros work when the ring is empty: inserting before the head
+ * or after the tail of an empty ring using the macros above doesn't work.
+ */
 #define AP_RING_SPLICE_HEAD(hp, ep1, epN, elem, link)			\
 	AP_RING_SPLICE_AFTER(AP_RING_SENTINEL((hp), elem, link),	\
 			     (ep1), (epN), link)
@@ -191,8 +196,6 @@
 
 /*
  * Concatenating ring h2 onto the end of ring h1 leaves h2 empty.
- *
- * Doing this without asking for the element type is ugly.
  */
 #define AP_RING_CONCAT(h1, h2, elem, link) do {				\
 	if (!AP_RING_EMPTY((h2), elem, link)) {				\
