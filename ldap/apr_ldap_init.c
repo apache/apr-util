@@ -80,7 +80,7 @@ APU_DECLARE(int) apr_ldap_ssl_init(apr_pool_t *pool,
 #endif /* APR_HAS_LDAP_SSL */
 
     if (result->rc != -1) {
-        result->msg = ldap_err2string(result-> rc);
+        result->msg = ldap_err2string(result->rc);
     }
 
     if (LDAP_SUCCESS != result->rc) {
@@ -153,7 +153,13 @@ APU_DECLARE(int) apr_ldap_init(apr_pool_t *pool,
         return apr_ldap_set_option(pool, *ldap, APR_LDAP_OPT_TLS, &secure, result_err);
     }
     else {
-        return apr_get_os_error();
+        /* handle the error case */
+        apr_ldap_err_t *result = (apr_ldap_err_t *)apr_pcalloc(pool, sizeof(apr_ldap_err_t));
+        *result_err = result;
+
+        result->reason = "APR LDAP: Unable to initialize the LDAP connection";
+        result->rc = -1;
+        return APR_EGENERAL;
     }
 
 }
