@@ -151,6 +151,10 @@ SOURCE=.\buckets\apr_buckets_socket.c
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE=.\crypto\apr_md4.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\crypto\apr_sha1.c
 # End Source File
 # End Group
@@ -188,6 +192,15 @@ SOURCE=.\encoding\apr_base64.c
 # Begin Source File
 
 SOURCE=.\hooks\apr_hooks.c
+# End Source File
+# End Group
+# Begin Group "ldap"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\ldap\apr_ldap_compat.c
+# PROP Exclude_From_Build 1
 # End Source File
 # End Group
 # Begin Group "misc"
@@ -234,6 +247,14 @@ SOURCE=.\dbm\sdbm\sdbm_private.h
 SOURCE=.\dbm\sdbm\sdbm_tune.h
 # End Source File
 # End Group
+# Begin Group "strmatch"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\strmatch\apr_strmatch.c
+# End Source File
+# End Group
 # Begin Group "uri"
 
 # PROP Default_Filter ""
@@ -256,7 +277,49 @@ SOURCE=.\xml\apr_xml.c
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE=.\include\apr_ldap.h.in
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\apr_ldap.hnw
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\apr_ldap.hw
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\include\apr_ldap.hw
+
+".\include\apr_ldap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy .\include\apr_ldap.hw .\include\apr_ldap.h > nul 
+	echo Created apr_ldap.h from apr_ldap.hw 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\include\apr_ldap.hw
+
+".\include\apr_ldap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy .\include\apr_ldap.hw .\include\apr_ldap.h > nul 
+	echo Created apr_ldap.h from apr_ldap.hw 
+	
+# End Custom Build
+
+!ENDIF 
+
+# PROP Exclude_From_Build 1
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\apu.h.in
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\apu.hnw
 # End Source File
 # Begin Source File
 
@@ -289,6 +352,10 @@ InputPath=.\include\apu.hw
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\private\apu_config.h.in
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\private\apu_config.hw
 
 !IF  "$(CFG)" == "libaprutil - Win32 Release"
@@ -315,6 +382,10 @@ InputPath=.\include\private\apu_config.hw
 
 !ENDIF 
 
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\private\apu_select_dbm.h.in
 # End Source File
 # Begin Source File
 
@@ -380,6 +451,10 @@ InputPath=.\uri\gen_uri_delims.exe
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE=.\include\apr_anylock.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\apr_base64.h
 # End Source File
 # Begin Source File
@@ -421,6 +496,10 @@ SOURCE=.\include\apr_sdbm.h
 # Begin Source File
 
 SOURCE=.\include\apr_sha1.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\apr_strmatch.h
 # End Source File
 # Begin Source File
 
