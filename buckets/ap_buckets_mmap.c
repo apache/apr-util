@@ -64,10 +64,17 @@ static apr_status_t mmap_read(ap_bucket *b, const char **str,
     apr_status_t ok;
     void *addr;
     
+#ifdef USE_MMAP_FILES
     ok = apr_mmap_offset(&addr, m->mmap, s->start);
     if (ok != APR_SUCCESS) {
 	return ok;
     }
+#else
+    /* XXX: This has to go away - win32 needs the symbol. Not tonight though.
+     * plus ok creates a great unused symbol compile time warning to remind us
+     */
+    return APR_ENOTIMPL;
+#endif
     *str = addr;
     *length = s->end - s->start;
     return APR_SUCCESS;
