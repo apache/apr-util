@@ -1,5 +1,8 @@
 Changes with APR-util b1  
 
+  *) Add GMT offset calculation to apr_date_parse_rfc().  
+     [Justin Erenkrantz]
+
   *) Introduce the apr_rmm api, to allow relocatable memory management
      of address-independent data stores, such as shared memory.
      [William Rowe]
