@@ -1,5 +1,8 @@
 Changes with APR-util b1  
 
+  *) Use APR_XtOffsetOf instead of offsetof() in the ring macros for
+     portability.  [Cliff Woolley]
+
   *) We now create exports.c and export_vars.h, which in turn create
      exports.c.  From this we generate two more files with different
      purposes: aprutil.exp - list of exported symbols; and exports.lo
