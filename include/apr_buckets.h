@@ -652,8 +652,7 @@ APU_DECLARE(apr_bucket_brigade *) apr_brigade_split(apr_bucket_brigade *b,
  */
 APU_DECLARE(apr_status_t) apr_brigade_partition(apr_bucket_brigade *b,
                                                 apr_off_t point,
-                                                apr_bucket **after_point,
-                                                apr_read_type_e block);
+                                                apr_bucket **after_point);
 
 #if APR_NOT_DONE_YET
 /**
