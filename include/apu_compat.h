@@ -74,6 +74,12 @@
 #define ap_show_hook apr_show_hook
 
 /* --------------------------------------------------------------------
+ * the following symbols were moved from httpd-2.0/.../util_date.[ch]
+ */
+#define ap_parseHTTPdate apr_date_parse_http
+#define ap_checkmask apr_date_checkmask
+
+/* --------------------------------------------------------------------
  * the following symbols were moved from httpd-2.0/.../util_xml.[ch]
  */
 #define ap_text apr_text
