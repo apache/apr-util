@@ -66,7 +66,7 @@
 #endif
 
 static apr_status_t heap_read(ap_bucket *b, const char **str, 
-			      apr_ssize_t *len, int block)
+			      apr_ssize_t *len, ap_read_type block)
 {
     ap_bucket_shared *s = b->data;
     ap_bucket_heap *h = s->data;

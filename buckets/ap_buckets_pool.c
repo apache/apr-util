@@ -75,7 +75,7 @@ static apr_status_t pool_bucket_cleanup(void *data)
 }
 
 static apr_status_t pool_read(ap_bucket *b, const char **str, 
-			      apr_ssize_t *len, int block)
+			      apr_ssize_t *len, ap_read_type block)
 {
     ap_bucket_shared *s = b->data;
     ap_bucket_pool *h = s->data;
