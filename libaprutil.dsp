@@ -406,6 +406,42 @@ SOURCE=.\include\apr_xml.h
 
 SOURCE=.\include\apu_compat.h
 # End Source File
+# Begin Source File
+
+SOURCE=.\libaprutil.rc
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\build\win32ver.awk
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
+# PROP Ignore_Default_Tool 1
+# Begin Custom Build - Creating Version Resource
+InputPath=..\..\build\win32ver.awk
+
+".\libaprutil.rc" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	awk -f ../../build/win32/win32ver.awk libaprutil "Apache APR Utility Library"\
+ ../../include/ap_release.h > .\libaprutil.rc
+
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+# PROP Ignore_Default_Tool 1
+# Begin Custom Build - Creating Version Resource
+InputPath=..\..\build\win32\win32ver.awk
+
+".\libaprutil.rc" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	awk -f ../../build/win32/win32ver.awk libaprutil "Apache APR Utility Library"\
+ ../../include/ap_release.h > .\libaprutil.rc
+
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
 # End Group
 # End Target
 # End Project
