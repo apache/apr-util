@@ -1,5 +1,8 @@
 Changes with APR-util b1  
 
+  *) Added a Resource List API for threadsafe access to persistent
+     and dynamically created user-defined resources.  [Aaron Bannert]
+
   *) Adopted apr-util/xlate from apr/i18n for inclusion of apr-iconv
      as required by missing libiconv.  [William Rowe]
 
