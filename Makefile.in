@@ -14,9 +14,6 @@ INCLUDES = @APRUTIL_PRIV_INCLUDES@ @APR_INCLUDES@ @APRUTIL_INCLUDES@
 APRUTIL_LDFLAGS = @APRUTIL_LDFLAGS@
 APRUTIL_LIBS = @APRUTIL_LIBS@
 
-# see build/apu-conf.m4 for rationale.
-APR_BUILD_DIR = @APR_SOURCE_DIR@/build
-
 TARGET_LIB = lib@APRUTIL_LIBNAME@.la
 INSTALL_SUBDIRS = @APR_XML_DIR@
 EXTRA_SOURCE_DIRS = @APR_XML_DIR@
@@ -56,7 +53,7 @@ apu-config.out: apu-config
 
 install: $(TARGET_LIB) apu-config.out
 	if [ ! -d $(DESTDIR)$(includedir) ]; then \
-	    $(APR_BUILD_DIR)/mkdir.sh $(DESTDIR)$(includedir); \
+	    $(APR_MKDIR) $(DESTDIR)$(includedir); \
 	fi;
 	cp -p $(top_srcdir)/include/*.h $(DESTDIR)$(includedir)
 
@@ -64,10 +61,10 @@ install: $(TARGET_LIB) apu-config.out
 		cp -p $(top_blddir)/include/*.h $(DESTDIR)$(includedir); \
 	fi;
 	if [ ! -d $(DESTDIR)$(libdir) ]; then \
-	    $(APR_BUILD_DIR)/mkdir.sh $(DESTDIR)$(libdir); \
+	    $(APR_MKDIR) $(DESTDIR)$(libdir); \
 	fi;
 	if [ ! -d $(DESTDIR)$(libdir)/pkgconfig ]; then \
-	    $(APR_BUILD_DIR)/mkdir.sh $(DESTDIR)$(libdir)/pkgconfig; \
+	    $(APR_MKDIR) $(DESTDIR)$(libdir)/pkgconfig; \
 	fi;
 	cp -p apr-util.pc $(DESTDIR)$(libdir)/pkgconfig/$(APRUTIL_PCFILE)
 	list='$(INSTALL_SUBDIRS)'; for i in $$list; do \
@@ -76,7 +73,7 @@ install: $(TARGET_LIB) apu-config.out
 	$(LIBTOOL) --mode=install cp $(TARGET_LIB) $(DESTDIR)$(libdir)
 	$(LIBTOOL) --mode=install cp aprutil.exp $(DESTDIR)$(libdir)
 	if [ ! -d $(DESTDIR)$(bindir) ]; then \
-		$(APR_BUILD_DIR)/mkdir.sh $(DESTDIR)$(bindir); \
+		$(APR_MKDIR) $(DESTDIR)$(bindir); \
 	fi;
 	$(LIBTOOL) --mode=install cp apu-config.out $(DESTDIR)$(bindir)/apu-config
 	chmod 755 $(DESTDIR)$(bindir)/apu-config
@@ -85,10 +82,10 @@ $(TARGET_LIB): $(OBJECTS)
 	$(LINK) @lib_target@ $(ALL_LIBS) $(EXTRA_OS_LINK)
 
 exports.c: $(HEADERS)
-	$(AWK) -f $(APR_BUILD_DIR)/make_exports.awk $(HEADERS) > $@
+	$(APR_MKEXPORT) $(HEADERS) > $@
 
 export_vars.c: $(HEADERS)
-	$(AWK) -f $(APR_BUILD_DIR)/make_var_export.awk $(HEADERS) > $@
+	$(APR_MKVAREXPORT) $(HEADERS) > $@
 
 aprutil.exp: exports.c export_vars.c
 	@echo "#! libaprutil.so" > $@
