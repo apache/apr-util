@@ -5,25 +5,26 @@ PROGRAMS = testdbm testdate testmd4 testxml
 
 # bring in rules.mk for standard functionality
 @INCLUDE_RULES@
+ALL_LIBS += @APRUTIL_EXPORT_LIBS@
 
 test: $(PROGRAMS)
 
 testdbm_OBJECTS = testdbm.lo
-testdbm_LDADD =  ../libaprutil.la @APR_SOURCE_DIR@/libapr.la ../xml/expat/lib/libexpat.la
+testdbm_LDADD =  ../libaprutil.la @APR_SOURCE_DIR@/libapr.la 
 testdbm: $(testdbm_OBJECTS) $(testdbm_LDADD)
 	$(LINK) $(testdbm_OBJECTS) $(testdbm_LDADD) $(ALL_LIBS)
 
 testdate_OBJECTS = testdate.lo
-testdate_LDADD =  ../libaprutil.la @APR_SOURCE_DIR@/libapr.la ../xml/expat/lib/libexpat.la
+testdate_LDADD =  ../libaprutil.la @APR_SOURCE_DIR@/libapr.la 
 testdate: $(testdate_OBJECTS) $(testdate_LDADD)
 	$(LINK) $(testdate_OBJECTS) $(testdate_LDADD) $(ALL_LIBS)
 
 testxml_OBJECTS = testxml.lo
-testxml_LDADD =  ../libaprutil.la @APR_SOURCE_DIR@/libapr.la ../xml/expat/lib/libexpat.la
+testxml_LDADD =  ../libaprutil.la @APR_SOURCE_DIR@/libapr.la 
 testxml: $(testxml_OBJECTS) $(testxml_LDADD)
 	$(LINK) $(testxml_OBJECTS) $(testxml_LDADD) $(ALL_LIBS)
 
 testmd4_OBJECTS = testmd4.lo
-testmd4_LDADD =  ../libaprutil.la @APR_SOURCE_DIR@/libapr.la ../xml/expat/lib/libexpat.la
+testmd4_LDADD =  ../libaprutil.la @APR_SOURCE_DIR@/libapr.la 
 testmd4: $(testmd4_OBJECTS) $(testmd4_LDADD)
 	$(LINK) $(testmd4_OBJECTS) $(testmd4_LDADD) $(ALL_LIBS)
