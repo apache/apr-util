@@ -65,9 +65,6 @@ extern "C" {
  * @package Apache hooks functions
  */
 
-#define APR_DECLARE_GENERIC_HOOK(ns,ret,name,args) \
-typedef ret ns##_HOOK_##name args;
-
 APU_DECLARE(void) apr_hook_generic_add(const char *szName,void (*pfn)(void),
 				   const char * const *aszPre,
 				   const char * const *aszSucc,int nOrder);
@@ -82,8 +79,8 @@ APU_DECLARE(void) apr_hook_generic_add(const char *szName,void (*pfn)(void),
  * @param nOrder an integer determining order before honouring aszPre and aszSucc (for example HOOK_MIDDLE)
  */
 
-#define APR_HOOK_GENERIC(name,pfn,aszPre,aszSucc,nOrder) \
-    ((void (*)(const char *,HOOK_##name *,const char * const *, \
+#define APR_HOOK_GENERIC(ns,name,pfn,aszPre,aszSucc,nOrder) \
+    ((void (*)(const char *,ns##_HOOK_##name##_t *,const char * const *, \
 	       const char * const *,int))&apr_hook_generic_add)(#name,pfn,aszPre, \
 							   aszSucc, nOrder)
 
@@ -102,7 +99,7 @@ APU_DECLARE(apr_array_header_t *) apr_hook_generic_get(const char *szName);
 #define APR_IMPLEMENT_GENERIC_HOOK_RUN_ALL(ns,link,ret,name,args_decl,args_use,ok,decline) \
 link##_DECLARE(ret) ns##_run_##name args_decl \
     { \
-    ns##_LINK_##name *pHook; \
+    ns##_LINK_##name##_t *pHook; \
     int n; \
     ret rv; \
     apr_array_header_t *pHookArray=apr_hook_generic_get(#name); \
@@ -110,10 +107,10 @@ link##_DECLARE(ret) ns##_run_##name args_decl \
     if(!pHookArray) \
 	return ok; \
 \
-    pHook=(ns##_LINK_##name *)pHookArray->elts; \
+    pHook=(ns##_LINK_##name##_t *)pHookArray->elts; \
     for(n=0 ; n < pHookArray->nelts ; ++n) \
 	{ \
-	rv=pHook[n].pFunc args_use; \
+	rv=(pHook[n].pFunc)args_use; \
 \
 	if(rv != ok && rv != decline) \
 	    return rv; \

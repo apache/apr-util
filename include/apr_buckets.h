@@ -600,7 +600,7 @@ APU_DECLARE(apr_status_t) apr_brigade_destroy(apr_bucket_brigade *b);
  * @param b The bucket brigade to clean up
  * @deffunc apr_status_t apr_brigade_cleanup(apr_bucket_brigade *b)
  */
-APU_DECLARE(apr_status_t) apr_brigade_cleanup(void *data);
+APU_DECLARE_NONSTD(apr_status_t) apr_brigade_cleanup(void *data);
 
 /**
  * Split a bucket brigade into two, such that the given bucket is the
