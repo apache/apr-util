@@ -6,3 +6,6 @@ gen_uri_delims
 Debug
 Release
 uri_delims.h
+*.plg
+*.dep
+*.mak
