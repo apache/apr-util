@@ -94,7 +94,7 @@ typedef struct apr_queue_t apr_queue_t;
  * @param a pool to allocate queue from
  */
 APU_DECLARE(apr_status_t) apr_queue_create(apr_queue_t **queue, 
-                                           apr_uint32_t queue_capacity, 
+                                           unsigned int queue_capacity, 
                                            apr_pool_t *a);
 
 /**
@@ -151,7 +151,7 @@ APU_DECLARE(apr_status_t) apr_queue_trypop(apr_queue_t *queue, void **data);
  * @param queue the queue
  * @returns the size of the queue
  */
-APU_DECLARE(apr_uint32_t) apr_queue_size(apr_queue_t *queue);
+APU_DECLARE(unsigned int) apr_queue_size(apr_queue_t *queue);
 
 /**
  * interrupt all the threads blocking on this queue.
