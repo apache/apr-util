@@ -97,7 +97,7 @@ static apr_status_t pipe_read(ap_bucket *a, const char **str,
     return APR_SUCCESS;
 }
 
-API_EXPORT(ap_bucket *) ap_bucket_make_pipe(ap_bucket *b, apr_file_t *p)
+AP_DECLARE(ap_bucket *) ap_bucket_make_pipe(ap_bucket *b, apr_file_t *p)
 {
     /*
      * XXX: We rely on a cleanup on some pool or other to actually
@@ -119,7 +119,7 @@ API_EXPORT(ap_bucket *) ap_bucket_make_pipe(ap_bucket *b, apr_file_t *p)
     return b;
 }
 
-API_EXPORT(ap_bucket *) ap_bucket_create_pipe(apr_file_t *p)
+AP_DECLARE(ap_bucket *) ap_bucket_create_pipe(apr_file_t *p)
 {
     ap_bucket_do_create(ap_bucket_make_pipe(b, p));
 }
