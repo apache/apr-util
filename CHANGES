@@ -7,7 +7,7 @@ Changes with APR-util b1
      to avoid having too much of a large file mapped at once if possible.
      [Cliff Woolley]
 
-  *) Multi-DBM support (via apr_dbm_open_ex [Ian Holsman])
+  *) Multi-DBM support (via apr_dbm_open_ex).  [Ian Holsman]
 
   *) Use apr_mmap_dup in mmap_setaside().  [Brian Pane <bpane@pacbell.net>]
 
