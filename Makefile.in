@@ -20,8 +20,10 @@ DISTCLEAN_TARGETS = config.cache config.log config.status \
 EXTRACLEAN_TARGETS = configure libtool aclocal.m4 \
 	include/private/apu_config.h.in
 
-### fix this up at some point (install location)
-libdir = /usr/local/lib
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
 
 delete-lib:
 	@if test -f $(TARGET_LIB); then \
@@ -32,6 +34,16 @@ delete-lib:
 		$(RM) -f $(TARGET_LIB) ; \
 	    fi \
 	fi
+
+install: $(TARGET_LIB)
+        if [ ! -d $(includedir) ]; then \
+            @APR_SOURCE_DIR@/build/mkdir.sh $(includedir); \
+        fi; \
+        cp include/*.h $(includedir); \
+        if [ ! -d $(libdir) ]; then \
+            @APR_SOURCE_DIR@/build/mkdir.sh $(libdir); \
+        fi; \
+        libtool --mode=install cp $(TARGET_LIB) $(libdir)
 
 $(TARGET_LIB):
 	@objects="`find $(SUBDIRS) -name '*.lo'`" ; \
