@@ -13,17 +13,25 @@
  * limitations under the License.
  */
 
+/**
+ * @file apr_ldap_url.h
+ * @brief  APR-UTIL LDAP ldap_init() functions
+ */
 #ifndef APR_LDAP_URL_H
 #define APR_LDAP_URL_H
+
+/**
+ * @defgroup APR_Util_LDAP LDAP
+ * @ingroup APR_Util
+ * @{
+ */
 
 #if APR_HAS_LDAP
 
 #include "apu.h"
 #include "apr_pools.h"
 
-/*
- * types for ldap URL handling
- */
+/** Structure to access an exploded LDAP URL */
 typedef struct apr_ldap_url_desc_t {
     struct  apr_ldap_url_desc_t  *lud_next;
     char    *lud_scheme;
@@ -51,26 +59,50 @@ typedef struct apr_ldap_url_desc_t {
 #define APR_LDAP_URL_ERR_BADEXTS      0x0a    /* bad or missing extensions */
 #endif
 
-/*
- * in url.c
- *
+/**
+ * Is this URL an ldap url? ldap://
+ * @param url The url to test
  */
 APU_DECLARE(int) apr_ldap_is_ldap_url(const char *url);
 
+/**
+ * Is this URL an SSL ldap url? ldaps://
+ * @param url The url to test
+ */
 APU_DECLARE(int) apr_ldap_is_ldaps_url(const char *url);
 
+/**
+ * Is this URL an ldap socket url? ldapi://
+ * @param url The url to test
+ */
 APU_DECLARE(int) apr_ldap_is_ldapi_url(const char *url);
 
+/**
+ * Parse an LDAP URL.
+ * @param pool The pool to use
+ * @param url_in The URL to parse
+ * @param ludpp The structure to return the exploded URL
+ * @param result_err The result structure of the operation
+ */
 APU_DECLARE(int) apr_ldap_url_parse_ext(apr_pool_t *pool,
                                         const char *url_in,
                                         apr_ldap_url_desc_t **ludpp,
                                         apr_ldap_err_t **result_err);
 
+/**
+ * Parse an LDAP URL.
+ * @param pool The pool to use
+ * @param url_in The URL to parse
+ * @param ludpp The structure to return the exploded URL
+ * @param result_err The result structure of the operation
+ */
 APU_DECLARE(int) apr_ldap_url_parse(apr_pool_t *pool,
                                     const char *url_in,
                                     apr_ldap_url_desc_t **ludpp,
                                     apr_ldap_err_t **result_err);
 
 #endif /* APR_HAS_LDAP */
+
+/** @} */
 
 #endif /* APR_LDAP_URL_H */
