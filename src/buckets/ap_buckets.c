@@ -84,8 +84,7 @@ static apr_status_t ap_bucket_list_destroy(ap_bucket *e)
     }
     return APR_SUCCESS;
 }
-
-API_EXPORT(apr_status_t) ap_brigade_destroy(void *data)
+static apr_status_t ap_brigade_cleanup(void *data)
 {
     ap_bucket_brigade *b = data;
 
@@ -93,9 +92,12 @@ API_EXPORT(apr_status_t) ap_brigade_destroy(void *data)
     /* The brigade itself is allocated out of a pool, so we don't actually 
      * want to free it.  If we did, we would do that free() here.
      */
-
-    apr_kill_cleanup(b->p, b, ap_brigade_destroy);
     return APR_SUCCESS;
+}
+API_EXPORT(apr_status_t) ap_brigade_destroy(ap_bucket_brigade *b)
+{
+    apr_kill_cleanup(b->p, b, ap_brigade_cleanup);
+    return ap_brigade_cleanup(b);
 }
 
 API_EXPORT(ap_bucket_brigade *) ap_brigade_create(apr_pool_t *p)
@@ -106,8 +108,7 @@ API_EXPORT(ap_bucket_brigade *) ap_brigade_create(apr_pool_t *p)
     b->p = p;
     b->head = b->tail = NULL;
 
-    apr_register_cleanup(b->p, b, ap_brigade_destroy, 
-                        ap_brigade_destroy);
+    apr_register_cleanup(b->p, b, ap_brigade_cleanup, ap_brigade_cleanup);
     return b;
 }
 

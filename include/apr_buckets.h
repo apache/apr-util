@@ -300,7 +300,7 @@ API_EXPORT(ap_bucket_brigade *) ap_brigade_create(apr_pool_t *p);
  * @param b The bucket brigade to destroy
  * @deffunc apr_status_t ap_brigade_destroy(void *b)
  */
-API_EXPORT(apr_status_t) ap_brigade_destroy(void *b);
+API_EXPORT(apr_status_t) ap_brigade_destroy(ap_bucket_brigade *b);
 
 /**
  * append bucket(s) to a bucket_brigade.  This is the correct way to add
