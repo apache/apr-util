@@ -90,10 +90,18 @@ static apr_status_t alloc_cleanup(void *data)
 APU_DECLARE_NONSTD(apr_bucket_alloc_t *) apr_bucket_alloc_create(apr_pool_t *p)
 {
     apr_allocator_t *allocator;
+
+    apr_allocator_create(&allocator);
+    return apr_bucket_alloc_create_ex(p, allocator);
+}
+
+APU_DECLARE_NONSTD(apr_bucket_alloc_t *) apr_bucket_alloc_create_ex(
+                                             apr_pool_t *p,
+                                             apr_allocator_t *allocator)
+{
     apr_bucket_alloc_t *list;
     apr_memnode_t *block;
 
-    apr_allocator_create(&allocator);
     block = apr_allocator_alloc(allocator, ALLOC_AMT);
     list = (apr_bucket_alloc_t *)block->first_avail;
     list->pool = p;
