@@ -60,13 +60,13 @@ static apr_status_t flush_read(ap_bucket *b, const char **str,
                                 apr_ssize_t *len, int block)
 {
     *str = NULL;
-    *len = AP_END_OF_BRIGADE;
+    *len = b->length;
     return APR_SUCCESS;
 }
 
 AP_DECLARE(ap_bucket *) ap_bucket_make_flush(ap_bucket *b)
 {
-    b->length    = AP_END_OF_BRIGADE;
+    b->length    = 0;
     b->data      = NULL;
 
     b->type      = &ap_flush_type;
