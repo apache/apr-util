@@ -169,7 +169,7 @@ int main(int argc, const char * const * argv)
             break;
         default:
             show_usage();
-            fputs(stderr, "unknown option.");
+            fputs("unknown option.",stderr);
             exit(-1);
             break;
         }
@@ -408,9 +408,10 @@ static void oops(apr_dbm_t * dbm, apr_status_t rv, const char *s1,
         fprintf(stderr, "%s: ", progname);
     }
     fprintf(stderr, s1, s2);
-
+#if !defined(sun)
     if (errno > 0 && errno < sys_nerr)
         fprintf(stderr, " (%s)", sys_errlist[errno]);
+#endif
 
     fprintf(stderr, "\n");
 
