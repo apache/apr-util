@@ -98,7 +98,7 @@ struct apr_xlate_t {
     char *frompage;
     char *topage;
     char *sbcs_table;
-#if APU_HAVE_APR_ICONV || defined(HAVE_ICONV)
+#if APU_HAVE_APR_ICONV || APU_HAVE_ICONV
     iconv_t ich;
 #endif
 };
@@ -182,7 +182,7 @@ static apr_status_t apr_xlate_cleanup(void *convset)
     if (old->ich != (apr_iconv_t)-1) {
         return apr_iconv_close(old->ich);
     }
-#elif defined(HAVE_ICONV)
+#elif APU_HAVE_ICONV
     if (old->ich != (iconv_t)-1) {
         if (iconv_close(old->ich)) {
             int rv = errno;
@@ -194,7 +194,7 @@ static apr_status_t apr_xlate_cleanup(void *convset)
     return APR_SUCCESS;
 }
 
-#ifdef HAVE_ICONV
+#if APU_HAVE_ICONV
 static void check_sbcs(apr_xlate_t *convset)
 {
     char inbuf[256], outbuf[256];
@@ -227,7 +227,7 @@ static void check_sbcs(apr_xlate_t *convset)
         /* TODO: add the table to the cache */
     }
 }
-#endif /* HAVE_ICONV */
+#endif /* APU_HAVE_ICONV */
 
 static void make_identity_table(apr_xlate_t *convset)
 {
@@ -287,7 +287,7 @@ APU_DECLARE(apr_status_t) apr_xlate_open(apr_xlate_t **convset,
         check_sbcs(new);
     } else
         new->ich = (apr_iconv_t)-1;
-#elif defined(HAVE_ICONV)
+#elif APU_HAVE_ICONV
     if (!found) {
         new->ich = iconv_open(topage, frompage);
         if (new->ich == (iconv_t)-1) {
@@ -299,7 +299,7 @@ APU_DECLARE(apr_status_t) apr_xlate_open(apr_xlate_t **convset,
         check_sbcs(new);
     } else
         new->ich = (iconv_t)-1;
-#endif /* HAVE_ICONV */
+#endif /* APU_HAVE_ICONV */
 
     if (found) {
         *convset = new;
@@ -375,7 +375,7 @@ APU_DECLARE(apr_status_t) apr_xlate_conv_buffer(apr_xlate_t *convset,
         }
     }
     else
-#elif defined(HAVE_ICONV)
+#elif APU_HAVE_ICONV
     if (convset->ich != (iconv_t)-1) {
         const char *inbufptr = inbuf;
         char *outbufptr = outbuf;
