@@ -18,6 +18,10 @@
 #include "apr_reslist.h"
 #include "apr_thread_proc.h"
 
+#if APR_HAVE_TIME_H
+#include <time.h>
+#endif /* APR_HAVE_TIME_H */
+
 #if !APR_HAS_THREADS
 
 int main(void)
@@ -100,12 +104,14 @@ static void * APR_THREAD_FUNC resource_consuming_thread(apr_thread_t *thd,
 
     for (i = 0; i < CONSUMER_ITERATIONS; i++) {
         my_resource_t *res;
-        rv = apr_reslist_acquire(rl, (void**)&res);
+        void *vp;
+        rv = apr_reslist_acquire(rl, &vp);
         if (rv != APR_SUCCESS) {
             fprintf(stderr, "Failed to retrieve resource from reslist\n");
             apr_thread_exit(thd, rv);
             return NULL;
         }
+        res = vp;
         printf("  [tid:%d,iter:%d] using resource id:%d\n", thread_info->tid,
                i, res->id);
         apr_sleep(thread_info->work_delay_sleep);
@@ -136,6 +142,7 @@ static void test_timeout(apr_reslist_t *rl)
     apr_status_t rv;
     my_resource_t *resources[RESLIST_HMAX];
     my_resource_t *res;
+    void *vp;
     int i;
 
     printf("Setting timeout to 1000us: ");
@@ -157,12 +164,13 @@ static void test_timeout(apr_reslist_t *rl)
     }
 
     /* next call will block until timeout is reached */
-    rv = apr_reslist_acquire(rl, (void **)&res);
+    rv = apr_reslist_acquire(rl, &vp);
     if (!APR_STATUS_IS_TIMEUP(rv)) {
         fprintf(stderr, "apr_reslist_acquire()->%d instead of TIMEUP\n", 
                 rv);
         exit(1);
     }
+    res = vp;
 
     /* release the resources; otherwise the destroy operation
      * will blow
