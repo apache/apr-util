@@ -289,6 +289,14 @@ SOURCE=.\include\apr_buckets.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\apr_dbm.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\apr_generic_hook.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\apr_hooks.h
 # End Source File
 # Begin Source File
@@ -297,11 +305,15 @@ SOURCE=.\include\apr_ring.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\apr_sdbm.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\apr_sha1.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\apr_dbm.h
+SOURCE=.\include\apu_compat.h
 # End Source File
 # End Group
 # End Target
