@@ -89,14 +89,14 @@ extern "C" {
  * @param data The string to compare
  * @param mask Mask characters (arbitrary maximum is 256 characters):
  * <PRE>
- *   \@ - uppercase letter
- *   \$ - lowercase letter
- *   \& - hex digit
- *   # - digit
- *   ~ - digit or space
- *   * - swallow remaining characters
- *  \<x\> - exact match for any other character
+ *   '\@' - uppercase letter
+ *   '\$' - lowercase letter
+ *   '\&' - hex digit
+ *   '#' - digit
+ *   '~' - digit or space
+ *   '*' - swallow remaining characters
  * </PRE>
+ * @remark The mask tests for an exact match for any other character
  * @return 1 if the string matches, 0 otherwise
  */
 APU_DECLARE(int) apr_date_checkmask(const char *data, const char *mask);
