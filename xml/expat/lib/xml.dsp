@@ -164,23 +164,21 @@ SOURCE=.\expat.h.in
 
 !IF  "$(CFG)" == "xml - Win32 Release"
 
-# Begin Custom Build
+# Begin Custom Build - Creating expat.h from expat.h.in 
 InputPath=.\expat.h.in
 
 ".\expat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	copy .\expat.h.in .\expat.h > nul 
-	echo Created expat.h from expat.h.in 
+	type .\expat.h.in > .\expat.h
 	
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "xml - Win32 Debug"
 
-# Begin Custom Build
+# Begin Custom Build - Creating expat.h from expat.h.in 
 InputPath=.\expat.h.in
 
 ".\expat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	copy .\expat.h.in .\expat.h > nul 
-	echo Created expat.h from expat.h.in 
+	type .\expat.h.in > .\expat.h
 	
 # End Custom Build
 
@@ -193,23 +191,21 @@ SOURCE=.\winconfig.h
 
 !IF  "$(CFG)" == "xml - Win32 Release"
 
-# Begin Custom Build
+# Begin Custom Build - Creating config.h from winconfig.h 
 InputPath=.\winconfig.h
 
 ".\config.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	copy .\winconfig.h .\config.h > nul 
-	echo Created config.h from winconfig.h 
+	type .\winconfig.h > .\config.h
 	
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "xml - Win32 Debug"
 
-# Begin Custom Build
+# Begin Custom Build - Creating config.h from winconfig.h 
 InputPath=.\winconfig.h
 
 ".\config.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	copy .\winconfig.h .\config.h > nul 
-	echo Created config.h from winconfig.h 
+	type .\winconfig.h > .\config.h
 	
 # End Custom Build
 
