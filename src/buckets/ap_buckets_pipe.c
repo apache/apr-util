@@ -59,7 +59,7 @@
 
 /* XXX: We should obey the block flag */
 static apr_status_t pipe_read(ap_bucket *a, const char **str,
-			      apr_ssize_t *len, int block)
+			      apr_ssize_t *len, ap_read_type block)
 {
     apr_file_t *p = a->data;
     ap_bucket *b;
@@ -70,6 +70,7 @@ static apr_status_t pipe_read(ap_bucket *a, const char **str,
     *str = buf;
     *len = IOBUFSIZE;
     rv = apr_read(p, buf, len);
+
     if (rv != APR_SUCCESS && rv != APR_EOF) {
         *str = NULL;
 	free(buf);

@@ -71,6 +71,8 @@
  * @package Bucket Brigades
  */
 
+typedef enum {AP_NONBLOCK_READ, AP_BLOCK_READ} ap_read_type;
+
 /*
  * The one-sentence buzzword-laden overview: Bucket brigades represent
  * a complex data stream that can be passed through a layered IO
@@ -157,9 +159,9 @@ struct ap_bucket_type {
      *            or -1 (AP_END_OF_BRIGADE) if there is no more data
      * @param block Should this read function block if there is more data that
      *              cannot be read immediately.
-     * @deffunc apr_status_t read(ap_bucket *b, const char **str, apr_ssize_t *len, int block)
+     * @deffunc apr_status_t read(ap_bucket *b, const char **str, apr_ssize_t *len, ap_read_type block)
      */
-    apr_status_t (*read)(ap_bucket *b, const char **str, apr_ssize_t *len, int block);
+    apr_status_t (*read)(ap_bucket *b, const char **str, apr_ssize_t *len, ap_read_type block);
     
     /** Make it possible to set aside the data. For most bucket types this is
      *  a no-op; buckets containing data that dies when the stack is un-wound
@@ -508,7 +510,7 @@ void ap_init_bucket_types(apr_pool_t *p);
  * @param str The location to store the data in
  * @param len The amount of data read
  * @param block Whether the read function blocks
- * @deffunc apr_status_t ap_bucket_read(ap_bucket *e, const char **str, apr_ssize_t *len, int block)
+ * @deffunc apr_status_t ap_bucket_read(ap_bucket *e, const char **str, apr_ssize_t *len, ap_read_type block)
  */
 #define ap_bucket_read(e,str,len,block) e->type->read(e, str, len, block)
 
