@@ -37,6 +37,8 @@ AC_SUBST(APU_CONFIG_LOCATION)
 
 AC_CANONICAL_SYSTEM
 
+AC_PROG_INSTALL
+
 dnl
 dnl compute the top directory of the build
 dnl note: this is needed for LIBTOOL and exporting the bundled Expat
