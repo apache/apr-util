@@ -21,6 +21,7 @@ APU_CHECK_DBM
 
 dnl
 dnl compute the top directory of the build
+dnl note: this substitution is needed for LIBTOOL
 dnl
 top_builddir="`cd $srcdir ; pwd`"
 AC_SUBST(top_builddir)
@@ -59,10 +60,10 @@ dnl BSD/OS (BSDi) needs to use a different include syntax in the Makefiles
 dnl
 case "$host_alias" in
 *bsdi*)
-    INCLUDE_RULES='.include "$(top_builddir)/build/rules.mk"'
+    INCLUDE_RULES=".include \"$top_builddir/build/rules.mk\""
     ;;
 *)
-    INCLUDE_RULES='include $(top_builddir)/build/rules.mk'
+    INCLUDE_RULES="include $top_builddir/build/rules.mk"
     ;;
 esac
 AC_SUBST(INCLUDE_RULES)

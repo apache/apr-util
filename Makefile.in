@@ -7,7 +7,7 @@ TARGET_EXPORTS = aprutil.exports
 
 TARGETS = delete-lib $(TARGET_LIB) delete-exports $(TARGET_EXPORTS)
 
-top_builddir = @top_builddir@
+# bring in rules.mk for standard functionality
 @INCLUDE_RULES@
 
 SUBDIRS = src . build test

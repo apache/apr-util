@@ -2,7 +2,7 @@ TARGETS =
 PROGRAMS = testdbm
 DISTCLEAN_TARGETS = Makefile
 
-top_builddir = @top_builddir@
+# bring in rules.mk for standard functionality
 @INCLUDE_RULES@
 
 test: $(PROGRAMS)

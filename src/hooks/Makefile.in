@@ -1,5 +1,5 @@
 
 TARGETS = ap_hooks.lo
 
-top_builddir = @top_builddir@
+# bring in rules.mk for standard functionality
 @INCLUDE_RULES@
