@@ -246,7 +246,7 @@ deal_with_path:
 	    ++s;
 	}
 	if (s != uri) {
-	    uptr->path = apr_pstrndup(p, uri, s - uri);
+	    uptr->path = apr_pstrmemdup(p, uri, s - uri);
 	}
 	if (*s == 0) {
 	    return APR_SUCCESS;
@@ -256,7 +256,7 @@ deal_with_path:
 	    s1 = strchr(s, '#');
 	    if (s1) {
 		uptr->fragment = apr_pstrdup(p, s1 + 1);
-		uptr->query = apr_pstrndup(p, s, s1 - s);
+		uptr->query = apr_pstrmemdup(p, s, s1 - s);
 	    }
 	    else {
 		uptr->query = apr_pstrdup(p, s);
@@ -278,14 +278,14 @@ deal_with_path:
 	goto deal_with_path;	/* backwards predicted taken! */
     }
 
-    uptr->scheme = apr_pstrndup(p, uri, s - uri);
+    uptr->scheme = apr_pstrmemdup(p, uri, s - uri);
     s += 3;
     hostinfo = s;
     while ((uri_delims[*(unsigned char *)s] & NOTEND_HOSTINFO) == 0) {
 	++s;
     }
     uri = s;	/* whatever follows hostinfo is start of uri */
-    uptr->hostinfo = apr_pstrndup(p, hostinfo, uri - hostinfo);
+    uptr->hostinfo = apr_pstrmemdup(p, hostinfo, uri - hostinfo);
 
     /* If there's a username:password@host:port, the @ we want is the last @...
      * too bad there's no memrchr()... For the C purists, note that hostinfo
@@ -304,12 +304,12 @@ deal_with_host:
 	s = memchr(hostinfo, ':', uri - hostinfo);
 	if (s == NULL) {
 	    /* we expect the common case to have no port */
-	    uptr->hostname = apr_pstrndup(p, hostinfo, uri - hostinfo);
+	    uptr->hostname = apr_pstrmemdup(p, hostinfo, uri - hostinfo);
 	    goto deal_with_path;
 	}
-	uptr->hostname = apr_pstrndup(p, hostinfo, s - hostinfo);
+	uptr->hostname = apr_pstrmemdup(p, hostinfo, s - hostinfo);
 	++s;
-	uptr->port_str = apr_pstrndup(p, s, uri - s);
+	uptr->port_str = apr_pstrmemdup(p, s, uri - s);
 	if (uri != s) {
 	    port = strtol(uptr->port_str, &endstr, 10);
 	    uptr->port = port;
@@ -326,12 +326,12 @@ deal_with_host:
     /* first colon delimits username:password */
     s1 = memchr(hostinfo, ':', s - hostinfo);
     if (s1) {
-	uptr->user = apr_pstrndup(p, hostinfo, s1 - hostinfo);
+	uptr->user = apr_pstrmemdup(p, hostinfo, s1 - hostinfo);
 	++s1;
-	uptr->password = apr_pstrndup(p, s1, s - s1);
+	uptr->password = apr_pstrmemdup(p, s1, s - s1);
     }
     else {
-	uptr->user = apr_pstrndup(p, hostinfo, s - hostinfo);
+	uptr->user = apr_pstrmemdup(p, hostinfo, s - hostinfo);
     }
     hostinfo = s + 1;
     goto deal_with_host;
