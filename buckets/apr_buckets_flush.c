@@ -60,7 +60,7 @@ static apr_status_t flush_read(ap_bucket *b, const char **str,
                                 apr_ssize_t *len, ap_read_type block)
 {
     *str = NULL;
-    *len = b->length;
+    *len = 0;
     return APR_SUCCESS;
 }
 
