@@ -122,31 +122,48 @@ APR_DECLARE(ap_bucket_brigade *) ap_brigade_split(ap_bucket_brigade *b,
     return a;
 }
 
-APR_DECLARE(apr_status_t) ap_bucket_split_any(ap_bucket *e, apr_off_t point)
+APR_DECLARE(ap_bucket *) ap_brigade_partition(ap_bucket_brigade *b, apr_off_t point)
 {
-    apr_status_t rv;
-    const char *str;
+    ap_bucket *e;
+    const char *s;
     apr_size_t len;
 
-    /* try to split this bucket directly */
-    rv = ap_bucket_split(e, point);
-    if (rv != APR_ENOTIMPL) {
-        return rv;
-    }
+    if (point < 0)
+        return NULL;
 
-    /* if the bucket cannot be split, we must read from it,
-     * changing its type to one that can be split */
-    if (point < 0) {
-        return APR_EINVAL;
+    AP_BRIGADE_FOREACH(e, b) {
+        /* bucket is of a known length */
+        if ((point > e->length) && (e->length != -1)) {
+            if (AP_BUCKET_IS_EOS(e))
+                return NULL;
+            point -= e->length;
+        }
+        else if (point == e->length) {
+            return AP_BUCKET_NEXT(e);
+        }
+        else {
+            /* try to split the bucket natively */
+            if (ap_bucket_split(e, point) != APR_ENOTIMPL)
+                return AP_BUCKET_NEXT(e);
+
+            /* if the bucket cannot be split, we must read from it,
+             * changing its type to one that can be split */
+            if (ap_bucket_read(e, &s, &len, AP_BLOCK_READ) != APR_SUCCESS)
+                return NULL;
+
+            if (point < len) {
+                if (ap_bucket_split(e, point) == APR_SUCCESS)
+                    return AP_BUCKET_NEXT(e);
+                else
+                    return NULL;
+            }
+            else if (point == len)
+                return AP_BUCKET_NEXT(e);
+            else
+                point -= len;
+        }
     }
-    rv = ap_bucket_read(e, &str, &len, AP_BLOCK_READ);
-    if (rv != APR_SUCCESS) {
-        return rv;
-    }
-    if (point > len) {
-        return APR_EINVAL;
-    }
-    return ap_bucket_split(e, point);
+    return NULL;
 }
 
 APR_DECLARE(int) ap_brigade_to_iovec(ap_bucket_brigade *b, 

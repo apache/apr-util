@@ -583,6 +583,18 @@ APR_DECLARE(apr_status_t) ap_brigade_destroy(ap_bucket_brigade *b);
 APR_DECLARE(ap_bucket_brigade *) ap_brigade_split(ap_bucket_brigade *b,
 						 ap_bucket *e);
 
+/**
+ * Partition a bucket brigade at a given offset (in bytes from the start of
+ * the brigade).  This is useful whenever a filter wants to use known ranges
+ * of bytes from the brigade; the ranges can even overlap.
+ * @param b The brigade to partition
+ * @param point The offset at which to partition the brigade
+ * @return A pointer to the first bucket after the partition;
+ *         or NULL in any error condition (including partition past the end)
+ * @deffunc ap_bucket *ap_brigade_partition(ap_bucket_brigade *b, apr_off_t point)
+ */
+APR_DECLARE(ap_bucket *) ap_brigade_partition(ap_bucket_brigade *b, apr_off_t point);
+
 #if APR_NOT_DONE_YET
 /**
  * consume nbytes from beginning of b -- call ap_bucket_destroy as
@@ -704,18 +716,6 @@ void ap_init_bucket_types(apr_pool_t *p);
  * @deffunc apr_status_t ap_bucket_copy(ap_bucket *e, ap_bucket **c)
  */
 #define ap_bucket_copy(e,c) e->type->copy(e, c)
-
-/**
- * Split a bucket into two, using ap_bucket_split() if that's possible
- * for the given bucket type. If split() is not implemented for the
- * bucket's type, then we perform a blocking read on the bucket. That
- * morphs the bucket into a splittable bucket (eg, pipe becomes heap),
- * and we then split the result.
- * @param e The bucket to split
- * @param point The offset to split the bucket at
- * @deffunc apr_status_t ap_bucket_split_any(ap_bucket *e, apr_off_t point)
- */
-APR_DECLARE(apr_status_t) ap_bucket_split_any(ap_bucket *e, apr_off_t point);
 
 /* Bucket type handling */
 
