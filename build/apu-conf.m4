@@ -65,11 +65,11 @@ dnl if present: sets apu_have_db=1, db_header, and db_lib
 dnl
 AC_DEFUN(APU_CHECK_DB1,[
 AC_CHECK_HEADER(db1/db.h, [
+  AC_CHECK_LIB(db1, dbopen, [
   apu_have_db=1
   db_header=db1/db.h
   db_lib=db1
-  ])
-])
+  ])])])
 
 dnl
 dnl APU_CHECK_DB185: is DB1.85 present?
@@ -78,11 +78,11 @@ dnl if present: sets apu_have_db=1, db_header, and db_lib
 dnl
 AC_DEFUN(APU_CHECK_DB185,[
 AC_CHECK_HEADER(db_185.h, [
+  AC_CHECK_LIB(db, dbopen, [
   apu_have_db=1
   db_header=db_185.h
   db_lib=db1
-  ])
-])
+  ])])])
 
 dnl
 dnl APU_CHECK_DB2or3: are DB2 or DB3 present?
@@ -91,11 +91,11 @@ dnl if present: sets apu_have_db=1, db_header, and db_lib
 dnl
 AC_DEFUN(APU_CHECK_DB2or3,[
 AC_CHECK_HEADER(db.h, [
+  AC_CHECK_LIB(db2, db_open, [
   apu_have_db=1
   db_header=db.h
   db_lib=db
-  ])
-])
+  ])])])
 
 dnl
 dnl APU_CHECK_DB_VSN: check the actual version of db (for db2 or db3)
@@ -125,6 +125,7 @@ dnl
 dnl if found, then which_dbm is set to one of: db1, db185, db2, db3
 dnl
 AC_DEFUN(APU_FIND_DB,[
+  apu_have_db=0
   APU_CHECK_DB2or3
   if test $apu_have_db = 1; then
     APU_CHECK_DB_VSN
@@ -169,11 +170,8 @@ One of: sdbm, gdbm, db, db1, db185, db2, db3])
   look_for=default
 ])
 
-AC_CHECK_LIB( gdbm, gdbm_open, 
-    [ AC_CHECK_HEADER( gdbm.h, 
-        apu_have_gdbm=1,
-        apu_have_gdbm=0)],
-      AC_MSG_WARN( "gdbm DBM not found"),)
+apu_have_gdbm=0
+AC_CHECK_HEADER(gdbm.h, AC_CHECK_LIB(gdbm, gdbm_open, [apu_have_gdbm=1]))
 
 APU_FIND_DB
 
