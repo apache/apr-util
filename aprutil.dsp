@@ -387,7 +387,7 @@ SOURCE=.\include\apu_want.hw
 # Begin Custom Build - Creating apu_want.h from apu_want.hw
 InputPath=.\include\apu_want.hw
 
-".\include\apu.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+".\include\apu_want.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	type .\include\apu_want.hw > .\include\apu_want.h
 
 # End Custom Build
