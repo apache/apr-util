@@ -40,12 +40,12 @@ ALL : "$(OUTDIR)\aprutil.lib"
 
 !ELSE 
 
-ALL : "apr - Win32 Release" "expat - Win32 Release" "$(OUTDIR)\aprutil.lib"
+ALL : "xml - Win32 Release" "apr - Win32 Release" "$(OUTDIR)\aprutil.lib"
 
 !ENDIF 
 
 !IF "$(RECURSE)" == "1" 
-CLEAN :"expat - Win32 ReleaseCLEAN" "apr - Win32 ReleaseCLEAN" 
+CLEAN :"apr - Win32 ReleaseCLEAN" "xml - Win32 ReleaseCLEAN" 
 !ELSE 
 CLEAN :
 !ENDIF 
@@ -144,7 +144,7 @@ LIB32_OBJS= \
 	"$(INTDIR)\sdbm_lock.obj" \
 	"$(INTDIR)\sdbm_pair.obj" \
 	"..\apr\LibR\apr.lib" \
-	"..\expat-lite\LibR\expat.lib"
+	".\xml\expat\lib\LibR\xml.lib"
 
 "$(OUTDIR)\aprutil.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -165,12 +165,12 @@ ALL : "$(OUTDIR)\aprutil.lib"
 
 !ELSE 
 
-ALL : "apr - Win32 Debug" "expat - Win32 Debug" "$(OUTDIR)\aprutil.lib"
+ALL : "xml - Win32 Debug" "apr - Win32 Debug" "$(OUTDIR)\aprutil.lib"
 
 !ENDIF 
 
 !IF "$(RECURSE)" == "1" 
-CLEAN :"expat - Win32 DebugCLEAN" "apr - Win32 DebugCLEAN" 
+CLEAN :"apr - Win32 DebugCLEAN" "xml - Win32 DebugCLEAN" 
 !ELSE 
 CLEAN :
 !ENDIF 
@@ -270,7 +270,7 @@ LIB32_OBJS= \
 	"$(INTDIR)\sdbm_lock.obj" \
 	"$(INTDIR)\sdbm_pair.obj" \
 	"..\apr\LibD\apr.lib" \
-	"..\expat-lite\LibD\expat.lib"
+	".\xml\expat\lib\LibD\xml.lib"
 
 "$(OUTDIR)\aprutil.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -719,13 +719,13 @@ DEP_CPP_APR_X=\
 	"..\apr\include\apr_strings.h"\
 	"..\apr\include\apr_tables.h"\
 	"..\apr\include\apr_want.h"\
-	"..\expat-lite\xmlparse.h"\
 	".\include\apr_xml.h"\
 	".\include\apu.h"\
 	
 NODEP_CPP_APR_X=\
 	".\xml\apu_config.h"\
 	".\xml\expat.h"\
+	".\xml\xmlparse.h"\
 	
 
 "$(INTDIR)\apr_xml.obj" : $(SOURCE) $(DEP_CPP_APR_X) "$(INTDIR)"\
@@ -781,41 +781,13 @@ InputPath=.\include\private\apu_select_dbm.hw
 
 !IF  "$(CFG)" == "aprutil - Win32 Release"
 
-"expat - Win32 Release" : 
-   cd "..\..\srclib\expat-lite"
-   $(MAKE) /$(MAKEFLAGS) /F ".\expat.mak" CFG="expat - Win32 Release" 
-   cd "..\apr-util"
-
-"expat - Win32 ReleaseCLEAN" : 
-   cd "..\..\srclib\expat-lite"
-   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\expat.mak" CFG="expat - Win32 Release"\
- RECURSE=1 
-   cd "..\apr-util"
-
-!ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
-
-"expat - Win32 Debug" : 
-   cd "..\..\srclib\expat-lite"
-   $(MAKE) /$(MAKEFLAGS) /F ".\expat.mak" CFG="expat - Win32 Debug" 
-   cd "..\apr-util"
-
-"expat - Win32 DebugCLEAN" : 
-   cd "..\..\srclib\expat-lite"
-   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\expat.mak" CFG="expat - Win32 Debug"\
- RECURSE=1 
-   cd "..\apr-util"
-
-!ENDIF 
-
-!IF  "$(CFG)" == "aprutil - Win32 Release"
-
 "apr - Win32 Release" : 
-   cd "..\..\srclib\apr"
+   cd "..\apr"
    $(MAKE) /$(MAKEFLAGS) /F ".\apr.mak" CFG="apr - Win32 Release" 
    cd "..\apr-util"
 
 "apr - Win32 ReleaseCLEAN" : 
-   cd "..\..\srclib\apr"
+   cd "..\apr"
    $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\apr.mak" CFG="apr - Win32 Release"\
  RECURSE=1 
    cd "..\apr-util"
@@ -823,15 +795,43 @@ InputPath=.\include\private\apu_select_dbm.hw
 !ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
 
 "apr - Win32 Debug" : 
-   cd "..\..\srclib\apr"
+   cd "..\apr"
    $(MAKE) /$(MAKEFLAGS) /F ".\apr.mak" CFG="apr - Win32 Debug" 
    cd "..\apr-util"
 
 "apr - Win32 DebugCLEAN" : 
-   cd "..\..\srclib\apr"
+   cd "..\apr"
    $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\apr.mak" CFG="apr - Win32 Debug" RECURSE=1\
  
    cd "..\apr-util"
+
+!ENDIF 
+
+!IF  "$(CFG)" == "aprutil - Win32 Release"
+
+"xml - Win32 Release" : 
+   cd ".\xml\expat\lib"
+   $(MAKE) /$(MAKEFLAGS) /F ".\xml.mak" CFG="xml - Win32 Release" 
+   cd "..\..\.."
+
+"xml - Win32 ReleaseCLEAN" : 
+   cd ".\xml\expat\lib"
+   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\xml.mak" CFG="xml - Win32 Release"\
+ RECURSE=1 
+   cd "..\..\.."
+
+!ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
+
+"xml - Win32 Debug" : 
+   cd ".\xml\expat\lib"
+   $(MAKE) /$(MAKEFLAGS) /F ".\xml.mak" CFG="xml - Win32 Debug" 
+   cd "..\..\.."
+
+"xml - Win32 DebugCLEAN" : 
+   cd ".\xml\expat\lib"
+   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\xml.mak" CFG="xml - Win32 Debug" RECURSE=1\
+ 
+   cd "..\..\.."
 
 !ENDIF 
 
