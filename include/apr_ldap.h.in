@@ -129,6 +129,7 @@
 #endif 
 
 #include "apr_ldap_url.h"
+#include "apr_ldap_init.h"
 
 /* Define some errors that are mysteriously gone from OpenLDAP 2.x */
 #ifndef LDAP_URL_ERR_NOTLDAP

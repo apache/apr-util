@@ -1,5 +1,9 @@
 Changes with APR-util 1.0
 
+  *) Add APR functions to do the job of ldap_init(), hiding toolkit
+     specific SSL/TLS handling. Code derived from httpd util_ldap.
+     [Graham Leggett]
+
   *) Add an RPM spec file derived from Fedora Core.
      [Graham Leggett, Joe Orton]
 
