@@ -81,7 +81,10 @@ APU_DECLARE(apr_bucket *) apr_bucket_eos_make(apr_bucket *b)
 
 APU_DECLARE(apr_bucket *) apr_bucket_eos_create(void)
 {
-    apr_bucket_do_create(apr_bucket_eos_make(b));
+    apr_bucket *b = (apr_bucket *)calloc(1, sizeof(*b));
+
+    APR_BUCKET_INIT(b);
+    return apr_bucket_eos_make(b);
 }
 
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_eos = {
