@@ -768,8 +768,10 @@ APU_DECLARE(apr_status_t) apr_brigade_to_iovec(apr_bucket_brigade *b,
 /**
  * This function writes a list of strings into a bucket brigade. 
  * @param b The bucket brigade to add to
+ * @param flush The flush function to use if the brigade is full
+ * @param ctx The structure to pass to the flush function
  * @param va A list of strings to add
- * @return The number of bytes added to the brigade
+ * @return APR_SUCCESS or error code.
  */
 APU_DECLARE(apr_status_t) apr_brigade_vputstrs(apr_bucket_brigade *b,
                                                apr_brigade_flush flush,
@@ -779,8 +781,11 @@ APU_DECLARE(apr_status_t) apr_brigade_vputstrs(apr_bucket_brigade *b,
 /**
  * This function writes an string into a bucket brigade.
  * @param b The bucket brigade to add to
+ * @param flush The flush function to use if the brigade is full
+ * @param ctx The structure to pass to the flush function
  * @param str The string to add
- * @return The number of bytes added to the brigade
+ * @param nbyte The number of bytes to write
+ * @return APR_SUCCESS or error code
  */
 APU_DECLARE(apr_status_t) apr_brigade_write(apr_bucket_brigade *b,
                                             apr_brigade_flush flush, void *ctx,
@@ -789,8 +794,10 @@ APU_DECLARE(apr_status_t) apr_brigade_write(apr_bucket_brigade *b,
 /**
  * This function writes an string into a bucket brigade.
  * @param b The bucket brigade to add to
+ * @param flush The flush function to use if the brigade is full
+ * @param ctx The structure to pass to the flush function
  * @param str The string to add
- * @return The number of bytes added to the brigade
+ * @return APR_SUCCESS or error code
  */
 APU_DECLARE(apr_status_t) apr_brigade_puts(apr_bucket_brigade *b,
                                            apr_brigade_flush flush, void *ctx,
@@ -799,8 +806,10 @@ APU_DECLARE(apr_status_t) apr_brigade_puts(apr_bucket_brigade *b,
 /**
  * This function writes a character into a bucket brigade.
  * @param b The bucket brigade to add to
+ * @param flush The flush function to use if the brigade is full
+ * @param ctx The structure to pass to the flush function
  * @param c The character to add
- * @return The number of bytes added to the brigade
+ * @return APR_SUCCESS or error code
  */
 APU_DECLARE(apr_status_t) apr_brigade_putc(apr_bucket_brigade *b,
                                            apr_brigade_flush flush, void *ctx,
@@ -809,8 +818,10 @@ APU_DECLARE(apr_status_t) apr_brigade_putc(apr_bucket_brigade *b,
 /**
  * This function writes an unspecified number of strings into a bucket brigade.
  * @param b The bucket brigade to add to
+ * @param flush The flush function to use if the brigade is full
+ * @param ctx The structure to pass to the flush function
  * @param ... The strings to add
- * @return The number of bytes added to the brigade
+ * @return APR_SUCCESS or error code
  */
 APU_DECLARE_NONSTD(apr_status_t) apr_brigade_putstrs(apr_bucket_brigade *b,
                                                      apr_brigade_flush flush,
@@ -820,9 +831,11 @@ APU_DECLARE_NONSTD(apr_status_t) apr_brigade_putstrs(apr_bucket_brigade *b,
  * Evaluate a printf and put the resulting string at the end 
  * of the bucket brigade.
  * @param b The brigade to write to
+ * @param flush The flush function to use if the brigade is full
+ * @param ctx The structure to pass to the flush function
  * @param fmt The format of the string to write
  * @param ... The arguments to fill out the format
- * @return The number of bytes added to the brigade
+ * @return APR_SUCCESS or error code
  */
 APU_DECLARE_NONSTD(apr_status_t) apr_brigade_printf(apr_bucket_brigade *b, 
                                                     apr_brigade_flush flush,
@@ -834,9 +847,11 @@ APU_DECLARE_NONSTD(apr_status_t) apr_brigade_printf(apr_bucket_brigade *b,
  * Evaluate a printf and put the resulting string at the end 
  * of the bucket brigade.
  * @param b The brigade to write to
+ * @param flush The flush function to use if the brigade is full
+ * @param ctx The structure to pass to the flush function
  * @param fmt The format of the string to write
  * @param va The arguments to fill out the format
- * @return The number of bytes added to the brigade
+ * @return APR_SUCCESS or error code
  */
 APU_DECLARE(apr_status_t) apr_brigade_vprintf(apr_bucket_brigade *b, 
                                               apr_brigade_flush flush,
