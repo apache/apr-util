@@ -88,6 +88,7 @@ static const char *usage = "%s [-R] cat | look |... dbmname";
 #define DPRESS      6
 #define DCREAT      7
 #define DNAME       8
+#define DTRUNC      9
 
 #define LINEMAX     8192
 
@@ -112,6 +113,7 @@ static const cmd cmds[] = {
     { "cat",     DCAT,    APR_DBM_READONLY, },
     { "build",   DBUILD,  APR_DBM_RWCREATE, },     /** this one creates the DB */
     { "creat",   DCREAT,  APR_DBM_RWCREATE, },
+    { "trunc",   DTRUNC,  APR_DBM_RWTRUNC, },
     { "new",     DCREAT,  APR_DBM_RWCREATE, },
     { "names",   DNAME,   APR_DBM_READONLY, },
 #if 0
@@ -282,6 +284,8 @@ static void doit(const cmd *act, const char *file, apr_pool_t *pool)
     case DPRESS:
         break;
     case DCREAT:
+        break;
+    case DTRUNC:
         break;
     case DNAME:
         apr_dbm_get_usednames(pool, file, &use1, &use2);

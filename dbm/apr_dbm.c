@@ -92,6 +92,7 @@ typedef apr_sdbm_datum_t result_datum_t;
 #define APR_DBM_DBMODE_RO       APR_READ
 #define APR_DBM_DBMODE_RW       (APR_READ | APR_WRITE)
 #define APR_DBM_DBMODE_RWCREATE (APR_READ | APR_WRITE | APR_CREATE)
+#define APR_DBM_DBMODE_RWTRUNC  (APR_READ | APR_WRITE | APR_CREATE|APR_TRUNCATE)
 
 #else /* Not using SDBM: */
 
@@ -134,6 +135,7 @@ typedef datum result_datum_t;
 #define APR_DBM_DBMODE_RO       GDBM_READER
 #define APR_DBM_DBMODE_RW       GDBM_WRITER
 #define APR_DBM_DBMODE_RWCREATE GDBM_WRCREAT
+#define APR_DBM_DBMODE_RWTRUNC  GDBM_NEWDB
 
 /* map a GDBM error to an apr_status_t */
 static apr_status_t g2s(int gerr)
@@ -202,10 +204,12 @@ typedef DBT result_datum_t;
 #define APR_DBM_DBMODE_RO       O_RDONLY
 #define APR_DBM_DBMODE_RW       O_RDWR
 #define APR_DBM_DBMODE_RWCREATE (O_CREAT | O_RDWR)
+#define APR_DBM_DBMODE_RWTRUNC (O_CREAT | O_RDWR|O_TRUNC)
 #else
 #define APR_DBM_DBMODE_RO       DB_RDONLY
 #define APR_DBM_DBMODE_RW       0
 #define APR_DBM_DBMODE_RWCREATE DB_CREATE
+#define APR_DBM_DBMODE_RWTRUNC  DB_TRUNCATE
 #endif /* DBVER == 1 */
 
 /* map a DB error to an apr_status_t */
@@ -376,6 +380,9 @@ APU_DECLARE(apr_status_t) apr_dbm_open(apr_dbm_t **pdb, const char *pathname,
         break;
     case APR_DBM_RWCREATE:
         dbmode = APR_DBM_DBMODE_RWCREATE;
+        break;
+    case APR_DBM_RWTRUNC:
+        dbmode = APR_DBM_DBMODE_RWTRUNC;
         break;
     default:
         return APR_EINVAL;
