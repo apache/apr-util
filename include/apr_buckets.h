@@ -289,7 +289,7 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
  */
 /**
  * The magic pointer value that indicates the head of the brigade
- * @tip This is used to find the beginning and end of the brigade, eg:
+ * @remark This is used to find the beginning and end of the brigade, eg:
  * <pre>
  *      while (e != APR_BRIGADE_SENTINEL(b)) {
  *          ...
@@ -325,7 +325,7 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
  * Iterate through a bucket brigade
  * @param e The current bucket
  * @param b The brigade to iterate over
- * @tip This is the same as either:
+ * @remark This is the same as either:
  * <pre>
  *	e = APR_BRIGADE_FIRST(b);
  * 	while (e != APR_BRIGADE_SENTINEL(b)) {
@@ -794,7 +794,7 @@ APU_DECLARE(apr_status_t) apr_brigade_vprintf(apr_bucket_brigade *b,
 /**
  * Delete a bucket by removing it from its brigade (if any) and then
  * destroying it.
- * @tip This mainly acts as an aid in avoiding code verbosity.  It is
+ * @remark This mainly acts as an aid in avoiding code verbosity.  It is
  * the preferred exact equivalent to:
  * <pre>
  *      APR_BUCKET_REMOVE(e);
