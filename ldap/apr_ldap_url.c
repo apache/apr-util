@@ -110,6 +110,8 @@
 
 #include "apr_ldap.h"
 
+#if APR_HAS_LDAP
+
 #if !APR_HAS_LDAP_URL_PARSE
 
 #include "apr_general.h"
@@ -755,3 +757,5 @@ static char **ldap_str2charray(const char *str_in, const char *brkstr)
 }
 
 #endif /* !APR_HAS_LDAP_URL_PARSE */
+
+#endif /* APR_HAS_LDAP */
