@@ -1,5 +1,9 @@
 Changes with APR-util 1.1.0
 
+  *) Added the apr_ldap_ssl_add_cert() API to allow multiple certificates
+     to be stored and used when establishing an SSL connection to different
+     LDAP servers. [Brad Nicholes]
+     
   *) Emit the run-time link path option in apu-config after installation
      if the user is linking with libtool.  [Justin Erenkrantz]
 
