@@ -1,0 +1,5 @@
+TARGETS = apr_date.lo
+CLEAN_TARGETS = 
+
+# bring in rules.mk for standard functionality
+@INCLUDE_RULES@
