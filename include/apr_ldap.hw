@@ -52,6 +52,9 @@
  * <http://www.apache.org/>.
  */
 
+#include "apr.h"
+#include "apu.h"
+
 /*
  * apr_ldap.h is generated from apr_ldap.h.in by configure -- do not edit apr_ldap.h
  */
@@ -74,25 +77,57 @@
  */
 
 /* this will be defined if LDAP support was compiled into apr-util */
-#define APU_HAS_LDAP
+#define APR_HAS_LDAP		  1
 
 /* this whole thing disappears if LDAP is not enabled */
-#ifdef APU_HAS_LDAP
+#if !APR_HAS_LDAP
+
+#define APR_HAS_LDAP_URL_PARSE    0
+#define APU_HAS_LDAP_NETSCAPE_SSL 0
+#define APU_HAS_LDAP_STARTTLS     0
+
+#else
+
+/* presume all unices do, win32, for example, does not */
+#define APR_HAS_LDAP_URL_PARSE    0
 
 /* LDAP secure capabilities */
-//#define APU_HAS_LDAP_NETSCAPE_SSL
-//#define APU_HAS_LDAP_STARTTLS
+#define APR_HAS_LDAP_NETSCAPE_SSL 0
+#define APR_HAS_LDAP_STARTTLS     0
 
-/* LDAP header files */
-#include <ldap.h>
-#include <lber.h>
-#include <ldap_ssl.h>
+/* These are garbage, our public macros are always APR_HAS_ prefixed,
+ * and use 0/1 values, not defined/undef semantics.  
+ *
+ * Will be deprecated in APR 1.0
+ */
+#if APR_HAS_LDAP
+#define APU_HAS_LDAP
+#endif
 
+#if APR_HAS_LDAP_NETSCAPE_SSL
+#define APU_HAS_LDAP_NETSCAPE_SSL 
+#endif
+
+#if APR_HAS_LDAP_STARTTLS
+#define APU_HAS_LDAP_STARTTLS
+#endif
+
+/* Included in Windows 2000 and later, earlier 9x/NT 4.0 clients
+ * will need to obtain the Active Directory Client Extensions.
+ */
+#include <Winldap.h>
 
 /*
  * LDAP Compatibility
  */
 
+/* Empty declaration, Win32 const'ness in SDK library headers is
+ * generally bogus
+ */
+#define LDAP_CONST
+
+/* These don't apply on Win32, leave them in place for reference 
+ */
 #if LDAP_VERSION_MAX <= 2
 int ldap_search_ext_s(LDAP *ldap, char *base, int scope, char *filter,
 		      char **attrs, int attrsonly, void *servertrls, void *clientctrls,
@@ -107,6 +142,8 @@ void ldap_memfree(void *p);
 #else
 #define const_cast(x) (x)
 #endif /* LDAP_VERSION_MAX */
+
+#include "apr_ldap_url.h"
 
 /* Define some errors that are mysteriously gone from OpenLDAP 2.x */
 #ifndef LDAP_URL_ERR_NOTLDAP
