@@ -1,5 +1,5 @@
 TARGETS =
-PROGRAMS = testdbm
+PROGRAMS = testdbm testdate
 
 # bring in rules.mk for standard functionality
 @INCLUDE_RULES@
@@ -7,6 +7,11 @@ PROGRAMS = testdbm
 test: $(PROGRAMS)
 
 testdbm_OBJECTS = testdbm.lo
-testdbm_LDADD =  ../libaprutil.la @APR_SOURCE_DIR@/libapr.a
+testdbm_LDADD =  ../libaprutil.la @APR_SOURCE_DIR@/libapr.la
 testdbm: $(testdbm_OBJECTS) $(testdbm_LDADD)
 	$(LINK) $(testdbm_OBJECTS) $(testdbm_LDADD) $(LIBS)
+
+testdate_OBJECTS = testdate.lo
+testdate_LDADD =  ../libaprutil.la @APR_SOURCE_DIR@/libapr.la
+testdate: $(testdate_OBJECTS) $(testdate_LDADD)
+	$(LINK) $(testdate_OBJECTS) $(testdate_LDADD) $(LIBS)
