@@ -98,13 +98,9 @@ extraclean: extraclean-recursive
 install: all-recursive
 
 
-all-recursive depend-recursive clean-recursive distclean-recursive \
-  extraclean-recursive:
+all-recursive depend-recursive:
 	@otarget=`echo $@ | sed s/-recursive//`; \
 	list='$(SUBDIRS)'; \
-	case $$otarget in *clean) \
-	    list='$(SUBDIRS) $(CLEAN_SUBDIRS)';; \
-	esac; \
 	for i in $$list; do \
 	    if test -d "$$i"; then \
 		target="$$otarget"; \
@@ -116,11 +112,32 @@ all-recursive depend-recursive clean-recursive distclean-recursive \
 		(cd $$i && $(MAKE) $$target) || exit 1; \
 	    fi; \
 	done; \
-        if test "$$otarget" = "all" && test -z "$(TARGETS)"; then \
-	    made_local=n/a; \
+	if test "$$otarget" = "all" && test -z "$(TARGETS)"; then \
+	    made_local=yes; \
 	fi; \
-	if test -z "$$made_local"; then \
+	if test "$$made_local" != "yes"; then \
 	    $(MAKE) "local-$$otarget" || exit 1; \
+	fi
+
+clean-recursive distclean-recursive extraclean-recursive:
+	@otarget=`echo $@ | sed s/-recursive//`; \
+	list='$(SUBDIRS) $(CLEAN_SUBDIRS)'; \
+	for i in $$list; do \
+	    if test -d "$$i"; then \
+		target="$$otarget"; \
+		echo "Making $$target in $$i"; \
+		if test "$$i" = "."; then \
+		    made_local=yes; \
+		    target="local-$$target"; \
+		fi; \
+		(cd $$i && $(MAKE) $$target); \
+	    fi; \
+	done; \
+	if test "$$otarget" = "all" && test -z "$(TARGETS)"; then \
+	    made_local=yes; \
+	fi; \
+	if test "$$made_local" != "yes"; then \
+	    $(MAKE) "local-$$otarget"; \
 	fi
 
 local-clean:
