@@ -1,8 +1,5 @@
 Changes with APR-util 1.0.2
 
-  *) Teach apr_ldap_init() how to handle STARTTLS in addition to the existing
-     SSL support. Add apr_ldap_option API. [Graham Leggett]
-
   *) Make install passed a shell expanded list of header files to the
      build/install.sh script, which can only install one file at a time.
      Changed to install one header file at a time. [Justin Erenkrantz,
