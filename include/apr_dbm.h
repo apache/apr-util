@@ -63,7 +63,7 @@
 extern "C" {
 #endif
 
-typedef struct apu_dbm_t apu_dbm_t;
+typedef struct apr_dbm_t apr_dbm_t;
 
 typedef struct
 {
@@ -72,24 +72,24 @@ typedef struct
 } apu_datum_t;
 
 /* modes to open the DB */
-#define APU_DBM_READONLY        1       /* open for read-only access */
-#define APU_DBM_READWRITE       2       /* open for read-write access */
-#define APU_DBM_RWCREATE        3       /* open for r/w, create if needed */
+#define APR_DBM_READONLY        1       /* open for read-only access */
+#define APR_DBM_READWRITE       2       /* open for read-write access */
+#define APR_DBM_RWCREATE        3       /* open for r/w, create if needed */
 
 
-apr_status_t apu_dbm_open(const char *pathname, apr_pool_t *pool, int mode,
-                          apu_dbm_t **pdb);
-void apu_dbm_close(apu_dbm_t *db);
-apr_status_t apu_dbm_fetch(apu_dbm_t *db, apu_datum_t key,
+apr_status_t apr_dbm_open(const char *pathname, apr_pool_t *pool, int mode,
+                          apr_dbm_t **pdb);
+void apr_dbm_close(apr_dbm_t *db);
+apr_status_t apr_dbm_fetch(apr_dbm_t *db, apu_datum_t key,
                            apu_datum_t *pvalue);
-apr_status_t apu_dbm_store(apu_dbm_t *db, apu_datum_t key, apu_datum_t value);
-apr_status_t apu_dbm_delete(apu_dbm_t *db, apu_datum_t key);
-int apu_dbm_exists(apu_dbm_t *db, apu_datum_t key);
-apr_status_t apu_dbm_firstkey(apu_dbm_t *db, apu_datum_t *pkey);
-apr_status_t apu_dbm_nextkey(apu_dbm_t *db, apu_datum_t *pkey);
-void apu_dbm_freedatum(apu_dbm_t *db, apu_datum_t data);
+apr_status_t apr_dbm_store(apr_dbm_t *db, apu_datum_t key, apu_datum_t value);
+apr_status_t apr_dbm_delete(apr_dbm_t *db, apu_datum_t key);
+int apr_dbm_exists(apr_dbm_t *db, apu_datum_t key);
+apr_status_t apr_dbm_firstkey(apr_dbm_t *db, apu_datum_t *pkey);
+apr_status_t apr_dbm_nextkey(apr_dbm_t *db, apu_datum_t *pkey);
+void apr_dbm_freedatum(apr_dbm_t *db, apu_datum_t data);
 
-void apu_dbm_geterror(apu_dbm_t *db, int *errcode, const char **errmsg);
+void apr_dbm_geterror(apr_dbm_t *db, int *errcode, const char **errmsg);
 
 #ifdef __cplusplus
 }

@@ -2,7 +2,9 @@
 # Top-level Makefile for APRUTIL
 #
 
-TARGETS = libaprutil.la
+TARGET_LIB = libaprutil.la
+
+TARGETS = delete-lib $(TARGET_LIB) aprutil.exports
 
 top_builddir = @top_builddir@
 include $(top_builddir)/build/rules.mk
@@ -16,7 +18,22 @@ EXTRACLEAN_TARGETS = configure libtool aclocal.m4 include/apu_config.h.in \
 ### fix this up at some point (install location)
 libdir = /usr/local/lib
 
-libaprutil.la:
+delete-lib:
+	@if test -f $(TARGET_LIB); then \
+	    objects="`find src -name '*.lo' -a -newer $(TARGET_LIB)`" ; \
+	    if test -n "$$objects"; then \
+		echo Found newer objects. Will relink $(TARGET_LIB). ; \
+		echo $(RM) -f $(TARGET_LIB) ; \
+		$(RM) -f $(TARGET_LIB) ; \
+	    fi \
+	fi
+
+$(TARGET_LIB):
 	@objects="`find src -name '*.lo'`" ; \
 	    echo $(LINK) $$objects ; \
 	    $(LINK) -rpath $(libdir) $$objects
+
+aprutil.exports:
+	perl @APR_SOURCE_DIR@/helpers/make_export.pl -o $@ include/*.h
+
+.PHONY: delete-lib
