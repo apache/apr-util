@@ -63,6 +63,10 @@ struct apr_sdbm_t {
     int  lckcnt;                       /* number of calls to sdbm_lock */
 };
 
+
+#define sdbm_hash apu__sdbm_hash
+#define sdbm_nullitem apu__sdbm_nullitem
+
 extern const apr_sdbm_datum_t sdbm_nullitem;
 
 long sdbm_hash(const char *str, int len);
