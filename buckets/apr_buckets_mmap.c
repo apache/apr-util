@@ -56,73 +56,67 @@
 #include "ap_buckets.h"
 #include <stdlib.h>
 
-static apr_status_t mmap_get_str(ap_bucket *e, const char **str, 
-                                 apr_ssize_t *length, int block)
+static apr_status_t mmap_read(ap_bucket *b, const char **str, 
+			      apr_ssize_t *length, int block)
 {
-    ap_bucket_mmap *b = (ap_bucket_mmap *)e->data;
-    *str = b->start;
-    *length = e->length;
-    return APR_SUCCESS;
-}
-
-static apr_status_t mmap_bucket_insert(ap_bucket *e, const apr_mmap_t *mm, 
-                                      apr_size_t nbytes, apr_ssize_t *w)
-{
-    ap_bucket_mmap *b = (ap_bucket_mmap *)e->data;
-
-    b->sub = calloc(1, sizeof(*b->sub));
-    b->sub->mmap = mm;
-    b->sub->refcount = 1;
-
-    b->start = mm->mm;
-    b->end = (char *) mm->mm + nbytes;
-    *w = nbytes;
-    return APR_SUCCESS;
-}
+    ap_bucket_shared *s = b->data;
+    ap_bucket_mmap *m = s->data;
+    apr_status_t ok;
+    void *addr;
     
-static apr_status_t mmap_split(ap_bucket *e, apr_off_t nbyte)
-{
-    ap_bucket *newbuck;
-    ap_bucket_mmap *a = (ap_bucket_mmap *)e->data;
-    ap_bucket_mmap *b;
-    apr_ssize_t dump;
-
-    newbuck = ap_bucket_mmap_create(a->sub->mmap, e->length, &dump);
-    b = (ap_bucket_mmap *)newbuck->data;
-    b->start = (char *) a->start + nbyte + 1;
-    b->end = a->end;
-    a->end = (char *) a->start + nbyte;
-    newbuck->length = e->length - nbyte;
-    e->length = nbyte;
-
-    newbuck->prev = e;
-    newbuck->next = e->next;
-    e->next = newbuck;
-
+    ok = apr_mmap_offset(&addr, m->mmap, s->start);
+    if (ok != APR_SUCCESS) {
+	return ok;
+    }
+    *str = addr;
+    *length = s->end - s->start;
     return APR_SUCCESS;
 }
 
-API_EXPORT(ap_bucket *) ap_bucket_mmap_create(const apr_mmap_t *buf, 
-                                      apr_size_t nbytes, apr_ssize_t *w)
+static void mmap_destroy(ap_bucket *b)
 {
-    ap_bucket *newbuf;
-    ap_bucket_mmap *b;
+    ap_bucket_mmap *m;
 
-    newbuf            = calloc(1, sizeof(*newbuf));
-    b                 = malloc(sizeof(*b));
-
-    b->start = b->end = NULL;
-
-    newbuf->data      = b;
-    mmap_bucket_insert(newbuf, buf, nbytes, w);
-    newbuf->length    = *w;
-
-    newbuf->type      = AP_BUCKET_MMAP;
-    newbuf->read      = mmap_get_str;
-    newbuf->setaside  = NULL;
-    newbuf->split     = mmap_split;
-    newbuf->destroy   = NULL;
-    
-    return newbuf;
+    m = ap_bucket_destroy_shared(b);
+    if (m == NULL) {
+	return;
+    }
+    apr_mmap_delete(m->mmap); /* hope this works! */
+    free(m);
 }
 
+/*
+ * XXX: are the start and length arguments useful?
+ */
+API_EXPORT(ap_bucket *) ap_bucket_make_mmap(ap_bucket *b,
+		apr_mmap_t *mm, apr_off_t start, apr_size_t length)
+{
+    ap_bucket_mmap *m;
+
+    m = malloc(sizeof(*m));
+    if (m == NULL) {
+	return NULL;
+    }
+    m->mmap = mm;
+
+    b = ap_bucket_make_shared(b, m, start, start+length);
+    if (b == NULL) {
+	free(m);
+	return NULL;
+    }
+
+    b->type     = AP_BUCKET_MMAP;
+    b->split    = ap_bucket_split_shared;
+    b->destroy  = mmap_destroy;
+    b->read     = mmap_read;
+    b->setaside = NULL;
+
+    return b;
+}
+
+
+API_EXPORT(ap_bucket *) ap_bucket_create_mmap(
+		apr_mmap_t *mm, apr_off_t start, apr_size_t length)
+{
+    ap_bucket_do_create(ap_bucket_make_mmap(b, mm, start, length));
+}

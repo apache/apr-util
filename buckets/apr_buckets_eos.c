@@ -56,7 +56,7 @@
 #include "ap_buckets.h"
 #include <stdlib.h>
 
-static apr_status_t eos_get_str(ap_bucket *e, const char **str, 
+static apr_status_t eos_read(ap_bucket *b, const char **str, 
                                 apr_ssize_t *len, int block)
 {
     *str = NULL;
@@ -64,20 +64,21 @@ static apr_status_t eos_get_str(ap_bucket *e, const char **str,
     return AP_END_OF_BRIGADE;
 }
 
-API_EXPORT(ap_bucket *) ap_bucket_eos_create(void)
+API_EXPORT(ap_bucket *) ap_bucket_make_eos(ap_bucket *b)
 {
-    ap_bucket *newbuf;
+    b->length    = AP_END_OF_BRIGADE;
 
-    newbuf            = calloc(1, sizeof(*newbuf));
-    newbuf->length    = AP_END_OF_BRIGADE;
-
-    newbuf->type      = AP_BUCKET_EOS;
-    newbuf->read      = eos_get_str;
-    newbuf->setaside  = NULL;
-    newbuf->split     = NULL;
-    newbuf->destroy   = NULL;
-    newbuf->data      = NULL;
+    b->type      = AP_BUCKET_EOS;
+    b->read      = eos_read;
+    b->setaside  = NULL;
+    b->split     = NULL;
+    b->destroy   = NULL;
+    b->data      = NULL;
     
-    return newbuf;
+    return b;
 }
 
+API_EXPORT(ap_bucket *) ap_bucket_create_eos(void)
+{
+    ap_bucket_do_create(ap_bucket_make_eos(b));
+}

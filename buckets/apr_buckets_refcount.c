@@ -52,33 +52,88 @@
  * <http://www.apache.org/>.
  */
 
-#include "httpd.h"
-#include "ap_buckets.h"
 #include <stdlib.h>
 
-static apr_status_t eos_read(ap_bucket *b, const char **str, 
-                                apr_ssize_t *len, int block)
+#include "apr_errno.h"
+
+#include "ap_buckets.h"
+
+API_EXPORT(apr_status_t) ap_bucket_split_shared(ap_bucket *a, apr_off_t point)
 {
-    *str = NULL;
-    *len = AP_END_OF_BRIGADE;
-    return AP_END_OF_BRIGADE;
+    ap_bucket *b;
+    ap_bucket_shared *ad, *bd;
+    ap_bucket_refcount *r;
+
+    if (point <= 0 || point >= a->length) {
+	return APR_EINVAL;
+    }
+
+    b = malloc(sizeof(*b)); 
+    if (b == NULL) {
+	return APR_ENOMEM;
+    }
+    bd = malloc(sizeof(*bd));
+    if (bd == NULL) {
+	free(b);
+	return APR_ENOMEM;
+    }
+    *b = *a;
+    ad = a->data;
+    b->data = bd;
+    *bd = *ad;
+
+    r = ad->data;
+    r->refcount += 1;
+
+    a->length = point;
+    ad->end = ad->start + point;
+    b->length -= point;
+    bd->start += point;
+
+    if (a->next) {
+	a->next->prev = b;
+    }
+    b->next = a->next;
+    b->prev = a;
+    a->next = b;
+
+    return APR_SUCCESS;
 }
 
-API_EXPORT(ap_bucket *) ap_bucket_make_eos(ap_bucket *b)
+API_EXPORT(void *) ap_bucket_destroy_shared(ap_bucket *b)
 {
-    b->length    = AP_END_OF_BRIGADE;
+    ap_bucket_shared *s = b->data;
+    ap_bucket_refcount *r = s->data;
 
-    b->type      = AP_BUCKET_EOS;
-    b->read      = eos_read;
-    b->setaside  = NULL;
-    b->split     = NULL;
-    b->destroy   = NULL;
-    b->data      = NULL;
-    
+    free(s);
+    r->refcount -= 1;
+    if (r->refcount == 0) {
+	return r;
+    }
+    else {
+	return NULL;
+    }
+}
+
+API_EXPORT(ap_bucket *) ap_bucket_make_shared(ap_bucket *b, void *data,
+					      apr_off_t start, apr_off_t end)
+{
+    ap_bucket_shared *s;
+    ap_bucket_refcount *r = data;
+
+    s = malloc(sizeof(*s));
+    if (s == NULL) {
+	return NULL;
+    }
+
+    b->data = s;
+    b->length = end - start;
+    /* caller initializes the type field and function pointers */
+    s->start = start;
+    s->end = end;
+    s->data = r;
+    r->refcount = 1;
+    /* caller initializes the rest of r */
+
     return b;
-}
-
-API_EXPORT(ap_bucket *) ap_bucket_create_eos(void)
-{
-    ap_bucket_do_create(ap_bucket_make_eos(b));
 }
