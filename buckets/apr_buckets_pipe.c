@@ -60,7 +60,8 @@ static apr_status_t pipe_read(apr_bucket *a, const char **str,
 			      apr_size_t *len, apr_read_type_e block)
 {
     apr_file_t *p = a->data;
-    apr_bucket *b;
+    apr_bucket_shared *s;
+    apr_bucket_heap *h;
     char *buf;
     apr_status_t rv;
     apr_interval_time_t timeout;
@@ -70,9 +71,10 @@ static apr_status_t pipe_read(apr_bucket *a, const char **str,
         apr_file_pipe_timeout_set(p, 0);
     }
 
-    buf = malloc(HUGE_STRING_LEN); /* XXX: check for failure? */
-    *str = buf;
+    *str = NULL;
     *len = HUGE_STRING_LEN;
+    buf = malloc(*len); /* XXX: check for failure? */
+
     rv = apr_file_read(p, buf, len);
 
     if (block == APR_NONBLOCK_READ) {
@@ -80,7 +82,6 @@ static apr_status_t pipe_read(apr_bucket *a, const char **str,
     }
 
     if (rv != APR_SUCCESS && rv != APR_EOF) {
-        *str = NULL;
 	free(buf);
         return rv;
     }
@@ -89,6 +90,10 @@ static apr_status_t pipe_read(apr_bucket *a, const char **str,
      * even if we read nothing because we hit EOF.
      */
     apr_bucket_heap_make(a, buf, *len, 0, NULL);  /* XXX: check for failure? */
+    s = a->data;
+    h = s->data;
+    h->alloc_len = HUGE_STRING_LEN; /* note the real buffer size */
+    *str = buf;
     /*
      * If there's more to read we have to keep the rest of the pipe
      * for later.  Otherwise, we'll close the pipe.
@@ -102,8 +107,7 @@ static apr_status_t pipe_read(apr_bucket *a, const char **str,
      * new bucket.
      */
     if (*len > 0) {
-        b = apr_bucket_pipe_create(p);
-	APR_BUCKET_INSERT_AFTER(a, b);
+        APR_BUCKET_INSERT_AFTER(a, apr_bucket_pipe_create(p));
     }
     else if (rv == APR_EOF) {
         apr_file_close(p);
