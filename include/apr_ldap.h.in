@@ -140,6 +140,17 @@
 #define LDAP_URL_ERR_NODN LDAP_URL_ERR_BADURL
 #endif
 
+/**
+ * This structure allows the C LDAP API error codes to be returned
+ * along with plain text error messages that explain to us more mortals
+ * what really happened.
+ */
+typedef struct apr_ldap_err_t {
+    const char *reason;
+    const char *msg;
+    int rc;
+} apr_ldap_err_t;
+
 /** @} */
 #endif /* APR_HAS_LDAP */
 #endif /* APU_LDAP_H */
