@@ -1,5 +1,8 @@
 Changes with APR-util b1  
 
+  *) Moved httpd 2.0.18's util_date to apr_date and enhanced its parsing
+     capabilities.  [Justin Erenkrantz]
+
   *) Moved httpd 2.0.18's util_uri to apr_uri and name-protected its
      symbols and functions.  [Justin Erenkrantz, Roy Fielding]
 
