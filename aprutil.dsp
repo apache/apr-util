@@ -26,6 +26,7 @@ CFG=aprutil - Win32 Debug
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
 CPP=cl.exe
+RSC=rc.exe
 
 !IF  "$(CFG)" == "aprutil - Win32 Release"
 
@@ -39,11 +40,10 @@ CPP=cl.exe
 # PROP Output_Dir "LibR"
 # PROP Intermediate_Dir "LibR"
 # PROP Target_Dir ""
-RSC=rc.exe
-# ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /GX /O2 /I "./include" /I "../apr/include" /D "NDEBUG" /D "APR_DECLARE_EXPORT" /D "WIN32" /D "_WINDOWS" /Fd"LibR/apr-util" /FD /c
+# ADD BASE RSC /l 0x409
+# ADD RSC /l 0x409
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -64,11 +64,10 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "LibD"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-RSC=rc.exe
-# ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409
 # ADD BASE CPP /nologo /MTd /W3 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
 # ADD CPP /nologo /MDd /W3 /GX /ZI /Od /I "./include" /I "../apr/include" /I "./dbm/sdbm" /D "_DEBUG" /D "APR_DECLARE_EXPORT" /D "WIN32" /D "_WINDOWS" /D "APU_USE_SDBM" /Fd"LibD/apr-util" /FD /c
+# ADD BASE RSC /l 0x409
+# ADD RSC /l 0x409
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -89,24 +88,15 @@ LIB32=link.exe -lib
 
 SOURCE=.\include\apu_private.hw
 
-!IF  "$(CFG)" == "aprlib - Win32 Release"
+!IF  "$(CFG)" == "aprutil - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
 
 # Begin Custom Build
 InputPath=.\include\apu_private.hw
 
 ".\include\apu_private.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	copy .\include\apu_private.hw .\include\apu_private.h > nul 
-	echo Created apu_private.h from apu_private.hw 
-	
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "aprlib - Win32 Debug"
-
-# Begin Custom Build
-InputPath=.\include\apu_private.hw
-
-".\include\apu_private.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	copy .\include\apu_private.hw .\include\apu_private.h > nul 
+	copy .\include\private\apu_private.hw .\include\apu_private.h > nul 
 	echo Created apu_private.h from apu_private.hw 
 	
 # End Custom Build
@@ -189,10 +179,6 @@ SOURCE=.\src\buckets\ap_buckets_simple.c
 # Begin Source File
 
 SOURCE=.\src\buckets\ap_buckets_socket.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\buckets\ap_buckets_util.c
 # End Source File
 # End Group
 # Begin Group "crypto"
