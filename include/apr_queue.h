@@ -58,16 +58,29 @@
 
 #ifndef APR_QUEUE_H
 #define APR_QUEUE_H
+
 #if APR_HAS_THREADS
 /**
  * @file apr_queue.h
  * @brief Thread Safe FIFO bounded queue
+ * @note Since most implementations of the queue are backed by a condition
+ * variable implementation, it isn't available on systems without threads.
+ * Although condition variables are some times available without threads.
  */
+
+#include "apr_errno.h"
+#include "apr_pools.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /**
  * @defgroup APR_Util_FIFO Thread Safe FIFO bounded queue
  * @ingroup APR_Util
  * @{
  */
+
 /**
  * opaque structure
  */
@@ -154,5 +167,12 @@ apr_status_t apr_queue_interrupt_all(apr_queue_t *queue);
  */
 apr_status_t apr_queue_term(apr_queue_t *queue);
 
-#endif /*  APR_HAS_THREADS */
+#ifdef __cplusplus
+}
+#endif
+
+/** @} */
+
+#endif /* APR_HAS_THREADS */
+
 #endif /* APRQUEUE_H */
