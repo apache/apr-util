@@ -44,11 +44,9 @@ install: $(TARGET_LIB)
 	    @APR_SOURCE_DIR@/build/mkdir.sh $(libdir); \
 	fi; \
 	$(LIBTOOL) --mode=install cp $(TARGET_LIB) $(libdir); \
-	if test -n "$(INSTALL_SUBDIRS)"; then \
-		for i in "$(INSTALL_SUBDIRS)"; do \
-			( cd $$i ; $(MAKE) install ); \
-		done \
-	fi
+	list='$(INSTALL_SUBDIRS)'; for i in $$list; do \
+		( cd $$i ; $(MAKE) install ); \
+	done
 
 $(TARGET_LIB):
 	@objects="`find $(SUBDIRS) -name expat -prune -o -name '*.@so_ext@' -print`"; \
