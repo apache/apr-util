@@ -73,6 +73,9 @@
 
 #if APR_HAS_LDAP
 
+#if APR_HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
 
 #include "apu.h"
 #include "apr_pools.h"
