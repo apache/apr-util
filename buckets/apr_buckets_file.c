@@ -53,6 +53,7 @@
  */
 
 #include "apr.h"
+#include "apr_general.h"
 #include "apr_lib.h"
 #include "apr_file_io.h"
 #include "ap_buckets.h"
@@ -103,8 +104,9 @@ static apr_status_t file_read(ap_bucket *e, const char **str,
         /* we need to protect ourselves in case we die while we've got the
          * file mmapped */
         apr_status_t status;
+        apr_pool_t *p = APR_GET_POOL(f);
         if ((status = apr_mmap_create(&mm, f, a->offset, e->length, 
-                                      APR_MMAP_READ, NULL)) != APR_SUCCESS) {
+                                      APR_MMAP_READ, p)) != APR_SUCCESS) {
             mm = NULL;
         }
     }
