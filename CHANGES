@@ -1,5 +1,8 @@
 Changes with APR-util b1  
 
+  *) Add apu-config - a shell script to allow third-party programs
+     easy access to APR configuration parameters.  [Justin Erenkrantz]
+
   *) Add GMT offset calculation to apr_date_parse_rfc().  
      [Justin Erenkrantz]
 

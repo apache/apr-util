@@ -23,12 +23,13 @@ CLEAN_TARGETS =
 DISTCLEAN_TARGETS = config.cache config.log config.status libtool \
 	include/private/apu_config.h include/private/apu_private.h \
 	include/private/apu_select_dbm.h include/apu.h export_vars.sh \
-	aprutil.exp
+	aprutil.exp apu-config
 EXTRACLEAN_TARGETS = configure aclocal.m4 include/private/apu_config.h.in \
 	exports.c export_vars.h
 
 prefix=@prefix@
 exec_prefix=@exec_prefix@
+bindir=@bindir@
 libdir=@libdir@
 includedir=@includedir@
 top_srcdir=@top_srcdir@
@@ -55,6 +56,11 @@ install: $(TARGET_LIB)
 	fi; \
 	$(LIBTOOL) --mode=install cp $(TARGET_LIB) $(libdir); \
 	$(LIBTOOL) --mode=install cp aprutil.exp $(libdir); \
+	if [ ! -d $(bindir) ]; then \
+		@APR_SOURCE_DIR@/build/mkdir.sh $(bindir); \
+	fi; \
+	$(LIBTOOL) --mode=install cp apu-config $(bindir); \
+	chmod 755 $(bindir)/apu-config; \
 	list='$(INSTALL_SUBDIRS)'; for i in $$list; do \
 		( cd $$i ; $(MAKE) install ); \
 	done
