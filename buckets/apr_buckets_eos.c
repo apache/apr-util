@@ -84,13 +84,13 @@ APU_DECLARE(apr_bucket *) apr_bucket_eos_create(void)
     apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
 
     APR_BUCKET_INIT(b);
+    b->free = free;
     return apr_bucket_eos_make(b);
 }
 
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_eos = {
     "EOS", 5,
     apr_bucket_destroy_noop,
-    free,
     eos_read,
     apr_bucket_setaside_noop,
     apr_bucket_split_notimpl,

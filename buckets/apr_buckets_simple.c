@@ -115,6 +115,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_immortal_create(
     apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
 
     APR_BUCKET_INIT(b);
+    b->free = free;
     return apr_bucket_immortal_make(b, buf, length);
 }
 
@@ -152,13 +153,13 @@ APU_DECLARE(apr_bucket *) apr_bucket_transient_create(
     apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
 
     APR_BUCKET_INIT(b);
+    b->free = free;
     return apr_bucket_transient_make(b, buf, length);
 }
 
 const apr_bucket_type_t apr_bucket_type_immortal = {
     "IMMORTAL", 5,
     apr_bucket_destroy_noop,
-    free,
     simple_read,
     apr_bucket_setaside_noop,
     apr_bucket_simple_split,
@@ -168,7 +169,6 @@ const apr_bucket_type_t apr_bucket_type_immortal = {
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_transient = {
     "TRANSIENT", 5,
     apr_bucket_destroy_noop, 
-    free,
     simple_read,
     transient_setaside,
     apr_bucket_simple_split,

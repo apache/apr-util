@@ -3,12 +3,12 @@ Changes with APR-util b1
   *) Added apr_xml_parse_file() routine and a testxml program.
      [Ian Holsman <ianh@cnet.com>]
 
-  *) Extend apr_bucket_type_t to add a pointer to a function used
+  *) Extend apr_bucket struct to add a pointer to a function used
      to free the bucket. This change enables custom buckets to
      completely specify how they are to be allocated and freed.
      Before this change, custom buckets were required to use the 
      same memory allocation scheme as the standard APR buckets.
-     [Saeid Sakhitab, Bill Stoddard]
+     [Saeid Sakhitab, Bill Stoddard, Cliff Woolley, Roy Fielding]
 
   *) Install Expat when installing APR-util.  [Justin Erenkrantz]
 

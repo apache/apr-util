@@ -120,13 +120,13 @@ APU_DECLARE(apr_bucket *) apr_bucket_heap_create(
     apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
 
     APR_BUCKET_INIT(b);
+    b->free = free;
     return apr_bucket_heap_make(b, buf, length, copy, w);
 }
 
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_heap = {
     "HEAP", 5,
     heap_destroy,
-    free,
     heap_read,
     apr_bucket_setaside_noop,
     apr_bucket_shared_split,

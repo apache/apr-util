@@ -113,6 +113,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_mmap_create(
     apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
 
     APR_BUCKET_INIT(b);
+    b->free = free;
     return apr_bucket_mmap_make(b, mm, start, length);
 }
 
@@ -144,7 +145,6 @@ static apr_status_t mmap_setaside(apr_bucket *data, apr_pool_t *p)
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_mmap = {
     "MMAP", 5,
     mmap_destroy,
-    free,
     mmap_read,
     mmap_setaside,
     apr_bucket_shared_split,
