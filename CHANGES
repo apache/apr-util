@@ -1,5 +1,8 @@
 Changes with APR-util b1  
 
+  *) Ensure that apu-config does not print libtool libraries when
+     using --libs.  [Justin Erenkrantz]
+
   *) Added apr_bucket_file_enable_mmap() function to the bucket
      API to let an application control whether a file bucket may
      be turned into an mmap bucket upon read.  (The default remains
