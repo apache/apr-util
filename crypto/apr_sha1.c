@@ -119,6 +119,8 @@
 
 #define SHA_BLOCKSIZE           64
 
+typedef unsigned char apr_byte_t;
+
 #if APR_CHARSET_EBCDIC
 static apr_xlate_t *ebcdic2ascii_xlate;
 
