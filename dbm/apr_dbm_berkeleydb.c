@@ -169,22 +169,28 @@ static apr_status_t do_firstkey(real_file_t *f, DBT *pkey)
 static apr_status_t do_nextkey(real_file_t *f, DBT *pkey, DBT *pnext)
 {
     int dberr;
-    DBT data;
+    DBT data = { 0 };
+
+    memset(pnext, 0, sizeof(*pnext));
 
 #if DB_VER == 1
     dberr = (*f->bdb->seq)(f->bdb, pkey, &data, R_NEXT);
+    if (dberr == RET_SPECIAL)
+        return APR_SUCCESS;
 #else
     if (f->curs == NULL)
         return APR_EINVAL;
 
     dberr = (*f->curs->c_get)(f->curs, pkey, &data, DB_NEXT);
     if (dberr == DB_NOTFOUND) {
-        memset(pkey, 0, sizeof(*pkey));
         (*f->curs->c_close)(f->curs);
         f->curs = NULL;
         return APR_SUCCESS;
     }
 #endif
+
+    pnext->data = pkey->data;
+    pnext->size = pkey->size;
 
     return db2s(dberr);
 }
@@ -192,6 +198,8 @@ static apr_status_t do_nextkey(real_file_t *f, DBT *pkey, DBT *pnext)
 /* --------------------------------------------------------------------------
 **
 ** DEFINE THE VTABLE FUNCTIONS FOR BERKELEY DB
+**
+** ### we may need three sets of these: db1, db2, db3
 */
 
 static apr_status_t vt_db_open(apr_dbm_t **dbm, const char *name,

@@ -73,6 +73,9 @@ typedef datum result_datum_t;
 #define APR_DBM_NEXTKEY(f, k, nk) ((nk) = gdbm_nextkey(f, *(k)), APR_SUCCESS)
 #define APR_DBM_FREEDPTR(dptr)	((dptr) ? free(dptr) : 0)
 
+/* ### in apr_dbm_freedatum(), run the cleanup */
+#define NEEDS_CLEANUP
+
 #undef REGISTER_CLEANUP
 #define REGISTER_CLEANUP(dbm, pdatum) \
     if ((pdatum)->dptr) \
