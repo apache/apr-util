@@ -73,12 +73,22 @@ if test -n "$USE_VPATH"; then
 fi
 
 dnl
-dnl 1. Find the APR includes directory and (possibly) the source (base) dir.
-dnl 2. Determine what DBM backend type to use.
-dnl 3. Find Expat
-dnl 4. Find an iconv library
+dnl Find the APR includes directory and (possibly) the source (base) dir.
 dnl
 APU_FIND_APR
+
+dnl
+dnl even though we use apr_rules.mk for building apr-util, we need
+dnl to grab CC and CPP ahead of time so that apr-util config tests
+dnl use the same compiler as APR
+dnl
+APR_SETIFNULL(CC, `$apr_config --cc`)
+APR_SETIFNULL(CPP, `$apr_config --cpp`)
+
+dnl Find LDAP library
+dnl Determine what DBM backend type to use.
+dnl Find Expat
+dnl Find an iconv library
 APU_FIND_LDAP
 APU_CHECK_DBM
 APU_FIND_EXPAT
