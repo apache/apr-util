@@ -1,4 +1,7 @@
-Changes with APR-util b1  
+Changes with APR-util 0.9.1
+
+  *) Add versioning infrastructure.
+     [Justin Erenkrantz]
 
   *) Running "make check" in the toplevel directory or the test/ directory
      will build and run all test programs.  [Aaron Bannert]

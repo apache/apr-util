@@ -6,6 +6,10 @@ PROGRAMS = testdbm testdate testmd4 testmd5 testxml testrmm teststrmatch \
 	testuuid testreslist testqueue
 TARGETS = $(PROGRAMS)
 
+APRUTIL_DOTTED_VERSION=@APRUTIL_DOTTED_VERSION@
+APRUTIL_MAJOR_VERSION=@APRUTIL_MAJOR_VERSION@
+TARGET_LIB_PATH = ../lib@APRUTIL_LIBNAME@.la
+
 # bring in rules.mk for standard functionality
 @INCLUDE_RULES@
 PROGRAM_DEPENDENCIES = @APRUTIL_LDFLAGS@ @APRUTIL_LIBS@
@@ -22,52 +26,52 @@ check: $(PROGRAMS)
 	done
 
 testdbm_OBJECTS = testdbm.lo
-testdbm_LDADD =  ../libaprutil.la
+testdbm_LDADD =  $(TARGET_LIB_PATH)
 testdbm: $(testdbm_OBJECTS) $(testdbm_LDADD)
 	$(LINK) $(testdbm_OBJECTS) $(testdbm_LDADD) $(PROGRAM_DEPENDENCIES)
 
 testdate_OBJECTS = testdate.lo
-testdate_LDADD =  ../libaprutil.la
+testdate_LDADD =  $(TARGET_LIB_PATH)
 testdate: $(testdate_OBJECTS) $(testdate_LDADD)
 	$(LINK) $(testdate_OBJECTS) $(testdate_LDADD) $(PROGRAM_DEPENDENCIES)
 
 testxml_OBJECTS = testxml.lo
-testxml_LDADD =  ../libaprutil.la
+testxml_LDADD =  $(TARGET_LIB_PATH)
 testxml: $(testxml_OBJECTS) $(testxml_LDADD)
 	$(LINK) $(testxml_OBJECTS) $(testxml_LDADD) $(PROGRAM_DEPENDENCIES)
 
 testmd4_OBJECTS = testmd4.lo
-testmd4_LDADD =  ../libaprutil.la
+testmd4_LDADD =  $(TARGET_LIB_PATH)
 testmd4: $(testmd4_OBJECTS) $(testmd4_LDADD)
 	$(LINK) $(testmd4_OBJECTS) $(testmd4_LDADD) $(PROGRAM_DEPENDENCIES)
 
 testmd5_OBJECTS = testmd5.lo
-testmd5_LDADD =  ../libaprutil.la
+testmd5_LDADD =  $(TARGET_LIB_PATH)
 testmd5: $(testmd5_OBJECTS) $(testmd5_LDADD)
 	$(LINK) $(testmd5_OBJECTS) $(testmd5_LDADD) $(PROGRAM_DEPENDENCIES)
 
 testrmm_OBJECTS = testrmm.lo
-testrmm_LDADD =  ../libaprutil.la
+testrmm_LDADD =  $(TARGET_LIB_PATH)
 testrmm: $(testrmm_OBJECTS) $(testrmm_LDADD)
 	$(LINK) $(testrmm_OBJECTS) $(testrmm_LDADD) $(PROGRAM_DEPENDENCIES)
 
 teststrmatch_OBJECTS = teststrmatch.lo
-teststrmatch_LDADD =  ../libaprutil.la
+teststrmatch_LDADD =  $(TARGET_LIB_PATH)
 teststrmatch: $(teststrmatch_OBJECTS) $(teststrmatch_LDADD)
 	$(LINK) $(teststrmatch_OBJECTS) $(teststrmatch_LDADD) $(PROGRAM_DEPENDENCIES)
 
 testuuid_OBJECTS = testuuid.lo
-testuuid_LDADD =  ../libaprutil.la
+testuuid_LDADD =  $(TARGET_LIB_PATH)
 testuuid: $(testuuid_OBJECTS) $(testuuid_LDADD)
 	$(LINK) $(testuuid_OBJECTS) $(testuuid_LDADD) $(PROGRAM_DEPENDENCIES)
 
 testreslist_OBJECTS = testreslist.lo
-testreslist_LDADD =  ../libaprutil.la
+testreslist_LDADD =  $(TARGET_LIB_PATH)
 testreslist: $(testreslist_OBJECTS) $(testreslist_LDADD)
 	$(LINK) $(testreslist_OBJECTS) $(testreslist_LDADD) $(PROGRAM_DEPENDENCIES)
 
 testqueue_OBJECTS = testqueue.lo
-testqueue_LDADD =  ../libaprutil.la
+testqueue_LDADD =  $(TARGET_LIB_PATH)
 testqueue: $(testqueue_OBJECTS) $(testqueue_LDADD)
 	$(LINK) $(testqueue_OBJECTS) $(testqueue_LDADD) $(PROGRAM_DEPENDENCIES)
 
