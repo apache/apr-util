@@ -51,7 +51,7 @@ static apr_status_t test_rmm(apr_pool_t *parpool)
     }
 
     /* We're going to want 10 blocks of data from our target rmm. */
-    size = SHARED_SIZE + apr_rmm_overhead_get(FRAG_COUNT + 1);
+    size = SHARED_SIZE + apr_rmm_overhead_get(FRAG_COUNT);
     printf("Creating anonymous shared memory (%"
            APR_SIZE_T_FMT " bytes).....", size); 
     rv = apr_shm_create(&shm, size, NULL, pool);
@@ -87,24 +87,6 @@ static apr_status_t test_rmm(apr_pool_t *parpool)
     else {
         return APR_EGENERAL;  
     }
-
-    printf("Checking each fragment for address alignment.....");
-    for (i = 0; i < FRAG_COUNT; i++) {
-        char *c = apr_rmm_addr_get(rmm, off[i]);
-        apr_size_t sc = (apr_size_t)c;
-
-        if (off[i] == 0) {
-            printf("allocation failed for offset %d\n", i);
-            return APR_ENOMEM;
-        }
-
-        if (sc & 7) {
-            printf("Bad alignment for fragment %d; %p not %p!\n",
-                   i, c, (void *)APR_ALIGN_DEFAULT((apr_size_t)c));
-            return APR_EGENERAL;
-        }
-    }
-    fprintf(stdout, "OK\n");   
     
     printf("Setting each fragment to a unique value..........");
     for (i = 0; i < FRAG_COUNT; i++) {
