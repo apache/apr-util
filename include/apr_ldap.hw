@@ -32,29 +32,19 @@
 /* this will be defined if LDAP support was compiled into apr-util */
 #define APR_HAS_LDAP		  1
 
-
-/*
- * Handle the case when LDAP is disabled - switch everything off by default
- */
-#if !APR_HAS_LDAP
-
-/*
- * The following #defines are DEPRECATED and should not be used. They do
- * not work properly anyway.
- */
+/* identify the LDAP toolkit used */
 #define APR_HAS_NETSCAPE_LDAPSDK    0
+#define APR_HAS_SOLARIS_LDAPSDK     0 
 #define APR_HAS_NOVELL_LDAPSDK      0
 #define APR_HAS_OPENLDAP_LDAPSDK    0
-#define APR_HAS_MICROSOFT_LDAPSDK   0
+#define APR_HAS_MICROSOFT_LDAPSDK   1
 #define APR_HAS_OTHER_LDAPSDK       0
-#define APR_HAS_LDAP_SSL            0
-#define APR_HAS_LDAP_URL_PARSE      0
 
 
 /*
  * Handle the case when LDAP is enabled
  */
-#else /* ldap support available */
+#if APR_HAS_LDAP
 
 /*
  * The following #defines are DEPRECATED and should not be used for
@@ -64,7 +54,6 @@
  * apr_ldap_url_parse*() functions have been rewritten specifically for
  * APR, so the APR_HAS_LDAP_URL_PARSE macro is forced to zero.
  */
-#define APR_HAS_MICROSOFT_LDAPSDK 1 
 #define APR_HAS_LDAP_SSL 1
 #define APR_HAS_LDAP_URL_PARSE 0
 
@@ -74,16 +63,6 @@
  */
 
 #include <winldap.h>
-
-
-/*
- * Vendor LDAP toolkits that we identify
- */
-#define APR_LDAP_VENDOR_NOVELL "Novell"
-#define APR_LDAP_VENDOR_NETSCAPE "Netscape Communications Corp."
-#define APR_LDAP_VENDOR_MICROSOFT "Microsoft Corporation."
-#define APR_LDAP_VENDOR_OPENLDAP "OpenLDAP"
-#define APR_LDAP_VENDOR_SUN "Sun Microsystems Inc."
 
 
 /*
