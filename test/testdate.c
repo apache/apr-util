@@ -101,7 +101,7 @@ void gm_timestr_822(char *ts, apr_time_t sec)
     static const char *const days[7]=
         {"Sun","Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
     struct tm *tms;
-    long ls = (long)sec;
+    time_t ls = (time_t)sec;
 
     tms = gmtime(&ls);
  
@@ -117,7 +117,7 @@ void gm_timestr_850(char *ts, apr_time_t sec)
             "Saturday"};
     struct tm *tms;
     int year;
-    long ls = (long)sec;
+    time_t ls = (time_t)sec;
  
     tms = gmtime(&ls);
 
@@ -134,7 +134,7 @@ void gm_timestr_ccc(char *ts, apr_time_t sec)
     static const char *const days[7]=
        {"Sun","Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
     struct tm *tms;
-    long ls = (long)sec;
+    time_t ls = (time_t)sec;
  
     tms = gmtime(&ls);
  
