@@ -100,7 +100,7 @@ APU_DECLARE(apr_bucket_brigade *) apr_brigade_create(apr_pool_t *p)
 {
     apr_bucket_brigade *b;
 
-    b = apr_pcalloc(p, sizeof(*b));
+    b = apr_palloc(p, sizeof(*b));
     b->p = p;
 
     APR_RING_INIT(&b->list, apr_bucket, link);
