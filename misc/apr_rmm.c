@@ -325,13 +325,11 @@ static const apr_size_t grain = sizeof(union grainbit);
 
 APU_DECLARE(apr_rmm_off_t) apr_rmm_malloc(apr_rmm_t *rmm, apr_size_t reqsize)
 {
-    apr_status_t rv;
     apr_rmm_off_t this;
     
     reqsize = (1 + (reqsize - 1) / grain) * grain;
 
-    if ((rv = APR_ANYLOCK_LOCK(&rmm->lock)) != APR_SUCCESS)
-        return rv;
+    APR_ANYLOCK_LOCK(&rmm->lock);
 
     this = find_block_of_size(rmm, reqsize + sizeof(rmm_block_t));
 
@@ -346,13 +344,11 @@ APU_DECLARE(apr_rmm_off_t) apr_rmm_malloc(apr_rmm_t *rmm, apr_size_t reqsize)
 
 APU_DECLARE(apr_rmm_off_t) apr_rmm_calloc(apr_rmm_t *rmm, apr_size_t reqsize)
 {
-    apr_status_t rv;
     apr_rmm_off_t this;
         
     reqsize = (1 + (reqsize - 1) / grain) * grain;
 
-    if ((rv = APR_ANYLOCK_LOCK(&rmm->lock)) != APR_SUCCESS)
-        return rv;
+    APR_ANYLOCK_LOCK(&rmm->lock);
 
     this = find_block_of_size(rmm, reqsize + sizeof(rmm_block_t));
 
@@ -379,15 +375,13 @@ APU_DECLARE(apr_rmm_off_t) apr_rmm_realloc(apr_rmm_t *rmm, void *entity,
     reqsize = (1 + (reqsize - 1) / grain) * grain;
     old = apr_rmm_offset_get(rmm, entity);
 
-    if ((this = apr_rmm_malloc(rmm, reqsize)) < 0) {
+    if ((this = apr_rmm_malloc(rmm, reqsize)) == 0) {
         return this;
     }
 
-    if (old >= 0) {
-        memcpy(apr_rmm_addr_get(rmm, this),
-               apr_rmm_addr_get(rmm, old), reqsize);
-        apr_rmm_free(rmm, old);
-    }
+    memcpy(apr_rmm_addr_get(rmm, this),
+           apr_rmm_addr_get(rmm, old), reqsize);
+    apr_rmm_free(rmm, old);
 
     return this;
 }
