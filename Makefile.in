@@ -13,7 +13,7 @@ TARGETS = delete-lib $(TARGET_LIB) delete-exports $(TARGET_EXPORTS)
 SUBDIRS = src . test build
 
 CLEAN_TARGETS = $(TARGET_EXPORTS)
-DISTCLEAN_TARGETS = config.cache config.log config.status config.sub \
+DISTCLEAN_TARGETS = config.cache config.log config.status \
 	include/private/apu_config.h include/private/apu_private.h \
 	include/apu.h export_vars.sh
 EXTRACLEAN_TARGETS = configure libtool aclocal.m4 \
