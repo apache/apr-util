@@ -56,13 +56,14 @@
 #define APR_BUCKETS_H
 
 #include "apu.h"
+#include "apr.h"
 #include "apr_network_io.h"
 #include "apr_file_io.h"
 #include "apr_general.h"
 #include "apr_mmap.h"
 #include "apr_errno.h"
 #include "apr_ring.h"
-#include "apr.h"
+#include "apr_sms.h"
 #if APR_HAVE_SYS_UIO_H
 #include <sys/uio.h>	/* for struct iovec */
 #endif
@@ -247,13 +248,10 @@ struct apr_bucket {
     /** type-dependent data hangs off this pointer */
     void *data;	
     /**
-     * Pointer to function used to free the bucket. This function should
-     * always be defined and it should be consistent with the memory
-     * function used to allocate the bucket. For example, if malloc() is 
-     * used to allocate the bucket, this pointer should point to free().
-     * @param e Pointer to the bucket being freed
+     * Pointer to SMS in which bucket is allocated.  Used when freeing
+     * the bucket and when allocating for private data structures.
      */
-    void (*free)(void *e);
+    apr_sms_t *sms;
 };
 
 /** A list of buckets */
@@ -274,6 +272,9 @@ struct apr_bucket_brigade {
      */
     APR_RING_HEAD(apr_bucket_list, apr_bucket) list;
 };
+
+/* temporary */
+APU_DECLARE_DATA extern apr_sms_t *apr_bucket_global_sms;
 
 typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
 
@@ -571,6 +572,8 @@ struct apr_bucket_heap {
     char    *base;
     /** how much memory was allocated */
     apr_size_t  alloc_len;
+    /** The SMS from which this structure was allocated */
+    apr_sms_t *sms;
 };
 
 typedef struct apr_bucket_pool apr_bucket_pool;
@@ -615,6 +618,8 @@ struct apr_bucket_mmap {
     apr_bucket_refcount  refcount;
     /** The mmap this sub_bucket refers to */
     apr_mmap_t *mmap;
+    /** The SMS from which this structure was allocated */
+    apr_sms_t *sms;
 };
 #endif
 
@@ -630,6 +635,8 @@ struct apr_bucket_file {
     /** The pool into which any needed structures should
      *  be created while reading from this file bucket */
     apr_pool_t *readpool;
+    /** The SMS that this structure was allocated from */
+    apr_sms_t *sms;
 };
 
 /*  *****  Bucket Brigade Functions  *****  */
@@ -822,7 +829,7 @@ APU_DECLARE(apr_status_t) apr_brigade_vprintf(apr_bucket_brigade *b,
  */
 #define apr_bucket_destroy(e) do {					\
         (e)->type->destroy((e)->data);					\
-        (e)->free(e);							\
+        apr_sms_free((e)->sms, (e));					\
     } while (0)
 
 /**
