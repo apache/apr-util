@@ -3,7 +3,7 @@ VPATH = @srcdir@
 INCLUDES = @APRUTIL_PRIV_INCLUDES@ @APR_INCLUDES@ @APRUTIL_INCLUDES@
 
 PROGRAMS = testall testdbm testdate testmd4 testmd5 testxml testrmm \
-	   testreslist testqueue
+	   testreslist testqueue testxlate
 TARGETS = $(PROGRAMS)
 
 APRUTIL_DOTTED_VERSION=@APRUTIL_DOTTED_VERSION@
@@ -65,6 +65,11 @@ testqueue_OBJECTS = testqueue.lo
 testqueue_LDADD =  $(TARGET_LIB_PATH)
 testqueue: $(testqueue_OBJECTS) $(testqueue_LDADD)
 	$(LINK) $(APRUTIL_LDFLAGS) $(testqueue_OBJECTS) $(testqueue_LDADD) $(PROGRAM_DEPENDENCIES)
+
+testxlate_OBJECTS = testxlate.lo
+testxlate_LDADD =  $(TARGET_LIB_PATH)
+testxlate: $(testxlate_OBJECTS) $(testxlate_LDADD)
+	$(LINK) $(APRUTIL_LDFLAGS) $(testxlate_OBJECTS) $(testxlate_LDADD) $(PROGRAM_DEPENDENCIES)
 
 testall_OBJECTS = teststrmatch.lo testuri.lo testuuid.lo abts.lo testutil.lo \
 	testbuckets.lo testpass.lo

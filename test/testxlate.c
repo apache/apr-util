@@ -46,13 +46,14 @@ static int test_conversion (apr_xlate_t *convset,
 {
     static char buf[1024];
     int retcode = 0;
-    apr_size_t inbytes_left = strlen(inbuf) + 1;
+    apr_size_t inbytes_left = strlen(inbuf);
     apr_size_t outbytes_left = sizeof(buf) - 1;
     apr_status_t status = apr_xlate_conv_buffer(convset,
                                                 inbuf,
                                                 &inbytes_left,
                                                 buf,
                                                 &outbytes_left);
+    buf[sizeof(buf) - outbytes_left - 1] = '\0';
     retcode |= check_status(status, "apr_xlate_conv_buffer");
     if ((!status || APR_STATUS_IS_INCOMPLETE(status))
         && strcmp(buf, expected))
