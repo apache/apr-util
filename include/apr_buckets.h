@@ -209,8 +209,11 @@ struct ap_bucket_brigade {
     apr_pool_t *p;
     /** The buckets in the brigade are on this list. */
     /*
-     * XXX: the ap_bucket_list tag shouldn't me necessary but
-     * aparrently without it this fails to compile on Windows.
+     * XXX: the ap_bucket_list structure doesn't actually need a name tag
+     * because it has no existence independent of struct ap_bucket_brigade;
+     * the ring macros are designed so that you can leave the name tag
+     * argument empty in this situation but apparently the Windows compiler
+     * doesn't like that.
      */
     AP_RING_HEAD(ap_bucket_list, ap_bucket) list;
 };
