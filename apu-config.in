@@ -152,9 +152,7 @@ while test $# -gt 0; do
     ;;
     --libs)
     if test "$location" = "installed" && test -f $prefix/lib/libexpat.la; then
-      TMP_BUILDDIR=`echo "$APU_BUILD_DIR/xml/expat" | sed 's/\\//\\\\\\//g'`
-      TMP_PREFIX=`echo $prefix | sed 's/\\//\\\\\\//g'`
-      LIBS=`echo "$LIBS" | sed "s/$TMP_BUILDDIR/$TMP_PREFIX/g"`
+      LIBS=`echo "$LIBS" | sed "s $APU_BUILD_DIR/xml/expat $prefix g"`
     fi
     flags="$flags $LIBS"
     ;;
