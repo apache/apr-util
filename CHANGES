@@ -1,5 +1,9 @@
 Changes with APR-util 0.9.2
 
+  *) Fix the APR_BUCKET_IS_foo() macros so they parenthesize their parameter.
+     This fixes compile problems with some types of parameters.
+     [Jim Carlson <jcarlson@jnous.com>]
+
   *) Queue overwrite, we now return the item pushed, not a reference to it. 
      [Paul Marquis <PMarquis@pobox.com, Jacob Lewallen <jlwalle@cs.ucr.edu>]
 
