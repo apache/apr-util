@@ -27,7 +27,7 @@
 
 static void test_str(abts_case *tc, void *data)
 {
-    apr_pool_t *pool = (apr_pool_t *)data;
+    apr_pool_t *pool = p;
     const apr_strmatch_pattern *pattern;
     const apr_strmatch_pattern *pattern_nocase;
     const apr_strmatch_pattern *pattern_onechar;
@@ -82,15 +82,9 @@ static void test_str(abts_case *tc, void *data)
 
 abts_suite *teststrmatch(abts_suite *suite)
 {
-    apr_pool_t *pool;
-
     suite = ADD_SUITE(suite);
 
-    apr_pool_create(&pool, NULL);
-
-    abts_run_test(suite, test_str, pool);
-
-    apr_pool_destroy(pool);
+    abts_run_test(suite, test_str, NULL);
 
     return suite;
 }
