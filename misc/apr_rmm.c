@@ -79,8 +79,6 @@ struct apr_rmm_t {
     apr_anylock_t lock;
 };
 
-#define MIN_BLK_SIZE 128
-
 static apr_rmm_off_t find_block_by_offset(apr_rmm_t *rmm, apr_rmm_off_t next, 
                                           apr_rmm_off_t find, int includes)
 {
@@ -99,7 +97,7 @@ static apr_rmm_off_t find_block_by_offset(apr_rmm_t *rmm, apr_rmm_off_t next,
         prev = next;
         next = blk->next;
     }
-    return 0;
+    return includes ? prev : 0;
 }
 
 static apr_rmm_off_t find_block_of_size(apr_rmm_t *rmm, apr_size_t size)
@@ -128,7 +126,7 @@ static apr_rmm_off_t find_block_of_size(apr_rmm_t *rmm, apr_size_t size)
         next = blk->next;
     }
 
-    if (bestsize - size > MIN_BLK_SIZE) {
+    if (bestsize - size > sizeof(struct rmm_block_t*)) {
         struct rmm_block_t *blk = (rmm_block_t*)((char*)rmm->base + best);
         struct rmm_block_t *new = (rmm_block_t*)((char*)rmm->base + best + size);
 
