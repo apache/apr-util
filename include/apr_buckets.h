@@ -337,6 +337,22 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
  *	    ...
  * 	}
  * </pre>
+ * @warning Be aware that you *cannot* change the value of e within
+ * the foreach loop, nor can you destroy or otherwise modify the
+ * bucket pointed to by e.  If you do, then APR_BRIGADE_FOREACH
+ * will have no way to find out what bucket to use for its next
+ * iteration.  The reason for this can be seen by looking closely
+ * at the equivalent loops given in the tip above.  So, for example,
+ * if you are writing a loop that empties out a brigade one bucket
+ * at a time, APR_BRIGADE_FOREACH just won't work for you.  Do it
+ * by hand, like so:
+ * <pre>
+ *      while (!APR_BRIGADE_EMPTY(b)) {
+ *          e = APR_BRIGADE_FIRST(b);
+ *          ...
+ *          apr_bucket_delete(e);
+ *      }
+ * </pre>
  * @deffunc void APR_BRIGADE_FOREACH(apr_bucket *e, apr_bucket_brigade *b)
  */
 #define APR_BRIGADE_FOREACH(e, b)					\
