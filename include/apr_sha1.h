@@ -119,18 +119,18 @@ APU_DECLARE(void) apr_sha1_base64(const char *clear, int len, char *out);
 /**
  * Initialize the SHA digest
  * @param context The SHA context to initialize
- * @deffunc void apr_SHA1Init(apr_sha1_ctx_t *context);
+ * @deffunc void apr_sha1_init(apr_sha1_ctx_t *context);
  */
-APU_DECLARE(void) apr_SHA1Init(apr_sha1_ctx_t *context);
+APU_DECLARE(void) apr_sha1_init(apr_sha1_ctx_t *context);
 
 /**
  * Update the SHA digest
  * @param context The SHA1 context to update
  * @param input The buffer to add to the SHA digest
  * @param inputLen The length of the input buffer
- * @deffunc void apr_SHA1Update(apr_sha1_ctx_t *context, const char *input, unsigned int inputLen)
+ * @deffunc void apr_sha1_update(apr_sha1_ctx_t *context, const char *input, unsigned int inputLen)
  */
-APU_DECLARE(void) apr_SHA1Update(apr_sha1_ctx_t *context, const char *input,
+APU_DECLARE(void) apr_sha1_update(apr_sha1_ctx_t *context, const char *input,
                                 unsigned int inputLen);
 
 /**
@@ -138,9 +138,9 @@ APU_DECLARE(void) apr_SHA1Update(apr_sha1_ctx_t *context, const char *input,
  * @param context The SHA1 context to update
  * @param input The buffer to add to the SHA digest
  * @param inputLen The length of the input buffer
- * @deffunc void apr_SHA1Update_binary(apr_sha1_ctx_t *context, const unsigned char *input, unsigned int inputLen)
+ * @deffunc void apr_sha1_update_binary(apr_sha1_ctx_t *context, const unsigned char *input, unsigned int inputLen)
  */
-APU_DECLARE(void) apr_SHA1Update_binary(apr_sha1_ctx_t *context,
+APU_DECLARE(void) apr_sha1_update_binary(apr_sha1_ctx_t *context,
                                        const unsigned char *input,
                                        unsigned int inputLen);
 
@@ -148,9 +148,9 @@ APU_DECLARE(void) apr_SHA1Update_binary(apr_sha1_ctx_t *context,
  * Finish computing the SHA digest
  * @param digest the output buffer in which to store the digest
  * @param context The context to finalize
- * @deffunc void apr_SHA1Final(unsigned char digest[APR_SHA1_DIGESTSIZE], apr_sha1_ctx_t *context)
+ * @deffunc void apr_sha1_final(unsigned char digest[APR_SHA1_DIGESTSIZE], apr_sha1_ctx_t *context)
  */
-APU_DECLARE(void) apr_SHA1Final(unsigned char digest[APR_SHA1_DIGESTSIZE],
+APU_DECLARE(void) apr_sha1_final(unsigned char digest[APR_SHA1_DIGESTSIZE],
                                apr_sha1_ctx_t *context);
 
 #ifdef __cplusplus

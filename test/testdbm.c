@@ -135,9 +135,9 @@ int main(int argc, const char * const * argv)
     const char *optarg;
 
     (void) apr_initialize();
-    apr_create_pool(&pool, NULL);
+    apr_pool_create(&pool, NULL);
 
-    (void) apr_initopt(&os, pool, argc, argv);
+    (void) apr_getopt_init(&os, pool, argc, argv);
 
     progname = argv[0];
 
@@ -160,7 +160,7 @@ int main(int argc, const char * const * argv)
     os->ind++;
     doit(act, argv[os->ind], pool);
 
-    apr_destroy_pool(pool);
+    apr_pool_destroy(pool);
     apr_terminate();
     return 0;
 }

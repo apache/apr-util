@@ -95,10 +95,10 @@ link##_DECLARE(void) ns##_hook_##name(ns##_HOOK_##name##_t *pf,const char * cons
     ns##_LINK_##name##_t *pHook; \
     if(!_hooks.link_##name) \
 	{ \
-	_hooks.link_##name=apr_make_array(apr_global_hook_pool,1,sizeof(ns##_LINK_##name##_t)); \
+	_hooks.link_##name=apr_array_make(apr_global_hook_pool,1,sizeof(ns##_LINK_##name##_t)); \
 	apr_hook_sort_register(#name,&_hooks.link_##name); \
 	} \
-    pHook=apr_push_array(_hooks.link_##name); \
+    pHook=apr_array_push(_hooks.link_##name); \
     pHook->pFunc=pf; \
     pHook->aszPredecessors=aszPre; \
     pHook->aszSuccessors=aszSucc; \
