@@ -48,7 +48,7 @@ delete-exports:
 	    fi \
 	fi
 
-$(TARGET_EXPORTS):
+$(TARGET_EXPORTS): include/*.h
 	$(AWK) -f @APR_SOURCE_DIR@/helpers/make_export.awk include/*.h > $@ ;
 
 docs:
