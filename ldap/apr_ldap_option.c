@@ -242,8 +242,7 @@ static int option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
     /* Microsoft SDK */
 #if APR_HAS_MICROSOFT_LDAPSDK
     if (tls == APR_LDAP_NONE) {
-        mode = 0;
-        result->rc = ldap_set_option(ldap, LDAP_OPT_SSL, &mode);
+        result->rc = ldap_set_option(ldap, LDAP_OPT_SSL, LDAP_OPT_OFF);
         if (result->rc != LDAP_SUCCESS) {
             result->reason = "LDAP: an attempt to set LDAP_OPT_SSL off "
                              "failed.";
@@ -251,8 +250,7 @@ static int option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
         }
     }
     else if (tls == APR_LDAP_SSL) {
-        mode = 1;
-        result->rc = ldap_set_option(ldap, LDAP_OPT_SSL, &mode);
+        result->rc = ldap_set_option(ldap, LDAP_OPT_SSL, LDAP_OPT_ON);
         if (result->rc != LDAP_SUCCESS) {
             result->reason = "LDAP: an attempt to set LDAP_OPT_SSL on "
                              "failed.";
@@ -514,7 +512,7 @@ static int option_set_cert(apr_pool_t *pool, LDAP *ldap,
     /* Microsoft SDK use the registry certificate store - error out
      * here with a message explaining this. */
     result->reason = "LDAP: CA certificates cannot be set using this method, "
-                     "as they are stored in the registry instead."
+                     "as they are stored in the registry instead.";
     result->rc = -1;
 #endif
 
