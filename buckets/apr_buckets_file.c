@@ -240,10 +240,6 @@ static apr_status_t file_bucket_setaside(apr_bucket *data, apr_pool_t *reqpool)
     apr_file_t *fd = NULL;
     apr_file_t *f = a->fd;
     apr_pool_t *curpool = apr_file_pool_get(f);
-#if APR_HAS_MMAP
-    apr_size_t filelength = data->length;  /* bytes remaining in file past offset */
-    apr_off_t fileoffset = data->start;
-#endif
 
     if (apr_pool_is_ancestor(curpool, reqpool)) {
         return APR_SUCCESS;
@@ -253,12 +249,7 @@ static apr_status_t file_bucket_setaside(apr_bucket *data, apr_pool_t *reqpool)
         a->readpool = reqpool;
     }
 
-#if APR_HAS_MMAP
-    if (file_make_mmap(data, filelength, fileoffset, reqpool)) {
-        return APR_SUCCESS;
-    }
-#endif
-    apr_file_dup(&fd, f, reqpool);
+    apr_file_setaside(&fd, f, reqpool);
     a->fd = fd;
     return APR_SUCCESS;
 }
