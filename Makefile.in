@@ -17,20 +17,23 @@ APRUTIL_LIBS = @APRUTIL_LIBS@
 TARGET_LIB = lib@APRUTIL_LIBNAME@.la
 INSTALL_SUBDIRS = @APR_XML_DIR@
 
-TARGETS = delete-lib $(TARGET_LIB) delete-exports aprutil.exp export_vars.h
+TARGETS = $(TARGET_LIB) aprutil.exp export_vars.h
 
 # bring in rules.mk for standard functionality
 @INCLUDE_RULES@
+@INCLUDE_OUTPUTS@
 
-SUBDIRS = buckets crypto dbm encoding hooks ldap uri xml misc strmatch xlate
-CLEAN_SUBDIRS = . test
+CLEAN_SUBDIRS = test
 
 CLEAN_TARGETS = exports.c export_vars.h aprutil.exp
 DISTCLEAN_TARGETS = config.cache config.log config.status libtool \
 	include/private/apu_config.h include/private/apu_private.h \
 	include/private/apu_select_dbm.h include/apr_ldap.h include/apu.h \
-	export_vars.sh apu-config
-EXTRACLEAN_TARGETS = configure aclocal.m4 include/private/apu_config.h.in
+	export_vars.sh apu-config build/rules.mk
+EXTRACLEAN_TARGETS = configure aclocal.m4 include/private/apu_config.h.in \
+	exports.c export_vars.h uri/uri_delims.h build-outputs.mk \
+	build/apr_common.m4 build/find_apr.m4 build/install.sh \
+	build/config.guess build/config.sub
 
 prefix=@prefix@
 exec_prefix=@exec_prefix@
@@ -40,17 +43,6 @@ includedir=@includedir@
 top_srcdir=@abs_srcdir@
 top_blddir=@abs_builddir@
 
-EXPORT_FILES = $(top_srcdir)/include/*.h
-
-delete-lib:
-	@if test -f $(TARGET_LIB); then \
-	    objects="`find $(SUBDIRS) -name expat -prune -o -name '*.@so_ext@' -a -newer $(TARGET_LIB) -print`" ; \
-	    if test -n "$$objects"; then \
-		echo Found newer objects. Will relink $(TARGET_LIB). ; \
-		echo $(RM) -f $(TARGET_LIB) ; \
-		$(RM) -f $(TARGET_LIB) ; \
-	    fi; \
-	fi
 
 install: $(TARGET_LIB)
 	if [ ! -d $(DESTDIR)$(includedir) ]; then \
@@ -75,27 +67,14 @@ install: $(TARGET_LIB)
 	$(LIBTOOL) --mode=install cp apu-config $(DESTDIR)$(bindir)
 	chmod 755 $(DESTDIR)$(bindir)/apu-config
 
-$(TARGET_LIB):
-	@objects="`find $(SUBDIRS) -name expat -prune -o -name 'gen_uri_delims.@so_ext@' -prune -o -name '*.@so_ext@' -print`"; \
-	    tmpcmd="$(LINK) @lib_target@ @EXTRA_OS_LINK@"; \
-	    echo $$tmpcmd; \
-	    $$tmpcmd && touch $@
+$(TARGET_LIB): $(OBJECTS)
+	$(LINK) @lib_target@ $(ALL_LIBS)
 
-delete-exports:
-	@if test -f aprutil.exp; then \
-	    headers="`find include/*.h -newer aprutil.exp -print`" ; \
-	    if test -n "$$headers"; then \
-		echo Found newer headers. Will rebuild aprutil.exp. ; \
-		echo $(RM) -f aprutil.exp exports.c export_vars.h ; \
-		$(RM) -f aprutil.exp exports.c export_vars.h; \
-	    fi \
-	fi
+exports.c: $(HEADERS)
+	$(AWK) -f @APR_SOURCE_DIR@/build/make_exports.awk $^ > $@
 
-exports.c:
-	$(AWK) -f @APR_SOURCE_DIR@/build/make_exports.awk $(EXPORT_FILES) > $@
-
-export_vars.h:
-	$(AWK) -f @APR_SOURCE_DIR@/build/make_var_export.awk $(EXPORT_FILES) > $@
+export_vars.h: $(HEADERS)
+	$(AWK) -f @APR_SOURCE_DIR@/build/make_var_export.awk $^ > $@
 
 aprutil.exp: exports.c export_vars.h
 	@echo "#! libaprutil.so" > $@
@@ -109,7 +88,3 @@ dox:
 
 check: $(TARGET_LIB)
 	(cd test && $(MAKE) check)
-
-
-.PHONY: delete-lib delete-exports
-.NOTPARALLEL: delete-lib delete-exports
