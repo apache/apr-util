@@ -68,6 +68,9 @@ APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool)
 #if APU_HAVE_PGSQL
     DRIVER_LOAD("pgsql", apr_dbd_pgsql_driver, pool);
 #endif
+#if APU_HAVE_SQLITE2
+    DRIVER_LOAD("sqlite2", apr_dbd_sqlite2_driver, pool);
+#endif
 #if APU_HAVE_SOME_OTHER_BACKEND
     DRIVER_LOAD("firebird", apr_dbd_other_driver, pool);
 #endif
