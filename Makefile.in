@@ -70,7 +70,7 @@ install: $(TARGET_LIB)
 	$(LIBTOOL) --mode=install cp apu-config $(DESTDIR)$(bindir)
 	chmod 755 $(DESTDIR)$(bindir)/apu-config
 	list='$(INSTALL_SUBDIRS)'; for i in $$list; do \
-		( cd $$i ; $(MAKE) root=$(DESTDIR) install ); \
+		( cd $$i ; $(MAKE) DESTDIR=$(DESTDIR) install ); \
 	done
 
 $(TARGET_LIB):
