@@ -1,6 +1,6 @@
 
 top_builddir=@top_builddir@
-INCLUDES=-I$(top_builddir)/include -I$(top_builddir)/include/private -I$(top_builddir)/../apr/include -I$(top_builddir)/xml/expat/lib
+INCLUDES=-I$(top_builddir)/include -I$(top_builddir)/include/private -I$(top_builddir)/../apr/include -I$(top_builddir)/xml/expat/lib -I$(srcdir)../../apr/include -I$(srcdir)../include -I$(srcdir)../../include/private -I$(srcdir)/lib
 
 TARGETS = apr_xml.lo
 
