@@ -196,6 +196,7 @@ MAKEFILES="Makefile buckets/Makefile crypto/Makefile dbm/Makefile dbm/sdbm/Makef
 AC_OUTPUT([
     export_vars.sh
     apu-config
+    build/pkg/pkginfo
     include/private/apu_select_dbm.h
     include/apr_ldap.h
     include/apu.h
