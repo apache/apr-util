@@ -341,6 +341,7 @@ APU_DECLARE(apr_time_t) apr_date_parse_http(const char *date)
  *     Sun, 06 Nov 94 8:49:37 GMT     ; Unknown [Elm 70.85]
  *     Sun, 6 Nov 94 8:49:37 GMT      ; Unknown [Elm 70.85] 
  *     Mon,  7 Jan 2002 07:21:22 GMT  ; Unknown [Postfix]
+ *     Sun, 06-Nov-1994 08:49:37 GMT  ; RFC 850 with four digit years
  *
  */
 
@@ -563,6 +564,24 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(const char *date)
         monstr = date + 3;
         timstr = date + 12;
         gmtstr = date + 20;
+
+        TIMEPARSE_STD(ds, timstr);
+    }
+    else if (apr_date_checkmask(date, "##-@$$-#### ##:##:## *")) {
+       /* RFC 1123 with dashes instead of spaces between date/month/year
+        * This also looks like RFC 850 with four digit years.
+        */
+        ds.tm_year = ((date[7] - '0') * 10 + (date[8] - '0') - 19) * 100;
+        if (ds.tm_year < 0)
+            return APR_DATE_BAD;
+
+        ds.tm_year += ((date[9] - '0') * 10) + (date[10] - '0');
+
+        ds.tm_mday = ((date[0] - '0') * 10) + (date[1] - '0');
+
+        monstr = date + 3;
+        timstr = date + 12;
+        gmtstr = date + 21;
 
         TIMEPARSE_STD(ds, timstr);
     }
