@@ -50,8 +50,8 @@ APU_DECLARE(int) apr_ldap_ssl_init(const char *cert_auth_file,
 
         /* Netscape sdk only supports a cert7.db file 
          */
-        if (st->cert_file_type == LDAP_CA_TYPE_CERT7_DB) {
-            rc = ldapssl_client_init(st->cert_auth_file, NULL);
+        if (cert_file_type == APR_LDAP_CA_TYPE_CERT7_DB) {
+            rc = ldapssl_client_init(cert_auth_file, NULL);
         }
         else {
             *reason = "LDAP: Invalid certificate type: "
@@ -68,12 +68,12 @@ APU_DECLARE(int) apr_ldap_ssl_init(const char *cert_auth_file,
 
             rc = ldapssl_client_init(NULL, NULL);
             if (LDAP_SUCCESS == rc) {
-                if (st->cert_file_type == LDAP_CA_TYPE_BASE64) {
-                    rc = ldapssl_add_trusted_cert(st->cert_auth_file, 
+                if (cert_file_type == APR_LDAP_CA_TYPE_BASE64) {
+                    rc = ldapssl_add_trusted_cert((void*)cert_auth_file, 
                                                   LDAPSSL_CERT_FILETYPE_B64);
                 }
                 else {
-                    rc = ldapssl_add_trusted_cert(st->cert_auth_file, 
+                    rc = ldapssl_add_trusted_cert((void*)cert_auth_file, 
                                                   LDAPSSL_CERT_FILETYPE_DER);
                 }
 
@@ -84,7 +84,7 @@ APU_DECLARE(int) apr_ldap_ssl_init(const char *cert_auth_file,
         }
         else {
             *reason = "LDAP: Invalid certificate type: "
-                             "DER or BASE64 type required");
+                             "DER or BASE64 type required";
             rc = -1;
         }
 
