@@ -1,4 +1,4 @@
-/* Copyright 2001-2004 The Apache Software Foundation
+/* Copyright 2000-2004 The Apache Software Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,211 +27,92 @@
  * documentation and/or software.
  */
 
-
-#include "apr.h"
-#include "apr_general.h"
-#include "apr_file_io.h"
-#include "apr_time.h"
-#include "apr_md4.h"
-
+#include <assert.h>
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 
-/*
- * This is a MD4 test program based on the code published in RFC 1320.
- * When run as ./testmd4 -x it should produce the following output:
+#include "apr_errno.h"
+#include "apr_md4.h"
+#include "apr_file_io.h"
 
-MD4 test suite:
-MD4 ("") = 31d6cfe0d16ae931b73c59d7e0c089c0
-MD4 ("a") = bde52cb31de33e46245e05fbdbd6fb24
-MD4 ("abc") = a448017aaf21d8525fc10ae87aa6729d
-MD4 ("message digest") = d9130a8164549fe818874806e1c7014b
-MD4 ("abcdefghijklmnopqrstuvwxyz") = d79e1c308aa5bbcdeea8ed63df412da9
-MD4 ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789") = 043f8582f241db351ce627e153e7f0e4
-MD4 ("12345678901234567890123456789012345678901234567890123456789012345678901234567890") = e33b4ddc9c38f2199c3e7b164fcc0536
+#include "abts.h"
+#include "testutil.h"
 
+static struct {
+        const char *string;
+        const char *md4sum;
+} md4sums[] = 
+{
+/* 
+* Taken from the old md4 test suite.
+* MD4 ("") = 31d6cfe0d16ae931b73c59d7e0c089c0
+* MD4 ("a") = bde52cb31de33e46245e05fbdbd6fb24
+* MD4 ("abc") = a448017aaf21d8525fc10ae87aa6729d
+* MD4 ("message digest") = d9130a8164549fe818874806e1c7014b
+* MD4 ("abcdefghijklmnopqrstuvwxyz") = d79e1c308aa5bbcdeea8ed63df412da9
+* MD4 ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
+* MD4 ("12345678901234567890123456789012345678901234567890123456789012345678901234567890") = e33b4ddc9c38f2199c3e7b164fcc0536
+* 
 */
+        {"", 
+         "\x31\xd6\xcf\xe0\xd1\x6a\xe9\x31\xb7\x3c\x59\xd7\xe0\xc0\x89\xc0"},
+        {"a", 
+         "\xbd\xe5\x2c\xb3\x1d\xe3\x3e\x46\x24\x5e\x05\xfb\xdb\xd6\xfb\x24"},
+        {"abc", 
+         "\xa4\x48\x01\x7a\xaf\x21\xd8\x52\x5f\xc1\x0a\xe8\x7a\xa6\x72\x9d"},
+        {"message digest", 
+         "\xd9\x13\x0a\x81\x64\x54\x9f\xe8\x18\x87\x48\x06\xe1\xc7\x01\x4b"},
+        {"abcdefghijklmnopqrstuvwxyz", 
+         "\xd7\x9e\x1c\x30\x8a\xa5\xbb\xcd\xee\xa8\xed\x63\xdf\x41\x2d\xa9"},
+        {"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", 
+         "\x04\x3f\x85\x82\xf2\x41\xdb\x35\x1c\xe6\x27\xe1\x53\xe7\xf0\xe4"},
+        {"12345678901234567890123456789012345678901234567890123456789012345678901234567890", 
+         "\xe3\x3b\x4d\xdc\x9c\x38\xf2\x19\x9c\x3e\x7b\x16\x4f\xcc\x05\x36"}
+};
 
-/* Length of test block, number of test blocks.
- */
-#define TEST_BLOCK_LEN 1000
-#define TEST_BLOCK_COUNT 1000
+static int num_sums = sizeof(md4sums) / sizeof(md4sums[0]); 
+static int count;
 
-apr_pool_t *local_pool;
-apr_file_t *in, *out, *err;
-
-/* Prints a message digest in hexadecimal.
- */
-static void MDPrint (unsigned char digest[APR_MD4_DIGESTSIZE])
+#if 0
+static int MDStringComp(const void *string, const void *sum)
 {
-    unsigned int i;
+        apr_md4_ctx_t context;
+        unsigned char digest[APR_MD4_DIGESTSIZE];
+        unsigned int len = strlen(string);
 
-    for (i = 0; i < APR_MD4_DIGESTSIZE; i++)
-        apr_file_printf(out, "%02x", digest[i]);
-}
-
-/* Digests a string and prints the result.
- */
-static void MDString(char *string)
-{
-    apr_md4_ctx_t context;
-    unsigned char digest[APR_MD4_DIGESTSIZE];
-    unsigned int len = strlen(string);
-
-    apr_md4_init(&context);
-    apr_md4_update(&context, (unsigned char *)string, len);
-    apr_md4_final(digest, &context);
-
-    apr_file_printf (out, "MD4 (\"%s\") = ", string);
-    MDPrint(digest);
-    apr_file_printf (out, "\n");
-}
-
-/* Measures the time to digest TEST_BLOCK_COUNT TEST_BLOCK_LEN-byte
-     blocks.
- */
-static void MDTimeTrial(void)
-{
-    apr_md4_ctx_t context;
-    apr_time_t endTime, startTime;
-    apr_interval_time_t timeTaken;
-    unsigned char block[TEST_BLOCK_LEN], digest[APR_MD4_DIGESTSIZE];
-    unsigned int i;
-
-    apr_file_printf(out, "MD4 time trial. Digesting %d %d-byte blocks ...", 
-                     TEST_BLOCK_LEN, TEST_BLOCK_COUNT);
-
-    /* Initialize block */
-    for (i = 0; i < TEST_BLOCK_LEN; i++)
-        block[i] = (unsigned char)(i & 0xff);
-
-    /* Start timer */
-    startTime = apr_time_now();
-
-    /* Digest blocks */
-    apr_md4_init(&context);
-    for (i = 0; i < TEST_BLOCK_COUNT; i++)
-        apr_md4_update(&context, block, TEST_BLOCK_LEN);
-
-    apr_md4_final(digest, &context);
-
-    /* Stop timer */
-    endTime = apr_time_now();
-    timeTaken = endTime - startTime;
-
-    apr_file_printf(out, " done\n");
-    apr_file_printf(out, "Digest = ");
-    MDPrint(digest);
-
-    apr_file_printf(out, "\nTime = %" APR_TIME_T_FMT " seconds\n", timeTaken);
-    apr_file_printf(out, "Speed = % " APR_TIME_T_FMT " bytes/second\n",
-                    TEST_BLOCK_LEN * TEST_BLOCK_COUNT/timeTaken);
-}
-
-/* Digests a reference suite of strings and prints the results.
- */
-static void MDTestSuite(void)
-{
-    apr_file_printf(out, "MD4 test suite:\n");
-
-    MDString("");
-    MDString("a");
-    MDString("abc");
-    MDString("message digest");
-    MDString("abcdefghijklmnopqrstuvwxyz");
-    MDString("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
-    MDString("12345678901234567890123456789012345678901234567890123456789012345678901234567890");
-}
-
-/* Digests a file and prints the result.
- */
-static void MDFile(char *filename)
-{
-    apr_file_t *file;
-    apr_md4_ctx_t context;
-    apr_size_t len = 1024;
-    unsigned char buffer[1024], digest[APR_MD4_DIGESTSIZE];
-
-    if (apr_file_open(&file, filename, APR_READ, APR_OS_DEFAULT, local_pool) 
-        != APR_SUCCESS)
-        apr_file_printf(err, "%s can't be opened\n", filename);
-    else {
         apr_md4_init(&context);
-        while (apr_file_read(file, buffer, &len) != APR_SUCCESS)
-        {
-            apr_md4_update(&context, buffer, len);
-            len = 1024;
-        }
+        apr_md4_update(&context, (unsigned char *)string, len);
         apr_md4_final(digest, &context);
+        return (memcmp(digest, sum, APR_MD4_DIGESTSIZE));
 
-        apr_file_close(file);
+}
+#endif
 
-        apr_file_printf(out, "MD4 (%s) = ", filename);
-        MDPrint(digest);
-        apr_file_printf(out, "\n");
-    }
+static void test_md4sum(abts_case *tc, void *data)
+{
+        apr_md4_ctx_t context;
+        unsigned char digest[APR_MD4_DIGESTSIZE];
+        const void *string = md4sums[count].string;
+        const void *sum = md4sums[count].md4sum;
+        unsigned int len = strlen(string);
+
+        ABTS_ASSERT(tc, "apr_md4_init", (apr_md4_init(&context) == 0));
+        ABTS_ASSERT(tc, "apr_md4_update", 
+                    (apr_md4_update(&context, 
+                                    (unsigned char *)string, len) == 0));
+        
+        ABTS_ASSERT(tc, "apr_md4_final", (apr_md4_final(digest, &context) ==0));
+        ABTS_ASSERT(tc, "check for correct md4 digest", 
+                    (memcmp(digest, sum, APR_MD4_DIGESTSIZE) == 0));
 }
 
-/* Digests the standard input and prints the result.
- */
-static void MDFilter(void)
+abts_suite *testmd4(abts_suite *suite)
 {
-    apr_md4_ctx_t context;
-    apr_size_t len = 16;
-    unsigned char buffer[16], digest[16];
+        suite = ADD_SUITE(suite);
 
-    apr_md4_init(&context);
-    while (apr_file_read(in, buffer, &len) != APR_SUCCESS)
-    {
-        apr_md4_update(&context, buffer, len);
-        len = 16;
-    }
-    apr_md4_update(&context, buffer, len);
-    apr_md4_final(digest, &context);
+        for (count=0; count < num_sums; count++) {
+            abts_run_test(suite, test_md4sum, NULL);
+        }
 
-    MDPrint(digest);
-    apr_file_printf(out, "\n");
-}
-
-
-/* Main driver.
-
-   Arguments (may be any combination):
-     -sstring - digests string
-     -t       - runs time trial
-     -x       - runs test script
-     filename - digests file
-     (none)   - digests standard input
- */
-int main (int argc, char **argv)
-{
-    int i;
-
-    apr_initialize();
-    atexit(apr_terminate);
-
-    if (apr_pool_create(&local_pool, NULL) != APR_SUCCESS)
-        exit(-1);
-
-    apr_file_open_stdin(&in, local_pool); 
-    apr_file_open_stdout(&out, local_pool); 
-    apr_file_open_stderr(&err, local_pool); 
-
-    if (argc > 1)
-    {
-        for (i = 1; i < argc; i++)
-            if (argv[i][0] == '-' && argv[i][1] == 's')
-                MDString(argv[i] + 2);
-            else if (strcmp(argv[i], "-t") == 0)
-                MDTimeTrial();
-            else if (strcmp (argv[i], "-x") == 0)
-                MDTestSuite();
-            else
-                MDFile(argv[i]);
-    }
-    else
-        MDFilter();
-
-    return 0;
+        return suite;
 }

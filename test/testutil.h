@@ -47,5 +47,7 @@ abts_suite *testuri(abts_suite *suite);
 abts_suite *testuuid(abts_suite *suite);
 abts_suite *testbuckets(abts_suite *suite);
 abts_suite *testpass(abts_suite *suite);
+abts_suite *testmd4(abts_suite *suite);
+abts_suite *testmd5(abts_suite *suite);
 
 #endif /* APR_TEST_INCLUDES */
