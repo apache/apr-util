@@ -125,9 +125,9 @@ fi
 if test "$location" = "installed"; then
     LA_FILE="$libdir/lib${APRUTIL_LIBNAME}.la"
 
-        LIBS=`echo "$LIBS"     | sed "s $APU_BUILD_DIR/xml/expat $prefix g"`
-     LDFLAGS=`echo "$LDFLAGS"  | sed "s $APU_BUILD_DIR/xml/expat $prefix g"`
-    INCLUDES=`echo "$INCLUDES" | sed "s $APU_BUILD_DIR/xml/expat $prefix g"`
+        LIBS=`echo "$LIBS"     | sed -e "s $APU_BUILD_DIR/xml/expat $prefix g"`
+     LDFLAGS=`echo "$LDFLAGS"  | sed -e "s $APU_BUILD_DIR/xml/expat $prefix g"`
+    INCLUDES=`echo "$INCLUDES" | sed -e "s $APU_BUILD_DIR/xml/expat $prefix g" -e "s -I$prefix/lib  g"`
 else
     LA_FILE="$thisdir/lib${APRUTIL_LIBNAME}.la"
 fi
