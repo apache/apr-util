@@ -211,10 +211,6 @@ SOURCE=.\hooks\apr_hooks.c
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=.\ldap\apr_ldap_compat.c
-# End Source File
-# Begin Source File
-
 SOURCE=.\ldap\apr_ldap_init.c
 # End Source File
 # Begin Source File
