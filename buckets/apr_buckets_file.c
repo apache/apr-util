@@ -106,7 +106,7 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
         /* we need to protect ourselves in case we die while we've got the
          * file mmapped */
         apr_status_t status;
-        apr_pool_t *p = APR_GET_POOL(f);
+        apr_pool_t *p = apr_get_file_pool(f);
         if ((status = apr_mmap_create(&mm, f, s->start, e->length, 
                                       APR_MMAP_READ, p)) != APR_SUCCESS) {
             mm = NULL;
