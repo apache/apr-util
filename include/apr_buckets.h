@@ -506,7 +506,7 @@ struct apr_bucket_simple {
 
 typedef struct apr_bucket_pool apr_bucket_pool;
 /**
- * A bucket referring to data allocated out of a pool
+ * A bucket referring to data allocated from a pool
  */
 struct apr_bucket_pool {
     /** Number of buckets using this memory */
@@ -515,7 +515,7 @@ struct apr_bucket_pool {
      * modified, it is only used to free the bucket.
      */
     const char *base;
-    /** The pool the data was allocated out of */
+    /** The pool the data was allocated from */
     apr_pool_t  *p;
     /** This is a hack, because we call apr_destroy_bucket with the ->data
      *  pointer, so the pool cleanup needs to be registered with that pointer,
@@ -637,7 +637,7 @@ APU_DECLARE(apr_status_t) apr_brigade_length(apr_bucket_brigade *bb,
  * create an iovec of the elements in a bucket_brigade... return number 
  * of elements used.  This is useful for writing to a file or to the
  * network efficiently.
- * @param The bucket brigade to create the iovec out of
+ * @param The bucket brigade to create the iovec from
  * @param The iovec to create
  * @param The number of elements in the iovec
  * @return The number of iovec elements actually filled out.
@@ -732,7 +732,7 @@ APU_DECLARE(int) apr_brigade_vprintf(apr_bucket_brigade *b,
 /**
  * Initialize the core implemented bucket types.  Once this is done,
  * it is possible to add new bucket types to the server
- * @param p The pool to allocate the array out of.
+ * @param p The pool to allocate the array from.
  * @deffunc void apr_bucket_init_types(apr_pool_t *p)
  */
 APU_DECLARE(void) apr_bucket_init_types(apr_pool_t *p);
@@ -852,7 +852,7 @@ APU_DECLARE_DATA extern const apr_bucket_type_t apr_bucket_type_eos;
  */
 APU_DECLARE_DATA extern const apr_bucket_type_t apr_bucket_type_file;
 /**
- * The HEAP bucket type.  This bucket represents a data allocated out of the
+ * The HEAP bucket type.  This bucket represents a data allocated from the
  * heap.
  */
 APU_DECLARE_DATA extern const apr_bucket_type_t apr_bucket_type_heap;
@@ -864,7 +864,7 @@ APU_DECLARE_DATA extern const apr_bucket_type_t apr_bucket_type_mmap;
 #endif
 /**
  * The POOL bucket type.  This bucket represents a data that was allocated
- * out of a pool.  IF this bucket is still available when the pool is cleared,
+ * from a pool.  IF this bucket is still available when the pool is cleared,
  * the data is copied on to the heap.
  */
 APU_DECLARE_DATA extern const apr_bucket_type_t apr_bucket_type_pool;
@@ -1100,9 +1100,10 @@ APU_DECLARE(apr_bucket *)
                                     apr_size_t nbyte, int copy, apr_size_t *w);
 
 /**
- * Create a bucket referring to memory allocated out of a pool.
+ * Create a bucket referring to memory allocated from a pool.
+ *
  * @param buf The buffer to insert into the bucket
- * @param p The pool the memory was allocated out of
+ * @param p The pool the memory was allocated from
  * @return The new bucket, or NULL if allocation failed
  * @deffunc apr_bucket *apr_bucket_pool_create(const char *buf, apr_size_t *length, apr_pool_t *p)
  */
@@ -1114,7 +1115,7 @@ APU_DECLARE(apr_bucket *)
  * Make the bucket passed in a bucket refer to pool data
  * @param b The bucket to make into a pool bucket
  * @param buf The buffer to insert into the bucket
- * @param p The pool the memory was allocated out of
+ * @param p The pool the memory was allocated from
  * @return The new bucket, or NULL if allocation failed
  * @deffunc apr_bucket *apr_bucket_pool_make(apr_bucket *b, const char *buf, apr_size_t *length, apr_pool_t *p)
  */
