@@ -43,6 +43,9 @@ APU_DECLARE(int) apr_ldap_init(apr_pool_t *pool,
                                int secure,
                                apr_ldap_err_t **result_err);
 
+APU_DECLARE(int) apr_ldap_info(apr_pool_t *pool,
+                               apr_ldap_err_t **result_err);
+
 #endif /* APR_HAS_LDAP */
 
 #endif /* APR_LDAP_URL_H */
