@@ -1,5 +1,8 @@
 Changes with APR-util 1.0
 
+  *) Add SHA1 support to apr_password_validate.
+     [Paul Querna <chip force-elite.com>]
+
   *) Pass error codes returned from constructors all the way back to
      the reslist consumer. Also fix a minor reslist memory leak that could
      happen when a constructor returns an error code.  PR 23492.
