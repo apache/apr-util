@@ -62,7 +62,7 @@
  * @package Apache hooks functions
  */
 
-#define APR_DECLARE_EXTERNAL_HOOK(link,ret,name,args) \
+#define AP_DECLARE_EXTERNAL_HOOK(link,ret,name,args) \
 typedef ret HOOK_##name args; \
 link##_DECLARE(void) ap_hook_##name(HOOK_##name *pf, const char* const* aszPre, \
                                     const char * const *aszSucc, int nOrder); \
@@ -76,8 +76,8 @@ typedef struct _LINK_##name \
     int nOrder; \
     } LINK_##name;
 
-#define APR_DECLARE_HOOK(ret,name,args) \
-APR_DECLARE_EXTERNAL_HOOK(AP,ret,name,args)
+#define AP_DECLARE_HOOK(ret,name,args) \
+AP_DECLARE_EXTERNAL_HOOK(AP,ret,name,args)
 
 #define AP_HOOK_STRUCT(members) \
 static struct { members } _hooks;
