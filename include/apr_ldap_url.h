@@ -57,6 +57,7 @@
 
 #include "apr_ldap.h"
 
+#if APR_HAS_LDAP
 #if APR_HAS_LDAP_URL_PARSE
 
 #define apr_ldap_url_desc_t             LDAPURLDesc
@@ -115,5 +116,7 @@ APU_DECLARE(int) apr_ldap_url_parse(const char *url,
 APU_DECLARE(void) apr_ldap_free_urldesc(apr_ldap_url_desc_t *ludp);
 
 #endif /* ! APR_HAS_LDAP_URL_PARSE */
+
+#endif /* APR_HAS_LDAP */
 
 #endif /* APR_LDAP_URL_H */
