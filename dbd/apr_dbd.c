@@ -27,17 +27,21 @@
 static apr_hash_t *drivers = NULL;
 
 
-#if APR_HAS_DSO
+/* Once the autofoo supports building it for dynamic load, we can use
+ * #define APR_DSO_BUILD APR_HAS_DSO
+ */
+
+#if APR_DSO_BUILD
 #if APR_HAS_THREADS
 static apr_thread_mutex_t* mutex = NULL;
 #endif
 #else
 #define DRIVER_LOAD(name,driver,pool) \
     {   \
-        extern apr_dbd_driver_t *driver; \
-        apr_hash_set(drivers,name,APR_HASH_KEY_STRING,driver); \
-        if (driver->init) {     \
-            driver->init(pool); \
+        extern apr_dbd_driver_t driver; \
+        apr_hash_set(drivers,name,APR_HASH_KEY_STRING,&driver); \
+        if (driver.init) {     \
+            driver.init(pool); \
         }  \
     }
 #endif
@@ -47,7 +51,7 @@ APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool)
     apr_status_t ret;
     drivers = apr_hash_make(pool);
 
-#if APR_HAS_DSO
+#if APR_DSO_BUILD
 
 #if APR_HAS_THREADS
     ret = apr_thread_mutex_create(&mutex, APR_THREAD_MUTEX_DEFAULT, pool);
@@ -62,23 +66,8 @@ APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool)
 #if APU_HAVE_PGSQL
     DRIVER_LOAD("pgsql", apr_dbd_pgsql_driver, pool);
 #endif
-#if APU_HAVE_FIREBIRD
-    DRIVER_LOAD("firebird", apr_dbd_firebird_driver, pool);
-#endif
-#if APU_HAVE_MSQL
-    DRIVER_LOAD("msql", apr_dbd_msql_driver, pool);
-#endif
-#if APU_HAVE_DB2
-    DRIVER_LOAD("db2", apr_dbd_db2_driver, pool);
-#endif
-#if APU_HAVE_ODBC
-    DRIVER_LOAD("odbc", apr_dbd_odbc_driver, pool);
-#endif
-#if APU_HAVE_ORACLE
-    DRIVER_LOAD("oracle", apr_dbd_oracle_driver, pool);
-#endif
-#if APU_HAVE_MSSQL
-    DRIVER_LOAD("mssql", apr_dbd_mssql_driver, pool);
+#if APU_HAVE_SOME_OTHER_BACKEND
+    DRIVER_LOAD("firebird", apr_dbd_other_driver, pool);
 #endif
 #endif
     return ret;
@@ -86,7 +75,7 @@ APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool)
 APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
                                              apr_dbd_driver_t **driver)
 {
-#if APR_HAS_DSO
+#if APR_DSO_BUILD
     char path[80];
     apr_dso_handle_t *dlhandle = NULL;
 #endif
@@ -97,7 +86,7 @@ APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
         return APR_SUCCESS;
     }
 
-#if APR_HAS_DSO
+#if APR_DSO_BUILD
 
 #if APR_HAS_THREADS
     rv = apr_thread_mutex_lock(mutex);
@@ -131,7 +120,7 @@ unlock:
     apr_thread_mutex_unlock(mutex);
 #endif
 
-#else	/* APR_HAS_DSO - so if it wasn't already loaded, it's NOTIMPL */
+#else	/* APR_DSO_BUILD - so if it wasn't already loaded, it's NOTIMPL */
     rv = APR_ENOTIMPL;
 #endif
 
