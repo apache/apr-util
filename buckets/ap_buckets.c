@@ -163,55 +163,6 @@ APR_EXPORT(void) ap_brigade_catenate(ap_bucket_brigade *a,
     }
 }
 
-APR_EXPORT(void) ap_consume_buckets(ap_bucket_brigade *b, int nvec)
-{
-    int i;   
-
-    for (i=0; i < nvec; i++) {
-        if (b->head == b->tail) {
-            ap_bucket_destroy(b->head);
-            b->head = b->tail = NULL;
-            break;
-        }
-        b->head = b->head->next;
-        ap_bucket_destroy(b->head->prev);
-        b->head->prev = NULL;
-    }
-}
-#if 0
-APR_EXPORT(apr_status_t) ap_brigade_to_buff(apr_ssize_t *total_bytes,
-                                                 ap_bucket_brigade *b, 
-                                                 BUFF *iol)
-{
-    apr_status_t status;
-    int iov_used;
-    struct iovec vec[16];   /* seems like a reasonable number to me */
-    apr_ssize_t bytes = 0;
-
-    *total_bytes = 0;
-    do {
-        iov_used = ap_brigade_to_iovec(b, vec, 16);
-        status = iol_writev(iol, vec, iov_used, &bytes);
-
-        ap_consume_buckets(b, 16);
-
-        if (status != APR_SUCCESS) {
-            return status;
-        }
-        *total_bytes += bytes;
-    } while (iov_used == 16);
-    return APR_SUCCESS;
-}
-#endif
-
-APR_EXPORT(int) ap_get_bucket_len(ap_bucket *b)
-{
-    if (b) {
-        return b->length;
-    }
-    return 0;
-}    
-
 APR_EXPORT(int) ap_brigade_vputstrs(ap_bucket_brigade *b, va_list va)
 {
     ap_bucket *r;
