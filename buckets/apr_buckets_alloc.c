@@ -79,7 +79,11 @@ struct apr_bucket_alloc_t {
 
 static apr_status_t alloc_cleanup(void *data)
 {
-    apr_bucket_alloc_destroy(data);
+    apr_bucket_alloc_t *list = data;
+    apr_allocator_t *allocator = list->allocator;
+
+    apr_allocator_free(allocator, list->blocks);
+    apr_allocator_destroy(allocator);
     return APR_SUCCESS;
 }
 
@@ -106,12 +110,7 @@ APU_DECLARE_NONSTD(apr_bucket_alloc_t *) apr_bucket_alloc_create(apr_pool_t *p)
 
 APU_DECLARE_NONSTD(void) apr_bucket_alloc_destroy(apr_bucket_alloc_t *list)
 {
-    apr_allocator_t *allocator = list->allocator;
-
-    apr_pool_cleanup_kill(list->pool, list, alloc_cleanup);
-
-    apr_allocator_free(allocator, list->blocks);
-    apr_allocator_destroy(allocator);
+    apr_pool_cleanup_run(list->pool, list, alloc_cleanup);
 }
 
 APU_DECLARE_NONSTD(void *) apr_bucket_alloc(apr_size_t size, 
