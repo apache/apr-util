@@ -22,9 +22,10 @@
 const struct testlist {
     abts_suite *(*func)(abts_suite *suite);
 } alltests[] = {
-    (teststrmatch),
-    (testuri),
-    {testuuid}
+    {teststrmatch},
+    {testuri},
+    {testuuid},
+    {testbuckets}
 };
 
 #endif /* APR_TEST_INCLUDES */
