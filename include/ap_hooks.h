@@ -58,7 +58,7 @@
 #include "ap_config.h"
 
 /* For apr_array_header_t */
-#include "apr_lib.h"
+#include "apr_tables.h"
 
 /**
  * @package Apache hooks functions

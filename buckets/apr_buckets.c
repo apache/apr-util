@@ -52,14 +52,16 @@
  * <http://www.apache.org/>.
  */
 
-#include "httpd.h"
+#include "apr.h"
 #include "apr_pools.h"
-#include "apr_lib.h"
 #include "apr_errno.h"
+
 #include <stdlib.h>
-#ifdef HAVE_SYS_UIO_H
+#if APR_HAVE_SYS_UIO_H
 #include <sys/uio.h>
 #endif
+
+#include "httpd.h"
 #include "ap_buckets.h"
 
 static apr_array_header_t *bucket_types;
