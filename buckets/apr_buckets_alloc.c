@@ -71,10 +71,17 @@ typedef struct node_header_t {
  *  structures can be allocated.
  */
 struct apr_bucket_alloc_t {
+    apr_pool_t *pool;
     apr_allocator_t *allocator;
     node_header_t *freelist;
     apr_memnode_t *blocks;
 };
+
+static apr_status_t alloc_cleanup(void *data)
+{
+    apr_bucket_alloc_destroy(data);
+    return APR_SUCCESS;
+}
 
 APU_DECLARE_NONSTD(apr_bucket_alloc_t *) apr_bucket_alloc_create(apr_pool_t *p)
 {
@@ -85,16 +92,23 @@ APU_DECLARE_NONSTD(apr_bucket_alloc_t *) apr_bucket_alloc_create(apr_pool_t *p)
     apr_allocator_create(&allocator);
     block = apr_allocator_alloc(allocator, ALLOC_AMT);
     list = (apr_bucket_alloc_t *)block->first_avail;
+    list->pool = p;
     list->allocator = allocator;
     list->freelist = NULL;
     list->blocks = block;
     block->first_avail += APR_ALIGN_DEFAULT(sizeof(*list));
+
+    apr_pool_cleanup_register(list->pool, list, alloc_cleanup,
+                              apr_pool_cleanup_null);
+
     return list;
 }
 
 APU_DECLARE_NONSTD(void) apr_bucket_alloc_destroy(apr_bucket_alloc_t *list)
 {
     apr_allocator_t *allocator = list->allocator;
+
+    apr_pool_cleanup_kill(list->pool, list, alloc_cleanup);
 
     apr_allocator_free(allocator, list->blocks);
     apr_allocator_destroy(allocator);
