@@ -73,7 +73,7 @@ extern "C" {
  * @ingroup APR
  * @{
  */
-
+/** Opaque translation buffer */
 typedef struct apr_xlate_t            apr_xlate_t;
 
 /**

@@ -95,8 +95,10 @@ extern "C" {
  * @{
  */
 
+/** The digestsize for MD4 */
 #define APR_MD4_DIGESTSIZE 16
 
+/** @see apr_md4_ctx_t */
 typedef struct apr_md4_ctx_t apr_md4_ctx_t;
 
 /** MD4 context. */
