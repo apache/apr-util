@@ -85,6 +85,17 @@
 #endif /* APR_HAS_MMAP */
 
 
+static void file_destroy(void *data)
+{
+    apr_bucket_file *f;
+
+    f = apr_bucket_destroy_shared(data);
+    if (f == NULL) {
+        return;
+    }
+    free(f);
+}
+
 /* XXX: We should obey the block flag */
 static apr_status_t file_read(apr_bucket *e, const char **str,
 			      apr_size_t *len, apr_read_type_e block)
@@ -117,6 +128,7 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
     }
     if (mm) {
         apr_bucket_make_mmap(e, mm, 0, e->length); /*XXX: check for failure? */
+        file_destroy(s);
         return apr_bucket_read(e, str, len, block);
     }
     else {
@@ -152,6 +164,7 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
          * even if we read nothing because we hit EOF.
          */
         apr_bucket_make_heap(e, buf, *len, 0, NULL); /*XXX: check for failure? */
+        file_destroy(s);
 
         /* If we have more to read from the file, then create another bucket */
         if (length > 0) {
@@ -162,17 +175,6 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
     }
 #endif
     return APR_SUCCESS;
-}
-
-static void file_destroy(void *data)
-{
-    apr_bucket_file *f;
-
-    f = apr_bucket_destroy_shared(data);
-    if (f == NULL) {
-        return;
-    }
-    free(f);
 }
 
 APU_DECLARE(apr_bucket *) apr_bucket_make_file(apr_bucket *b, apr_file_t *fd,
