@@ -8,3 +8,4 @@ configure
 libtool
 libaprutil.la
 aprutil.exports
+export_vars.sh
