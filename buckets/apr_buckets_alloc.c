@@ -53,7 +53,7 @@ APU_DECLARE_NONSTD(apr_bucket_alloc_t *) apr_bucket_alloc_create(apr_pool_t *p)
     apr_allocator_t *allocator = apr_pool_allocator_get(p);
     apr_bucket_alloc_t *list;
 
-#ifdef APR_POOL_DEBUG
+#if APR_POOL_DEBUG
     /* may be NULL for debug mode. */
     if (allocator == NULL) {
         if (apr_allocator_create(&allocator) != APR_SUCCESS) {
@@ -95,7 +95,7 @@ APU_DECLARE_NONSTD(void) apr_bucket_alloc_destroy(apr_bucket_alloc_t *list)
 
     apr_allocator_free(list->allocator, list->blocks);
 
-#ifdef APR_POOL_DEBUG
+#if APR_POOL_DEBUG
     if (list->pool && list->allocator != apr_pool_allocator_get(list->pool)) {
         apr_allocator_destroy(list->allocator);
     }
