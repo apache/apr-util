@@ -86,9 +86,9 @@
 #include "ap_base64.h"
 #include "apr_strings.h"
 #include "apr_lib.h"
-#ifdef AP_CHARSET_EBCDIC
+#if APR_CHARSET_EBCDIC
 #include "apr_xlate.h"
-#endif /*AP_CHARSET_EBCDIC*/
+#endif /*APR_CHARSET_EBCDIC*/
 #include <string.h>
 
 /* a bit faster & bigger, if defined */
@@ -119,7 +119,7 @@
 
 #define SHA_BLOCKSIZE           64
 
-#ifdef AP_CHARSET_EBCDIC
+#if APR_CHARSET_EBCDIC
 static apr_xlate_t *ebcdic2ascii_xlate;
 
 APR_DECLARE(apr_status_t) ap_SHA1InitEBCDIC(apr_xlate_t *x)
@@ -299,7 +299,7 @@ APR_DECLARE(void) ap_SHA1Update_binary(AP_SHA1_CTX *sha_info,
 APR_DECLARE(void) ap_SHA1Update(AP_SHA1_CTX *sha_info, const char *buf,
                               unsigned int count)
 {
-#ifdef AP_CHARSET_EBCDIC
+#if APR_CHARSET_EBCDIC
     int i;
     const AP_BYTE *buffer = (const AP_BYTE *) buf;
     apr_size_t inbytes_left, outbytes_left;
