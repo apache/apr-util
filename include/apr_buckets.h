@@ -731,7 +731,8 @@ APU_DECLARE_NONSTD(int) apr_brigade_putstrs(apr_bucket_brigade *b,
  */
 APU_DECLARE_NONSTD(int) apr_brigade_printf(apr_bucket_brigade *b, 
                                            apr_brigade_flush flush, void *ctx,
-                                           const char *fmt, ...);
+                                           const char *fmt, ...)
+        __attribute__((format(printf,4,5)));
 
 /**
  * Evaluate a printf and put the resulting string at the end 
