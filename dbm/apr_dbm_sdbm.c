@@ -68,7 +68,6 @@
 #include <stdlib.h>  /* For abort() */
 #endif
 
-
 /* this is used in a few places to define a noop "function". it is needed
    to stop "no effect" warnings from GCC. */
 #define NOOP_FUNCTION if (0) ; else
@@ -85,18 +84,19 @@ typedef apr_sdbm_datum_t *cvt_datum_t;
 typedef apr_sdbm_datum_t result_datum_t;
 #define RETURN_DATUM(poutput, rd) (*(poutput) = *(apr_datum_t *)&(rd))
 
-#define APR_DBM_CLOSE(f)	apr_sdbm_close(f)
-#define APR_DBM_FETCH(f, k, v)	apr_sdbm_fetch(f, &(v), *(k))
-#define APR_DBM_STORE(f, k, v)	apr_sdbm_store(f, *(k), *(v), APR_SDBM_REPLACE)
-#define APR_DBM_DELETE(f, k)	apr_sdbm_delete(f, *(k))
-#define APR_DBM_FIRSTKEY(f, k)	apr_sdbm_firstkey(f, &(k))
+#define APR_DBM_CLOSE(f)        apr_sdbm_close(f)
+#define APR_DBM_FETCH(f, k, v)  apr_sdbm_fetch(f, &(v), *(k))
+#define APR_DBM_STORE(f, k, v)  apr_sdbm_store(f, *(k), *(v), APR_SDBM_REPLACE)
+#define APR_DBM_DELETE(f, k)    apr_sdbm_delete(f, *(k))
+#define APR_DBM_FIRSTKEY(f, k)  apr_sdbm_firstkey(f, &(k))
 #define APR_DBM_NEXTKEY(f, k, nk) apr_sdbm_nextkey(f, &(nk))
-#define APR_DBM_FREEDPTR(dptr)	NOOP_FUNCTION
+#define APR_DBM_FREEDPTR(dptr)  NOOP_FUNCTION
 
 #define APR_DBM_DBMODE_RO       APR_READ
 #define APR_DBM_DBMODE_RW       (APR_READ | APR_WRITE)
 #define APR_DBM_DBMODE_RWCREATE (APR_READ | APR_WRITE | APR_CREATE)
-#define APR_DBM_DBMODE_RWTRUNC  (APR_READ | APR_WRITE | APR_CREATE|APR_TRUNCATE)
+#define APR_DBM_DBMODE_RWTRUNC  (APR_READ | APR_WRITE | APR_CREATE | \
+                                 APR_TRUNCATE)
 
 static apr_status_t set_error(apr_dbm_t *dbm, apr_status_t dbm_said)
 {
@@ -221,9 +221,9 @@ static int vt_sdbm_exists(apr_dbm_t *dbm, apr_datum_t key)
     apr_sdbm_datum_t *ckey = (apr_sdbm_datum_t *)&key;
 
     {
-	apr_sdbm_datum_t value;
+        apr_sdbm_datum_t value;
         if (apr_sdbm_fetch(dbm->file, &value, *ckey) != APR_SUCCESS) {
-	    exists = 0;
+            exists = 0;
         }
         else
             exists = value.dptr != NULL;
