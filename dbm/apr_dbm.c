@@ -55,6 +55,7 @@
 #include "apr.h"
 #include "apr_errno.h"
 #include "apr_pools.h"
+#include "apr_strings.h"
 
 #include "apu_private.h"
 #include "apr_dbm.h"
@@ -333,4 +334,23 @@ APU_DECLARE(void) apr_dbm_geterror(apr_dbm_t *db, int *errcode,
 {
     *errcode = db->errcode;
     *errmsg = db->errmsg;
+}
+
+APU_DECLARE(void) apr_dbm_get_usednames(apr_pool_t *p,
+                                        const char *pathname,
+                                        const char **used1,
+                                        const char **used2)
+{
+#if APU_USE_SDBM
+    char *work;
+
+    *used1 = apr_pstrcat(p, pathname, SDBM_DIRFEXT, NULL);
+    *used2 = work = apr_pstrdup(p, *used1);
+
+    /* we know the extension is 4 characters */
+    memcpy(&work[strlen(work) - 4], SDBM_PAGFEXT, 4);
+#elif APU_USE_GDBM
+    *used1 = apr_pstrdup(p, pathname);
+    *used2 = NULL;
+#endif
 }
