@@ -1,5 +1,9 @@
 Changes with APR-util 1.0
 
+  *) Fixed a bug in apr_rmm that would cause it to mishandle blocks of
+     a size close to the one requested from the allocator.
+     [Kevin Wang <xwang_tech yahoo.com>]
+
   *) Add SHA1 support to apr_password_validate.
      [Paul Querna <chip force-elite.com>]
 
