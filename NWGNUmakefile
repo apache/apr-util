@@ -29,6 +29,7 @@ XINCDIRS	+= \
 			$(APRUTIL)/dbm/sdbm \
 			$(APRUTIL)/include/private \
 			$(APRUTIL)/xml/expat/lib \
+			$(LDAPSDK)/inc \
 			$(EOLIST)
 
 #
@@ -240,6 +241,7 @@ FILES_lib_objs = \
 	$(OBJDIR)/apr_dbm_berkeleydb.o \
 	$(OBJDIR)/apr_dbm_sdbm.o \
 	$(OBJDIR)/apr_hooks.o \
+	$(OBJDIR)/apr_ldap_init.o \
 	$(OBJDIR)/apr_md4.o \
 	$(OBJDIR)/apr_md5.o \
 	$(OBJDIR)/apr_queue.o \
@@ -276,7 +278,7 @@ install :: nlms FORCE
 # Any specialized rules here
 #
 
-vpath %.c buckets:crypto:dbm:dbm/sdbm:encoding:hooks:misc:strmatch:uri:xlate:xml
+vpath %.c buckets:crypto:dbm:dbm/sdbm:encoding:hooks:ldap:misc:strmatch:uri:xlate:xml
 
 #
 # Include the 'tail' makefile that has targets that depend on variables defined
