@@ -48,6 +48,8 @@ typedef apr_size_t   apr_rmm_off_t;
  * @param membuf The block of relocateable memory to be managed
  * @param memsize The size of relocateable memory block to be managed
  * @param cont The pool to use for local storage and management
+ * @remark Both @param membuf and @param memsize must be aligned
+ * (for instance using APR_ALIGN_DEFAULT).
  */
 APU_DECLARE(apr_status_t) apr_rmm_init(apr_rmm_t **rmm, apr_anylock_t *lock,
                                        void* membuf, apr_size_t memsize, 
@@ -108,6 +110,7 @@ APU_DECLARE(apr_status_t) apr_rmm_free(apr_rmm_t *rmm, apr_rmm_off_t entity);
  * Retrieve the physical address of a relocatable allocation of memory
  * @param rmm The relocatable memory block
  * @param entity The memory allocation to free
+ * @return address The address, aligned with APR_ALIGN_DEFAULT.
  */
 APU_DECLARE(void *) apr_rmm_addr_get(apr_rmm_t *rmm, apr_rmm_off_t entity);
 
