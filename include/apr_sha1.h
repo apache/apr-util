@@ -61,7 +61,7 @@
 #ifndef APACHE_SHA1_H
 #define APACHE_SHA1_H
 
-#include "ap_config.h"
+#include "apr_general.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -115,14 +115,14 @@ struct AP_SHA1_CTX {
  *     to break since the search space is smaller.
  * @deffunc void ap_sha1_base64(const char *clear, int len, char *out)
  */
-AP_DECLARE(void) ap_sha1_base64(const char *clear, int len, char *out);
+APR_DECLARE(void) ap_sha1_base64(const char *clear, int len, char *out);
 
 /**
  * Initialize the SHA digest
  * @param context The SHA context to initialize
  * @deffunc void ap_SHA1Init(AP_SHA1_CTX *context);
  */
-AP_DECLARE(void) ap_SHA1Init(AP_SHA1_CTX *context);
+APR_DECLARE(void) ap_SHA1Init(AP_SHA1_CTX *context);
 
 /**
  * Update the SHA digest
@@ -131,7 +131,7 @@ AP_DECLARE(void) ap_SHA1Init(AP_SHA1_CTX *context);
  * @param inputLen The length of the input buffer
  * @deffunc void ap_SHA1Update(AP_SHA1_CTX *context, const char *input, unsigned int inputLen)
  */
-AP_DECLARE(void) ap_SHA1Update(AP_SHA1_CTX *context, const char *input,
+APR_DECLARE(void) ap_SHA1Update(AP_SHA1_CTX *context, const char *input,
                               unsigned int inputLen);
 
 /**
@@ -141,7 +141,7 @@ AP_DECLARE(void) ap_SHA1Update(AP_SHA1_CTX *context, const char *input,
  * @param inputLen The length of the input buffer
  * @deffunc void ap_SHA1Update_binary(AP_SHA1_CTX *context, const unsigned char *input, unsigned int inputLen)
  */
-AP_DECLARE(void) ap_SHA1Update_binary(AP_SHA1_CTX *context,
+APR_DECLARE(void) ap_SHA1Update_binary(AP_SHA1_CTX *context,
                                      const unsigned char *input,
                                      unsigned int inputLen);
 
@@ -151,7 +151,7 @@ AP_DECLARE(void) ap_SHA1Update_binary(AP_SHA1_CTX *context,
  * @param context The context to finalize
  * @deffunc void ap_SHA1Final(unsigned char digest[SHA_DIGESTSIZE], AP_SHA1_CTX *context)
  */
-AP_DECLARE(void) ap_SHA1Final(unsigned char digest[SHA_DIGESTSIZE],
+APR_DECLARE(void) ap_SHA1Final(unsigned char digest[SHA_DIGESTSIZE],
                              AP_SHA1_CTX *context);
 
 #ifdef __cplusplus
