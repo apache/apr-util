@@ -53,7 +53,6 @@
  */
 
 #include "apr_buckets.h"
-#include <stdlib.h>
 
 static apr_status_t socket_read(apr_bucket *a, const char **str,
 			      apr_size_t *len, apr_read_type_e block)
@@ -70,7 +69,7 @@ static apr_status_t socket_read(apr_bucket *a, const char **str,
 
     *str = NULL;
     *len = APR_BUCKET_BUFF_SIZE;
-    buf = malloc(*len); /* XXX: check for failure? */
+    buf = apr_bucket_alloc(*len, a->list); /* XXX: check for failure? */
 
     rv = apr_recv(p, buf, len);
 
@@ -79,7 +78,7 @@ static apr_status_t socket_read(apr_bucket *a, const char **str,
     }
 
     if (rv != APR_SUCCESS && rv != APR_EOF) {
-	free(buf);
+	apr_bucket_free(buf);
         return rv;
     }
     /*
@@ -100,14 +99,14 @@ static apr_status_t socket_read(apr_bucket *a, const char **str,
     if (*len > 0) {
         apr_bucket_heap *h;
         /* Change the current bucket to refer to what we read */
-        a = apr_bucket_heap_make(a, buf, *len, 0);
+        a = apr_bucket_heap_make(a, buf, *len, apr_bucket_free);
         h = a->data;
         h->alloc_len = APR_BUCKET_BUFF_SIZE; /* note the real buffer size */
         *str = buf;
-        APR_BUCKET_INSERT_AFTER(a, apr_bucket_socket_create(p));
+        APR_BUCKET_INSERT_AFTER(a, apr_bucket_socket_create(p, a->list));
     }
     else {
-        free(buf);
+        apr_bucket_free(buf);
         a = apr_bucket_immortal_make(a, "", 0);
         *str = a->data;
     }
@@ -132,12 +131,14 @@ APU_DECLARE(apr_bucket *) apr_bucket_socket_make(apr_bucket *b, apr_socket_t *p)
     return b;
 }
 
-APU_DECLARE(apr_bucket *) apr_bucket_socket_create(apr_socket_t *p)
+APU_DECLARE(apr_bucket *) apr_bucket_socket_create(apr_socket_t *p,
+                                                   apr_bucket_alloc_t *list)
 {
-    apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
+    apr_bucket *b = apr_bucket_alloc(sizeof(*b), list);
 
     APR_BUCKET_INIT(b);
-    b->free = free;
+    b->free = apr_bucket_free;
+    b->list = list;
     return apr_bucket_socket_make(b, p);
 }
 

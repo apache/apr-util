@@ -56,7 +56,6 @@
 #include "apr_general.h"
 #include "apr_file_io.h"
 #include "apr_buckets.h"
-#include <stdlib.h>
 
 #if APR_HAS_MMAP
 #include "apr_mmap.h"
@@ -70,10 +69,12 @@
 
 static void file_destroy(void *data)
 {
-    if (apr_bucket_shared_destroy(data)) {
+    apr_bucket_file *f = data;
+
+    if (apr_bucket_shared_destroy(f)) {
         /* no need to close the file here; it will get
          * done automatically when the pool gets cleaned up */
-        free(data);
+        apr_bucket_free(f);
     }
 }
 
@@ -146,17 +147,17 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
                ? APR_BUCKET_BUFF_SIZE
                : filelength;
     *str = NULL;  /* in case we die prematurely */
-    buf = malloc(*len);
+    buf = apr_bucket_alloc(*len, e->list);
 
     /* Handle offset ... */
     rv = apr_file_seek(f, APR_SET, &fileoffset);
     if (rv != APR_SUCCESS) {
-        free(buf);
+        apr_bucket_free(buf);
         return rv;
     }
     rv = apr_file_read(f, buf, len);
     if (rv != APR_SUCCESS && rv != APR_EOF) {
-        free(buf);
+        apr_bucket_free(buf);
         return rv;
     }
     filelength -= *len;
@@ -170,12 +171,12 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
     if (filelength > 0) {
         /* for efficiency, we can just build a new apr_bucket struct
          * to wrap around the existing file bucket */
-        b = malloc(sizeof(*b));
+        b = apr_bucket_alloc(sizeof(*b), e->list);
         b->start  = fileoffset + (*len);
         b->length = filelength;
         b->data   = a;
         b->type   = &apr_bucket_type_file;
-        b->free   = free;
+        b->free   = apr_bucket_free;
         APR_BUCKET_INSERT_AFTER(e, b);
     }
     else {
@@ -192,10 +193,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_file_make(apr_bucket *b, apr_file_t *fd,
 {
     apr_bucket_file *f;
 
-    f = malloc(sizeof(*f));
-    if (f == NULL) {
-        return NULL;
-    }
+    f = apr_bucket_alloc(sizeof(*f), b->list);
     f->fd = fd;
     f->readpool = p;
 
@@ -207,12 +205,14 @@ APU_DECLARE(apr_bucket *) apr_bucket_file_make(apr_bucket *b, apr_file_t *fd,
 
 APU_DECLARE(apr_bucket *) apr_bucket_file_create(apr_file_t *fd,
                                                  apr_off_t offset,
-                                                 apr_size_t len, apr_pool_t *p)
+                                                 apr_size_t len, apr_pool_t *p,
+                                                 apr_bucket_alloc_t *list)
 {
-    apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
+    apr_bucket *b = apr_bucket_alloc(sizeof(*b), list);
 
     APR_BUCKET_INIT(b);
-    b->free = free;
+    b->free = apr_bucket_free;
+    b->list = list;
     return apr_bucket_file_make(b, fd, offset, len, p);
 }
 
