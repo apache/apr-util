@@ -165,10 +165,10 @@ struct ap_bucket {
      *  a table.  In any case, these functions will always be available.
      */
 
-    /** A function pointer to destroy the data in the bucket and the bucket
-     *  itself.  Some of the buckets implement reference couting, and those
-     * buckets all have a sub-bucket which is not destroyed until the
-     * reference count is zero. */
+    /**
+     * Free the private data and any resources used by the bucket
+     * (if they aren't shared with another bucket).
+     */
     void (*destroy)(ap_bucket *e);                /* can be NULL */
 
     /** Read the data from the bucket.
