@@ -84,8 +84,8 @@ extern "C" {
  * @{ 
  */
 
-/** default bucket buffer size */
-#define APR_BUCKET_BUFF_SIZE 8192
+/** default bucket buffer size - 8KB minus room for memory allocator headers */
+#define APR_BUCKET_BUFF_SIZE 8000
 
 typedef enum {
     APR_BLOCK_READ,   /* block until data becomes available */
@@ -613,6 +613,28 @@ struct apr_bucket_file {
      *  be created while reading from this file bucket */
     apr_pool_t *readpool;
 };
+
+typedef union apr_bucket_structs apr_bucket_structs;
+/**
+ * A union of all bucket structures so we know what
+ * the max size is.
+ */
+union apr_bucket_structs {
+    apr_bucket      b;
+    apr_bucket_heap heap;
+    apr_bucket_pool pool;
+#if APR_HAS_MMAP
+    apr_bucket_mmap mmap;
+#endif
+    apr_bucket_file file;
+};
+
+/**
+ * The amount that apr_bucket_alloc() should allocate in the common case.
+ * Note: this is twice as big as apr_bucket_structs to allow breathing
+ * room for third-party bucket types.
+ */
+#define APR_BUCKET_ALLOC_SIZE  APR_ALIGN_DEFAULT(2*sizeof(apr_bucket_structs))
 
 /*  *****  Bucket Brigade Functions  *****  */
 /**
