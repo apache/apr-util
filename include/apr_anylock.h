@@ -53,8 +53,8 @@
  */
 
 /**
- * @file apr_ring.h
- * @brief APR-Util Rings
+ * @file apr_anylock.h
+ * @brief APR-Util transparent any lock flavor wrapper
  */
 #ifndef APR_ANYLOCK_H
 #define APR_ANYLOCK_H
