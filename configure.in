@@ -9,6 +9,7 @@ AC_CONFIG_HEADER(include/private/apu_config.h)
 AC_CONFIG_AUX_DIR(../apr/build)
 
 sinclude(build/apu_config.m4)
+sinclude(../apr/build/libtool.m4)
 
 AC_PROG_CC
 AC_PROG_AWK
