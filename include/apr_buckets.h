@@ -73,7 +73,7 @@
  * @package Bucket Brigades
  */
 
-typedef enum {AP_NONBLOCK_READ, AP_BLOCK_READ} ap_read_type;
+typedef enum {AP_BLOCK_READ, AP_NONBLOCK_READ} ap_read_type;
 
 /*
  * The one-sentence buzzword-laden overview: Bucket brigades represent
