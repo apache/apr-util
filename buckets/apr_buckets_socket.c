@@ -64,12 +64,7 @@ static apr_status_t socket_bucket_read(apr_bucket *a, const char **str,
 
     if (block == APR_NONBLOCK_READ) {
         apr_socket_timeout_get(p, &timeout);
-        /* Only mess with the timeout if we are in a blocking state
-         * otherwise we are already nonblocking so don't worry about it.
-         */
-        if (timeout < 0) {
-            apr_socket_timeout_set(p, 0);
-        }
+        apr_socket_timeout_set(p, 0);
     }
 
     *str = NULL;
