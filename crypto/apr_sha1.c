@@ -129,7 +129,7 @@ APU_DECLARE(apr_status_t) apr_SHA1InitEBCDIC(apr_xlate_t *x)
 
     /* Only single-byte conversion is supported.
      */
-    rv = apr_xlate_get_sb(x, &onoff);
+    rv = apr_xlate_sb_get(x, &onoff);
     if (rv) {
         return rv;
     }

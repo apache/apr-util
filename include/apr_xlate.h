@@ -130,9 +130,6 @@ APU_DECLARE(apr_status_t) apr_xlate_open(apr_xlate_t **convset,
  */
 APU_DECLARE(apr_status_t) apr_xlate_sb_get(apr_xlate_t *convset, int *onoff);
 
-/** @deprecated @see apr_xlate_sb_get */
-APU_DECLARE(apr_status_t) apr_xlate_get_sb(apr_xlate_t *convset, int *onoff);
-
 /**
  * Convert a buffer of text from one codepage to another.
  * @param convset The handle allocated by apr_xlate_open, specifying 

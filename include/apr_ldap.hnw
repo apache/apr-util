@@ -123,16 +123,6 @@
    #error "ERROR no LDAP SDK defined!"
 #endif
 
-/* These are garbage, our public macros are always APR_HAS_ prefixed,
- * and use 0/1 values, not defined/undef semantics.  
- *
- * Will be deprecated in APR 1.0
- */
-#if APR_HAS_LDAP
-#define APU_HAS_LDAP
-#endif
-
-
 /* LDAP header files */
 
 #if APR_HAS_NETSCAPE_LDAPSDK
