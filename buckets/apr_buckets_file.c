@@ -92,6 +92,7 @@ static void file_destroy(void *data)
     }
 }
 
+#if APR_HAS_MMAP
 static int file_make_mmap(apr_bucket *e, apr_off_t filelength,
                            apr_off_t fileoffset, apr_pool_t *p)
 {
@@ -119,6 +120,7 @@ static int file_make_mmap(apr_bucket *e, apr_off_t filelength,
     }
     return 0;
 }
+#endif
 
 static apr_status_t file_read(apr_bucket *e, const char **str,
 			      apr_size_t *len, apr_read_type_e block)
@@ -214,8 +216,10 @@ static apr_status_t file_setaside(apr_bucket *data, apr_pool_t *pool)
     apr_file_t *fd;
     apr_file_t *f = a->fd;
     apr_pool_t *p = apr_file_pool_get(f);
+#if APR_HAS_MMAP
     apr_off_t filelength = data->length;  /* bytes remaining in file past offset */
     apr_off_t fileoffset = data->start;
+#endif
 
     if (apr_pool_is_ancestor(p, pool)) {
         return APR_SUCCESS;
