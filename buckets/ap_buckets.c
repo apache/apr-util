@@ -58,7 +58,9 @@
 #include "apr_lib.h"
 #include "apr_errno.h"
 #include <stdlib.h>
+#ifdef HAVE_SYS_UIO_H
 #include <sys/uio.h>
+#endif
 #include "ap_buckets.h"
 
 API_EXPORT(apr_status_t) ap_bucket_destroy(ap_bucket *e)
@@ -136,7 +138,7 @@ API_EXPORT(int) ap_brigade_to_iovec(ap_bucket_brigade *b,
     orig = vec;
     e = b->head;
     while (e && nvec) {
-	e->read(e, vec->iov_base, &vec->iov_len, 0);
+	e->read(e, &vec->iov_base, &vec->iov_len, 0);
 	e = e->next;
 	--nvec;
 	++vec;
