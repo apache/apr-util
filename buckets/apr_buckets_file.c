@@ -94,6 +94,7 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
     apr_bucket *b = NULL;
     char *buf;
     apr_status_t rv;
+    apr_off_t length = e->length;
 #if APR_HAS_MMAP
     apr_mmap_t *mm = NULL;
 #endif
@@ -145,6 +146,7 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
 	    free(buf);
             return rv;
         }
+        length -= *len;
 
         /*
          * Change the current bucket to refer to what we read,
@@ -153,8 +155,8 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
         apr_bucket_make_heap(e, buf, *len, 0, NULL); /*XXX: check for failure? */
 
         /* If we have more to read from the file, then create another bucket */
-        if (*len > 0) {
-            b = apr_bucket_create_file(f, 0, e->length);
+        if (length > 0) {
+            b = apr_bucket_create_file(f, (*len) + 1, length);
             APR_BUCKET_INSERT_AFTER(e, b);
         }
 #if APR_HAS_MMAP
