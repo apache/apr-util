@@ -87,8 +87,9 @@ typedef struct {
     const char *name;
 
     /** Open the DBM */
-    apr_status_t (*open)(apr_dbm_t **dbm, const char *name, apr_int32_t mode,
-                         apr_fileperms_t perm, apr_pool_t *cntxt);
+    apr_status_t (*open)(apr_dbm_t **pdb, const char *pathname,
+                         apr_int32_t mode, apr_fileperms_t perm,
+                         apr_pool_t *pool);
 
     /** Close the DBM */
     void (*close)(apr_dbm_t *dbm);
@@ -111,10 +112,6 @@ typedef struct {
 
     /** Retrieve the next record key from a dbm */
     apr_status_t (*nextkey)(apr_dbm_t *dbm, apr_datum_t * pkey);
-
-    /** Report more information when an apr_dbm function fails. */
-    char *(*geterror)(apr_dbm_t *dbm, int *errcode, char *errbuf,
-                      apr_size_t errbufsize);
 
     /** Proactively toss any memory associated with the apr_datum_t. */
     void (*freedatum)(apr_dbm_t *dbm, apr_datum_t data);
@@ -152,6 +149,7 @@ APU_DECLARE_DATA extern const apr_dbm_type_t apr_dbm_type_gdbm;
 APU_DECLARE_DATA extern const apr_dbm_type_t apr_dbm_type_db1;
 APU_DECLARE_DATA extern const apr_dbm_type_t apr_dbm_type_db2;
 APU_DECLARE_DATA extern const apr_dbm_type_t apr_dbm_type_db3;
+APU_DECLARE_DATA extern const apr_dbm_type_t apr_dbm_type_db;
 
 #ifdef __cplusplus
 }

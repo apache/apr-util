@@ -52,11 +52,24 @@
  * <http://www.apache.org/>.
  */
 
-#include "apr_dbm_private.h"
+#include "apr_strings.h"
+#define APR_WANT_MEMFUNC
+#include "apr_want.h"
 
 #if APR_HAVE_STDLIB_H
 #include <stdlib.h> /* for abort() */
 #endif
+
+#include "apr_dbm_private.h"
+
+
+/* this is used in a few places to define a noop "function". it is needed
+   to stop "no effect" warnings from GCC. */
+#define NOOP_FUNCTION if (0) ; else
+
+/* ### define defaults for now; these will go away in a while */
+#define REGISTER_CLEANUP(dbm, pdatum) NOOP_FUNCTION
+#define SET_FILE(pdb, f) ((pdb)->file = (f))
 
 /*
  * We pick up all varieties of Berkeley DB through db.h (included through
@@ -227,11 +240,68 @@ static apr_status_t set_error(apr_dbm_t *dbm, apr_status_t dbm_said)
 ** ### we may need three sets of these: db1, db2, db3
 */
 
-static apr_status_t vt_db_open(apr_dbm_t **dbm, const char *name,
+static apr_status_t vt_db_open(apr_dbm_t **pdb, const char *pathname,
                                apr_int32_t mode, apr_fileperms_t perm,
-                               apr_pool_t *cntxt)
+                               apr_pool_t *pool)
 {
-    abort();
+    real_file_t file;
+    int dbmode;
+
+    *pdb = NULL;
+
+    switch (mode) {
+    case APR_DBM_READONLY:
+        dbmode = APR_DBM_DBMODE_RO;
+        break;
+    case APR_DBM_READWRITE:
+        dbmode = APR_DBM_DBMODE_RW;
+        break;
+    case APR_DBM_RWCREATE:
+        dbmode = APR_DBM_DBMODE_RWCREATE;
+        break;
+    case APR_DBM_RWTRUNC:
+        dbmode = APR_DBM_DBMODE_RWTRUNC;
+        break;
+    default:
+        return APR_EINVAL;
+    }
+
+    {
+        int dberr;
+
+#if DB_VER == 3
+        if ((dberr = db_create(&file.bdb, NULL, 0)) == 0) {
+            if ((dberr = (*file.bdb->open)(file.bdb, pathname, NULL, 
+                                           DB_HASH, dbmode, 
+                                           apr_posix_perms2mode(perm))) != 0) {
+                /* close the DB handler */
+                (void) (*file.bdb->close)(file.bdb, 0);
+            }
+        }
+        file.curs = NULL;
+#elif DB_VER == 2
+        dberr = db_open(pathname, DB_HASH, dbmode, apr_posix_perms2mode(perm),
+                        NULL, NULL, &file.bdb);
+        file.curs = NULL;
+#else
+        file.bdb = dbopen(pathname, dbmode, apr_posix_perms2mode(perm),
+                          DB_HASH, NULL);
+        if (file.bdb == NULL)
+            return APR_EGENERAL;      /* ### need a better error */
+        dberr = 0;
+#endif
+        if (dberr != 0)
+            return db2s(dberr);
+    }
+
+    /* we have an open database... return it */
+    *pdb = apr_pcalloc(pool, sizeof(**pdb));
+    (*pdb)->pool = pool;
+    (*pdb)->type = &apr_dbm_type_db;
+    SET_FILE(*pdb, file);
+
+    /* ### register a cleanup to close the DBM? */
+
     return APR_SUCCESS;
 }
 
@@ -243,46 +313,94 @@ static void vt_db_close(apr_dbm_t *dbm)
 static apr_status_t vt_db_fetch(apr_dbm_t *dbm, apr_datum_t key,
                                 apr_datum_t * pvalue)
 {
-    abort();
-    return APR_SUCCESS;
+    apr_status_t rv;
+    cvt_datum_t ckey;
+    result_datum_t rd = { 0 };
+
+    CONVERT_DATUM(ckey, &key);
+    rv = APR_DBM_FETCH(dbm->file, ckey, rd);
+    RETURN_DATUM(pvalue, rd);
+
+    REGISTER_CLEANUP(dbm, pvalue);
+
+    /* store the error info into DBM, and return a status code. Also, note
+       that *pvalue should have been cleared on error. */
+    return set_error(dbm, rv);
 }
 
 static apr_status_t vt_db_store(apr_dbm_t *dbm, apr_datum_t key,
                                 apr_datum_t value)
 {
-    abort();
-    return APR_SUCCESS;
+    apr_status_t rv;
+    cvt_datum_t ckey;
+    cvt_datum_t cvalue;
+
+    CONVERT_DATUM(ckey, &key);
+    CONVERT_DATUM(cvalue, &value);
+    rv = APR_DBM_STORE(dbm->file, ckey, cvalue);
+
+    /* store any error info into DBM, and return a status code. */
+    return set_error(dbm, rv);
 }
 
 static apr_status_t vt_db_del(apr_dbm_t *dbm, apr_datum_t key)
 {
-    abort();
-    return APR_SUCCESS;
+    apr_status_t rv;
+    cvt_datum_t ckey;
+
+    CONVERT_DATUM(ckey, &key);
+    rv = APR_DBM_DELETE(dbm->file, ckey);
+
+    /* store any error info into DBM, and return a status code. */
+    return set_error(dbm, rv);
 }
 
 static int vt_db_exists(apr_dbm_t *dbm, apr_datum_t key)
 {
-    abort();
-    return 0;
+    DBT ckey = { 0 };   /* converted key */
+    DBT data = { 0 };
+    int dberr;
+
+    ckey.data = key.dptr;
+    ckey.size = key.dsize;
+
+    dberr = do_fetch(GET_BDB(dbm->file), ckey, data);
+
+    /* note: the result data is "loaned" to us; we don't need to free it */
+
+    /* DB returns DB_NOTFOUND if it doesn't exist. but we want to say
+       that *any* error means it doesn't exist. */
+    return dberr == 0;
 }
 
 static apr_status_t vt_db_firstkey(apr_dbm_t *dbm, apr_datum_t * pkey)
 {
-    abort();
-    return APR_SUCCESS;
+    apr_status_t rv;
+    result_datum_t rd;
+
+    rv = APR_DBM_FIRSTKEY(dbm->file, rd);
+    RETURN_DATUM(pkey, rd);
+
+    REGISTER_CLEANUP(dbm, pkey);
+
+    /* store any error info into DBM, and return a status code. */
+    return set_error(dbm, rv);
 }
 
 static apr_status_t vt_db_nextkey(apr_dbm_t *dbm, apr_datum_t * pkey)
 {
-    abort();
-    return APR_SUCCESS;
-}
+    apr_status_t rv;
+    cvt_datum_t ckey;
+    result_datum_t rd;
 
-static char * vt_db_geterror(apr_dbm_t *dbm, int *errcode, char *errbuf,
-                             apr_size_t errbufsize)
-{
-    abort();
-    return NULL;
+    CONVERT_DATUM(ckey, pkey);
+    rv = APR_DBM_NEXTKEY(dbm->file, ckey, rd);
+    RETURN_DATUM(pkey, rd);
+
+    REGISTER_CLEANUP(dbm, pkey);
+
+    /* store any error info into DBM, and return a status code. */
+    return set_error(dbm, APR_SUCCESS);
 }
 
 static void vt_db_freedatum(apr_dbm_t *dbm, apr_datum_t data)
@@ -298,7 +416,7 @@ static void vt_db_usednames(apr_pool_t *pool, const char *pathname,
 }
 
 
-static const apr_dbm_type_t apr_dbm_type_db = {
+APU_DECLARE_DATA const apr_dbm_type_t apr_dbm_type_db = {
     "db",
 
     vt_db_open,
@@ -309,7 +427,6 @@ static const apr_dbm_type_t apr_dbm_type_db = {
     vt_db_exists,
     vt_db_firstkey,
     vt_db_nextkey,
-    vt_db_geterror,
     vt_db_freedatum,
     vt_db_usednames
 };

@@ -52,12 +52,24 @@
  * <http://www.apache.org/>.
  */
 
+#include "apr_strings.h"
+
+#if APR_HAVE_STDLIB_H
+#include <stdlib.h>     /* for free() */
+#endif
+
 #include "apr_dbm_private.h"
 
 #include <gdbm.h>
-#if APR_HAVE_STDLIB_H
-#include <stdlib.h> /* for free() and abort() */
-#endif
+
+
+/* this is used in a few places to define a noop "function". it is needed
+   to stop "no effect" warnings from GCC. */
+#define NOOP_FUNCTION if (0) ; else
+
+/* ### define defaults for now; these will go away in a while */
+#define REGISTER_CLEANUP(dbm, pdatum) NOOP_FUNCTION
+#define SET_FILE(pdb, f) ((pdb)->file = (f))
 
 typedef GDBM_FILE real_file_t;
 
@@ -132,11 +144,48 @@ static apr_status_t set_error(apr_dbm_t *dbm, apr_status_t dbm_said)
 ** DEFINE THE VTABLE FUNCTIONS FOR GDBM
 */
 
-static apr_status_t vt_gdbm_open(apr_dbm_t **dbm, const char *name,
+static apr_status_t vt_gdbm_open(apr_dbm_t **pdb, const char *pathname,
                                  apr_int32_t mode, apr_fileperms_t perm,
-                                 apr_pool_t *cntxt)
+                                 apr_pool_t *pool)
 {
-    abort();
+    real_file_t file;
+    int dbmode;
+
+    *pdb = NULL;
+
+    switch (mode) {
+    case APR_DBM_READONLY:
+        dbmode = APR_DBM_DBMODE_RO;
+        break;
+    case APR_DBM_READWRITE:
+        dbmode = APR_DBM_DBMODE_RW;
+        break;
+    case APR_DBM_RWCREATE:
+        dbmode = APR_DBM_DBMODE_RWCREATE;
+        break;
+    case APR_DBM_RWTRUNC:
+        dbmode = APR_DBM_DBMODE_RWTRUNC;
+        break;
+    default:
+        return APR_EINVAL;
+    }
+
+    {
+        /* Note: stupid cast to get rid of "const" on the pathname */
+        file = gdbm_open((char *) pathname, 0, dbmode,
+                         apr_posix_perms2mode(perm), NULL);
+        if (file == NULL)
+            return APR_EGENERAL;      /* ### need a better error */
+    }
+
+    /* we have an open database... return it */
+    *pdb = apr_pcalloc(pool, sizeof(**pdb));
+    (*pdb)->pool = pool;
+    (*pdb)->type = &apr_dbm_type_gdbm;
+    SET_FILE(*pdb, file);
+
+    /* ### register a cleanup to close the DBM? */
+
     return APR_SUCCESS;
 }
 
@@ -148,46 +197,83 @@ static void vt_gdbm_close(apr_dbm_t *dbm)
 static apr_status_t vt_gdbm_fetch(apr_dbm_t *dbm, apr_datum_t key,
                                   apr_datum_t * pvalue)
 {
-    abort();
-    return APR_SUCCESS;
+    apr_status_t rv;
+    cvt_datum_t ckey;
+    result_datum_t rd;
+
+    CONVERT_DATUM(ckey, &key);
+    rv = APR_DBM_FETCH(dbm->file, ckey, rd);
+    RETURN_DATUM(pvalue, rd);
+
+    REGISTER_CLEANUP(dbm, pvalue);
+
+    /* store the error info into DBM, and return a status code. Also, note
+       that *pvalue should have been cleared on error. */
+    return set_error(dbm, rv);
 }
 
 static apr_status_t vt_gdbm_store(apr_dbm_t *dbm, apr_datum_t key,
                                   apr_datum_t value)
 {
-    abort();
-    return APR_SUCCESS;
+    apr_status_t rv;
+    cvt_datum_t ckey;
+    cvt_datum_t cvalue;
+
+    CONVERT_DATUM(ckey, &key);
+    CONVERT_DATUM(cvalue, &value);
+    rv = APR_DBM_STORE(dbm->file, ckey, cvalue);
+
+    /* store any error info into DBM, and return a status code. */
+    return set_error(dbm, rv);
 }
 
 static apr_status_t vt_gdbm_del(apr_dbm_t *dbm, apr_datum_t key)
 {
-    abort();
-    return APR_SUCCESS;
+    apr_status_t rv;
+    cvt_datum_t ckey;
+
+    CONVERT_DATUM(ckey, &key);
+    rv = APR_DBM_DELETE(dbm->file, ckey);
+
+    /* store any error info into DBM, and return a status code. */
+    return set_error(dbm, rv);
 }
 
 static int vt_gdbm_exists(apr_dbm_t *dbm, apr_datum_t key)
 {
-    abort();
-    return 0;
+    datum *ckey = (datum *)&key;
+
+    return gdbm_exists(dbm->file, *ckey) != 0;
 }
 
 static apr_status_t vt_gdbm_firstkey(apr_dbm_t *dbm, apr_datum_t * pkey)
 {
-    abort();
-    return APR_SUCCESS;
+    apr_status_t rv;
+    result_datum_t rd;
+
+    rv = APR_DBM_FIRSTKEY(dbm->file, rd);
+    RETURN_DATUM(pkey, rd);
+
+    REGISTER_CLEANUP(dbm, pkey);
+
+    /* store any error info into DBM, and return a status code. */
+    return set_error(dbm, rv);
 }
 
 static apr_status_t vt_gdbm_nextkey(apr_dbm_t *dbm, apr_datum_t * pkey)
 {
-    abort();
-    return APR_SUCCESS;
-}
+    apr_status_t rv;
+    cvt_datum_t ckey;
+    result_datum_t rd;
 
-static char * vt_gdbm_geterror(apr_dbm_t *dbm, int *errcode, char *errbuf,
-                               apr_size_t errbufsize)
-{
-    abort();
-    return NULL;
+    CONVERT_DATUM(ckey, pkey);
+    rv = APR_DBM_NEXTKEY(dbm->file, ckey, rd);
+    RETURN_DATUM(pkey, rd);
+
+    REGISTER_CLEANUP(dbm, pkey);
+
+    /* store any error info into DBM, and return a status code. */
+    return set_error(dbm, APR_SUCCESS);
 }
 
 static void vt_gdbm_freedatum(apr_dbm_t *dbm, apr_datum_t data)
@@ -203,7 +289,7 @@ static void vt_gdbm_usednames(apr_pool_t *pool, const char *pathname,
 }
 
 
-static const apr_dbm_type_t apr_dbm_type_gdbm = {
+APU_DECLARE_DATA const apr_dbm_type_t apr_dbm_type_gdbm = {
     "gdbm",
 
     vt_gdbm_open,
@@ -214,7 +300,6 @@ static const apr_dbm_type_t apr_dbm_type_gdbm = {
     vt_gdbm_exists,
     vt_gdbm_firstkey,
     vt_gdbm_nextkey,
-    vt_gdbm_geterror,
     vt_gdbm_freedatum,
     vt_gdbm_usednames
 };
