@@ -164,6 +164,7 @@ while test $# -gt 0; do
     elif test "$location" = "source"; then
         flags="$flags -I$APU_SOURCE_DIR/include $INCLUDES"
     else
+        # this is for VPATH builds
         flags="$flags -I$thisdir/include -I$APU_SOURCE_DIR/include $INCLUDES"
     fi
     ;;
