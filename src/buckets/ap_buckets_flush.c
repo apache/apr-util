@@ -78,7 +78,7 @@ APR_DECLARE(ap_bucket *) ap_bucket_create_flush(void)
     ap_bucket_do_create(ap_bucket_make_flush(b));
 }
 
-const ap_bucket_type ap_flush_type = {
+APR_DECLARE_DATA const ap_bucket_type ap_flush_type = {
     "FLUSH", 4,
     ap_bucket_destroy_notimpl,
     flush_read,
