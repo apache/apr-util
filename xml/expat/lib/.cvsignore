@@ -1,0 +1,4 @@
+Makefile
+.deps
+.libs
+expat.h
