@@ -127,6 +127,7 @@ struct uph_test uph_tests[] =
     }
 };
 
+#if 0
 static void show_info(apr_status_t rv, apr_status_t expected, const apr_uri_t *info)
 {
     if (rv != expected) {
@@ -154,16 +155,15 @@ static void show_info(apr_status_t rv, apr_status_t expected, const apr_uri_t *i
                 info->dns_looked_up, info->dns_resolved);
     }
 }
+#endif
 
 static void test_aup(abts_case *tc, void *data)
 {
-    apr_pool_t *p = (apr_pool_t *)data;
     int i;
     apr_status_t rv;
     apr_uri_t info;
     struct aup_test *t;
     const char *s = NULL;
-    int rc = 0;
 
     for (i = 0; i < sizeof(aup_tests) / sizeof(aup_tests[0]); i++) {
         memset(&info, 0, sizeof(info));
@@ -190,13 +190,10 @@ static void test_aup(abts_case *tc, void *data)
 
 static void test_uph(abts_case *tc, void *data)
 {
-    apr_pool_t *p = (apr_pool_t *)data;
     int i;
     apr_status_t rv;
     apr_uri_t info;
     struct uph_test *t;
-    const char *failed;
-    int rc = 0;
 
     for (i = 0; i < sizeof(uph_tests) / sizeof(uph_tests[0]); i++) {
         memset(&info, 0, sizeof(info));
@@ -213,18 +210,10 @@ static void test_uph(abts_case *tc, void *data)
 
 abts_suite *testuri(abts_suite *suite)
 {
-    apr_pool_t *pool;
-
     suite = ADD_SUITE(suite);
 
-    /* do we need to run the apr_initialize and set an atexit() here? */
-
-    apr_pool_create(&pool, NULL);
-
-    abts_run_test(suite, test_aup, pool);
-    abts_run_test(suite, test_uph, pool);
-
-    apr_pool_destroy(pool);
+    abts_run_test(suite, test_aup, NULL);
+    abts_run_test(suite, test_uph, NULL);
 
     return suite;
 }
