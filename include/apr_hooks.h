@@ -115,7 +115,7 @@ ret ap_run_##name args_decl \
 #define HOOK_LAST		20
 #define HOOK_REALLY_LAST	30
 
-extern ap_context_t *g_pHookPool;
+extern ap_pool_t *g_pHookPool;
 extern int g_bDebugHooks;
 extern const char *g_szCurrentHookName;
 
