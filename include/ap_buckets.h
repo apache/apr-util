@@ -182,7 +182,7 @@ struct ap_bucket_type {
      *  start/end/offset information.  If it's not possible to do this
      *  for the bucket type (perhaps the length of the data is indeterminate,
      *  as with pipe and socket buckets), then APR_ENOTIMPL is returned.
-     *  See also ap_bucket_split_any().
+     * @see ap_bucket_split_any().
      * @param e The bucket to split
      * @param point The offset of the first byte in the new bucket
      * @deffunc apr_status_t split(ap_bucket *e, apr_off_t point)
@@ -192,7 +192,6 @@ struct ap_bucket_type {
     /**
      * Copy the bucket structure (not the data), assuming that this is
      *  possible for the bucket type. If it's not, APR_ENOTIMPL is returned.
-     *  See also ap_bucket_copy_any().
      * @param e The bucket to copy
      * @param c Returns a pointer to the new bucket
      * @deffunc apr_status_t copy
@@ -717,18 +716,6 @@ void ap_init_bucket_types(apr_pool_t *p);
  * @deffunc apr_status_t ap_bucket_split_any(ap_bucket *e, apr_off_t point)
  */
 APR_DECLARE(apr_status_t) ap_bucket_split_any(ap_bucket *e, apr_off_t point);
-
-/**
- * Copy a bucket, using ap_bucket_copy() if that's possible for the given
- * bucket type. If copy() is not implemented for the bucket's type, then
- * we copy the data as well by performing a blocking read on the bucket.
- * That morphs the bucket into a copyable one, which we then copy.
- * @param e The bucket to copy
- * @param c Returns a pointer to the new bucket
- * @deffunc apr_status_t ap_bucket_copy_any(ap_bucket *e, ap_bucket **c)
- */
-APR_DECLARE(apr_status_t) ap_bucket_copy_any(ap_bucket *e, ap_bucket **c);
-
 
 /* Bucket type handling */
 
