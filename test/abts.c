@@ -259,7 +259,10 @@ void abts_str_equal(abts_case *tc, const char *expected, const char *actual, int
     update_status();
     if (tc->failed) return;
 
-    if (!strcmp(expected, actual)) return;
+    /* If both are NULL, match is good */
+    if (!expected && !actual) return;
+    if (expected && actual)
+        if (!strcmp(expected, actual)) return;
 
     tc->failed = TRUE;
     if (verbose) {
