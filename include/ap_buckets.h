@@ -412,7 +412,17 @@ API_EXPORT(int) ap_brigade_to_iovec(ap_bucket_brigade *b,
 API_EXPORT(int) ap_brigade_vputstrs(ap_bucket_brigade *b, va_list va);
 
 /**
- * Evaaluate a printf and put the resulting string into a bucket at the end 
+ * This function writes an unspecified number of strings into a bucket brigade.
+ * We just allocate a new heap bucket for each string.
+ * @param b The bucket brigade to add to
+ * @param ... The strings to add
+ * @return The number of bytes added to the brigade
+ * @deffunc int ap_brigade_putstrs(ap_bucket_brigade *b, ...)
+ */
+API_EXPORT_NONSTD(int) ap_brigade_putstrs(ap_bucket_brigade *b, ...);
+
+/**
+ * Evaluate a printf and put the resulting string into a bucket at the end 
  * of the bucket brigade.
  * @param b The brigade to write to
  * @param fmt The format of the string to write
