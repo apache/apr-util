@@ -132,8 +132,9 @@ typedef enum {
     AP_BUCKET_POOL,
     AP_BUCKET_PIPE,
     AP_BUCKET_EOS        /* End-of-stream bucket.  Special case to say this is
-                          * the end of the bucket so all data should be sent
-                          * immediately. */
+                          * the end of the brigade so all data should be sent
+                          * immediately.
+			  */
 } ap_bucket_type_e;
 
 #define AP_END_OF_BRIGADE       -1
