@@ -180,5 +180,6 @@ void ap_hook_sort_register(const char *szHookName, ap_array_header_t **aHooks);
 void ap_sort_hooks(void);
 void ap_show_hook(const char *szName,const char * const *aszPre,
 		  const char * const *aszSucc);
+void ap_hook_deregister_all(void);
 
 #endif /* ndef(AP_HOOKS_H) */
