@@ -2,6 +2,10 @@ Changes with APR-util 1.2.0
 
   *) Introduction of APR DBD layer.  [Nick Kew]
 
+Changes with APR-util 1.1.2
+
+  *) Fix libaprutil.rc for Win32 builds [William Rowe, Justin Erenkrantz]
+
 Changes with APR-util 1.1.1
 
   *) Fix memory leak in buckets when using APR_POOL_DEBUG mode. [Joe Schaefer]
