@@ -308,6 +308,7 @@ static int option_set_cert(apr_pool_t *pool, LDAP *ldap,
 
 #if APR_HAS_NETSCAPE_LDAPSDK
 #if APR_HAS_LDAP_SSL_CLIENT_INIT
+    const char *nickname = NULL;
     const char *secmod = NULL;
     const char *key3db = NULL;
     const char *cert7db = NULL;
@@ -324,6 +325,9 @@ static int option_set_cert(apr_pool_t *pool, LDAP *ldap,
         case APR_LDAP_CERT_TYPE_KEY3_DB:
             key3db = cert->path;
             break;
+        case APR_LDAP_CERT_TYPE_NICKNAME:
+            nickname = cert->path;
+            break;
         default:
             result->rc = -1;
             result->reason = "LDAP: The Netscape/Mozilla LDAP SDK only "
@@ -339,7 +343,17 @@ static int option_set_cert(apr_pool_t *pool, LDAP *ldap,
 
     /* actually set the certificate parameters */
     if (result->rc == LDAP_SUCCESS) {
-        if (secmod) {
+        if (nickname) {
+            result->rc = ldapssl_enable_clientauth(ldap, "",
+                                                   cert->password,
+                                                   nickname);
+            if (result->rc != LDAP_SUCCESS) {
+                result->reason = "LDAP: could not set client certificate: "
+                                 "ldapssl_enable_clientauth() failed.";
+                result->msg = ldap_err2string(result->rc);
+            }
+        }
+        else if (secmod) {
             result->rc = ldapssl_advclientauth_init(cert7db, NULL,
                                                     key3db ? 1 : 0, key3db, NULL,
                                                     1, secmod, LDAPSSL_AUTH_CNCHECK);
