@@ -521,9 +521,8 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
  */
 #define APR_BRIGADE_NORMALIZE(b)       \
 do { \
-    apr_bucket *e; \
+    apr_bucket *e = APR_BRIGADE_FIRST(b); \
     do {  \
-        e = APR_BRIGADE_FIRST(b); \
         if (e->length == 0) { \
             apr_bucket *d; \
             d = APR_BUCKET_NEXT(e); \
