@@ -27,7 +27,7 @@ TARGETS = $(TARGET_LIB) aprutil.exp export_vars.h
 
 CLEAN_SUBDIRS = test
 
-CLEAN_TARGETS = exports.c export_vars.h aprutil.exp .make.dirs
+CLEAN_TARGETS = exports.c export_vars.h aprutil.exp .make.dirs apu-config.out
 DISTCLEAN_TARGETS = config.cache config.log config.status libtool \
 	include/private/apu_config.h include/private/apu_private.h \
 	include/private/apu_select_dbm.h include/apr_ldap.h include/apu.h \
@@ -46,8 +46,11 @@ includedir=@includedir@
 top_srcdir=@abs_srcdir@
 top_blddir=@abs_builddir@
 
+# Create apu-config script suitable for the install tree
+apu-config.out: apu-config
+	sed 's,^\(location=\).*$$,\1installed,' < apu-config > $@
 
-install: $(TARGET_LIB)
+install: $(TARGET_LIB) apu-config.out
 	if [ ! -d $(DESTDIR)$(includedir) ]; then \
 	    @APR_SOURCE_DIR@/build/mkdir.sh $(DESTDIR)$(includedir); \
 	fi;
@@ -71,7 +74,7 @@ install: $(TARGET_LIB)
 	if [ ! -d $(DESTDIR)$(bindir) ]; then \
 		@APR_SOURCE_DIR@/build/mkdir.sh $(DESTDIR)$(bindir); \
 	fi;
-	$(LIBTOOL) --mode=install cp apu-config $(DESTDIR)$(bindir)
+	$(LIBTOOL) --mode=install cp apu-config.out $(DESTDIR)$(bindir)/apu-config
 	chmod 755 $(DESTDIR)$(bindir)/apu-config
 
 $(TARGET_LIB): $(OBJECTS)
