@@ -52,14 +52,14 @@
  * <http://www.apache.org/>.
  */
 
-#include "ap_buckets.h"
+#include "apr_buckets.h"
 #include <stdlib.h>
 
-static apr_status_t mmap_read(ap_bucket *b, const char **str, 
-			      apr_size_t *length, ap_read_type block)
+static apr_status_t mmap_read(apr_bucket *b, const char **str, 
+			      apr_size_t *length, apr_read_type_e block)
 {
-    ap_bucket_shared *s = b->data;
-    ap_bucket_mmap *m = s->data;
+    apr_bucket_shared *s = b->data;
+    apr_bucket_mmap *m = s->data;
     apr_status_t ok;
     void *addr;
     
@@ -74,9 +74,9 @@ static apr_status_t mmap_read(ap_bucket *b, const char **str,
 
 static void mmap_destroy(void *data)
 {
-    ap_bucket_mmap *m;
+    apr_bucket_mmap *m;
 
-    m = ap_bucket_destroy_shared(data);
+    m = apr_bucket_destroy_shared(data);
     if (m == NULL) {
 	return;
     }
@@ -86,10 +86,10 @@ static void mmap_destroy(void *data)
 /*
  * XXX: are the start and length arguments useful?
  */
-APU_DECLARE(ap_bucket *) ap_bucket_make_mmap(ap_bucket *b,
+APU_DECLARE(apr_bucket *) apr_bucket_make_mmap(apr_bucket *b,
 		apr_mmap_t *mm, apr_off_t start, apr_size_t length)
 {
-    ap_bucket_mmap *m;
+    apr_bucket_mmap *m;
 
     m = malloc(sizeof(*m));
     if (m == NULL) {
@@ -97,29 +97,29 @@ APU_DECLARE(ap_bucket *) ap_bucket_make_mmap(ap_bucket *b,
     }
     m->mmap = mm;
 
-    b = ap_bucket_make_shared(b, m, start, start+length);
+    b = apr_bucket_make_shared(b, m, start, start+length);
     if (b == NULL) {
 	free(m);
 	return NULL;
     }
 
-    b->type     = &ap_mmap_type;
+    b->type     = &apr_bucket_type_mmap;
 
     return b;
 }
 
 
-APU_DECLARE(ap_bucket *) ap_bucket_create_mmap(
+APU_DECLARE(apr_bucket *) apr_bucket_create_mmap(
 		apr_mmap_t *mm, apr_off_t start, apr_size_t length)
 {
-    ap_bucket_do_create(ap_bucket_make_mmap(b, mm, start, length));
+    apr_bucket_do_create(apr_bucket_make_mmap(b, mm, start, length));
 }
 
-APU_DECLARE_DATA const ap_bucket_type ap_mmap_type = {
+APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_mmap = {
     "MMAP", 5,
     mmap_destroy,
     mmap_read,
-    ap_bucket_setaside_notimpl,
-    ap_bucket_split_shared,
-    ap_bucket_copy_shared
+    apr_bucket_setaside_notimpl,
+    apr_bucket_split_shared,
+    apr_bucket_copy_shared
 };

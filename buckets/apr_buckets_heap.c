@@ -52,7 +52,7 @@
  * <http://www.apache.org/>.
  */
 
-#include "ap_buckets.h"
+#include "apr_buckets.h"
 #include <stdlib.h>
 #if APR_HAVE_STRINGS_H
 #include <strings.h>
@@ -72,11 +72,11 @@
 ((x) >= (y) ? (x) : (y))
 #endif
 
-static apr_status_t heap_read(ap_bucket *b, const char **str, 
-			      apr_size_t *len, ap_read_type block)
+static apr_status_t heap_read(apr_bucket *b, const char **str, 
+			      apr_size_t *len, apr_read_type_e block)
 {
-    ap_bucket_shared *s = b->data;
-    ap_bucket_heap *h = s->data;
+    apr_bucket_shared *s = b->data;
+    apr_bucket_heap *h = s->data;
 
     *str = h->base + s->start;
     *len = s->end - s->start;
@@ -85,9 +85,9 @@ static apr_status_t heap_read(ap_bucket *b, const char **str,
 
 static void heap_destroy(void *data)
 {
-    ap_bucket_heap *h;
+    apr_bucket_heap *h;
 
-    h = ap_bucket_destroy_shared(data);
+    h = apr_bucket_destroy_shared(data);
     if (h == NULL) {
 	return;
     }
@@ -95,10 +95,10 @@ static void heap_destroy(void *data)
     free(h);
 }
 
-APU_DECLARE(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
+APU_DECLARE(apr_bucket *) apr_bucket_make_heap(apr_bucket *b,
 		const char *buf, apr_size_t length, int copy, apr_size_t *w)
 {
-    ap_bucket_heap *h;
+    apr_bucket_heap *h;
 
     h = malloc(sizeof(*h));
     if (h == NULL) {
@@ -122,7 +122,7 @@ APU_DECLARE(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
 	h->alloc_len = length;
     }
 
-    b = ap_bucket_make_shared(b, h, 0, length);
+    b = apr_bucket_make_shared(b, h, 0, length);
     if (b == NULL) {
 	if (copy) {
 	    free(h->base);
@@ -131,7 +131,7 @@ APU_DECLARE(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
 	return NULL;
     }
 
-    b->type = &ap_heap_type;
+    b->type = &apr_bucket_type_heap;
 
     if (w)
         *w = length;
@@ -139,17 +139,17 @@ APU_DECLARE(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
     return b;
 }
 
-APU_DECLARE(ap_bucket *) ap_bucket_create_heap(
+APU_DECLARE(apr_bucket *) apr_bucket_create_heap(
 		const char *buf, apr_size_t length, int copy, apr_size_t *w)
 {
-    ap_bucket_do_create(ap_bucket_make_heap(b, buf, length, copy, w));
+    apr_bucket_do_create(apr_bucket_make_heap(b, buf, length, copy, w));
 }
 
-APU_DECLARE_DATA const ap_bucket_type ap_heap_type = {
+APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_heap = {
     "HEAP", 5,
     heap_destroy,
     heap_read,
-    ap_bucket_setaside_notimpl,
-    ap_bucket_split_shared,
-    ap_bucket_copy_shared
+    apr_bucket_setaside_notimpl,
+    apr_bucket_split_shared,
+    apr_bucket_copy_shared
 };

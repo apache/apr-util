@@ -57,12 +57,12 @@
  */
 
 /* base64 encoder/decoder. Originally part of main/util.c
- * but moved here so that support/ab and ap_sha1.c could
+ * but moved here so that support/ab and apr_sha1.c could
  * use it. This meant removing the apr_palloc()s and adding
  * ugly 'len' functions, which is quite a nasty cost.
  */
 
-#include "ap_base64.h"
+#include "apr_base64.h"
 #if APR_CHARSET_EBCDIC
 #include "apr_xlate.h"
 #endif				/* APR_CHARSET_EBCDIC */
@@ -113,7 +113,7 @@ static const unsigned char pr2six[256] =
 static apr_xlate_t *xlate_to_ebcdic;
 static unsigned char os_toascii[256];
 
-APU_DECLARE(apr_status_t) ap_base64init_ebcdic(apr_xlate_t *to_ascii,
+APU_DECLARE(apr_status_t) apr_base64init_ebcdic(apr_xlate_t *to_ascii,
                                              apr_xlate_t *to_ebcdic)
 {
     int i;
@@ -149,7 +149,7 @@ APU_DECLARE(apr_status_t) ap_base64init_ebcdic(apr_xlate_t *to_ascii,
 }
 #endif /*APR_CHARSET_EBCDIC*/
 
-APU_DECLARE(int) ap_base64decode_len(const char *bufcoded)
+APU_DECLARE(int) apr_base64decode_len(const char *bufcoded)
 {
     int nbytesdecoded;
     register const unsigned char *bufin;
@@ -164,14 +164,14 @@ APU_DECLARE(int) ap_base64decode_len(const char *bufcoded)
     return nbytesdecoded + 1;
 }
 
-APU_DECLARE(int) ap_base64decode(char *bufplain, const char *bufcoded)
+APU_DECLARE(int) apr_base64decode(char *bufplain, const char *bufcoded)
 {
 #if APR_CHARSET_EBCDIC
     apr_size_t inbytes_left, outbytes_left;
 #endif				/* APR_CHARSET_EBCDIC */
     int len;
     
-    len = ap_base64decode_binary((unsigned char *) bufplain, bufcoded);
+    len = apr_base64decode_binary((unsigned char *) bufplain, bufcoded);
 #if APR_CHARSET_EBCDIC
     inbytes_left = outbytes_left = len;
     apr_xlate_conv_buffer(xlate_to_ebcdic, bufplain, &inbytes_left,
@@ -181,10 +181,10 @@ APU_DECLARE(int) ap_base64decode(char *bufplain, const char *bufcoded)
     return len;
 }
 
-/* This is the same as ap_base64decode() except on EBCDIC machines, where
+/* This is the same as apr_base64decode() except on EBCDIC machines, where
  * the conversion of the output to ebcdic is left out.
  */
-APU_DECLARE(int) ap_base64decode_binary(unsigned char *bufplain,
+APU_DECLARE(int) apr_base64decode_binary(unsigned char *bufplain,
 				   const char *bufcoded)
 {
     int nbytesdecoded;
@@ -232,16 +232,16 @@ APU_DECLARE(int) ap_base64decode_binary(unsigned char *bufplain,
 static const char basis_64[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-APU_DECLARE(int) ap_base64encode_len(int len)
+APU_DECLARE(int) apr_base64encode_len(int len)
 {
     return ((len + 2) / 3 * 4) + 1;
 }
 
-APU_DECLARE(int) ap_base64encode(char *encoded, const char *string, int len)
+APU_DECLARE(int) apr_base64encode(char *encoded, const char *string, int len)
 {
 #if !APR_CHARSET_EBCDIC
-    return ap_base64encode_binary(encoded, (const unsigned char *) string, len);
-#else				/* AP_CHARSET_EBCDIC */
+    return apr_base64encode_binary(encoded, (const unsigned char *) string, len);
+#else /* APR_CHARSET_EBCDIC */
     int i;
     char *p;
 
@@ -273,10 +273,10 @@ APU_DECLARE(int) ap_base64encode(char *encoded, const char *string, int len)
 #endif				/* APR_CHARSET_EBCDIC */
 }
 
-/* This is the same as ap_base64encode() except on EBCDIC machines, where
+/* This is the same as apr_base64encode() except on EBCDIC machines, where
  * the conversion of the input to ascii is left out.
  */
-APU_DECLARE(int) ap_base64encode_binary(char *encoded,
+APU_DECLARE(int) apr_base64encode_binary(char *encoded,
                                       const unsigned char *string, int len)
 {
     int i;
