@@ -56,6 +56,7 @@
 #include "apr_lib.h"
 #include "apr_pools.h"
 #include "apr_tables.h"
+#include "apr_buckets.h"
 #include "apr_errno.h"
 
 #include <stdlib.h>
@@ -65,8 +66,6 @@
 #if APR_HAVE_SYS_UIO_H
 #include <sys/uio.h>
 #endif
-
-#include "apr_buckets.h"
 
 static apr_status_t apr_brigade_cleanup(void *data)
 {
@@ -97,8 +96,9 @@ APU_DECLARE(apr_bucket_brigade *) apr_brigade_create(apr_pool_t *p)
 {
     apr_bucket_brigade *b;
 
-    b = apr_palloc(p, sizeof(*b));
+    b = apr_pcalloc(p, sizeof(*b));
     b->p = p;
+
     APR_RING_INIT(&b->list, apr_bucket, link);
 
     apr_pool_cleanup_register(b->p, b, apr_brigade_cleanup, apr_brigade_cleanup);
@@ -185,12 +185,56 @@ APU_DECLARE(int) apr_brigade_to_iovec(apr_bucket_brigade *b,
     return vec - orig;
 }
 
-APU_DECLARE(int) apr_brigade_vputstrs(apr_bucket_brigade *b, va_list va)
+static int check_brigade_flush(const char **str, 
+                               apr_size_t *n, apr_bucket_brigade *bb,
+                               brigade_flush flush)
 {
-    apr_bucket *r;
+    apr_bucket *b = APR_BRIGADE_LAST(bb);
+
+    if (APR_BRIGADE_EMPTY(bb)) {
+        if (*n > APR_BUCKET_BUFF_SIZE) {
+            apr_bucket *e;
+            if (flush) {
+                e = apr_bucket_transient_create(*str, *n);
+            }
+            else {
+                e = apr_bucket_heap_create(*str, *n, 0, NULL);
+            }
+            APR_BRIGADE_INSERT_TAIL(bb, e);
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
+
+    if (APR_BUCKET_IS_HEAP(b)) {
+        apr_bucket_shared *s = b->data;
+        apr_bucket_heap *h = s->data;
+
+        if (*n > (h->alloc_len - (s->end - s->start))) {
+            apr_bucket *e = apr_bucket_transient_create(*str, *n);
+            APR_BRIGADE_INSERT_TAIL(bb, e);
+            return 1;
+        }
+    }
+    else if (*n > APR_BUCKET_BUFF_SIZE) {
+        apr_bucket *e = apr_bucket_transient_create(*str, *n);
+        APR_BRIGADE_INSERT_TAIL(bb, e);
+        return 1;
+    }
+
+    return 0;
+}
+
+APU_DECLARE(int) apr_brigade_vputstrs(apr_bucket_brigade *b, 
+                                      brigade_flush flush, void *ctx,
+                                      va_list va)
+                                    
+                                   
+{
     const char *x;
     int j, k;
-    apr_size_t i;
 
     for (k = 0;;) {
         x = va_arg(va, const char *);
@@ -198,55 +242,131 @@ APU_DECLARE(int) apr_brigade_vputstrs(apr_bucket_brigade *b, va_list va)
             break;
         j = strlen(x);
        
-	/* XXX: copy or not? let the caller decide? */
-        r = apr_bucket_heap_create(x, j, 1, &i);
-        if (i != j) {
-            /* Do we need better error reporting?  */
-            return -1;
-        }
-        k += i;
-
-        APR_BRIGADE_INSERT_TAIL(b, r);
+        k += apr_brigade_write(b, flush, ctx, x, j);
     }
-
     return k;
 }
 
-APU_DECLARE_NONSTD(int) apr_brigade_putstrs(apr_bucket_brigade *b, ...)
+APU_DECLARE(int) apr_brigade_putc(apr_bucket_brigade *b, brigade_flush flush, 
+                                  void *ctx, const char c)
+{
+    apr_size_t nbyte = 1;
+    const char *str = &c;
+
+    if (check_brigade_flush(&str, &nbyte, b, flush)) {
+        if (flush) {
+            return flush(b, ctx);
+        }
+    }
+    else {
+        apr_bucket *buck = APR_BRIGADE_LAST(b);
+        apr_bucket_shared *s;
+        apr_bucket_heap *h;
+        char *buf;
+
+        if (!APR_BUCKET_IS_HEAP(buck) || APR_BRIGADE_EMPTY(b)) {
+            buf = malloc(APR_BUCKET_BUFF_SIZE);
+
+            buck = apr_bucket_heap_create(buf, APR_BUCKET_BUFF_SIZE, 0, NULL);
+            s = buck->data;
+            s->start = s->end = 0;
+            h = s->data;
+
+            APR_BRIGADE_INSERT_TAIL(b, buck);
+        }
+        else {
+            s = buck->data;
+            h = s->data;
+
+            buf = h->base + s->end;
+        }
+        memcpy(buf, &c, 1);
+        s->end++;
+    }
+
+    return 1;
+}
+
+APU_DECLARE(int) apr_brigade_write(apr_bucket_brigade *b, 
+                                   brigade_flush flush, void *ctx, 
+                                   const char *str, apr_size_t nbyte)
+{
+    if (check_brigade_flush(&str, &nbyte, b, flush)) {
+        if (flush) {
+            return flush(b, ctx);
+        }
+    }
+    else {
+        apr_bucket *buck = APR_BRIGADE_LAST(b);
+        apr_bucket_shared *s;
+        apr_bucket_heap *h;
+        char *buf;
+
+        if (!APR_BUCKET_IS_HEAP(buck) || APR_BRIGADE_EMPTY(b)) {
+            buf = malloc(APR_BUCKET_BUFF_SIZE);
+
+            buck = apr_bucket_heap_create(buf, APR_BUCKET_BUFF_SIZE, 0, NULL);
+            s = buck->data;
+            s->start = s->end = 0;
+            h = s->data;
+
+            APR_BRIGADE_INSERT_TAIL(b, buck);
+        }
+        else {
+            s = buck->data;
+            h = s->data;
+
+            buf = h->base + s->end;
+        }
+
+        memcpy(buf, str, nbyte);
+        s->end += nbyte;
+    }
+    return nbyte;
+}
+
+APU_DECLARE(int) apr_brigade_puts(apr_bucket_brigade *b, brigade_flush flush, 
+                                  void *ctx, const char *str)
+{
+    return apr_brigade_write(b, flush, ctx, str, strlen(str));
+}
+
+APU_DECLARE_NONSTD(int) apr_brigade_putstrs(apr_bucket_brigade *b, 
+                                           brigade_flush flush, void *ctx, ...)
 {
     va_list va;
     int written;
 
-    va_start(va, b);
-    written = apr_brigade_vputstrs(b, va);
+    va_start(va, ctx);
+    written = apr_brigade_vputstrs(b, flush, ctx, va);
     va_end(va);
     return written;
 }
 
-APU_DECLARE_NONSTD(int) apr_brigade_printf(apr_bucket_brigade *b, const char *fmt, ...)
+APU_DECLARE_NONSTD(int) apr_brigade_printf(apr_bucket_brigade *b, 
+                                           brigade_flush flush, void *ctx, 
+                                           const char *fmt, ...)
 {
     va_list ap;
     int res;
 
     va_start(ap, fmt);
-    res = apr_brigade_vprintf(b, fmt, ap);
+    res = apr_brigade_vprintf(b, flush, ctx, fmt, ap);
     va_end(ap);
     return res;
 }
 
-APU_DECLARE(int) apr_brigade_vprintf(apr_bucket_brigade *b, const char *fmt, va_list va)
+APU_DECLARE(int) apr_brigade_vprintf(apr_bucket_brigade *b, 
+                                     brigade_flush flush, void *ctx, 
+                                     const char *fmt, va_list va)
 {
     /* XXX:  This needs to be replaced with a function to printf
      * directly into a bucket.  I'm being lazy right now.  RBB
      */
     char buf[4096];
-    apr_bucket *r;
-    int res;
 
-    res = apr_vsnprintf(buf, 4096, fmt, va);
+    apr_vsnprintf(buf, 4096, fmt, va);
 
-    r = apr_bucket_heap_create(buf, strlen(buf), 1, NULL);
-    APR_BRIGADE_INSERT_TAIL(b, r);
+    return apr_brigade_puts(b, flush, ctx, buf);
+} 
 
-    return res;
-}
