@@ -40,30 +40,27 @@ ALL : "$(OUTDIR)\aprutil.lib"
 
 !ELSE 
 
-ALL : "libapr - Win32 Release" "$(OUTDIR)\aprutil.lib"
+ALL : "$(OUTDIR)\aprutil.lib"
 
 !ENDIF 
 
-!IF "$(RECURSE)" == "1" 
-CLEAN :"libapr - Win32 ReleaseCLEAN" 
-!ELSE 
 CLEAN :
-!ENDIF 
-	-@erase "$(INTDIR)\ap_base64.obj"
-	-@erase "$(INTDIR)\ap_buckets.obj"
-	-@erase "$(INTDIR)\ap_buckets_eos.obj"
-	-@erase "$(INTDIR)\ap_buckets_file.obj"
-	-@erase "$(INTDIR)\ap_buckets_flush.obj"
-	-@erase "$(INTDIR)\ap_buckets_heap.obj"
-	-@erase "$(INTDIR)\ap_buckets_mmap.obj"
-	-@erase "$(INTDIR)\ap_buckets_pipe.obj"
-	-@erase "$(INTDIR)\ap_buckets_pool.obj"
-	-@erase "$(INTDIR)\ap_buckets_refcount.obj"
-	-@erase "$(INTDIR)\ap_buckets_simple.obj"
-	-@erase "$(INTDIR)\ap_buckets_socket.obj"
-	-@erase "$(INTDIR)\ap_hooks.obj"
-	-@erase "$(INTDIR)\ap_sha1.obj"
+	-@erase "$(INTDIR)\apr_base64.obj"
+	-@erase "$(INTDIR)\apr_brigade.obj"
+	-@erase "$(INTDIR)\apr_buckets.obj"
+	-@erase "$(INTDIR)\apr_buckets_eos.obj"
+	-@erase "$(INTDIR)\apr_buckets_file.obj"
+	-@erase "$(INTDIR)\apr_buckets_flush.obj"
+	-@erase "$(INTDIR)\apr_buckets_heap.obj"
+	-@erase "$(INTDIR)\apr_buckets_mmap.obj"
+	-@erase "$(INTDIR)\apr_buckets_pipe.obj"
+	-@erase "$(INTDIR)\apr_buckets_pool.obj"
+	-@erase "$(INTDIR)\apr_buckets_refcount.obj"
+	-@erase "$(INTDIR)\apr_buckets_simple.obj"
+	-@erase "$(INTDIR)\apr_buckets_socket.obj"
 	-@erase "$(INTDIR)\apr_dbm.obj"
+	-@erase "$(INTDIR)\apr_hooks.obj"
+	-@erase "$(INTDIR)\apr_sha1.obj"
 	-@erase "$(INTDIR)\aprutil.idb"
 	-@erase "$(INTDIR)\sdbm.obj"
 	-@erase "$(INTDIR)\sdbm_hash.obj"
@@ -77,8 +74,9 @@ CLEAN :
 RSC=rc.exe
 CPP=cl.exe
 CPP_PROJ=/nologo /MD /W3 /O2 /I "./include" /I "../apr/include" /I\
- "./include/private" /I "./src/dbm/sdbm" /D "NDEBUG" /D "APR_DECLARE_EXPORT" /D\
- "WIN32" /D "_WINDOWS" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\aprutil" /FD /c 
+ "./include/private" /I "./dbm/sdbm" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D\
+ "APR_DECLARE_STATIC" /D "APU_DECLARE_STATIC" /D "APU_USE_SDBM" /Fo"$(INTDIR)\\"\
+ /Fd"$(INTDIR)\aprutil" /FD /c 
 CPP_OBJS=.\LibR/
 CPP_SBRS=.
 
@@ -119,26 +117,26 @@ BSC32_SBRS= \
 LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:"$(OUTDIR)\aprutil.lib" 
 LIB32_OBJS= \
-	"$(INTDIR)\ap_base64.obj" \
-	"$(INTDIR)\ap_buckets.obj" \
-	"$(INTDIR)\ap_buckets_eos.obj" \
-	"$(INTDIR)\ap_buckets_file.obj" \
-	"$(INTDIR)\ap_buckets_flush.obj" \
-	"$(INTDIR)\ap_buckets_heap.obj" \
-	"$(INTDIR)\ap_buckets_mmap.obj" \
-	"$(INTDIR)\ap_buckets_pipe.obj" \
-	"$(INTDIR)\ap_buckets_pool.obj" \
-	"$(INTDIR)\ap_buckets_refcount.obj" \
-	"$(INTDIR)\ap_buckets_simple.obj" \
-	"$(INTDIR)\ap_buckets_socket.obj" \
-	"$(INTDIR)\ap_hooks.obj" \
-	"$(INTDIR)\ap_sha1.obj" \
+	"$(INTDIR)\apr_base64.obj" \
+	"$(INTDIR)\apr_brigade.obj" \
+	"$(INTDIR)\apr_buckets.obj" \
+	"$(INTDIR)\apr_buckets_eos.obj" \
+	"$(INTDIR)\apr_buckets_file.obj" \
+	"$(INTDIR)\apr_buckets_flush.obj" \
+	"$(INTDIR)\apr_buckets_heap.obj" \
+	"$(INTDIR)\apr_buckets_mmap.obj" \
+	"$(INTDIR)\apr_buckets_pipe.obj" \
+	"$(INTDIR)\apr_buckets_pool.obj" \
+	"$(INTDIR)\apr_buckets_refcount.obj" \
+	"$(INTDIR)\apr_buckets_simple.obj" \
+	"$(INTDIR)\apr_buckets_socket.obj" \
 	"$(INTDIR)\apr_dbm.obj" \
+	"$(INTDIR)\apr_hooks.obj" \
+	"$(INTDIR)\apr_sha1.obj" \
 	"$(INTDIR)\sdbm.obj" \
 	"$(INTDIR)\sdbm_hash.obj" \
 	"$(INTDIR)\sdbm_lock.obj" \
-	"$(INTDIR)\sdbm_pair.obj" \
-	"..\apr\Release\libapr.lib"
+	"$(INTDIR)\sdbm_pair.obj"
 
 "$(OUTDIR)\aprutil.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -159,30 +157,27 @@ ALL : "$(OUTDIR)\aprutil.lib"
 
 !ELSE 
 
-ALL : "libapr - Win32 Debug" "$(OUTDIR)\aprutil.lib"
+ALL : "$(OUTDIR)\aprutil.lib"
 
 !ENDIF 
 
-!IF "$(RECURSE)" == "1" 
-CLEAN :"libapr - Win32 DebugCLEAN" 
-!ELSE 
 CLEAN :
-!ENDIF 
-	-@erase "$(INTDIR)\ap_base64.obj"
-	-@erase "$(INTDIR)\ap_buckets.obj"
-	-@erase "$(INTDIR)\ap_buckets_eos.obj"
-	-@erase "$(INTDIR)\ap_buckets_file.obj"
-	-@erase "$(INTDIR)\ap_buckets_flush.obj"
-	-@erase "$(INTDIR)\ap_buckets_heap.obj"
-	-@erase "$(INTDIR)\ap_buckets_mmap.obj"
-	-@erase "$(INTDIR)\ap_buckets_pipe.obj"
-	-@erase "$(INTDIR)\ap_buckets_pool.obj"
-	-@erase "$(INTDIR)\ap_buckets_refcount.obj"
-	-@erase "$(INTDIR)\ap_buckets_simple.obj"
-	-@erase "$(INTDIR)\ap_buckets_socket.obj"
-	-@erase "$(INTDIR)\ap_hooks.obj"
-	-@erase "$(INTDIR)\ap_sha1.obj"
+	-@erase "$(INTDIR)\apr_base64.obj"
+	-@erase "$(INTDIR)\apr_brigade.obj"
+	-@erase "$(INTDIR)\apr_buckets.obj"
+	-@erase "$(INTDIR)\apr_buckets_eos.obj"
+	-@erase "$(INTDIR)\apr_buckets_file.obj"
+	-@erase "$(INTDIR)\apr_buckets_flush.obj"
+	-@erase "$(INTDIR)\apr_buckets_heap.obj"
+	-@erase "$(INTDIR)\apr_buckets_mmap.obj"
+	-@erase "$(INTDIR)\apr_buckets_pipe.obj"
+	-@erase "$(INTDIR)\apr_buckets_pool.obj"
+	-@erase "$(INTDIR)\apr_buckets_refcount.obj"
+	-@erase "$(INTDIR)\apr_buckets_simple.obj"
+	-@erase "$(INTDIR)\apr_buckets_socket.obj"
 	-@erase "$(INTDIR)\apr_dbm.obj"
+	-@erase "$(INTDIR)\apr_hooks.obj"
+	-@erase "$(INTDIR)\apr_sha1.obj"
 	-@erase "$(INTDIR)\aprutil.idb"
 	-@erase "$(INTDIR)\aprutil.pdb"
 	-@erase "$(INTDIR)\sdbm.obj"
@@ -197,9 +192,9 @@ CLEAN :
 RSC=rc.exe
 CPP=cl.exe
 CPP_PROJ=/nologo /MDd /W3 /GX /Zi /Od /I "./include" /I "../apr/include" /I\
- "./include/private" /I "./src/dbm/sdbm" /D "_DEBUG" /D "APR_DECLARE_EXPORT" /D\
- "WIN32" /D "_WINDOWS" /D "APU_USE_SDBM" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\aprutil"\
- /FD /c 
+ "./include/private" /I "./dbm/sdbm" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D\
+ "APR_DECLARE_STATIC" /D "APU_DECLARE_STATIC" /D "APU_USE_SDBM" /Fo"$(INTDIR)\\"\
+ /Fd"$(INTDIR)\aprutil" /FD /c 
 CPP_OBJS=.\LibD/
 CPP_SBRS=.
 
@@ -240,26 +235,26 @@ BSC32_SBRS= \
 LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:"$(OUTDIR)\aprutil.lib" 
 LIB32_OBJS= \
-	"$(INTDIR)\ap_base64.obj" \
-	"$(INTDIR)\ap_buckets.obj" \
-	"$(INTDIR)\ap_buckets_eos.obj" \
-	"$(INTDIR)\ap_buckets_file.obj" \
-	"$(INTDIR)\ap_buckets_flush.obj" \
-	"$(INTDIR)\ap_buckets_heap.obj" \
-	"$(INTDIR)\ap_buckets_mmap.obj" \
-	"$(INTDIR)\ap_buckets_pipe.obj" \
-	"$(INTDIR)\ap_buckets_pool.obj" \
-	"$(INTDIR)\ap_buckets_refcount.obj" \
-	"$(INTDIR)\ap_buckets_simple.obj" \
-	"$(INTDIR)\ap_buckets_socket.obj" \
-	"$(INTDIR)\ap_hooks.obj" \
-	"$(INTDIR)\ap_sha1.obj" \
+	"$(INTDIR)\apr_base64.obj" \
+	"$(INTDIR)\apr_brigade.obj" \
+	"$(INTDIR)\apr_buckets.obj" \
+	"$(INTDIR)\apr_buckets_eos.obj" \
+	"$(INTDIR)\apr_buckets_file.obj" \
+	"$(INTDIR)\apr_buckets_flush.obj" \
+	"$(INTDIR)\apr_buckets_heap.obj" \
+	"$(INTDIR)\apr_buckets_mmap.obj" \
+	"$(INTDIR)\apr_buckets_pipe.obj" \
+	"$(INTDIR)\apr_buckets_pool.obj" \
+	"$(INTDIR)\apr_buckets_refcount.obj" \
+	"$(INTDIR)\apr_buckets_simple.obj" \
+	"$(INTDIR)\apr_buckets_socket.obj" \
 	"$(INTDIR)\apr_dbm.obj" \
+	"$(INTDIR)\apr_hooks.obj" \
+	"$(INTDIR)\apr_sha1.obj" \
 	"$(INTDIR)\sdbm.obj" \
 	"$(INTDIR)\sdbm_hash.obj" \
 	"$(INTDIR)\sdbm_lock.obj" \
-	"$(INTDIR)\sdbm_pair.obj" \
-	"..\apr\Debug\libapr.lib"
+	"$(INTDIR)\sdbm_pair.obj"
 
 "$(OUTDIR)\aprutil.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -271,32 +266,11 @@ LIB32_OBJS= \
 
 !IF "$(CFG)" == "aprutil - Win32 Release" || "$(CFG)" ==\
  "aprutil - Win32 Debug"
-SOURCE=.\include\private\apu_private.hw
-
-!IF  "$(CFG)" == "aprutil - Win32 Release"
-
-InputPath=.\include\private\apu_private.hw
-
-".\include\private\apu_private.h"	 : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	copy .\include\private\apu_private.hw .\include\private\apu_private.h > nul 
-	echo Created apu_private.h from apu_private.hw 
-	
-
-!ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
-
-InputPath=.\include\private\apu_private.hw
-
-".\include\private\apu_private.h"	 : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	copy .\include\private\apu_private.hw .\include\private\apu_private.h > nul 
-	echo Created apu_private.h from apu_private.hw 
-	
-
-!ENDIF 
-
-SOURCE=.\src\buckets\ap_buckets.c
-DEP_CPP_AP_BU=\
+SOURCE=.\buckets\apr_brigade.c
+DEP_CPP_APR_B=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
+	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
 	"..\apr\include\apr_lib.h"\
@@ -305,38 +279,71 @@ DEP_CPP_AP_BU=\
 	"..\apr\include\apr_pools.h"\
 	"..\apr\include\apr_tables.h"\
 	"..\apr\include\apr_time.h"\
-	"..\apr\network_io\os2\os2nerrno.h"\
-	".\include\ap_buckets.h"\
-	".\include\ap_ring.h"\
+	"..\apr\include\apr_user.h"\
+	"..\apr\include\apr_want.h"\
+	".\include\apr_buckets.h"\
+	".\include\apr_ring.h"\
+	".\include\apu.h"\
 	
 
-"$(INTDIR)\ap_buckets.obj" : $(SOURCE) $(DEP_CPP_AP_BU) "$(INTDIR)"
+"$(INTDIR)\apr_brigade.obj" : $(SOURCE) $(DEP_CPP_APR_B) "$(INTDIR)"\
+ ".\include\apu.h"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
-SOURCE=.\src\buckets\ap_buckets_eos.c
-DEP_CPP_AP_BUC=\
+SOURCE=.\buckets\apr_buckets.c
+DEP_CPP_APR_BU=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
+	"..\apr\include\apr_file_info.h"\
+	"..\apr\include\apr_file_io.h"\
+	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_lib.h"\
+	"..\apr\include\apr_mmap.h"\
+	"..\apr\include\apr_network_io.h"\
+	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_tables.h"\
+	"..\apr\include\apr_time.h"\
+	"..\apr\include\apr_user.h"\
+	"..\apr\include\apr_want.h"\
+	".\include\apr_buckets.h"\
+	".\include\apr_ring.h"\
+	".\include\apu.h"\
+	
+
+"$(INTDIR)\apr_buckets.obj" : $(SOURCE) $(DEP_CPP_APR_BU) "$(INTDIR)"\
+ ".\include\apu.h"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+SOURCE=.\buckets\apr_buckets_eos.c
+DEP_CPP_APR_BUC=\
+	"..\apr\include\apr.h"\
+	"..\apr\include\apr_errno.h"\
+	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
 	"..\apr\include\apr_time.h"\
-	"..\apr\network_io\os2\os2nerrno.h"\
-	".\include\ap_buckets.h"\
-	".\include\ap_ring.h"\
+	"..\apr\include\apr_user.h"\
+	"..\apr\include\apr_want.h"\
+	".\include\apr_buckets.h"\
+	".\include\apr_ring.h"\
+	".\include\apu.h"\
 	
 
-"$(INTDIR)\ap_buckets_eos.obj" : $(SOURCE) $(DEP_CPP_AP_BUC) "$(INTDIR)"
+"$(INTDIR)\apr_buckets_eos.obj" : $(SOURCE) $(DEP_CPP_APR_BUC) "$(INTDIR)"\
+ ".\include\apu.h"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
-SOURCE=.\src\buckets\ap_buckets_file.c
-DEP_CPP_AP_BUCK=\
+SOURCE=.\buckets\apr_buckets_file.c
+DEP_CPP_APR_BUCK=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
+	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
 	"..\apr\include\apr_lib.h"\
@@ -344,155 +351,92 @@ DEP_CPP_AP_BUCK=\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
 	"..\apr\include\apr_time.h"\
-	"..\apr\network_io\os2\os2nerrno.h"\
-	".\include\ap_buckets.h"\
-	".\include\ap_ring.h"\
+	"..\apr\include\apr_user.h"\
+	"..\apr\include\apr_want.h"\
+	".\include\apr_buckets.h"\
+	".\include\apr_ring.h"\
+	".\include\apu.h"\
 	
 
-"$(INTDIR)\ap_buckets_file.obj" : $(SOURCE) $(DEP_CPP_AP_BUCK) "$(INTDIR)"
+"$(INTDIR)\apr_buckets_file.obj" : $(SOURCE) $(DEP_CPP_APR_BUCK) "$(INTDIR)"\
+ ".\include\apu.h"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
-SOURCE=.\src\buckets\ap_buckets_flush.c
-DEP_CPP_AP_BUCKE=\
+SOURCE=.\buckets\apr_buckets_flush.c
+DEP_CPP_APR_BUCKE=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
+	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
 	"..\apr\include\apr_time.h"\
-	"..\apr\network_io\os2\os2nerrno.h"\
-	".\include\ap_buckets.h"\
-	".\include\ap_ring.h"\
+	"..\apr\include\apr_user.h"\
+	"..\apr\include\apr_want.h"\
+	".\include\apr_buckets.h"\
+	".\include\apr_ring.h"\
+	".\include\apu.h"\
 	
 
-"$(INTDIR)\ap_buckets_flush.obj" : $(SOURCE) $(DEP_CPP_AP_BUCKE) "$(INTDIR)"
+"$(INTDIR)\apr_buckets_flush.obj" : $(SOURCE) $(DEP_CPP_APR_BUCKE) "$(INTDIR)"\
+ ".\include\apu.h"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
-SOURCE=.\src\buckets\ap_buckets_heap.c
-DEP_CPP_AP_BUCKET=\
+SOURCE=.\buckets\apr_buckets_heap.c
+DEP_CPP_APR_BUCKET=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
+	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
 	"..\apr\include\apr_time.h"\
-	"..\apr\network_io\os2\os2nerrno.h"\
-	".\include\ap_buckets.h"\
-	".\include\ap_ring.h"\
+	"..\apr\include\apr_user.h"\
+	"..\apr\include\apr_want.h"\
+	".\include\apr_buckets.h"\
+	".\include\apr_ring.h"\
+	".\include\apu.h"\
 	
 
-"$(INTDIR)\ap_buckets_heap.obj" : $(SOURCE) $(DEP_CPP_AP_BUCKET) "$(INTDIR)"
+"$(INTDIR)\apr_buckets_heap.obj" : $(SOURCE) $(DEP_CPP_APR_BUCKET) "$(INTDIR)"\
+ ".\include\apu.h"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
-SOURCE=.\src\buckets\ap_buckets_mmap.c
-DEP_CPP_AP_BUCKETS=\
+SOURCE=.\buckets\apr_buckets_mmap.c
+DEP_CPP_APR_BUCKETS=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
+	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
 	"..\apr\include\apr_mmap.h"\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
 	"..\apr\include\apr_time.h"\
-	"..\apr\network_io\os2\os2nerrno.h"\
-	".\include\ap_buckets.h"\
-	".\include\ap_ring.h"\
+	"..\apr\include\apr_user.h"\
+	"..\apr\include\apr_want.h"\
+	".\include\apr_buckets.h"\
+	".\include\apr_ring.h"\
+	".\include\apu.h"\
 	
 
-"$(INTDIR)\ap_buckets_mmap.obj" : $(SOURCE) $(DEP_CPP_AP_BUCKETS) "$(INTDIR)"
+"$(INTDIR)\apr_buckets_mmap.obj" : $(SOURCE) $(DEP_CPP_APR_BUCKETS) "$(INTDIR)"\
+ ".\include\apu.h"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
-SOURCE=.\src\buckets\ap_buckets_pipe.c
-DEP_CPP_AP_BUCKETS_=\
+SOURCE=.\buckets\apr_buckets_pipe.c
+DEP_CPP_APR_BUCKETS_=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
-	"..\apr\include\apr_file_io.h"\
-	"..\apr\include\apr_general.h"\
-	"..\apr\include\apr_lib.h"\
-	"..\apr\include\apr_mmap.h"\
-	"..\apr\include\apr_network_io.h"\
-	"..\apr\include\apr_pools.h"\
-	"..\apr\include\apr_time.h"\
-	"..\apr\network_io\os2\os2nerrno.h"\
-	".\include\ap_buckets.h"\
-	".\include\ap_ring.h"\
-	
-
-"$(INTDIR)\ap_buckets_pipe.obj" : $(SOURCE) $(DEP_CPP_AP_BUCKETS_) "$(INTDIR)"
-	$(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-SOURCE=.\src\buckets\ap_buckets_pool.c
-DEP_CPP_AP_BUCKETS_P=\
-	"..\apr\include\apr.h"\
-	"..\apr\include\apr_errno.h"\
-	"..\apr\include\apr_file_io.h"\
-	"..\apr\include\apr_general.h"\
-	"..\apr\include\apr_mmap.h"\
-	"..\apr\include\apr_network_io.h"\
-	"..\apr\include\apr_pools.h"\
-	"..\apr\include\apr_time.h"\
-	"..\apr\network_io\os2\os2nerrno.h"\
-	".\include\ap_buckets.h"\
-	".\include\ap_ring.h"\
-	
-
-"$(INTDIR)\ap_buckets_pool.obj" : $(SOURCE) $(DEP_CPP_AP_BUCKETS_P) "$(INTDIR)"
-	$(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-SOURCE=.\src\buckets\ap_buckets_refcount.c
-DEP_CPP_AP_BUCKETS_R=\
-	"..\apr\include\apr.h"\
-	"..\apr\include\apr_errno.h"\
-	"..\apr\include\apr_file_io.h"\
-	"..\apr\include\apr_general.h"\
-	"..\apr\include\apr_mmap.h"\
-	"..\apr\include\apr_network_io.h"\
-	"..\apr\include\apr_pools.h"\
-	"..\apr\include\apr_time.h"\
-	"..\apr\network_io\os2\os2nerrno.h"\
-	".\include\ap_buckets.h"\
-	".\include\ap_ring.h"\
-	
-
-"$(INTDIR)\ap_buckets_refcount.obj" : $(SOURCE) $(DEP_CPP_AP_BUCKETS_R)\
- "$(INTDIR)"
-	$(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-SOURCE=.\src\buckets\ap_buckets_simple.c
-DEP_CPP_AP_BUCKETS_S=\
-	"..\apr\include\apr.h"\
-	"..\apr\include\apr_errno.h"\
-	"..\apr\include\apr_file_io.h"\
-	"..\apr\include\apr_general.h"\
-	"..\apr\include\apr_mmap.h"\
-	"..\apr\include\apr_network_io.h"\
-	"..\apr\include\apr_pools.h"\
-	"..\apr\include\apr_time.h"\
-	"..\apr\network_io\os2\os2nerrno.h"\
-	".\include\ap_buckets.h"\
-	".\include\ap_ring.h"\
-	
-
-"$(INTDIR)\ap_buckets_simple.obj" : $(SOURCE) $(DEP_CPP_AP_BUCKETS_S)\
- "$(INTDIR)"
-	$(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-SOURCE=.\src\buckets\ap_buckets_socket.c
-DEP_CPP_AP_BUCKETS_SO=\
-	"..\apr\include\apr.h"\
-	"..\apr\include\apr_errno.h"\
+	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_general.h"\
 	"..\apr\include\apr_lib.h"\
@@ -500,18 +444,113 @@ DEP_CPP_AP_BUCKETS_SO=\
 	"..\apr\include\apr_network_io.h"\
 	"..\apr\include\apr_pools.h"\
 	"..\apr\include\apr_time.h"\
-	"..\apr\network_io\os2\os2nerrno.h"\
-	".\include\ap_buckets.h"\
-	".\include\ap_ring.h"\
+	"..\apr\include\apr_user.h"\
+	"..\apr\include\apr_want.h"\
+	".\include\apr_buckets.h"\
+	".\include\apr_ring.h"\
+	".\include\apu.h"\
 	
 
-"$(INTDIR)\ap_buckets_socket.obj" : $(SOURCE) $(DEP_CPP_AP_BUCKETS_SO)\
- "$(INTDIR)"
+"$(INTDIR)\apr_buckets_pipe.obj" : $(SOURCE) $(DEP_CPP_APR_BUCKETS_)\
+ "$(INTDIR)" ".\include\apu.h"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
-SOURCE=.\src\crypto\ap_sha1.c
-DEP_CPP_AP_SH=\
+SOURCE=.\buckets\apr_buckets_pool.c
+DEP_CPP_APR_BUCKETS_P=\
+	"..\apr\include\apr.h"\
+	"..\apr\include\apr_errno.h"\
+	"..\apr\include\apr_file_info.h"\
+	"..\apr\include\apr_file_io.h"\
+	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_mmap.h"\
+	"..\apr\include\apr_network_io.h"\
+	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_time.h"\
+	"..\apr\include\apr_user.h"\
+	"..\apr\include\apr_want.h"\
+	".\include\apr_buckets.h"\
+	".\include\apr_ring.h"\
+	".\include\apu.h"\
+	
+
+"$(INTDIR)\apr_buckets_pool.obj" : $(SOURCE) $(DEP_CPP_APR_BUCKETS_P)\
+ "$(INTDIR)" ".\include\apu.h"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+SOURCE=.\buckets\apr_buckets_refcount.c
+DEP_CPP_APR_BUCKETS_R=\
+	"..\apr\include\apr.h"\
+	"..\apr\include\apr_errno.h"\
+	"..\apr\include\apr_file_info.h"\
+	"..\apr\include\apr_file_io.h"\
+	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_mmap.h"\
+	"..\apr\include\apr_network_io.h"\
+	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_time.h"\
+	"..\apr\include\apr_user.h"\
+	"..\apr\include\apr_want.h"\
+	".\include\apr_buckets.h"\
+	".\include\apr_ring.h"\
+	".\include\apu.h"\
+	
+
+"$(INTDIR)\apr_buckets_refcount.obj" : $(SOURCE) $(DEP_CPP_APR_BUCKETS_R)\
+ "$(INTDIR)" ".\include\apu.h"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+SOURCE=.\buckets\apr_buckets_simple.c
+DEP_CPP_APR_BUCKETS_S=\
+	"..\apr\include\apr.h"\
+	"..\apr\include\apr_errno.h"\
+	"..\apr\include\apr_file_info.h"\
+	"..\apr\include\apr_file_io.h"\
+	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_mmap.h"\
+	"..\apr\include\apr_network_io.h"\
+	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_time.h"\
+	"..\apr\include\apr_user.h"\
+	"..\apr\include\apr_want.h"\
+	".\include\apr_buckets.h"\
+	".\include\apr_ring.h"\
+	".\include\apu.h"\
+	
+
+"$(INTDIR)\apr_buckets_simple.obj" : $(SOURCE) $(DEP_CPP_APR_BUCKETS_S)\
+ "$(INTDIR)" ".\include\apu.h"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+SOURCE=.\buckets\apr_buckets_socket.c
+DEP_CPP_APR_BUCKETS_SO=\
+	"..\apr\include\apr.h"\
+	"..\apr\include\apr_errno.h"\
+	"..\apr\include\apr_file_info.h"\
+	"..\apr\include\apr_file_io.h"\
+	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_lib.h"\
+	"..\apr\include\apr_mmap.h"\
+	"..\apr\include\apr_network_io.h"\
+	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_time.h"\
+	"..\apr\include\apr_user.h"\
+	"..\apr\include\apr_want.h"\
+	".\include\apr_buckets.h"\
+	".\include\apr_ring.h"\
+	".\include\apu.h"\
+	
+
+"$(INTDIR)\apr_buckets_socket.obj" : $(SOURCE) $(DEP_CPP_APR_BUCKETS_SO)\
+ "$(INTDIR)" ".\include\apu.h"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+SOURCE=.\crypto\apr_sha1.c
+DEP_CPP_APR_S=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_general.h"\
@@ -519,42 +558,47 @@ DEP_CPP_AP_SH=\
 	"..\apr\include\apr_pools.h"\
 	"..\apr\include\apr_strings.h"\
 	"..\apr\include\apr_xlate.h"\
-	"..\apr\network_io\os2\os2nerrno.h"\
-	".\include\ap_base64.h"\
-	".\include\ap_sha1.h"\
+	".\include\apr_base64.h"\
+	".\include\apr_sha1.h"\
+	".\include\apu.h"\
 	
 
-"$(INTDIR)\ap_sha1.obj" : $(SOURCE) $(DEP_CPP_AP_SH) "$(INTDIR)"
+"$(INTDIR)\apr_sha1.obj" : $(SOURCE) $(DEP_CPP_APR_S) "$(INTDIR)"\
+ ".\include\apu.h"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
-SOURCE=.\src\dbm\sdbm\sdbm.c
+SOURCE=.\dbm\sdbm\sdbm.c
 DEP_CPP_SDBM_=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
+	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_pools.h"\
 	"..\apr\include\apr_strings.h"\
 	"..\apr\include\apr_time.h"\
-	"..\apr\network_io\os2\os2nerrno.h"\
+	"..\apr\include\apr_user.h"\
+	"..\apr\include\apr_want.h"\
+	".\dbm\sdbm\sdbm_pair.h"\
+	".\dbm\sdbm\sdbm_private.h"\
+	".\dbm\sdbm\sdbm_tune.h"\
 	".\include\apr_sdbm.h"\
-	".\src\dbm\sdbm\sdbm_pair.h"\
-	".\src\dbm\sdbm\sdbm_private.h"\
-	".\src\dbm\sdbm\sdbm_tune.h"\
 	
 
 "$(INTDIR)\sdbm.obj" : $(SOURCE) $(DEP_CPP_SDBM_) "$(INTDIR)"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
-SOURCE=.\src\dbm\sdbm\sdbm_hash.c
+SOURCE=.\dbm\sdbm\sdbm_hash.c
 DEP_CPP_SDBM_H=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
+	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_pools.h"\
 	"..\apr\include\apr_time.h"\
-	"..\apr\network_io\os2\os2nerrno.h"\
+	"..\apr\include\apr_user.h"\
+	"..\apr\include\apr_want.h"\
 	".\include\apr_sdbm.h"\
 	
 
@@ -562,112 +606,143 @@ DEP_CPP_SDBM_H=\
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
-SOURCE=.\src\dbm\sdbm\sdbm_lock.c
+SOURCE=.\dbm\sdbm\sdbm_lock.c
 DEP_CPP_SDBM_L=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
+	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_pools.h"\
 	"..\apr\include\apr_time.h"\
-	"..\apr\network_io\os2\os2nerrno.h"\
+	"..\apr\include\apr_user.h"\
+	"..\apr\include\apr_want.h"\
+	".\dbm\sdbm\sdbm_private.h"\
 	".\include\apr_sdbm.h"\
-	".\src\dbm\sdbm\sdbm_private.h"\
 	
 
 "$(INTDIR)\sdbm_lock.obj" : $(SOURCE) $(DEP_CPP_SDBM_L) "$(INTDIR)"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
-SOURCE=.\src\dbm\sdbm\sdbm_pair.c
+SOURCE=.\dbm\sdbm\sdbm_pair.c
 DEP_CPP_SDBM_P=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
+	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_pools.h"\
 	"..\apr\include\apr_time.h"\
-	"..\apr\network_io\os2\os2nerrno.h"\
+	"..\apr\include\apr_user.h"\
+	"..\apr\include\apr_want.h"\
+	".\dbm\sdbm\sdbm_pair.h"\
+	".\dbm\sdbm\sdbm_private.h"\
+	".\dbm\sdbm\sdbm_tune.h"\
 	".\include\apr_sdbm.h"\
-	".\src\dbm\sdbm\sdbm_pair.h"\
-	".\src\dbm\sdbm\sdbm_private.h"\
-	".\src\dbm\sdbm\sdbm_tune.h"\
 	
 
 "$(INTDIR)\sdbm_pair.obj" : $(SOURCE) $(DEP_CPP_SDBM_P) "$(INTDIR)"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
-SOURCE=.\src\dbm\apr_dbm.c
+SOURCE=.\dbm\apr_dbm.c
 DEP_CPP_APR_D=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
+	"..\apr\include\apr_file_info.h"\
 	"..\apr\include\apr_file_io.h"\
 	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_strings.h"\
 	"..\apr\include\apr_time.h"\
-	"..\apr\network_io\os2\os2nerrno.h"\
+	"..\apr\include\apr_user.h"\
+	"..\apr\include\apr_want.h"\
 	".\include\apr_dbm.h"\
 	".\include\apr_sdbm.h"\
-	".\include\private\apu_private.h"\
+	".\include\apu.h"\
+	".\include\private\apu_select_dbm.h"\
 	
 
 "$(INTDIR)\apr_dbm.obj" : $(SOURCE) $(DEP_CPP_APR_D) "$(INTDIR)"\
- ".\include\private\apu_private.h"
+ ".\include\private\apu_select_dbm.h" ".\include\apu.h"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
-SOURCE=.\src\encoding\ap_base64.c
-DEP_CPP_AP_BA=\
+SOURCE=.\encoding\apr_base64.c
+DEP_CPP_APR_BA=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
 	"..\apr\include\apr_general.h"\
 	"..\apr\include\apr_pools.h"\
 	"..\apr\include\apr_xlate.h"\
-	"..\apr\network_io\os2\os2nerrno.h"\
-	".\include\ap_base64.h"\
+	".\include\apr_base64.h"\
+	".\include\apu.h"\
 	
 
-"$(INTDIR)\ap_base64.obj" : $(SOURCE) $(DEP_CPP_AP_BA) "$(INTDIR)"
+"$(INTDIR)\apr_base64.obj" : $(SOURCE) $(DEP_CPP_APR_BA) "$(INTDIR)"\
+ ".\include\apu.h"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
-SOURCE=.\src\hooks\ap_hooks.c
-DEP_CPP_AP_HO=\
+SOURCE=.\hooks\apr_hooks.c
+DEP_CPP_APR_H=\
 	"..\apr\include\apr.h"\
 	"..\apr\include\apr_errno.h"\
+	"..\apr\include\apr_hash.h"\
 	"..\apr\include\apr_pools.h"\
 	"..\apr\include\apr_tables.h"\
-	"..\apr\network_io\os2\os2nerrno.h"\
-	".\include\ap_hooks.h"\
+	".\include\apr_generic_hook.h"\
+	".\include\apr_hooks.h"\
+	".\include\apr_optional.h"\
+	".\include\apu.h"\
 	
 
-"$(INTDIR)\ap_hooks.obj" : $(SOURCE) $(DEP_CPP_AP_HO) "$(INTDIR)"
+"$(INTDIR)\apr_hooks.obj" : $(SOURCE) $(DEP_CPP_APR_H) "$(INTDIR)"\
+ ".\include\apu.h"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
+
+SOURCE=.\include\apu.hw
 
 !IF  "$(CFG)" == "aprutil - Win32 Release"
 
-"libapr - Win32 Release" : 
-   cd "\test\httpd-2.0\srclib\apr"
-   $(MAKE) /$(MAKEFLAGS) /F ".\libapr.mak" CFG="libapr - Win32 Release" 
-   cd "..\apr-util"
+InputPath=.\include\apu.hw
 
-"libapr - Win32 ReleaseCLEAN" : 
-   cd "\test\httpd-2.0\srclib\apr"
-   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\libapr.mak" CFG="libapr - Win32 Release"\
- RECURSE=1 
-   cd "..\apr-util"
+".\include\apu.h"	 : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy .\include\apu.hw .\include\apu.h > nul 
+	echo Created apu.h from apu.hw 
+	
 
 !ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
 
-"libapr - Win32 Debug" : 
-   cd "\test\httpd-2.0\srclib\apr"
-   $(MAKE) /$(MAKEFLAGS) /F ".\libapr.mak" CFG="libapr - Win32 Debug" 
-   cd "..\apr-util"
+InputPath=.\include\apu.hw
 
-"libapr - Win32 DebugCLEAN" : 
-   cd "\test\httpd-2.0\srclib\apr"
-   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\libapr.mak" CFG="libapr - Win32 Debug"\
- RECURSE=1 
-   cd "..\apr-util"
+".\include\apu.h"	 : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy .\include\apu.hw .\include\apu.h > nul 
+	echo Created apu.h from apu.hw 
+	
+
+!ENDIF 
+
+SOURCE=.\include\private\apu_select_dbm.hw
+
+!IF  "$(CFG)" == "aprutil - Win32 Release"
+
+InputPath=.\include\private\apu_select_dbm.hw
+
+".\include\private\apu_select_dbm.h"	 : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy .\include\private\apu_select_dbm.hw .\include\private\apu_select_dbm.h >\
+ nul 
+	echo Created apu_select_dbm.h from apu_select_dbm.hw 
+	
+
+!ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
+
+InputPath=.\include\private\apu_select_dbm.hw
+
+".\include\private\apu_select_dbm.h"	 : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy .\include\private\apu_select_dbm.hw .\include\private\apu_select_dbm.h >\
+ nul 
+	echo Created apu_select_dbm.h from apu_select_dbm.hw 
+	
 
 !ENDIF 
 
