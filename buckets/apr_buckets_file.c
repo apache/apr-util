@@ -105,19 +105,19 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
     apr_bucket *b = NULL;
     char *buf;
     apr_status_t rv;
-    apr_off_t length = e->length;
+    apr_off_t filelength = e->length;  /* bytes remaining in file past offset */
 #if APR_HAS_MMAP
     apr_mmap_t *mm = NULL;
 #endif
 
 #if APR_HAS_MMAP
-    if ((e->length >= MMAP_THRESHOLD)
-        && (e->length < MMAP_LIMIT)) {
+    if ((filelength >= MMAP_THRESHOLD)
+        && (filelength < MMAP_LIMIT)) {
         /* we need to protect ourselves in case we die while we've got the
          * file mmapped */
         apr_status_t status;
         apr_pool_t *p = apr_file_pool_get(f);
-        if ((status = apr_mmap_create(&mm, f, s->start, e->length, 
+        if ((status = apr_mmap_create(&mm, f, s->start, filelength, 
                                       APR_MMAP_READ, p)) != APR_SUCCESS) {
             mm = NULL;
         }
@@ -132,15 +132,9 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
     }
 #endif
 
-    buf = malloc(HUGE_STRING_LEN);
-    *str = buf;
-
-    if (e->length > HUGE_STRING_LEN) {
-        *len = HUGE_STRING_LEN;
-    }
-    else {
-        *len = e->length;
-    }
+    *len = (filelength > HUGE_STRING_LEN) ? HUGE_STRING_LEN : filelength;
+    *str = NULL;  /* in case we die prematurely */
+    buf = malloc(*len);
 
     /* Handle offset ... */
     if (s->start) {
@@ -155,28 +149,29 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
         free(buf);
         return rv;
     }
-    length -= *len;
-
+    filelength -= *len;
     /*
      * Change the current bucket to refer to what we read,
      * even if we read nothing because we hit EOF.
      */
     apr_bucket_heap_make(e, buf, *len, 0, NULL); /*XXX: check for failure? */
+
     /* If we have more to read from the file, then create another bucket */
-    if (length > 0) {
+    if (filelength > 0) {
         /* for efficiency, we can just build a new apr_bucket struct
          * to wrap around the existing shared+file bucket */
         s->start += (*len);
         b = malloc(sizeof(*b));
         b->data = s;
         b->type = &apr_bucket_type_file;
-        b->length = length;
+        b->length = filelength;
         APR_BUCKET_INSERT_AFTER(e, b);
     }
     else {
         file_destroy(s);
     }
 
+    *str = buf;
     return APR_SUCCESS;
 }
 
