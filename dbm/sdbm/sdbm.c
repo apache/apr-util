@@ -116,7 +116,8 @@ static apr_status_t database_cleanup(void *data)
     apr_sdbm_t *db = data;
 
     (void) apr_file_close(db->dirf);
-    (void) sdbm_unlock(db);
+    if (!(db->flags & SDBM_SHARED))
+        (void) sdbm_unlock(db);
     (void) apr_file_close(db->pagf);
     free(db);
 
@@ -146,8 +147,17 @@ apr_status_t prep(apr_sdbm_t **pdb, const char *dirname, const char *pagname,
         db->flags = SDBM_RDONLY;
     }
 
-    flags |= APR_BINARY | APR_READ;
+    /*
+     * adjust user flags so that SHARELOCK isn't used within
+     * APR (if it's ever implemented) since we will perform
+     * that locking here.
+     */
+    if (flags & APR_SHARELOCK) {
+        flags &= ~APR_SHARELOCK;
+        db->flags |= SDBM_SHARED;
+    }
 
+    flags |= APR_BINARY | APR_READ;
     /*
      * open the files in sequence, and stat the dirfile.
      * If we fail anywhere, undo everything, return NULL.
@@ -164,6 +174,13 @@ apr_status_t prep(apr_sdbm_t **pdb, const char *dirname, const char *pagname,
     if ((status = apr_file_open(&db->dirf, dirname, flags, perms, p))
                 != APR_SUCCESS)
         goto error;
+
+    /*
+     * if we are opened in SHARED mode, unlock ourself 
+     */
+    if (db->flags & SDBM_SHARED)
+        if ((status = sdbm_unlock(db)) != APR_SUCCESS)
+            goto error;
 
     /*
      * need the dirfile size to establish max bit number.
@@ -222,13 +239,21 @@ apr_status_t apr_sdbm_fetch(apr_sdbm_t *db, apr_sdbm_datum_t *val,
     if (db == NULL || bad(key))
         return APR_EINVAL;
 
+    if (db->flags & SDBM_SHARED)
+        if ((status = sdbm_lock(db, 0)) != APR_SUCCESS)
+            return ioerr(db, status);
+
     if ((status = getpage(db, exhash(key))) == APR_SUCCESS) {
         *val = getpair(db->pagbuf, key);
-        /* ### do we want a not-found result? */
-        return APR_SUCCESS;
+        /* ### do we want a not-found status result? */
     }
+    else
+        ioerr(db, status);
 
-    ioerr(db, status);
+    if (db->flags & SDBM_SHARED)
+        if ((status = sdbm_unlock(db)) != APR_SUCCESS)
+            ioerr(db, status);
+
     return status;
 }
 
@@ -240,8 +265,7 @@ static apr_status_t write_page(apr_sdbm_t *db, const char *buf, long pagno)
     if ((status = apr_file_seek(db->pagf, APR_SET, &off)) != APR_SUCCESS ||
         (status = apr_file_write_full(db->pagf, buf, PBLKSIZ, NULL)) 
                 != APR_SUCCESS) {
-        ioerr(db, status);
-        return status;
+        return ioerr(db, status);
     }
     
     return APR_SUCCESS;
@@ -256,22 +280,28 @@ apr_status_t apr_sdbm_delete(apr_sdbm_t *db, const apr_sdbm_datum_t key)
     if (apr_sdbm_rdonly(db))
         return APR_EINVAL;
 
+    if (db->flags & SDBM_SHARED)
+        if ((status = sdbm_lock(db, 1)) != APR_SUCCESS)
+            return ioerr(db, status);
+
     if ((status = getpage(db, exhash(key))) == APR_SUCCESS) {
+        /*
+         * remove the key and update the page file
+         */
         if (!delpair(db->pagbuf, key))
             /* ### should we define some APRUTIL codes? */
-            return APR_EGENERAL;
-
-        /*
-         * update the page file
-         */
-        if ((status = write_page(db, db->pagbuf, db->pagbno)) != APR_SUCCESS)
-            return status;
-
-        return APR_SUCCESS;
+            status = APR_EGENERAL;
+        else
+            status = write_page(db, db->pagbuf, db->pagbno);
     }
+    else
+        ioerr(db, status);
 
-    ioerr(db, status);
-    return APR_EACCES;
+    if (db->flags & SDBM_SHARED)
+        if ((status = sdbm_unlock(db)) != APR_SUCCESS)
+            return ioerr(db, status);
+
+    return status;
 }
 
 apr_status_t apr_sdbm_store(apr_sdbm_t *db, apr_sdbm_datum_t key, 
@@ -293,6 +323,10 @@ apr_status_t apr_sdbm_store(apr_sdbm_t *db, apr_sdbm_datum_t key,
     if (need < 0 || need > PAIRMAX)
         return APR_EINVAL;
 
+    if (db->flags & SDBM_SHARED)
+        if ((status = sdbm_lock(db, 1)) != APR_SUCCESS)
+            return ioerr(db, status);
+
     if ((status = getpage(db, (hash = exhash(key)))) == APR_SUCCESS) {
 
         /*
@@ -301,27 +335,32 @@ apr_status_t apr_sdbm_store(apr_sdbm_t *db, apr_sdbm_datum_t key,
          */
         if (flags == APR_SDBM_REPLACE)
             (void) delpair(db->pagbuf, key);
-        else if (!(flags & APR_SDBM_INSERTDUP) && duppair(db->pagbuf, key))
-            return APR_EEXIST;
+        else if (!(flags & APR_SDBM_INSERTDUP) && duppair(db->pagbuf, key)) {
+            status = ioerr(db, APR_EEXIST);
+            goto error;
+        }
         /*
          * if we do not have enough room, we have to split.
          */
         if (!fitpair(db->pagbuf, need))
-            if ((status = makroom(db, hash, need)) != APR_SUCCESS)
-                return status;
+            if ((status = makroom(db, hash, need)) != APR_SUCCESS) {
+                ioerr(db, status);
+                goto error;
+            }
         /*
          * we have enough room or split is successful. insert the key,
          * and update the page file.
          */
         (void) putpair(db->pagbuf, key, val);
 
-        if ((status = write_page(db, db->pagbuf, db->pagbno)) != APR_SUCCESS)
-            return status;
-
-        return APR_SUCCESS;
+        status = write_page(db, db->pagbuf, db->pagbno);
     }
-    
-    ioerr(db, status);
+
+error:
+    if (db->flags & SDBM_SHARED)
+        if ((status = sdbm_unlock(db)) != APR_SUCCESS)
+            ioerr(db, status);
+
     return status;
 }
 
@@ -433,26 +472,48 @@ static apr_status_t read_from(apr_file_t *f, void *buf,
  */
 apr_status_t apr_sdbm_firstkey(apr_sdbm_t *db, apr_sdbm_datum_t *key)
 {
+    apr_status_t status;
+
+    if (db->flags & SDBM_SHARED)
+        if ((status = sdbm_lock(db, 0)) != APR_SUCCESS)
+            return ioerr(db, status);
+
     /*
      * start at page 0
      */
-    apr_status_t status;
     if ((status = read_from(db->pagf, db->pagbuf, OFF_PAG(0), PBLKSIZ))
                 != APR_SUCCESS) {
         ioerr(db, status);
-        return status;
+    }
+    else {
+        db->pagbno = 0;
+        db->blkptr = 0;
+        db->keyptr = 0;
+        status = getnext(key, db);
     }
 
-    db->pagbno = 0;
-    db->blkptr = 0;
-    db->keyptr = 0;
+    if (db->flags & SDBM_SHARED)
+        if ((status = sdbm_unlock(db)) != APR_SUCCESS)
+            ioerr(db, status);
 
-    return getnext(key, db);
+    return status;
 }
 
 apr_status_t apr_sdbm_nextkey(apr_sdbm_t *db, apr_sdbm_datum_t *key)
 {
-    return getnext(key, db);
+    apr_status_t status;
+
+    if (db->flags & SDBM_SHARED)
+        if ((status = sdbm_lock(db, 0)) != APR_SUCCESS)
+            return ioerr(db, status);
+
+    status = getnext(key, db);
+
+    if (db->flags & SDBM_SHARED)
+        if ((status = sdbm_unlock(db)) != APR_SUCCESS)
+            ioerr(db, status);
+
+    return status;
 }
 
 /*
