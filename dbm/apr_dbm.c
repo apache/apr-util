@@ -57,7 +57,7 @@
 #include "apr_pools.h"
 #include "apr_strings.h"
 
-#include "apu_private.h"
+#include "apu_select_dbm.h"
 #include "apr_dbm.h"
 
 
@@ -131,10 +131,10 @@ static apr_status_t g2s(int gerr)
 
 #elif APU_USE_DB
 /*
- * We pick up all varieties of Berkeley DB through db.h. This code has been
- * compiled/tested against DB1, DB_185, DB2, and DB3.
+ * We pick up all varieties of Berkeley DB through db.h (included through
+ * apu_select_dbm.h). This code has been compiled/tested against DB1,
+ * DB_185, DB2, and DB3.
  */
-#include </usr/local/BerkeleyDB.3.1/include/db.h>
 
 #if   defined(DB_VERSION_MAJOR) && (DB_VERSION_MAJOR == 3)
 #define DB_VER 3
