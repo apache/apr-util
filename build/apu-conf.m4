@@ -437,10 +437,17 @@ AC_DEFUN(APU_TEST_EXPAT,[
     dnl Expat 1.95.* distribution
     expat_include_dir="$1/lib"
     expat_libs="$1/lib/libexpat.la"
-  elif test -r "$1/include/expat.h"; then
-    dnl Expat 1.95.* installation
+  elif test -r "$1/include/expat.h" -a \
+    -r "$1/lib/libexpat.la"; then
+    dnl Expat 1.95.* installation (with libtool)
     expat_include_dir="$1/include"
     expat_libs="$1/lib/libexpat.la"
+  elif test -r "$1/include/expat.h" -a \
+    -r "$1/lib/libexpat.a"; then
+    dnl Expat 1.95.* installation (without libtool)
+    dnl FreeBSD textproc/expat2
+    expat_include_dir="$1/include"
+    expat_libs="-L$1/lib -lexpat"
   elif test -r "$1/xmlparse.h"; then
     dnl maybe an expat-lite. use this dir for both includes and libs
     expat_include_dir="$1"
@@ -462,6 +469,12 @@ AC_DEFUN(APU_TEST_EXPAT,[
     dnl Debian distribution
     expat_include_dir="$1/include/xmltok"
     expat_libs="-L$1/lib -lxmlparse -lxmltok"
+    expat_old=yes
+  elif test -r "$1/include/xml/xmlparse.h" -a \
+       -r "$1/lib/libexpat.a"; then
+    dnl FreeBSD textproc/expat package
+    expat_include_dir="$1/include/xml"
+    expat_libs="-L$1/lib -lexpat"
     expat_old=yes
   elif test -r "$1/xmlparse/xmlparse.h"; then
     dnl Expat 1.0 or 1.1 source directory
