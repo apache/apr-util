@@ -127,48 +127,55 @@ APU_DECLARE(apr_bucket_brigade *) apr_brigade_split(apr_bucket_brigade *b,
     return a;
 }
 
-APU_DECLARE(apr_bucket *) apr_brigade_partition(apr_bucket_brigade *b, apr_off_t point)
+APU_DECLARE(apr_status_t) apr_brigade_partition(apr_bucket_brigade *b,
+                                                apr_off_t point,
+                                                apr_bucket **after_point)
 {
     apr_bucket *e;
     const char *s;
     apr_size_t len;
+    apr_status_t rv;
 
-    if (point < 0)
-        return NULL;
+    if (point < 0) {
+        /* this could cause weird (not necessarily SEGV) things to happen */
+        return APR_EINVAL;
+    }
+    if (point == 0) {
+        *after_point = APR_BRIGADE_FIRST(b);
+        return APR_SUCCESS;
+    }
 
     APR_BRIGADE_FOREACH(e, b) {
-        /* bucket is of a known length */
-        if ((point > e->length) && (e->length != -1)) {
-            if (APR_BUCKET_IS_EOS(e))
-                return NULL;
-            point -= e->length;
-        }
-        else if (point == e->length) {
-            return APR_BUCKET_NEXT(e);
-        }
-        else {
+        if ((point < e->length) || (e->length == -1)) {
             /* try to split the bucket natively */
-            if (apr_bucket_split(e, point) != APR_ENOTIMPL)
-                return APR_BUCKET_NEXT(e);
+            if ((rv = apr_bucket_split(e, point)) != APR_ENOTIMPL) {
+                *after_point = APR_BUCKET_NEXT(e);
+                return rv;
+            }
 
             /* if the bucket cannot be split, we must read from it,
              * changing its type to one that can be split */
-            if (apr_bucket_read(e, &s, &len, APR_BLOCK_READ) != APR_SUCCESS)
-                return NULL;
-
-            if (point < len) {
-                if (apr_bucket_split(e, point) == APR_SUCCESS)
-                    return APR_BUCKET_NEXT(e);
-                else
-                    return NULL;
+            if ((rv = apr_bucket_read(e, &s, &len,
+                                      APR_BLOCK_READ)) != APR_SUCCESS) {
+                return rv;
             }
-            else if (point == len)
-                return APR_BUCKET_NEXT(e);
-            else
-                point -= len;
+
+            /* this assumes that len == e->length, which is okay because e
+             * might have been morphed by the apr_bucket_read() above, but
+             * if it was, the length would have been adjusted appropriately */
+            if (point < e->length) {
+                rv = apr_bucket_split(e, point);
+                *after_point = APR_BUCKET_NEXT(e);
+                return rv;
+            }
         }
+        if (point == e->length) {
+            *after_point = APR_BUCKET_NEXT(e);
+            return APR_SUCCESS;
+        }
+        point -= e->length;
     }
-    return NULL;
+    return APR_EINVAL;
 }
 
 APU_DECLARE(apr_status_t) apr_brigade_length(apr_bucket_brigade *bb,

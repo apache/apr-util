@@ -634,11 +634,12 @@ APU_DECLARE(apr_bucket_brigade *) apr_brigade_split(apr_bucket_brigade *b,
  * of bytes from the brigade; the ranges can even overlap.
  * @param b The brigade to partition
  * @param point The offset at which to partition the brigade
- * @return A pointer to the first bucket after the partition;
- *         or NULL in any error condition (including partition past the end)
- * @deffunc apr_bucket *apr_brigade_partition(apr_bucket_brigade *b, apr_off_t point)
+ * @param after_point Returns a pointer to the first bucket after the partition
+ * @deffunc apr_status_t apr_brigade_partition(apr_bucket_brigade *b, apr_off_t point, apr_bucket **after_point)
  */
-APU_DECLARE(apr_bucket *) apr_brigade_partition(apr_bucket_brigade *b, apr_off_t point);
+APU_DECLARE(apr_status_t) apr_brigade_partition(apr_bucket_brigade *b,
+                                                apr_off_t point,
+                                                apr_bucket **after_point);
 
 #if APR_NOT_DONE_YET
 /**
