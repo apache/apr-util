@@ -461,8 +461,8 @@ APU_DECLARE(apr_status_t) apr_brigade_writev(apr_bucket_brigade *b,
     apr_bucket *e = APR_BRIGADE_LAST(b);
     apr_size_t remaining;
     char *buf;
-    apr_size_t bytes_written = 0;
     apr_size_t i;
+    apr_status_t rv;
 
     /* Step 1: check if there is a heap bucket at the end
      * of the brigade already
@@ -484,14 +484,23 @@ APU_DECLARE(apr_status_t) apr_brigade_writev(apr_bucket_brigade *b,
         apr_size_t nbyte = vec[i].iov_len;
         const char *str = (const char *)(vec[i].iov_base);
 
-        bytes_written += nbyte;
         if (nbyte <= remaining) {
+            /* Simple case: the data will fit in the current heap bucket */
             memcpy(buf, str, nbyte);
             e->length += nbyte;
             buf += nbyte;
             remaining -= nbyte;
         }
         else if (nbyte < APR_BUCKET_BUFF_SIZE) {
+            /* Flush the content written so far */
+            if (flush && (i != 0) && !APR_BRIGADE_EMPTY(b)) {
+                rv = flush(b, ctx);
+                if (rv != APR_SUCCESS) {
+                    return rv;
+                }
+            }
+
+            /* Allocate a new heap buffer */
             buf = apr_bucket_alloc(APR_BUCKET_BUFF_SIZE, b->bucket_alloc);
             e = apr_bucket_heap_create(buf, APR_BUCKET_BUFF_SIZE,
                                        apr_bucket_free, b->bucket_alloc);
@@ -500,18 +509,19 @@ APU_DECLARE(apr_status_t) apr_brigade_writev(apr_bucket_brigade *b,
             e->length = nbyte;
             buf += nbyte;
             remaining = APR_BUCKET_BUFF_SIZE - nbyte;
+
         }
         else { /* String larger than APR_BUCKET_BUFF_SIZE */
             e = apr_bucket_transient_create(str, nbyte, b->bucket_alloc);
             APR_BRIGADE_INSERT_TAIL(b, e);
+            if (flush) {
+                rv = flush(b, ctx);
+                if (rv != APR_SUCCESS) {
+                    return rv;
+                }
+            }
             remaining = 0; /* create a new heap bucket for the next write */
         }
-    }
-
-    /* Step 3: if necessary, output the brigade contents now
-     */
-    if (flush && (bytes_written >= APR_BUCKET_BUFF_SIZE)) {
-        return flush(b, ctx);
     }
 
     return APR_SUCCESS;
