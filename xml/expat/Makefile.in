@@ -85,7 +85,7 @@ DISTRIBUTION = $(DISTDIR).tar.gz
 
 all: build-subdirs
 
-.PHONY: all build-subdirs clean distclean maintainer-clean dist install \
+.PHONY: all build-subdirs clean distclean extraclean maintainer-clean dist install \
         uninstall distdir
 
 Makefile: Makefile.in config.status
@@ -122,6 +122,9 @@ distclean:
 	  cd $$dir; $(MAKE) distclean; cd ..; \
 	done
 	rm -f config.h config.status config.log libtool examples/Makefile xmlwf/Makefile Makefile
+
+extraclean: distclean
+	rm -f configure aclocal.m4
 
 maintainer-clean: distclean
 	rm -f $(DISTRIBUTION)
