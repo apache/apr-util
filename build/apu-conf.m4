@@ -527,6 +527,7 @@ if test "$expat_include_dir" = "xml/expat/lib" -o "$expat_include_dir" = "xml/ex
   expat_libs="-lexpat"
   expat_libtool=$top_builddir/$bundled_subdir/lib/libexpat.la
   APR_XML_SUBDIRS="`echo $bundled_subdir | sed -e 's%xml/%%'`"
+  APR_ADDTO(APRUTIL_EXPORT_LIBS, [$expat_libtool])
 else
 if test "$expat_include_dir" = "$srcdir/xml/expat/include" -o "$expat_include_dir" = "$srcdir/xml/expat/lib"; then
   dnl This is a bit of a hack.  This only works because we know that
@@ -538,6 +539,10 @@ if test "$expat_include_dir" = "$srcdir/xml/expat/include" -o "$expat_include_di
   expat_libs="-lexpat"
   expat_libtool=$top_builddir/$bundled_subdir/lib/libexpat.la
   APR_XML_SUBDIRS="`echo $bundled_subdir | sed -e 's%xml/%%'`"
+  APR_ADDTO(APRUTIL_EXPORT_LIBS, [$expat_libtool])
+else
+  APR_ADDTO(APRUTIL_EXPORT_LIBS, [$expat_libs])
+fi
 fi
 fi
 APR_XML_DIR=$bundled_subdir
@@ -549,7 +554,6 @@ AC_SUBST(APR_XML_EXPAT_OLD)
 if test "$expat_include_dir" != "/usr/include"; then
   APR_ADDTO(APRUTIL_INCLUDES, [-I$expat_include_dir])
 fi
-APR_ADDTO(APRUTIL_EXPORT_LIBS, [$expat_libs])
 APR_ADDTO(APRUTIL_LDFLAGS, [$expat_ldflags])
 APR_ADDTO(APRUTIL_LIBS, [$expat_libtool])
 ])
