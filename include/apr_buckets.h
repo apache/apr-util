@@ -820,6 +820,21 @@ APU_DECLARE(apr_status_t) apr_brigade_write(apr_bucket_brigade *b,
                                             const char *str, apr_size_t nbyte);
 
 /**
+ * This function writes multiple strings into a bucket brigade.
+ * @param b The bucket brigade to add to
+ * @param flush The flush function to use if the brigade is full
+ * @param ctx The structure to pass to the flush function
+ * @param iovec The strings to add (address plus length for each)
+ * @param nvec The number of entries in iovec
+ * @return APR_SUCCESS or error code
+ */
+APU_DECLARE(apr_status_t) apr_brigade_writev(apr_bucket_brigade *b,
+                                             apr_brigade_flush flush,
+                                             void *ctx,
+                                             const struct iovec *vec,
+                                             apr_size_t nvec);
+
+/**
  * This function writes a string into a bucket brigade.
  * @param bb The bucket brigade to add to
  * @param flush The flush function to use if the brigade is full

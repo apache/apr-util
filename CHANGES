@@ -1,5 +1,7 @@
 Changes with APR-util 0.9.2
 
+  *) Add apr_brigade_writev()  [Brian Pane]
+
   *) Add support for Berkeley DB 4.1.  [Justin Erenkrantz]
 
   *) Add --bindir option to apu-config.  [Justin Erenkrantz]
