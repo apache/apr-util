@@ -247,6 +247,8 @@ struct ap_bucket_brigade {
 #define AP_BRIGADE_CONCAT(a, b)						\
 	AP_RING_CONCAT(&(a)->list, &(b)->list, ap_bucket, link)
 
+#define AP_BRIGADE_UNSPLICE(a, b) AP_RING_UNSPLICE((a), (b), link)
+
 #define AP_BUCKET_INSERT_BEFORE(a, b)					\
 	AP_RING_INSERT_BEFORE((a), (b), link)
 #define AP_BUCKET_INSERT_AFTER(a, b)					\
@@ -256,7 +258,6 @@ struct ap_bucket_brigade {
 #define AP_BUCKET_PREV(e)	AP_RING_PREV((e), link)
 
 #define AP_BUCKET_REMOVE(e)	AP_RING_REMOVE((e), link)
-
 
 /**
  * General-purpose reference counting for the varous bucket types.
