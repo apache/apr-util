@@ -1,7 +1,7 @@
 #ifndef APACHE_AP_HOOKS_H
 #define APACHE_AP_HOOKS_H
 
-#define DECLARE_HOOK(ret,name,args) \
+#define AP_DECLARE_HOOK(ret,name,args) \
 typedef ret HOOK_##name args; \
 void ap_hook_##name(HOOK_##name *pf,const char * const *aszPre, \
 		    const char * const *aszSucc,int nOrder); \
@@ -15,13 +15,13 @@ typedef struct _LINK_##name \
     int nOrder; \
     } LINK_##name;
 
-#define HOOK_STRUCT(members) \
+#define AP_HOOK_STRUCT(members) \
 static struct { members } _hooks;
 
-#define HOOK_LINK(name) \
+#define AP_HOOK_LINK(name) \
     ap_array_header_t *link_##name;
 
-#define IMPLEMENT_HOOK_BASE(name) \
+#define AP_IMPLEMENT_HOOK_BASE(name) \
 void ap_hook_##name(HOOK_##name *pf,const char * const *aszPre, \
 		    const char * const *aszSucc,int nOrder) \
     { \
@@ -46,8 +46,8 @@ void ap_hook_##name(HOOK_##name *pf,const char * const *aszPre, \
    VOID runs all
 */
 
-#define IMPLEMENT_HOOK_VOID(name,args_decl,args_use) \
-IMPLEMENT_HOOK_BASE(name) \
+#define AP_IMPLEMENT_HOOK_VOID(name,args_decl,args_use) \
+AP_IMPLEMENT_HOOK_BASE(name) \
 void ap_run_##name args_decl \
     { \
     LINK_##name *pHook; \
@@ -64,8 +64,8 @@ void ap_run_##name args_decl \
 /* FIXME: note that this returns ok when nothing is run. I suspect it should
    really return decline, but that breaks Apache currently - Ben
 */
-#define IMPLEMENT_HOOK_RUN_ALL(ret,name,args_decl,args_use,ok,decline) \
-IMPLEMENT_HOOK_BASE(name) \
+#define AP_IMPLEMENT_HOOK_RUN_ALL(ret,name,args_decl,args_use,ok,decline) \
+AP_IMPLEMENT_HOOK_BASE(name) \
 ret ap_run_##name args_decl \
     { \
     LINK_##name *pHook; \
@@ -86,8 +86,8 @@ ret ap_run_##name args_decl \
     return ok; \
     }
 
-#define IMPLEMENT_HOOK_RUN_FIRST(ret,name,args_decl,args_use,decline) \
-IMPLEMENT_HOOK_BASE(name) \
+#define AP_IMPLEMENT_HOOK_RUN_FIRST(ret,name,args_decl,args_use,decline) \
+AP_IMPLEMENT_HOOK_BASE(name) \
 ret ap_run_##name args_decl \
     { \
     LINK_##name *pHook; \
@@ -109,11 +109,11 @@ ret ap_run_##name args_decl \
     }
 
      /* Hook orderings */
-#define HOOK_REALLY_FIRST	(-10)
-#define HOOK_FIRST		0
-#define HOOK_MIDDLE		10
-#define HOOK_LAST		20
-#define HOOK_REALLY_LAST	30
+#define AP_HOOK_REALLY_FIRST	(-10)
+#define AP_HOOK_FIRST		0
+#define AP_HOOK_MIDDLE		10
+#define AP_HOOK_LAST		20
+#define AP_HOOK_REALLY_LAST	30
 
 extern ap_pool_t *g_pHookPool;
 extern int g_bDebugHooks;
