@@ -45,7 +45,7 @@ install: $(TARGET_LIB)
 	fi; \
 	$(LIBTOOL) --mode=install cp $(TARGET_LIB) $(libdir); \
 	if test -n "$(INSTALL_SUBDIRS)"; then \
-		for i in $(INSTALL_SUBDIRS); do \
+		for i in "$(INSTALL_SUBDIRS)"; do \
 			( cd $$i ; $(MAKE) install ); \
 		done \
 	fi
