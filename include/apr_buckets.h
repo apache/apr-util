@@ -128,6 +128,7 @@ typedef enum {
     AP_BUCKET_MMAP,
     AP_BUCKET_IMMORTAL,
     AP_BUCKET_POOL,
+    AP_BUCKET_SOCKET,
     AP_BUCKET_PIPE,
     AP_BUCKET_EOS        /* End-of-stream bucket.  Special case to say this is
                           * the end of the brigade so all data should be sent
@@ -606,6 +607,15 @@ API_EXPORT(ap_bucket *) ap_bucket_create_mmap(
 		apr_mmap_t *mm, apr_off_t start, apr_size_t length);
 API_EXPORT(ap_bucket *) ap_bucket_make_mmap(ap_bucket *b,
 		apr_mmap_t *mm, apr_off_t start, apr_size_t length);
+
+/**
+ * Create a bucket referring to a socket.
+ * @param thissocket The socket to put in the bucket
+ * @return The new bucket, or NULL if allocation failed
+ * @deffunc ap_bucket *ap_bucket_create_socket(apr_socket_t *thissocket)
+ */
+API_EXPORT(ap_bucket *) ap_bucket_create_socket(apr_socket_t *thissock);
+API_EXPORT(ap_bucket *) ap_bucket_make_socket(ap_bucket *b, apr_socket_t *thissock);
 
 /**
  * Create a bucket referring to a pipe.
