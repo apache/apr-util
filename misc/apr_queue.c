@@ -81,10 +81,10 @@
 
 struct apr_queue_t {
     void              **data;
-    apr_uint32_t        nelts; /**< # elements */
-    apr_uint32_t        in;    /**< next empty location */
-    apr_uint32_t        out;   /**< next filled location */
-    apr_uint32_t        bounds;/**< max size of queue */
+    unsigned int        nelts; /**< # elements */
+    unsigned int        in;    /**< next empty location */
+    unsigned int        out;   /**< next filled location */
+    unsigned int        bounds;/**< max size of queue */
     apr_thread_mutex_t *one_big_mutex;
     apr_thread_cond_t  *not_empty;
     apr_thread_cond_t  *not_full;
@@ -136,7 +136,7 @@ static apr_status_t queue_destroy(void *data)
  * Initialize the apr_queue_t.
  */
 APU_DECLARE(apr_status_t) apr_queue_create(apr_queue_t **q, 
-                                           apr_uint32_t queue_capacity, 
+                                           unsigned int queue_capacity, 
                                            apr_pool_t *a)
 {
     apr_status_t rv;
@@ -288,7 +288,7 @@ APU_DECLARE(apr_status_t) apr_queue_trypush(apr_queue_t *queue, void *data)
 /**
  * not thread safe
  */
-APU_DECLARE(apr_uint32_t) apr_queue_size(apr_queue_t *queue) {
+APU_DECLARE(unsigned int) apr_queue_size(apr_queue_t *queue) {
     return queue->nelts;
 }
 
