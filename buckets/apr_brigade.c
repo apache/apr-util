@@ -510,7 +510,7 @@ APU_DECLARE(apr_status_t) apr_brigade_writev(apr_bucket_brigade *b,
 
     /* Step 3: if necessary, output the brigade contents now
      */
-    if (bytes_written >= APR_BUCKET_BUFF_SIZE) {
+    if (flush && (bytes_written >= APR_BUCKET_BUFF_SIZE)) {
         return flush(b, ctx);
     }
 
