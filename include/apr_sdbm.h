@@ -59,8 +59,8 @@
  * status: ex-public domain
  */
 
-#ifndef SDBM_H
-#define SDBM_H
+#ifndef APR_SDBM_H
+#define APR_SDBM_H
 
 #include "apr_errno.h"
 #include "apr_file_io.h"   /* for apr_fileperms_t */
@@ -107,4 +107,4 @@ apr_status_t sdbm_prep(SDBM **db, const char *dirname, const char *pagname,
 
 long sdbm_hash(const char *str, int len);
 
-#endif /* SDBM_H */
+#endif /* APR_SDBM_H */

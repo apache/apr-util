@@ -58,8 +58,8 @@
  * 	This code is hereby placed in the public domain
  */
 
-#ifndef APACHE_SHA1_H
-#define APACHE_SHA1_H
+#ifndef APR_SHA1_H
+#define APR_SHA1_H
 
 #include "apu.h"
 #include "apr_general.h"
@@ -72,22 +72,22 @@ extern "C" {
  * @package SHA1 library
  */
 
-#define SHA_DIGESTSIZE 20
+#define APR_SHA1_DIGESTSIZE 20
 
 /**
  * Define the Magic String prefix that identifies a password as being
  * hashed using our algorithm.
- * @defvar AP_SHA1PW_ID "{SHA}"
+ * @defvar APR_SHA1PW_ID "{SHA}"
  */
-#define AP_SHA1PW_ID "{SHA}"
-#define AP_SHA1PW_IDLEN 5
+#define APR_SHA1PW_ID "{SHA}"
+#define APR_SHA1PW_IDLEN 5
 
-typedef struct AP_SHA1_CTX AP_SHA1_CTX;
+typedef struct apr_sha1_ctx_t apr_sha1_ctx_t;
 
 /**
  * SHA1 context structure
  */
-struct AP_SHA1_CTX {
+struct apr_sha1_ctx_t {
     /** message digest */
     apr_uint32_t digest[5];
     /** 64-bit bit counts */
@@ -112,25 +112,25 @@ struct AP_SHA1_CTX {
  *     uses plain SHA1 without a salt, so the same password
  *     will always generate the same hash, making it easier
  *     to break since the search space is smaller.
- * @deffunc void ap_sha1_base64(const char *clear, int len, char *out)
+ * @deffunc void apr_sha1_base64(const char *clear, int len, char *out)
  */
-APU_DECLARE(void) ap_sha1_base64(const char *clear, int len, char *out);
+APU_DECLARE(void) apr_sha1_base64(const char *clear, int len, char *out);
 
 /**
  * Initialize the SHA digest
  * @param context The SHA context to initialize
- * @deffunc void ap_SHA1Init(AP_SHA1_CTX *context);
+ * @deffunc void apr_SHA1Init(apr_sha1_ctx_t *context);
  */
-APU_DECLARE(void) ap_SHA1Init(AP_SHA1_CTX *context);
+APU_DECLARE(void) apr_SHA1Init(apr_sha1_ctx_t *context);
 
 /**
  * Update the SHA digest
  * @param context The SHA1 context to update
  * @param input The buffer to add to the SHA digest
  * @param inputLen The length of the input buffer
- * @deffunc void ap_SHA1Update(AP_SHA1_CTX *context, const char *input, unsigned int inputLen)
+ * @deffunc void apr_SHA1Update(apr_sha1_ctx_t *context, const char *input, unsigned int inputLen)
  */
-APU_DECLARE(void) ap_SHA1Update(AP_SHA1_CTX *context, const char *input,
+APU_DECLARE(void) apr_SHA1Update(apr_sha1_ctx_t *context, const char *input,
                                 unsigned int inputLen);
 
 /**
@@ -138,9 +138,9 @@ APU_DECLARE(void) ap_SHA1Update(AP_SHA1_CTX *context, const char *input,
  * @param context The SHA1 context to update
  * @param input The buffer to add to the SHA digest
  * @param inputLen The length of the input buffer
- * @deffunc void ap_SHA1Update_binary(AP_SHA1_CTX *context, const unsigned char *input, unsigned int inputLen)
+ * @deffunc void apr_SHA1Update_binary(apr_sha1_ctx_t *context, const unsigned char *input, unsigned int inputLen)
  */
-APU_DECLARE(void) ap_SHA1Update_binary(AP_SHA1_CTX *context,
+APU_DECLARE(void) apr_SHA1Update_binary(apr_sha1_ctx_t *context,
                                        const unsigned char *input,
                                        unsigned int inputLen);
 
@@ -148,13 +148,13 @@ APU_DECLARE(void) ap_SHA1Update_binary(AP_SHA1_CTX *context,
  * Finish computing the SHA digest
  * @param digest the output buffer in which to store the digest
  * @param context The context to finalize
- * @deffunc void ap_SHA1Final(unsigned char digest[SHA_DIGESTSIZE], AP_SHA1_CTX *context)
+ * @deffunc void apr_SHA1Final(unsigned char digest[APR_SHA1_DIGESTSIZE], apr_sha1_ctx_t *context)
  */
-APU_DECLARE(void) ap_SHA1Final(unsigned char digest[SHA_DIGESTSIZE],
-                               AP_SHA1_CTX *context);
+APU_DECLARE(void) apr_SHA1Final(unsigned char digest[APR_SHA1_DIGESTSIZE],
+                               apr_sha1_ctx_t *context);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif	/* !APACHE_SHA1_H */
+#endif	/* APR_SHA1_H */

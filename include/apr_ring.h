@@ -62,8 +62,8 @@
  * availability of inline functions.
  */
 
-#ifndef AP_RING_H
-#define AP_RING_H
+#ifndef APR_RING_H
+#define APR_RING_H
 
 /*
  * for offsetof()
@@ -80,15 +80,15 @@
  * elements in the ring, e.g.
  *
  *      struct my_item_t {
- *          AP_RING_ENTRY(my_item_t) link;
+ *          APR_RING_ENTRY(my_item_t) link;
  *          int foo;
  *          char *bar;
  *      };
  *
  * A struct may be put on more than one ring if it has more than one
- * AP_RING_ENTRY field.
+ * APR_RING_ENTRY field.
  */
-#define AP_RING_ENTRY(elem)						\
+#define APR_RING_ENTRY(elem)						\
     struct {								\
 	struct elem *next;						\
 	struct elem *prev;						\
@@ -97,7 +97,7 @@
 /*
  * Each ring is managed via its head, which is a struct declared like this:
  *
- *      AP_RING_HEAD(my_ring_t, my_item_t);
+ *      APR_RING_HEAD(my_ring_t, my_item_t);
  *      struct my_ring_t ring, *ringp;
  *
  * This struct looks just like the element link struct so that we can
@@ -106,7 +106,7 @@
  * The first element in the ring is next after the head, and the last
  * element is just before the head.
  */
-#define AP_RING_HEAD(head, elem)					\
+#define APR_RING_HEAD(head, elem)					\
     struct head {							\
 	struct elem *next;						\
 	struct elem *prev;						\
@@ -120,11 +120,11 @@
  * elements in the ring, computed from the address of the ring's head.
  *
  * Note that for strict C standards compliance you should put the
- * AP_RING_ENTRY first in struct elem unless the head is always part
+ * APR_RING_ENTRY first in struct elem unless the head is always part
  * of a larger object with enough earlier fields to accommodate the
  * offsetof() computed below. You can usually ignore this caveat.
  */
-#define AP_RING_SENTINEL(hp, elem, link)				\
+#define APR_RING_SENTINEL(hp, elem, link)				\
     (struct elem *)((char *)(hp) - offsetof(struct elem, link))
 
 /*
@@ -132,77 +132,77 @@
  * structures directly so that you can more easily change to a
  * different flavour of list from BSD's <sys/queue.h>.
  */
-#define AP_RING_FIRST(hp)	(hp)->next
-#define AP_RING_LAST(hp)	(hp)->prev
-#define AP_RING_NEXT(ep, link)	(ep)->link.next
-#define AP_RING_PREV(ep, link)	(ep)->link.prev
+#define APR_RING_FIRST(hp)	(hp)->next
+#define APR_RING_LAST(hp)	(hp)->prev
+#define APR_RING_NEXT(ep, link)	(ep)->link.next
+#define APR_RING_PREV(ep, link)	(ep)->link.prev
 
 /*
  * Empty rings and singleton elements.
  */
-#define AP_RING_INIT(hp, elem, link) do {				\
-	AP_RING_FIRST((hp)) = AP_RING_SENTINEL((hp), elem, link);	\
-	AP_RING_LAST((hp))  = AP_RING_SENTINEL((hp), elem, link);	\
+#define APR_RING_INIT(hp, elem, link) do {				\
+	APR_RING_FIRST((hp)) = APR_RING_SENTINEL((hp), elem, link);	\
+	APR_RING_LAST((hp))  = APR_RING_SENTINEL((hp), elem, link);	\
     } while (0)
 
-#define AP_RING_EMPTY(hp, elem, link)					\
-    (AP_RING_FIRST((hp)) == AP_RING_SENTINEL((hp), elem, link))
+#define APR_RING_EMPTY(hp, elem, link)					\
+    (APR_RING_FIRST((hp)) == APR_RING_SENTINEL((hp), elem, link))
 
-#define AP_RING_ELEM_INIT(ep, link) do {				\
-	AP_RING_NEXT((ep), link) = (ep);				\
-	AP_RING_PREV((ep), link) = (ep);				\
+#define APR_RING_ELEM_INIT(ep, link) do {				\
+	APR_RING_NEXT((ep), link) = (ep);				\
+	APR_RING_PREV((ep), link) = (ep);				\
     } while (0)
 
 /*
  * Adding elements.
  */
-#define AP_RING_SPLICE_BEFORE(lep, ep1, epN, link) do {			\
-	AP_RING_NEXT((epN), link) = (lep);				\
-	AP_RING_PREV((ep1), link) = AP_RING_PREV((lep), link);		\
-	AP_RING_NEXT(AP_RING_PREV((lep), link), link) = (ep1);		\
-	AP_RING_PREV((lep), link) = (epN);				\
+#define APR_RING_SPLICE_BEFORE(lep, ep1, epN, link) do {			\
+	APR_RING_NEXT((epN), link) = (lep);				\
+	APR_RING_PREV((ep1), link) = APR_RING_PREV((lep), link);		\
+	APR_RING_NEXT(APR_RING_PREV((lep), link), link) = (ep1);		\
+	APR_RING_PREV((lep), link) = (epN);				\
     } while (0)
 
-#define AP_RING_SPLICE_AFTER(lep, ep1, epN, link) do {			\
-	AP_RING_PREV((ep1), link) = (lep);				\
-	AP_RING_NEXT((epN), link) = AP_RING_NEXT((lep), link);		\
-	AP_RING_PREV(AP_RING_NEXT((lep), link), link) = (epN);		\
-	AP_RING_NEXT((lep), link) = (ep1);				\
+#define APR_RING_SPLICE_AFTER(lep, ep1, epN, link) do {			\
+	APR_RING_PREV((ep1), link) = (lep);				\
+	APR_RING_NEXT((epN), link) = APR_RING_NEXT((lep), link);		\
+	APR_RING_PREV(APR_RING_NEXT((lep), link), link) = (epN);		\
+	APR_RING_NEXT((lep), link) = (ep1);				\
     } while (0)
 
-#define AP_RING_INSERT_BEFORE(lep, nep, link)				\
-	AP_RING_SPLICE_BEFORE((lep), (nep), (nep), link)
+#define APR_RING_INSERT_BEFORE(lep, nep, link)				\
+	APR_RING_SPLICE_BEFORE((lep), (nep), (nep), link)
 
-#define AP_RING_INSERT_AFTER(lep, nep, link)				\
-	AP_RING_SPLICE_AFTER((lep), (nep), (nep), link)
+#define APR_RING_INSERT_AFTER(lep, nep, link)				\
+	APR_RING_SPLICE_AFTER((lep), (nep), (nep), link)
 
 /*
  * These macros work when the ring is empty: inserting before the head
  * or after the tail of an empty ring using the macros above doesn't work.
  */
-#define AP_RING_SPLICE_HEAD(hp, ep1, epN, elem, link)			\
-	AP_RING_SPLICE_AFTER(AP_RING_SENTINEL((hp), elem, link),	\
+#define APR_RING_SPLICE_HEAD(hp, ep1, epN, elem, link)			\
+	APR_RING_SPLICE_AFTER(APR_RING_SENTINEL((hp), elem, link),	\
 			     (ep1), (epN), link)
 
-#define AP_RING_SPLICE_TAIL(hp, ep1, epN, elem, link)			\
-	AP_RING_SPLICE_BEFORE(AP_RING_SENTINEL((hp), elem, link),	\
+#define APR_RING_SPLICE_TAIL(hp, ep1, epN, elem, link)			\
+	APR_RING_SPLICE_BEFORE(APR_RING_SENTINEL((hp), elem, link),	\
 			     (ep1), (epN), link)
 
-#define AP_RING_INSERT_HEAD(hp, nep, elem, link)			\
-	AP_RING_SPLICE_HEAD((hp), (nep), (nep), elem, link)
+#define APR_RING_INSERT_HEAD(hp, nep, elem, link)			\
+	APR_RING_SPLICE_HEAD((hp), (nep), (nep), elem, link)
 
-#define AP_RING_INSERT_TAIL(hp, nep, elem, link)			\
-	AP_RING_SPLICE_TAIL((hp), (nep), (nep), elem, link)
+#define APR_RING_INSERT_TAIL(hp, nep, elem, link)			\
+	APR_RING_SPLICE_TAIL((hp), (nep), (nep), elem, link)
 
 /*
  * Concatenating ring h2 onto the end of ring h1 leaves h2 empty.
  */
-#define AP_RING_CONCAT(h1, h2, elem, link) do {				\
-	if (!AP_RING_EMPTY((h2), elem, link)) {				\
-	    AP_RING_SPLICE_BEFORE(AP_RING_SENTINEL((h1), elem, link),	\
-				  AP_RING_FIRST((h2)),			\
-				  AP_RING_LAST((h2)), link);		\
-	    AP_RING_INIT((h2), elem, link);				\
+#define APR_RING_CONCAT(h1, h2, elem, link) do {				\
+	if (!APR_RING_EMPTY((h2), elem, link)) {				\
+	    APR_RING_SPLICE_BEFORE(APR_RING_SENTINEL((h1), elem, link),	\
+				  APR_RING_FIRST((h2)),			\
+				  APR_RING_LAST((h2)), link);		\
+	    APR_RING_INIT((h2), elem, link);				\
 	}								\
     } while (0)
 
@@ -210,65 +210,65 @@
  * Removing elements. Be warned that the unspliced elements are left
  * with dangling pointers at either end!
  */
-#define AP_RING_UNSPLICE(ep1, epN, link) do {				\
-	AP_RING_NEXT(AP_RING_PREV((ep1), link), link) =			\
-		     AP_RING_NEXT((epN), link);				\
-	AP_RING_PREV(AP_RING_NEXT((epN), link), link) =			\
-		     AP_RING_PREV((ep1), link);				\
+#define APR_RING_UNSPLICE(ep1, epN, link) do {				\
+	APR_RING_NEXT(APR_RING_PREV((ep1), link), link) =			\
+		     APR_RING_NEXT((epN), link);				\
+	APR_RING_PREV(APR_RING_NEXT((epN), link), link) =			\
+		     APR_RING_PREV((ep1), link);				\
     } while (0)
 
-#define AP_RING_REMOVE(ep, link)					\
-    AP_RING_UNSPLICE((ep), (ep), link)
+#define APR_RING_REMOVE(ep, link)					\
+    APR_RING_UNSPLICE((ep), (ep), link)
 
 /*
  * Iteration.
  */
-#define AP_RING_FOREACH(ep, hp, elem, link)				\
-    for ((ep)  = AP_RING_FIRST((hp));					\
-	 (ep) != AP_RING_SENTINEL((hp), elem, link);			\
-	 (ep)  = AP_RING_NEXT((ep), link))
+#define APR_RING_FOREACH(ep, hp, elem, link)				\
+    for ((ep)  = APR_RING_FIRST((hp));					\
+	 (ep) != APR_RING_SENTINEL((hp), elem, link);			\
+	 (ep)  = APR_RING_NEXT((ep), link))
 
-#define AP_RING_FOREACH_REVERSE(ep, hp, elem, link)			\
-    for ((ep)  = AP_RING_LAST((hp));					\
-	 (ep) != AP_RING_SENTINEL((hp), elem, link);			\
-	 (ep)  = AP_RING_PREV((ep), link))
+#define APR_RING_FOREACH_REVERSE(ep, hp, elem, link)			\
+    for ((ep)  = APR_RING_LAST((hp));					\
+	 (ep) != APR_RING_SENTINEL((hp), elem, link);			\
+	 (ep)  = APR_RING_PREV((ep), link))
 
-#ifdef AP_RING_DEBUG
+#ifdef APR_RING_DEBUG
 #include <stdio.h>
-#define AP_RING_CHECK_ONE(msg, ptr)					\
+#define APR_RING_CHECK_ONE(msg, ptr)					\
 	fprintf(stderr, "*** %s %p\n", msg, ptr)
-#define AP_RING_CHECK(hp, elem, link, msg)				\
-	AP_RING_CHECK_ELEM(AP_RING_SENTINEL(hp, elem, link), elem, link, msg)
-#define AP_RING_CHECK_ELEM(ep, elem, link, msg) do {			\
+#define APR_RING_CHECK(hp, elem, link, msg)				\
+	APR_RING_CHECK_ELEM(APR_RING_SENTINEL(hp, elem, link), elem, link, msg)
+#define APR_RING_CHECK_ELEM(ep, elem, link, msg) do {			\
 	struct elem *start = (ep);					\
 	struct elem *this = start;					\
 	fprintf(stderr, "*** ring check start -- %s\n", msg);		\
 	do {								\
 	    fprintf(stderr, "\telem %p\n", this);			\
 	    fprintf(stderr, "\telem->next %p\n",			\
-		    AP_RING_NEXT(this, link));				\
+		    APR_RING_NEXT(this, link));				\
 	    fprintf(stderr, "\telem->prev %p\n",			\
-		    AP_RING_PREV(this, link));				\
+		    APR_RING_PREV(this, link));				\
 	    fprintf(stderr, "\telem->next->prev %p\n",			\
-		    AP_RING_PREV(AP_RING_NEXT(this, link), link));	\
+		    APR_RING_PREV(APR_RING_NEXT(this, link), link));	\
 	    fprintf(stderr, "\telem->prev->next %p\n",			\
-		    AP_RING_NEXT(AP_RING_PREV(this, link), link));	\
-	    if (AP_RING_PREV(AP_RING_NEXT(this, link), link) != this) {	\
+		    APR_RING_NEXT(APR_RING_PREV(this, link), link));	\
+	    if (APR_RING_PREV(APR_RING_NEXT(this, link), link) != this) {	\
 		fprintf(stderr, "\t*** this->next->prev != this\n");	\
 		break;							\
 	    }								\
-	    if (AP_RING_NEXT(AP_RING_PREV(this, link), link) != this) {	\
+	    if (APR_RING_NEXT(APR_RING_PREV(this, link), link) != this) {	\
 		fprintf(stderr, "\t*** this->prev->next != this\n");	\
 		break;							\
 	    }								\
-	    this = AP_RING_NEXT(this, link);				\
+	    this = APR_RING_NEXT(this, link);				\
 	} while (this != start);					\
 	fprintf(stderr, "*** ring check end\n");			\
     } while (0)
 #else
-#define AP_RING_CHECK_ONE(msg, ptr)
-#define AP_RING_CHECK(hp, elem, link, msg)
-#define AP_RING_CHECK_ELEM(ep, elem, link, msg)
+#define APR_RING_CHECK_ONE(msg, ptr)
+#define APR_RING_CHECK(hp, elem, link, msg)
+#define APR_RING_CHECK_ELEM(ep, elem, link, msg)
 #endif
 
-#endif /* !AP_RING_H */
+#endif /* !APR_RING_H */

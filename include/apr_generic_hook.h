@@ -52,21 +52,25 @@
  * <http://www.apache.org/>.
  */
 
-#ifndef APACHE_AP_GENERIC_HOOK_H
-#define APACHE_AP_GENERIC_HOOK_H
+#ifndef APR_GENERIC_HOOK_H
+#define APR_GENERIC_HOOK_H
 
 #include "apr_tables.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @package Apache hooks functions
  */
 
-#define APU_DECLARE_GENERIC_HOOK(link,ret,name,args) \
-typedef ret HOOK_##name args;
+#define APR_DECLARE_GENERIC_HOOK(ns,ret,name,args) \
+typedef ret ns##_HOOK_##name args;
 
-APU_DECLARE(void) ap_hook_generic(const char *szName,void (*pfn)(void),
-				 const char * const *aszPre,
-				 const char * const *aszSucc,int nOrder);
+APU_DECLARE(void) apr_hook_generic(const char *szName,void (*pfn)(void),
+				   const char * const *aszPre,
+				   const char * const *aszSucc,int nOrder);
 
 /**
  * Hook to a generic hook.
@@ -78,12 +82,12 @@ APU_DECLARE(void) ap_hook_generic(const char *szName,void (*pfn)(void),
  * @param nOrder an integer determining order before honouring aszPre and aszSucc (for example HOOK_MIDDLE)
  */
 
-#define AP_HOOK_GENERIC(name,pfn,aszPre,aszSucc,nOrder) \
+#define APR_HOOK_GENERIC(name,pfn,aszPre,aszSucc,nOrder) \
     ((void (*)(const char *,HOOK_##name *,const char * const *, \
-	       const char * const *,int))&ap_hook_generic)(#name,pfn,aszPre, \
+	       const char * const *,int))&apr_hook_generic)(#name,pfn,aszPre, \
 							   aszSucc, nOrder)
 
-APU_DECLARE(apr_array_header_t *) ap_generic_hook_get(const char *szName);
+APU_DECLARE(apr_array_header_t *) apr_generic_hook_get(const char *szName);
 
 /**
  * Implement a generic hook that runs until one of the functions
@@ -93,20 +97,20 @@ APU_DECLARE(apr_array_header_t *) ap_generic_hook_get(const char *szName);
  * @param name The name of the hook
  * @param args_decl The declaration of the arguments for the hook
  * @param args_used The names for the arguments for the hook
- * @deffunc int AP_IMPLEMENT_EXTERNAL_HOOK_RUN_ALL(link, name, args_decl, args_use)
+ * @deffunc int APR_IMPLEMENT_EXTERNAL_HOOK_RUN_ALL(link, name, args_decl, args_use)
  */
-#define AP_IMPLEMENT_GENERIC_HOOK_RUN_ALL(ret,name,args_decl,args_use,ok,decline) \
-APU_DECLARE(ret) ap_run_##name args_decl \
+#define APR_IMPLEMENT_GENERIC_HOOK_RUN_ALL(ns,link,ret,name,args_decl,args_use,ok,decline) \
+link##_DECLARE(ret) ns##_run_##name args_decl \
     { \
-    LINK_##name *pHook; \
+    ns##_LINK_##name *pHook; \
     int n; \
     ret rv; \
-    apr_array_header_t *pHookArray=ap_generic_hook_get(#name); \
+    apr_array_header_t *pHookArray=apr_generic_hook_get(#name); \
 \
     if(!pHookArray) \
 	return ok; \
 \
-    pHook=(LINK_##name *)pHookArray->elts; \
+    pHook=(ns##_LINK_##name *)pHookArray->elts; \
     for(n=0 ; n < pHookArray->nelts ; ++n) \
 	{ \
 	rv=pHook[n].pFunc args_use; \
@@ -117,4 +121,8 @@ APU_DECLARE(ret) ap_run_##name args_decl \
     return ok; \
     }
 
-#endif /* def APACHE_AP_GENERIC_HOOK_H */
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* APR_GENERIC_HOOK_H */
