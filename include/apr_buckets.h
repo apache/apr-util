@@ -1093,7 +1093,7 @@ APU_DECLARE_DATA extern const apr_bucket_type_t apr_bucket_type_pool;
 APU_DECLARE_DATA extern const apr_bucket_type_t apr_bucket_type_pipe;
 /**
  * The IMMORTAL bucket type.  This bucket represents a segment of data that
- * the creator is willing to take responsability for.  The core will do
+ * the creator is willing to take responsibility for.  The core will do
  * nothing with the data in an immortal bucket
  */
 APU_DECLARE_DATA extern const apr_bucket_type_t apr_bucket_type_immortal;
