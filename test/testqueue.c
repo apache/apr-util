@@ -56,6 +56,7 @@
 #include <apr_errno.h>
 #include <apr_general.h>
 #include <apr_getopt.h>
+#include <apr_strings.h>
 #include "errno.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -91,29 +92,35 @@ static void * APR_THREAD_FUNC consumer(apr_thread_t *thd, void *data)
     apr_status_t rv;
     int val;
     void *v;
+    char current_thread_str[30];
+    apr_os_thread_t current_thread = apr_os_thread_current();
+
+    apr_snprintf(current_thread_str, sizeof current_thread_str,
+                 "%pT", &current_thread);
 
     sleeprate = 1000000/consumer_activity;
     apr_sleep( (rand() % 4 ) * 1000000 ); /* sleep random seconds */
     while (1) {
         do {
             rv = apr_queue_pop(q, &v);
-            if (rv == APR_EINTR) 
-                fprintf(stderr, "%ld\tconsumer intr\n",apr_os_thread_current());
+            if (rv == APR_EINTR) {
+                fprintf(stderr, "%s\tconsumer intr\n", current_thread_str);
+            }
 
         } while (rv == APR_EINTR) ;
         if (rv != APR_SUCCESS) {
             if (rv == APR_EOF) {
-                fprintf(stderr, "%ld\tconsumer:queue terminated APR_EOF\n", apr_os_thread_current());
+                fprintf(stderr, "%s\tconsumer:queue terminated APR_EOF\n", current_thread_str);
                 rv=APR_SUCCESS;
             }
             else 
-                fprintf(stderr, "%ld\tconsumer thread exit rv %d\n", apr_os_thread_current(),rv);
+                fprintf(stderr, "%s\tconsumer thread exit rv %d\n", current_thread_str, rv);
             apr_thread_exit(thd, rv);
             return NULL;
         }
         val = *(int*)v;
         if (verbose)
-            fprintf(stderr,  "%ld\tpop %d\n", apr_os_thread_current(),val);
+            fprintf(stderr,  "%s\tpop %d\n", current_thread_str, val);
         apr_sleep( sleeprate ); /* sleep this long to acheive our rate */
     }
     /* not reached */
@@ -127,6 +134,11 @@ static void * APR_THREAD_FUNC producer(apr_thread_t *thd, void *data)
     apr_queue_t *q = (apr_queue_t*)data;
     apr_status_t rv;
     int *val;
+    char current_thread_str[30];
+    apr_os_thread_t current_thread = apr_os_thread_current();
+
+    apr_snprintf(current_thread_str, sizeof current_thread_str,
+                 "%pT", &current_thread);
 
     sleeprate = 1000000/producer_activity;
     apr_sleep( (rand() % 4 ) * 1000000 ); /* sleep random seconds */
@@ -135,20 +147,20 @@ static void * APR_THREAD_FUNC producer(apr_thread_t *thd, void *data)
         val = apr_palloc(context, sizeof(int));
         *val=i;
         if (verbose)
-            fprintf(stderr,  "%ld\tpush %d\n",apr_os_thread_current(),*val);
+            fprintf(stderr,  "%s\tpush %d\n", current_thread_str, *val);
         do {
             rv = apr_queue_push(q, val);
             if (rv == APR_EINTR) 
-                fprintf(stderr, "%ld\tproducer intr\n",apr_os_thread_current());
+                fprintf(stderr, "%s\tproducer intr\n", current_thread_str);
         } while (rv == APR_EINTR);
 
         if (rv != APR_SUCCESS) {
             if (rv == APR_EOF) {
-                fprintf(stderr, "%ld\tproducer: queue terminated APR_EOF\n", apr_os_thread_current());
+                fprintf(stderr, "%s\tproducer: queue terminated APR_EOF\n", current_thread_str);
                 rv = APR_SUCCESS;
             }
             else
-                fprintf(stderr, "%ld\tproducer thread exit rv %d\n", apr_os_thread_current(),rv);
+                fprintf(stderr, "%s\tproducer thread exit rv %d\n", current_thread_str, rv);
             apr_thread_exit(thd, rv);
             return NULL;
         }
