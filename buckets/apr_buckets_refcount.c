@@ -86,7 +86,7 @@ APR_DECLARE_NONSTD(apr_status_t) ap_bucket_split_shared(ap_bucket *a, apr_off_t 
     return APR_SUCCESS;
 }
 
-APR_DECLARE(apr_status_t) ap_bucket_copy_shared(ap_bucket *a, ap_bucket **c)
+APR_DECLARE_NONSTD(apr_status_t) ap_bucket_copy_shared(ap_bucket *a, ap_bucket **c)
 {
     ap_bucket *b;
     ap_bucket_shared *ad, *bd;

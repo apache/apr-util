@@ -43,14 +43,13 @@ RSC=rc.exe
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "./include" /I "../apr/include" /D "NDEBUG" /D "APR_DECLARE_EXPORT" /D "WIN32" /D "_WINDOWS" /FD /c
-# SUBTRACT CPP /YX
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "./include" /I "../apr/include" /D "NDEBUG" /D "APR_DECLARE_EXPORT" /D "WIN32" /D "_WINDOWS" /Fd"LibR/apr-util" /FD /c
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo
+# ADD LIB32 /nologo /out:"LibR\apr-util.lib"
 
 !ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
 
@@ -69,14 +68,13 @@ RSC=rc.exe
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
 # ADD BASE CPP /nologo /MTd /W3 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MDd /W3 /GX /ZI /Od /I "./include" /I "../apr/include" /I "./dbm/sdbm" /D "_DEBUG" /D "APR_DECLARE_EXPORT" /D "WIN32" /D "_WINDOWS" /D "APU_USE_SDBM" /FD /c
-# SUBTRACT CPP /YX
+# ADD CPP /nologo /MDd /W3 /GX /ZI /Od /I "./include" /I "../apr/include" /I "./dbm/sdbm" /D "_DEBUG" /D "APR_DECLARE_EXPORT" /D "WIN32" /D "_WINDOWS" /D "APU_USE_SDBM" /Fd"LibD/apr-util" /FD /c
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo
+# ADD LIB32 /nologo /out:"LibD\apr-util.lib"
 
 !ENDIF 
 
@@ -110,13 +108,6 @@ SOURCE=.\src\buckets\ap_buckets_heap.c
 # Begin Source File
 
 SOURCE=.\src\buckets\ap_buckets_mmap.c
-
-!IF  "$(CFG)" == "aprutil - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
@@ -137,6 +128,10 @@ SOURCE=.\src\buckets\ap_buckets_simple.c
 # Begin Source File
 
 SOURCE=.\src\buckets\ap_buckets_socket.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\buckets\ap_buckets_util.c
 # End Source File
 # End Group
 # Begin Group "crypto"
