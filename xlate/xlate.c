@@ -415,7 +415,7 @@ APU_DECLARE(apr_int32_t) apr_xlate_conv_byte(apr_xlate_t *convset,
     return (-1);
 }
 
-APR_DECLARE(apr_status_t) apr_xlate_conv_buffer(apr_xlate_t *convset, 
+APU_DECLARE(apr_status_t) apr_xlate_conv_buffer(apr_xlate_t *convset, 
                                                 const char *inbuf,
                                                 apr_size_t *inbytes_left, 
                                                 char *outbuf,
