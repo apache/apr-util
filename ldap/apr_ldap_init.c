@@ -65,10 +65,10 @@ APU_DECLARE(int) apr_ldap_ssl_init(apr_pool_t *pool,
 
     /* if a certificate was specified, set it */
     if (cert_auth_file) {
-        apr_ldap_opt_tls_cert_t *cert = (apr_ldap_opt_tls_cert_t *)apr_palloc(pool, sizeof(apr_ldap_opt_tls_cert_t));
+        apr_ldap_opt_tls_cert_t *cert = (apr_ldap_opt_tls_cert_t *)apr_pcalloc(pool, sizeof(apr_ldap_opt_tls_cert_t));
         cert->type = cert_file_type;
         cert->path = cert_auth_file;
-        return apr_ldap_set_option(pool, NULL, APR_LDAP_OPT_TLS, (void *)cert, result_err);
+        return apr_ldap_set_option(pool, NULL, APR_LDAP_OPT_TLS_CERT, (void *)cert, result_err);
     }
 
 #else  /* not compiled with SSL Support */
@@ -144,7 +144,16 @@ APU_DECLARE(int) apr_ldap_init(apr_pool_t *pool,
     apr_ldap_err_t *result = (apr_ldap_err_t *)apr_pcalloc(pool, sizeof(apr_ldap_err_t));
     *result_err = result;
 
+#if APR_HAS_NOVELL_LDAPSDK
+    if (secure == APR_LDAP_SSL) {
+        *ldap = ldapssl_init(hostname, portno, 1);
+    }
+    else {
+        *ldap = ldapssl_init(hostname, portno, 0);
+    }
+#else
     *ldap = ldap_init((char *)hostname, portno);
+#endif
     if (*ldap != NULL) {
         return apr_ldap_set_option(pool, *ldap, APR_LDAP_OPT_TLS, &secure, result_err);
     }
