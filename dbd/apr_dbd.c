@@ -153,7 +153,7 @@ APU_DECLARE(apr_status_t) apr_dbd_open(apr_dbd_driver_t *driver,
 }
 APU_DECLARE(int) apr_dbd_transaction_start(apr_dbd_driver_t *driver,
                                            apr_pool_t *pool, apr_dbd_t *handle,
-                                           apr_dbd_transaction **trans)
+                                           apr_dbd_transaction_t **trans)
 {
     int ret = driver->start_transaction(pool, handle, trans);
     if (*trans) {
@@ -164,7 +164,7 @@ APU_DECLARE(int) apr_dbd_transaction_start(apr_dbd_driver_t *driver,
 }
 APU_DECLARE(int) apr_dbd_transaction_end(apr_dbd_driver_t *driver,
                                          apr_pool_t *pool,
-                                         apr_dbd_transaction *trans)
+                                         apr_dbd_transaction_t *trans)
 {
     apr_pool_cleanup_kill(pool, trans, (void*)driver->end_transaction);
     return driver->end_transaction(trans);

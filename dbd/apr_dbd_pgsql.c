@@ -34,7 +34,7 @@ typedef struct {
 typedef struct {
     int errnum;
     PGconn *handle;
-} apr_dbd_transaction;
+} apr_dbd_transaction_t;
 
 typedef struct {
     int random;
@@ -43,17 +43,17 @@ typedef struct {
     size_t ntuples;
     size_t sz;
     size_t index;
-} apr_dbd_results;
+} apr_dbd_results_t;
 
 typedef struct {
     int n;
-    apr_dbd_results *res;
-} apr_dbd_row;
+    apr_dbd_results_t *res;
+} apr_dbd_row_t;
 
-typedef struct apr_dbd_prepared {
+typedef struct {
     const char *name;
     int prepared;
-} apr_dbd_prepared;
+} apr_dbd_prepared_t;
 
 #define dbd_pgsql_is_success(x) (((x) == PGRES_EMPTY_QUERY) \
                                  || ((x) == PGRES_COMMAND_OK) \
@@ -63,8 +63,8 @@ typedef struct apr_dbd_prepared {
 #include "apr_dbd.h"
 
 static int dbd_pgsql_select(apr_pool_t *pool, apr_dbd_t *sql,
-                            apr_dbd_transaction *trans,
-                            apr_dbd_results **results,
+                            apr_dbd_transaction_t *trans,
+                            apr_dbd_results_t **results,
                             const char *query, int seek)
 {
     PGresult *res;
@@ -91,7 +91,7 @@ static int dbd_pgsql_select(apr_pool_t *pool, apr_dbd_t *sql,
             return ret;
         }
         if (!*results) {
-            *results = apr_pcalloc(pool, sizeof(apr_dbd_results));
+            *results = apr_pcalloc(pool, sizeof(apr_dbd_results_t));
         }
         (*results)->res = res;
         (*results)->ntuples = PQntuples(res);
@@ -108,7 +108,7 @@ static int dbd_pgsql_select(apr_pool_t *pool, apr_dbd_t *sql,
             return 1;
         }
         if (*results == NULL) {
-            *results = apr_pcalloc(pool, sizeof(apr_dbd_results));
+            *results = apr_pcalloc(pool, sizeof(apr_dbd_results_t));
         }
         (*results)->random = seek;
         (*results)->handle = sql->conn;
@@ -116,14 +116,14 @@ static int dbd_pgsql_select(apr_pool_t *pool, apr_dbd_t *sql,
     return 0;
 }
 
-static int dbd_pgsql_get_row(apr_pool_t *pool, apr_dbd_results *res,
-                             apr_dbd_row **rowp, int rownum)
+static int dbd_pgsql_get_row(apr_pool_t *pool, apr_dbd_results_t *res,
+                             apr_dbd_row_t **rowp, int rownum)
 {
-    apr_dbd_row *row = *rowp;
+    apr_dbd_row_t *row = *rowp;
     int sequential = ((rownum >= 0) && res->random) ? 0 : 1;
 
     if (row == NULL) {
-        row = apr_palloc(pool, sizeof(apr_dbd_row));
+        row = apr_palloc(pool, sizeof(apr_dbd_row_t));
         *rowp = row;
         row->res = res;
         row->n = sequential ? 0 : rownum;
@@ -181,7 +181,7 @@ static int dbd_pgsql_get_row(apr_pool_t *pool, apr_dbd_results *res,
     return 0;
 }
 
-static const char *dbd_pgsql_get_entry(const apr_dbd_row *row, int n)
+static const char *dbd_pgsql_get_entry(const apr_dbd_row_t *row, int n)
 {
     return PQgetvalue(row->res->res, row->n, n);
 }
@@ -191,7 +191,7 @@ static const char *dbd_pgsql_error(apr_dbd_t *sql, int n)
     return PQerrorMessage(sql->conn);
 }
 
-static int dbd_pgsql_query(apr_dbd_t *sql, apr_dbd_transaction *trans,
+static int dbd_pgsql_query(apr_dbd_t *sql, apr_dbd_transaction_t *trans,
                            int *nrows, const char *query)
 {
     PGresult *res;
@@ -229,7 +229,7 @@ static const char *dbd_pgsql_escape(apr_pool_t *pool, const char *arg,
 
 static int dbd_pgsql_prepare(apr_pool_t *pool, apr_dbd_t *sql,
                              const char *query, const char *label,
-                             apr_dbd_prepared **statement)
+                             apr_dbd_prepared_t **statement)
 {
     char *sqlcmd;
     char *sqlptr;
@@ -244,7 +244,7 @@ static int dbd_pgsql_prepare(apr_pool_t *pool, apr_dbd_t *sql,
     char *pgptr;
 
     if (!*statement) {
-        *statement = apr_palloc(pool, sizeof(apr_dbd_prepared));
+        *statement = apr_palloc(pool, sizeof(apr_dbd_prepared_t));
     }
     /* Translate from apr_dbd to native query format */
     for (sqlptr = (char*)query; *sqlptr; ++sqlptr) {
@@ -344,8 +344,8 @@ static int dbd_pgsql_prepare(apr_pool_t *pool, apr_dbd_t *sql,
 }
 
 static int dbd_pgsql_pquery(apr_pool_t *pool, apr_dbd_t *sql,
-                            apr_dbd_transaction *trans, int *nrows,
-                            apr_dbd_prepared *statement, int nargs,
+                            apr_dbd_transaction_t *trans, int *nrows,
+                            apr_dbd_prepared_t *statement, int nargs,
                             const char **values)
 {
     int ret;
@@ -376,8 +376,8 @@ static int dbd_pgsql_pquery(apr_pool_t *pool, apr_dbd_t *sql,
 }
 
 static int dbd_pgsql_pvquery(apr_pool_t *pool, apr_dbd_t *sql,
-                             apr_dbd_transaction *trans, int *nrows,
-                             apr_dbd_prepared *statement, ...)
+                             apr_dbd_transaction_t *trans, int *nrows,
+                             apr_dbd_prepared_t *statement, ...)
 {
     const char *arg;
     int nargs = 0;
@@ -401,9 +401,9 @@ static int dbd_pgsql_pvquery(apr_pool_t *pool, apr_dbd_t *sql,
 }
 
 static int dbd_pgsql_pselect(apr_pool_t *pool, apr_dbd_t *sql,
-                             apr_dbd_transaction *trans,
-                             apr_dbd_results **results,
-                             apr_dbd_prepared *statement,
+                             apr_dbd_transaction_t *trans,
+                             apr_dbd_results_t **results,
+                             apr_dbd_prepared_t *statement,
                              int seek, int nargs, const char **values)
 {
     PGresult *res;
@@ -437,7 +437,7 @@ static int dbd_pgsql_pselect(apr_pool_t *pool, apr_dbd_t *sql,
             return ret;
         }
         if (!*results) {
-            *results = apr_pcalloc(pool, sizeof(apr_dbd_results));
+            *results = apr_pcalloc(pool, sizeof(apr_dbd_results_t));
         }
         (*results)->res = res;
         (*results)->ntuples = PQntuples(res);
@@ -462,7 +462,7 @@ static int dbd_pgsql_pselect(apr_pool_t *pool, apr_dbd_t *sql,
             return 1;
         }
         if (!*results) {
-            *results = apr_pcalloc(pool, sizeof(apr_dbd_results));
+            *results = apr_pcalloc(pool, sizeof(apr_dbd_results_t));
         }
         (*results)->random = seek;
         (*results)->handle = sql->conn;
@@ -475,9 +475,9 @@ static int dbd_pgsql_pselect(apr_pool_t *pool, apr_dbd_t *sql,
 }
 
 static int dbd_pgsql_pvselect(apr_pool_t *pool, apr_dbd_t *sql,
-                              apr_dbd_transaction *trans,
-                              apr_dbd_results **results,
-                              apr_dbd_prepared *statement,
+                              apr_dbd_transaction_t *trans,
+                              apr_dbd_results_t **results,
+                              apr_dbd_prepared_t *statement,
                               int seek, ...)
 {
     const char *arg;
@@ -503,7 +503,7 @@ static int dbd_pgsql_pvselect(apr_pool_t *pool, apr_dbd_t *sql,
 }
 
 static int dbd_pgsql_transaction(apr_pool_t *pool, apr_dbd_t *handle,
-                                 apr_dbd_transaction **trans)
+                                 apr_dbd_transaction_t **trans)
 {
     int ret = 0;
     PGresult *res = PQexec(handle->conn, "BEGIN TRANSACTION");
@@ -512,7 +512,7 @@ static int dbd_pgsql_transaction(apr_pool_t *pool, apr_dbd_t *handle,
         if (dbd_pgsql_is_success(ret)) {
             ret = 0;
             if (!*trans) {
-                *trans = apr_pcalloc(pool, sizeof(apr_dbd_transaction));
+                *trans = apr_pcalloc(pool, sizeof(apr_dbd_transaction_t));
             }
         }
         PQclear(res);
@@ -524,7 +524,7 @@ static int dbd_pgsql_transaction(apr_pool_t *pool, apr_dbd_t *handle,
     return ret;
 }
 
-static int dbd_pgsql_end_transaction(apr_dbd_transaction *trans)
+static int dbd_pgsql_end_transaction(apr_dbd_transaction_t *trans)
 {
     PGresult *res;
     int ret = -1;                /* no transaction is an error cond */
@@ -601,12 +601,12 @@ static void *dbd_pgsql_native(apr_dbd_t *handle)
     return handle->conn;
 }
 
-static int dbd_pgsql_num_cols(apr_dbd_results* res)
+static int dbd_pgsql_num_cols(apr_dbd_results_t* res)
 {
     return res->sz;
 }
 
-static int dbd_pgsql_num_tuples(apr_dbd_results* res)
+static int dbd_pgsql_num_tuples(apr_dbd_results_t* res)
 {
     if (res->random) {
         return res->ntuples;

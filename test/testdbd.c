@@ -112,8 +112,8 @@ static int select_sequential(apr_pool_t* pool, apr_dbd_t* handle,
     int n;
     const char* entry;
     const char* statement = "SELECT * FROM apr_dbd_test ORDER BY col1, col2";
-    apr_dbd_results *res = NULL;
-    apr_dbd_row *row = NULL;
+    apr_dbd_results_t *res = NULL;
+    apr_dbd_row_t *row = NULL;
     rv = apr_dbd_select(driver,pool,handle,NULL,&res,statement,0);
     if (rv) {
         printf("Select failed: %s", apr_dbd_error(driver, handle, rv));
@@ -143,8 +143,8 @@ static int select_random(apr_pool_t* pool, apr_dbd_t* handle,
     int n;
     const char* entry;
     const char* statement = "SELECT * FROM apr_dbd_test ORDER BY col1, col2";
-    apr_dbd_results *res = NULL;
-    apr_dbd_row *row = NULL;
+    apr_dbd_results_t *res = NULL;
+    apr_dbd_row_t *row = NULL;
     rv = apr_dbd_select(driver,pool,handle,NULL,&res,statement,1);
     if (rv) {
         printf("Select failed: %s", apr_dbd_error(driver, handle, rv));
@@ -197,7 +197,7 @@ static int test_transactions(apr_pool_t* pool, apr_dbd_t* handle,
 {
     int rv = 0;
     int nrows;
-    apr_dbd_transaction* trans = NULL;
+    apr_dbd_transaction_t *trans = NULL;
     const char* statement;
 
     /* trans 1 - error out early */
@@ -273,9 +273,9 @@ static int test_pselect(apr_pool_t* pool, apr_dbd_t* handle,
     const char *query =
         "SELECT * FROM apr_dbd_test WHERE col3 <= %s or col1 = 'bar'" ;
     const char *label = "lowvalues";
-    apr_dbd_prepared* statement = NULL;
-    apr_dbd_results* res = NULL;
-    apr_dbd_row* row = NULL;
+    apr_dbd_prepared_t *statement = NULL;
+    apr_dbd_results_t *res = NULL;
+    apr_dbd_row_t *row = NULL;
     const char *entry = NULL;
 
     rv = apr_dbd_prepare(driver, pool, handle, query, label, &statement);
@@ -314,10 +314,10 @@ static int test_pquery(apr_pool_t* pool, apr_dbd_t* handle,
 {
     int rv = 0;
     const char *query = "INSERT INTO apr_dbd_test VALUES (%s, %s, %d)";
-    apr_dbd_prepared *statement = NULL;
+    apr_dbd_prepared_t *statement = NULL;
     const char *label = "testpquery";
     int nrows;
-    apr_dbd_transaction* trans =0;
+    apr_dbd_transaction_t *trans =0;
 
     rv = apr_dbd_prepare(driver, pool, handle, query, label, &statement);
     //rv = apr_dbd_prepare(driver, pool, handle, query, NULL, &statement);

@@ -37,10 +37,10 @@ extern "C" {
 /* These are opaque structs.  Instantiation is up to each backend */
 #ifndef APR_DBD_INTERNAL
 typedef struct apr_dbd_t apr_dbd_t;
-typedef struct apr_dbd_transaction apr_dbd_transaction;
-typedef struct apr_dbd_results apr_dbd_results;
-typedef struct apr_dbd_row apr_dbd_row;
-typedef struct apr_dbd_prepared apr_dbd_prepared;
+typedef struct apr_dbd_transaction_t apr_dbd_transaction_t;
+typedef struct apr_dbd_results_t apr_dbd_results_t;
+typedef struct apr_dbd_row_t apr_dbd_row_t;
+typedef struct apr_dbd_prepared_t apr_dbd_prepared_t;
 #endif
 
 typedef struct apr_dbd_driver_t {
@@ -102,7 +102,7 @@ typedef struct apr_dbd_driver_t {
      *  @return 0 for success or error code
      */
     int (*start_transaction)(apr_pool_t *pool, apr_dbd_t *handle,
-                             apr_dbd_transaction **trans);
+                             apr_dbd_transaction_t **trans);
 
     /** end_transaction: end a transaction
      *  (commit on success, rollback on error).
@@ -111,7 +111,7 @@ typedef struct apr_dbd_driver_t {
      *  @param transaction - the transaction.
      *  @return 0 for success or error code
      */
-    int (*end_transaction)(apr_dbd_transaction *trans);
+    int (*end_transaction)(apr_dbd_transaction_t *trans);
 
     /** query: execute an SQL query that doesn't return a result set
      *
@@ -121,7 +121,7 @@ typedef struct apr_dbd_driver_t {
      *  @param statement - the SQL statement to execute
      *  @return 0 for success or error code
      */
-    int (*query)(apr_dbd_t *handle, apr_dbd_transaction *trans,
+    int (*query)(apr_dbd_t *handle, apr_dbd_transaction_t *trans,
                  int *nrows, const char *statement);
 
     /** select: execute an SQL query that returns a result set
@@ -137,7 +137,7 @@ typedef struct apr_dbd_driver_t {
      *  @return 0 for success or error code
      */
     int (*select)(apr_pool_t *pool, apr_dbd_t *handle,
-                  apr_dbd_transaction *trans, apr_dbd_results **res,
+                  apr_dbd_transaction_t *trans, apr_dbd_results_t **res,
                   const char *statement, int random);
 
     /** num_cols: get the number of columns in a results set
@@ -145,7 +145,7 @@ typedef struct apr_dbd_driver_t {
      *  @param res - result set.
      *  @return number of columns
      */
-    int (*num_cols)(apr_dbd_results *res);
+    int (*num_cols)(apr_dbd_results_t *res);
 
     /** num_tuples: get the number of rows in a results set
      *  of a synchronous select
@@ -153,7 +153,7 @@ typedef struct apr_dbd_driver_t {
      *  @param res - result set.
      *  @return number of rows, or -1 if the results are asynchronous
      */
-    int (*num_tuples)(apr_dbd_results *res);
+    int (*num_tuples)(apr_dbd_results_t *res);
 
     /** get_row: get a row from a result set
      *
@@ -164,8 +164,8 @@ typedef struct apr_dbd_driver_t {
      *                  access is not supported.
      *  @return 0 for success, -1 for rownum out of range or data finished
      */
-    int (*get_row)(apr_pool_t *pool, apr_dbd_results *res,
-                   apr_dbd_row **row, int rownum);
+    int (*get_row)(apr_pool_t *pool, apr_dbd_results_t *res,
+                   apr_dbd_row_t **row, int rownum);
   
     /** get_entry: get an entry from a row
      *
@@ -173,7 +173,7 @@ typedef struct apr_dbd_driver_t {
      *  @param col - entry number
      *  @return value from the row, or NULL if col is out of bounds.
      */
-    const char *(*get_entry)(const apr_dbd_row *row, int col);
+    const char *(*get_entry)(const apr_dbd_row_t *row, int col);
   
     /** error: get current error message (if any)
      *
@@ -206,7 +206,7 @@ typedef struct apr_dbd_driver_t {
      *  @return 0 for success or error code
      */
     int (*prepare)(apr_pool_t *pool, apr_dbd_t *handle, const char *query,
-                   const char *label, apr_dbd_prepared **statement);
+                   const char *label, apr_dbd_prepared_t **statement);
 
     /** pvquery: query using a prepared statement + args
      *
@@ -219,8 +219,8 @@ typedef struct apr_dbd_driver_t {
      *  @return 0 for success or error code
      */
     int (*pvquery)(apr_pool_t *pool, apr_dbd_t *handle,
-                  apr_dbd_transaction *trans, int *nrows,
-                  apr_dbd_prepared *statement, ...);
+                  apr_dbd_transaction_t *trans, int *nrows,
+                  apr_dbd_prepared_t *statement, ...);
 
     /** pvselect: select using a prepared statement + args
      *
@@ -234,8 +234,8 @@ typedef struct apr_dbd_driver_t {
      *  @return 0 for success or error code
      */
     int (*pvselect)(apr_pool_t *pool, apr_dbd_t *handle,
-                    apr_dbd_transaction *trans, apr_dbd_results **res,
-                    apr_dbd_prepared *statement, int random, ...);
+                    apr_dbd_transaction_t *trans, apr_dbd_results_t **res,
+                    apr_dbd_prepared_t *statement, int random, ...);
 
     /** pquery: query using a prepared statement + args
      *
@@ -249,8 +249,8 @@ typedef struct apr_dbd_driver_t {
      *  @return 0 for success or error code
      */
     int (*pquery)(apr_pool_t *pool, apr_dbd_t *handle,
-                  apr_dbd_transaction *trans, int *nrows,
-                  apr_dbd_prepared *statement, int nargs, const char **args);
+                  apr_dbd_transaction_t *trans, int *nrows,
+                  apr_dbd_prepared_t *statement, int nargs, const char **args);
 
     /** pselect: select using a prepared statement + args
      *
@@ -265,8 +265,8 @@ typedef struct apr_dbd_driver_t {
      *  @return 0 for success or error code
      */
     int (*pselect)(apr_pool_t *pool, apr_dbd_t *handle,
-                   apr_dbd_transaction *trans, apr_dbd_results **res,
-                   apr_dbd_prepared *statement, int random, int nargs,
+                   apr_dbd_transaction_t *trans, apr_dbd_results_t **res,
+                   apr_dbd_prepared_t *statement, int random, int nargs,
                    const char **args);
 
 
@@ -388,7 +388,7 @@ APU_DECLARE(int) apr_dbd_set_dbname(apr_dbd_driver_t *driver, apr_pool_t *pool,
 APU_DECLARE(int) apr_dbd_transaction_start(apr_dbd_driver_t *driver,
                                            apr_pool_t *pool,
                                            apr_dbd_t *handle,
-                                           apr_dbd_transaction **trans);
+                                           apr_dbd_transaction_t **trans);
 
 /** apr_dbd_transaction_end: end a transaction
  *  (commit on success, rollback on error).
@@ -401,7 +401,7 @@ APU_DECLARE(int) apr_dbd_transaction_start(apr_dbd_driver_t *driver,
  */
 APU_DECLARE(int) apr_dbd_transaction_end(apr_dbd_driver_t *driver,
                                          apr_pool_t *pool,
-                                         apr_dbd_transaction *trans);
+                                         apr_dbd_transaction_t *trans);
 
 #ifdef DOXYGEN
 /** apr_dbd_query: execute an SQL query that doesn't return a result set
@@ -414,7 +414,7 @@ APU_DECLARE(int) apr_dbd_transaction_end(apr_dbd_driver_t *driver,
  *  @return 0 for success or error code
  */
 APU_DECLARE(int) apr_dbd_query(apr_dbd_driver_t *driver, apr_dbd_t *handle,
-                               apr_dbd_transaction *trans, int *nrows,
+                               apr_dbd_transaction_t *trans, int *nrows,
                                const char *statement);
 #else
 #define apr_dbd_query(driver,handle,trans,nrows,statement) \
@@ -436,8 +436,8 @@ APU_DECLARE(int) apr_dbd_query(apr_dbd_driver_t *driver, apr_dbd_t *handle,
  *  @return 0 for success or error code
  */
 APU_DECLARE(int) apr_dbd_select(apr_dbd_driver_t *driver, apr_pool_t *pool,
-                                apr_dbd_t *handle, apr_dbd_transaction *trans,
-                                apr_dbd_results *res, const char *statement,
+                                apr_dbd_t *handle, apr_dbd_transaction_t *trans,
+                                apr_dbd_results_t *res, const char *statement,
                                 int random);
 #else
 #define apr_dbd_select(driver,pool,handle,trans,res,statement,random) \
@@ -452,7 +452,7 @@ APU_DECLARE(int) apr_dbd_select(apr_dbd_driver_t *driver, apr_pool_t *pool,
  *  @return number of columns
  */
 APU_DECLARE(int) apr_dbd_num_cols(apr_dbd_driver_t *driver,
-                                  apr_dbd_results *res);
+                                  apr_dbd_results_t *res);
 #else
 #define apr_dbd_num_cols(driver,res) \
         (driver)->num_cols((res))
@@ -467,7 +467,7 @@ APU_DECLARE(int) apr_dbd_num_cols(apr_dbd_driver_t *driver,
  *  @return number of rows, or -1 if the results are asynchronous
  */
 APU_DECLARE(int) apr_dbd_num_tuples(apr_dbd_driver_t *driver,
-                                    apr_dbd_results *res);
+                                    apr_dbd_results_t *res);
 #else
 #define apr_dbd_num_tuples(driver,res) \
         (driver)->num_tuples((res))
@@ -485,7 +485,7 @@ APU_DECLARE(int) apr_dbd_num_tuples(apr_dbd_driver_t *driver,
  *  @return 0 for success, -1 for rownum out of range or data finished
  */
 APU_DECLARE(int) apr_dbd_get_row(apr_dbd_driver_t *driver, apr_pool_t *pool,
-                                 apr_dbd_results *res, apr_dbd_row **row,
+                                 apr_dbd_results_t *res, apr_dbd_row_t **row,
                                  int rownum);
 #else
 #define apr_dbd_get_row(driver,pool,res,row,rownum) \
@@ -501,7 +501,7 @@ APU_DECLARE(int) apr_dbd_get_row(apr_dbd_driver_t *driver, apr_pool_t *pool,
  *  @return value from the row, or NULL if col is out of bounds.
  */
 APU_DECLARE(const char*) apr_dbd_get_entry(apr_dbd_driver_t *driver,
-                                           apr_dbd_row *row, int col);
+                                           apr_dbd_row_t *row, int col);
 #else
 #define apr_dbd_get_entry(driver,row,col) \
         (driver)->get_entry((row),(col))
@@ -556,7 +556,7 @@ APU_DECLARE(const char*) apr_dbd_escape(apr_dbd_driver_t *driver,
 APU_DECLARE(int) apr_dbd_prepare(apr_dbd_driver_t *driver, apr_pool_t *pool,
                                  apr_dbd_t *handle, const char *query,
                                  const char *label,
-                                 apr_dbd_prepared **statement);
+                                 apr_dbd_prepared_t **statement);
 #else
 #define apr_dbd_prepare(driver,pool,handle,query,label,statement) \
         (driver)->prepare((pool),(handle),(query),(label),(statement))
@@ -580,8 +580,8 @@ APU_DECLARE(int) apr_dbd_prepare(apr_dbd_driver_t *driver, apr_pool_t *pool,
  *  @return 0 for success or error code
  */
 APU_DECLARE(int) apr_dbd_pquery(apr_dbd_driver_t *driver, apr_pool_t *pool,
-                                apr_dbd_t *handle, apr_dbd_transaction *trans,
-                                int *nrows, apr_dbd_prepared *statement,
+                                apr_dbd_t *handle, apr_dbd_transaction_t *trans,
+                                int *nrows, apr_dbd_prepared_t *statement,
                                 int nargs, const char **args);
 #else
 #define apr_dbd_pquery(driver,pool,handle,trans,nrows,statement,nargs,args) \
@@ -604,9 +604,9 @@ APU_DECLARE(int) apr_dbd_pquery(apr_dbd_driver_t *driver, apr_pool_t *pool,
  *  @return 0 for success or error code
  */
 APU_DECLARE(int) apr_dbd_pselect(apr_dbd_driver_t *driver, apr_pool_t *pool,
-                                 apr_dbd_t *handle, apr_dbd_transaction *trans,
-                                 apr_dbd_results **res,
-                                 apr_dbd_prepared *statement, int random,
+                                 apr_dbd_t *handle, apr_dbd_transaction_t *trans,
+                                 apr_dbd_results_t **res,
+                                 apr_dbd_prepared_t *statement, int random,
                                  int nargs, const char **args);
 #else
 #define apr_dbd_pselect(driver,pool,handle,trans,res,statement,random,nargs,args) \
