@@ -171,6 +171,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_pool_create(
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_pool = {
     "POOL", 5,
     pool_destroy,
+    free,
     pool_read,
     apr_bucket_setaside_noop,
     apr_bucket_shared_split,
