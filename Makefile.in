@@ -54,7 +54,7 @@ install: $(TARGET_LIB)
 	cp -p $(top_srcdir)/include/*.h $(includedir)
 
 	if [ -n "$(top_blddir)" ]; then \
-		cp -p $(top_blddir)/include/*.h $(includedir);
+		cp -p $(top_blddir)/include/*.h $(includedir); \
 	fi;
 	
 	if [ ! -d $(libdir) ]; then \
