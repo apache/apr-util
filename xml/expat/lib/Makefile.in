@@ -127,7 +127,7 @@ clean:
 	rm -rf .libs _libs
 
 distclean: clean
-	rm -f Makefile
+	rm -f Makefile expat.h
 
 maintainer-clean: distclean
 

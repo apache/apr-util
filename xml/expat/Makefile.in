@@ -121,7 +121,7 @@ distclean:
 	@list='$(SUBDIRS)'; for dir in $$list; do \
 	  cd $$dir; $(MAKE) distclean; cd ..; \
 	done
-	rm -f config.h config.status config.log libtool examples/Makefile xmlwf/Makefile
+	rm -f config.h config.status config.log libtool examples/Makefile xmlwf/Makefile Makefile
 
 maintainer-clean: distclean
 	rm -f $(DISTRIBUTION)
