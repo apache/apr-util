@@ -138,8 +138,6 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
                 free(buf);
                 return rv;
             }
-            /* Only need to do seek the first time through */
-            a->offset = 0;
         }
         rv = apr_read(f, buf, len);
         if (rv != APR_SUCCESS && rv != APR_EOF) {
@@ -156,7 +154,7 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
 
         /* If we have more to read from the file, then create another bucket */
         if (length > 0) {
-            b = apr_bucket_create_file(f, (*len) + 1, length);
+            b = apr_bucket_create_file(f, a->offset + (*len), length);
             APR_BUCKET_INSERT_AFTER(e, b);
         }
 #if APR_HAS_MMAP
