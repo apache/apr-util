@@ -198,6 +198,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_file_make(apr_bucket *b, apr_file_t *fd,
     f = apr_bucket_alloc(sizeof(*f), b->list);
     f->fd = fd;
     f->readpool = p;
+    f->can_mmap = 1;
 
     b = apr_bucket_shared_make(b, f, offset, len);
     b->type = &apr_bucket_type_file;
