@@ -57,6 +57,14 @@
  * codebase under the above copyright and license.
  */
 
+/*
+ * testdbm: Simple APR dbm tester.
+ * Automatic test case: ./testdbm auto foo
+ *  - Attempts to store and fetch values from the DBM.
+ *
+ * Run the program for more help.
+ */
+
 #include "apr.h"
 #include "apr_general.h"
 #include "apr_pools.h"
@@ -77,7 +85,6 @@
 
 static const char *progname;
 static int rflag;
-static const char *usage = "%s [-t DBMtype] [-R] cat | look |... dbmname";
 
 #define DERROR      0
 #define DLOOK       1
@@ -89,6 +96,7 @@ static const char *usage = "%s [-t DBMtype] [-R] cat | look |... dbmname";
 #define DCREAT      7
 #define DNAME       8
 #define DTRUNC      9
+#define DAUTO      10
 
 #define LINEMAX     8192
 
@@ -100,38 +108,38 @@ typedef struct {
 
 static const cmd cmds[] = {
 
-    { "fetch",   DLOOK,   APR_DBM_READONLY, },
-    { "get",     DLOOK,   APR_DBM_READONLY, },
-    { "look",    DLOOK,   APR_DBM_READONLY, },
-    { "add",     DBUILD,  APR_DBM_READWRITE, },
-    { "insert",  DBUILD,  APR_DBM_READWRITE, },
-    { "store",   DBUILD,  APR_DBM_READWRITE, },
-    { "delete",  DDELETE, APR_DBM_READWRITE, },
-    { "remove",  DDELETE, APR_DBM_READWRITE, },
-    { "dump",    DCAT,    APR_DBM_READONLY, },
-    { "list",    DCAT,    APR_DBM_READONLY, },
-    { "cat",     DCAT,    APR_DBM_READONLY, },
-    { "build",   DBUILD,  APR_DBM_RWCREATE, },     /** this one creates the DB */
-    { "creat",   DCREAT,  APR_DBM_RWCREATE, },
-    { "trunc",   DTRUNC,  APR_DBM_RWTRUNC, },
-    { "new",     DCREAT,  APR_DBM_RWCREATE, },
-    { "names",   DNAME,   APR_DBM_READONLY, },
+    { "fetch",   DLOOK,   APR_DBM_READONLY },
+    { "get",     DLOOK,   APR_DBM_READONLY },
+    { "look",    DLOOK,   APR_DBM_READONLY },
+    { "add",     DBUILD,  APR_DBM_READWRITE },
+    { "insert",  DBUILD,  APR_DBM_READWRITE },
+    { "store",   DBUILD,  APR_DBM_READWRITE },
+    { "delete",  DDELETE, APR_DBM_READWRITE },
+    { "remove",  DDELETE, APR_DBM_READWRITE },
+    { "dump",    DCAT,    APR_DBM_READONLY },
+    { "list",    DCAT,    APR_DBM_READONLY },
+    { "cat",     DCAT,    APR_DBM_READONLY },
+    { "build",   DBUILD,  APR_DBM_RWCREATE },    /** this one creates the DB */
+    { "creat",   DCREAT,  APR_DBM_RWCREATE },
+    { "trunc",   DTRUNC,  APR_DBM_RWTRUNC },
+    { "new",     DCREAT,  APR_DBM_RWCREATE },
+    { "names",   DNAME,   APR_DBM_READONLY },
 #if 0
     {"squash",   DPRESS,  APR_DBM_READWRITE, },
     {"compact",  DPRESS,  APR_DBM_READWRITE, },
     {"compress", DPRESS,  APR_DBM_READWRITE, },
 #endif
+    { "auto",    DAUTO,   APR_DBM_RWCREATE },
 };
 
-#define CTABSIZ (sizeof (cmds)/sizeof (cmd))
+#define CMD_SIZE (sizeof(cmds)/sizeof(cmd))
 
 static void doit(const cmd *act, const char*type, const char *file, apr_pool_t *pool);
-static void badk(const char *word);
-static const cmd *parse(const char *str);
+static const cmd *parse_command(const char *str);
 static void prdatum(FILE *stream, apr_datum_t d);
 static void oops(apr_dbm_t *dbm, apr_status_t rv, const char *s1,
                  const char *s2);
-
+static void show_usage();
 
 int main(int argc, const char * const * argv)
 {
@@ -151,26 +159,42 @@ int main(int argc, const char * const * argv)
     progname = argv[0];
     dbtype = "default";
 
-    while (apr_getopt(os, "Rt:", &optch, &optarg) == APR_SUCCESS)
+    while (apr_getopt(os, "Rt:", &optch, &optarg) == APR_SUCCESS) {
         switch (optch) {
         case 'R':       /* raw processing  */
             rflag++;
             break;
-
         case 't':
-            dbtype=optarg;
+            dbtype = optarg;
             break;
         default:
-            oops(NULL, APR_EGENERAL, "(unknown option) usage: %s", usage);
+            show_usage();
+            fputs(stderr, "unknown option.");
+            exit(-1);
             break;
         }
+    }
 
-    if (os->ind + 2 > argc)
-        oops(NULL, APR_EGENERAL, "usage: %s", usage);
+    if (argc <= os->ind) {
+        show_usage();
+        fputs("Note: If you have no clue what this program is, start with:\n", stderr);
+        fputs("      ./testdbm auto foo\n", stderr);
+        fputs("      where foo is the DBM prefix.\n", stderr);
+        exit(-2);
+    }
 
-    if ((act = parse(argv[os->ind])) == NULL)
-        badk(argv[os->ind]);
-    os->ind++;
+    if ((act = parse_command(argv[os->ind])) == NULL) {
+        show_usage();
+        fprintf(stderr, "unrecognized command: %s\n", argv[os->ind]);
+        exit(-3);
+    }
+
+    if (++os->ind >= argc) {
+        show_usage();
+        fputs("please supply a DB file to use (may be created)\n", stderr);
+        exit(-4);
+    }
+
     doit(act, dbtype, argv[os->ind], pool);
 
     apr_pool_destroy(pool);
@@ -178,7 +202,8 @@ int main(int argc, const char * const * argv)
     return 0;
 }
 
-static void doit(const cmd *act, const char*type, const char *file, apr_pool_t *pool)
+static void doit(const cmd *act, const char*type, const char *file, 
+                 apr_pool_t *pool)
 {
     apr_status_t rv;
     apr_datum_t key;
@@ -296,37 +321,62 @@ static void doit(const cmd *act, const char*type, const char *file, apr_pool_t *
         apr_dbm_get_usednames(pool, file, &use1, &use2);
         fprintf(stderr, "%s %s\n", use1, use2);
         break;
+    case DAUTO:
+        {
+            int i;
+            char *valdata = "0123456789";
+            fprintf(stderr, "Generating data: ");
+            for (i = 0; i < 10; i++) {
+                int j;
+                char c, keydata[10];
+                for (j = 0, c = 'A' + (i % 16); j < 10; j++, c++) {
+                    keydata[j] = c;
+                }
+                key.dptr = keydata;
+                key.dsize = 10;
+                val.dptr = valdata;
+                val.dsize = 10;
+                rv = apr_dbm_store(db, key, val);
+                if (rv != APR_SUCCESS) {
+                    prdatum(stderr, key);
+                    fprintf(stderr, ": ");
+                    oops(db, rv, "store: %s", "failed");
+                }
+            }
+            fputs("OK\n", stderr);
+            fputs("Testing retrieval: ", stderr);
+            for (i = 0; i < 10; i++) {
+                int j;
+                char c, keydata[10];
+                for (j = 0, c = 'A' + (i % 16); j < 10; j++, c++) {
+                    keydata[j] = c;
+                }
+                key.dptr = keydata;
+                key.dsize = 10;
+                rv = apr_dbm_fetch(db, key, &val);
+                if (rv != APR_SUCCESS || val.dsize != 10 ||
+                    (strncmp(val.dptr, valdata, 10) != 0) ) { 
+                    prdatum(stderr, key);
+                    fprintf(stderr, ": ");
+                    oops(db, rv, "fetch: %s", "failed");
+                }
+            }
+            fputs("OK\n", stderr);
+        }
+        break;
     }
 
     apr_dbm_close(db);
 }
 
-static void badk(const char *word)
+static const cmd *parse_command(const char *str)
 {
     int i;
 
-    if (progname)
-        fprintf(stderr, "%s: ", progname);
+    for (i = 0; i < CMD_SIZE; i++)
+        if (strcasecmp(cmds[i].sname, str) == 0)
+            return &cmds[i];
 
-    fprintf(stderr, "bad keywd %s. use one of\n", word);
-
-    for (i = 0; i < (int)CTABSIZ; i++)
-        fprintf(stderr, "%-8s%c", cmds[i].sname,
-                ((i + 1) % 6 == 0) ? '\n' : ' ');
-
-    fprintf(stderr, "\n");
-    exit(1);
-    /*NOTREACHED*/
-}
-
-static const cmd *parse(const char *str)
-{
-    int i = CTABSIZ;
-    const cmd *p;
-
-    for (p = cmds; i--; p++)
-        if (strcmp(p->sname, str) == 0)
-            return p;
     return NULL;
 }
 
@@ -354,12 +404,16 @@ static void oops(apr_dbm_t * dbm, apr_status_t rv, const char *s1,
 {
     char errbuf[200];
 
-    if (progname)
+    if (progname) {
         fprintf(stderr, "%s: ", progname);
+    }
     fprintf(stderr, s1, s2);
+
     if (errno > 0 && errno < sys_nerr)
         fprintf(stderr, " (%s)", sys_errlist[errno]);
+
     fprintf(stderr, "\n");
+
     if (rv != APR_SUCCESS) {
         apr_strerror(rv, errbuf, sizeof(errbuf));
         fprintf(stderr, "APR Error %d - %s\n", rv, errbuf);
@@ -370,4 +424,35 @@ static void oops(apr_dbm_t * dbm, apr_status_t rv, const char *s1,
         }
     }
     exit(1);
+}
+
+static void show_usage()
+{
+    int i;
+
+    if (!progname) {
+        progname = "testdbm";
+    }
+
+    fprintf(stderr, "%s [-t DBM-type] [-R] [commands] dbm-file-path\n", 
+            progname);
+
+    fputs("Available DBM-types:", stderr);
+#if APU_HAVE_GDBM
+    fputs(" GDBM", stderr);
+#endif
+#if APU_HAVE_SDBM
+    fputs(" SDBM", stderr);
+#endif
+#if APU_HAVE_DB
+    fputs(" DB", stderr);
+#endif
+    fputs(" default\n", stderr);
+
+    fputs("Available commands:\n", stderr);
+    for (i = 0; i < CMD_SIZE; i++) {
+        fprintf(stderr, "%-8s%c", cmds[i].sname,
+                ((i + 1) % 6 == 0) ? '\n' : ' ');
+    }
+    fputs("\n", stderr);
 }

@@ -1,5 +1,7 @@
 Changes with APR-util b1  
 
+  *) Improve testdbm help.  [Justin Erenkrantz]
+
   *) Improve autoconf detection of DBMs.  [Justin Erenkrantz]
 
   *) BerkeleyDBM v2 now checks minor level for cursor ops [Ian Holsman]
