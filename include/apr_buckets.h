@@ -793,13 +793,13 @@ APU_DECLARE(apr_status_t) apr_brigade_write(apr_bucket_brigade *b,
 
 /**
  * This function writes an string into a bucket brigade.
- * @param b The bucket brigade to add to
+ * @param bb The bucket brigade to add to
  * @param flush The flush function to use if the brigade is full
  * @param ctx The structure to pass to the flush function
  * @param str The string to add
  * @return APR_SUCCESS or error code
  */
-APU_DECLARE(apr_status_t) apr_brigade_puts(apr_bucket_brigade *b,
+APU_DECLARE(apr_status_t) apr_brigade_puts(apr_bucket_brigade *bb,
                                            apr_brigade_flush flush, void *ctx,
                                            const char *str);
 
