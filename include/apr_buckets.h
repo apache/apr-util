@@ -635,7 +635,7 @@ struct apr_bucket_file {
     /** The pool into which any needed structures should
      *  be created while reading from this file bucket */
     apr_pool_t *readpool;
-    /** The SMS that this structure was allocated from */
+    /** The SMS from which this structure was allocated */
     apr_sms_t *sms;
 };
 
