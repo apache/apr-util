@@ -164,21 +164,15 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
     return APR_SUCCESS;
 }
 
-static apr_status_t file_split(apr_bucket *e, apr_off_t offset)
+static void file_destroy(void *data)
 {
-    apr_bucket *b;
-    apr_bucket_shared *s;
-    apr_bucket_shared *temp = e->data;
     apr_bucket_file *f;
 
-    apr_bucket_split_shared(e, offset);
-    b = APR_BUCKET_NEXT(e);
-
-    s = b->data;
-    f = s->data;
-    s->start = offset + temp->start;
-
-    return APR_SUCCESS;
+    f = apr_bucket_destroy_shared(data);
+    if (f == NULL) {
+        return;
+    }
+    free(f);
 }
 
 APU_DECLARE(apr_bucket *) apr_bucket_make_file(apr_bucket *b, apr_file_t *fd,
@@ -211,9 +205,9 @@ APU_DECLARE(apr_bucket *) apr_bucket_create_file(apr_file_t *fd,
 
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_file = {
     "FILE", 5,
-    free,
+    file_destroy,
     file_read,
     apr_bucket_setaside_notimpl,
-    file_split,
+    apr_bucket_split_shared,
     apr_bucket_copy_shared
 };
