@@ -132,7 +132,9 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
     apr_status_t rv;
     apr_off_t filelength = e->length;  /* bytes remaining in file past offset */
     apr_off_t fileoffset = e->start;
+#if APR_HAS_THREADS && !APR_HAS_XTHREAD_FILES
     apr_int32_t flags;
+#endif
 
 #if APR_HAS_MMAP
     if (file_make_mmap(e, filelength, fileoffset, a->readpool)) {
