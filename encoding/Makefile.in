@@ -1,5 +1,0 @@
-
-TARGETS = ap_base64.lo
-
-top_builddir = @top_builddir@
-include $(top_builddir)/build/rules.mk
