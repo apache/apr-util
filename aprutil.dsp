@@ -26,6 +26,7 @@ CFG=aprutil - Win32 Debug
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
 CPP=cl.exe
+RSC=rc.exe
 
 !IF  "$(CFG)" == "aprutil - Win32 Release"
 
@@ -39,11 +40,10 @@ CPP=cl.exe
 # PROP Output_Dir "LibR"
 # PROP Intermediate_Dir "LibR"
 # PROP Target_Dir ""
-RSC=rc.exe
+# ADD BASE CPP /nologo /MD /W3 /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FD /c
+# ADD CPP /nologo /MD /W3 /O2 /I "./include" /I "../apr/include" /I "./include/private" /I "./dbm/sdbm" /I "./xml/expat/lib" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "APR_DECLARE_STATIC" /D "APU_DECLARE_STATIC" /D "APU_USE_SDBM" /Fd"LibR\aprutil" /FD /c
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
-# ADD BASE CPP /nologo /MD /W3 /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FD /c
-# ADD CPP /nologo /MD /W3 /O2 /I "./include" /I "../apr/include" /I "./include/private" /I "./dbm/sdbm" /I "../expat-lite" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "APR_DECLARE_STATIC" /D "APU_DECLARE_STATIC" /D "APU_USE_SDBM" /Fd"LibR\aprutil" /FD /c
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -64,11 +64,10 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "LibD"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-RSC=rc.exe
+# ADD BASE CPP /nologo /MDd /W3 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FD /c
+# ADD CPP /nologo /MDd /W3 /GX /ZI /Od /I "./include" /I "../apr/include" /I "./include/private" /I "./dbm/sdbm" /I "./xml/expat/lib" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "APR_DECLARE_STATIC" /D "APU_DECLARE_STATIC" /D "APU_USE_SDBM" /Fd"LibD\aprutil" /FD /c
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
-# ADD BASE CPP /nologo /MDd /W3 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FD /c
-# ADD CPP /nologo /MDd /W3 /GX /ZI /Od /I "./include" /I "../apr/include" /I "./include/private" /I "./dbm/sdbm" /I "../expat-lite" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "APR_DECLARE_STATIC" /D "APU_DECLARE_STATIC" /D "APU_USE_SDBM" /Fd"LibD\aprutil" /FD /c
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -254,18 +253,9 @@ InputPath=.\include\apu.hw
 
 SOURCE=.\include\private\apu_config.hw
 
-!IF  "$(CFG)" == "libaprutil - Win32 Release"
+!IF  "$(CFG)" == "aprutil - Win32 Release"
 
-# Begin Custom Build
-InputPath=.\include\private\apu_config.hw
-
-".\include\private\apu_config.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	copy .\include\private\apu_config.hw .\include\private\apu_config.h > nul 
-	echo Created apu_config.h from apu_config.hw 
-	
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+!ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
 
 # Begin Custom Build
 InputPath=.\include\private\apu_config.hw
@@ -289,8 +279,7 @@ SOURCE=.\include\private\apu_select_dbm.hw
 InputPath=.\include\private\apu_select_dbm.hw
 
 ".\include\private\apu_select_dbm.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	copy .\include\private\apu_select_dbm.hw .\include\private\apu_select_dbm.h >\
- nul 
+	copy .\include\private\apu_select_dbm.hw .\include\private\apu_select_dbm.h >  nul 
 	echo Created apu_select_dbm.h from apu_select_dbm.hw 
 	
 # End Custom Build
@@ -301,8 +290,7 @@ InputPath=.\include\private\apu_select_dbm.hw
 InputPath=.\include\private\apu_select_dbm.hw
 
 ".\include\private\apu_select_dbm.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	copy .\include\private\apu_select_dbm.hw .\include\private\apu_select_dbm.h >\
- nul 
+	copy .\include\private\apu_select_dbm.hw .\include\private\apu_select_dbm.h >  nul 
 	echo Created apu_select_dbm.h from apu_select_dbm.hw 
 	
 # End Custom Build
