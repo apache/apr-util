@@ -63,6 +63,11 @@ static apr_status_t mmap_bucket_read(apr_bucket *b, const char **str,
     apr_status_t ok;
     void *addr;
     
+    if (!m->mmap) {
+        /* due to cleanup issues we have no choice but to check this */
+        return APR_EINVAL;
+    }
+
     ok = apr_mmap_offset(&addr, m->mmap, b->start);
     if (ok != APR_SUCCESS) {
         return ok;
@@ -72,14 +77,27 @@ static apr_status_t mmap_bucket_read(apr_bucket *b, const char **str,
     return APR_SUCCESS;
 }
 
+static apr_status_t mmap_bucket_cleanup(void *data)
+{
+    /* the mmap has disappeared out from under us.  we have no choice
+     * but to invalidate this bucket.  from now on, all you can do to this
+     * bucket is destroy it, not read from it.
+     */
+    apr_bucket_mmap *m = data;
+
+    m->mmap = NULL;
+    return APR_SUCCESS;
+}
+
 static void mmap_bucket_destroy(void *data)
 {
     apr_bucket_mmap *m = data;
 
     if (apr_bucket_shared_destroy(m)) {
-        /* if we are the owner of the mmaped region, apr_mmap_delete will
-         * munmap it for us.  if we're not, it's essentially a noop. */
-        apr_mmap_delete(m->mmap);
+        if (m->mmap && m->mmap->is_owner) {
+            apr_pool_cleanup_kill(m->mmap->cntxt, m, mmap_bucket_cleanup);
+            apr_mmap_delete(m->mmap);
+        }
         apr_bucket_free(m);
     }
 }
@@ -95,6 +113,11 @@ APU_DECLARE(apr_bucket *) apr_bucket_mmap_make(apr_bucket *b, apr_mmap_t *mm,
 
     m = apr_bucket_alloc(sizeof(*m), b->list);
     m->mmap = mm;
+
+    if (mm->is_owner) {
+        apr_pool_cleanup_register(mm->cntxt, m, mmap_bucket_cleanup,
+                                  apr_pool_cleanup_null);
+    }
 
     b = apr_bucket_shared_make(b, m, start, length);
     b->type = &apr_bucket_type_mmap;
@@ -123,6 +146,11 @@ static apr_status_t mmap_bucket_setaside(apr_bucket *data, apr_pool_t *p)
     apr_mmap_t *new_mm;
     apr_status_t ok;
 
+    if (!mm) {
+        /* due to cleanup issues we have no choice but to check this */
+        return APR_EINVAL;
+    }
+
     if (apr_pool_is_ancestor(mm->cntxt, p)) {
         return APR_SUCCESS;
     }
@@ -131,7 +159,14 @@ static apr_status_t mmap_bucket_setaside(apr_bucket *data, apr_pool_t *p)
     if (ok != APR_SUCCESS) {
         return ok;
     }
+    
     m->mmap = new_mm;
+    if (new_mm->is_owner) {
+        apr_pool_cleanup_kill(mm->cntxt, m, mmap_bucket_cleanup);
+        apr_pool_cleanup_register(new_mm->cntxt, m, mmap_bucket_cleanup,
+                                  apr_pool_cleanup_null);
+    }
+
     return APR_SUCCESS;
 }
 
