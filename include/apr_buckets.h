@@ -432,7 +432,7 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
  * Initialize a new bucket's prev/next pointers
  * @param e The bucket to initialize
  */
-#define APR_BUCKET_INIT(e)	APR_RING_ELEM_INIT((e), link);
+#define APR_BUCKET_INIT(e)	APR_RING_ELEM_INIT((e), link)
 
 /**
  * Determine if a bucket is a FLUSH bucket
