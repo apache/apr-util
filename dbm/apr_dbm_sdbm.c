@@ -78,6 +78,23 @@ typedef apr_sdbm_datum_t result_datum_t;
 #define APR_DBM_DBMODE_RWCREATE (APR_READ | APR_WRITE | APR_CREATE)
 #define APR_DBM_DBMODE_RWTRUNC  (APR_READ | APR_WRITE | APR_CREATE|APR_TRUNCATE)
 
+static apr_status_t set_error(apr_dbm_t *dbm, apr_status_t dbm_said)
+{
+    apr_status_t rv = APR_SUCCESS;
+
+    /* ### ignore whatever the DBM said (dbm_said); ask it explicitly */
+
+    if ((dbm->errcode = dbm_said) == APR_SUCCESS) {
+        dbm->errmsg = NULL;
+    }
+    else {
+        dbm->errmsg = "I/O error occurred.";
+        rv = APR_EGENERAL;        /* ### need something better */
+    }
+
+    return rv;
+}
+
 /* --------------------------------------------------------------------------
 **
 ** DEFINE THE VTABLE FUNCTIONS FOR SDBM
@@ -93,7 +110,7 @@ static apr_status_t vt_sdbm_open(apr_dbm_t **dbm, const char *name,
 
 static void vt_sdbm_close(apr_dbm_t *dbm)
 {
-    abort();
+    APR_DBM_CLOSE(dbm->file);
 }
 
 static apr_status_t vt_sdbm_fetch(apr_dbm_t *dbm, apr_datum_t key,
@@ -143,13 +160,22 @@ static char * vt_sdbm_geterror(apr_dbm_t *dbm, int *errcode, char *errbuf,
 
 static void vt_sdbm_freedatum(apr_dbm_t *dbm, apr_datum_t data)
 {
-    abort();
+    APR_DBM_FREEDPTR(data.dptr);
 }
 
 static void vt_sdbm_usednames(apr_pool_t *pool, const char *pathname,
                               const char **used1, const char **used2)
 {
-    abort();
+    char *work;
+
+    /* ### this could be optimized by computing strlen() once and using
+       ### memcpy and pmemdup instead. but why bother? */
+
+    *used1 = apr_pstrcat(pool, pathname, APR_SDBM_DIRFEXT, NULL);
+    *used2 = work = apr_pstrdup(pool, *used1);
+
+    /* we know the extension is 4 characters */
+    memcpy(&work[strlen(work) - 4], APR_SDBM_PAGFEXT, 4);
 }
 
 

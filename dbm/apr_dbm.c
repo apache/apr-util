@@ -73,71 +73,29 @@
 #define SET_FILE(pdb, f) ((pdb)->file = (f))
 
 
+/* ### note: the setting of DBM_VTABLE will go away once we have multiple
+   ### DBMs in here. */
+
 #if APU_USE_SDBM
 
 #include "apr_dbm_sdbm.c"
+#define DBM_VTABLE apr_dbm_type_sdbm
 
 #elif APU_USE_GDBM
 
 #include "apr_dbm_gdbm.c"
+#define DBM_VTABLE apr_dbm_type_gdbm
 
 #elif APU_USE_DB
 
 #include "apr_dbm_berkeleydb.c"
+#define DBM_VTABLE apr_dbm_type_db
 
 #else /* Not in the USE_xDBM list above */
 #error a DBM implementation was not specified
 #endif
 
 
-static apr_status_t set_error(apr_dbm_t *dbm, apr_status_t dbm_said)
-{
-    apr_status_t rv = APR_SUCCESS;
-
-    /* ### ignore whatever the DBM said (dbm_said); ask it explicitly */
-
-#if APU_USE_SDBM
-
-    if ((dbm->errcode = dbm_said) == APR_SUCCESS) {
-        dbm->errmsg = NULL;
-    }
-    else {
-        dbm->errmsg = "I/O error occurred.";
-        rv = APR_EGENERAL;        /* ### need something better */
-    }
-
-#elif APU_USE_GDBM
-
-    if ((dbm->errcode = gdbm_errno) == GDBM_NO_ERROR) {
-        dbm->errmsg = NULL;
-    }
-    else {
-        dbm->errmsg = gdbm_strerror(gdbm_errno);
-        rv = APR_EGENERAL;        /* ### need something better */
-    }
-
-    /* captured it. clear it now. */
-    gdbm_errno = GDBM_NO_ERROR;
-
-#elif APU_USE_DB
-
-    if (dbm_said == APR_SUCCESS) {
-        dbm->errcode = 0;
-        dbm->errmsg = NULL;
-    }
-    else {
-        /* ### need to fix. dberr was tossed in db2s(). */
-        /* ### use db_strerror() */
-        dbm->errcode = dbm_said;
-        dbm->errmsg = db_strerror( dbm_said - APR_OS_START_USEERR);
-        rv = dbm_said;
-    }
-#else
-#error set_error has not been coded for this database type
-#endif
-
-    return rv;
-}
 
 APU_DECLARE(apr_status_t) apr_dbm_open(apr_dbm_t **pdb, const char *pathname, 
                                        apr_int32_t mode, apr_fileperms_t perm,
@@ -222,6 +180,7 @@ APU_DECLARE(apr_status_t) apr_dbm_open(apr_dbm_t **pdb, const char *pathname,
     /* we have an open database... return it */
     *pdb = apr_pcalloc(pool, sizeof(**pdb));
     (*pdb)->pool = pool;
+    (*pdb)->type = &DBM_VTABLE;
     SET_FILE(*pdb, file);
 
     /* ### register a cleanup to close the DBM? */
@@ -231,7 +190,7 @@ APU_DECLARE(apr_status_t) apr_dbm_open(apr_dbm_t **pdb, const char *pathname,
 
 APU_DECLARE(void) apr_dbm_close(apr_dbm_t *dbm)
 {
-    APR_DBM_CLOSE(dbm->file);
+    (*dbm->type->close)(dbm);
 }
 
 APU_DECLARE(apr_status_t) apr_dbm_fetch(apr_dbm_t *dbm, apr_datum_t key,
@@ -347,11 +306,7 @@ APU_DECLARE(apr_status_t) apr_dbm_nextkey(apr_dbm_t *dbm, apr_datum_t *pkey)
 
 APU_DECLARE(void) apr_dbm_freedatum(apr_dbm_t *dbm, apr_datum_t data)
 {
-#ifdef NEEDS_CLEANUP
-    (void) apr_pool_cleanup_run(dbm->pool, data.dptr, datum_cleanup);
-#else
-    APR_DBM_FREEDPTR(data.dptr);
-#endif
+    (*dbm->type->freedatum)(dbm, data);
 }
 
 APU_DECLARE(char *) apr_dbm_geterror(apr_dbm_t *dbm, int *errcode,
@@ -374,20 +329,10 @@ APU_DECLARE(void) apr_dbm_get_usednames(apr_pool_t *p,
                                         const char **used1,
                                         const char **used2)
 {
-#if APU_USE_SDBM
-    char *work;
+    /* ### one day, we will pass in a DBM name and need to look it up.
+       ### for now, it is constant. */
 
-    *used1 = apr_pstrcat(p, pathname, APR_SDBM_DIRFEXT, NULL);
-    *used2 = work = apr_pstrdup(p, *used1);
-
-    /* we know the extension is 4 characters */
-    memcpy(&work[strlen(work) - 4], APR_SDBM_PAGFEXT, 4);
-#elif APU_USE_GDBM || APU_USE_DB
-    *used1 = apr_pstrdup(p, pathname);
-    *used2 = NULL;
-#else
-#error apr_dbm_get_usednames has not been coded for this database type
-#endif
+    return (*DBM_VTABLE.getusednames)(p, pathname, used1, used2);
 }
 
 /* Most DBM libraries take a POSIX mode for creating files.  Don't trust

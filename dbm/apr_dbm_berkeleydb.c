@@ -195,6 +195,27 @@ static apr_status_t do_nextkey(real_file_t *f, DBT *pkey, DBT *pnext)
     return db2s(dberr);
 }
 
+static apr_status_t set_error(apr_dbm_t *dbm, apr_status_t dbm_said)
+{
+    apr_status_t rv = APR_SUCCESS;
+
+    /* ### ignore whatever the DBM said (dbm_said); ask it explicitly */
+
+    if (dbm_said == APR_SUCCESS) {
+        dbm->errcode = 0;
+        dbm->errmsg = NULL;
+    }
+    else {
+        /* ### need to fix. dberr was tossed in db2s(). */
+        /* ### use db_strerror() */
+        dbm->errcode = dbm_said;
+        dbm->errmsg = db_strerror( dbm_said - APR_OS_START_USEERR);
+        rv = dbm_said;
+    }
+
+    return rv;
+}
+
 /* --------------------------------------------------------------------------
 **
 ** DEFINE THE VTABLE FUNCTIONS FOR BERKELEY DB
@@ -212,7 +233,7 @@ static apr_status_t vt_db_open(apr_dbm_t **dbm, const char *name,
 
 static void vt_db_close(apr_dbm_t *dbm)
 {
-    abort();
+    APR_DBM_CLOSE(dbm->file);
 }
 
 static apr_status_t vt_db_fetch(apr_dbm_t *dbm, apr_datum_t key,
@@ -262,13 +283,14 @@ static char * vt_db_geterror(apr_dbm_t *dbm, int *errcode, char *errbuf,
 
 static void vt_db_freedatum(apr_dbm_t *dbm, apr_datum_t data)
 {
-    abort();
+    APR_DBM_FREEDPTR(data.dptr);
 }
 
 static void vt_db_usednames(apr_pool_t *pool, const char *pathname,
                             const char **used1, const char **used2)
 {
-    abort();
+    *used1 = apr_pstrdup(pool, pathname);
+    *used2 = NULL;
 }
 
 
