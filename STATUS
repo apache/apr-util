@@ -1,11 +1,24 @@
 APRUTIL LIBRARY STATUS:						-*-text-*-
-Last modified at [$Date: 2000/12/18 03:52:16 $]
+Last modified at [$Date: 2001/01/13 04:23:31 $]
 
 Release:
     ...on the 12th as part of Apache 2.0a9  [need specifics here]
 
 
 RELEASE SHOWSTOPPERS:
+
+    * This vote ends on Wednesday!
+      Source code layout needs to be decided for apr and apr-util.  There
+      has been some discussion about adding a src/ directory to apr or 
+      removing it from apr-util/.  Either way, this needs to be decided.
+      Those for adding apr/src/    : gstein
+      Those removing apr-util/src/ : wrowe, rbb
+
+    * Many linkage errors are gpfaulting Apache/win32 in various configs
+      (load mod_dav, for example.)  Must complete the APR_DECLARES
+        Gregory Nicholes is working on this, with quick response from rbb
+        Will Rowe will fold over the libapr.dsp into it's own library
+        and remove the exports from the simple apr.dsp once it's done.
 
     * Source code layout needs to be decided for apr and apr-util.  There
       has been some discussion about adding a src/ directory to apr or removing
@@ -53,6 +66,7 @@ Open Issues:
     * Prefix for the code.
       Status:
         APR: Ryan +1, Greg +1
+        Will asks "Is that apu_ prefix?  I'm +++1 for that!
 
     * Compatibility header to deal with renamed symbols.
       NOTE:
