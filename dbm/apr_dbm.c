@@ -132,7 +132,7 @@ static apr_status_t set_error(apu_dbm_t *db)
 {
     apr_status_t rv = APR_SUCCESS;
 
-#if defined(DAV_USE_SDBM)
+#if defined(APU_USE_SDBM)
 
     if ((db->errcode = sdbm_error(db->file)) == 0) {
         db->errmsg = NULL;
@@ -145,7 +145,7 @@ static apr_status_t set_error(apu_dbm_t *db)
     /* captured it. clear it now. */
     sdbm_clearerr(db->file);
 
-#elif defined(DAV_USE_GDBM)
+#elif defined(APU_USE_GDBM)
 
     if ((db->errcode = gdbm_errno) == GDBM_NO_ERROR) {
         db->errmsg = NULL;
