@@ -1,5 +1,7 @@
 Changes with APR-util b1  
 
+  *) Introduce an apr_fileperms_t argument to apr_dbm_open(). [Will Rowe]
+
   *) Removed apr_bucket_do_create() macro, which was causing warnings
      about unreachable code in some compilers (notably MSVC).  What
      used to be done by this macro is now done inline in the various

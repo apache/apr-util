@@ -59,6 +59,7 @@
 #include "apr.h"
 #include "apr_errno.h"
 #include "apr_pools.h"
+#include "apr_file_info.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -99,13 +100,15 @@ typedef struct
  *           APR_DBM_READWRITE  open for read-write access
  *           APR_DBM_RWCREATE   open for r/w, create if needed
  * </PRE>
+ * @param perm Permissions to apply to if created
  * @param cntxt The pool to use when creating the dbm
  * @deffunc apr_status_t apr_dbm_open(apr_dbm_t **dbm, const char *name, int mode
  * @tip The dbm name may not be a true file name, as many dbm packages
  * append suffixes for seperate data and index files.
  */
 APU_DECLARE(apr_status_t) apr_dbm_open(apr_dbm_t **dbm, const char *name, 
-                                       int mode, apr_pool_t *cntxt);
+                                       apr_int32_t mode, apr_fileperms_t perm,
+                                       apr_pool_t *cntxt);
 
 /**
  * Close a dbm file previously opened by apr_dbm_open
