@@ -77,7 +77,7 @@
 #define APU_HAVE_DB_VERSION    @apu_db_version@
 #endif /* APU_HAVE_DB */
 
-#define APU_HAVE_APR_ICONV     0
+#define APU_HAVE_APR_ICONV     @have_apr_iconv@
 #define APU_HAVE_ICONV         @have_iconv@
 #define APR_HAS_XLATE          (APU_HAVE_APR_ICONV || APU_HAVE_ICONV)
 

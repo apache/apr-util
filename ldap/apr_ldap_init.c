@@ -167,7 +167,7 @@ APU_DECLARE(int) apr_ldap_ssl_init(apr_pool_t *pool,
  * @todo currently we do not check whether apr_ldap_ssl_init()
  * has been called first - should we?
  */
-APU_DECLARE(int) apr_ldap_ssl_deinit() {
+APU_DECLARE(int) apr_ldap_ssl_deinit(void) {
 
 #if APR_HAS_LDAP_SSL && APR_HAS_NOVELL_LDAPSDK
     ldapssl_client_deinit();
