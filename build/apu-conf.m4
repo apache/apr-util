@@ -184,11 +184,13 @@ dnl APU_CHECK_DBM: see what kind of DBM backend to use for apr_dbm.
 dnl
 AC_DEFUN(APU_CHECK_DBM,[
 apu_use_sdbm=0
+apu_use_ndbm=0
 apu_use_gdbm=0
 apu_use_db=0
 dnl it's in our codebase
 apu_have_sdbm=1
 apu_have_gdbm=0
+apu_have_ndbm=0
 apu_have_db=0
 
 apu_db_header=db.h		# default so apu_select_dbm.h is syntactically correct
@@ -196,15 +198,16 @@ apu_db_version=0
 
 AC_ARG_WITH(dbm,
   [  --with-dbm=DBM          choose the DBM type to use.
-                          DBM={sdbm,gdbm,db,db1,db185,db2,db3,db4}],[
+                          DBM={sdbm,gdbm,ndbm,db,db1,db185,db2,db3,db4}],[
   if test "$withval" = "yes"; then
     AC_MSG_ERROR([--with-dbm needs to specify a DBM type to use.
-One of: sdbm, gdbm, db, db1, db185, db2, db3, db4])
+One of: sdbm, gdbm, ndbm, db, db1, db185, db2, db3, db4])
   fi
   requested="$withval"
 ],[
   requested=default
 ])
+
 AC_ARG_WITH([gdbm],
 [ --with-gdbm=DIR          specify GDBM location], [
     apu_have_gdbm=0
@@ -227,7 +230,70 @@ AC_ARG_WITH([gdbm],
     apu_have_gdbm=0
     AC_CHECK_HEADER(gdbm.h, AC_CHECK_LIB(gdbm, gdbm_open, [apu_have_gdbm=1]))
 ])
-        
+
+AC_ARG_WITH([ndbm],
+[ --with-ndbm=PATH 
+    Find the NDBM header and library in \`PATH/include' and 
+    \`PATH/lib'.  If PATH is of the form \`HEADER:LIB', then search 
+    for header files in HEADER, and the library in LIB.  If you omit
+    the \`=PATH' part completely, the configure script will search
+    for NDBM in a number of standard places.], [
+
+    apu_have_ndbm=0
+    if test "$withval" = "yes"; then
+      AC_MSG_CHECKING(checking for ndbm in the usual places)
+      apu_want_ndbm=1
+      NDBM_INC=""
+      NDBM_LDFLAGS=""
+    elif test "$withval" = "no"; then
+      apu_want_ndbm=0
+    else
+      apu_want_ndbm=1
+      case "$withval" in
+        *":"*)
+          NDBM_INC="-I`echo $withval |sed -e 's/:.*$//'`"
+          NDBM_LDFLAGS="-L`echo $withval |sed -e 's/^.*://'`"
+          AC_MSG_CHECKING(checking for ndbm includes with $NDBM_INC libs with $NDBM_LDFLAGS )
+        ;;
+        *)
+          NDBM_INC="-I$withval/include"
+          NDBM_LDFLAGS="-L$withval/lib"
+          AC_MSG_CHECKING(checking for ndbm includes in $withval)
+        ;;
+      esac
+    fi
+
+    save_cppflags="$CPPFLAGS"
+    save_ldflags="$LDFLAGS"
+    CPPFLAGS="$CPPFLAGS $NDBM_INC"
+    LDFLAGS="$LDFLAGS $NDBM_LDFLAGS"
+    dnl db_ndbm_open is what sleepcat's compatibility library actually has in it's lib
+    if test "$apu_want_ndbm" != "0"; then
+      AC_CHECK_HEADER(ndbm.h, 
+        AC_CHECK_LIB(c, dbm_open, [apu_have_ndbm=1;apu_ndbm_lib=c],
+            AC_CHECK_LIB(dbm, dbm_open, [apu_have_ndbm=1;apu_ndbm_lib=dbm],
+                AC_CHECK_LIB(db, dbm_open, [apu_have_ndbm=1;apu_ndbm_lib=db],
+                    AC_CHECK_LIB(db, __db_ndbm_open, [apu_have_ndbm=1;apu_ndbm_lib=db])
+                )
+            )
+        )
+      )
+      if test "$apu_have_ndbm" != "0";  then
+            if test "$withval" != "yes"; then
+                APR_ADDTO(APRUTIL_INCLUDES, [$NDBM_INC])
+                APR_ADDTO(APRUTIL_LDFLAGS, [$NDBM_LDFLAGS])
+            fi
+      elif test "$withval" != "yes"; then
+            AC_ERROR( NDBM not found in the specified directory)
+      fi
+    fi
+    CPPFLAGS="$save_cppflags"
+    LDFLAGS="$save_ldflags"
+],[
+    dnl don't check it no one has asked us for it
+    apu_have_ndbm=0
+])
+
 
 dnl We're going to try to find the highest version of Berkeley DB supported.
 AC_ARG_WITH([berkeley-db],
@@ -294,6 +360,10 @@ case "$requested" in
     apu_use_gdbm=1
     apu_default_dbm=gdbm
     ;;
+  ndbm)
+    apu_use_ndbm=1
+    apu_default_dbm=ndbm
+    ;;
   db)
     if test "$apu_db_version" != "0"; then
       apu_use_db=1
@@ -354,7 +424,7 @@ case "$requested" in
     ;;
   *)
     AC_MSG_ERROR([--with-dbm=$look_for is an unknown DBM type.
-Use one of: sdbm, gdbm, db, db1, db185, db2, db3, db4])
+Use one of: sdbm, gdbm, ndbm, db, db1, db185, db2, db3, db4])
     ;;
 esac
 
@@ -366,10 +436,12 @@ AC_MSG_RESULT($apu_default_dbm)
 
 AC_SUBST(apu_use_sdbm)
 AC_SUBST(apu_use_gdbm)
+AC_SUBST(apu_use_ndbm)
 AC_SUBST(apu_use_db)
 
 AC_SUBST(apu_have_sdbm)
 AC_SUBST(apu_have_gdbm)
+AC_SUBST(apu_have_ndbm)
 AC_SUBST(apu_have_db)
 AC_SUBST(apu_db_header)
 AC_SUBST(apu_db_version)
@@ -380,6 +452,12 @@ if test "$apu_have_gdbm" = "1"; then
   APR_ADDTO(APRUTIL_EXPORT_LIBS,[-lgdbm])
   APR_ADDTO(APRUTIL_LIBS,[-lgdbm])
 fi
+
+if test "$apu_have_ndbm" = "1"; then
+  APR_ADDTO(APRUTIL_EXPORT_LIBS,[-l$apu_ndbm_lib])
+  APR_ADDTO(APRUTIL_LIBS,[-l$apu_ndbm_lib])
+fi
+
 
 if test "$apu_db_version" != "0"; then
   if test -n "$apu_db_lib"; then

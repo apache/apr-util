@@ -1,5 +1,8 @@
 Changes with APR-util b1  
 
+  *) Bug #9789 : NDBM support 
+     [Toomas Soome <tsoome@muhv.pri.ee>, Ian Holsman]
+
   *) Added a Thread safe FIFO bounded buffer (apr_queue) [Ian Holsman]
 
   *) Changed file_bucket_setaside() to use apr_file_setaside() instead

@@ -60,6 +60,7 @@
 */
 #define APU_USE_SDBM	1
 #define APU_USE_GDBM	0
+#define APU_USE_NDBM	0
 #define APU_USE_DB	0
 
 #if APU_USE_DB
