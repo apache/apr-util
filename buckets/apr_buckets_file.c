@@ -85,12 +85,10 @@
 
 static void file_destroy(void *data)
 {
-    apr_bucket_file *f = data;
-
-    if (apr_bucket_shared_destroy(f)) {
+    if (apr_bucket_shared_destroy(data)) {
         /* no need to close the file here; it will get
          * done automatically when the pool gets cleaned up */
-        apr_sms_free(f->sms, f);
+        free(data);
     }
 }
 
@@ -188,12 +186,12 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
     if (filelength > 0) {
         /* for efficiency, we can just build a new apr_bucket struct
          * to wrap around the existing file bucket */
-        b = (apr_bucket *)apr_sms_malloc(e->sms, sizeof(*b));
+        b = malloc(sizeof(*b));
         b->start  = fileoffset + (*len);
         b->length = filelength;
         b->data   = a;
         b->type   = &apr_bucket_type_file;
-        b->sms    = e->sms;
+        b->free   = free;
         APR_BUCKET_INSERT_AFTER(e, b);
     }
     else {
@@ -210,12 +208,14 @@ APU_DECLARE(apr_bucket *) apr_bucket_file_make(apr_bucket *b, apr_file_t *fd,
 {
     apr_bucket_file *f;
 
-    f = (apr_bucket_file *)apr_sms_malloc(b->sms, sizeof(*f));
+    f = malloc(sizeof(*f));
+    if (f == NULL) {
+        return NULL;
+    }
     f->fd = fd;
     f->readpool = p;
-    f->sms = b->sms;
 
-    apr_bucket_shared_make(b, f, offset, len);
+    b = apr_bucket_shared_make(b, f, offset, len);
     b->type = &apr_bucket_type_file;
 
     return b;
@@ -225,16 +225,10 @@ APU_DECLARE(apr_bucket *) apr_bucket_file_create(apr_file_t *fd,
                                                  apr_off_t offset,
                                                  apr_size_t len, apr_pool_t *p)
 {
-    apr_sms_t *sms;
-    apr_bucket *b;
+    apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
 
-    if (!apr_bucket_global_sms) {
-        apr_sms_std_create(&apr_bucket_global_sms);
-    }
-    sms = apr_bucket_global_sms;
-    b = (apr_bucket *)apr_sms_malloc(sms, sizeof(*b));
     APR_BUCKET_INIT(b);
-    b->sms = sms;
+    b->free = free;
     return apr_bucket_file_make(b, fd, offset, len, p);
 }
 
