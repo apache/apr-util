@@ -56,7 +56,7 @@
 #include "apr_errno.h"
 #include "apr_pools.h"
 
-#include "apu_private.h"
+#include "apr_private.h"
 #include "apr_dbm.h"
 
 #if APU_USE_SDBM

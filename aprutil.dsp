@@ -69,7 +69,7 @@ RSC=rc.exe
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
 # ADD BASE CPP /nologo /MTd /W3 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MDd /W3 /GX /ZI /Od /I "./include" /I "../apr/include" /D "_DEBUG" /D "APR_DECLARE_EXPORT" /D "WIN32" /D "_WINDOWS" /FD /c
+# ADD CPP /nologo /MDd /W3 /GX /ZI /Od /I "./include" /I "../apr/include" /I "./dbm/sdbm" /D "_DEBUG" /D "APR_DECLARE_EXPORT" /D "WIN32" /D "_WINDOWS" /D "APU_USE_SDBM" /FD /c
 # SUBTRACT CPP /YX
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
@@ -110,7 +110,13 @@ SOURCE=.\src\buckets\ap_buckets_heap.c
 # Begin Source File
 
 SOURCE=.\src\buckets\ap_buckets_mmap.c
-# PROP Exclude_From_Build 1
+
+!IF  "$(CFG)" == "aprutil - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
@@ -140,10 +146,6 @@ SOURCE=.\src\buckets\ap_buckets_socket.c
 
 SOURCE=.\src\crypto\ap_sha1.c
 # End Source File
-# End Group
-# Begin Group "dbm"
-
-# PROP Default_Filter ""
 # End Group
 # Begin Group "encoding"
 
@@ -191,6 +193,50 @@ SOURCE=.\include\ap_ring.h
 # Begin Source File
 
 SOURCE=.\include\ap_sha1.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\apr_dbm.h
+# End Source File
+# End Group
+# Begin Group "dbm"
+
+# PROP Default_Filter ""
+# Begin Group "sdbm"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\src\dbm\sdbm\sdbm.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\dbm\sdbm\sdbm_hash.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\dbm\sdbm\sdbm_lock.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\dbm\sdbm\sdbm_pair.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\dbm\sdbm\sdbm_pair.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\dbm\sdbm\sdbm_private.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\dbm\sdbm\sdbm_tune.h
+# End Source File
+# End Group
+# Begin Source File
+
+SOURCE=.\src\dbm\apr_dbm.c
 # End Source File
 # End Group
 # End Target
