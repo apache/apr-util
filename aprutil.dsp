@@ -253,7 +253,7 @@ InputPath=.\include\apu.hw
 
 SOURCE=.\include\private\apu_config.hw
 
-!IF  "$(CFG)" == "libaprutil - Win32 Release"
+!IF  "$(CFG)" == "aprutil - Win32 Release"
 
 # Begin Custom Build
 InputPath=.\include\private\apu_config.hw
