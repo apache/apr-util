@@ -73,6 +73,10 @@
 #define APR_WANT_STRFUNC
 #include "apr_want.h"
 
+#if APR_HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
+
 #if APR_HAVE_CTYPE_H
 #include <ctype.h>
 #endif
@@ -343,7 +347,7 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
     apr_exploded_time_t ds;
     apr_time_t result;
     int mint, mon;
-    char *monstr, *timstr;
+    char *monstr, *timstr, *gmtstr;
     static const int months[12] =
     {
     ('J' << 16) | ('a' << 8) | 'n', ('F' << 16) | ('e' << 8) | 'b',
@@ -383,6 +387,7 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
 
         monstr = date + 3;
         timstr = date + 12;
+        gmtstr = date + 20;
     }
     else if (apr_date_checkmask(date, "##-@$$-## ##:##:## *")) {/* RFC 850 format  */
         ds.tm_year = ((date[7] - '0') * 10) + (date[8] - '0');
@@ -394,6 +399,7 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
 
         monstr = date + 3;
         timstr = date + 10;
+        gmtstr = date + 19;
     }
     else if (apr_date_checkmask(date, "@$$ ~# ##:##:## ####*")) {
         /* asctime format */
@@ -412,6 +418,7 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
 
         monstr = date;
         timstr = date + 7;
+        gmtstr = NULL;
     }
     else if (apr_date_checkmask(date, "# @$$ #### ##:##:## *")) {
         /* RFC 1123 format*/
@@ -425,6 +432,7 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
 
         monstr = date + 2;
         timstr = date + 11;
+        gmtstr = date + 20;
     }
     else if (apr_date_checkmask(date, "## @$$ ## ##:##:## *")) {
         /* This is the old RFC 1123 date format - many many years ago, people
@@ -438,7 +446,7 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
 
         monstr = date + 3;
         timstr = date + 10;
-
+        gmtstr = date + 19;
     } 
     else if (apr_date_checkmask(date, "# @$$ ## ##:##:## *")) {
         /* This is the old RFC 1123 date format - many many years ago, people
@@ -452,7 +460,7 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
 
         monstr = date + 2;
         timstr = date + 9;
-
+        gmtstr = date + 18;
     } 
     else if (apr_date_checkmask(date, "## @$$ ## ##:## *")) {
         /* Loser format.  This is quite bogus.  */
@@ -467,6 +475,7 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
         timstr = date + 10;
         timstr[6] = '0';
         timstr[7] = '0';
+        gmtstr = NULL;
     } 
     else if (apr_date_checkmask(date, "# @$$ ## ##:## *")) {
         /* Loser format.  This is quite bogus.  */
@@ -482,6 +491,7 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
 
         timstr[6] = '0';
         timstr[7] = '0';
+        gmtstr = NULL;
     }
     else if (apr_date_checkmask(date, "## @$$ ## #:##:## *")) {
         /* Loser format.  This is quite bogus.  */
@@ -496,6 +506,7 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
         timstr = date + 9;
 
         timstr[0] = '0';
+        gmtstr = date + 18;
     }
     else if (apr_date_checkmask(date, "# @$$ ## #:##:## *")) {
          /* Loser format.  This is quite bogus.  */
@@ -510,6 +521,7 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
         timstr = date + 8;
 
         timstr[0] = '0';
+        gmtstr = date + 17;
     }
     else
         return APR_DATE_BAD;
@@ -547,18 +559,42 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
 
     ds.tm_mon = mon;
 
-    /* apr_mplode_time uses tm_usec and tm_gmtoff fields, but they haven't 
-     * been set yet. 
-     * It should be safe to just zero out these values.
+    /* tm_gmtoff is the number of seconds off of GMT the time is.
+     *
+     * We only currently support: [+-]ZZZZ where Z is the offset in
+     * hours from GMT.
+     *
+     * If there is any confusion, tm_gmtoff will remain 0.
+     */
+    ds.tm_gmtoff = 0;
+    if (gmtstr && *gmtstr != '\0') {
+        /* Do we have a GMT? */
+        if (*(++gmtstr) != '\0') {
+            int offset;
+            switch (*(gmtstr++)) {
+            case '-':
+                offset = atoi(gmtstr);
+                ds.tm_gmtoff -= (offset / 100) * 60 * 60;
+                ds.tm_gmtoff -= (offset % 100) * 60;
+                break;
+            case '+':
+                offset = atoi(gmtstr);
+                ds.tm_gmtoff += (offset / 100) * 60 * 60;
+                ds.tm_gmtoff += (offset % 100) * 60;
+                break;
+            default:
+            }
+        }
+    }
+
+    /* apr_implode_time uses tm_usec field, but it hasn't been set yet. 
+     * It should be safe to just zero out this value.
      * tm_usec is the number of microseconds into the second.  HTTP only
      * cares about second granularity.
-     * tm_gmtoff is the number of seconds off of GMT the time is.  By
-     * definition all times going through this function are in GMT, so this
-     * is zero. 
      */
     ds.tm_usec = 0;
-    ds.tm_gmtoff = 0;
-    if (apr_implode_time(&result, &ds) != APR_SUCCESS) 
+
+    if (apr_implode_gmt(&result, &ds) != APR_SUCCESS) 
         return APR_DATE_BAD;
     
     return result;
