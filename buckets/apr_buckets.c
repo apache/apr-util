@@ -59,6 +59,9 @@
 #include "apr_errno.h"
 
 #include <stdlib.h>
+#if APR_HAVE_STRINGS_H
+#include <strings.h>
+#endif
 #if APR_HAVE_SYS_UIO_H
 #include <sys/uio.h>
 #endif

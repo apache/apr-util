@@ -54,6 +54,9 @@
 
 #include "ap_buckets.h"
 #include <stdlib.h>
+#if APR_HAVE_STRINGS_H
+#include <strings.h>
+#endif
 
 /*
  * The size of heap bucket memory allocations.
