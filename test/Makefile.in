@@ -2,7 +2,7 @@ VPATH = @srcdir@
 
 INCLUDES = @APRUTIL_PRIV_INCLUDES@ @APR_INCLUDES@ @APRUTIL_INCLUDES@
 
-PROGRAMS = testdbm testdate testmd4 testmd5 testxml testrmm teststrmatch testuuid
+PROGRAMS = testdbm testdate testmd4 testmd5 testxml testrmm teststrmatch testuuid testreslist
 TARGETS = $(PROGRAMS)
 
 # bring in rules.mk for standard functionality
@@ -50,4 +50,9 @@ testuuid_OBJECTS = testuuid.lo
 testuuid_LDADD =  ../libaprutil.la
 testuuid: $(testuuid_OBJECTS) $(testuuid_LDADD)
 	$(LINK) $(testuuid_OBJECTS) $(testuuid_LDADD) $(PROGRAM_DEPENDENCIES)
+
+testreslist_OBJECTS = testreslist.lo
+testreslist_LDADD =  ../libaprutil.la
+testreslist: $(testreslist_OBJECTS) $(testreslist_LDADD)
+	$(LINK) $(testreslist_OBJECTS) $(testreslist_LDADD) $(PROGRAM_DEPENDENCIES)
 
