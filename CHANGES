@@ -1,7 +1,7 @@
 Changes with APR-util 0.9.5
 
   *) Restore support for SHA1 passwords in apr_validate_password.
-     PR 17343.  [Joe Orton]
+     PR 17343.  [Paul Querna <chip force-elite.com>]
 
   *) Fix DESTDIR install for bundled expat library.  PR 14076
      [David S. Madole <david madole.net>]
