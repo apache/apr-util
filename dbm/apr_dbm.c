@@ -60,19 +60,33 @@
 #include "apu_private.h"
 #include "apr_dbm.h"
 
+
+/* this is used in a few places to define a noop "function". it is needed
+   to stop "no effect" warnings from GCC. */
+#define NOOP_FUNCTION if (0) ; else
+
+/* some of the DBM functions take a POSIX mode for creating files. use this. */
+#define POSIX_FILEMODE 0660
+
+
 #if APU_USE_SDBM
 #include "apr_sdbm.h"
 
 typedef SDBM *real_file_t;
-typedef sdbm_datum real_datum_t;
+
+typedef sdbm_datum *cvt_datum_t;
+#define CONVERT_DATUM(cvt, pinput) ((cvt) = (sdbm_datum *)(pinput))
+
+typedef sdbm_datum result_datum_t;
+#define RETURN_DATUM(poutput, rd) (*(poutput) = *(apr_datum_t *)&(rd))
 
 #define APR_DBM_CLOSE(f)	sdbm_close(f)
-#define APR_DBM_FETCH(f, k)	sdbm_fetch((f), (k))
-#define APR_DBM_STORE(f, k, v)	sdbm_store((f), (k), (v), SDBM_REPLACE)
-#define APR_DBM_DELETE(f, k)	sdbm_delete((f), (k))
-#define APR_DBM_FIRSTKEY(f)	sdbm_firstkey(f)
-#define APR_DBM_NEXTKEY(f, k)	sdbm_nextkey(f)
-#define APR_DBM_FREEDPTR(dptr)	if (0) ; else	/* stop "no effect" warning */
+#define APR_DBM_FETCH(f, k, v)	((v) = sdbm_fetch(f, *(k)), APR_SUCCESS)
+#define APR_DBM_STORE(f, k, v)	sdbm_store(f, *(k), *(v), SDBM_REPLACE)
+#define APR_DBM_DELETE(f, k)	sdbm_delete(f, *(k))
+#define APR_DBM_FIRSTKEY(f, k)	((k) = sdbm_firstkey(f), APR_SUCCESS)
+#define APR_DBM_NEXTKEY(f, k, nk) ((nk) = sdbm_nextkey(f), APR_SUCCESS)
+#define APR_DBM_FREEDPTR(dptr)	NOOP_FUNCTION
 
 #define APR_DBM_DBMODE_RO       APR_READ
 #define APR_DBM_DBMODE_RW       (APR_READ | APR_WRITE)
@@ -83,14 +97,19 @@ typedef sdbm_datum real_datum_t;
 #include <stdlib.h>     /* for free() */
 
 typedef GDBM_FILE real_file_t;
-typedef datum real_datum_t;
+
+typedef datum *cvt_datum_t;
+#define CONVERT_DATUM(cvt, pinput) ((cvt) = (datum *)(pinput))
+
+typedef datum result_datum_t;
+#define RETURN_DATUM(poutput, rd) (*(poutput) = *(apr_datum_t *)&(rd))
 
 #define APR_DBM_CLOSE(f)	gdbm_close(f)
-#define APR_DBM_FETCH(f, k)	gdbm_fetch((f), (k))
-#define APR_DBM_STORE(f, k, v)	g2s(gdbm_store((f), (k), (v), GDBM_REPLACE))
-#define APR_DBM_DELETE(f, k)	g2s(gdbm_delete((f), (k)))
-#define APR_DBM_FIRSTKEY(f)	gdbm_firstkey(f)
-#define APR_DBM_NEXTKEY(f, k)	gdbm_nextkey((f), (k))
+#define APR_DBM_FETCH(f, k, v)	((v) = gdbm_fetch(f, *(k)), APR_SUCCESS)
+#define APR_DBM_STORE(f, k, v)	g2s(gdbm_store(f, *(k), *(v), GDBM_REPLACE))
+#define APR_DBM_DELETE(f, k)	g2s(gdbm_delete(f, *(k)))
+#define APR_DBM_FIRSTKEY(f, k)	((k) = gdbm_firstkey(f), APR_SUCCESS)
+#define APR_DBM_NEXTKEY(f, k, nk) ((nk) = gdbm_nextkey(f, *(k)), APR_SUCCESS)
 #define APR_DBM_FREEDPTR(dptr)	((dptr) ? free(dptr) : 0)
 
 #define NEEDS_CLEANUP
@@ -110,6 +129,130 @@ static apr_status_t g2s(int gerr)
     return APR_SUCCESS;
 }
 
+#elif APU_USE_DB
+/*
+ * We pick up all varieties of Berkeley DB through db.h. This code has been
+ * compiled/tested against DB1, DB_185, DB2, and DB3.
+ */
+#include </usr/local/BerkeleyDB.3.1/include/db.h>
+
+#if   defined(DB_VERSION_MAJOR) && (DB_VERSION_MAJOR == 3)
+#define DB_VER 3
+#elif defined(DB_VERSION_MAJOR) && (DB_VERSION_MAJOR == 2)
+#define DB_VER 2
+#else
+#define DB_VER 1
+#endif
+
+typedef struct {
+    DB *bdb;
+#if DB_VER != 1
+    DBC *curs;
+#endif
+} real_file_t;
+
+typedef DBT cvt_datum_t;
+#define CONVERT_DATUM(cvt, pinput) (memset(&(cvt), 0, sizeof(cvt)), \
+                                    (cvt).data = (pinput)->dptr, \
+                                    (cvt).size = (pinput)->dsize)
+
+typedef DBT result_datum_t;
+#define RETURN_DATUM(poutput, rd) ((poutput)->dptr = (rd).data, \
+                                   (poutput)->dsize = (rd).size)
+
+#if DB_VER == 1
+#define TXN_ARG
+#else
+#define TXN_ARG NULL,
+#endif
+
+#if DB_VER == 1
+#define APR_DBM_CLOSE(f)	((*(f).bdb->close)((f).bdb))
+#else
+#define APR_DBM_CLOSE(f)	((*(f).bdb->close)((f).bdb, 0))
+#endif
+
+#define do_fetch(f, k, v)       ((*(f)->get)(f, TXN_ARG &(k), &(v), 0))
+#define APR_DBM_FETCH(f, k, v)	db2s(do_fetch((f).bdb, k, v))
+#define APR_DBM_STORE(f, k, v)	db2s((*(f).bdb->put)((f).bdb, TXN_ARG &(k), &(v), 0))
+#define APR_DBM_DELETE(f, k)	db2s((*(f).bdb->del)((f).bdb, TXN_ARG &(k), 0))
+#define APR_DBM_FIRSTKEY(f, k)  do_firstkey(&(f), &(k))
+#define APR_DBM_NEXTKEY(f, k, nk) do_nextkey(&(f), &(k), &(nk))
+#define APR_DBM_FREEDPTR(dptr)	NOOP_FUNCTION
+
+#if DB_VER == 1
+#include <sys/fcntl.h>
+#define APR_DBM_DBMODE_RO       O_RDONLY
+#define APR_DBM_DBMODE_RW       O_RDWR
+#define APR_DBM_DBMODE_RWCREATE (O_CREAT | O_RDWR)
+#else
+#define APR_DBM_DBMODE_RO       DB_RDONLY
+#define APR_DBM_DBMODE_RW       0
+#define APR_DBM_DBMODE_RWCREATE DB_CREATE
+#endif
+
+/* map a DB error to an apr_status_t */
+static apr_status_t db2s(int dberr)
+{
+    if (dberr != 0) {
+        /* ### need to fix this */
+        return APR_EGENERAL;
+    }
+
+    return APR_SUCCESS;
+}
+
+/* handle the FIRSTKEY functionality */
+static apr_status_t do_firstkey(real_file_t *f, DBT *pkey)
+{
+    int dberr;
+    DBT data;
+
+#if DB_VER == 1
+    dberr = (*f->bdb->seq)(f->bdb, pkey, &data, R_FIRST);
+#else
+    if ((dberr = (*f->bdb->cursor)(f->bdb, NULL, &f->curs
+#if DB_VER == 3
+                                   , 0
+#endif
+                                   )) == 0) {
+        dberr = (*f->curs->c_get)(f->curs, pkey, &data, DB_FIRST);
+        if (dberr == DB_NOTFOUND) {
+            memset(pkey, 0, sizeof(*pkey));
+            (*f->curs->c_close)(f->curs);
+            f->curs = NULL;
+            return APR_SUCCESS;
+        }
+    }
+#endif
+
+    return db2s(dberr);
+}
+
+/* handle the NEXTKEY functionality */
+static apr_status_t do_nextkey(real_file_t *f, DBT *pkey, DBT *pnext)
+{
+    int dberr;
+    DBT data;
+
+#if DB_VER == 1
+    dberr = (*f->bdb->seq)(f->bdb, pkey, &data, R_NEXT);
+#else
+    if (f->curs == NULL)
+        return APR_EINVAL;
+
+    dberr = (*f->curs->c_get)(f->curs, pkey, &data, DB_NEXT);
+    if (dberr == DB_NOTFOUND) {
+        memset(pkey, 0, sizeof(*pkey));
+        (*f->curs->c_close)(f->curs);
+        f->curs = NULL;
+        return APR_SUCCESS;
+    }
+#endif
+
+    return db2s(dberr);
+}
+
 #else
 #error a DBM implementation was not specified
 #endif
@@ -124,10 +267,6 @@ struct apr_dbm_t
     const char *errmsg;
 };
 
-/* apr_datum <=> real_datum casting/conversions */
-#define A2R_DATUM(d)    (*(real_datum_t *)&(d))
-#define R2A_DATUM(d)    (*(apr_datum_t *)&(d))
-
 
 #ifdef NEEDS_CLEANUP
 
@@ -137,7 +276,7 @@ static apr_status_t datum_cleanup(void *dptr)
     return APR_SUCCESS;
 }
 
-#define REG_CLEANUP(dbm, pdatum) \
+#define REGISTER_CLEANUP(dbm, pdatum) \
     if ((pdatum)->dptr) \
         apr_register_cleanup((dbm)->pool, (pdatum)->dptr, \
                              datum_cleanup, apr_null_cleanup); \
@@ -145,7 +284,7 @@ static apr_status_t datum_cleanup(void *dptr)
 
 #else /* NEEDS_CLEANUP */
 
-#define REG_CLEANUP(dbm, pdatum) if (0) ; else   /* stop "no effect" warning */
+#define REGISTER_CLEANUP(dbm, pdatum) NOOP_FUNCTION
 
 #endif /* NEEDS_CLEANUP */
 
@@ -181,6 +320,21 @@ static apr_status_t set_error(apr_dbm_t *dbm, apr_status_t dbm_said)
     /* captured it. clear it now. */
     gdbm_errno = GDBM_NO_ERROR;
 
+#elif APU_USE_DB
+
+    if (dbm_said == APR_SUCCESS) {
+        dbm->errcode = 0;
+        dbm->errmsg = NULL;
+    }
+    else {
+        /* ### need to fix. dberr was tossed in db2s(). */
+        /* ### use db_strerror() */
+        dbm->errcode = 1;
+        dbm->errmsg = "DB error occurred.";
+        rv = APR_EGENERAL;
+    }
+#else
+#error set_error has not been coded for this database type
 #endif
 
     return rv;
@@ -209,6 +363,7 @@ APU_DECLARE(apr_status_t) apr_dbm_open(apr_dbm_t **pdb, const char *pathname,
     }
 
 #if APU_USE_SDBM
+
     {
         apr_status_t rv;
 
@@ -216,19 +371,54 @@ APU_DECLARE(apr_status_t) apr_dbm_open(apr_dbm_t **pdb, const char *pathname,
         if (rv != APR_SUCCESS)
             return rv;
     }
+
 #elif APU_USE_GDBM
+
     {
         /* Note: stupid cast to get rid of "const" on the pathname */
-        file = gdbm_open((char *) pathname, 0, dbmode, 0660, NULL);
+        file = gdbm_open((char *) pathname, 0, dbmode, POSIX_FILEMODE, NULL);
         if (file == NULL)
-            return APR_EINVAL;      /* ### need a better error */
+            return APR_EGENERAL;      /* ### need a better error */
     }
+
+#elif APU_USE_DB
+
+    {
+        int dberr;
+
+#if DB_VER == 3
+        if ((dberr = db_create(&file.bdb, NULL, 0)) == 0) {
+            if ((dberr = (*file.bdb->open)(file.bdb, pathname, NULL, DB_HASH,
+                                           dbmode, POSIX_FILEMODE)) != 0) {
+                /* close the DB handler */
+                (void) (*file.bdb->close)(file.bdb, 0);
+            }
+        }
+        file.curs = NULL;
+#elif DB_VER == 2
+        dberr = db_open(pathname, DB_HASH, dbmode, POSIX_FILEMODE, NULL, NULL,
+                        &file.bdb);
+        file.curs = NULL;
+#else
+        file.bdb = dbopen(pathname, dbmode, POSIX_FILEMODE, DB_HASH, NULL);
+        if (file.bdb == NULL)
+            return APR_EGENERAL;      /* ### need a better error */
+        dberr = 0;
 #endif
+        if (dberr != 0)
+            return db2s(dberr);
+    }
+
+#else
+#error apr_dbm_open has not been coded for this database type
+#endif /* switch on database types */
 
     /* we have an open database... return it */
     *pdb = apr_pcalloc(pool, sizeof(**pdb));
     (*pdb)->pool = pool;
     (*pdb)->file = file;
+
+    /* ### register a cleanup to close the DBM? */
 
     return APR_SUCCESS;
 }
@@ -241,21 +431,31 @@ APU_DECLARE(void) apr_dbm_close(apr_dbm_t *dbm)
 APU_DECLARE(apr_status_t) apr_dbm_fetch(apr_dbm_t *dbm, apr_datum_t key,
                                         apr_datum_t *pvalue)
 {
-    *(real_datum_t *) pvalue = APR_DBM_FETCH(dbm->file, A2R_DATUM(key));
+    apr_status_t rv;
+    cvt_datum_t ckey;
+    result_datum_t rd;
 
-    REG_CLEANUP(dbm, pvalue);
+    CONVERT_DATUM(ckey, &key);
+    rv = APR_DBM_FETCH(dbm->file, ckey, rd);
+    RETURN_DATUM(pvalue, rd);
+
+    REGISTER_CLEANUP(dbm, pvalue);
 
     /* store the error info into DBM, and return a status code. Also, note
        that *pvalue should have been cleared on error. */
-    return set_error(dbm, APR_SUCCESS);
+    return set_error(dbm, rv);
 }
 
 APU_DECLARE(apr_status_t) apr_dbm_store(apr_dbm_t *dbm, apr_datum_t key,
                                         apr_datum_t value)
 {
     apr_status_t rv;
+    cvt_datum_t ckey;
+    cvt_datum_t cvalue;
 
-    rv = APR_DBM_STORE(dbm->file, A2R_DATUM(key), A2R_DATUM(value));
+    CONVERT_DATUM(ckey, &key);
+    CONVERT_DATUM(cvalue, &value);
+    rv = APR_DBM_STORE(dbm->file, ckey, cvalue);
 
     /* store any error info into DBM, and return a status code. */
     return set_error(dbm, rv);
@@ -264,8 +464,10 @@ APU_DECLARE(apr_status_t) apr_dbm_store(apr_dbm_t *dbm, apr_datum_t key,
 APU_DECLARE(apr_status_t) apr_dbm_delete(apr_dbm_t *dbm, apr_datum_t key)
 {
     apr_status_t rv;
+    cvt_datum_t ckey;
 
-    rv = APR_DBM_DELETE(dbm->file, A2R_DATUM(key));
+    CONVERT_DATUM(ckey, &key);
+    rv = APR_DBM_DELETE(dbm->file, ckey);
 
     /* store any error info into DBM, and return a status code. */
     return set_error(dbm, rv);
@@ -274,34 +476,58 @@ APU_DECLARE(apr_status_t) apr_dbm_delete(apr_dbm_t *dbm, apr_datum_t key)
 APU_DECLARE(int) apr_dbm_exists(apr_dbm_t *dbm, apr_datum_t key)
 {
     int exists;
+    cvt_datum_t ckey;
+
+    CONVERT_DATUM(ckey, &key);
 
 #if APU_USE_SDBM
     {
-	sdbm_datum value = sdbm_fetch(dbm->file, A2R_DATUM(key));
+	sdbm_datum value = sdbm_fetch(dbm->file, *ckey);
 	sdbm_clearerr(dbm->file);	/* don't need the error */
 	exists = value.dptr != NULL;
     }
 #elif APU_USE_GDBM
-    exists = gdbm_exists(dbm->file, A2R_DATUM(key)) != 0;
+    exists = gdbm_exists(dbm->file, *ckey) != 0;
+#elif APU_USE_DB
+    {
+        DBT data;
+        int dberr = do_fetch(dbm->file.bdb, ckey, data);
+
+        /* DB returns DB_NOTFOUND if it doesn't exist. but we want to say
+           that *any* error means it doesn't exist. */
+        exists = dberr == 0;
+    }
+#else
+#error apr_dbm_exists has not been coded for this database type
 #endif
     return exists;
 }
 
 APU_DECLARE(apr_status_t) apr_dbm_firstkey(apr_dbm_t *dbm, apr_datum_t *pkey)
 {
-    *(real_datum_t *) pkey = APR_DBM_FIRSTKEY(dbm->file);
+    apr_status_t rv;
+    result_datum_t rd;
 
-    REG_CLEANUP(dbm, pkey);
+    rv = APR_DBM_FIRSTKEY(dbm->file, rd);
+    RETURN_DATUM(pkey, rd);
+
+    REGISTER_CLEANUP(dbm, pkey);
 
     /* store any error info into DBM, and return a status code. */
-    return set_error(dbm, APR_SUCCESS);
+    return set_error(dbm, rv);
 }
 
 APU_DECLARE(apr_status_t) apr_dbm_nextkey(apr_dbm_t *dbm, apr_datum_t *pkey)
 {
-    *(real_datum_t *) pkey = APR_DBM_NEXTKEY(dbm->file, A2R_DATUM(*pkey));
+    apr_status_t rv;
+    cvt_datum_t ckey;
+    result_datum_t rd;
 
-    REG_CLEANUP(dbm, pkey);
+    CONVERT_DATUM(ckey, pkey);
+    rv = APR_DBM_NEXTKEY(dbm->file, ckey, rd);
+    RETURN_DATUM(pkey, rd);
+
+    REGISTER_CLEANUP(dbm, pkey);
 
     /* store any error info into DBM, and return a status code. */
     return set_error(dbm, APR_SUCCESS);
@@ -344,8 +570,10 @@ APU_DECLARE(void) apr_dbm_get_usednames(apr_pool_t *p,
 
     /* we know the extension is 4 characters */
     memcpy(&work[strlen(work) - 4], SDBM_PAGFEXT, 4);
-#elif APU_USE_GDBM
+#elif APU_USE_GDBM || APU_USE_DB
     *used1 = apr_pstrdup(p, pathname);
     *used2 = NULL;
+#else
+#error apr_dbm_get_usednames has not been coded for this database type
 #endif
 }
