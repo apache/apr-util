@@ -40,7 +40,15 @@ extern "C" {
  * emulate support for this using the deprecated ldap_start_tls_s()
  * function.
  */
+/**
+ * Set SSL mode to one of APR_LDAP_NONE, APR_LDAP_SSL, APR_LDAP_STARTTLS
+ * or APR_LDAP_STOPTLS.
+ */
 #define APR_LDAP_OPT_TLS 0x6fff
+/**
+ * Set zero or more CA certificates, client certificates or private
+ * keys globally, or per connection (where supported).
+ */
 #define APR_LDAP_OPT_TLS_CERT 0x6ffe
 
 /**
@@ -93,20 +101,43 @@ extern "C" {
  * May have one or more client certificates set per connection with a type of
  * APR_LDAP_CERT*, and keys with APR_LDAP_KEY*.
  */
+/** CA certificate type unknown */
 #define APR_LDAP_CA_TYPE_UNKNOWN    0
+/** binary DER encoded CA certificate */
 #define APR_LDAP_CA_TYPE_DER        1
+/** PEM encoded CA certificate */
 #define APR_LDAP_CA_TYPE_BASE64     2
+/** Netscape/Mozilla cert7.db CA certificate database */
 #define APR_LDAP_CA_TYPE_CERT7_DB   3
+/** Netscape/Mozilla secmod file */
 #define APR_LDAP_CA_TYPE_SECMOD     4
+/** Client certificate type unknown */
 #define APR_LDAP_CERT_TYPE_UNKNOWN  5
+/** binary DER encoded client certificate */
 #define APR_LDAP_CERT_TYPE_DER      6
+/** PEM encoded client certificate */
 #define APR_LDAP_CERT_TYPE_BASE64   7
+/** Netscape/Mozilla key3.db client certificate database */
 #define APR_LDAP_CERT_TYPE_KEY3_DB  8
+/** Netscape/Mozilla client certificate nickname */
 #define APR_LDAP_CERT_TYPE_NICKNAME 9
+/** Private key type unknown */
 #define APR_LDAP_KEY_TYPE_UNKNOWN   10
+/** binary DER encoded private key */
 #define APR_LDAP_KEY_TYPE_DER       11
+/** PEM encoded private key */
 #define APR_LDAP_KEY_TYPE_BASE64    12
 
+/**
+ * Certificate structure.
+ *
+ * This structure is used to store certificate details. An array of
+ * these structures is passed to apr_ldap_set_option() to set CA
+ * and client certificates.
+ * @param type Type of certificate APR_LDAP_*_TYPE_*
+ * @param path Path, file or nickname of the certificate
+ * @param password Optional password, can be NULL
+ */
 typedef struct apr_ldap_opt_tls_cert_t apr_ldap_opt_tls_cert_t;
 struct apr_ldap_opt_tls_cert_t {
     int type;
@@ -137,9 +168,14 @@ struct apr_ldap_opt_tls_cert_t {
  * Documentation for both SSL support and STARTTLS has been deleted from
  * the OpenLDAP documentation and website.
  */
+
+/** No encryption */
 #define APR_LDAP_NONE 0
+/** SSL encryption (ldaps://) */
 #define APR_LDAP_SSL 1
+/** TLS encryption (STARTTLS) */
 #define APR_LDAP_STARTTLS 2
+/** end TLS encryption (STOPTLS) */
 #define APR_LDAP_STOPTLS 3
 
 /**
