@@ -76,7 +76,7 @@ dnl Checks for libraries.
 
 dnl Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS(fcntl.h unistd.h)
+AC_CHECK_HEADERS(fcntl.h unistd.h string.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 dnl check for endianness
