@@ -26,7 +26,6 @@ CFG=aprutil - Win32 Debug
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
 CPP=cl.exe
-RSC=rc.exe
 
 !IF  "$(CFG)" == "aprutil - Win32 Release"
 
@@ -40,16 +39,17 @@ RSC=rc.exe
 # PROP Output_Dir "LibR"
 # PROP Intermediate_Dir "LibR"
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /MD /W3 /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FD /c
-# ADD CPP /nologo /MD /W3 /O2 /I "./include" /I "../apr/include" /I "./include/private" /I "./src/dbm/sdbm" /D "NDEBUG" /D "APR_DECLARE_EXPORT" /D "WIN32" /D "_WINDOWS" /Fd"LibR\aprutil" /FD /c
+RSC=rc.exe
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
+# ADD BASE CPP /nologo /MD /W3 /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FD /c
+# ADD CPP /nologo /MD /W3 /O2 /I "./include" /I "../apr/include" /I "./include/private" /I "./src/dbm/sdbm" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" /Fd"LibR\aprutil" /FD /c
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo /out:"LibR\aprutil.lib"
+# ADD LIB32 /nologo
 
 !ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
 
@@ -64,16 +64,17 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "LibD"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /MDd /W3 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FD /c
-# ADD CPP /nologo /MDd /W3 /GX /ZI /Od /I "./include" /I "../apr/include" /I "./include/private" /I "./src/dbm/sdbm" /D "_DEBUG" /D "APR_DECLARE_EXPORT" /D "WIN32" /D "_WINDOWS" /D "APU_USE_SDBM" /Fd"LibD\aprutil" /FD /c
+RSC=rc.exe
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
+# ADD BASE CPP /nologo /MDd /W3 /GX /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FD /ZI /c
+# ADD CPP /nologo /MDd /W3 /GX /ZI /Od /I "./include" /I "../apr/include" /I "./include/private" /I "./src/dbm/sdbm" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" /Fd"LibD\aprutil" /FD /c
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo /out:"LibD\aprutil.lib"
+# ADD LIB32 /nologo
 
 !ENDIF 
 
@@ -81,67 +82,9 @@ LIB32=link.exe -lib
 
 # Name "aprutil - Win32 Release"
 # Name "aprutil - Win32 Debug"
-# Begin Group "Generated Headers"
+# Begin Group "Source Files"
 
 # PROP Default_Filter ""
-# Begin Source File
-
-SOURCE=.\include\private\apu_private.hw
-
-!IF  "$(CFG)" == "aprutil - Win32 Release"
-
-# Begin Custom Build
-InputPath=.\include\private\apu_private.hw
-
-".\include\private\apu_private.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	copy .\include\private\apu_private.hw .\include\private\apu_private.h > nul 
-	echo Created apu_private.h from apu_private.hw 
-	
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
-
-# Begin Custom Build
-InputPath=.\include\private\apu_private.hw
-
-".\include\private\apu_private.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	copy .\include\private\apu_private.hw .\include\private\apu_private.h > nul 
-	echo Created apu_private.h from apu_private.hw 
-	
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# End Group
-# Begin Group "External Headers"
-
-# PROP Default_Filter ""
-# Begin Source File
-
-SOURCE=.\include\ap_base64.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\ap_buckets.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\ap_hooks.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\ap_ring.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\ap_sha1.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\apr_dbm.h
-# End Source File
-# End Group
 # Begin Group "buckets"
 
 # PROP Default_Filter ""
@@ -261,6 +204,101 @@ SOURCE=.\src\hooks\ap_hooks.c
 # Begin Group "xml"
 
 # PROP Default_Filter ""
+# End Group
+# End Group
+# Begin Group "Generated Headers"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\include\apu.h.in
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\apu.hw
+
+!IF  "$(CFG)" == "aprutil - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\include\apu.hw
+
+".\include\apu.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy .\include\apu.hw .\include\apu.h > nul 
+	echo Created apu.h from apu.hw 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\include\apu.hw
+
+".\include\apu.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy .\include\apu.hw .\include\apu.h > nul 
+	echo Created apu.h from apu.hw 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\private\apu_private.hw
+
+!IF  "$(CFG)" == "aprutil - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\include\private\apu_private.hw
+
+".\include\private\apu_private.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy .\include\private\apu_private.hw .\include\private\apu_private.h > nul 
+	echo Created apu_private.h from apu_private.hw 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\include\private\apu_private.hw
+
+".\include\private\apu_private.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy .\include\private\apu_private.hw .\include\private\apu_private.h > nul 
+	echo Created apu_private.h from apu_private.hw 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# End Group
+# Begin Group "External Headers"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\include\ap_base64.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\ap_buckets.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\ap_hooks.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\ap_ring.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\ap_sha1.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\apr_dbm.h
+# End Source File
 # End Group
 # End Target
 # End Project

@@ -55,6 +55,7 @@
 #ifndef APACHE_AP_HOOKS_H
 #define APACHE_AP_HOOKS_H
 
+#include "apu.h"
 /* For apr_array_header_t */
 #include "apr_tables.h"
 
@@ -212,20 +213,20 @@ link##_DECLARE(ret) ap_run_##name args_decl \
  * The global pool used to allocate any memory needed by the hooks.
  * @defvar apr_pool_t *ap_global_hook_pool
  */ 
-extern APR_DECLARE_DATA apr_pool_t *ap_global_hook_pool;
+extern APU_DECLARE_DATA apr_pool_t *ap_global_hook_pool;
 
 /**
  * A global variable to determine if debugging information about the
  * hooks functions should be printed
  * @defvar apr_pool_t *ap_debug_module_hooks
  */ 
-extern APR_DECLARE_DATA int ap_debug_module_hooks;
+extern APU_DECLARE_DATA int ap_debug_module_hooks;
 
 /**
  * The name of the module that is currently registering a function
  * @defvar apr_pool_t *ap_debug_module_name
  */ 
-extern APR_DECLARE_DATA const char *ap_debug_module_name;
+extern APU_DECLARE_DATA const char *ap_debug_module_name;
 
 /**
  * Register a hook function to be sorted
@@ -233,13 +234,13 @@ extern APR_DECLARE_DATA const char *ap_debug_module_name;
  * @param aHooks The array which stores all of the functions for this hook
  * @deffunc void ap_hook_sort_register(const char *szHookName, ap_arry_header_t **aHooks)
  */
-APR_DECLARE(void) ap_hook_sort_register(const char *szHookName, 
+APU_DECLARE(void) ap_hook_sort_register(const char *szHookName, 
                                        apr_array_header_t **aHooks);
 /**
  * Sort all of the registerd functions for a given hook
  * @deffunc void ap_sort_hooks(void)
  */
-APR_DECLARE(void) ap_sort_hooks(void);
+APU_DECLARE(void) ap_sort_hooks(void);
 
 /**
  * Print all of the information about the current hook.  This is used for
@@ -249,13 +250,13 @@ APR_DECLARE(void) ap_sort_hooks(void);
  * @param aszSucc All of the functions in the successor array
  * @deffunc void ap_show_hook(const char *szName, const char *const *aszPre, const char *const *aszSucc)
  */
-APR_DECLARE(void) ap_show_hook(const char *szName,const char * const *aszPre,
+APU_DECLARE(void) ap_show_hook(const char *szName,const char * const *aszPre,
                               const char * const *aszSucc);
 
 /**
  * Remove all currently registered functions.
  * @deffunc void ap_hook_deregister_all(void)
  */
-APR_DECLARE(void) ap_hook_deregister_all(void);
+APU_DECLARE(void) ap_hook_deregister_all(void);
 
 #endif /* ndef(AP_HOOKS_H) */

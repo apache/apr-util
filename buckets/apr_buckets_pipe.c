@@ -112,7 +112,7 @@ static apr_status_t pipe_read(ap_bucket *a, const char **str,
     return APR_SUCCESS;
 }
 
-APR_DECLARE(ap_bucket *) ap_bucket_make_pipe(ap_bucket *b, apr_file_t *p)
+APU_DECLARE(ap_bucket *) ap_bucket_make_pipe(ap_bucket *b, apr_file_t *p)
 {
     /*
      * A pipe is closed when the end is reached in pipe_read().  If the
@@ -134,12 +134,12 @@ APR_DECLARE(ap_bucket *) ap_bucket_make_pipe(ap_bucket *b, apr_file_t *p)
     return b;
 }
 
-APR_DECLARE(ap_bucket *) ap_bucket_create_pipe(apr_file_t *p)
+APU_DECLARE(ap_bucket *) ap_bucket_create_pipe(apr_file_t *p)
 {
     ap_bucket_do_create(ap_bucket_make_pipe(b, p));
 }
 
-APR_DECLARE_DATA const ap_bucket_type ap_pipe_type = {
+APU_DECLARE_DATA const ap_bucket_type ap_pipe_type = {
     "PIPE", 5,
     ap_bucket_destroy_notimpl,
     pipe_read,

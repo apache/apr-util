@@ -86,7 +86,7 @@ static void mmap_destroy(void *data)
 /*
  * XXX: are the start and length arguments useful?
  */
-APR_DECLARE(ap_bucket *) ap_bucket_make_mmap(ap_bucket *b,
+APU_DECLARE(ap_bucket *) ap_bucket_make_mmap(ap_bucket *b,
 		apr_mmap_t *mm, apr_off_t start, apr_size_t length)
 {
     ap_bucket_mmap *m;
@@ -109,13 +109,13 @@ APR_DECLARE(ap_bucket *) ap_bucket_make_mmap(ap_bucket *b,
 }
 
 
-APR_DECLARE(ap_bucket *) ap_bucket_create_mmap(
+APU_DECLARE(ap_bucket *) ap_bucket_create_mmap(
 		apr_mmap_t *mm, apr_off_t start, apr_size_t length)
 {
     ap_bucket_do_create(ap_bucket_make_mmap(b, mm, start, length));
 }
 
-APR_DECLARE_DATA const ap_bucket_type ap_mmap_type = {
+APU_DECLARE_DATA const ap_bucket_type ap_mmap_type = {
     "MMAP", 5,
     mmap_destroy,
     mmap_read,

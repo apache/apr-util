@@ -59,6 +59,7 @@
 #ifndef APACHE_BASE64_H
 #define APACHE_BASE64_H
 
+#include "apu.h"
 #include "apr_general.h"
 
 #ifdef __cplusplus
@@ -89,7 +90,7 @@ extern "C" {
  * @return the length of the string after it is encrypted
  * @deffunc int ap_base64encode_len(int len)
  */ 
-APR_DECLARE(int) ap_base64encode_len(int len);
+APU_DECLARE(int) ap_base64encode_len(int len);
 
 /**
  * Encode a text string using base64encoding.
@@ -99,7 +100,7 @@ APR_DECLARE(int) ap_base64encode_len(int len);
  * @return the length of the encoded string
  * @deffunc int ap_base64encode(char *coded_dst, const char *plain_src, int len_plain_src)
  */ 
-APR_DECLARE(int) ap_base64encode(char * coded_dst, const char *plain_src,int len_plain_src);
+APU_DECLARE(int) ap_base64encode(char * coded_dst, const char *plain_src,int len_plain_src);
 
 /**
  * Encode an EBCDIC string using base64encoding.
@@ -109,7 +110,7 @@ APR_DECLARE(int) ap_base64encode(char * coded_dst, const char *plain_src,int len
  * @return the length of the encoded string
  * @deffunc int ap_base64encode_binary(char *coded_dst, const char *plain_src, int len_plain_src)
  */ 
-APR_DECLARE(int) ap_base64encode_binary(char * coded_dst, const unsigned char *plain_src,int len_plain_src);
+APU_DECLARE(int) ap_base64encode_binary(char * coded_dst, const unsigned char *plain_src,int len_plain_src);
 
 /**
  * Determine the length of a plain text string given the encoded version
@@ -117,7 +118,7 @@ APR_DECLARE(int) ap_base64encode_binary(char * coded_dst, const unsigned char *p
  * @return the length of the plain text string
  * @deffunc int ap_base64decode_len(const char *coded_src)
  */ 
-APR_DECLARE(int) ap_base64decode_len(const char * coded_src);
+APU_DECLARE(int) ap_base64decode_len(const char * coded_src);
 
 /**
  * Decode a string to plain text
@@ -126,7 +127,7 @@ APR_DECLARE(int) ap_base64decode_len(const char * coded_src);
  * @return the length of the plain text string
  * @deffunc int ap_base64decode(char *plain_dst, const char *coded_src)
  */ 
-APR_DECLARE(int) ap_base64decode(char * plain_dst, const char *coded_src);
+APU_DECLARE(int) ap_base64decode(char * plain_dst, const char *coded_src);
 
 /**
  * Decode an EBCDIC string to plain text
@@ -135,7 +136,7 @@ APR_DECLARE(int) ap_base64decode(char * plain_dst, const char *coded_src);
  * @return the length of the plain text string
  * @deffunc int ap_base64decode_binary(char *plain_dst, const char *coded_src)
  */ 
-APR_DECLARE(int) ap_base64decode_binary(unsigned char * plain_dst, const char *coded_src);
+APU_DECLARE(int) ap_base64decode_binary(unsigned char * plain_dst, const char *coded_src);
 
 #ifdef __cplusplus
 }

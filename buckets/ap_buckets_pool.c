@@ -97,7 +97,7 @@ static void pool_destroy(void *data)
     free(h);
 }
 
-APR_DECLARE(ap_bucket *) ap_bucket_make_pool(ap_bucket *b,
+APU_DECLARE(ap_bucket *) ap_bucket_make_pool(ap_bucket *b,
 		const char *buf, apr_size_t length, apr_pool_t *p)
 {
     ap_bucket_pool *h;
@@ -126,13 +126,13 @@ APR_DECLARE(ap_bucket *) ap_bucket_make_pool(ap_bucket *b,
     return b;
 }
 
-APR_DECLARE(ap_bucket *) ap_bucket_create_pool(
+APU_DECLARE(ap_bucket *) ap_bucket_create_pool(
 		const char *buf, apr_size_t length, apr_pool_t *p)
 {
     ap_bucket_do_create(ap_bucket_make_pool(b, buf, length, p));
 }
 
-APR_DECLARE_DATA const ap_bucket_type ap_pool_type = {
+APU_DECLARE_DATA const ap_bucket_type ap_pool_type = {
     "POOL", 5,
     pool_destroy,
     pool_read,

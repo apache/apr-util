@@ -120,7 +120,7 @@ static apr_status_t simple_read(ap_bucket *b, const char **str,
     return APR_SUCCESS;
 }
 
-APR_DECLARE(ap_bucket *) ap_bucket_make_immortal(ap_bucket *b,
+APU_DECLARE(ap_bucket *) ap_bucket_make_immortal(ap_bucket *b,
 		const char *buf, apr_size_t length)
 {
     ap_bucket_simple *bd;
@@ -140,7 +140,7 @@ APR_DECLARE(ap_bucket *) ap_bucket_make_immortal(ap_bucket *b,
     return b;
 }
 
-APR_DECLARE(ap_bucket *) ap_bucket_create_immortal(
+APU_DECLARE(ap_bucket *) ap_bucket_create_immortal(
 		const char *buf, apr_size_t length)
 {
     ap_bucket_do_create(ap_bucket_make_immortal(b, buf, length));
@@ -173,7 +173,7 @@ static apr_status_t transient_setaside(ap_bucket *b)
     return APR_SUCCESS;
 }
 
-APR_DECLARE(ap_bucket *) ap_bucket_make_transient(ap_bucket *b,
+APU_DECLARE(ap_bucket *) ap_bucket_make_transient(ap_bucket *b,
 		const char *buf, apr_size_t length)
 {
     b = ap_bucket_make_immortal(b, buf, length);
@@ -184,7 +184,7 @@ APR_DECLARE(ap_bucket *) ap_bucket_make_transient(ap_bucket *b,
     return b;
 }
 
-APR_DECLARE(ap_bucket *) ap_bucket_create_transient(
+APU_DECLARE(ap_bucket *) ap_bucket_create_transient(
 		const char *buf, apr_size_t length)
 {
     ap_bucket_do_create(ap_bucket_make_transient(b, buf, length));
@@ -199,7 +199,7 @@ const ap_bucket_type ap_immortal_type = {
     simple_copy
 };
 
-APR_DECLARE_DATA const ap_bucket_type ap_transient_type = {
+APU_DECLARE_DATA const ap_bucket_type ap_transient_type = {
     "TRANSIENT", 5,
     ap_bucket_destroy_notimpl, 
     simple_read,
