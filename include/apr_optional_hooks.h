@@ -1,7 +1,7 @@
 /* ====================================================================
  * The Apache Software License, Version 1.1
  *
- * Copyright (c) 2000-2003 The Apache Software Foundation.  All rights
+ * Copyright (c) 2000-2004 The Apache Software Foundation.  All rights
  * reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -99,10 +99,10 @@ APU_DECLARE(void) apr_optional_hook_add(const char *szName,void (*pfn)(void),
  * @param nOrder an integer determining order before honouring aszPre and aszSucc (for example HOOK_MIDDLE)
  */
 
-#define APR_OPTIONAL_HOOK(ns,name,pfn,aszPre,aszSucc,nOrder) \
-    ((void (APR_THREAD_FUNC *)(const char *,ns##_HOOK_##name##_t *,const char * const *, \
-	       const char * const *,int))&apr_optional_hook_add)(#name,pfn,aszPre, \
-							   aszSucc, nOrder)
+#define APR_OPTIONAL_HOOK(ns,name,pfn,aszPre,aszSucc,nOrder) do { \
+  ns##_HOOK_##name##_t *apu__hook = pfn; \
+  apr_optional_hook_add(#name,(void (*)(void))apu__hook,aszPre, aszSucc, nOrder); \
+} while (0)
 
 /**
  * @internal
