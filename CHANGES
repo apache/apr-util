@@ -1,5 +1,9 @@
 Changes with APR-util 1.0
 
+  *) Remove support for LDAP v2.0 SDK toolkits. This will be added
+     back properly later assuming there is demand for it. In the mean
+     time, please use an LDAP v3.0 SDK toolkit. [Graham Leggett]
+
   *) Add an apr_ldap_err_t structure to handle the return of LDAP
      specific error codes. [Graham Leggett, Brad Nicholes]
 

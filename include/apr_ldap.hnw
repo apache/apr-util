@@ -116,28 +116,17 @@
 #endif
 
 
-/* LDAPv2 SDKs don't use const parameters in their prototypes.  
- * LDAPv3 SDKs do use const.  When compiling with LDAPv2 SDKs, const_cast 
- * casts away the constness, but won't under LDAPv3 
- */
-#if LDAP_VERSION_MAX <= 2
-#define const_cast(x) ((char *)(x))
-#else
-#define const_cast(x) (x)
-#endif
-
-
 #include "apr_ldap_url.h"
 #include "apr_ldap_init.h"
 
-/* Define some errors that are mysteriously gone from OpenLDAP 2.x */
-#ifndef LDAP_URL_ERR_NOTLDAP
-#define LDAP_URL_ERR_NOTLDAP LDAP_URL_ERR_BADSCHEME
-#endif
-
-#ifndef LDAP_URL_ERR_NODN
-#define LDAP_URL_ERR_NODN LDAP_URL_ERR_BADURL
-#endif
+/* Note: Macros defining const casting has been removed in APR v1.0,
+ * pending real support for LDAP v2.0 toolkits.
+ *
+ * In the mean time, please use an LDAP v3.0 toolkit.
+ */
+#if LDAP_VERSION_MAX <= 2
+#error Support for LDAP v2.0 toolkits has been removed from apr-util. Please use an LDAP v3.0 toolkit.
+#endif 
 
 /**
  * This structure allows the C LDAP API error codes to be returned
