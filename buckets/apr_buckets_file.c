@@ -86,10 +86,8 @@
 
 static void file_destroy(void *data)
 {
-    apr_bucket_file *f = data;
-
     if (apr_bucket_shared_destroy(data)) {
-        free(f);
+        free(data);
     }
 }
 
