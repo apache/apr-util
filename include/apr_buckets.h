@@ -555,6 +555,8 @@ typedef struct apr_bucket_file apr_bucket_file;
  * A bucket referring to an file
  */
 struct apr_bucket_file {
+    /** Number of buckets using this memory */
+    apr_bucket_refcount  refcount;
     /** The file this bucket refers to */
     apr_file_t *fd;
     /** The offset into the file */

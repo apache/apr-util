@@ -89,8 +89,9 @@
 static apr_status_t file_read(apr_bucket *e, const char **str,
 			      apr_size_t *len, apr_read_type_e block)
 {
-    apr_bucket_file *a = (apr_bucket_file *)e->data;
-    apr_file_t *f = (apr_file_t *) a->fd;
+    apr_bucket_shared *s = e->data;
+    apr_bucket_file *a = s->data;
+    apr_file_t *f = a->fd;
     apr_bucket *b = NULL;
     char *buf;
     apr_status_t rv;
@@ -163,6 +164,22 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
     return APR_SUCCESS;
 }
 
+static apr_status_t file_split(apr_bucket *e, apr_off_t offset)
+{
+    apr_bucket *b;
+    apr_bucket_shared *s;
+    apr_bucket_file *f;
+
+    apr_bucket_split_shared(e, offset);
+    b = APR_BUCKET_NEXT(e);
+
+    s = b->data;
+    f = s->data;
+    f->offset = offset;
+
+    return APR_SUCCESS;
+}
+
 APU_DECLARE(apr_bucket *) apr_bucket_make_file(apr_bucket *b, apr_file_t *fd,
                                             apr_off_t offset, apr_size_t len)
 {
@@ -172,13 +189,16 @@ APU_DECLARE(apr_bucket *) apr_bucket_make_file(apr_bucket *b, apr_file_t *fd,
     if (f == NULL) {
         return NULL;
     }
- 
     f->fd = fd;
     f->offset = offset;
 
+    b = apr_bucket_make_shared(b, f, offset, offset + len);
+    if (b == NULL) {
+        free(f);
+        return NULL;
+    }
+    
     b->type = &apr_bucket_type_file;
-    b->data = f;
-    b->length = len;
 
     return b;
 }
@@ -194,6 +214,6 @@ APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_file = {
     free,
     file_read,
     apr_bucket_setaside_notimpl,
-    apr_bucket_split_notimpl,
-    apr_bucket_copy_notimpl
+    file_split,
+    apr_bucket_copy_shared
 };
