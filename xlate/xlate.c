@@ -101,77 +101,6 @@ static apr_status_t apr_xlate_cleanup(void *convset)
     return APR_SUCCESS;
 }
 
-#if APU_HAVE_ICONV
-static void check_sbcs(apr_xlate_t *convset)
-{
-    char inbuf[256], outbuf[256];
-    char *inbufptr = inbuf;
-    char *outbufptr = outbuf;
-    apr_size_t inbytes_left, outbytes_left;
-    int i;
-    apr_size_t translated;
-
-    for (i = 0; i < sizeof(inbuf); i++) {
-        inbuf[i] = i;
-    }
-
-    inbytes_left = outbytes_left = sizeof(inbuf);
-    translated = iconv(convset->ich, (ICONV_INBUF_TYPE)&inbufptr,
-                       &inbytes_left, &outbufptr, &outbytes_left);
-
-    if (translated != (apr_size_t)-1
-        && inbytes_left == 0
-        && outbytes_left == 0) {
-        /* hurray... this is simple translation; save the table,
-         * close the iconv descriptor
-         */
-
-        convset->sbcs_table = apr_palloc(convset->pool, sizeof(outbuf));
-        memcpy(convset->sbcs_table, outbuf, sizeof(outbuf));
-        iconv_close(convset->ich);
-        convset->ich = (iconv_t)-1;
-
-        /* TODO: add the table to the cache */
-    }
-}
-#elif APU_HAVE_APR_ICONV
-static void check_sbcs(apr_xlate_t *convset)
-{
-    char inbuf[256], outbuf[256];
-    char *inbufptr = inbuf;
-    char *outbufptr = outbuf;
-    apr_size_t inbytes_left, outbytes_left;
-    int i;
-    apr_size_t translated;
-    apr_status_t rv;
-
-    for (i = 0; i < sizeof(inbuf); i++) {
-        inbuf[i] = i;
-    }
-
-    inbytes_left = outbytes_left = sizeof(inbuf);
-    rv = apr_iconv(convset->ich, (ICONV_INBUF_TYPE)&inbufptr,
-                   &inbytes_left, &outbufptr, &outbytes_left,
-                   &translated);
-
-    if ((rv == APR_SUCCESS)
-        && (translated != (apr_size_t)-1)
-        && inbytes_left == 0
-        && outbytes_left == 0) {
-        /* hurray... this is simple translation; save the table,
-         * close the iconv descriptor
-         */
-
-        convset->sbcs_table = apr_palloc(convset->pool, sizeof(outbuf));
-        memcpy(convset->sbcs_table, outbuf, sizeof(outbuf));
-        apr_iconv_close(convset->ich, convset->pool);
-        convset->ich = (apr_iconv_t)-1;
-
-        /* TODO: add the table to the cache */
-    }
-}
-#endif /* APU_HAVE_APR_ICONV */
-
 static void make_identity_table(apr_xlate_t *convset)
 {
   int i;
@@ -228,7 +157,6 @@ APU_DECLARE(apr_status_t) apr_xlate_open(apr_xlate_t **convset,
             return rv;
         }
         found = 1;
-        check_sbcs(new);
     } else
         new->ich = (apr_iconv_t)-1;
 
@@ -241,7 +169,6 @@ APU_DECLARE(apr_status_t) apr_xlate_open(apr_xlate_t **convset,
             return rv ? rv : APR_EINVAL;
         }
         found = 1;
-        check_sbcs(new);
     } else
         new->ich = (iconv_t)-1;
 #endif /* APU_HAVE_ICONV */
