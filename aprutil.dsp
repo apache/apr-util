@@ -185,6 +185,14 @@ SOURCE=.\dbm\apr_dbm.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\dbm\apr_dbm_berkeleydb.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\dbm\apr_dbm_gdbm.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\dbm\apr_dbm_sdbm.c
 # End Source File
 # End Group
