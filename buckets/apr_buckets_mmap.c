@@ -53,7 +53,10 @@
  */
 
 #include "apr_buckets.h"
+#include "apr.h"
 #include <stdlib.h>
+
+#if APR_HAS_MMAP
 
 static apr_status_t mmap_read(apr_bucket *b, const char **str, 
 			      apr_size_t *length, apr_read_type_e block)
@@ -123,3 +126,5 @@ APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_mmap = {
     apr_bucket_split_shared,
     apr_bucket_copy_shared
 };
+
+#endif
