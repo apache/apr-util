@@ -187,7 +187,7 @@ esac
 AC_SUBST(INCLUDE_RULES)
 AC_SUBST(INCLUDE_OUTPUTS)
 
-if test -d ./test; then
+if test -d $srcdir/test; then
     test_Makefile="test/Makefile"
 fi
 
