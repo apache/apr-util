@@ -74,14 +74,41 @@
  */
 
 /* this will be defined if LDAP support was compiled into apr-util */
-#define APU_HAS_LDAP
+#define APR_HAS_LDAP		  @apu_has_ldap@
 
 /* this whole thing disappears if LDAP is not enabled */
-#ifdef APU_HAS_LDAP
+#if !APR_HAS_LDAP
+
+#define APR_HAS_LDAP_URL_PARSE    0
+#define APU_HAS_LDAP_NETSCAPE_SSL 0
+#define APU_HAS_LDAP_STARTTLS     0
+
+#else
+
+/* presume all unices do, win32, for example, does not */
+#define APR_HAS_LDAP_URL_PARSE    1
 
 /* LDAP secure capabilities */
-//#define APU_HAS_LDAP_NETSCAPE_SSL
-//#define APU_HAS_LDAP_STARTTLS
+#define APR_HAS_LDAP_NETSCAPE_SSL 0
+#define APR_HAS_LDAP_STARTTLS     0
+
+/* These are garbage, our public macros are always APR_HAS_ prefixed,
+ * and use 0/1 values, not defined/undef semantics.  
+ *
+ * Will be deprecated in APR 1.0
+ */
+#if APR_HAS_LDAP
+#define APU_HAS_LDAP
+#endif
+
+#if APR_HAS_LDAP_NETSCAPE_SSL
+#define APU_HAS_LDAP_NETSCAPE_SSL 
+#endif
+
+#if APR_HAS_LDAP_STARTTLS
+#define APU_HAS_LDAP_STARTTLS
+#endif
+
 
 /* LDAP header files */
 #include <ldap.h>
@@ -107,6 +134,8 @@ void ldap_memfree(void *p);
 #else
 #define const_cast(x) (x)
 #endif /* LDAP_VERSION_MAX */
+
+#include "apr_ldap_url.h"
 
 /* Define some errors that are mysteriously gone from OpenLDAP 2.x */
 #ifndef LDAP_URL_ERR_NOTLDAP
