@@ -38,6 +38,7 @@ dnl
 top_builddir="$abs_builddir"
 AC_SUBST(top_builddir)
 AC_SUBST(abs_srcdir)
+AC_SUBST(abs_builddir)
 
 dnl Initialize mkdir -p functionality.
 APR_MKDIR_P_CHECK($abs_srcdir/build/mkdir.sh)
