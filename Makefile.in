@@ -27,7 +27,7 @@ includedir=@includedir@
 delete-lib:
 	@if test -f $(TARGET_LIB); then \
 	    objects="`find $(SUBDIRS) -name expat -prune -o -name '*.@so_ext@' -a -newer $(TARGET_LIB)`" ; \
-	    if test -n "$$objects"; then \
+	    if test "$$objects" != "xml/expat"; then \
 		echo Found newer objects. Will relink $(TARGET_LIB). ; \
 		echo $(RM) -f $(TARGET_LIB) ; \
 		$(RM) -f $(TARGET_LIB) ; \
