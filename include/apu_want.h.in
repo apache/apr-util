@@ -52,74 +52,38 @@
  * <http://www.apache.org/>.
  */
 
-/*
- * apu.h is generated from apu.h.in by configure -- do not edit apu.h
- */
-/* 
- * Note: This is a Windows specific version of apu.h. It is renamed to
- * apu.h at the start of a Windows build.
- */
-/* @file apu.h
- * @brief APR-Utility main file
- */
-/**
- * @defgroup APR_Util APR Utility Functions
- * @{
- */
-
-
-#ifndef APU_H
-#define APU_H
+#include "apu.h"        /* configuration data */
 
 /**
- * APU_DECLARE_EXPORT is defined when building the APR-UTIL dynamic library,
- * so that all public symbols are exported.
+ * @file apu_want.h
+ * @brief APR Standard Headers Support
  *
- * APU_DECLARE_STATIC is defined when including the APR-UTIL public headers,
- * to provide static linkage when the dynamic library may be unavailable.
+ * <PRE>
+ * Features:
  *
- * APU_DECLARE_STATIC and APU_DECLARE_EXPORT are left undefined when
- * including the APR-UTIL public headers, to import and link the symbols from 
- * the dynamic APR-UTIL library and assure appropriate indirection and calling
- * conventions at compile time.
+ *   APU_WANT_DB:       <@apu_db_header>
+ *
+ * Typical usage:
+ *
+ *   #define APU_WANT_DB
+ *   #include "apu_want.h"
+ *
+ * The appropriate headers will be included.
+ *
+ * Note: it is safe to use this in a header (it won't interfere with other
+ *       headers' or source files' use of apu_want.h)
+ * </PRE>
  */
 
-/**
- * The public APR-UTIL functions are declared with APU_DECLARE(), so they may
- * use the most appropriate calling convention.  Public APR functions with 
- * variable arguments must use APU_DECLARE_NONSTD().
- *
- * @deffunc APU_DECLARE(rettype) apr_func(args);
- */
-#define APU_DECLARE(type)            type
-/**
- * The public APR-UTIL functions using variable arguments are declared with 
- * APU_DECLARE_NONSTD(), as they must use the C language calling convention.
- *
- * @deffunc APU_DECLARE_NONSTD(rettype) apr_func(args, ...);
- */
-#define APU_DECLARE_NONSTD(type)     type
-/**
- * The public APR-UTIL variables are declared with APU_DECLARE_DATA.
- * This assures the appropriate indirection is invoked at compile time.
- *
- * @deffunc APU_DECLARE_DATA type apr_variable;
- * @tip APU_DECLARE_DATA extern type apr_variable; syntax is required for
- * declarations within headers to properly import the variable.
- */
-#define APU_DECLARE_DATA
-/*
- * we always have SDBM (it's in our codebase)
- */
-#define APU_HAVE_SDBM   1
-#define APU_HAVE_GDBM   0
-#define APU_HAVE_DB     0
+/* --------------------------------------------------------------------- */
 
+#ifdef APU_WANT_DB
 
-#define HAVE_ICONV_H           1
-#define APU_HAVE_APR_ICONV     0
-#define APU_HAVE_ICONV         1
-#define APR_HAS_XLATE          (APU_HAVE_APR_ICONV || APU_HAVE_ICONV)
+#if APU_HAVE_DB
+#include <@apu_db_header@>
+#endif
 
-#endif /* APU_H */
-/** @} */
+#undef APU_WANT_DB
+#endif
+
+/* --------------------------------------------------------------------- */
