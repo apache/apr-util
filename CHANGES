@@ -1,5 +1,9 @@
 Changes with APR-util 0.9.4
 
+  *) Added debugging consistency checks to the buckets code.  Add
+     -DAPR_BUCKET_DEBUG to the build flags to enable.
+     [Cliff Woolley]
+
   *) Make the version of the db library APU built against visible.
      [Thom May]
 

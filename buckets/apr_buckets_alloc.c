@@ -151,12 +151,33 @@ APU_DECLARE_NONSTD(void *) apr_bucket_alloc(apr_size_t size,
     return ((char *)node) + SIZEOF_NODE_HEADER_T;
 }
 
+#ifdef APR_BUCKET_DEBUG
+#if APR_HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
+static void check_not_already_free(node_header_t *node)
+{
+    apr_bucket_alloc_t *list = node->alloc;
+    node_header_t *curr = list->freelist;
+
+    while (curr) {
+        if (node == curr) {
+            abort();
+        }
+        curr = curr->next;
+    }
+}
+#else
+#define check_not_already_free(node)
+#endif
+
 APU_DECLARE_NONSTD(void) apr_bucket_free(void *mem)
 {
     node_header_t *node = (node_header_t *)((char *)mem - SIZEOF_NODE_HEADER_T);
     apr_bucket_alloc_t *list = node->alloc;
 
     if (node->size == SMALL_NODE_SIZE) {
+        check_not_already_free(node);
         node->next = list->freelist;
         list->freelist = node;
     }

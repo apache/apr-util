@@ -127,6 +127,10 @@ APU_DECLARE(apr_bucket_brigade *) apr_brigade_split(apr_bucket_brigade *b,
         APR_RING_UNSPLICE(e, f, link);
         APR_RING_SPLICE_HEAD(&a->list, e, f, apr_bucket, link);
     }
+
+    APR_BRIGADE_CHECK_CONSISTENCY(a);
+    APR_BRIGADE_CHECK_CONSISTENCY(b);
+
     return a;
 }
 
@@ -147,6 +151,8 @@ APU_DECLARE(apr_status_t) apr_brigade_partition(apr_bucket_brigade *b,
         *after_point = APR_BRIGADE_FIRST(b);
         return APR_SUCCESS;
     }
+
+    APR_BRIGADE_CHECK_CONSISTENCY(b);
 
     APR_BRIGADE_FOREACH(e, b) {
         if ((e->length == (apr_size_t)(-1)) && (point > (apr_size_t)(-1))) {
