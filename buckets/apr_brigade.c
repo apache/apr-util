@@ -296,6 +296,12 @@ APU_DECLARE(int) apr_brigade_write(apr_bucket_brigade *bb,
             buf = malloc(APR_BUCKET_BUFF_SIZE);
             b = apr_bucket_heap_create(buf, APR_BUCKET_BUFF_SIZE, 0, NULL);
             APR_BRIGADE_INSERT_TAIL(bb, b);
+            b->length = 0;   /* We are writing into the brigade, and
+                              * allocating more memory than we need.  This
+                              * ensures that the bucket thinks it is empty just
+                              * after we create it.  We'll fix the length
+                              * once we put data in it below.
+                              */
         }
         else {
             apr_bucket_heap *h = b->data;
