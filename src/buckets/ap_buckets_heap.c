@@ -61,6 +61,8 @@
 #define DEFAULT_RWBUF_SIZE (4096)
 #endif
 
+void ap_heap_setaside(ap_bucket *e);
+
 static apr_status_t heap_get_str(ap_bucket *e, const char **str, 
                                  apr_ssize_t *len, int block)
 {

@@ -165,7 +165,7 @@ API_EXPORT(int) ap_brigade_vputstrs(ap_bucket_brigade *b, va_list va)
 {
     ap_bucket *r;
     const char *x;
-    int j, k, rv;
+    int j, k;
     apr_ssize_t i;
 
     for (k = 0;;) {
