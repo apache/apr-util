@@ -1,11 +1,15 @@
 APRUTIL LIBRARY STATUS:						-*-text-*-
-Last modified at [$Date: 2000/12/12 12:22:51 $]
+Last modified at [$Date: 2000/12/14 11:30:54 $]
 
 Release:
     ...on the 12th as part of Apache 2.0a9  [need specifics here]
 
 
 RELEASE SHOWSTOPPERS:
+
+    * release distros do not include a "test" dir. don't put it in the
+      top-level SUBDIRS list, but definitely get it cleaned for the
+      dev guys.  (Greg volunteers)
 
 
 RELEASE NON-SHOWSTOPPERS BUT WOULD BE REAL NICE TO WRAP THESE UP:
@@ -24,6 +28,9 @@ Other bugs that need fixing:
 Other features that need writing:
 
     * populate src/uri and src/xml from Apache
+
+    * possibly move test/testdbm* to util/dbu
+      Status: Greg +1 (volunteers)
 
 
 Documentation that needs writing:
