@@ -2,7 +2,7 @@ dnl
 dnl Process this file with autoconf to produce a configure script
 dnl
 
-AC_PREREQ(2.13)
+AC_PREREQ(2.50)
 AC_INIT(export_vars.sh.in)
 
 AC_CONFIG_HEADER(include/private/apu_config.h)
@@ -183,30 +183,25 @@ esac
 AC_SUBST(INCLUDE_RULES)
 AC_SUBST(INCLUDE_OUTPUTS)
 
-if test -d $srcdir/test; then
-    test_Makefile="test/Makefile"
-fi
+for d in include include/private; do
+    test -d $top_builddir/$d || mkdir $top_builddir/$d
+done
 
-if test ! -d "$top_builddir/include/private"; then
-    mkdir $top_builddir/include
-    mkdir $top_builddir/include/private
-fi
+AC_CONFIG_FILES([Makefile export_vars.sh
+                 build/pkg/pkginfo apr-util.pc
+                 apu-$APRUTIL_MAJOR_VERSION-config:apu-config.in
+                 include/private/apu_select_dbm.h
+                 include/apr_ldap.h
+                 include/apu.h include/apu_want.h])
 
-dnl
-dnl everthing is done. 
-MAKEFILES="Makefile $test_Makefile"
-AC_OUTPUT([
-    export_vars.sh
-    build/pkg/pkginfo
-    apu-$APRUTIL_MAJOR_VERSION-config:apu-config.in
-    apr-util.pc
-    include/private/apu_select_dbm.h
-    include/apr_ldap.h
-    include/apu.h
-    include/apu_want.h
-    $MAKEFILES
-	],[
+AC_CONFIG_COMMANDS([default], [
 chmod +x apu-$APRUTIL_MAJOR_VERSION-config
 ],[
 APRUTIL_MAJOR_VERSION=$APRUTIL_MAJOR_VERSION
 ])
+
+if test -d $srcdir/test; then
+    AC_CONFIG_FILES([test/Makefile])
+fi
+
+AC_OUTPUT
