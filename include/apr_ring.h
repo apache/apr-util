@@ -386,9 +386,11 @@
  *	    ...
  * 	}
  * </pre>
- * @warning Be aware that you *cannot* change the value of ep within
- * the foreach loop, nor can you destroy or otherwise modify the
- * ring element pointed to by ep.  If you do, then APR_RING_FOREACH
+ * @warning Be aware that you cannot change the value of ep within
+ * the foreach loop, nor can you destroy the ring element it points to.
+ * Modifying the prev and next pointers of the element is dangerous
+ * but can be done if you're careful.  If you change ep's value or
+ * destroy the element it points to, then APR_RING_FOREACH
  * will have no way to find out what element to use for its next
  * iteration.  The reason for this can be seen by looking closely
  * at the equivalent loops given in the tip above.  So, for example,
