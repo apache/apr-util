@@ -88,8 +88,8 @@ extern "C" {
 #define APR_BUCKET_BUFF_SIZE 8192
 
 typedef enum {
-    APR_BLOCK_READ, /**< wait until we data is available to read before return*/
-    APR_NONBLOCK_READ /**< don't wait for data if it isn't available */
+    APR_BLOCK_READ,   /* block until data becomes available */
+    APR_NONBLOCK_READ /* return immediately if no data is available */
 } apr_read_type_e;
 
 /**
