@@ -77,11 +77,14 @@ int main(void)
 #else /* !APR_HAS_THREADS */
 
 apr_pool_t *context;
-int consumer_activity=300;
-int producer_activity=200;
+int consumer_activity=400;
+int producer_activity=300;
 int verbose=0;
+static void * APR_THREAD_FUNC consumer(apr_thread_t *thd, void *data);
+static void * APR_THREAD_FUNC producer(apr_thread_t *thd, void *data);
+static void usage();
 
-void * APR_THREAD_FUNC consumer(apr_thread_t *thd, void *data)
+static void * APR_THREAD_FUNC consumer(apr_thread_t *thd, void *data)
 {
     long sleeprate;
     apr_queue_t *q = (apr_queue_t*)data;
@@ -117,7 +120,7 @@ void * APR_THREAD_FUNC consumer(apr_thread_t *thd, void *data)
     return NULL;
 } 
 
-void * APR_THREAD_FUNC producer(apr_thread_t *thd, void *data)
+static void * APR_THREAD_FUNC producer(apr_thread_t *thd, void *data)
 {
     int i=0;
     long sleeprate;
