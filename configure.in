@@ -166,15 +166,15 @@ case "$host_alias" in
     # Check whether they've installed GNU make
     if make --version > /dev/null 2>&1; then
         INCLUDE_RULES="include $abs_builddir/build/rules.mk"
-        INCLUDE_OUTPUTS="include build-outputs.mk"
+        INCLUDE_OUTPUTS="include $abs_srcdir/build-outputs.mk"
     else
         INCLUDE_RULES=".include \"$abs_builddir/build/rules.mk\""
-        INCLUDE_OUTPUTS=".include \"build-outputs.mk\""
+        INCLUDE_OUTPUTS=".include \"$abs_srcdir/build-outputs.mk\""
     fi
     ;;
 *)
     INCLUDE_RULES="include $abs_builddir/build/rules.mk"
-    INCLUDE_OUTPUTS="include build-outputs.mk"
+    INCLUDE_OUTPUTS="include $abs_srcdir/build-outputs.mk"
     ;;
 esac
 AC_SUBST(INCLUDE_RULES)
