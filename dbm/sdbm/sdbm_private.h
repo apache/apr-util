@@ -98,7 +98,7 @@ struct SDBM {
     char dirbuf[DBLKSIZ];	       /* directory file block buffer */
 };
 
-apr_status_t sdbm_lock(SDBM *db);
+apr_status_t sdbm_lock(SDBM *db, int exclusive);
 apr_status_t sdbm_unlock(SDBM *db);
 
 extern const sdbm_datum sdbm_nullitem;
