@@ -52,8 +52,8 @@
  * <http://www.apache.org/>.
  */
 
-#ifndef AP_BUF_H
-#define AP_BUF_H
+#ifndef AP_BUCKETS_H
+#define AP_BUCKETS_H
 
 #include "httpd.h"
 #include "apr_general.h"
@@ -572,4 +572,4 @@ API_EXPORT(ap_bucket *) ap_bucket_make_mmap(ap_bucket *b,
 API_EXPORT(ap_bucket *) ap_bucket_create_pipe(apr_file_t *thispipe);
 API_EXPORT(ap_bucket *) ap_bucket_make_pipe(ap_bucket *b, apr_file_t *thispipe);
 
-#endif
+#endif /* !AP_BUCKETS_H */
