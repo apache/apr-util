@@ -1,5 +1,9 @@
 Changes with APR-util b1  
 
+  *) Allow APR-util to be compiled without libtool.  The default is
+     to use libtool, but it can turned off with --without-libtool
+     on the configure command.  [Ryan Bloom]
+
   *) Repair calling convention for apr_register_optional_fn to
      eliminate GP fault on Win32.  [William Rowe]
 

@@ -52,6 +52,25 @@ AC_PROG_LIBTOOL
     ;;
 esac
 
+AC_ARG_WITH(libtool, [--with-libtool   use libtool to link the library],
+  [ use_libtool=$withval ], [ use_libtool="yes" ] )
+ 
+if test "x$use_libtool" = "xyes"; then
+      lt_compile="\$(LIBTOOL) --mode=compile \$(LTFLAGS) \$(COMPILE) -c \$< && touch \$@"
+      link="\$(LIBTOOL) --mode=link \$(LTFLAGS) \$(COMPILE) \$(LDFLAGS) -o \$@ -rpath \$(libdir) \$\$objects"
+      so_ext="lo"
+      lib_target="\$(libdir) \$\$objects"
+else
+      lt_compile="\$(COMPILE) -c \$<"
+      link="ar cr \$(TARGET_LIB) \$\$objects; ranlib \$(TARGET_LIB)"
+      so_ext="o"
+fi
+
+AC_SUBST(lt_compile)
+AC_SUBST(link)
+AC_SUBST(so_ext)
+AC_SUBST(lib_target)
+
 dnl
 dnl grab flags from APR.
 dnl ### APR doesn't have "nice" names for its exports (yet), but it isn't

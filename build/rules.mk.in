@@ -80,9 +80,9 @@ LTFLAGS = --silent
 # Basic macro setup
 #
 COMPILE      = $(CC) $(CFLAGS)
-LT_COMPILE   = $(LIBTOOL) --mode=compile $(LTFLAGS) $(COMPILE) -c $< && touch $@
+LT_COMPILE   = @lt_compile@
 
-LINK         = $(LIBTOOL) --mode=link $(LTFLAGS) $(COMPILE) $(LDFLAGS) -o $@
+LINK         = @link@
 
 MKEXPORT     = $(AWK) -f $(APR_SOURCE_DIR)/build/make_export.awk
 SCANDOC      = $(APR_SOURCE_DIR)/build/scandoc.pl
