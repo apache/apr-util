@@ -167,13 +167,13 @@ int main (void)
         secstodate *= APR_USEC_PER_SEC;
         newsecs = apr_date_parse_http(datestr);
         if (secstodate == newsecs)
-            printf("Yes %4d %19lld %s\n", year, secstodate, datestr);
+            printf("Yes %4d %19" APR_TIME_T_FMT " %s\n", year, secstodate, datestr);
         else if (newsecs == APR_DATE_BAD)
-            printf("No  %4d %19lld %19lld %s\n", year, secstodate, 
-                   newsecs, datestr);
+            printf("No  %4d %19" APR_TIME_T_FMT " %19" APR_TIME_T_FMT " %s\n",
+                   year, secstodate, newsecs, datestr);
         else
-            printf("No* %4d %19lld %19lld %s\n", year, secstodate, 
-                   newsecs, datestr);
+            printf("No* %4d %19" APR_TIME_T_FMT " %19" APR_TIME_T_FMT " %s\n",
+                   year, secstodate, newsecs, datestr);
     }
     
     srand48(978245L);
