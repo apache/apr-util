@@ -85,7 +85,7 @@ static apr_status_t pipe_read(ap_bucket *b, const char **str,
 	free(buf);
         return rv;
     }
-    if (len > 0) {
+    if (*len > 0) {
         a = ap_bucket_create_pipe(bd->thepipe);
         b = ap_bucket_make_heap(b, buf, *len, 0, NULL);
 	
