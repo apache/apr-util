@@ -178,9 +178,9 @@ static void check_sbcs(apr_xlate_t *convset)
     else {
         /* reset the iconv descriptor, since it's now in an undefined
          * state. */
-        apr_iconv_close(convset->ich);
-        convset->ich = apr_iconv_open(convset->topage, convset->frompage);
-    }
+        apr_iconv_close(convset->ich, convset->pool);
+        rv = apr_iconv_open(convset->topage, convset->frompage, convset->pool, &convset->ich);
+     }
 }
 #endif /* APU_HAVE_APR_ICONV */
 
