@@ -42,12 +42,12 @@ ALL : "$(OUTDIR)\libaprutil.dll"
 
 !ELSE 
 
-ALL : "xml - Win32 Release" "libapr - Win32 Release" "$(OUTDIR)\libaprutil.dll"
+ALL : "libapr - Win32 Release" "xml - Win32 Release" "$(OUTDIR)\libaprutil.dll"
 
 !ENDIF 
 
 !IF "$(RECURSE)" == "1" 
-CLEAN :"libapr - Win32 ReleaseCLEAN" "xml - Win32 ReleaseCLEAN" 
+CLEAN :"xml - Win32 ReleaseCLEAN" "libapr - Win32 ReleaseCLEAN" 
 !ELSE 
 CLEAN :
 !ENDIF 
@@ -83,7 +83,7 @@ CLEAN :
 
 CPP=cl.exe
 CPP_PROJ=/nologo /MD /W3 /O2 /I "./include" /I "../apr/include" /I\
- "./include/private" /I "./dbm/sdbm" /I "../expat-lite" /D "NDEBUG" /D "WIN32"\
+ "./include/private" /I "./dbm/sdbm" /I "./xml/expat/lib" /D "NDEBUG" /D "WIN32"\
  /D "_WINDOWS" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" /Fo"$(INTDIR)\\"\
  /Fd"$(INTDIR)\aprutil" /FD /c 
 CPP_OBJS=.\Release/
@@ -175,12 +175,12 @@ ALL : "$(OUTDIR)\libaprutil.dll"
 
 !ELSE 
 
-ALL : "xml - Win32 Debug" "libapr - Win32 Debug" "$(OUTDIR)\libaprutil.dll"
+ALL : "libapr - Win32 Debug" "xml - Win32 Debug" "$(OUTDIR)\libaprutil.dll"
 
 !ENDIF 
 
 !IF "$(RECURSE)" == "1" 
-CLEAN :"libapr - Win32 DebugCLEAN" "xml - Win32 DebugCLEAN" 
+CLEAN :"xml - Win32 DebugCLEAN" "libapr - Win32 DebugCLEAN" 
 !ELSE 
 CLEAN :
 !ENDIF 
@@ -202,7 +202,6 @@ CLEAN :
 	-@erase "$(INTDIR)\apr_sha1.obj"
 	-@erase "$(INTDIR)\apr_xml.obj"
 	-@erase "$(INTDIR)\aprutil.idb"
-	-@erase "$(INTDIR)\aprutil.pdb"
 	-@erase "$(INTDIR)\sdbm.obj"
 	-@erase "$(INTDIR)\sdbm_hash.obj"
 	-@erase "$(INTDIR)\sdbm_lock.obj"
@@ -217,10 +216,10 @@ CLEAN :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP=cl.exe
-CPP_PROJ=/nologo /MDd /W3 /GX /Zi /Od /I "./include" /I "../apr/include" /I\
- "./include/private" /I "./dbm/sdbm" /I "../expat-lite" /D "_DEBUG" /D "WIN32"\
- /D "_WINDOWS" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" /Fo"$(INTDIR)\\"\
- /Fd"$(INTDIR)\aprutil" /FD /c 
+CPP_PROJ=/nologo /MDd /W3 /GX /Od /I "./include" /I "../apr/include" /I\
+ "./include/private" /I "./dbm/sdbm" /I "./xml/expat/lib" /I "./expat/lib" /D\
+ "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM"\
+ /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\aprutil" /FD /ZI /c 
 CPP_OBJS=.\Debug/
 CPP_SBRS=.
 
@@ -741,15 +740,15 @@ DEP_CPP_APR_X=\
 	"..\apr\include\apr_want.h"\
 	".\include\apr_xml.h"\
 	".\include\apu.h"\
+	".\include\private\apu_config.h"\
+	".\xml\expat\lib\expat.h"\
 	
 NODEP_CPP_APR_X=\
-	".\xml\apu_config.h"\
-	".\xml\expat.h"\
 	".\xml\xmlparse.h"\
 	
 
 "$(INTDIR)\apr_xml.obj" : $(SOURCE) $(DEP_CPP_APR_X) "$(INTDIR)"\
- ".\include\apu.h"
+ ".\include\private\apu_config.h" ".\include\apu.h"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
@@ -771,6 +770,28 @@ InputPath=.\include\apu.hw
 ".\include\apu.h"	 : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	copy .\include\apu.hw .\include\apu.h > nul 
 	echo Created apu.h from apu.hw 
+	
+
+!ENDIF 
+
+SOURCE=.\include\private\apu_config.hw
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
+InputPath=.\include\private\apu_config.hw
+
+".\include\private\apu_config.h"	 : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy .\include\private\apu_config.hw .\include\private\apu_config.h > nul 
+	echo Created apu_config.h from apu_config.hw 
+	
+
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+InputPath=.\include\private\apu_config.hw
+
+".\include\private\apu_config.h"	 : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy .\include\private\apu_config.hw .\include\private\apu_config.h > nul 
+	echo Created apu_config.h from apu_config.hw 
 	
 
 !ENDIF 
@@ -801,34 +822,6 @@ InputPath=.\include\private\apu_select_dbm.hw
 
 !IF  "$(CFG)" == "libaprutil - Win32 Release"
 
-"libapr - Win32 Release" : 
-   cd "..\apr"
-   $(MAKE) /$(MAKEFLAGS) /F ".\libapr.mak" CFG="libapr - Win32 Release" 
-   cd "..\apr-util"
-
-"libapr - Win32 ReleaseCLEAN" : 
-   cd "..\apr"
-   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\libapr.mak" CFG="libapr - Win32 Release"\
- RECURSE=1 
-   cd "..\apr-util"
-
-!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
-
-"libapr - Win32 Debug" : 
-   cd "..\apr"
-   $(MAKE) /$(MAKEFLAGS) /F ".\libapr.mak" CFG="libapr - Win32 Debug" 
-   cd "..\apr-util"
-
-"libapr - Win32 DebugCLEAN" : 
-   cd "..\apr"
-   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\libapr.mak" CFG="libapr - Win32 Debug"\
- RECURSE=1 
-   cd "..\apr-util"
-
-!ENDIF 
-
-!IF  "$(CFG)" == "libaprutil - Win32 Release"
-
 "xml - Win32 Release" : 
    cd ".\xml\expat\lib"
    $(MAKE) /$(MAKEFLAGS) /F ".\xml.mak" CFG="xml - Win32 Release" 
@@ -852,6 +845,34 @@ InputPath=.\include\private\apu_select_dbm.hw
    $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\xml.mak" CFG="xml - Win32 Debug" RECURSE=1\
  
    cd "..\..\.."
+
+!ENDIF 
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
+"libapr - Win32 Release" : 
+   cd "..\apr"
+   $(MAKE) /$(MAKEFLAGS) /F ".\libapr.mak" CFG="libapr - Win32 Release" 
+   cd "..\apr-util"
+
+"libapr - Win32 ReleaseCLEAN" : 
+   cd "..\apr"
+   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\libapr.mak" CFG="libapr - Win32 Release"\
+ RECURSE=1 
+   cd "..\apr-util"
+
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+"libapr - Win32 Debug" : 
+   cd "..\apr"
+   $(MAKE) /$(MAKEFLAGS) /F ".\libapr.mak" CFG="libapr - Win32 Debug" 
+   cd "..\apr-util"
+
+"libapr - Win32 DebugCLEAN" : 
+   cd "..\apr"
+   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\libapr.mak" CFG="libapr - Win32 Debug"\
+ RECURSE=1 
+   cd "..\apr-util"
 
 !ENDIF 
 
