@@ -56,8 +56,9 @@ apu-config.out: $(APU_CONFIG)
 install: $(TARGET_LIB) apu-config.out
 	$(APR_MKDIR) $(DESTDIR)$(includedir) $(DESTDIR)$(libdir)/pkgconfig \
 		     $(DESTDIR)$(libdir) $(DESTDIR)$(bindir)
-	$(INSTALL_DATA) $(top_srcdir)/include/*.h $(DESTDIR)$(includedir)
-	$(INSTALL_DATA) $(top_blddir)/include/*.h $(DESTDIR)$(includedir)
+	for f in $(top_srcdir)/include/*.h $(top_blddir)/include/*.h; do \
+		$(INSTALL_DATA) $${f} $(DESTDIR)$(includedir); \
+	done
 	$(INSTALL_DATA) apr-util.pc $(DESTDIR)$(libdir)/pkgconfig/$(APRUTIL_PCFILE)
 	list='$(INSTALL_SUBDIRS)'; for i in $$list; do \
 		( cd $$i ; $(MAKE) DESTDIR=$(DESTDIR) install ); \
