@@ -1,5 +1,9 @@
 Changes with APR-util 1.0
 
+  *) Change the order in which ldap.h and lber.h are defined, to fix
+     a compile bug in Solaris v2.8 which requires lber.h then ldap.h.
+     PR 27379 [Andrew Connors <andy.connors@idea.com>]
+
   *) The whole codebase was relicensed and is now available under
      the Apache License, Version 2.0 (http://www.apache.org/licenses).
      [Apache Software Foundation]
