@@ -55,7 +55,9 @@
 #include "apr_dbm_private.h"
 
 #include <gdbm.h>
-#include <stdlib.h>     /* for free() */
+#if APR_HAVE_STDLIB_H
+#include <stdlib.h> /* for free() and abort() */
+#endif
 
 typedef GDBM_FILE real_file_t;
 
