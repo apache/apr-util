@@ -138,7 +138,7 @@ API_EXPORT(int) ap_brigade_to_iovec(ap_bucket_brigade *b,
     orig = vec;
     e = b->head;
     while (e && nvec) {
-	e->read(e, &vec->iov_base, &vec->iov_len, 0);
+	e->read(e, (const char **)&vec->iov_base, &vec->iov_len, 0);
 	e = e->next;
 	--nvec;
 	++vec;
