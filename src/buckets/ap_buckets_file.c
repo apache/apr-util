@@ -59,7 +59,7 @@
 
 /* XXX: We should obey the block flag */
 static apr_status_t file_read(ap_bucket *e, const char **str,
-			      apr_ssize_t *len, int block)
+			      apr_ssize_t *len, ap_read_type block)
 {
     ap_bucket_file *a = (ap_bucket_file *)e->data;
     apr_file_t *f = (apr_file_t *) a->fd;
@@ -87,7 +87,6 @@ static apr_status_t file_read(ap_bucket *e, const char **str,
         /* Only need to do seek the first time through */
         a->offset = 0;
     }
-
     rv = apr_read(f, buf, len);
     if (rv != APR_SUCCESS && rv != APR_EOF) {
 	free(buf);

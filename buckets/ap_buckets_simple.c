@@ -95,7 +95,7 @@ static apr_status_t simple_split(ap_bucket *a, apr_off_t point)
 }
 
 static apr_status_t simple_read(ap_bucket *b, const char **str, 
-				apr_ssize_t *len, int block)
+				apr_ssize_t *len, ap_read_type block)
 {
     ap_bucket_simple *bd = b->data;
     *str = bd->start;

@@ -130,7 +130,7 @@ AP_DECLARE(int) ap_brigade_to_iovec(ap_bucket_brigade *b,
     AP_BRIGADE_FOREACH(e, b) {
 	if (nvec-- == 0)
             break;
-	ap_bucket_read(e, (const char **)&vec->iov_base, &iov_len, 0);
+	ap_bucket_read(e, (const char **)&vec->iov_base, &iov_len, AP_NONBLOCK_READ);
         vec->iov_len = iov_len; /* set indirectly in case size differs */
 	++vec;
     }

@@ -59,17 +59,28 @@
 
 /* XXX: We should obey the block flag */
 static apr_status_t socket_read(ap_bucket *a, const char **str,
-			      apr_ssize_t *len, int block)
+			      apr_ssize_t *len, ap_read_type block)
 {
     apr_socket_t *p = a->data;
     ap_bucket *b;
     char *buf;
     apr_status_t rv;
+    apr_int32_t timeout;
+
+    if (block == AP_NONBLOCK_READ) {
+        apr_getsocketopt(p, APR_SO_TIMEOUT, &timeout);
+        apr_setsocketopt(p, APR_SO_TIMEOUT, 0);
+    }
 
     buf = malloc(IOBUFSIZE); /* XXX: check for failure? */
     *str = buf;
     *len = IOBUFSIZE;
     rv = apr_recv(p, buf, len);
+
+    if (block == AP_NONBLOCK_READ) {
+        apr_setsocketopt(p, APR_SO_TIMEOUT, timeout);
+    }
+
     if (rv != APR_SUCCESS && rv != APR_EOF) {
         *str = NULL;
 	free(buf);
