@@ -229,20 +229,20 @@ link##_DECLARE(ret) ns##_run_##name args_decl \
  * The global pool used to allocate any memory needed by the hooks.
  * @defvar apr_pool_t *apr_global_hook_pool
  */ 
-extern APU_DECLARE_DATA apr_pool_t *apr_global_hook_pool;
+APU_DECLARE_DATA extern apr_pool_t *apr_global_hook_pool;
 
 /**
  * A global variable to determine if debugging information about the
  * hooks functions should be printed
  * @defvar apr_pool_t *apr_debug_module_hooks
  */ 
-extern APU_DECLARE_DATA int apr_debug_module_hooks;
+APU_DECLARE_DATA extern int apr_debug_module_hooks;
 
 /**
  * The name of the module that is currently registering a function
  * @defvar apr_pool_t *apr_current_hooking_module
  */ 
-extern APU_DECLARE_DATA const char *apr_current_hooking_module;
+APU_DECLARE_DATA extern const char *apr_current_hooking_module;
 
 /**
  * Register a hook function to be sorted
