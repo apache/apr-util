@@ -48,6 +48,7 @@ AC_DEFUN(APU_CHECK_BERKELEY_DB, [
 
   # Save the original values of the flags we tweak.
   apu_check_lib_save_libs="$LIBS"
+  apu_check_lib_save_ldflags="$LDFLAGS"
   apu_check_lib_save_cppflags="$CPPFLAGS"
 
   # The variable `found' is the prefix under which we've found
