@@ -40,8 +40,8 @@ RSC=rc.exe
 # PROP Output_Dir "LibR"
 # PROP Intermediate_Dir "LibR"
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "./include" /I "../apr/include" /D "NDEBUG" /D "APR_DECLARE_EXPORT" /D "WIN32" /D "_WINDOWS" /Fd"LibR/apr-util" /FD /c
+# ADD BASE CPP /nologo /MD /W3 /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FD /c
+# ADD CPP /nologo /MD /W3 /O2 /I "./include" /I "../apr/include" /I "./include/private" /I "./src/dbm/sdbm" /D "NDEBUG" /D "APR_DECLARE_EXPORT" /D "WIN32" /D "_WINDOWS" /Fd"LibR\apr-util" /FD /c
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
 BSC32=bscmake.exe
@@ -64,8 +64,8 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "LibD"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /MTd /W3 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MDd /W3 /GX /ZI /Od /I "./include" /I "../apr/include" /I "./dbm/sdbm" /D "_DEBUG" /D "APR_DECLARE_EXPORT" /D "WIN32" /D "_WINDOWS" /D "APU_USE_SDBM" /Fd"LibD/apr-util" /FD /c
+# ADD BASE CPP /nologo /MDd /W3 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FD /c
+# ADD CPP /nologo /MDd /W3 /GX /ZI /Od /I "./include" /I "../apr/include" /I "./include/private" /I "./src/dbm/sdbm" /D "_DEBUG" /D "APR_DECLARE_EXPORT" /D "WIN32" /D "_WINDOWS" /D "APU_USE_SDBM" /Fd"LibD\apr-util" /FD /c
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
 BSC32=bscmake.exe
@@ -86,17 +86,26 @@ LIB32=link.exe -lib
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=.\include\apu_private.hw
+SOURCE=.\include\private\apu_private.hw
 
 !IF  "$(CFG)" == "aprutil - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\include\private\apu_private.hw
+
+".\include\private\apu_private.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy .\include\private\apu_private.hw .\include\private\apu_private.h > nul 
+	echo Created apu_private.h from apu_private.hw 
+	
+# End Custom Build
 
 !ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
 
 # Begin Custom Build
-InputPath=.\include\apu_private.hw
+InputPath=.\include\private\apu_private.hw
 
-".\include\apu_private.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	copy .\include\private\apu_private.hw .\include\apu_private.h > nul 
+".\include\private\apu_private.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy .\include\private\apu_private.hw .\include\private\apu_private.h > nul 
 	echo Created apu_private.h from apu_private.hw 
 	
 # End Custom Build
