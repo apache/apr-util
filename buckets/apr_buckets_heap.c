@@ -58,20 +58,6 @@
 #include <strings.h>
 #endif
 
-/*
- * The size of heap bucket memory allocations.
- * XXX: This is currently a guess and should be adjusted to an
- * empirically good value.
- */
-#ifndef DEFAULT_BUCKET_SIZE
-#define DEFAULT_BUCKET_SIZE (4096)
-#endif
-
-#ifndef max
-#define max(x,y) \
-((x) >= (y) ? (x) : (y))
-#endif
-
 static apr_status_t heap_read(apr_bucket *b, const char **str, 
 			      apr_size_t *len, apr_read_type_e block)
 {
@@ -106,7 +92,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_make_heap(apr_bucket *b,
     }
 
     if (copy) {
-	h->alloc_len = max(DEFAULT_BUCKET_SIZE, length);
+	h->alloc_len = length;
 	h->base = malloc(h->alloc_len);
 	if (h->base == NULL) {
 	    free(h);
