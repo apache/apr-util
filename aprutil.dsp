@@ -67,7 +67,7 @@ LIB32=link.exe -lib
 RSC=rc.exe
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
-# ADD BASE CPP /nologo /MDd /W3 /GX /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FD /ZI /c
+# ADD BASE CPP /nologo /MDd /W3 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FD /c
 # ADD CPP /nologo /MDd /W3 /GX /ZI /Od /I "./include" /I "../apr/include" /I "./include/private" /I "./dbm/sdbm" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "APR_DECLARE_STATIC" /D "APU_DECLARE_STATIC" /D "APU_USE_SDBM" /Fd"LibD\aprutil" /FD /c
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
@@ -256,7 +256,8 @@ SOURCE=.\include\private\apu_select_dbm.hw
 InputPath=.\include\private\apu_select_dbm.hw
 
 ".\include\private\apu_select_dbm.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	copy .\include\private\apu_select_dbm.hw .\include\private\apu_select_dbm.h > nul 
+	copy .\include\private\apu_select_dbm.hw .\include\private\apu_select_dbm.h >\
+ nul 
 	echo Created apu_select_dbm.h from apu_select_dbm.hw 
 	
 # End Custom Build
@@ -267,7 +268,8 @@ InputPath=.\include\private\apu_select_dbm.hw
 InputPath=.\include\private\apu_select_dbm.hw
 
 ".\include\private\apu_select_dbm.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	copy .\include\private\apu_select_dbm.hw .\include\private\apu_select_dbm.h > nul 
+	copy .\include\private\apu_select_dbm.hw .\include\private\apu_select_dbm.h >\
+ nul 
 	echo Created apu_select_dbm.h from apu_select_dbm.hw 
 	
 # End Custom Build
@@ -298,6 +300,10 @@ SOURCE=.\include\apr_generic_hook.h
 # Begin Source File
 
 SOURCE=.\include\apr_hooks.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\apr_optional.h
 # End Source File
 # Begin Source File
 
