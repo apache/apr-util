@@ -58,7 +58,6 @@
 #include "apr_buckets.h"
 #include <stdlib.h>
 
-/* Allow Apache to use ap_mmap */
 #if APR_HAS_MMAP
 #include "apr_mmap.h"
 
@@ -81,6 +80,7 @@
 #ifndef MMAP_LIMIT
 #define MMAP_LIMIT              (4*1024*1024)
 #endif
+
 #endif /* APR_HAS_MMAP */
 
 
