@@ -14,13 +14,6 @@
  */
 
 /*
- * WARNING: This code below is DEPRECATED in APR v1.0.
- *
- * It requires an overhaul, which will be available in a later release
- * of APR. Please expect the code below to change without notice.
- */
-
-/*
  * apr_ldap_compat.c: LDAP v2/v3 compatibility things
  * 
  * Original code from auth_ldap module for Apache v1.3:
@@ -45,24 +38,11 @@
  * missing in LDAPv2. 
  * 
  */
-#if LDAP_VERSION_MAX == 2
 
-/*
- * LDAPv2 doesn't support extended search. Since auth_ldap doesn't use
- * it anyway, we just translate the extended search into a normal search.
+/* Note: This section has been removed in APR v1.0, pending real
+ * support for LDAP v2.0 toolkits.
+ *
+ * In the mean time, please use an LDAP v3.0 toolkit.
  */
-int ldap_search_ext_s(LDAP *ldap, char *base, int scope, char *filter,
-		      char **attrs, int attrsonly, void *servertrls, void *clientctrls,
-		      void *timeout, int sizelimit, LDAPMessage **res)
-{
-    return ldap_search_s(ldap, base, scope, filter, attrs, attrsonly, res);
-}
-
-void ldap_memfree(void *p)
-{
-    free(p);
-}
-
-#endif /* if LDAP_VERSION_MAX */
 
 #endif /* APR_HAS_LDAP */
