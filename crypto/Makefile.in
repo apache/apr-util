@@ -1,5 +1,5 @@
 
-TARGETS = apr_sha1.lo
+TARGETS = apr_sha1.lo apr_md4.lo
 
 # bring in rules.mk for standard functionality
 @INCLUDE_RULES@
