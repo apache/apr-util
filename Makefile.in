@@ -71,10 +71,10 @@ $(TARGET_LIB): $(OBJECTS)
 	$(LINK) @lib_target@ $(ALL_LIBS)
 
 exports.c: $(HEADERS)
-	$(AWK) -f @APR_SOURCE_DIR@/build/make_exports.awk $^ > $@
+	$(AWK) -f @APR_SOURCE_DIR@/build/make_exports.awk $(HEADERS) > $@
 
 export_vars.h: $(HEADERS)
-	$(AWK) -f @APR_SOURCE_DIR@/build/make_var_export.awk $^ > $@
+	$(AWK) -f @APR_SOURCE_DIR@/build/make_var_export.awk $(HEADERS) > $@
 
 aprutil.exp: exports.c export_vars.h
 	@echo "#! libaprutil.so" > $@
