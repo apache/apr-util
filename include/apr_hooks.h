@@ -245,10 +245,10 @@ link##_DECLARE(ret) ns##_run_##name args_decl \
 /**
  * The global pool used to allocate any memory needed by the hooks.
  */ 
-APU_DECLARE_DATA extern apr_pool_t *apr_global_hook_pool;
+APU_DECLARE_DATA extern apr_pool_t *apr_hook_global_pool;
 
 /** @deprecated @see apr_hook_global_pool */
-APU_DECLARE_DATA extern apr_pool_t *apr_hook_global_pool;
+APU_DECLARE_DATA extern apr_pool_t *apr_global_hook_pool;
 
 /**
  * A global variable to determine if debugging information about the
