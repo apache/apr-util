@@ -90,7 +90,7 @@ static apr_status_t create_dummy_file_error(apr_pool_t *p, apr_file_t **fd)
             errno = ENOENT;
         }
         perror("tmpnam");
-        return APR_EGENERAL;
+        return APR_ENOENT;
     }
     rv = apr_file_open(fd, tmpfile, APR_CREATE|APR_TRUNCATE|APR_DELONCLOSE|
                        APR_READ|APR_WRITE|APR_EXCL, APR_OS_DEFAULT, p);
@@ -130,7 +130,7 @@ static apr_status_t create_dummy_file(apr_pool_t *p, apr_file_t **fd)
             errno = ENOENT;
         }
         perror("tmpnam");
-        return APR_EGENERAL;
+        return APR_ENOENT;
     }
     rv = apr_file_open(fd, tmpfile, APR_CREATE|APR_TRUNCATE|APR_DELONCLOSE|
                        APR_READ|APR_WRITE|APR_EXCL, APR_OS_DEFAULT, p);
@@ -181,13 +181,16 @@ static void dump_xml(apr_xml_elem *e, int level)
     }
 }
 
-static void oops(const char *s1, const char *s2)
+static void oops(const char *s1, const char *s2, apr_status_t rv)
 {
     if (progname)
         fprintf(stderr, "%s: ", progname);
     fprintf(stderr, s1, s2);
-    if (errno > 0 && errno < sys_nerr)
-        fprintf(stderr, " (%s)", sys_errlist[errno]);
+    if (rv != APR_SUCCESS) {
+        char buf[120];
+
+        fprintf(stderr, " (%s)", apr_strerror(rv, buf, sizeof buf));
+    }
     fprintf(stderr, "\n");
     exit(1);
 }
@@ -208,18 +211,18 @@ int main(int argc, const char *const * argv)
     if (argc == 1) {
         rv = create_dummy_file(pool, &fd);
         if (rv != APR_SUCCESS) {
-            oops("cannot create dummy file", "oops");
+            oops("cannot create dummy file", "oops", rv);
         }
     }
     else {
         if (argc == 2) {
             rv = apr_file_open(&fd, argv[1], APR_READ, APR_OS_DEFAULT, pool);
             if (rv != APR_SUCCESS) {
-                oops("cannot open: %s", argv[1]);
+                oops("cannot open: %s", argv[1], rv);
             }
         }
         else {
-            oops("usage: %s", usage);
+            oops("usage: %s", usage, 0);
         }
     }
     rv = apr_xml_parse_file(pool, &parser, &doc, fd, 2000);
@@ -234,7 +237,7 @@ int main(int argc, const char *const * argv)
     if (argc == 1) {
         rv = create_dummy_file_error(pool, &fd);
         if (rv != APR_SUCCESS) {
-            oops("cannot create error dummy file", "oops");
+            oops("cannot create error dummy file", "oops", rv);
         }
         rv = apr_xml_parse_file(pool, &parser, &doc, fd, 2000);
         if (rv != APR_SUCCESS) {
