@@ -30,3 +30,8 @@ autoheader
 echo "Creating configure ..."
 ### do some work to toss config.cache?
 autoconf
+
+if [ ! -z $1 ]; then
+    echo "Creating list of exported symbols in aprutil.exports ..."
+    perl $1/helpers/make_export.pl -o ./aprutil.exports include/*.h
+fi
