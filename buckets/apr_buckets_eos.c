@@ -60,13 +60,13 @@ static apr_status_t eos_read(ap_bucket *b, const char **str,
                                 apr_ssize_t *len, ap_read_type block)
 {
     *str = NULL;
-    *len = AP_END_OF_BRIGADE;
+    *len = 0;
     return APR_SUCCESS;
 }
 
 AP_DECLARE(ap_bucket *) ap_bucket_make_eos(ap_bucket *b)
 {
-    b->length    = AP_END_OF_BRIGADE;
+    b->length    = 0;
     b->data      = NULL;
 
     b->type      = &ap_eos_type;

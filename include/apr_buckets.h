@@ -119,11 +119,8 @@ typedef enum {AP_NONBLOCK_READ, AP_BLOCK_READ} ap_read_type;
 
 /* The types of bucket brigades the code knows about.  We don't really need
  * this enum.  All access to the bucket brigades is done through function
- * pointers in the bucket type.  However, when we start to do conversion
- * routines, this enum will be a huge performance benefit, so we leave it
- * alone.
+ * pointers in the bucket type.  
  */
-#define AP_END_OF_BRIGADE       -1
 
 /**
  * Forward declaration of the main types.
@@ -155,8 +152,7 @@ struct ap_bucket_type {
      * @param b The bucket to read from
      * @param str A place to store the data read.  Allocation should only be
      *            done if absolutely necessary. 
-     * @param len The amount of data read,
-     *            or -1 (AP_END_OF_BRIGADE) if there is no more data
+     * @param len The amount of data read.
      * @param block Should this read function block if there is more data that
      *              cannot be read immediately.
      * @deffunc apr_status_t read(ap_bucket *b, const char **str, apr_ssize_t *len, ap_read_type block)
@@ -191,8 +187,7 @@ struct ap_bucket_type {
 struct ap_bucket {
     /** Links to the rest of the brigade */
     AP_RING_ENTRY(ap_bucket) link;
-    /** The type of bucket.  These types can be found in the enumerated
-     *  type above */
+    /** The type of bucket.  */
     const ap_bucket_type *type;
     /** The length of the data in the bucket.  This could have been implemented
      *  with a function, but this is an optimization, because the most
