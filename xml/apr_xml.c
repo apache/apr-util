@@ -73,6 +73,7 @@
 
 /* errors related to namespace processing */
 #define APR_XML_NS_ERROR_UNKNOWN_PREFIX (-1000)
+#define APR_XML_NS_ERROR_INVALID_DECL (-1001)
 
 /* test for a namespace prefix that begins with [Xx][Mm][Ll] */
 #define APR_XML_NS_IS_RESERVED(name) \
@@ -210,8 +211,15 @@ static void start_handler(void *userdata, const char *name, const char **attrs)
 	    apr_xml_ns_scope *ns_scope;
 
 	    /* test for xmlns:foo= form and xmlns= form */
-	    if (*prefix == ':')
+	    if (*prefix == ':') {
+                /* a namespace prefix declaration must have a
+                   non-empty value. */
+                if (attr->value[0] == '\0') {
+                    parser->error = APR_XML_NS_ERROR_INVALID_DECL;
+                    return;
+                }
 		++prefix;
+            }
 	    else if (*prefix != '\0') {
 		/* advance "prev" since "attr" is still present */
 		prev = attr;
@@ -458,6 +466,10 @@ APU_DECLARE(char *) apr_xml_parser_geterror(apr_xml_parser *parser,
 
     case APR_XML_NS_ERROR_UNKNOWN_PREFIX:
         msg = "An undefined namespace prefix was used.";
+        break;
+
+    case APR_XML_NS_ERROR_INVALID_DECL:
+        msg = "A namespace prefix was defined with an empty URI.";
         break;
 
     case APR_XML_ERROR_EXPAT:
@@ -895,6 +907,10 @@ APU_DECLARE(int) apr_xml_insert_uri(apr_array_header_t *uri_array,
 {
     int i;
     const char **pelt;
+
+    /* never insert an empty URI; this index is always APR_XML_NS_NONE */
+    if (*uri == '\0')
+        return APR_XML_NS_NONE;  
 
     for (i = uri_array->nelts; i--;) {
 	if (strcmp(uri, APR_XML_GET_URI_ITEM(uri_array, i)) == 0)
