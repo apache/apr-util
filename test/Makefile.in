@@ -14,21 +14,21 @@ LIBS = @LIBS@
 test: $(PROGRAMS)
 
 testdbm_OBJECTS = testdbm.lo
-testdbm_LDADD =  ../libaprutil.la @APR_SOURCE_DIR@/libapr.la 
+testdbm_LDADD =  ../libaprutil.la @APR_BUILD_DIR@/libapr.la 
 testdbm: $(testdbm_OBJECTS) $(testdbm_LDADD)
 	$(LINK) $(testdbm_OBJECTS) $(testdbm_LDADD) $(LIBS)
 
 testdate_OBJECTS = testdate.lo
-testdate_LDADD =  ../libaprutil.la @APR_SOURCE_DIR@/libapr.la 
+testdate_LDADD =  ../libaprutil.la @APR_BUILD_DIR@/libapr.la 
 testdate: $(testdate_OBJECTS) $(testdate_LDADD)
 	$(LINK) $(testdate_OBJECTS) $(testdate_LDADD) $(LIBS)
 
 testxml_OBJECTS = testxml.lo
-testxml_LDADD =  ../libaprutil.la @APR_SOURCE_DIR@/libapr.la 
+testxml_LDADD =  ../libaprutil.la @APR_BUILD_DIR@/libapr.la 
 testxml: $(testxml_OBJECTS) $(testxml_LDADD)
 	$(LINK) $(testxml_OBJECTS) $(testxml_LDADD) $(LIBS)
 
 testmd4_OBJECTS = testmd4.lo
-testmd4_LDADD =  ../libaprutil.la @APR_SOURCE_DIR@/libapr.la 
+testmd4_LDADD =  ../libaprutil.la @APR_BUILD_DIR@/libapr.la 
 testmd4: $(testmd4_OBJECTS) $(testmd4_LDADD)
 	$(LINK) $(testmd4_OBJECTS) $(testmd4_LDADD) $(LIBS)
