@@ -43,17 +43,24 @@ echo "performing libtool configuration..."
 AC_CANONICAL_SYSTEM
 LDFLAGS=""
 case "$host_alias" in
-*os2*)
-    # Use a custom-made libtool replacement
-    echo "using aplibtool"
-    LIBTOOL="$APR_SOURCE_DIR/build/aplibtool"
-    ;;
 *beos*)
     # Horrible Hack !!!
     # if we're building a shared lib then we need to add in the
     # apr library to the build...
     LDFLAGS="$APR_SOURCE_DIR/libapr.la"
-AC_PROG_LIBTOOL
+    ;;
+*)
+    ;;
+esac
+
+dnl AC_PROG_LIBTOOL can't be invoked more than once, so this
+dnl logic can't be combined with the previous case statement
+
+case "$host_alias" in
+*os2*)
+    # Use a custom-made libtool replacement
+    echo "using aplibtool"
+    LIBTOOL="$APR_SOURCE_DIR/build/aplibtool"
     ;;
 *)  dnl libtoolize requires that the following not be indented
 AC_PROG_LIBTOOL
