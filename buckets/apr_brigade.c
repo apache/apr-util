@@ -108,7 +108,7 @@ APU_DECLARE(apr_bucket_brigade *) apr_brigade_create(apr_pool_t *p,
 
     APR_RING_INIT(&b->list, apr_bucket, link);
 
-    apr_pool_cleanup_register(b->p, b, brigade_cleanup, brigade_cleanup);
+    apr_pool_cleanup_register(b->p, b, brigade_cleanup, apr_pool_cleanup_null);
     return b;
 }
 
