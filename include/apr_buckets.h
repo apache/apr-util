@@ -204,7 +204,11 @@ struct ap_bucket_brigade {
      */
     apr_pool_t *p;
     /** The buckets in the brigade are on this list. */
-    AP_RING_HEAD(head, ap_bucket) list;
+    /*
+     * XXX: the ap_bucket_list tag shouldn't me necessary but
+     * aparrently without it this fails to compile on Windows.
+     */
+    AP_RING_HEAD(ap_bucket_list, ap_bucket) list;
 };
 
 /**
