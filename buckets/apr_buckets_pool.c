@@ -150,6 +150,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_pool_make(apr_bucket *b,
     /* pre-initialize heap bucket member */
     p->heap.alloc_len = length;
     p->heap.base      = NULL;
+    p->heap.free_func = apr_bucket_free;
 
     apr_pool_cleanup_register(p->pool, p, pool_bucket_cleanup,
                               apr_pool_cleanup_null);
