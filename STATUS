@@ -1,42 +1,20 @@
 APRUTIL LIBRARY STATUS:						-*-text-*-
-Last modified at [$Date: 2002/05/31 00:13:52 $]
+Last modified at [$Date: 2002/09/13 23:15:22 $]
 
 Release:
 
-    0.9.0-dev : in progress
+    0.9.2   : in progress
+    0.9.1   : Released as alpha on September 11, 2002
+    0.9.0   : Not released
 
     2.0a9   : released December 12, 2000
 
 
 RELEASE SHOWSTOPPERS:
 
-    * Need apu_compat.h to track the latest renames
-      Status: someone want to step up to diff names between 1.3.x 
-              and apr/apr-util?  Sounds like a job for a perl script...
+    * Separate apr build process so that apr-util can build on its own.
 
-    * add misc/version.c and related machinery once the pattern is
-      laid out in APR.
-      --> APR has completed the model, but still needs some work for
-          passing this information to libtool for versioning the
-	  shared libs. we can (at least) start with the header and
-	  implementation code.
-
-    * complete the efforts started by DougM for cleaner fn naming
-      conventions: see proposed name changes in renames_pending
-      and offer up any additions/vetos/clarifications.
-      DougM offered to complete the work with his nifty perl rename
-      script at the hackathon. 
-
-    * move md5 from APR into crypto
-      Will Rowe outlined this move in:
-           <5.1.0.14.2.20020511174016.00b8c468@pop3.rowe-clan.net>
-      Justin says:  Requires finding a suitable replacement for md5 in 
-                    apr/uuid for when we don't have random bytes
-		    available.
-      Greg says: showstopper because of the move of functions from one
-                 lib to another
-      Status: Justin +1, Greg +1
-
+      Suggestions: Create an apr-build subproject and start using it.
 
 RELEASE NON-SHOWSTOPPERS BUT WOULD BE REAL NICE TO WRAP THESE UP:
 
@@ -48,6 +26,8 @@ RELEASE NON-SHOWSTOPPERS BUT WOULD BE REAL NICE TO WRAP THESE UP:
         Status: Workaround is to add "-R/opt/sfw/lib" to LDFLAGS.
                 Should check latest sfw package set and see if Sun
                 may have fixed this.
+
+    * GDBM usage of errno is not-thread-safe.  Fix.
 
 Other bugs that need fixing:
 
