@@ -333,7 +333,7 @@ APU_DECLARE(apr_status_t) apr_queue_pop(apr_queue_t *queue, void **data)
         }
     } 
 
-    *data = &queue->data[queue->out];
+    *data = queue->data[queue->out];
     queue->nelts--;
 
     queue->out = (queue->out + 1) % queue->bounds;
@@ -375,7 +375,7 @@ APU_DECLARE(apr_status_t) apr_queue_trypop(apr_queue_t *queue, void **data)
         return APR_EAGAIN;
     } 
 
-    *data = &queue->data[queue->out];
+    *data = queue->data[queue->out];
     queue->nelts--;
 
     queue->out = (queue->out + 1) % queue->bounds;
