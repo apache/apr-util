@@ -79,7 +79,7 @@ extern "C" {
  * @param args The function arguments (including brackets)
  */
 #define APR_DECLARE_OPTIONAL_FN(ret,name,args) \
-typedef ret APR_OPTIONAL_FN_TYPE(name) args;
+typedef ret APR_OPTIONAL_FN_TYPE(name) args
 
 /* XXX: This doesn't belong here, then!
  * Private function! DO NOT USE! 
