@@ -22,6 +22,7 @@
 const struct testlist {
     abts_suite *(*func)(abts_suite *suite);
 } alltests[] = {
+    (teststrmatch),
     (testuri),
     {testuuid}
 };
