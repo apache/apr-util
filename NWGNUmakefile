@@ -276,50 +276,7 @@ install :: nlms FORCE
 # Any specialized rules here
 #
 
-$(OBJDIR)/%.o: buckets/%.c $(OBJDIR)\$(NLM_NAME)_cc.opt
-	@echo Compiling $<
-	$(CC) buckets\$(<F) -o=$(OBJDIR)\$(@F) @$(OBJDIR)\$(NLM_NAME)_cc.opt
-	
-$(OBJDIR)/%.o: crypto/%.c $(OBJDIR)\$(NLM_NAME)_cc.opt
-	@echo Compiling $<
-	$(CC) crypto\$(<F) -o=$(OBJDIR)\$(@F) @$(OBJDIR)\$(NLM_NAME)_cc.opt
-
-$(OBJDIR)/%.o: dbm/%.c $(OBJDIR)\$(NLM_NAME)_cc.opt
-	@echo Compiling $<
-	$(CC) dbm\$(<F) -o=$(OBJDIR)\$(@F) @$(OBJDIR)\$(NLM_NAME)_cc.opt	
-
-$(OBJDIR)/%.o: dbm/sdbm/%.c $(OBJDIR)\$(NLM_NAME)_cc.opt
-	@echo Compiling $<
-	$(CC) dbm\sdbm\$(<F) -o=$(OBJDIR)\$(@F) @$(OBJDIR)\$(NLM_NAME)_cc.opt
-
-$(OBJDIR)/%.o: encoding/%.c $(OBJDIR)\$(NLM_NAME)_cc.opt
-	@echo Compiling $<
-	$(CC) encoding\$(<F) -o=$(OBJDIR)\$(@F) @$(OBJDIR)\$(NLM_NAME)_cc.opt
-
-$(OBJDIR)/%.o: hooks/%.c $(OBJDIR)\$(NLM_NAME)_cc.opt
-	@echo Compiling $<
-	$(CC) hooks\$(<F) -o=$(OBJDIR)\$(@F) @$(OBJDIR)\$(NLM_NAME)_cc.opt
-
-$(OBJDIR)/%.o: misc/%.c $(OBJDIR)\$(NLM_NAME)_cc.opt
-	@echo Compiling $<
-	$(CC) misc\$(<F) -o=$(OBJDIR)\$(@F) @$(OBJDIR)\$(NLM_NAME)_cc.opt
-
-$(OBJDIR)/%.o: strmatch/%.c $(OBJDIR)\$(NLM_NAME)_cc.opt
-	@echo Compiling $<
-	$(CC) strmatch\$(<F) -o=$(OBJDIR)\$(@F) @$(OBJDIR)\$(NLM_NAME)_cc.opt
-
-$(OBJDIR)/%.o: uri/%.c $(OBJDIR)\$(NLM_NAME)_cc.opt
-	@echo Compiling $<
-	$(CC) uri\$(<F) -o=$(OBJDIR)\$(@F) @$(OBJDIR)\$(NLM_NAME)_cc.opt
-
-$(OBJDIR)/%.o: xlate/%.c $(OBJDIR)\$(NLM_NAME)_cc.opt
-	@echo Compiling $<
-	$(CC) xlate\$(<F) -o=$(OBJDIR)\$(@F) @$(OBJDIR)\$(NLM_NAME)_cc.opt
-	
-$(OBJDIR)/%.o: xml/%.c $(OBJDIR)\$(NLM_NAME)_cc.opt
-	@echo Compiling $<
-	$(CC) xml\$(<F) -o=$(OBJDIR)\$(@F) @$(OBJDIR)\$(NLM_NAME)_cc.opt
-
+vpath %.c buckets:crypto:dbm:dbm/sdbm:encoding:hooks:misc:strmatch:uri:xlate:xml
 
 #
 # Include the 'tail' makefile that has targets that depend on variables defined

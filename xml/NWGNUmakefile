@@ -247,11 +247,7 @@ install :: nlms FORCE
 # Any specialized rules here
 #
 
-$(OBJDIR)/%.o: expat/lib/%.c $(OBJDIR)\$(NLM_NAME)_cc.opt
-	@echo Compiling $<
-	$(CC) expat/lib\$(<F) -o=$(OBJDIR)\$(@F) @$(OBJDIR)\$(NLM_NAME)_cc.opt
-
-
+vpath %.c expat/lib
 
 #
 # Include the 'tail' makefile that has targets that depend on variables defined
