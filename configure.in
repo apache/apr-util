@@ -102,6 +102,11 @@ if test -d ./test; then
     test_Makefile="test/Makefile"
 fi
 
+if test ! -d "$top_builddir/include/private"; then
+    mkdir $top_builddir/include
+    mkdir $top_builddir/include/private
+fi
+
 dnl
 dnl everthing is done. 
 MAKEFILES="Makefile buckets/Makefile crypto/Makefile dbm/Makefile dbm/sdbm/Makefile encoding/Makefile hooks/Makefile ldap/Makefile uri/Makefile xml/Makefile misc/Makefile $test_Makefile"
