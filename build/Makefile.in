@@ -2,4 +2,5 @@
 top_builddir = @top_builddir@
 @INCLUDE_RULES@
 
-EXTRACLEAN_TARGETS = config.guess config.sub ltconfig ltmain.sh rules.mk
+DISTCLEAN_TARGETS = rules.mk
+EXTRACLEAN_TARGETS = config.guess config.sub ltconfig ltmain.sh
