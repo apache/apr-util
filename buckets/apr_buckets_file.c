@@ -132,10 +132,27 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
     apr_status_t rv;
     apr_off_t filelength = e->length;  /* bytes remaining in file past offset */
     apr_off_t fileoffset = e->start;
+    apr_int32_t flags;
 
 #if APR_HAS_MMAP
-    if (file_make_mmap(e, filelength, fileoffset, apr_file_pool_get(f))) {
+    if (file_make_mmap(e, filelength, fileoffset, a->readpool)) {
         return apr_bucket_read(e, str, len, block);
+    }
+#endif
+
+#if APR_HAS_THREADS && !APR_HAS_XTHREAD_FILES
+    if ((flags = apr_file_flags_get(f)) & APR_XTHREAD) {
+        /* this file descriptor is shared across multiple threads and
+         * this OS doesn't support that natively, so as a workaround
+         * we must reopen the file into a->readpool */
+        const char *fname;
+        apr_file_name_get(&fname, f);
+
+        rv = apr_file_open(&f, fname, (flags & ~APR_XTHREAD), 0, a->readpool);
+        if (rv != APR_SUCCESS)
+            return rv;
+
+        a->fd = f;
     }
 #endif
 
@@ -185,7 +202,8 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
 }
 
 APU_DECLARE(apr_bucket *) apr_bucket_file_make(apr_bucket *b, apr_file_t *fd,
-                                            apr_off_t offset, apr_size_t len)
+                                               apr_off_t offset,
+                                               apr_size_t len, apr_pool_t *p)
 {
     apr_bucket_file *f;
 
@@ -194,6 +212,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_file_make(apr_bucket *b, apr_file_t *fd,
         return NULL;
     }
     f->fd = fd;
+    f->readpool = p;
 
     b = apr_bucket_shared_make(b, f, offset, len);
     b->type = &apr_bucket_type_file;
@@ -202,12 +221,13 @@ APU_DECLARE(apr_bucket *) apr_bucket_file_make(apr_bucket *b, apr_file_t *fd,
 }
 
 APU_DECLARE(apr_bucket *) apr_bucket_file_create(apr_file_t *fd,
-                                              apr_off_t offset, apr_size_t len)
+                                                 apr_off_t offset,
+                                                 apr_size_t len, apr_pool_t *p)
 {
     apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
 
     APR_BUCKET_INIT(b);
-    return apr_bucket_file_make(b, fd, offset, len);
+    return apr_bucket_file_make(b, fd, offset, len, p);
 }
 
 static apr_status_t file_setaside(apr_bucket *data, apr_pool_t *reqpool)
@@ -223,6 +243,10 @@ static apr_status_t file_setaside(apr_bucket *data, apr_pool_t *reqpool)
 
     if (apr_pool_is_ancestor(curpool, reqpool)) {
         return APR_SUCCESS;
+    }
+
+    if (!apr_pool_is_ancestor(a->readpool, reqpool)) {
+        a->readpool = reqpool;
     }
 
 #if APR_HAS_MMAP
