@@ -4,7 +4,7 @@ See the file COPYING for copying permission.
 */
 
 static char RCSId[]
-  = "$Header: /home/cvs/apr-util/xml/expat/lib/xmlparse.c,v 1.1 2001/02/28 14:41:26 gstein Exp $";
+  = "$Header: /home/cvs/apr-util/xml/expat/lib/xmlparse.c,v 1.2 2001/03/29 14:09:02 dreid Exp $";
 
 #ifdef COMPILED_FROM_DSP
 #  include "winconfig.h"
@@ -2753,7 +2753,7 @@ doProlog(XML_Parser parser,
 	return XML_ERROR_NO_MEMORY;
       if (attlistDeclHandler && declAttributeType) {
 	if (*declAttributeType == '('
-	    || *declAttributeType == 'N' && declAttributeType[1] == 'O') {
+	    || (*declAttributeType == 'N' && declAttributeType[1] == 'O')) {
 	  /* Enumerated or Notation type */
 	  if (! poolAppendChar(&tempPool, ')')
 	      || ! poolAppendChar(&tempPool, '\0'))
@@ -2787,7 +2787,7 @@ doProlog(XML_Parser parser,
 	  return XML_ERROR_NO_MEMORY;
 	if (attlistDeclHandler && declAttributeType) {
 	  if (*declAttributeType == '('
-	      || *declAttributeType == 'N' && declAttributeType[1] == 'O') {
+	      || (*declAttributeType == 'N' && declAttributeType[1] == 'O')) {
 	    /* Enumerated or Notation type */
 	    if (! poolAppendChar(&tempPool, ')')
 		|| ! poolAppendChar(&tempPool, '\0'))
