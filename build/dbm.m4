@@ -70,15 +70,21 @@ AC_DEFUN(APU_CHECK_BERKELEY_DB, [
         description="$header and $lib"
       ;;
       * )
-        LDFLAGS="$LDFLAGS -L$bdb_place/lib"
-        CPPFLAGS="$CPPFLAGS -I$bdb_place/include"
+        if test -d $bdb_place; then
+          LDFLAGS="$LDFLAGS -L$bdb_place/lib"
+          CPPFLAGS="$CPPFLAGS -I$bdb_place/include"
+        else
+          AC_MSG_CHECKING([for Berkeley DB $bdb_version in $bdb_place])
+          AC_MSG_RESULT([directory not found])
+          continue
+        fi
         description="$bdb_place"
       ;;
     esac
 
     # Since there is no AC_MSG_NOTICE in autoconf 2.13, we use this
     # trick to display a message instead.
-    AC_MSG_CHECKING([checking for Berkeley DB $bdb_version in $description])
+    AC_MSG_CHECKING([for Berkeley DB $bdb_version in $description])
     AC_MSG_RESULT()
 
     for bdb_libname in $bdb_default_search_lib_names; do
@@ -100,7 +106,7 @@ AC_DEFUN(APU_CHECK_BERKELEY_DB, [
                      | sed -e 's/[^a-zA-Z0-9_]/_/g'`"
             changequote([,])
 
-            AC_MSG_CHECKING([for $bdb_libname])
+            AC_MSG_CHECKING([for -l$bdb_libname])
             dnl We can't use AC_CACHE_CHECK here, because that won't print out
             dnl the value of the computed cache variable properly.
             AC_CACHE_VAL($cache_id,
