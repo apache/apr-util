@@ -85,17 +85,18 @@ static void push_resource(apr_reslist_t *reslist, apr_res_t *resource)
 }
 
 /**
- * Get an empty resource container from the free list.
+ * Get an resource container from the free list or create a new one.
  */
 static apr_res_t *get_container(apr_reslist_t *reslist)
 {
     apr_res_t *res;
 
-    assert(!APR_RING_EMPTY(&reslist->free_list, apr_res_t, link));
-
-    res = APR_RING_FIRST(&reslist->free_list);
-    APR_RING_REMOVE(res, link);
-
+    if (!APR_RING_EMPTY(&reslist->free_list, apr_res_t, link)) {
+        res = APR_RING_FIRST(&reslist->free_list);
+        APR_RING_REMOVE(res, link);
+    }
+    else
+        res = apr_pcalloc(reslist->pool, sizeof(*res));
     return res;
 }
 
@@ -116,7 +117,7 @@ static apr_status_t create_resource(apr_reslist_t *reslist, apr_res_t **ret_res)
     apr_status_t rv;
     apr_res_t *res;
 
-    res = apr_pcalloc(reslist->pool, sizeof(*res));
+    res = get_container(reslist);
 
     rv = reslist->constructor(&res->opaque, reslist->params, reslist->pool);
 
@@ -215,11 +216,11 @@ static apr_status_t reslist_maint(apr_reslist_t *reslist)
         res = pop_resource(reslist);
         reslist->ntotal--;
         rv = destroy_resource(reslist, res);
+        free_container(reslist, res);
         if (rv != APR_SUCCESS) {
             apr_thread_mutex_unlock(reslist->listlock);
             return rv;
         }
-        free_container(reslist, res);
     }
 
     apr_thread_mutex_unlock(reslist->listlock);
