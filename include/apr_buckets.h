@@ -488,7 +488,7 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
 #define APR_BUCKET_IS_POOL(e)        (e->type == &apr_bucket_type_pool)
 
 /*
- * General-purpose reference counting for the varous bucket types.
+ * General-purpose reference counting for the various bucket types.
  *
  * Any bucket type that keeps track of the resources it uses (i.e.
  * most of them except for IMMORTAL, TRANSIENT, and EOS) needs to
@@ -1048,12 +1048,12 @@ APU_DECLARE_NONSTD(apr_status_t) apr_bucket_shared_copy(apr_bucket *a,
 /*  *****  Functions to Create Buckets of varying types  *****  */
 /*
  * Each bucket type foo has two initialization functions:
- * apr_bucket_make_foo which sets up some already-allocated memory as a
- * bucket of type foo; and apr_bucket_create_foo which allocates memory
+ * apr_bucket_foo_make which sets up some already-allocated memory as a
+ * bucket of type foo; and apr_bucket_foo_create which allocates memory
  * for the bucket, calls apr_bucket_make_foo, and initializes the
- * bucket's list pointers. The apr_bucket_make_foo functions are used
+ * bucket's list pointers. The apr_bucket_foo_make functions are used
  * inside the bucket code to change the type of buckets in place;
- * other code should call apr_bucket_create_foo. All the initialization
+ * other code should call apr_bucket_foo_create. All the initialization
  * functions change nothing if they fail.
  */
 
