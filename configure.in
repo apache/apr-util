@@ -166,15 +166,19 @@ case "$host_alias" in
     # Check whether they've installed GNU make
     if make --version > /dev/null 2>&1; then
         INCLUDE_RULES="include $abs_builddir/build/rules.mk"
+        INCLUDE_OUTPUTS="include build-outputs.mk"
     else
         INCLUDE_RULES=".include \"$abs_builddir/build/rules.mk\""
+        INCLUDE_OUTPUTS=".include \"build-outputs.mk\""
     fi
     ;;
 *)
     INCLUDE_RULES="include $abs_builddir/build/rules.mk"
+    INCLUDE_OUTPUTS="include build-outputs.mk"
     ;;
 esac
 AC_SUBST(INCLUDE_RULES)
+AC_SUBST(INCLUDE_OUTPUTS)
 
 if test -d ./test; then
     test_Makefile="test/Makefile"
@@ -187,7 +191,7 @@ fi
 
 dnl
 dnl everthing is done. 
-MAKEFILES="Makefile buckets/Makefile crypto/Makefile dbm/Makefile dbm/sdbm/Makefile encoding/Makefile hooks/Makefile ldap/Makefile uri/Makefile xml/Makefile misc/Makefile strmatch/Makefile xlate/Makefile $test_Makefile"
+MAKEFILES="Makefile $test_Makefile"
 AC_OUTPUT([
     export_vars.sh
     apu-config
