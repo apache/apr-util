@@ -581,6 +581,9 @@ struct apr_bucket_file {
     apr_bucket_refcount  refcount;
     /** The file this bucket refers to */
     apr_file_t *fd;
+    /** The pool into which any needed structures should
+     *  be created while reading from this file bucket */
+    apr_pool_t *readpool;
 };
 
 /*  *****  Bucket Brigade Functions  *****  */
@@ -1265,12 +1268,15 @@ APU_DECLARE(apr_bucket *)
  * @param fd The file to put in the bucket
  * @param offset The offset where the data of interest begins in the file
  * @param len The amount of data in the file we are interested in
+ * @param p The pool into which any needed structures should be created
+ *          while reading from this file bucket
  * @return The new bucket, or NULL if allocation failed
- * @deffunc apr_bucket *apr_bucket_file_create(apr_file_t *fd, apr_off_t offset, apr_size_t len)
+ * @deffunc apr_bucket *apr_bucket_file_create(apr_file_t *fd, apr_off_t offset, apr_size_t len, apr_pool_t *p)
  */
-APU_DECLARE(apr_bucket *) 
-                apr_bucket_file_create(apr_file_t *fd, apr_off_t offset,
-                                      apr_size_t len);
+APU_DECLARE(apr_bucket *) apr_bucket_file_create(apr_file_t *fd,
+                                                 apr_off_t offset,
+                                                 apr_size_t len,
+                                                 apr_pool_t *p);
 
 /**
  * Make the bucket passed in a bucket refer to a file
@@ -1278,12 +1284,14 @@ APU_DECLARE(apr_bucket *)
  * @param fd The file to put in the bucket
  * @param offset The offset where the data of interest begins in the file
  * @param len The amount of data in the file we are interested in
+ * @param p The pool into which any needed structures should be created
+ *          while reading from this file bucket
  * @return The new bucket, or NULL if allocation failed
- * @deffunc apr_bucket *apr_bucket_file_make(apr_bucket *b, apr_file_t *fd, apr_off_t offset, apr_size_t len)
+ * @deffunc apr_bucket *apr_bucket_file_make(apr_bucket *b, apr_file_t *fd, apr_off_t offset, apr_size_t len, apr_pool_t *p)
  */
-APU_DECLARE(apr_bucket *) 
-                apr_bucket_file_make(apr_bucket *b, apr_file_t *fd,
-                                    apr_off_t offset, apr_size_t len);
+APU_DECLARE(apr_bucket *) apr_bucket_file_make(apr_bucket *b, apr_file_t *fd,
+                                               apr_off_t offset,
+                                               apr_size_t len, apr_pool_t *p);
 
 #ifdef __cplusplus
 }
