@@ -367,12 +367,8 @@ static int check_brigade_flush(const char **str,
             APR_BRIGADE_INSERT_TAIL(bb, e);
             return 1;
         }
-        else {
-            return 0;
-        }
     }
-
-    if (APR_BUCKET_IS_HEAP(b)) {
+    else if (APR_BUCKET_IS_HEAP(b)) {
         apr_bucket_heap *h = b->data;
 
         if (*n > (h->alloc_len - b->length)) {
