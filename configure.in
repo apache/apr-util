@@ -84,6 +84,10 @@ case "$host_alias" in
     dnl ### or at least $apr_config --apr-la-file
     EXTRA_OS_LINK="$APR_BUILD_DIR/libapr.la $top_builddir/xml/expat/lib/libexpat.la"
     ;;
+*AIX*)
+    dnl need such stuff as -liconv to be specified when building libaprutil.la
+    EXTRA_OS_LINK='$(APRUTIL_LIBS)'
+    ;;
 *)
     ;;
 esac
