@@ -40,12 +40,12 @@ ALL : "$(OUTDIR)\aprutil.lib"
 
 !ELSE 
 
-ALL : "libexpat - Win32 Release" "$(OUTDIR)\aprutil.lib"
+ALL : "apr - Win32 Release" "expat - Win32 Release" "$(OUTDIR)\aprutil.lib"
 
 !ENDIF 
 
 !IF "$(RECURSE)" == "1" 
-CLEAN :"libexpat - Win32 ReleaseCLEAN" 
+CLEAN :"expat - Win32 ReleaseCLEAN" "apr - Win32 ReleaseCLEAN" 
 !ELSE 
 CLEAN :
 !ENDIF 
@@ -143,7 +143,8 @@ LIB32_OBJS= \
 	"$(INTDIR)\sdbm_hash.obj" \
 	"$(INTDIR)\sdbm_lock.obj" \
 	"$(INTDIR)\sdbm_pair.obj" \
-	"..\expat-lite\Release\libexpat.lib"
+	"..\apr\LibR\apr.lib" \
+	"..\expat-lite\LibR\expat.lib"
 
 "$(OUTDIR)\aprutil.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -164,12 +165,12 @@ ALL : "$(OUTDIR)\aprutil.lib"
 
 !ELSE 
 
-ALL : "libexpat - Win32 Debug" "$(OUTDIR)\aprutil.lib"
+ALL : "apr - Win32 Debug" "expat - Win32 Debug" "$(OUTDIR)\aprutil.lib"
 
 !ENDIF 
 
 !IF "$(RECURSE)" == "1" 
-CLEAN :"libexpat - Win32 DebugCLEAN" 
+CLEAN :"expat - Win32 DebugCLEAN" "apr - Win32 DebugCLEAN" 
 !ELSE 
 CLEAN :
 !ENDIF 
@@ -268,7 +269,8 @@ LIB32_OBJS= \
 	"$(INTDIR)\sdbm_hash.obj" \
 	"$(INTDIR)\sdbm_lock.obj" \
 	"$(INTDIR)\sdbm_pair.obj" \
-	"..\expat-lite\Debug\libexpat.lib"
+	"..\apr\LibD\apr.lib" \
+	"..\expat-lite\LibD\expat.lib"
 
 "$(OUTDIR)\aprutil.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -798,28 +800,56 @@ InputPath=.\include\private\apu_select_dbm.hw
 
 !IF  "$(CFG)" == "aprutil - Win32 Release"
 
-"libexpat - Win32 Release" : 
-   cd "\clean\httpd-2.0\srclib\expat-lite"
-   $(MAKE) /$(MAKEFLAGS) /F ".\libexpat.mak" CFG="libexpat - Win32 Release" 
+"expat - Win32 Release" : 
+   cd "\spiffy\httpd-2.0\srclib\expat-lite"
+   $(MAKE) /$(MAKEFLAGS) /F ".\expat.mak" CFG="expat - Win32 Release" 
    cd "..\apr-util"
 
-"libexpat - Win32 ReleaseCLEAN" : 
-   cd "\clean\httpd-2.0\srclib\expat-lite"
-   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\libexpat.mak"\
- CFG="libexpat - Win32 Release" RECURSE=1 
+"expat - Win32 ReleaseCLEAN" : 
+   cd "\spiffy\httpd-2.0\srclib\expat-lite"
+   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\expat.mak" CFG="expat - Win32 Release"\
+ RECURSE=1 
    cd "..\apr-util"
 
 !ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
 
-"libexpat - Win32 Debug" : 
-   cd "\clean\httpd-2.0\srclib\expat-lite"
-   $(MAKE) /$(MAKEFLAGS) /F ".\libexpat.mak" CFG="libexpat - Win32 Debug" 
+"expat - Win32 Debug" : 
+   cd "\spiffy\httpd-2.0\srclib\expat-lite"
+   $(MAKE) /$(MAKEFLAGS) /F ".\expat.mak" CFG="expat - Win32 Debug" 
    cd "..\apr-util"
 
-"libexpat - Win32 DebugCLEAN" : 
-   cd "\clean\httpd-2.0\srclib\expat-lite"
-   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\libexpat.mak" CFG="libexpat - Win32 Debug"\
+"expat - Win32 DebugCLEAN" : 
+   cd "\spiffy\httpd-2.0\srclib\expat-lite"
+   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\expat.mak" CFG="expat - Win32 Debug"\
  RECURSE=1 
+   cd "..\apr-util"
+
+!ENDIF 
+
+!IF  "$(CFG)" == "aprutil - Win32 Release"
+
+"apr - Win32 Release" : 
+   cd "\spiffy\httpd-2.0\srclib\apr"
+   $(MAKE) /$(MAKEFLAGS) /F ".\apr.mak" CFG="apr - Win32 Release" 
+   cd "..\apr-util"
+
+"apr - Win32 ReleaseCLEAN" : 
+   cd "\spiffy\httpd-2.0\srclib\apr"
+   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\apr.mak" CFG="apr - Win32 Release"\
+ RECURSE=1 
+   cd "..\apr-util"
+
+!ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
+
+"apr - Win32 Debug" : 
+   cd "\spiffy\httpd-2.0\srclib\apr"
+   $(MAKE) /$(MAKEFLAGS) /F ".\apr.mak" CFG="apr - Win32 Debug" 
+   cd "..\apr-util"
+
+"apr - Win32 DebugCLEAN" : 
+   cd "\spiffy\httpd-2.0\srclib\apr"
+   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\apr.mak" CFG="apr - Win32 Debug" RECURSE=1\
+ 
    cd "..\apr-util"
 
 !ENDIF 
