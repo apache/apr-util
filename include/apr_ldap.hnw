@@ -74,7 +74,7 @@
  */
 
 /* this will be defined if LDAP support was compiled into apr-util */
-#define APR_HAS_LDAP		  @apu_has_ldap@
+#define APR_HAS_LDAP		  1
 
 /* this whole thing disappears if LDAP is not enabled */
 #if !APR_HAS_LDAP
