@@ -71,6 +71,7 @@ static apr_status_t socket_read(ap_bucket *a, const char **str,
     *len = IOBUFSIZE;
     rv = apr_recv(p, buf, len);
     if (rv != APR_SUCCESS && rv != APR_EOF) {
+        *str = NULL;
 	free(buf);
         return rv;
     }
@@ -89,6 +90,10 @@ static apr_status_t socket_read(ap_bucket *a, const char **str,
      * old bucket to a raw new one and adjust it as appropriate,
      * rather than destroying the old one and creating a completely
      * new bucket.
+     *
+     * Even if there is nothing more to read, don't close the socket here
+     * as we have to use it to send any response :)  We could shut it 
+     * down for reading, but there is no benefit to doing so.
      */
     if (*len > 0) {
         b = ap_bucket_create_socket(p);
