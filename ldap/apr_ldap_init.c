@@ -374,7 +374,7 @@ APU_DECLARE(int) apr_ldap_init(apr_pool_t *pool,
 #endif
             }
             else {
-#if APR_HAS_LDAP_START_TLS_S
+#if APR_HAS_LDAP_START_TLS_S5
                 if (APR_LDAP_OPT_TLS_DEMAND == secure) {
                     *ldap = ldap_init(hostname, portno);
                     if (NULL != *ldap) {
