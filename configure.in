@@ -8,16 +8,16 @@ AC_INIT(export_vars.sh.in)
 AC_CONFIG_HEADER(include/private/apu_config.h)
 AC_CONFIG_AUX_DIR(../apr/build)
 
-sinclude(build/apu_config.m4)
+dnl Absolute source/build directory
+abs_srcdir=`(cd $srcdir && pwd)`
+abs_builddir=`pwd`
+
+sinclude(build/apu-conf.m4)
 sinclude(../apr/build/libtool.m4)
 
 AC_PROG_CC
 AC_PROG_AWK
 AC_CHECK_PROG(RM, rm, rm)
-
-dnl Absolute source/build directory
-abs_srcdir=`(cd $srcdir && pwd)`
-abs_builddir=`pwd`
  
 if test "$abs_builddir" != "$abs_srcdir"; then
   USE_VPATH=1
@@ -139,10 +139,9 @@ fi
 
 dnl
 dnl everthing is done. 
-MAKEFILES=" Makefile build/Makefile buckets/Makefile crypto/Makefile dbm/Makefile dbm/sdbm/Makefile encoding/Makefile hooks/Makefile uri/Makefile xml/Makefile misc/Makefile $test_Makefile"
+MAKEFILES=" Makefile buckets/Makefile crypto/Makefile dbm/Makefile dbm/sdbm/Makefile encoding/Makefile hooks/Makefile uri/Makefile xml/Makefile misc/Makefile $test_Makefile"
 AC_OUTPUT([
 	export_vars.sh
-	build/rules.mk
 	include/private/apu_select_dbm.h
         include/apu.h
         $MAKEFILES
