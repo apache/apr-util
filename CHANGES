@@ -1,5 +1,7 @@
 Changes with APR-util b1  
 
+  *) Added a Thread safe FIFO bounded buffer (apr_queue) [Ian Holsman]
+
   *) Changed file_bucket_setaside() to use apr_file_setaside() instead
      of turning the file bucket into an mmap bucket.  [Brian Pane]
 
