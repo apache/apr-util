@@ -61,7 +61,8 @@
  * page-level routines
  */
 
-#include "sdbm.h"
+#include "apr_sdbm.h"
+
 #include "sdbm_tune.h"
 #include "sdbm_pair.h"
 #include "sdbm_private.h"

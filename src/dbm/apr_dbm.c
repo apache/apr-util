@@ -60,7 +60,7 @@
 #include "apr_dbm.h"
 
 #if APU_USE_SDBM
-#include "sdbm.h"
+#include "apr_sdbm.h"
 
 typedef SDBM *real_file_t;
 typedef sdbm_datum real_datum_t;
