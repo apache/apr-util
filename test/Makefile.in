@@ -1,5 +1,6 @@
 TARGETS =
 PROGRAMS = testdbm
+DISTCLEAN_TARGETS = Makefile
 
 top_builddir = @top_builddir@
 @INCLUDE_RULES@
