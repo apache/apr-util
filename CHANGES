@@ -1,4 +1,7 @@
 Changes with APR-util 0.9.2
+
+  *) Allocate brigades from a bucket allocator rather than a pool. [Brian Pane]
+
   *) Update with the latest APR renames [Thom May]
 
   *) Update doxygen tags.  [Justin Erenkrantz]

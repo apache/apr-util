@@ -85,16 +85,18 @@ APU_DECLARE(apr_status_t) apr_brigade_cleanup(void *data)
         e = APR_BRIGADE_FIRST(b);
         apr_bucket_delete(e);
     }
-    /*
-     * We don't need to free(bb) because it's allocated from a pool.
-     */
     return APR_SUCCESS;
 }
 
 APU_DECLARE(apr_status_t) apr_brigade_destroy(apr_bucket_brigade *b)
 {
-    apr_pool_cleanup_kill(b->p, b, brigade_cleanup);
-    return apr_brigade_cleanup(b);
+    apr_status_t rv;
+    if (b->p) {
+        apr_pool_cleanup_kill(b->p, b, brigade_cleanup);
+    }
+    rv = apr_brigade_cleanup(b);
+    apr_bucket_free(b);
+    return rv;
 }
 
 APU_DECLARE(apr_bucket_brigade *) apr_brigade_create(apr_pool_t *p,
@@ -102,13 +104,16 @@ APU_DECLARE(apr_bucket_brigade *) apr_brigade_create(apr_pool_t *p,
 {
     apr_bucket_brigade *b;
 
-    b = apr_palloc(p, sizeof(*b));
+    b = apr_bucket_alloc(sizeof(*b), list);
     b->p = p;
     b->bucket_alloc = list;
 
     APR_RING_INIT(&b->list, apr_bucket, link);
 
-    apr_pool_cleanup_register(b->p, b, brigade_cleanup, apr_pool_cleanup_null);
+    if (p) {
+        apr_pool_cleanup_register(b->p, b, brigade_cleanup,
+                                  apr_pool_cleanup_null);
+    }
     return b;
 }
 
