@@ -55,6 +55,19 @@ LIBS="$LIBS $APR_EXPORT_LIBS"
 AC_SUBST(APRUTIL_EXPORT_LIBS)
 
 dnl
+dnl BSD/OS (BSDi) needs to use a different include syntax in the Makefiles
+dnl
+case "$host_alias" in
+*bsdi*)
+    INCLUDE_RULES='.include "$(top_builddir)/build/rules.mk"'
+    ;;
+*)
+    INCLUDE_RULES='include $(top_builddir)/build/rules.mk'
+    ;;
+esac
+AC_SUBST(INCLUDE_RULES)
+
+dnl
 dnl everthing is done. 
 AC_OUTPUT([
 	Makefile

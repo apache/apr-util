@@ -1,5 +1,5 @@
 
 top_builddir = @top_builddir@
-include $(top_builddir)/build/rules.mk
+@INCLUDE_RULES@
 
 EXTRACLEAN_TARGETS = config.guess config.sub ltconfig ltmain.sh rules.mk

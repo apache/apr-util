@@ -4,4 +4,4 @@ ap_buckets_refcount.lo ap_buckets_heap.lo ap_buckets_simple.lo ap_buckets.lo \
 ap_buckets_mmap.lo ap_buckets_socket.lo ap_buckets_eos.lo ap_buckets_pipe.lo
 
 top_builddir = @top_builddir@
-include $(top_builddir)/build/rules.mk
+@INCLUDE_RULES@

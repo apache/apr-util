@@ -1,6 +1,6 @@
 TARGETS = apr_dbm.lo
 
 top_builddir = @top_builddir@
-include $(top_builddir)/build/rules.mk
+@INCLUDE_RULES@
 
 SUBDIRS = sdbm .
