@@ -42,12 +42,14 @@ ALL : "$(OUTDIR)\libaprutil.dll"
 
 !ELSE 
 
-ALL : "xml - Win32 Release" "libapr - Win32 Release" "$(OUTDIR)\libaprutil.dll"
+ALL : "xml - Win32 Release" "gen_uri_delims - Win32 Release"\
+ "libapr - Win32 Release" "$(OUTDIR)\libaprutil.dll"
 
 !ENDIF 
 
 !IF "$(RECURSE)" == "1" 
-CLEAN :"libapr - Win32 ReleaseCLEAN" "xml - Win32 ReleaseCLEAN" 
+CLEAN :"libapr - Win32 ReleaseCLEAN" "gen_uri_delims - Win32 ReleaseCLEAN"\
+ "xml - Win32 ReleaseCLEAN" 
 !ELSE 
 CLEAN :
 !ENDIF 
@@ -67,6 +69,7 @@ CLEAN :
 	-@erase "$(INTDIR)\apr_dbm.obj"
 	-@erase "$(INTDIR)\apr_hooks.obj"
 	-@erase "$(INTDIR)\apr_sha1.obj"
+	-@erase "$(INTDIR)\apr_uri.obj"
 	-@erase "$(INTDIR)\apr_xml.obj"
 	-@erase "$(INTDIR)\aprutil.idb"
 	-@erase "$(INTDIR)\sdbm.obj"
@@ -148,6 +151,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\apr_dbm.obj" \
 	"$(INTDIR)\apr_hooks.obj" \
 	"$(INTDIR)\apr_sha1.obj" \
+	"$(INTDIR)\apr_uri.obj" \
 	"$(INTDIR)\apr_xml.obj" \
 	"$(INTDIR)\sdbm.obj" \
 	"$(INTDIR)\sdbm_hash.obj" \
@@ -175,12 +179,14 @@ ALL : "$(OUTDIR)\libaprutil.dll"
 
 !ELSE 
 
-ALL : "xml - Win32 Debug" "libapr - Win32 Debug" "$(OUTDIR)\libaprutil.dll"
+ALL : "xml - Win32 Debug" "gen_uri_delims - Win32 Debug" "libapr - Win32 Debug"\
+ "$(OUTDIR)\libaprutil.dll"
 
 !ENDIF 
 
 !IF "$(RECURSE)" == "1" 
-CLEAN :"libapr - Win32 DebugCLEAN" "xml - Win32 DebugCLEAN" 
+CLEAN :"libapr - Win32 DebugCLEAN" "gen_uri_delims - Win32 DebugCLEAN"\
+ "xml - Win32 DebugCLEAN" 
 !ELSE 
 CLEAN :
 !ENDIF 
@@ -200,6 +206,7 @@ CLEAN :
 	-@erase "$(INTDIR)\apr_dbm.obj"
 	-@erase "$(INTDIR)\apr_hooks.obj"
 	-@erase "$(INTDIR)\apr_sha1.obj"
+	-@erase "$(INTDIR)\apr_uri.obj"
 	-@erase "$(INTDIR)\apr_xml.obj"
 	-@erase "$(INTDIR)\aprutil.idb"
 	-@erase "$(INTDIR)\aprutil.pdb"
@@ -284,6 +291,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\apr_dbm.obj" \
 	"$(INTDIR)\apr_hooks.obj" \
 	"$(INTDIR)\apr_sha1.obj" \
+	"$(INTDIR)\apr_uri.obj" \
 	"$(INTDIR)\apr_xml.obj" \
 	"$(INTDIR)\sdbm.obj" \
 	"$(INTDIR)\sdbm_hash.obj" \
@@ -614,9 +622,10 @@ DEP_CPP_SDBM_=\
 	".\dbm\sdbm\sdbm_private.h"\
 	".\dbm\sdbm\sdbm_tune.h"\
 	".\include\apr_sdbm.h"\
+	".\include\apu.h"\
 	
 
-"$(INTDIR)\sdbm.obj" : $(SOURCE) $(DEP_CPP_SDBM_) "$(INTDIR)"
+"$(INTDIR)\sdbm.obj" : $(SOURCE) $(DEP_CPP_SDBM_) "$(INTDIR)" ".\include\apu.h"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
@@ -630,10 +639,13 @@ DEP_CPP_SDBM_H=\
 	"..\apr\include\apr_time.h"\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
+	".\dbm\sdbm\sdbm_private.h"\
 	".\include\apr_sdbm.h"\
+	".\include\apu.h"\
 	
 
-"$(INTDIR)\sdbm_hash.obj" : $(SOURCE) $(DEP_CPP_SDBM_H) "$(INTDIR)"
+"$(INTDIR)\sdbm_hash.obj" : $(SOURCE) $(DEP_CPP_SDBM_H) "$(INTDIR)"\
+ ".\include\apu.h"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
@@ -648,10 +660,13 @@ DEP_CPP_SDBM_L=\
 	"..\apr\include\apr_user.h"\
 	"..\apr\include\apr_want.h"\
 	".\dbm\sdbm\sdbm_private.h"\
+	".\dbm\sdbm\sdbm_tune.h"\
 	".\include\apr_sdbm.h"\
+	".\include\apu.h"\
 	
 
-"$(INTDIR)\sdbm_lock.obj" : $(SOURCE) $(DEP_CPP_SDBM_L) "$(INTDIR)"
+"$(INTDIR)\sdbm_lock.obj" : $(SOURCE) $(DEP_CPP_SDBM_L) "$(INTDIR)"\
+ ".\include\apu.h"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
@@ -669,9 +684,11 @@ DEP_CPP_SDBM_P=\
 	".\dbm\sdbm\sdbm_private.h"\
 	".\dbm\sdbm\sdbm_tune.h"\
 	".\include\apr_sdbm.h"\
+	".\include\apu.h"\
 	
 
-"$(INTDIR)\sdbm_pair.obj" : $(SOURCE) $(DEP_CPP_SDBM_P) "$(INTDIR)"
+"$(INTDIR)\sdbm_pair.obj" : $(SOURCE) $(DEP_CPP_SDBM_P) "$(INTDIR)"\
+ ".\include\apu.h"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
@@ -720,14 +737,38 @@ DEP_CPP_APR_H=\
 	"..\apr\include\apr_hash.h"\
 	"..\apr\include\apr_pools.h"\
 	"..\apr\include\apr_tables.h"\
-	".\include\apr_generic_hook.h"\
+	"..\apr\include\apr_want.h"\
 	".\include\apr_hooks.h"\
 	".\include\apr_optional.h"\
+	".\include\apr_optional_hooks.h"\
 	".\include\apu.h"\
 	
 
 "$(INTDIR)\apr_hooks.obj" : $(SOURCE) $(DEP_CPP_APR_H) "$(INTDIR)"\
  ".\include\apu.h"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+SOURCE=.\uri\apr_uri.c
+DEP_CPP_APR_U=\
+	"..\apr\include\apr.h"\
+	"..\apr\include\apr_errno.h"\
+	"..\apr\include\apr_file_info.h"\
+	"..\apr\include\apr_file_io.h"\
+	"..\apr\include\apr_general.h"\
+	"..\apr\include\apr_network_io.h"\
+	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_strings.h"\
+	"..\apr\include\apr_time.h"\
+	"..\apr\include\apr_user.h"\
+	"..\apr\include\apr_want.h"\
+	".\include\apr_uri.h"\
+	".\include\apu.h"\
+	".\uri\uri_delims.h"\
+	
+
+"$(INTDIR)\apr_uri.obj" : $(SOURCE) $(DEP_CPP_APR_U) "$(INTDIR)"\
+ ".\include\apu.h" ".\uri\uri_delims.h"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
@@ -821,31 +862,83 @@ InputPath=.\include\private\apu_select_dbm.hw
 
 !ENDIF 
 
+SOURCE=.\uri\gen_uri_delims.exe
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
+InputPath=.\uri\gen_uri_delims.exe
+
+".\uri\uri_delims.h"	 : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	.\uri\gen_uri_delims.exe >.\uri\uri_delims.h 
+	echo Generated uri_delims.h from gen_uri_delims.exe 
+	
+
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+InputPath=.\uri\gen_uri_delims.exe
+
+".\uri\uri_delims.h"	 : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	.\uri\gen_uri_delims.exe >.\uri\uri_delims.h 
+	echo Generated uri_delims.h from gen_uri_delims.exe 
+	
+
+!ENDIF 
+
 !IF  "$(CFG)" == "libaprutil - Win32 Release"
 
 "libapr - Win32 Release" : 
-   cd "..\apr"
-   $(MAKE) /$(MAKEFLAGS) /F .\libapr.mak CFG="libapr - Win32 Release" 
+   cd "..\..\srclib\apr"
+   $(MAKE) /$(MAKEFLAGS) /F ".\libapr.mak" CFG="libapr - Win32 Release" 
    cd "..\apr-util"
 
 "libapr - Win32 ReleaseCLEAN" : 
-   cd "..\apr"
-   $(MAKE) /$(MAKEFLAGS) CLEAN /F .\libapr.mak CFG="libapr - Win32 Release"\
+   cd "..\..\srclib\apr"
+   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\libapr.mak" CFG="libapr - Win32 Release"\
  RECURSE=1 
    cd "..\apr-util"
 
 !ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
 
 "libapr - Win32 Debug" : 
-   cd "..\apr"
-   $(MAKE) /$(MAKEFLAGS) /F .\libapr.mak CFG="libapr - Win32 Debug" 
+   cd "..\..\srclib\apr"
+   $(MAKE) /$(MAKEFLAGS) /F ".\libapr.mak" CFG="libapr - Win32 Debug" 
    cd "..\apr-util"
 
 "libapr - Win32 DebugCLEAN" : 
-   cd "..\apr"
-   $(MAKE) /$(MAKEFLAGS) CLEAN /F .\libapr.mak CFG="libapr - Win32 Debug"\
+   cd "..\..\srclib\apr"
+   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\libapr.mak" CFG="libapr - Win32 Debug"\
  RECURSE=1 
    cd "..\apr-util"
+
+!ENDIF 
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
+"gen_uri_delims - Win32 Release" : 
+   cd ".\uri"
+   $(MAKE) /$(MAKEFLAGS) /F ".\gen_uri_delims.mak"\
+ CFG="gen_uri_delims - Win32 Release" 
+   cd ".."
+
+"gen_uri_delims - Win32 ReleaseCLEAN" : 
+   cd ".\uri"
+   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\gen_uri_delims.mak"\
+ CFG="gen_uri_delims - Win32 Release" RECURSE=1 
+   cd ".."
+
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+"gen_uri_delims - Win32 Debug" : 
+   cd ".\uri"
+   $(MAKE) /$(MAKEFLAGS) /F ".\gen_uri_delims.mak"\
+ CFG="gen_uri_delims - Win32 Debug" 
+   cd ".."
+
+"gen_uri_delims - Win32 DebugCLEAN" : 
+   cd ".\uri"
+   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\gen_uri_delims.mak"\
+ CFG="gen_uri_delims - Win32 Debug" RECURSE=1 
+   cd ".."
 
 !ENDIF 
 
