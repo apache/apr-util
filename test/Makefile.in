@@ -8,5 +8,5 @@ test: $(PROGRAMS)
 
 testdbm_OBJECTS = testdbm.lo
 testdbm_LDADD =  ../libaprutil.la @APR_SOURCE_DIR@/libapr.a
-testdbm: $(testdbm_OBJECTS)
+testdbm: $(testdbm_OBJECTS) $(testdbm_LDADD)
 	$(LINK) $(testdbm_OBJECTS) $(testdbm_LDADD) $(LIBS)
