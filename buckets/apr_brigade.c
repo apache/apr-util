@@ -201,22 +201,30 @@ APU_DECLARE(apr_status_t) apr_brigade_length(apr_bucket_brigade *bb,
     return APR_SUCCESS;
 }
 
-APU_DECLARE(int) apr_brigade_to_iovec(apr_bucket_brigade *b, 
-				    struct iovec *vec, int nvec)
+APU_DECLARE(apr_status_t) apr_brigade_to_iovec(apr_bucket_brigade *b, 
+                                               struct iovec *vec, int *nvec)
 {
+    int left = *nvec;
     apr_bucket *e;
     struct iovec *orig;
     apr_size_t iov_len;
+    apr_status_t rv;
 
     orig = vec;
     APR_BRIGADE_FOREACH(e, b) {
-	if (nvec-- == 0)
+	if (left-- == 0)
             break;
-	apr_bucket_read(e, (const char **)&vec->iov_base, &iov_len, APR_NONBLOCK_READ);
+
+	rv = apr_bucket_read(e, (const char **)&vec->iov_base, &iov_len,
+                             APR_NONBLOCK_READ);
+        if (rv != APR_SUCCESS)
+            return rv;
         vec->iov_len = iov_len; /* set indirectly in case size differs */
 	++vec;
     }
-    return vec - orig;
+
+    *nvec = vec - orig;
+    return APR_SUCCESS;
 }
 
 static int check_brigade_flush(const char **str, 
@@ -258,34 +266,37 @@ static int check_brigade_flush(const char **str,
     return 0;
 }
 
-APU_DECLARE(int) apr_brigade_vputstrs(apr_bucket_brigade *b, 
-                                      apr_brigade_flush flush, void *ctx,
-                                      va_list va)
+APU_DECLARE(apr_status_t) apr_brigade_vputstrs(apr_bucket_brigade *b, 
+                                               apr_brigade_flush flush,
+                                               void *ctx,
+                                               va_list va)
 {
-    const char *x;
-    int j, k;
+    for (;;) {
+        const char *str = va_arg(va, const char *);
+        apr_status_t rv;
 
-    for (k = 0;;) {
-        x = va_arg(va, const char *);
-        if (x == NULL)
+        if (str == NULL)
             break;
-        j = strlen(x);
-       
-        k += apr_brigade_write(b, flush, ctx, x, j);
+
+        rv = apr_brigade_write(b, flush, ctx, str, strlen(str));
+        if (rv != APR_SUCCESS)
+            return rv;
     }
-    return k;
+
+    return APR_SUCCESS;
 }
 
-APU_DECLARE(int) apr_brigade_putc(apr_bucket_brigade *b,
-                                  apr_brigade_flush flush, void *ctx,
-                                  const char c)
+APU_DECLARE(apr_status_t) apr_brigade_putc(apr_bucket_brigade *b,
+                                           apr_brigade_flush flush, void *ctx,
+                                           const char c)
 {
     return apr_brigade_write(b, flush, ctx, &c, 1);
 }
 
-APU_DECLARE(int) apr_brigade_write(apr_bucket_brigade *bb, 
-                                   apr_brigade_flush flush, void *ctx, 
-                                   const char *str, apr_size_t nbyte)
+APU_DECLARE(apr_status_t) apr_brigade_write(apr_bucket_brigade *bb, 
+                                            apr_brigade_flush flush,
+                                            void *ctx, 
+                                            const char *str, apr_size_t nbyte)
 {
     if (check_brigade_flush(&str, &nbyte, bb, flush)) {
         if (flush) {
@@ -315,45 +326,48 @@ APU_DECLARE(int) apr_brigade_write(apr_bucket_brigade *bb,
         memcpy(buf, str, nbyte);
         b->length += nbyte;
     }
-    return nbyte;
+
+    return APR_SUCCESS;
 }
 
-APU_DECLARE(int) apr_brigade_puts(apr_bucket_brigade *b,
-                                  apr_brigade_flush flush, void *ctx,
-                                  const char *str)
+APU_DECLARE(apr_status_t) apr_brigade_puts(apr_bucket_brigade *b,
+                                           apr_brigade_flush flush, void *ctx,
+                                           const char *str)
 {
     return apr_brigade_write(b, flush, ctx, str, strlen(str));
 }
 
-APU_DECLARE_NONSTD(int) apr_brigade_putstrs(apr_bucket_brigade *b, 
-                                            apr_brigade_flush flush,
-                                            void *ctx, ...)
+APU_DECLARE_NONSTD(apr_status_t) apr_brigade_putstrs(apr_bucket_brigade *b, 
+                                                     apr_brigade_flush flush,
+                                                     void *ctx, ...)
 {
     va_list va;
-    int written;
+    apr_status_t rv;
 
     va_start(va, ctx);
-    written = apr_brigade_vputstrs(b, flush, ctx, va);
+    rv = apr_brigade_vputstrs(b, flush, ctx, va);
     va_end(va);
-    return written;
+    return rv;
 }
 
-APU_DECLARE_NONSTD(int) apr_brigade_printf(apr_bucket_brigade *b, 
-                                           apr_brigade_flush flush, void *ctx, 
-                                           const char *fmt, ...)
+APU_DECLARE_NONSTD(apr_status_t) apr_brigade_printf(apr_bucket_brigade *b, 
+                                                    apr_brigade_flush flush,
+                                                    void *ctx, 
+                                                    const char *fmt, ...)
 {
     va_list ap;
-    int res;
+    apr_status_t rv;
 
     va_start(ap, fmt);
-    res = apr_brigade_vprintf(b, flush, ctx, fmt, ap);
+    rv = apr_brigade_vprintf(b, flush, ctx, fmt, ap);
     va_end(ap);
-    return res;
+    return rv;
 }
 
-APU_DECLARE(int) apr_brigade_vprintf(apr_bucket_brigade *b, 
-                                     apr_brigade_flush flush, void *ctx, 
-                                     const char *fmt, va_list va)
+APU_DECLARE(apr_status_t) apr_brigade_vprintf(apr_bucket_brigade *b, 
+                                              apr_brigade_flush flush,
+                                              void *ctx, 
+                                              const char *fmt, va_list va)
 {
     /* XXX:  This needs to be replaced with a function to printf
      * directly into a bucket.  I'm being lazy right now.  RBB
