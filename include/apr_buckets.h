@@ -612,6 +612,11 @@ struct apr_bucket_file {
     /** The pool into which any needed structures should
      *  be created while reading from this file bucket */
     apr_pool_t *readpool;
+#if APR_HAS_MMAP
+    /** Whether this bucket should be memory-mapped if
+     *  a caller tries to read from it */
+    int can_mmap;
+#endif /* APR_HAS_MMAP */
 };
 
 typedef union apr_bucket_structs apr_bucket_structs;
@@ -1374,6 +1379,17 @@ APU_DECLARE(apr_bucket *) apr_bucket_file_create(apr_file_t *fd,
 APU_DECLARE(apr_bucket *) apr_bucket_file_make(apr_bucket *b, apr_file_t *fd,
                                                apr_off_t offset,
                                                apr_size_t len, apr_pool_t *p);
+
+#if APR_HAS_MMAP
+/**
+ * Enable or disable memory-mapping for a FILE bucket (default is enabled)
+ * @param b The bucket
+ * @param enable Whether memory-mapping should be enabled
+ * @return APR_SUCCESS normally, or an error code if the operation fails
+ */
+APU_DECLARE(apr_status_t) apr_bucket_file_enable_mmap(apr_bucket *b,
+                                                      int enabled);
+#endif /* APR_HAS_MMAP */
 
 /** @} */
 #ifdef __cplusplus
