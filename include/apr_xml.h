@@ -189,7 +189,7 @@ struct apr_xml_attr {
     /** attribute value */
     const char *value;
 
-    /** next attribute */
+    /** next attribute */
     struct apr_xml_attr *next;
 };
 
@@ -207,7 +207,7 @@ struct apr_xml_elem {
     /** cdata after MY end tag */
     apr_text_header following_cdata;
 
-    /** parent element */
+    /** parent element */
     struct apr_xml_elem *parent;	
     /** next (sibling) element */
     struct apr_xml_elem *next;	
