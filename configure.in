@@ -110,7 +110,7 @@ AC_MSG_RESULT([$msg])
 
 AC_CHECK_FUNCS(crypt_r, [ crypt_r="1" ], [ crypt_r="0" ])
 if test "$crypt_r" = "1"; then
-  APR_CHECK_CRYPT_R_STYLE
+  APU_CHECK_CRYPT_R_STYLE
 fi
 
 so_ext=$APR_SO_EXT
