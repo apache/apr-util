@@ -79,18 +79,14 @@
 #ifdef HAVE_ICONV_H
 #include <iconv.h>
 #endif
+#if APU_HAVE_APR_ICONV
+#include <apr_iconv.h>
+#endif
 
-#if defined(APU_ICONV_INBUF_CONST) || APR_HAS_APR_ICONV
+#if defined(APU_ICONV_INBUF_CONST) || APU_HAS_APR_ICONV
 #define ICONV_INBUF_TYPE const char **
 #else
 #define ICONV_INBUF_TYPE char **
-#endif
-
-#if APR_HAS_APR_ICONV
-#define HAVE_ICONV
-#define iconv_(n) apr_iconv##n
-#else
-#define iconv_(n) iconv##n
 #endif
 
 #ifndef min
@@ -102,8 +98,8 @@ struct apr_xlate_t {
     char *frompage;
     char *topage;
     char *sbcs_table;
-#ifdef HAVE_ICONV
-    iconv_(_t) ich;
+#if APU_HAVE_APR_ICONV || defined(HAVE_ICONV)
+    iconv_t ich;
 #endif
 };
 
@@ -180,11 +176,15 @@ static const char *handle_special_names(const char *page)
 
 static apr_status_t apr_xlate_cleanup(void *convset)
 {
-#ifdef HAVE_ICONV
     apr_xlate_t *old = convset;
 
-    if (old->ich != (iconv_(_t))-1) {
-        if (iconv_(_close)(old->ich)) {
+#if APU_HAS_APR_ICONV
+    if (old->ich != (apr_iconv_t)-1) {
+        return apr_iconv_close(old->ich);
+    }
+#elif defined(HAVE_ICONV)
+    if (old->ich != (iconv_t)-1) {
+        if (iconv_close(old->ich)) {
             int rv = errno;
             /* Sometimes, iconv is not good about setting errno. */
             return rv ? rv : APR_EINVAL;
@@ -209,10 +209,9 @@ static void check_sbcs(apr_xlate_t *convset)
     }
 
     inbytes_left = outbytes_left = sizeof(inbuf);
+    translated = iconv(convset->ich, (ICONV_INBUF_TYPE)&inbufptr, 
+                       &inbytes_left, &outbufptr, &outbytes_left);
 
-    /* The space in 'iconv_( )' is required by the preprocessor */
-    translated = iconv_( )(convset->ich, (ICONV_INBUF_TYPE)&inbufptr,
-                           &inbytes_left, &outbufptr, &outbytes_left);
     if (translated != (apr_size_t) -1 &&
         inbytes_left == 0 &&
         outbytes_left == 0) {
@@ -222,8 +221,8 @@ static void check_sbcs(apr_xlate_t *convset)
         
         convset->sbcs_table = apr_palloc(convset->pool, sizeof(outbuf));
         memcpy(convset->sbcs_table, outbuf, sizeof(outbuf));
-        iconv_(_close)(convset->ich);
-        convset->ich = (iconv_(_t))-1;
+        iconv_close(convset->ich);
+        convset->ich = (iconv_t)-1;
 
         /* TODO: add the table to the cache */
     }
@@ -278,10 +277,20 @@ APU_DECLARE(apr_status_t) apr_xlate_open(apr_xlate_t **convset,
 	make_identity_table(new);
     }
 
-#ifdef HAVE_ICONV
+#if APU_HAS_APR_ICONV
     if (!found) {
-        new->ich = iconv_(_open)(topage, frompage);
-        if (new->ich == (iconv_(_t))-1) {
+        rv = apr_iconv_open(topage, frompage, pool, &new->ich);
+        if (rv != APR_SUCCESS) {
+            return rv;
+        }
+        found = 1;
+        check_sbcs(new);
+    } else
+        new->ich = (apr_iconv_t)-1;
+#elif defined(HAVE_ICONV)
+    if (!found) {
+        new->ich = iconv_open(topage, frompage);
+        if (new->ich == (iconv_t)-1) {
             int rv = errno;
             /* Sometimes, iconv is not good about setting errno. */
             return rv ? rv : APR_EINVAL;
@@ -289,7 +298,7 @@ APU_DECLARE(apr_status_t) apr_xlate_open(apr_xlate_t **convset,
         found = 1;
         check_sbcs(new);
     } else
-        new->ich = (iconv_(_t))-1;
+        new->ich = (iconv_t)-1;
 #endif /* HAVE_ICONV */
 
     if (found) {
@@ -319,16 +328,61 @@ APU_DECLARE(apr_status_t) apr_xlate_conv_buffer(apr_xlate_t *convset,
                                                 apr_size_t *outbytes_left)
 {
     apr_status_t status = APR_SUCCESS;
-#ifdef HAVE_ICONV
-    apr_size_t translated;
 
-    if (convset->ich != (iconv_(_t))-1) {
+#if APU_HAVE_APR_ICONV
+    if (convset->ich != (iconv_t)-1) {
+        const char *inbufptr = inbuf;
+        apr_size_t translated;
+        char *outbufptr = outbuf;
+        status = apr_iconv(convset->ich, &inbufptr, inbytes_left, 
+                           &outbufptr, outbytes_left, &translated);
+
+        /* If everything went fine but we ran out of buffer, don't
+         * report it as an error.  Caller needs to look at the two
+         * bytes-left values anyway.
+         *
+         * There are three expected cases where rc is -1.  In each of
+         * these cases, *inbytes_left != 0.
+         * a) the non-error condition where we ran out of output
+         *    buffer
+         * b) the non-error condition where we ran out of input (i.e.,
+         *    the last input character is incomplete)
+         * c) the error condition where the input is invalid
+         */
+        switch (status) {
+
+            case E2BIG:  /* out of space on output */
+                status = 0; /* change table lookup code below if you
+                               make this an error */
+                break;
+
+            case EINVAL: /* input character not complete (yet) */
+                status = APR_INCOMPLETE;
+                break;
+
+            case EILSEQ: /* bad input byte */
+                status = APR_EINVAL;
+                break;
+
+             /* Sometimes, iconv is not good about setting errno. */
+            case 0:
+                if (inbytes_left)
+                    status = APR_INCOMPLETE;
+                break;
+
+            default:
+                break;
+        }
+    }
+    else
+#elif defined(HAVE_ICONV)
+    if (convset->ich != (iconv_t)-1) {
         const char *inbufptr = inbuf;
         char *outbufptr = outbuf;
+        apr_size_t translated;
+        translated = iconv(convset->ich, (ICONV_INBUF_TYPE)&inbufptr, 
+                           inbytes_left, &outbufptr, outbytes_left);
 
-        /* The space in 'iconv_( )' is required by the preprocessor */
-        translated = iconv_( )(convset->ich, (ICONV_INBUF_TYPE)&inbufptr,
-                               inbytes_left, &outbufptr, outbytes_left);
         /* If everything went fine but we ran out of buffer, don't
          * report it as an error.  Caller needs to look at the two
          * bytes-left values anyway.
