@@ -3,8 +3,9 @@
 #
 
 TARGET_LIB = libaprutil.la
+TARGET_EXPORTS = aprutil.exports
 
-TARGETS = delete-lib $(TARGET_LIB) aprutil.exports
+TARGETS = delete-lib $(TARGET_LIB) delete-exports $(TARGET_EXPORTS)
 
 top_builddir = @top_builddir@
 include $(top_builddir)/build/rules.mk
@@ -33,7 +34,17 @@ $(TARGET_LIB):
 	    echo $(LINK) $$objects ; \
 	    $(LINK) -rpath $(libdir) $$objects
 
-aprutil.exports:
+delete-exports:
+	@if test -f $(TARGET_EXPORTS); then \
+	    headers="`find include/*.h -maxdepth 0 -newer $(TARGET_EXPORTS)`" ; \
+	    if test -n "$$headers"; then \
+		echo Found newer headers. Will rebuild $(TARGET_EXPORTS). ; \
+		echo $(RM) -f $(TARGET_EXPORTS) ; \
+		$(RM) -f $(TARGET_EXPORTS) ; \
+	    fi \
+	fi
+
+$(TARGET_EXPORTS):
 	perl @APR_SOURCE_DIR@/helpers/make_export.pl -o $@ include/*.h
 
 docs:
@@ -41,4 +52,4 @@ docs:
 	perl @APR_SOURCE_DIR@/helpers/scandoc -i./build/default.pl -p./docs/ ./include/*.h
 
 
-.PHONY: delete-lib
+.PHONY: delete-lib delete-exports
