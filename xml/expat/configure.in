@@ -45,8 +45,18 @@ LIBAGE=1
 
 AC_CONFIG_HEADER(config.h)
 
-AC_LIBTOOL_WIN32_DLL
-AC_PROG_LIBTOOL
+AC_CANONICAL_SYSTEM
+case "$host_alias" in
+*os2*)
+    # Use a custom made libtool replacement
+    echo Using aplibtool
+    LIBTOOL="$srcdir/../../../apr/build/aplibtool"
+    ;;
+*)
+    AC_LIBTOOL_WIN32_DLL
+    AC_PROG_LIBTOOL
+    ;;
+esac
 
 AC_SUBST(PACKAGE)
 AC_SUBST(VERSION)
