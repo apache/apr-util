@@ -1,5 +1,7 @@
 Changes with APR-util b1  
 
+  *) Faster implementation of apr_brigade_puts()  [Brian Pane]
+
   *) Fixed a segfault in apr_date_parse_rfc() for some date formats
      where it was trying to overlay a potentially static input
      string even though it didn't really need to.
