@@ -78,8 +78,7 @@ static apr_status_t apr_brigade_cleanup(void *data)
      */
     while (!APR_BRIGADE_EMPTY(b)) {
 	e = APR_BRIGADE_FIRST(b);
-	APR_BUCKET_REMOVE(e);
-	apr_bucket_destroy(e);
+	apr_bucket_delete(e);
     }
     /*
      * We don't need to free(bb) because it's allocated from a pool.
