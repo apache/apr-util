@@ -56,8 +56,8 @@
 
 #if APR_HAS_MMAP
 
-static apr_status_t mmap_read(apr_bucket *b, const char **str, 
-                              apr_size_t *length, apr_read_type_e block)
+static apr_status_t mmap_bucket_read(apr_bucket *b, const char **str, 
+                                     apr_size_t *length, apr_read_type_e block)
 {
     apr_bucket_mmap *m = b->data;
     apr_status_t ok;
@@ -72,7 +72,7 @@ static apr_status_t mmap_read(apr_bucket *b, const char **str,
     return APR_SUCCESS;
 }
 
-static void mmap_destroy(void *data)
+static void mmap_bucket_destroy(void *data)
 {
     apr_bucket_mmap *m = data;
 
@@ -116,7 +116,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_mmap_create(apr_mmap_t *mm,
     return apr_bucket_mmap_make(b, mm, start, length);
 }
 
-static apr_status_t mmap_setaside(apr_bucket *data, apr_pool_t *p)
+static apr_status_t mmap_bucket_setaside(apr_bucket *data, apr_pool_t *p)
 {
     apr_bucket_mmap *m = data->data;
     apr_mmap_t *mm = m->mmap;
@@ -137,9 +137,9 @@ static apr_status_t mmap_setaside(apr_bucket *data, apr_pool_t *p)
 
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_mmap = {
     "MMAP", 5,
-    mmap_destroy,
-    mmap_read,
-    mmap_setaside,
+    mmap_bucket_destroy,
+    mmap_bucket_read,
+    mmap_bucket_setaside,
     apr_bucket_shared_split,
     apr_bucket_shared_copy
 };
