@@ -61,7 +61,7 @@
 #include "apr.h"
 #include "apr_hooks.h"
 #include "apr_hash.h"
-#include "apr_generic_hook.h"
+#include "apr_optional_hooks.h"
 #include "apr_optional.h"
 
 #if APR_HAVE_STRINGS_H
@@ -237,7 +237,7 @@ APU_DECLARE(void) apr_sort_hooks()
     }
 }
     
-static apr_hash_t *s_phGenericHooks;
+static apr_hash_t *s_phOptionalHooks;
 static apr_hash_t *s_phOptionalFunctions;
 
 APU_DECLARE(void) apr_hook_deregister_all(void)
@@ -249,7 +249,7 @@ APU_DECLARE(void) apr_hook_deregister_all(void)
         *pEntry->paHooks=NULL;
     }
     s_aHooksToSort=NULL;
-    s_phGenericHooks=NULL;
+    s_phOptionalHooks=NULL;
     s_phOptionalFunctions=NULL;
 }
 
@@ -286,38 +286,39 @@ APU_DECLARE(void) apr_show_hook(const char *szName,const char * const *aszPre,
     fputc('\n',stdout);
 }
 
-/* Generic hook support */
+/* Optional hook support */
 
-APR_DECLARE_EXTERNAL_HOOK(apr,APU,void,_generic,(void))
+APR_DECLARE_EXTERNAL_HOOK(apr,APU,void,_optional,(void))
 
-APU_DECLARE(apr_array_header_t *) apr_hook_generic_get(const char *szName)
+APU_DECLARE(apr_array_header_t *) apr_optional_hook_get(const char *szName)
 {
     apr_array_header_t **ppArray;
 
-    if(!s_phGenericHooks)
+    if(!s_phOptionalHooks)
 	return NULL;
-    ppArray=apr_hash_get(s_phGenericHooks,szName,strlen(szName));
+    ppArray=apr_hash_get(s_phOptionalHooks,szName,strlen(szName));
     if(!ppArray)
 	return NULL;
     return *ppArray;
 }
 
-APU_DECLARE(void) apr_hook_generic_add(const char *szName,void (*pfn)(void),
-				  const char * const *aszPre,
-				  const char * const *aszSucc,int nOrder)
+APU_DECLARE(void) apr_optional_hook_add(const char *szName,void (*pfn)(void),
+					const char * const *aszPre,
+					const char * const *aszSucc,int nOrder)
 {
-    apr_array_header_t *pArray=apr_hook_generic_get(szName);
-    apr_LINK__generic_t *pHook;
+    apr_array_header_t *pArray=apr_optional_hook_get(szName);
+    apr_LINK__optional_t *pHook;
 
     if(!pArray) {
 	apr_array_header_t **ppArray;
 
-	pArray=apr_array_make(apr_global_hook_pool,1,sizeof(apr_LINK__generic_t));
-	if(!s_phGenericHooks)
-	    s_phGenericHooks=apr_hash_make(apr_global_hook_pool);
+	pArray=apr_array_make(apr_global_hook_pool,1,
+			      sizeof(apr_LINK__optional_t));
+	if(!s_phOptionalHooks)
+	    s_phOptionalHooks=apr_hash_make(apr_global_hook_pool);
 	ppArray=apr_palloc(apr_global_hook_pool,sizeof *ppArray);
 	*ppArray=pArray;
-	apr_hash_set(s_phGenericHooks,szName,strlen(szName),ppArray);
+	apr_hash_set(s_phOptionalHooks,szName,strlen(szName),ppArray);
 	apr_hook_sort_register(szName,ppArray);
     }
     pHook=apr_array_push(pArray);
