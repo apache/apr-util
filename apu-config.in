@@ -61,6 +61,7 @@ BINDIR="@bindir@"
 LIBDIR="@libdir@"
 TOP_SRCDIR="@top_srcdir@"
 LIBS="@APRUTIL_EXPORT_LIBS@"
+INCLUDES="@APRUTIL_INCLUDES@"
 
 show_usage()
 {
@@ -69,6 +70,7 @@ Usage: apu-config [OPTION]
 
 Known values for OPTION are:
   --prefix[=DIR]    change prefix to DIR
+  --includes        print include information
   --libs            print library information
   --help            print this help
 EOF
@@ -101,6 +103,9 @@ while test $# -gt 0; do
       LIBS=`echo "$LIBS" | sed "s/$TMP_SRCDIR/$TMP_PREFIX/g"`
     fi
     echo "$LIBS"
+    ;;
+    --includes)
+    echo $INCLUDES
     ;;
     --help)
     show_usage

@@ -3,7 +3,7 @@ VPATH = @srcdir@
 
 top_builddir=@top_builddir@
 top_srcdir=@abs_srcdir@
-INCLUDES=-I$(top_builddir)/include -I$(top_builddir)/include/private -I$(top_srcdir)/include -I$(top_srcdir)/include/private @APR_INCLUDES@
+INCLUDES=-I$(top_builddir)/include -I$(top_builddir)/include/private -I$(top_srcdir)/include -I$(top_srcdir)/include/private @APR_INCLUDES@ @APRUTIL_INCLUDES@
 
 TARGETS = apr_dbm.lo apr_dbm_berkeleydb.lo apr_dbm_gdbm.lo apr_dbm_sdbm.lo
 

@@ -3,7 +3,7 @@ VPATH = @srcdir@
 
 top_builddir=@top_builddir@
 top_srcdir=@abs_srcdir@
-INCLUDES=-I$(top_builddir)/include -I$(top_builddir)/include/private -I$(top_srcdir)/include -I$(top_srcdir)/include @APR_INCLUDES@
+INCLUDES=-I$(top_builddir)/include -I$(top_builddir)/include/private -I$(top_srcdir)/include -I$(top_srcdir)/include @APR_INCLUDES@ @APRUTIL_INCLUDES@
 TARGETS =
 PROGRAMS = testdbm testdate testmd4 testxml
 

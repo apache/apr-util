@@ -8,4 +8,5 @@
 #   $ . path/to/apr-util/export_vars.sh
 #
 
+APRUTIL_EXPORT_INCLUDES="@APRUTIL_INCLUDES@"
 APRUTIL_EXPORT_LIBS="@APRUTIL_EXPORT_LIBS@"
