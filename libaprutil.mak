@@ -42,12 +42,12 @@ ALL : "$(OUTDIR)\libaprutil.dll"
 
 !ELSE 
 
-ALL : "libapr - Win32 Release" "xml - Win32 Release" "$(OUTDIR)\libaprutil.dll"
+ALL : "xml - Win32 Release" "libapr - Win32 Release" "$(OUTDIR)\libaprutil.dll"
 
 !ENDIF 
 
 !IF "$(RECURSE)" == "1" 
-CLEAN :"xml - Win32 ReleaseCLEAN" "libapr - Win32 ReleaseCLEAN" 
+CLEAN :"libapr - Win32 ReleaseCLEAN" "xml - Win32 ReleaseCLEAN" 
 !ELSE 
 CLEAN :
 !ENDIF 
@@ -175,12 +175,12 @@ ALL : "$(OUTDIR)\libaprutil.dll"
 
 !ELSE 
 
-ALL : "libapr - Win32 Debug" "xml - Win32 Debug" "$(OUTDIR)\libaprutil.dll"
+ALL : "xml - Win32 Debug" "libapr - Win32 Debug" "$(OUTDIR)\libaprutil.dll"
 
 !ENDIF 
 
 !IF "$(RECURSE)" == "1" 
-CLEAN :"xml - Win32 DebugCLEAN" "libapr - Win32 DebugCLEAN" 
+CLEAN :"libapr - Win32 DebugCLEAN" "xml - Win32 DebugCLEAN" 
 !ELSE 
 CLEAN :
 !ENDIF 
@@ -822,34 +822,6 @@ InputPath=.\include\private\apu_select_dbm.hw
 
 !IF  "$(CFG)" == "libaprutil - Win32 Release"
 
-"xml - Win32 Release" : 
-   cd ".\xml\expat\lib"
-   $(MAKE) /$(MAKEFLAGS) /F ".\xml.mak" CFG="xml - Win32 Release" 
-   cd "..\..\.."
-
-"xml - Win32 ReleaseCLEAN" : 
-   cd ".\xml\expat\lib"
-   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\xml.mak" CFG="xml - Win32 Release"\
- RECURSE=1 
-   cd "..\..\.."
-
-!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
-
-"xml - Win32 Debug" : 
-   cd ".\xml\expat\lib"
-   $(MAKE) /$(MAKEFLAGS) /F ".\xml.mak" CFG="xml - Win32 Debug" 
-   cd "..\..\.."
-
-"xml - Win32 DebugCLEAN" : 
-   cd ".\xml\expat\lib"
-   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\xml.mak" CFG="xml - Win32 Debug" RECURSE=1\
- 
-   cd "..\..\.."
-
-!ENDIF 
-
-!IF  "$(CFG)" == "libaprutil - Win32 Release"
-
 "libapr - Win32 Release" : 
    cd "..\apr"
    $(MAKE) /$(MAKEFLAGS) /F ".\libapr.mak" CFG="libapr - Win32 Release" 
@@ -873,6 +845,34 @@ InputPath=.\include\private\apu_select_dbm.hw
    $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\libapr.mak" CFG="libapr - Win32 Debug"\
  RECURSE=1 
    cd "..\apr-util"
+
+!ENDIF 
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
+"xml - Win32 Release" : 
+   cd ".\xml\expat\lib"
+   $(MAKE) /$(MAKEFLAGS) /F ".\xml.mak" CFG="xml - Win32 Release" 
+   cd "..\..\.."
+
+"xml - Win32 ReleaseCLEAN" : 
+   cd ".\xml\expat\lib"
+   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\xml.mak" CFG="xml - Win32 Release"\
+ RECURSE=1 
+   cd "..\..\.."
+
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+"xml - Win32 Debug" : 
+   cd ".\xml\expat\lib"
+   $(MAKE) /$(MAKEFLAGS) /F ".\xml.mak" CFG="xml - Win32 Debug" 
+   cd "..\..\.."
+
+"xml - Win32 DebugCLEAN" : 
+   cd ".\xml\expat\lib"
+   $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\xml.mak" CFG="xml - Win32 Debug" RECURSE=1\
+ 
+   cd "..\..\.."
 
 !ENDIF 
 

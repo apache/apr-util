@@ -4,3 +4,6 @@ Makefile
 expat.h
 *.lo
 *.la
+config.h
+LibD
+LibR
