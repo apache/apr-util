@@ -64,11 +64,11 @@
  * @package Apache hooks functions
  */
 
-#define AP_DECLARE_HOOK(ret,name,args) \
+#define AP_DECLARE_EXTERNAL_HOOK(link,ret,name,args) \
 typedef ret HOOK_##name args; \
-API_EXPORT(void) ap_hook_##name(HOOK_##name *pf,const char * const *aszPre, \
-		         const char * const *aszSucc,int nOrder); \
-API_EXPORT(ret) ap_run_##name args; \
+link##_DECLARE(void) ap_hook_##name(HOOK_##name *pf, const char* const* aszPre, \
+                                    const char * const *aszSucc, int nOrder); \
+link##_DECLARE(ret) ap_run_##name args; \
 typedef struct _LINK_##name \
     { \
     HOOK_##name *pFunc; \
@@ -78,15 +78,18 @@ typedef struct _LINK_##name \
     int nOrder; \
     } LINK_##name;
 
+#define AP_DECLARE_HOOK(ret,name,args) \
+AP_DECLARE_EXTERNAL_HOOK(AP,ret,name,args)
+
 #define AP_HOOK_STRUCT(members) \
 static struct { members } _hooks;
 
 #define AP_HOOK_LINK(name) \
     apr_array_header_t *link_##name;
 
-#define AP_IMPLEMENT_HOOK_BASE(name) \
-API_EXPORT(void) ap_hook_##name(HOOK_##name *pf,const char * const *aszPre, \
-		         const char * const *aszSucc,int nOrder) \
+#define AP_IMPLEMENT_EXTERNAL_HOOK_BASE(link,name) \
+link##_DECLARE(void) ap_hook_##name(HOOK_##name *pf,const char * const *aszPre, \
+                                    const char * const *aszSucc,int nOrder) \
     { \
     LINK_##name *pHook; \
     if(!_hooks.link_##name) \
@@ -104,14 +107,17 @@ API_EXPORT(void) ap_hook_##name(HOOK_##name *pf,const char * const *aszPre, \
 	ap_show_hook(#name,aszPre,aszSucc); \
     }
 
+#define AP_IMPLEMENT_HOOK_BASE(name) \
+AP_IMPLEMENT_EXTERNAL_HOOK_BASE(AP,name)
+
 /* RUN_ALL runs to the first one to return other than ok or decline
    RUN_FIRST runs to the first one to return other than decline
    VOID runs all
 */
 
-#define AP_IMPLEMENT_HOOK_VOID(name,args_decl,args_use) \
-AP_IMPLEMENT_HOOK_BASE(name) \
-API_EXPORT(void) ap_run_##name args_decl \
+#define AP_IMPLEMENT_EXTERNAL_HOOK_VOID(link,name,args_decl,args_use) \
+AP_IMPLEMENT_EXTERNAL_HOOK_BASE(link,name) \
+link##_DECLARE(void) ap_run_##name args_decl \
     { \
     LINK_##name *pHook; \
     int n; \
@@ -124,12 +130,15 @@ API_EXPORT(void) ap_run_##name args_decl \
 	pHook[n].pFunc args_use; \
     }
 
+#define AP_IMPLEMENT_HOOK_VOID(name,args_decl,args_use) \
+AP_IMPLEMENT_EXTERNAL_HOOK_VOID(AP,name,args_decl,args_use)
+
 /* FIXME: note that this returns ok when nothing is run. I suspect it should
    really return decline, but that breaks Apache currently - Ben
 */
-#define AP_IMPLEMENT_HOOK_RUN_ALL(ret,name,args_decl,args_use,ok,decline) \
-AP_IMPLEMENT_HOOK_BASE(name) \
-API_EXPORT(ret) ap_run_##name args_decl \
+#define AP_IMPLEMENT_EXTERNAL_HOOK_RUN_ALL(link,ret,name,args_decl,args_use,ok,decline) \
+AP_IMPLEMENT_EXTERNAL_HOOK_BASE(link,name) \
+link##_DECLARE(ret) ap_run_##name args_decl \
     { \
     LINK_##name *pHook; \
     int n; \
@@ -149,9 +158,12 @@ API_EXPORT(ret) ap_run_##name args_decl \
     return ok; \
     }
 
-#define AP_IMPLEMENT_HOOK_RUN_FIRST(ret,name,args_decl,args_use,decline) \
-AP_IMPLEMENT_HOOK_BASE(name) \
-API_EXPORT(ret) ap_run_##name args_decl \
+#define AP_IMPLEMENT_HOOK_RUN_ALL(ret,name,args_decl,args_use,ok,decline) \
+AP_IMPLEMENT_EXTERNAL_HOOK_RUN_ALL(AP,ret,name,args_decl,args_use,ok,decline)
+
+#define AP_IMPLEMENT_EXTERNAL_HOOK_RUN_FIRST(link,ret,name,args_decl,args_use,decline) \
+AP_IMPLEMENT_EXTERNAL_HOOK_BASE(link,name) \
+link##_DECLARE(ret) ap_run_##name args_decl \
     { \
     LINK_##name *pHook; \
     int n; \
@@ -171,6 +183,9 @@ API_EXPORT(ret) ap_run_##name args_decl \
     return decline; \
     }
 
+#define AP_IMPLEMENT_HOOK_RUN_FIRST(ret,name,args_decl,args_use,decline) \
+AP_IMPLEMENT_EXTERNAL_HOOK_RUN_FIRST(AP,ret,name,args_decl,args_use,decline)
+
      /* Hook orderings */
 #define AP_HOOK_REALLY_FIRST	(-10)
 #define AP_HOOK_FIRST		0
@@ -182,20 +197,20 @@ API_EXPORT(ret) ap_run_##name args_decl \
  * The global pool used to allocate any memory needed by the hooks.
  * @defvar apr_pool_t *ap_global_hook_pool
  */ 
-extern API_VAR_EXPORT apr_pool_t *ap_global_hook_pool;
+extern AP_DECLARE_DATA apr_pool_t *ap_global_hook_pool;
 
 /**
  * A global variable to determine if debugging information about the
  * hooks functions should be printed
  * @defvar apr_pool_t *ap_debug_module_hooks
  */ 
-extern API_VAR_EXPORT int ap_debug_module_hooks;
+extern AP_DECLARE_DATA int ap_debug_module_hooks;
 
 /**
  * The name of the module that is currently registering a function
  * @defvar apr_pool_t *ap_debug_module_name
  */ 
-extern API_VAR_EXPORT const char *ap_debug_module_name;
+extern AP_DECLARE_DATA const char *ap_debug_module_name;
 
 /**
  * Register a hook function to be sorted
@@ -203,13 +218,13 @@ extern API_VAR_EXPORT const char *ap_debug_module_name;
  * @param aHooks The array which stores all of the functions for this hook
  * @deffunc void ap_hook_sort_register(const char *szHookName, ap_arry_header_t **aHooks)
  */
-API_EXPORT(void) ap_hook_sort_register(const char *szHookName, 
-                                      apr_array_header_t **aHooks);
+AP_DECLARE(void) ap_hook_sort_register(const char *szHookName, 
+                                       apr_array_header_t **aHooks);
 /**
  * Sort all of the registerd functions for a given hook
  * @deffunc void ap_sort_hooks(void)
  */
-API_EXPORT(void) ap_sort_hooks(void);
+AP_DECLARE(void) ap_sort_hooks(void);
 
 /**
  * Print all of the information about the current hook.  This is used for
@@ -219,13 +234,13 @@ API_EXPORT(void) ap_sort_hooks(void);
  * @param aszSucc All of the functions in the successor array
  * @deffunc void ap_show_hook(const char *szName, const char *const *aszPre, const char *const *aszSucc)
  */
-API_EXPORT(void) ap_show_hook(const char *szName,const char * const *aszPre,
-                             const char * const *aszSucc);
+AP_DECLARE(void) ap_show_hook(const char *szName,const char * const *aszPre,
+                              const char * const *aszSucc);
 
 /**
  * Remove all currently registered functions.
  * @deffunc void ap_hook_deregister_all(void)
  */
-API_EXPORT(void) ap_hook_deregister_all(void);
+AP_DECLARE(void) ap_hook_deregister_all(void);
 
 #endif /* ndef(AP_HOOKS_H) */
