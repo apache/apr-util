@@ -71,28 +71,7 @@
 
 #if APU_USE_SDBM
 
-#include "apr_sdbm.h"
-
-typedef apr_sdbm_t *real_file_t;
-
-typedef apr_sdbm_datum_t *cvt_datum_t;
-#define CONVERT_DATUM(cvt, pinput) ((cvt) = (apr_sdbm_datum_t *)(pinput))
-
-typedef apr_sdbm_datum_t result_datum_t;
-#define RETURN_DATUM(poutput, rd) (*(poutput) = *(apr_datum_t *)&(rd))
-
-#define APR_DBM_CLOSE(f)	apr_sdbm_close(f)
-#define APR_DBM_FETCH(f, k, v)	apr_sdbm_fetch(f, &(v), *(k))
-#define APR_DBM_STORE(f, k, v)	apr_sdbm_store(f, *(k), *(v), APR_SDBM_REPLACE)
-#define APR_DBM_DELETE(f, k)	apr_sdbm_delete(f, *(k))
-#define APR_DBM_FIRSTKEY(f, k)	apr_sdbm_firstkey(f, &(k))
-#define APR_DBM_NEXTKEY(f, k, nk) apr_sdbm_nextkey(f, &(nk))
-#define APR_DBM_FREEDPTR(dptr)	NOOP_FUNCTION
-
-#define APR_DBM_DBMODE_RO       APR_READ
-#define APR_DBM_DBMODE_RW       (APR_READ | APR_WRITE)
-#define APR_DBM_DBMODE_RWCREATE (APR_READ | APR_WRITE | APR_CREATE)
-#define APR_DBM_DBMODE_RWTRUNC  (APR_READ | APR_WRITE | APR_CREATE|APR_TRUNCATE)
+#include "apr_dbm_sdbm.c"
 
 #else /* Not using SDBM: */
 
@@ -111,186 +90,17 @@ int apr_posix_perms2mode(apr_fileperms_t perm)
 
 #if APU_USE_GDBM
 
-#include <gdbm.h>
-#include <stdlib.h>     /* for free() */
-
-typedef GDBM_FILE real_file_t;
-
-typedef datum *cvt_datum_t;
-#define CONVERT_DATUM(cvt, pinput) ((cvt) = (datum *)(pinput))
-
-typedef datum result_datum_t;
-#define RETURN_DATUM(poutput, rd) (*(poutput) = *(apr_datum_t *)&(rd))
-
-#define APR_DBM_CLOSE(f)	gdbm_close(f)
-#define APR_DBM_FETCH(f, k, v)	((v) = gdbm_fetch(f, *(k)), APR_SUCCESS)
-#define APR_DBM_STORE(f, k, v)	g2s(gdbm_store(f, *(k), *(v), GDBM_REPLACE))
-#define APR_DBM_DELETE(f, k)	g2s(gdbm_delete(f, *(k)))
-#define APR_DBM_FIRSTKEY(f, k)	((k) = gdbm_firstkey(f), APR_SUCCESS)
-#define APR_DBM_NEXTKEY(f, k, nk) ((nk) = gdbm_nextkey(f, *(k)), APR_SUCCESS)
-#define APR_DBM_FREEDPTR(dptr)	((dptr) ? free(dptr) : 0)
-
-#define NEEDS_CLEANUP
-
-#define APR_DBM_DBMODE_RO       GDBM_READER
-#define APR_DBM_DBMODE_RW       GDBM_WRITER
-#define APR_DBM_DBMODE_RWCREATE GDBM_WRCREAT
-#define APR_DBM_DBMODE_RWTRUNC  GDBM_NEWDB
-
-/* map a GDBM error to an apr_status_t */
-static apr_status_t g2s(int gerr)
-{
-    if (gerr == -1) {
-        /* ### need to fix this */
-        return APR_EGENERAL;
-    }
-
-    return APR_SUCCESS;
-}
+#include "apr_dbm_gdbm.c"
 
 #elif APU_USE_DB
-/*
- * We pick up all varieties of Berkeley DB through db.h (included through
- * apu_select_dbm.h). This code has been compiled/tested against DB1,
- * DB_185, DB2, and DB3.
- */
 
-#if   defined(DB_VERSION_MAJOR) && (DB_VERSION_MAJOR == 3)
-#define DB_VER 3
-#elif defined(DB_VERSION_MAJOR) && (DB_VERSION_MAJOR == 2)
-#define DB_VER 2
-#else
-#define DB_VER 1
-#endif
-
-typedef struct {
-    DB *bdb;
-#if DB_VER != 1
-    DBC *curs;
-#endif
-} real_file_t;
-
-typedef DBT cvt_datum_t;
-#define CONVERT_DATUM(cvt, pinput) (memset(&(cvt), 0, sizeof(cvt)), \
-                                    (cvt).data = (pinput)->dptr, \
-                                    (cvt).size = (pinput)->dsize)
-
-typedef DBT result_datum_t;
-#define RETURN_DATUM(poutput, rd) ((poutput)->dptr = (rd).data, \
-                                   (poutput)->dsize = (rd).size)
-
-#if DB_VER == 1
-#define TXN_ARG
-#else
-#define TXN_ARG NULL,
-#endif
-
-#if DB_VER == 1
-#define APR_DBM_CLOSE(f)	((*(f).bdb->close)((f).bdb))
-#else
-#define APR_DBM_CLOSE(f)	((*(f).bdb->close)((f).bdb, 0))
-#endif
-
-#define do_fetch(f, k, v)       ((*(f)->get)(f, TXN_ARG &(k), &(v), 0))
-#define APR_DBM_FETCH(f, k, v)	db2s(do_fetch((f).bdb, k, v))
-#define APR_DBM_STORE(f, k, v)	db2s((*(f).bdb->put)((f).bdb, TXN_ARG &(k), &(v), 0))
-#define APR_DBM_DELETE(f, k)	db2s((*(f).bdb->del)((f).bdb, TXN_ARG &(k), 0))
-#define APR_DBM_FIRSTKEY(f, k)  do_firstkey(&(f), &(k))
-#define APR_DBM_NEXTKEY(f, k, nk) do_nextkey(&(f), &(k), &(nk))
-#define APR_DBM_FREEDPTR(dptr)	NOOP_FUNCTION
-
-#if DB_VER == 1
-#include <sys/fcntl.h>
-#define APR_DBM_DBMODE_RO       O_RDONLY
-#define APR_DBM_DBMODE_RW       O_RDWR
-#define APR_DBM_DBMODE_RWCREATE (O_CREAT | O_RDWR)
-#define APR_DBM_DBMODE_RWTRUNC (O_CREAT | O_RDWR|O_TRUNC)
-#else
-#define APR_DBM_DBMODE_RO       DB_RDONLY
-#define APR_DBM_DBMODE_RW       0
-#define APR_DBM_DBMODE_RWCREATE DB_CREATE
-#define APR_DBM_DBMODE_RWTRUNC  DB_TRUNCATE
-#endif /* DBVER == 1 */
-
-/* map a DB error to an apr_status_t */
-static apr_status_t db2s(int dberr)
-{
-    if (dberr != 0) {
-        /* ### need to fix this */
-        return APR_OS_START_USEERR+dberr;
-    }
-
-    return APR_SUCCESS;
-}
-
-/* handle the FIRSTKEY functionality */
-static apr_status_t do_firstkey(real_file_t *f, DBT *pkey)
-{
-    int dberr;
-    DBT data;
-
-    memset(pkey,0,sizeof(DBT));
-
-    memset(&data,0,sizeof(DBT));
-#if DB_VER == 1
-    dberr = (*f->bdb->seq)(f->bdb, pkey, &data, R_FIRST);
-#else
-    if ((dberr = (*f->bdb->cursor)(f->bdb, NULL, &f->curs
-#if DB_VER == 3
-                                   , 0
-#endif
-                                   )) == 0) {
-        dberr = (*f->curs->c_get)(f->curs, pkey, &data, DB_FIRST);
-        if (dberr == DB_NOTFOUND) {
-            memset(pkey, 0, sizeof(*pkey));
-            (*f->curs->c_close)(f->curs);
-            f->curs = NULL;
-            return APR_SUCCESS;
-        }
-    }
-#endif
-
-    return db2s(dberr);
-}
-
-/* handle the NEXTKEY functionality */
-static apr_status_t do_nextkey(real_file_t *f, DBT *pkey, DBT *pnext)
-{
-    int dberr;
-    DBT data;
-
-#if DB_VER == 1
-    dberr = (*f->bdb->seq)(f->bdb, pkey, &data, R_NEXT);
-#else
-    if (f->curs == NULL)
-        return APR_EINVAL;
-
-    dberr = (*f->curs->c_get)(f->curs, pkey, &data, DB_NEXT);
-    if (dberr == DB_NOTFOUND) {
-        memset(pkey, 0, sizeof(*pkey));
-        (*f->curs->c_close)(f->curs);
-        f->curs = NULL;
-        return APR_SUCCESS;
-    }
-#endif
-
-    return db2s(dberr);
-}
+#include "apr_dbm_berkeleydb.c"
 
 #else /* Not in the USE_xDBM list above */
 #error a DBM implementation was not specified
 #endif
 
 #endif /* Not USE_SDBM */
-
-struct apr_dbm_t
-{
-    apr_pool_t *pool;
-    real_file_t file;
-
-    int errcode;
-    const char *errmsg;
-};
 
 
 #ifdef NEEDS_CLEANUP
