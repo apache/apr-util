@@ -126,6 +126,15 @@ static TSort *prepare(apr_pool_t *p,TSortData *pItems,int nItems)
     return pData;
 }
 
+/* Topologically sort, dragging out-of-order items to the front. Note that
+   this tends to preserve things that want to be near the front better, and
+   changing that behaviour might compromise some of Apache's behaviour (in
+   particular, mod_log_forensic might otherwise get pushed to the end, and
+   core.c's log open function used to end up at the end when pushing items
+   to the back was the methedology). Also note that the algorithm could
+   go back to its original simplicity by sorting from the back instead of
+   the front.
+*/
 static TSort *tsort(TSort *pData,int nItems)
 {
     int nTotal;
@@ -138,8 +147,23 @@ static TSort *tsort(TSort *pData,int nItems)
 	for(n=0 ; ; ++n) {
 	    if(n == nItems)
 		assert(0);      /* we have a loop... */
-	    if(!pData[n].pNext && !pData[n].nPredecessors)
-		break;
+	    if(!pData[n].pNext) {
+		if(pData[n].nPredecessors) {
+		    for(k=0 ; ; ++k) {
+			assert(k < nItems);
+			if(pData[n].ppPredecessors[k])
+			    break;
+		    }
+		    for(i=0 ; ; ++i) {
+			assert(i < nItems);
+			if(&pData[i] == pData[n].ppPredecessors[k]) {
+			    n=i-1;
+			    break;
+			}
+		    }
+		} else
+		    break;
+	    }
 	}
 	if(pTail)
 	    pTail->pNext=&pData[n];
@@ -148,9 +172,10 @@ static TSort *tsort(TSort *pData,int nItems)
 	pTail=&pData[n];
 	pTail->pNext=pTail;     /* fudge it so it looks linked */
 	for(i=0 ; i < nItems ; ++i)
-	    for(k=0 ; pData[i].ppPredecessors[k] ; ++k)
+	    for(k=0 ; k < nItems ; ++k)
 		if(pData[i].ppPredecessors[k] == &pData[n]) {
 		    --pData[i].nPredecessors;
+		    pData[i].ppPredecessors[k]=NULL;
 		    break;
 		}
     }
