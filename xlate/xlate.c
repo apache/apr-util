@@ -481,10 +481,3 @@ APU_DECLARE(apr_status_t) apr_xlate_close(apr_xlate_t *convset)
 }
 
 #endif /* APR_HAS_XLATE */
-
-/* Deprecated
- */
-APU_DECLARE(apr_status_t) apr_xlate_get_sb(apr_xlate_t *convset, int *onoff)
-{
-    return apr_xlate_sb_get(convset, onoff);
-}

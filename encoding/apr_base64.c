@@ -123,14 +123,14 @@ APU_DECLARE(apr_status_t) apr_base64init_ebcdic(apr_xlate_t *to_ascii,
     
     /* Only single-byte conversion is supported.
      */
-    rv = apr_xlate_get_sb(to_ascii, &onoff);
+    rv = apr_xlate_sb_get(to_ascii, &onoff);
     if (rv) {
         return rv;
     }
     if (!onoff) { /* If conversion is not single-byte-only */
         return APR_EINVAL;
     }
-    rv = apr_xlate_get_sb(to_ebcdic, &onoff);
+    rv = apr_xlate_sb_get(to_ebcdic, &onoff);
     if (rv) {
         return rv;
     }

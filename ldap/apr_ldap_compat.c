@@ -62,7 +62,7 @@
 
 #include <apr_ldap.h>
 
-#ifdef APU_HAS_LDAP
+#if APR_HAS_LDAP
 
 
 /* 
@@ -97,4 +97,4 @@ void ldap_memfree(void *p)
 
 #endif /* if LDAP_VERSION_MAX */
 
-#endif /* APU_HAS_LDAP */
+#endif /* APR_HAS_LDAP */

@@ -98,10 +98,6 @@ typedef void (apr_opt_fn_t)(void);
 /** @internal */
 APU_DECLARE_NONSTD(void) apr_dynamic_fn_register(const char *szName, 
                                                   apr_opt_fn_t *pfn);
-    
-/** @internal deprecated function, see apr_dynamic_fn_register */
-APU_DECLARE_NONSTD(void) apr_register_optional_fn(const char *szName, 
-                                                  apr_opt_fn_t *pfn);
 
 /**
  * Register an optional function. This can be later retrieved, type-safely, by
@@ -117,9 +113,6 @@ APU_DECLARE_NONSTD(void) apr_register_optional_fn(const char *szName,
  * Private function! DO NOT USE! 
  */
 APU_DECLARE(apr_opt_fn_t *) apr_dynamic_fn_retrieve(const char *szName);
-
-/** @internal deprecated function, see apr_dynamic_fn_retrieve */
-APU_DECLARE(apr_opt_fn_t *) apr_retrieve_optional_fn(const char *szName);
 
 /**
  * Retrieve an optional function. Returns NULL if the function is not present.

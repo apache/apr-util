@@ -98,7 +98,7 @@ static void get_random_info(unsigned char node[NODE_LENGTH])
 
 #else
 
-    unsigned char seed[MD5_DIGESTSIZE];
+    unsigned char seed[APR_MD5_DIGESTSIZE];
     apr_md5_ctx_t c;
 
     /* ### probably should revise some of this to be a bit more portable */
