@@ -167,7 +167,8 @@ sdbm_prep(SDBM **pdb, const char *dirname, const char *pagname,
 	    != APR_SUCCESS)
             goto error;
 
-        if ((status = sdbm_lock(db)) != APR_SUCCESS)
+        if ((status = sdbm_lock(db, !(db->flags & SDBM_RDONLY)))
+            != APR_SUCCESS)
             goto error;
 
         if ((status = apr_file_open(&db->dirf, dirname, flags, perms, p))
