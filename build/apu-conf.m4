@@ -629,7 +629,7 @@ fi
 dnl special-case the bundled distribution (use absolute dirs)
 if test "$expat_include_dir" = "xml/expat/lib" -o "$expat_include_dir" = "xml/expat-cvs/lib"; then
   bundled_subdir="`echo $expat_include_dir | sed -e 's%/lib%%'`"
-  APR_SUBDIR_CONFIG($bundled_subdir, "--prefix=$prefix --exec-prefix=$exec_prefix --libdir=$libdir --includedir=$includedir --bindir=$bindir")
+  APR_SUBDIR_CONFIG($bundled_subdir, [--prefix=$prefix --exec-prefix=$exec_prefix --libdir=$libdir --includedir=$includedir --bindir=$bindir])
   expat_include_dir=$top_builddir/$bundled_subdir/lib
   expat_ldflags="-L$top_builddir/$bundled_subdir/lib"
   expat_libs="-lexpat"
@@ -641,7 +641,7 @@ if test "$expat_include_dir" = "$srcdir/xml/expat/include" -o "$expat_include_di
   dnl This is a bit of a hack.  This only works because we know that
   dnl we are working with the bundled version of the software.
   bundled_subdir="xml/expat"
-  APR_SUBDIR_CONFIG($bundled_subdir, "--prefix=$prefix --exec-prefix=$exec_prefix --libdir=$libdir --includedir=$includedir --bindir=$bindir")
+  APR_SUBDIR_CONFIG($bundled_subdir, [--prefix=$prefix --exec-prefix=$exec_prefix --libdir=$libdir --includedir=$includedir --bindir=$bindir])
   expat_include_dir=$top_builddir/$bundled_subdir/lib
   expat_ldflags="-L$top_builddir/$bundled_subdir/lib"
   expat_libs="-lexpat"
