@@ -57,6 +57,7 @@
 
 #include "apr_pools.h"
 #include "apr_tables.h"
+#include "apr_file_io.h"
 
 #include "apu.h"
 
@@ -243,6 +244,23 @@ typedef struct apr_xml_parser apr_xml_parser;
  * @return The new parser.
  */
 APU_DECLARE(apr_xml_parser *) apr_xml_parser_create(apr_pool_t *pool);
+
+/**
+ * Parse a File, producing a xml_doc
+ * @param pool The pool for allocating the parse results.
+ * @param parser A pointer to *parser (needed so calling function can get
+ *               errors), will be set to NULL on successfull completion.
+ * @param pdoc A pointer to *apr_xml_doc (which has the parsed results in it)
+ * @param xmlfd A file to read from.
+ * @param int Buffer length which would be suitable 
+ * @return Any errors found during parsing.
+ */
+APU_DECLARE(apr_status_t) apr_xml_parse_file(apr_pool_t *p,
+                                             apr_xml_parser **parser,
+                                             apr_xml_doc **ppdoc,
+                                             apr_file_t *xmlfd,
+                                             int buffer_length);
+
 
 /**
  * Feed input into the parser
