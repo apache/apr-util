@@ -78,12 +78,10 @@ static void mmap_destroy(void *data)
 {
     apr_bucket_mmap *m;
 
-    m = apr_bucket_shared_destroy(data);
-    if (m == NULL) {
-	return;
+    if (apr_bucket_shared_destroy(data)) {
+        /* XXX: apr_mmap_delete(m->mmap)? */
+        free(m);
     }
-    /* XXX: apr_mmap_delete(m->mmap)? */
-    free(m);
 }
 
 /*

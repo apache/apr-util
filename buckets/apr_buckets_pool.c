@@ -89,11 +89,9 @@ static void pool_destroy(void *data)
     apr_bucket_pool *h = data;
 
     apr_pool_cleanup_kill(h->p, data, pool_bucket_cleanup);
-    h = apr_bucket_shared_destroy(data);
-    if (h == NULL) {
-	return;
+    if (apr_bucket_shared_destroy(data)) {
+        free(h);
     }
-    free(h);
 }
 
 APU_DECLARE(apr_bucket *) apr_bucket_pool_make(apr_bucket *b,

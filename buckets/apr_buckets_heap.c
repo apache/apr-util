@@ -70,14 +70,12 @@ static apr_status_t heap_read(apr_bucket *b, const char **str,
 
 static void heap_destroy(void *data)
 {
-    apr_bucket_heap *h;
+    apr_bucket_heap *h = data;
 
-    h = apr_bucket_shared_destroy(data);
-    if (h == NULL) {
-	return;
+    if (apr_bucket_shared_destroy(data)) {
+        free(h->base);
+        free(h);
     }
-    free(h->base);
-    free(h);
 }
 
 APU_DECLARE(apr_bucket *) apr_bucket_heap_make(apr_bucket *b,
