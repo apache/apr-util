@@ -144,8 +144,8 @@ APU_DECLARE(int) apr_date_checkmask(const char *data, const char *mask)
  *     Sunday, 06-Nov-94 08:49:37 GMT ; RFC 850, obsoleted by RFC 1036
  *     Sun Nov  6 08:49:37 1994       ; ANSI C's asctime() format
  *
- * and returns the time_t number of seconds since 1 Jan 1970 GMT, or
- * 0 if this would be out of range or if the date is invalid.
+ * and returns the apr_time_t number of microseconds since 1 Jan 1970 GMT, 
+ * or APR_DATE_BAD if this would be out of range or if the date is invalid.
  *
  * The restricted HTTP syntax is
  * 
