@@ -84,6 +84,7 @@
 
 #include <string.h>
 
+#include "httpd.h"
 #include "ap_config.h"
 #include "ap_sha1.h"
 #include "ap.h"
