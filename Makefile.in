@@ -3,6 +3,9 @@
 #
 CPP = @CPP@
 
+srcdir = @srcdir@
+VPATH = @srcdir@
+
 INCLUDES=-I./include -I$(srcdir)/include @APR_INCLUDES@
 
 TARGET_LIB = libaprutil.la
