@@ -19,6 +19,7 @@ INSTALL_SUBDIRS = @APR_XML_DIR@
 EXTRA_SOURCE_DIRS = @APR_XML_DIR@
 EXTRA_OS_LINK=@EXTRA_OS_LINK@
 APRUTIL_PCFILE = apr-util-$(APRUTIL_MAJOR_VERSION).pc
+APU_CONFIG = apu-$(APRUTIL_MAJOR_VERSION)-config
 
 TARGETS = $(TARGET_LIB) aprutil.exp
 
@@ -76,7 +77,8 @@ install: $(TARGET_LIB) apu-config.out
 		$(APR_MKDIR) $(DESTDIR)$(bindir); \
 	fi;
 	$(LIBTOOL) --mode=install cp apu-config.out $(DESTDIR)$(bindir)/apu-config
-	chmod 755 $(DESTDIR)$(bindir)/apu-config
+	$(LIBTOOL) --mode=install cp apu-config.out $(DESTDIR)$(bindir)/$(APU_CONFIG)
+	chmod 755 $(DESTDIR)$(bindir)/apu-config $(DESTDIR)$(bindir)/$(APU_CONFIG)
 
 $(TARGET_LIB): $(OBJECTS)
 	$(LINK) @lib_target@ $(ALL_LIBS) $(EXTRA_OS_LINK)
