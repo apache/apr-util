@@ -351,7 +351,7 @@ dnl
 AC_DEFUN(APU_CHECK_DB4, [
   places=$1
   if test -z "$places"; then
-    places="std /usr/local /usr/local/BerkeleyDB.4.0"
+    places="std /usr/local /usr/local/BerkeleyDB.4.0 /boot/home/config"
   fi
   APU_CHECK_BERKELEY_DB("4", "0", "-1",
     "$places",
@@ -372,7 +372,7 @@ dnl
 AC_DEFUN(APU_CHECK_DB41, [
   places=$1
   if test -z "$places"; then
-    places="std /usr/local/BerkeleyDB.4.1"
+    places="std /usr/local/BerkeleyDB.4.1 /boot/home/config"
   fi
   APU_CHECK_BERKELEY_DB("4", "1", "-1",
     "$places",
