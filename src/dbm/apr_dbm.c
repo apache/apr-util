@@ -267,7 +267,7 @@ int apu_dbm_exists(apu_dbm_t *db, apu_datum_t key)
 	exists = value.dptr != NULL;
     }
 #endif
-    return 0;
+    return exists;
 }
 
 apr_status_t apu_dbm_firstkey(apu_dbm_t *db, apu_datum_t *pkey)
