@@ -377,6 +377,10 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
  *          apr_bucket_delete(e);
  *      }
  * </pre>
+ * @deprecated This macro causes more headaches than it's worth.  Use
+ * one of the alternatives documented here instead; the clarity gained
+ * in what's really going on is well worth the extra line or two of code.
+ * This macro will be removed at some point in the future.
  */
 #define APR_BRIGADE_FOREACH(e, b)					\
 	APR_RING_FOREACH((e), &(b)->list, apr_bucket, link)
