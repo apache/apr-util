@@ -3,7 +3,7 @@ VPATH = @srcdir@
 INCLUDES = @APRUTIL_PRIV_INCLUDES@ @APR_INCLUDES@ @APRUTIL_INCLUDES@
 
 PROGRAMS = testdbm testdate testmd4 testmd5 testxml testrmm teststrmatch \
-	testuuid testreslist testqueue testuri
+	testuuid testreslist testqueue testuri testpass
 TARGETS = $(PROGRAMS)
 
 APRUTIL_DOTTED_VERSION=@APRUTIL_DOTTED_VERSION@
@@ -80,4 +80,9 @@ testuri_OBJECTS = testuri.lo
 testuri_LDADD =  $(TARGET_LIB_PATH)
 testuri: $(testuri_OBJECTS) $(testuri_LDADD)
 	$(LINK) $(APRUTIL_LDFLAGS) $(testuri_OBJECTS) $(testuri_LDADD) $(PROGRAM_DEPENDENCIES)
+
+testpass_OBJECTS = testpass.lo
+testpass_LDADD =  $(TARGET_LIB_PATH)
+testpass: $(testpass_OBJECTS) $(testpass_LDADD)
+	$(LINK) $(APRUTIL_LDFLAGS) $(testpass_OBJECTS) $(testpass_LDADD) $(PROGRAM_DEPENDENCIES)
 

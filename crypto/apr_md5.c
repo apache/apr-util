@@ -98,6 +98,7 @@
 #include "apr_strings.h"
 #include "apr_md5.h"
 #include "apr_lib.h"
+#include "apu_config.h"
 
 #if APR_HAVE_STRING_H
 #include <string.h>
@@ -107,6 +108,9 @@
 #endif
 #if APR_HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+#if APR_HAVE_PTHREAD_H
+#include <pthread.h>
 #endif
 
 /* Constants for MD5Transform routine.
@@ -671,6 +675,32 @@ APU_DECLARE(apr_status_t) apr_md5_encode(const char *pw, const char *salt,
     return APR_SUCCESS;
 }
 
+#if !defined(WIN32) && !defined(BEOS) && !defined(NETWARE)
+#if defined(APU_CRYPT_THREADSAFE) || !APR_HAS_THREADS
+
+#define crypt_mutex_lock()
+#define crypt_mutex_unlock()
+
+#elif APR_HAVE_PTHREAD_H && defined(PTHREAD_MUTEX_INITIALIZER)
+
+static pthread_mutex_t crypt_mutex = PTHREAD_MUTEX_INITIALIZER;
+static void crypt_mutex_lock(void)
+{
+    pthread_mutex_lock(&crypt_mutex);
+}
+
+static void crypt_mutex_unlock(void)
+{
+    pthread_mutex_unlock(&crypt_mutex);
+}
+
+#else
+
+#error apr_password_validate() is not threadsafe.  rebuild APR without thread support.
+
+#endif
+#endif
+
 /*
  * Validate a plaintext password against a smashed one.  Use either
  * crypt() (if available) or apr_md5_encode(), depending upon the format
@@ -714,14 +744,22 @@ APU_DECLARE(apr_status_t) apr_password_validate(const char *passwd,
         crypt_pw = crypt_r(passwd, hash, &buffer);
         apr_cpystrn(sample, crypt_pw, sizeof(sample) - 1);
 #else
-        /* XXX if this is a threaded build, we should hold a mutex 
-         *     around the next two lines... but note that on some
-         *     platforms (e.g., Solaris, HP-UX, OS/390) crypt() 
-         *     returns a pointer to thread-specific data so we don't
-         *     want a mutex on those platforms
+        /* Do a bit of sanity checking since we know that crypt_r()
+         * should always be used for threaded builds on AIX, and
+         * problems in configure logic can result in the wrong
+         * choice being made.
          */
+#if defined(_AIX) && defined(APR_HAS_THREADS)
+#error Configuration error!  crypt_r() should have been selected!
+#endif
+
+        /* Handle thread safety issues by holding a mutex around the
+         * call to crypt().
+         */
+        crypt_mutex_lock();
         crypt_pw = crypt(passwd, hash);
         apr_cpystrn(sample, crypt_pw, sizeof(sample) - 1);
+        crypt_mutex_unlock();
 #endif
     }
     return (strcmp(sample, hash) == 0) ? APR_SUCCESS : APR_EMISMATCH;

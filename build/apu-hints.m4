@@ -18,11 +18,21 @@ if test "x$apu_preload_done" != "xyes" ; then
     echo "Applying apr-util hints file rules for $host"
 
     case "$host" in
-        *-ibm-aix*)
+    *-dec-osf*)
+        APR_SETIFNULL(apu_crypt_threadsafe, [1])
+        ;;
+    *-hp-hpux11.*)
+        APR_SETIFNULL(apu_crypt_threadsafe, [1])
+        ;;
+    *-ibm-aix*)
         APR_SETIFNULL(apu_iconv_inbuf_const, [1])
+        ;;
+    *-ibm-os390)
+        APR_SETIFNULL(apu_crypt_threadsafe, [1])
         ;;
     *-solaris2*)
         APR_SETIFNULL(apu_iconv_inbuf_const, [1])
+        APR_SETIFNULL(apu_crypt_threadsafe, [1])
         ;;
     *-sco3.2v5*)
 	APR_SETIFNULL(apu_db_xtra_libs, [-lsocket])
