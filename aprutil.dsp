@@ -217,6 +217,14 @@ SOURCE=.\uri\apr_uri.c
 SOURCE=.\xml\apr_xml.c
 # End Source File
 # End Group
+# Begin Group "misc"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\misc\apr_date.c
+# End Source File
+# End Group
 # End Group
 # Begin Group "Generated"
 

@@ -69,6 +69,7 @@ CLEAN :
 	-@erase "$(INTDIR)\apr_sha1.obj"
 	-@erase "$(INTDIR)\apr_uri.obj"
 	-@erase "$(INTDIR)\apr_xml.obj"
+	-@erase "$(INTDIR)\apr_date.obj"
 	-@erase "$(INTDIR)\aprutil.idb"
 	-@erase "$(INTDIR)\sdbm.obj"
 	-@erase "$(INTDIR)\sdbm_hash.obj"
@@ -143,6 +144,7 @@ LIB32_OBJS= \
 	"$(INTDIR)\apr_sha1.obj" \
 	"$(INTDIR)\apr_uri.obj" \
 	"$(INTDIR)\apr_xml.obj" \
+	"$(INTDIR)\apr_date.obj" \
 	"$(INTDIR)\sdbm.obj" \
 	"$(INTDIR)\sdbm_hash.obj" \
 	"$(INTDIR)\sdbm_lock.obj" \
