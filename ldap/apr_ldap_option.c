@@ -140,8 +140,9 @@ static void option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
 
 #if APR_HAS_LDAP_SSL /* compiled with ssl support */
 
-    /* Netscape SDK */
-#if APR_HAS_NETSCAPE_LDAPSDK
+    /* Netscape/Mozilla/Solaris SDK */
+#if APR_HAS_NETSCAPE_LDAPSDK || APR_HAS_SOLARIS_LDAPSDK
+#ifdef LDAP_OPT_SSL
     if (tls == APR_LDAP_SSL) {
         result->rc = ldapssl_install_routines(ldap);
         if (result->rc == LDAP_SUCCESS) {
@@ -155,14 +156,21 @@ static void option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
     }
     else if (tls == APR_LDAP_STARTTLS) {
         result->reason = "LDAP: STARTTLS is not supported by the "
-                         "Netscape/Mozilla SDK";
+                         "Netscape/Mozilla/Solaris SDK";
         result->rc = -1;
     }
     else if (tls == APR_LDAP_STOPTLS) {
         result->reason = "LDAP: STOPTLS is not supported by the "
-                         "Netscape/Mozilla SDK";
+                         "Netscape/Mozilla/Solaris SDK";
         result->rc = -1;
     }
+#else
+    if (tls != APR_LDAP_NONE) {
+        result->reason = "LDAP: SSL/TLS is not supported by this version "
+                         "of the Netscape/Mozilla/Solaris SDK";
+        result->rc = -1;
+    }
+#endif
 #endif
 
     /* Novell SDK */
@@ -224,19 +232,12 @@ static void option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
         result->rc = -1;
     }
 #else
-    result->reason = "LDAP: SSL/TLS not yet supported by APR on this "
-                     "version of the OpenLDAP toolkit";
-    result->rc = -1;
-#endif
-#endif
-
-    /* Solaris SDK */
-#if APR_HAS_SOLARIS_LDAPSDK
     if (tls != APR_LDAP_NONE) {
-        result->reason = "LDAP: SSL/TLS is currently not supported by "
-                         "APR on the Solaris SDK";
+        result->reason = "LDAP: SSL/TLS not yet supported by APR on this "
+                         "version of the OpenLDAP toolkit";
         result->rc = -1;
     }
+#endif
 #endif
 
     /* Microsoft SDK */
@@ -307,8 +308,9 @@ static void option_set_cert(apr_pool_t *pool, LDAP *ldap,
 
 #if APR_HAS_LDAP_SSL
 
-#if APR_HAS_NETSCAPE_LDAPSDK
-#if APR_HAS_LDAP_SSL_CLIENT_INIT
+    /* Netscape/Mozilla/Solaris SDK */
+#if APR_HAS_NETSCAPE_LDAPSDK || APR_HAS_SOLARIS_LDAPSDK
+#if APR_HAS_LDAPSSL_CLIENT_INIT
     const char *nickname = NULL;
     const char *secmod = NULL;
     const char *key3db = NULL;
@@ -381,9 +383,9 @@ static void option_set_cert(apr_pool_t *pool, LDAP *ldap,
         }
     }
 #else
-    result->reason = "LDAP: ldapssl_client_init() function not "
-                     "supported by this Netscape SDK. Certificate "
-                     "authority file not set";
+    result->reason = "LDAP: SSL/TLS ldapssl_client_init() function not "
+                     "supported by this Netscape/Mozilla/Solaris SDK. "
+                     "Certificate authority file not set";
     result->rc = -1;
 #endif
 #endif
@@ -525,14 +527,6 @@ static void option_set_cert(apr_pool_t *pool, LDAP *ldap,
      * here with a message explaining this. */
     result->reason = "LDAP: CA certificates cannot be set using this method, "
                      "as they are stored in the registry instead.";
-    result->rc = -1;
-#endif
-
-    /* Sun SDK */
-#if APR_HAS_SOLARIS_LDAPSDK
-    result->reason = "LDAP: Attempt to set certificate store failed. "
-                     "APR does not yet know how to set a certificate "
-                     "store on the Sun toolkit";
     result->rc = -1;
 #endif
 
