@@ -89,12 +89,7 @@ static apr_status_t simple_split(ap_bucket *a, apr_off_t point)
     b->length -= point;
     bd->start += point;
 
-    if (a->next) {
-	a->next->prev = b;
-    }
-    b->next = a->next;
-    b->prev = a;
-    a->next = b;
+    AP_RING_INSERT_AFTER(a, b, link);
 
     return APR_SUCCESS;
 }
