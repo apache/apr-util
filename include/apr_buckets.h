@@ -689,6 +689,39 @@ APU_DECLARE(apr_status_t) apr_brigade_length(apr_bucket_brigade *bb,
                                              apr_off_t *length);
 
 /**
+ * Take a bucket brigade and store the data in a flat char*
+ * @param bb The bucket brigade to create the char* from
+ * @param c The char* to write into
+ * @param len The maximum length of the char array. On return, it is the
+ *            actual length of the char array.
+ */
+APU_DECLARE(apr_status_t) apr_brigade_getline(apr_bucket_brigade *bb,
+                                              char *c,
+                                              apr_size_t *len);
+
+/**
+ * Returns a pool-allocated string representing a flat bucket brigade
+ * @param bb The bucket brigade to create the iovec from
+ * @param p The pool to allocate the string from.
+ * Note: This string is NULL-terminated.
+ */
+APU_DECLARE(char *) apr_brigade_pgetline(apr_bucket_brigade *bb, 
+                                         apr_pool_t *pool);
+
+/**
+ * Split a brigade to represent one LF line.
+ * @param bbOut The bucket brigade that will have the LF line appended to.
+ * @param bbIn The input bucket brigade to search for a LF-line.
+ * @param block The blocking mode to be used to split the line.
+ * @param maxbytes The maximum bytes to read.  If this many bytes are seen
+ *                 without a LF, the brigade will contain a partial line.
+ */
+APU_DECLARE(apr_status_t) apr_brigade_split_line(apr_bucket_brigade *bbOut,
+                                                 apr_bucket_brigade *bbIn,
+                                                 apr_read_type_e block,
+                                                 apr_size_t maxbytes);
+
+/**
  * create an iovec of the elements in a bucket_brigade... return number 
  * of elements used.  This is useful for writing to a file or to the
  * network efficiently.
