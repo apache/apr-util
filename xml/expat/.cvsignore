@@ -4,3 +4,5 @@ configure
 libtool
 config.h.in
 config.h
+config.log
+config.status
