@@ -62,6 +62,9 @@ install: $(TARGET_LIB)
 	if [ ! -d $(DESTDIR)$(libdir) ]; then \
 	    @APR_SOURCE_DIR@/build/mkdir.sh $(DESTDIR)$(libdir); \
 	fi;
+	list='$(INSTALL_SUBDIRS)'; for i in $$list; do \
+		( cd $$i ; $(MAKE) DESTDIR=$(DESTDIR) install ); \
+	done
 	$(LIBTOOL) --mode=install cp $(TARGET_LIB) $(DESTDIR)$(libdir)
 	$(LIBTOOL) --mode=install cp aprutil.exp $(DESTDIR)$(libdir)
 	if [ ! -d $(DESTDIR)$(bindir) ]; then \
@@ -69,9 +72,6 @@ install: $(TARGET_LIB)
 	fi;
 	$(LIBTOOL) --mode=install cp apu-config $(DESTDIR)$(bindir)
 	chmod 755 $(DESTDIR)$(bindir)/apu-config
-	list='$(INSTALL_SUBDIRS)'; for i in $$list; do \
-		( cd $$i ; $(MAKE) DESTDIR=$(DESTDIR) install ); \
-	done
 
 $(TARGET_LIB):
 	@objects="`find $(SUBDIRS) -name expat -prune -o -name 'gen_uri_delims.@so_ext@' -prune -o -name '*.@so_ext@' -print`"; \
