@@ -62,10 +62,10 @@
 #include "apr_errno.h"
 #include "ap_ring.h"
 #include "apr.h"
-#ifdef APR_HAVE_SYS_UIO_H
+#if APR_HAVE_SYS_UIO_H
 #include <sys/uio.h>	/* for struct iovec */
 #endif
-#ifdef APR_HAVE_STDARG_H
+#if APR_HAVE_STDARG_H
 #include <stdarg.h>
 #endif
 
