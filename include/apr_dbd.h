@@ -101,8 +101,8 @@ typedef struct apr_dbd_driver_t {
      *  @param transaction - ptr to a transaction.  May be null on entry
      *  @return 0 for success or error code
      */
-    int (*transaction)(apr_pool_t *pool, apr_dbd_t *handle,
-                       apr_dbd_transaction **trans);
+    int (*start_transaction)(apr_pool_t *pool, apr_dbd_t *handle,
+                             apr_dbd_transaction **trans);
 
     /** end_transaction: end a transaction
      *  (commit on success, rollback on error).
