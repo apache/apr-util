@@ -56,6 +56,9 @@
 #include "apr_errno.h"
 #include "apr_pools.h"
 #include "apr_strings.h"
+#define APR_WANT_MEMFUNC
+#define APR_WANT_STRFUNC
+#include "apr_want.h"
 
 #include "apu_select_dbm.h"
 #include "apr_dbm.h"
