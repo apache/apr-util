@@ -89,7 +89,7 @@ static apr_status_t makroom(apr_sdbm_t *, long, int);
 
 #define bad(x)		((x).dptr == NULL || (x).dsize <= 0)
 #define exhash(item)	sdbm_hash((item).dptr, (item).dsize)
-#define ioerr(db,stat)	((db)->status = stat)
+#define ioerr(db,stat)	((db)->status = (stat))
 
 /* ### Does anything need these externally? */
 #define sdbm_dirfno(db)	((db)->dirf)
@@ -641,34 +641,33 @@ static apr_status_t getnext(apr_sdbm_datum_t *key, apr_sdbm_t *db)
             apr_off_t off = OFF_PAG(db->blkptr);
             if ((status = apr_file_seek(db->pagf, APR_SET, &off) 
                         != APR_SUCCESS))
-                break;
+                return ioerr(db, status);
         }
 
         db->pagbno = db->blkptr;
         /* ### EOF acceptable here too? */
         if ((status = apr_file_read_full(db->pagf, db->pagbuf, PBLKSIZ, NULL))
                     != APR_SUCCESS)
-            break;
+            return ioerr(db, status);
         if (!chkpage(db->pagbuf))
-            break;
+            return ioerr(db, APR_EGENERAL);     /* ### need better error */
     }
-    
-    ioerr(db, status);
-    return status;
+
+    /* NOTREACHED */
 }
 
 
 int apr_sdbm_rdonly(apr_sdbm_t *db)
 {
-    return ((db)->flags & SDBM_RDONLY);
+    return (db->flags & SDBM_RDONLY) != 0;
 }
 
 apr_status_t apr_sdbm_error_get(apr_sdbm_t *db)
 {
-    return ((db)->status);
+    return db->status;
 }
 
-int apr_sdbm_error_clear(apr_sdbm_t *db)
+void apr_sdbm_error_clear(apr_sdbm_t *db)
 {
-    return ((db)->status = APR_SUCCESS);
+    db->status = APR_SUCCESS;
 }
