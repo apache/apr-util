@@ -74,15 +74,6 @@ extern "C" {
  * @{
  */
 
-/**
- * APR_HAS_XLATE determines whether or not useful implementations of 
- * apr_xlate_open() et al are provided. 
- *
- * If APR_HAS_XLATE is zero, apr_xlate_open() et al will all return 
- * APR_ENOTIMPL at run-time.
- */
-#define APR_HAS_XLATE APR_HAVE_ICONV
-
 typedef struct apr_xlate_t            apr_xlate_t;
 
 /**

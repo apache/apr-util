@@ -154,6 +154,8 @@
 #endif
 #endif
 
+#define APU_HAVE_APR_ICONV     1
+#define APR_HAS_XLATE          1
 
 #endif /* APU_H */
 #endif /* WIN32 */
