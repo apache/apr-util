@@ -122,7 +122,8 @@ static apr_status_t file_bucket_read(apr_bucket *e, const char **str,
 #endif
 
 #if APR_HAS_MMAP
-    if (file_make_mmap(e, filelength, fileoffset, a->readpool)) {
+    if (a->can_mmap &&
+        file_make_mmap(e, filelength, fileoffset, a->readpool)) {
         return apr_bucket_read(e, str, len, block);
     }
 #endif
@@ -216,6 +217,17 @@ APU_DECLARE(apr_bucket *) apr_bucket_file_create(apr_file_t *fd,
     b->list = list;
     return apr_bucket_file_make(b, fd, offset, len, p);
 }
+
+#if APR_HAS_MMAP
+APU_DECLARE(apr_status_t) apr_bucket_file_enable_mmap(apr_bucket *e,
+                                                      int enabled)
+{
+    apr_bucket_file *a = e->data;
+    a->can_mmap = enabled;
+    return APR_SUCCESS;
+}
+#endif /* APR_HAS_MMAP */
+
 
 static apr_status_t file_bucket_setaside(apr_bucket *data, apr_pool_t *reqpool)
 {

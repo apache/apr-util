@@ -1,5 +1,14 @@
 Changes with APR-util b1  
 
+  *) Added apr_bucket_file_enable_mmap() function to the bucket
+     API to let an application control whether a file bucket may
+     be turned into an mmap bucket upon read.  (The default remains
+     to do the mmap, but this function lets the app prevent the
+     mmap in contexts where mmap would be a bad idea.  Examples
+     include multiprocessors where mmap doesn't scale well and
+     NFS-mounted filesystems where a bus error can result if
+     a memory-mapped file is removed or truncated.) [Brian Pane]
+
   *) Added string-matching API (apr_strmatch.h)  [Brian Pane]
 
   *) Rearrange INCLUDES so that APRUTIL_PRIV_INCLUDES is always
