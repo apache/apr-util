@@ -112,6 +112,7 @@ APU_DECLARE(apr_status_t) apr_dbm_open(apr_dbm_t **dbm, const char *name,
  * @deffunc void apr_dbm_close(apr_dbm_t *db)
  */
 APU_DECLARE(void) apr_dbm_close(apr_dbm_t *db);
+
 /**
  * Fetch a dbm record value by key
  * @param dbm The database 
@@ -163,8 +164,10 @@ APU_DECLARE(apr_status_t) apr_dbm_firstkey(apr_dbm_t *dbm, apr_datum_t *pkey);
  */
 APU_DECLARE(apr_status_t) apr_dbm_nextkey(apr_dbm_t *dbm, apr_datum_t *pkey);
 
-/* XXX: This is bogus.  If this is a pool-managed dbm wrapper, we
- * don't free datum.  If it isn't why pass pools? 
+/**
+ * Proactively toss any memory associated with the apr_datum_t.
+ * @param dbm The database 
+ * @param data The datum to free.
  * @deffunc void apr_dbm_freedatum(apr_dbm_t *dbm, apr_datum_t data)
  */
 APU_DECLARE(void) apr_dbm_freedatum(apr_dbm_t *dbm, apr_datum_t data);
@@ -174,6 +177,23 @@ APU_DECLARE(void) apr_dbm_freedatum(apr_dbm_t *dbm, apr_datum_t data);
  * @deffunc void apr_dbm_geterror(apr_dbm_t *dbm, int *errcode, const char **errmsg)
  */
 APU_DECLARE(void) apr_dbm_geterror(apr_dbm_t *dbm, int *errcode, const char **errmsg);
+
+/**
+ * If the specified file/path were passed to apr_dbm_open(), return the
+ * actual file/path names which would be (created and) used. At most, two
+ * files may be used; used2 may be NULL if only one file is used.
+ * @param pool The pool for allocating used1 and used2.
+ * @param pathname The path name to generate used-names from.
+ * @param used1 The first pathname used by the apr_dbm implementation.
+ * @param used2 The second pathname used by apr_dbm. If only one file is
+ *              used by the specific implementation, this will be set to NULL.
+ * @tip The dbm file(s) don't need to exist. This function only manipulates
+ *      the pathnames.
+ */
+APU_DECLARE(void) apr_dbm_get_usednames(apr_pool_t *pool,
+                                        const char *pathname,
+                                        const char **used1,
+                                        const char **used2);
 
 #ifdef __cplusplus
 }
