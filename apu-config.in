@@ -55,6 +55,9 @@
 # APR-util script designed to allow easy command line access to APR-util
 # configuration parameters.
 
+APRUTIL_MAJOR_VERSION="@APRUTIL_MAJOR_VERSION@"
+APRUTIL_DOTTED_VERSION="@APRUTIL_DOTTED_VERSION@"
+
 prefix="@prefix@"
 exec_prefix="@exec_prefix@"
 bindir="@bindir@"
@@ -64,6 +67,8 @@ includedir="@includedir@"
 LIBS="@APRUTIL_EXPORT_LIBS@"
 INCLUDES="@APRUTIL_INCLUDES@"
 LDFLAGS="@APRUTIL_LDFLAGS@"
+
+APRUTIL_LIBNAME="lib@APRUTIL_LIBNAME@.la"
 
 APU_SOURCE_DIR="@top_srcdir@"
 APU_BUILD_DIR="@top_builddir@"
@@ -117,9 +122,9 @@ else
 fi
 
 if test "$location" = "installed"; then
-    LA_FILE="$libdir/libaprutil.la"
+    LA_FILE="$libdir/$APRUTIL_LIBNAME"
 else
-    LA_FILE="$thisdir/libaprutil.la"
+    LA_FILE="$thisdir/$APRUTIL_LIBNAME"
 fi
 
 flags=""
@@ -169,7 +174,7 @@ while test $# -gt 0; do
         ### avoid using -L if libdir is a "standard" location like /usr/lib
         flags="$flags -L$libdir -laprutil"
     else
-        flags="$flags -L$thisdir -laprutil"
+        flags="$flags -L$thisdir -l@APRUTIL_LIBNAME@"
     fi
     ;;
     --link-libtool)
@@ -181,7 +186,7 @@ while test $# -gt 0; do
         flags="$flags $LA_FILE"
     elif test "$location" = "installed"; then
         ### avoid using -L if libdir is a "standard" location like /usr/lib
-        flags="$flags -L$libdir -laprutil"
+        flags="$flags -L$libdir -l@APRUTIL_LIBNAME@"
     else
         flags="$flags $LA_FILE"
     fi

@@ -43,6 +43,22 @@ AC_SUBST(abs_builddir)
 dnl Initialize mkdir -p functionality.
 APR_MKDIR_P_CHECK($abs_srcdir/build/mkdir.sh)
 
+dnl get our version information
+get_version="$abs_srcdir/build/get-version.sh"
+version_hdr="$abs_srcdir/include/apu_version.h"
+APRUTIL_MAJOR_VERSION="`$get_version major $version_hdr APU`"
+APRUTIL_DOTTED_VERSION="`$get_version all $version_hdr APU`"
+
+AC_SUBST(APRUTIL_DOTTED_VERSION)
+AC_SUBST(APRUTIL_MAJOR_VERSION)
+
+echo "APR-util Version: ${APRUTIL_DOTTED_VERSION}"
+
+dnl Enable the layout handling code, then reparse the prefix-style
+dnl arguments due to autoconf being a PITA.
+APR_ENABLE_LAYOUT(apr-util)
+APR_PARSE_ARGUMENTS
+
 dnl load os-specific hints for apr-util
 APU_PRELOAD
 
@@ -72,6 +88,9 @@ so_ext=$APR_SO_EXT
 lib_target=$APR_LIB_TARGET
 AC_SUBST(so_ext)
 AC_SUBST(lib_target)
+
+APRUTIL_LIBNAME="aprutil${libsuffix}"
+AC_SUBST(APRUTIL_LIBNAME)
 
 EXTRA_OS_LINK=""
 host_alias=`uname -s`
