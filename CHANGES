@@ -1,5 +1,9 @@
 Changes with APR-util b1  
 
+  *) Landed the link-to-LDAP to the build process, and the LDAP v2/v3
+     compatibility functions.
+     [Dave Carrigan <dave@rudedog.org>, Graham Leggett]
+
   *) Fix URI unparse function to handle the case where it would place a @
      when both the username and password were present but omitted.
      [Jon Travis <jtravis@covalent.net]
