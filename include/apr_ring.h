@@ -61,7 +61,10 @@
  * We'd use Dean's code directly if we could guarantee the
  * availability of inline functions.
  */
-
+/**
+ * @file apr_ring.h
+ * @brief APR-Util Rings
+ */
 #ifndef APR_RING_H
 #define APR_RING_H
 
@@ -71,15 +74,18 @@
 #include <stddef.h>
 
 /**
- * @package Rings
+ * @defgroup APR_Util_Rings Rings
+ * @ingroup APR_Util
+ * @{
  */
-/*
+
+/**
  * A ring is a kind of doubly-linked list that can be manipulated
  * without knowing where its head is.
  */
 
 /**
- * <p>The Ring Element</p>
+ * The Ring Element
  *
  * A ring element struct is linked to the other elements in the ring
  * through its ring entry field, e.g.
@@ -97,7 +103,6 @@
  * first in the element struct unless the head is always part of a larger
  * object with enough earlier fields to accommodate the offsetof() used
  * to compute the ring sentinel below. You can usually ignore this caveat.
- * @defvar APR_RING_ENTRY
  */
 #define APR_RING_ENTRY(elem)						\
     struct {								\
@@ -106,7 +111,7 @@
     }
 
 /**
- * <p>The Ring Head</p>
+ * The Ring Head
  *
  * Each ring is managed via its head, which is a struct declared like this:
  * <pre>
@@ -119,7 +124,6 @@
  *
  * The first element in the ring is next after the head, and the last
  * element is just before the head.
- * @defvar APR_RING_HEAD
  */
 #define APR_RING_HEAD(head, elem)					\
     struct head {							\
@@ -128,7 +132,7 @@
     }
 
 /**
- * <p>The Ring Sentinel</p>
+ * The Ring Sentinel
  *
  * This is the magic pointer value that occurs before the first and
  * after the last elements in the ring, computed from the address of
@@ -139,7 +143,6 @@
  * @param hp   The head of the ring
  * @param elem The name of the element struct
  * @param link The name of the APR_RING_ENTRY in the element struct
- * @deffunc elem *APR_RING_SENTINEL(head *hp, struct elem, APR_RING_ENTRY link)
  */
 #define APR_RING_SENTINEL(hp, elem, link)				\
     (struct elem *)((char *)(hp) - offsetof(struct elem, link))
@@ -147,27 +150,23 @@
 /**
  * The first element of the ring
  * @param hp   The head of the ring
- * @deffunc elem *APR_RING_FIRST(head *hp)
  */
 #define APR_RING_FIRST(hp)	(hp)->next
 /**
  * The last element of the ring
  * @param hp   The head of the ring
- * @deffunc elem *APR_RING_LAST(head *hp)
  */
 #define APR_RING_LAST(hp)	(hp)->prev
 /**
  * The next element in the ring
  * @param ep   The current element
  * @param link The name of the APR_RING_ENTRY in the element struct
- * @deffunc elem *APR_RING_NEXT(elem *ep, APR_RING_ENTRY link)
  */
 #define APR_RING_NEXT(ep, link)	(ep)->link.next
 /**
  * The previous element in the ring
  * @param ep   The current element
  * @param link The name of the APR_RING_ENTRY in the element struct
- * @deffunc elem *APR_RING_PREV(elem *ep, APR_RING_ENTRY link)
  */
 #define APR_RING_PREV(ep, link)	(ep)->link.prev
 
@@ -177,7 +176,6 @@
  * @param hp   The head of the ring
  * @param elem The name of the element struct
  * @param link The name of the APR_RING_ENTRY in the element struct
- * @deffunc void APR_RING_INIT(head *hp, struct elem, APR_RING_ENTRY link)
  */
 #define APR_RING_INIT(hp, elem, link) do {				\
 	APR_RING_FIRST((hp)) = APR_RING_SENTINEL((hp), elem, link);	\
@@ -190,7 +188,6 @@
  * @param elem The name of the element struct
  * @param link The name of the APR_RING_ENTRY in the element struct
  * @return true or false
- * @deffunc int APR_RING_EMPTY(head *hp, struct elem, APR_RING_ENTRY link)
  */
 #define APR_RING_EMPTY(hp, elem, link)					\
     (APR_RING_FIRST((hp)) == APR_RING_SENTINEL((hp), elem, link))
@@ -199,7 +196,6 @@
  * Initialize a singleton element
  * @param ep   The element
  * @param link The name of the APR_RING_ENTRY in the element struct
- * @deffunc void APR_RING_ELEM_INIT(elem *ep, APR_RING_ENTRY link)
  */
 #define APR_RING_ELEM_INIT(ep, link) do {				\
 	APR_RING_NEXT((ep), link) = (ep);				\
@@ -216,7 +212,6 @@
  * @param ep1  First element in the sequence to splice in
  * @param epN  Last element in the sequence to splice in
  * @param link The name of the APR_RING_ENTRY in the element struct
- * @deffunc void APR_RING_SPLICE_BEFORE(elem *lep, elem *ep1, elem *epN, APR_RING_ENTRY link)
  */
 #define APR_RING_SPLICE_BEFORE(lep, ep1, epN, link) do {		\
 	APR_RING_NEXT((epN), link) = (lep);				\
@@ -234,7 +229,6 @@
  * @param ep1  First element in the sequence to splice in
  * @param epN  Last element in the sequence to splice in
  * @param link The name of the APR_RING_ENTRY in the element struct
- * @deffunc void APR_RING_SPLICE_AFTER(elem *lep, elem *ep1, elem *epN, APR_RING_ENTRY link)
  */
 #define APR_RING_SPLICE_AFTER(lep, ep1, epN, link) do {			\
 	APR_RING_PREV((ep1), link) = (lep);				\
@@ -251,7 +245,6 @@
  * @param lep  Element in the ring to insert before
  * @param nep  Element to insert
  * @param link The name of the APR_RING_ENTRY in the element struct
- * @deffunc void APR_RING_INSERT_BEFORE(elem *lep, elem *nep, APR_RING_ENTRY link)
  */
 #define APR_RING_INSERT_BEFORE(lep, nep, link)				\
 	APR_RING_SPLICE_BEFORE((lep), (nep), (nep), link)
@@ -264,7 +257,6 @@
  * @param lep  Element in the ring to insert after
  * @param nep  Element to insert
  * @param link The name of the APR_RING_ENTRY in the element struct
- * @deffunc void APR_RING_INSERT_AFTER(elem *lep, elem *nep, APR_RING_ENTRY link)
  */
 #define APR_RING_INSERT_AFTER(lep, nep, link)				\
 	APR_RING_SPLICE_AFTER((lep), (nep), (nep), link)
@@ -278,7 +270,6 @@
  * @param epN  Last element in the sequence to splice in
  * @param elem The name of the element struct
  * @param link The name of the APR_RING_ENTRY in the element struct
- * @deffunc void APR_RING_SPLICE_HEAD(head *hp, elem *ep1, elem *epN, struct elem, APR_RING_ENTRY link)
  */
 #define APR_RING_SPLICE_HEAD(hp, ep1, epN, elem, link)			\
 	APR_RING_SPLICE_AFTER(APR_RING_SENTINEL((hp), elem, link),	\
@@ -292,7 +283,6 @@
  * @param epN  Last element in the sequence to splice in
  * @param elem The name of the element struct
  * @param link The name of the APR_RING_ENTRY in the element struct
- * @deffunc void APR_RING_SPLICE_TAIL(head *hp, elem *ep1, elem *epN, struct elem, APR_RING_ENTRY link)
  */
 #define APR_RING_SPLICE_TAIL(hp, ep1, epN, elem, link)			\
 	APR_RING_SPLICE_BEFORE(APR_RING_SENTINEL((hp), elem, link),	\
@@ -305,7 +295,6 @@
  * @param nep  Element to insert
  * @param elem The name of the element struct
  * @param link The name of the APR_RING_ENTRY in the element struct
- * @deffunc void APR_RING_INSERT_HEAD(head *hp, elem *nep, struct elem, APR_RING_ENTRY link)
  */
 #define APR_RING_INSERT_HEAD(hp, nep, elem, link)			\
 	APR_RING_SPLICE_HEAD((hp), (nep), (nep), elem, link)
@@ -317,7 +306,6 @@
  * @param nep  Element to insert
  * @param elem The name of the element struct
  * @param link The name of the APR_RING_ENTRY in the element struct
- * @deffunc void APR_RING_INSERT_TAIL(head *hp, elem *nep, struct elem, APR_RING_ENTRY link)
  */
 #define APR_RING_INSERT_TAIL(hp, nep, elem, link)			\
 	APR_RING_SPLICE_TAIL((hp), (nep), (nep), elem, link)
@@ -328,7 +316,6 @@
  * @param h2   Head of the ring to concatenate
  * @param elem The name of the element struct
  * @param link The name of the APR_RING_ENTRY in the element struct
- * @deffunc void APR_RING_CONCAT(head *h1, head *h2, struct elem, APR_RING_ENTRY link)
  */
 #define APR_RING_CONCAT(h1, h2, elem, link) do {			\
 	if (!APR_RING_EMPTY((h2), elem, link)) {			\
@@ -346,7 +333,6 @@
  * @param ep1  First element in the sequence to unsplice
  * @param epN  Last element in the sequence to unsplice
  * @param link The name of the APR_RING_ENTRY in the element struct
- * @deffunc void APR_RING_UNSPLICE(elem *ep1, elem *epN, APR_RING_ENTRY link)
  */
 #define APR_RING_UNSPLICE(ep1, epN, link) do {				\
 	APR_RING_NEXT(APR_RING_PREV((ep1), link), link) =		\
@@ -360,7 +346,6 @@
  * @warning The unspliced element is left with dangling pointers at either end
  * @param ep   Element to remove
  * @param link The name of the APR_RING_ENTRY in the element struct
- * @deffunc void APR_RING_REMOVE(elem *ep, APR_RING_ENTRY link)
  */
 #define APR_RING_REMOVE(ep, link)					\
     APR_RING_UNSPLICE((ep), (ep), link)
@@ -372,7 +357,7 @@
  * @param hp The ring to iterate over
  * @param elem The name of the element struct
  * @param link The name of the APR_RING_ENTRY in the element struct
- * @tip This is the same as either:
+ * @remark This is the same as either:
  * <pre>
  *	ep = APR_RING_FIRST(hp);
  * 	while (ep != APR_RING_SENTINEL(hp, elem, link)) {
@@ -404,7 +389,6 @@
  *          APR_RING_REMOVE(ep, link);
  *      }
  * </pre>
- * @deffunc void APR_RING_FOREACH(elem *ep, head *hp, struct elem, APR_RING_ENTRY link)
  */
 #define APR_RING_FOREACH(ep, hp, elem, link)				\
     for ((ep)  = APR_RING_FIRST((hp));					\
@@ -418,7 +402,6 @@
  * @param elem The name of the element struct
  * @param link The name of the APR_RING_ENTRY in the element struct
  * @see APR_RING_FOREACH
- * @deffunc void APR_RING_FOREACH_REVERSE(elem *ep, head *hp, struct elem, APR_RING_ENTRY link)
  */
 #define APR_RING_FOREACH_REVERSE(ep, hp, elem, link)			\
     for ((ep)  = APR_RING_LAST((hp));					\
@@ -428,35 +411,6 @@
 
 /* Debugging tools: */
 
-/**
- * Print a single pointer value to STDERR
- *   (This is a no-op unless APR_RING_DEBUG is defined.)
- * @param msg Descriptive message
- * @param ptr Pointer value to print
- * @deffunc void APR_RING_CHECK_ONE(char *msg, void *ptr)
- */
-/**
- * Dump all ring pointers to STDERR, starting with the head and looping all
- * the way around the ring back to the head.  Aborts if an inconsistency
- * is found.
- *   (This is a no-op unless APR_RING_DEBUG is defined.)
- * @param hp   Head of the ring
- * @param elem The name of the element struct
- * @param link The name of the APR_RING_ENTRY in the element struct
- * @param msg  Descriptive message
- * @deffunc void APR_RING_CHECK(head *hp, struct elem, APR_RING_ENTRY link, char *msg)
- */
-/**
- * Dump all ring pointers to STDERR, starting with the given element and
- * looping all the way around the ring back to that element.  Aborts if
- * an inconsistency is found.
- *   (This is a no-op unless APR_RING_DEBUG is defined.)
- * @param ep   The element
- * @param elem The name of the element struct
- * @param link The name of the APR_RING_ENTRY in the element struct
- * @param msg  Descriptive message
- * @deffunc void APR_RING_CHECK_ELEM(elem *ep, struct elem, APR_RING_ENTRY link, char *msg)
- */
 #ifdef APR_RING_DEBUG
 #include <stdio.h>
 #define APR_RING_CHECK_ONE(msg, ptr)					\
@@ -490,9 +444,35 @@
 	fprintf(stderr, "*** ring check end\n");			\
     } while (0)
 #else
+/**
+ * Print a single pointer value to STDERR
+ *   (This is a no-op unless APR_RING_DEBUG is defined.)
+ * @param msg Descriptive message
+ * @param ptr Pointer value to print
+ */
 #define APR_RING_CHECK_ONE(msg, ptr)
+/**
+ * Dump all ring pointers to STDERR, starting with the head and looping all
+ * the way around the ring back to the head.  Aborts if an inconsistency
+ * is found.
+ *   (This is a no-op unless APR_RING_DEBUG is defined.)
+ * @param hp   Head of the ring
+ * @param elem The name of the element struct
+ * @param link The name of the APR_RING_ENTRY in the element struct
+ * @param msg  Descriptive message
+ */
 #define APR_RING_CHECK(hp, elem, link, msg)
+/**
+ * Dump all ring pointers to STDERR, starting with the given element and
+ * looping all the way around the ring back to that element.  Aborts if
+ * an inconsistency is found.
+ *   (This is a no-op unless APR_RING_DEBUG is defined.)
+ * @param ep   The element
+ * @param elem The name of the element struct
+ * @param link The name of the APR_RING_ENTRY in the element struct
+ * @param msg  Descriptive message
+ */
 #define APR_RING_CHECK_ELEM(ep, elem, link, msg)
 #endif
-
+/** @} */ 
 #endif /* !APR_RING_H */
