@@ -64,7 +64,7 @@ testxlate: $(testxlate_OBJECTS) $(testxlate_LDADD)
 	$(LINK) $(APRUTIL_LDFLAGS) $(testxlate_OBJECTS) $(testxlate_LDADD) $(PROGRAM_DEPENDENCIES)
 
 testall_OBJECTS = teststrmatch.lo testuri.lo testuuid.lo abts.lo testutil.lo \
-	testbuckets.lo testpass.lo testmd4.lo testmd5.lo
+	testbuckets.lo testpass.lo testmd4.lo testmd5.lo testldap.lo
 testall_LDADD =  $(TARGET_LIB_PATH)
 testall: $(testall_OBJECTS) $(testall_LDADD)
 	$(LINK) $(APRUTIL_LDFLAGS) $(testall_OBJECTS) $(testall_LDADD) $(PROGRAM_DEPENDENCIES)
