@@ -120,7 +120,7 @@ static apr_status_t simple_read(apr_bucket *b, const char **str,
     return APR_SUCCESS;
 }
 
-APU_DECLARE(apr_bucket *) apr_bucket_make_immortal(apr_bucket *b,
+APU_DECLARE(apr_bucket *) apr_bucket_immortal_make(apr_bucket *b,
 		const char *buf, apr_size_t length)
 {
     apr_bucket_simple *bd;
@@ -140,10 +140,10 @@ APU_DECLARE(apr_bucket *) apr_bucket_make_immortal(apr_bucket *b,
     return b;
 }
 
-APU_DECLARE(apr_bucket *) apr_bucket_create_immortal(
+APU_DECLARE(apr_bucket *) apr_bucket_immortal_create(
 		const char *buf, apr_size_t length)
 {
-    apr_bucket_do_create(apr_bucket_make_immortal(b, buf, length));
+    apr_bucket_do_create(apr_bucket_immortal_make(b, buf, length));
 }
 
 /*
@@ -165,7 +165,7 @@ static apr_status_t transient_setaside(apr_bucket *b)
     start = bd->start;
     end = bd->end;
     /* XXX: handle small heap buckets */
-    b = apr_bucket_make_heap(b, start, end-start, 1, &w);
+    b = apr_bucket_heap_make(b, start, end-start, 1, &w);
     if (b == NULL || w != end-start) {
 	return APR_ENOMEM;
     }
@@ -173,10 +173,10 @@ static apr_status_t transient_setaside(apr_bucket *b)
     return APR_SUCCESS;
 }
 
-APU_DECLARE(apr_bucket *) apr_bucket_make_transient(apr_bucket *b,
+APU_DECLARE(apr_bucket *) apr_bucket_transient_make(apr_bucket *b,
 		const char *buf, apr_size_t length)
 {
-    b = apr_bucket_make_immortal(b, buf, length);
+    b = apr_bucket_immortal_make(b, buf, length);
     if (b == NULL) {
 	return NULL;
     }
@@ -184,17 +184,17 @@ APU_DECLARE(apr_bucket *) apr_bucket_make_transient(apr_bucket *b,
     return b;
 }
 
-APU_DECLARE(apr_bucket *) apr_bucket_create_transient(
+APU_DECLARE(apr_bucket *) apr_bucket_transient_create(
 		const char *buf, apr_size_t length)
 {
-    apr_bucket_do_create(apr_bucket_make_transient(b, buf, length));
+    apr_bucket_do_create(apr_bucket_transient_make(b, buf, length));
 }
 
 const apr_bucket_type_t apr_bucket_type_immortal = {
     "IMMORTAL", 5,
     free,
     simple_read,
-    apr_bucket_setaside_notimpl,
+    apr_bucket_notimpl_setaside,
     simple_split,
     simple_copy
 };

@@ -67,10 +67,10 @@ apr_status_t sdbm_lock(SDBM *db)
     else
         type = APR_FLOCK_SHARED;
 
-    return apr_lock_file(db->pagf, type);
+    return apr_file_lock(db->pagf, type);
 }
 
 apr_status_t sdbm_unlock(SDBM *db)
 {
-    return apr_unlock_file(db->pagf);
+    return apr_file_unlock(db->pagf);
 }

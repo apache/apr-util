@@ -278,8 +278,8 @@ static apr_status_t datum_cleanup(void *dptr)
 
 #define REGISTER_CLEANUP(dbm, pdatum) \
     if ((pdatum)->dptr) \
-        apr_register_cleanup((dbm)->pool, (pdatum)->dptr, \
-                             datum_cleanup, apr_null_cleanup); \
+        apr_pool_cleanup_register((dbm)->pool, (pdatum)->dptr, \
+                             datum_cleanup, apr_pool_cleanup_null); \
     else
 
 #else /* NEEDS_CLEANUP */
@@ -536,7 +536,7 @@ APU_DECLARE(apr_status_t) apr_dbm_nextkey(apr_dbm_t *dbm, apr_datum_t *pkey)
 APU_DECLARE(void) apr_dbm_freedatum(apr_dbm_t *dbm, apr_datum_t data)
 {
 #ifdef NEEDS_CLEANUP
-    (void) apr_run_cleanup(dbm->pool, data.dptr, datum_cleanup);
+    (void) apr_pool_cleanup_run(dbm->pool, data.dptr, datum_cleanup);
 #else
     APR_DBM_FREEDPTR(data.dptr);
 #endif

@@ -73,7 +73,7 @@ static void heap_destroy(void *data)
 {
     apr_bucket_heap *h;
 
-    h = apr_bucket_destroy_shared(data);
+    h = apr_bucket_shared_destroy(data);
     if (h == NULL) {
 	return;
     }
@@ -81,7 +81,7 @@ static void heap_destroy(void *data)
     free(h);
 }
 
-APU_DECLARE(apr_bucket *) apr_bucket_make_heap(apr_bucket *b,
+APU_DECLARE(apr_bucket *) apr_bucket_heap_make(apr_bucket *b,
 		const char *buf, apr_size_t length, int copy, apr_size_t *w)
 {
     apr_bucket_heap *h;
@@ -108,7 +108,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_make_heap(apr_bucket *b,
 	h->alloc_len = length;
     }
 
-    b = apr_bucket_make_shared(b, h, 0, length);
+    b = apr_bucket_shared_make(b, h, 0, length);
     if (b == NULL) {
 	if (copy) {
 	    free(h->base);
@@ -125,17 +125,17 @@ APU_DECLARE(apr_bucket *) apr_bucket_make_heap(apr_bucket *b,
     return b;
 }
 
-APU_DECLARE(apr_bucket *) apr_bucket_create_heap(
+APU_DECLARE(apr_bucket *) apr_bucket_heap_create(
 		const char *buf, apr_size_t length, int copy, apr_size_t *w)
 {
-    apr_bucket_do_create(apr_bucket_make_heap(b, buf, length, copy, w));
+    apr_bucket_do_create(apr_bucket_heap_make(b, buf, length, copy, w));
 }
 
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_heap = {
     "HEAP", 5,
     heap_destroy,
     heap_read,
-    apr_bucket_setaside_notimpl,
-    apr_bucket_split_shared,
-    apr_bucket_copy_shared
+    apr_bucket_notimpl_setaside,
+    apr_bucket_shared_split,
+    apr_bucket_shared_copy
 };

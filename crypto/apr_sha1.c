@@ -241,7 +241,7 @@ static void maybe_byte_reverse(apr_uint32_t *buffer, int count)
 
 /* initialize the SHA digest */
 
-APU_DECLARE(void) apr_SHA1Init(apr_sha1_ctx_t *sha_info)
+APU_DECLARE(void) apr_sha1_init(apr_sha1_ctx_t *sha_info)
 {
     sha_info->digest[0] = 0x67452301L;
     sha_info->digest[1] = 0xefcdab89L;
@@ -255,7 +255,7 @@ APU_DECLARE(void) apr_SHA1Init(apr_sha1_ctx_t *sha_info)
 
 /* update the SHA digest */
 
-APU_DECLARE(void) apr_SHA1Update_binary(apr_sha1_ctx_t *sha_info,
+APU_DECLARE(void) apr_sha1_update_binary(apr_sha1_ctx_t *sha_info,
                                      const unsigned char *buffer,
                                      unsigned int count)
 {
@@ -294,7 +294,7 @@ APU_DECLARE(void) apr_SHA1Update_binary(apr_sha1_ctx_t *sha_info,
     sha_info->local = count;
 }
 
-APU_DECLARE(void) apr_SHA1Update(apr_sha1_ctx_t *sha_info, const char *buf,
+APU_DECLARE(void) apr_sha1_update(apr_sha1_ctx_t *sha_info, const char *buf,
                               unsigned int count)
 {
 #if APR_CHARSET_EBCDIC
@@ -342,13 +342,13 @@ APU_DECLARE(void) apr_SHA1Update(apr_sha1_ctx_t *sha_info, const char *buf,
                           (apr_byte_t *) sha_info->data, &outbytes_left);
     sha_info->local = count;
 #else
-    apr_SHA1Update_binary(sha_info, (const unsigned char *) buf, count);
+    apr_sha1_update_binary(sha_info, (const unsigned char *) buf, count);
 #endif
 }
 
 /* finish computing the SHA digest */
 
-APU_DECLARE(void) apr_SHA1Final(unsigned char digest[APR_SHA1_DIGESTSIZE],
+APU_DECLARE(void) apr_sha1_final(unsigned char digest[APR_SHA1_DIGESTSIZE],
                              apr_sha1_ctx_t *sha_info)
 {
     int count, i, j;
@@ -393,15 +393,15 @@ APU_DECLARE(void) apr_sha1_base64(const char *clear, int len, char *out)
 	clear += APR_SHA1PW_IDLEN;
     }
 
-    apr_SHA1Init(&context);
-    apr_SHA1Update(&context, clear, len);
-    apr_SHA1Final(digest, &context);
+    apr_sha1_init(&context);
+    apr_sha1_update(&context, clear, len);
+    apr_sha1_final(digest, &context);
 
     /* private marker. */
     apr_cpystrn(out, APR_SHA1PW_ID, APR_SHA1PW_IDLEN + 1);
 
     /* SHA1 hash is always 20 chars */
-    l = apr_base64encode_binary(out + APR_SHA1PW_IDLEN, digest, sizeof(digest));
+    l = apr_base64_encode_binary(out + APR_SHA1PW_IDLEN, digest, sizeof(digest));
     out[l + APR_SHA1PW_IDLEN] = '\0';
 
     /*

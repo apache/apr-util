@@ -58,7 +58,7 @@
 
 #include "apr_buckets.h"
 
-APU_DECLARE_NONSTD(apr_status_t) apr_bucket_split_shared(apr_bucket *a, apr_off_t point)
+APU_DECLARE_NONSTD(apr_status_t) apr_bucket_shared_split(apr_bucket *a, apr_off_t point)
 {
     apr_bucket *b;
     apr_bucket_shared *ad, *bd;
@@ -68,7 +68,7 @@ APU_DECLARE_NONSTD(apr_status_t) apr_bucket_split_shared(apr_bucket *a, apr_off_
 	return APR_EINVAL;
     }
 
-    rv = apr_bucket_copy_shared(a, &b);
+    rv = apr_bucket_shared_copy(a, &b);
     if (rv != APR_SUCCESS) {
         return rv;
     }
@@ -86,7 +86,7 @@ APU_DECLARE_NONSTD(apr_status_t) apr_bucket_split_shared(apr_bucket *a, apr_off_
     return APR_SUCCESS;
 }
 
-APU_DECLARE_NONSTD(apr_status_t) apr_bucket_copy_shared(apr_bucket *a, apr_bucket **c)
+APU_DECLARE_NONSTD(apr_status_t) apr_bucket_shared_copy(apr_bucket *a, apr_bucket **c)
 {
     apr_bucket *b;
     apr_bucket_shared *ad, *bd;
@@ -114,7 +114,7 @@ APU_DECLARE_NONSTD(apr_status_t) apr_bucket_copy_shared(apr_bucket *a, apr_bucke
     return APR_SUCCESS;
 }
 
-APU_DECLARE(void *) apr_bucket_destroy_shared(void *data)
+APU_DECLARE(void *) apr_bucket_shared_destroy(void *data)
 {
     apr_bucket_shared *s = data;
     apr_bucket_refcount *r = s->data;
@@ -129,7 +129,7 @@ APU_DECLARE(void *) apr_bucket_destroy_shared(void *data)
     }
 }
 
-APU_DECLARE(apr_bucket *) apr_bucket_make_shared(apr_bucket *b, void *data,
+APU_DECLARE(apr_bucket *) apr_bucket_shared_make(apr_bucket *b, void *data,
 					      apr_off_t start, apr_off_t end)
 {
     apr_bucket_shared *s;

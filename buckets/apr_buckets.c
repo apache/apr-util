@@ -70,46 +70,46 @@
 
 static apr_array_header_t *bucket_types;
 
-APU_DECLARE(void) apr_init_bucket_types(apr_pool_t *p)
+APU_DECLARE(void) apr_bucket_init_types(apr_pool_t *p)
 {
-    bucket_types = apr_make_array(p, 8, sizeof(apr_bucket_type_t));
+    bucket_types = apr_array_make(p, 8, sizeof(apr_bucket_type_t));
 
-    apr_insert_bucket_type(&apr_bucket_type_eos);
-    apr_insert_bucket_type(&apr_bucket_type_file);
-    apr_insert_bucket_type(&apr_bucket_type_heap);
+    apr_bucket_insert_type(&apr_bucket_type_eos);
+    apr_bucket_insert_type(&apr_bucket_type_file);
+    apr_bucket_insert_type(&apr_bucket_type_heap);
 #if APR_HAS_MMAP
-    apr_insert_bucket_type(&apr_bucket_type_mmap);
+    apr_bucket_insert_type(&apr_bucket_type_mmap);
 #endif
-    apr_insert_bucket_type(&apr_bucket_type_pipe);
-    apr_insert_bucket_type(&apr_bucket_type_immortal);
-    apr_insert_bucket_type(&apr_bucket_type_transient);
-    apr_insert_bucket_type(&apr_bucket_type_socket);
+    apr_bucket_insert_type(&apr_bucket_type_pipe);
+    apr_bucket_insert_type(&apr_bucket_type_immortal);
+    apr_bucket_insert_type(&apr_bucket_type_transient);
+    apr_bucket_insert_type(&apr_bucket_type_socket);
 }
 
-APU_DECLARE(int) apr_insert_bucket_type(const apr_bucket_type_t *type)
+APU_DECLARE(int) apr_bucket_insert_type(const apr_bucket_type_t *type)
 {
     const apr_bucket_type_t **newone;
 
-    newone = (const apr_bucket_type_t **)apr_push_array(bucket_types);
+    newone = (const apr_bucket_type_t **)apr_array_push(bucket_types);
     newone = &type;
 
     return bucket_types->nelts - 1;
 }
 
-APU_DECLARE_NONSTD(apr_status_t) apr_bucket_setaside_notimpl(apr_bucket *data)
+APU_DECLARE_NONSTD(apr_status_t) apr_bucket_notimpl_setaside(apr_bucket *data)
 {
     return APR_ENOTIMPL;
 }
 
-APU_DECLARE_NONSTD(apr_status_t) apr_bucket_split_notimpl(apr_bucket *data, apr_off_t point)
+APU_DECLARE_NONSTD(apr_status_t) apr_bucket_notimpl_split(apr_bucket *data, apr_off_t point)
 {
     return APR_ENOTIMPL;
 }
-APU_DECLARE_NONSTD(apr_status_t) apr_bucket_copy_notimpl(apr_bucket *e, apr_bucket **c)
+APU_DECLARE_NONSTD(apr_status_t) apr_bucket_notimpl_copy(apr_bucket *e, apr_bucket **c)
 {
     return APR_ENOTIMPL;
 }
-APU_DECLARE_NONSTD(void) apr_bucket_destroy_notimpl(void *data)
+APU_DECLARE_NONSTD(void) apr_bucket_notimpl_destroy(void *data)
 {
     return;
 }

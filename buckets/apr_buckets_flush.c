@@ -65,11 +65,11 @@ static apr_status_t flush_read(apr_bucket *b, const char **str,
 
 static apr_status_t flush_copy(apr_bucket *e, apr_bucket **c)
 {
-    *c = apr_bucket_create_flush();
+    *c = apr_bucket_flush_create();
     return APR_SUCCESS;
 }
 
-APU_DECLARE(apr_bucket *) apr_bucket_make_flush(apr_bucket *b)
+APU_DECLARE(apr_bucket *) apr_bucket_flush_make(apr_bucket *b)
 {
     b->length    = 0;
     b->data      = NULL;
@@ -79,16 +79,16 @@ APU_DECLARE(apr_bucket *) apr_bucket_make_flush(apr_bucket *b)
     return b;
 }
 
-APU_DECLARE(apr_bucket *) apr_bucket_create_flush(void)
+APU_DECLARE(apr_bucket *) apr_bucket_flush_create(void)
 {
-    apr_bucket_do_create(apr_bucket_make_flush(b));
+    apr_bucket_do_create(apr_bucket_flush_make(b));
 }
 
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_flush = {
     "FLUSH", 5,
-    apr_bucket_destroy_notimpl,
+    apr_bucket_notimpl_destroy,
     flush_read,
-    apr_bucket_setaside_notimpl,
-    apr_bucket_split_notimpl,
+    apr_bucket_notimpl_setaside,
+    apr_bucket_notimpl_split,
     flush_copy
 };

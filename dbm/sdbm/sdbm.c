@@ -115,9 +115,9 @@ static apr_status_t database_cleanup(void *data)
 {
     SDBM *db = data;
 
-    (void) apr_close(db->dirf);
+    (void) apr_file_close(db->dirf);
     (void) sdbm_unlock(db);
-    (void) apr_close(db->pagf);
+    (void) apr_file_close(db->pagf);
     free(db);
 
     return APR_SUCCESS;
@@ -163,21 +163,21 @@ sdbm_prep(SDBM **pdb, const char *dirname, const char *pagname,
          * If we fail anywhere, undo everything, return NULL.
          */
 
-	if ((status = apr_open(&db->pagf, pagname, flags, perms, p))
+	if ((status = apr_file_open(&db->pagf, pagname, flags, perms, p))
 	    != APR_SUCCESS)
             goto error;
 
         if ((status = sdbm_lock(db)) != APR_SUCCESS)
             goto error;
 
-        if ((status = apr_open(&db->dirf, dirname, flags, perms, p))
+        if ((status = apr_file_open(&db->dirf, dirname, flags, perms, p))
             != APR_SUCCESS)
             goto error;
 
         /*
          * need the dirfile size to establish max bit number.
          */
-        if ((status = apr_getfileinfo(&finfo, APR_FINFO_SIZE, db->dirf)) 
+        if ((status = apr_file_info_get(&finfo, APR_FINFO_SIZE, db->dirf)) 
                 != APR_SUCCESS)
             goto error;
 
@@ -192,7 +192,7 @@ sdbm_prep(SDBM **pdb, const char *dirname, const char *pagname,
         /* (apr_pcalloc zeroed the buffers) */
 
         /* make sure that we close the database at some point */
-        apr_register_cleanup(p, db, database_cleanup, apr_null_cleanup);
+        apr_pool_cleanup_register(p, db, database_cleanup, apr_pool_cleanup_null);
 
         /* Done! */
         *pdb = db;
@@ -200,10 +200,10 @@ sdbm_prep(SDBM **pdb, const char *dirname, const char *pagname,
 
   error:
         if (db->dirf != NULL)
-            (void) apr_close(db->dirf);
+            (void) apr_file_close(db->dirf);
         if (db->pagf != NULL) {
             (void) sdbm_unlock(db);
-            (void) apr_close(db->pagf);
+            (void) apr_file_close(db->pagf);
         }
         free(db);
         return status;
@@ -212,7 +212,7 @@ sdbm_prep(SDBM **pdb, const char *dirname, const char *pagname,
 void
 sdbm_close(SDBM *db)
 {
-    (void) apr_run_cleanup(db->pool, db, database_cleanup);
+    (void) apr_pool_cleanup_run(db->pool, db, database_cleanup);
 }
 
 sdbm_datum
@@ -233,8 +233,8 @@ static apr_status_t write_page(SDBM *db, const char *buf, long pagno)
     apr_status_t status;
     apr_off_t off = OFF_PAG(pagno);
     
-    if ((status = apr_seek(db->pagf, APR_SET, &off)) != APR_SUCCESS ||
-	(status = apr_full_write(db->pagf, buf, PBLKSIZ, NULL)) != APR_SUCCESS) {
+    if ((status = apr_file_seek(db->pagf, APR_SET, &off)) != APR_SUCCESS ||
+	(status = apr_file_write_full(db->pagf, buf, PBLKSIZ, NULL)) != APR_SUCCESS) {
 	ioerr(db);
 	return status;
     }
@@ -413,8 +413,8 @@ static apr_status_t read_from(apr_file_t *f, void *buf,
 {
     apr_status_t status;
 
-    if ((status = apr_seek(f, APR_SET, &off)) != APR_SUCCESS ||
-	((status = apr_full_read(f, buf, len, NULL)) != APR_SUCCESS)) {
+    if ((status = apr_file_seek(f, APR_SET, &off)) != APR_SUCCESS ||
+	((status = apr_file_read_file(f, buf, len, NULL)) != APR_SUCCESS)) {
 	/* if EOF is reached, pretend we read all zero's */
 	if (status == APR_EOF) {
 	    memset(buf, 0, len);
@@ -551,8 +551,8 @@ setdbit(SDBM *db, long dbit)
 		db->maxbno += DBLKSIZ * BYTESIZ;
 
 	off = OFF_DIR(dirb);
-	if (((status = apr_seek(db->dirf, APR_SET, &off)) != APR_SUCCESS)
-	    || (status = apr_full_write(db->dirf, db->dirbuf, DBLKSIZ,
+	if (((status = apr_file_seek(db->dirf, APR_SET, &off)) != APR_SUCCESS)
+	    || (status = apr_file_write_full(db->dirf, db->dirbuf, DBLKSIZ,
                                        NULL)) != APR_SUCCESS) {
 	    return status;
         }
@@ -582,13 +582,13 @@ getnext(SDBM *db)
 		db->keyptr = 0;
 		if (db->pagbno != db->blkptr++) {
 		    apr_off_t off = OFF_PAG(db->blkptr);
-		    if (apr_seek(db->pagf, APR_SET, &off) != APR_SUCCESS)
+		    if (apr_file_seek(db->pagf, APR_SET, &off) != APR_SUCCESS)
 			break;
 		}
 
 		db->pagbno = db->blkptr;
 		/* ### EOF acceptable here too? */
-		if (apr_full_read(db->pagf, db->pagbuf, PBLKSIZ, NULL) != APR_SUCCESS)
+		if (apr_file_read_file(db->pagf, db->pagbuf, PBLKSIZ, NULL) != APR_SUCCESS)
 			break;
 		if (!chkpage(db->pagbuf))
 			break;

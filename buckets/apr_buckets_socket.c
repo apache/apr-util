@@ -89,7 +89,7 @@ static apr_status_t socket_read(apr_bucket *a, const char **str,
      * Change the current bucket to refer to what we read,
      * even if we read nothing because we hit EOF.
      */
-    apr_bucket_make_heap(a, buf, *len, 0, NULL);  /* XXX: check for failure? */
+    apr_bucket_heap_make(a, buf, *len, 0, NULL);  /* XXX: check for failure? */
     /*
      * If there's more to read we have to keep the rest of the socket
      * for later. XXX: Note that more complicated bucket types that
@@ -106,7 +106,7 @@ static apr_status_t socket_read(apr_bucket *a, const char **str,
      * down for reading, but there is no benefit to doing so.
      */
     if (*len > 0) {
-        b = apr_bucket_create_socket(p);
+        b = apr_bucket_socket_create(p);
 	APR_BUCKET_INSERT_AFTER(a, b);
     }
     else if (rv == APR_EOF && block == APR_NONBLOCK_READ) {
@@ -115,7 +115,7 @@ static apr_status_t socket_read(apr_bucket *a, const char **str,
     return APR_SUCCESS;
 }
 
-APU_DECLARE(apr_bucket *) apr_bucket_make_socket(apr_bucket *b, apr_socket_t *p)
+APU_DECLARE(apr_bucket *) apr_bucket_socket_make(apr_bucket *b, apr_socket_t *p)
 {
     /*
      * XXX: We rely on a cleanup on some pool or other to actually
@@ -132,16 +132,16 @@ APU_DECLARE(apr_bucket *) apr_bucket_make_socket(apr_bucket *b, apr_socket_t *p)
     return b;
 }
 
-APU_DECLARE(apr_bucket *) apr_bucket_create_socket(apr_socket_t *p)
+APU_DECLARE(apr_bucket *) apr_bucket_socket_create(apr_socket_t *p)
 {
-    apr_bucket_do_create(apr_bucket_make_socket(b, p));
+    apr_bucket_do_create(apr_bucket_socket_make(b, p));
 }
 
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_socket = {
     "SOCKET", 5,
-    apr_bucket_destroy_notimpl,
+    apr_bucket_notimpl_destroy,
     socket_read,
-    apr_bucket_setaside_notimpl, 
-    apr_bucket_split_notimpl,
-    apr_bucket_copy_notimpl
+    apr_bucket_notimpl_setaside, 
+    apr_bucket_notimpl_split,
+    apr_bucket_notimpl_copy
 };
