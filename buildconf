@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Remove aclocal.m4 as it'll break some builds...
+@rm aclocal.m4
+
 #
 # Generate the autoconf header (include/apu_config.h) and ./configure
 #
