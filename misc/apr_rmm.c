@@ -193,13 +193,32 @@ static void move_block(apr_rmm_t *rmm, apr_rmm_off_t this, int free)
     /* and open it up */
     if (blk->prev) {
         struct rmm_block_t *prev = (rmm_block_t*)((char*)rmm->base + blk->prev);
-        blk->next = prev->next;
-        prev->next = this;
+        if (free && (blk->prev + prev->size == this)) {
+            /* Collapse us into our predecessor */
+            prev->size += blk->size;
+            this = blk->prev;
+            blk = prev;
+        }
+        else {
+            blk->next = prev->next;
+            prev->next = this;
+        }
     }
 
     if (blk->next) {
         struct rmm_block_t *next = (rmm_block_t*)((char*)rmm->base + blk->next);
-        next->prev = this;
+        if (free && (this + blk->size == blk->next)) {
+            /* Collapse us into our successor */
+            blk->size += next->size;
+            blk->next = next->next;
+            if (blk->next) {
+                next = (rmm_block_t*)((char*)rmm->base + blk->next);
+                next->prev = this;
+            }
+        }
+        else {
+            next->prev = this;
+        }
     }
 }
 
