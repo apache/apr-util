@@ -121,21 +121,6 @@
  * routines, this enum will be a huge performance benefit, so we leave it
  * alone.
  */
-typedef enum {
-    AP_BUCKET_HEAP,
-    AP_BUCKET_TRANSIENT,
-    AP_BUCKET_FILE,
-    AP_BUCKET_MMAP,
-    AP_BUCKET_IMMORTAL,
-    AP_BUCKET_POOL,
-    AP_BUCKET_SOCKET,
-    AP_BUCKET_PIPE,
-    AP_BUCKET_EOS        /* End-of-stream bucket.  Special case to say this is
-                          * the end of the brigade so all data should be sent
-                          * immediately.
-			  */
-} ap_bucket_type_e;
-
 #define AP_END_OF_BRIGADE       -1
 
 /**
@@ -160,7 +145,7 @@ struct ap_bucket {
     AP_RING_ENTRY(ap_bucket) link;
     /** The type of bucket.  These types can be found in the enumerated
      *  type above */
-    ap_bucket_type_e type;
+    int type;
     /** type-dependent data hangs off this pointer */
     void *data;	
     /** The length of the data in the bucket.  This could have been implemented
@@ -169,12 +154,10 @@ struct ap_bucket {
      *  the value of this field will be -1.
      */
     apr_off_t length;
+};
 
-    /** @tip all of these function pointers may be replaced by some
-     *  other means for getting to the functions, like a an index into
-     *  a table.  In any case, these functions will always be available.
-     */
-
+typedef struct ap_bucket_type ap_bucket_type;
+struct ap_bucket_type {
     /**
      * Free the private data and any resources used by the bucket
      * (if they aren't shared with another bucket).
@@ -458,6 +441,14 @@ API_EXPORT(int) ap_brigade_vprintf(ap_bucket_brigade *b, const char *fmt, va_lis
 /*  *****  Bucket Functions  *****  */
 
 /**
+ * Initialize the core implemented bucket types.  Once this is done,
+ * it is possible to add new bucket types to the server
+ * @param p The pool to allocate the array out of.
+ * @deffunc void ap_init_bucket_types(apr_pool_t *p)
+ */
+void ap_init_bucket_types(apr_pool_t *p);
+
+/**
  * free the resources used by a bucket. If multiple buckets refer to
  * the same resource it is freed when the last one goes away.
  * @param e The bucket to destroy
@@ -465,6 +456,52 @@ API_EXPORT(int) ap_brigade_vprintf(ap_bucket_brigade *b, const char *fmt, va_lis
  */
 API_EXPORT(apr_status_t) ap_bucket_destroy(ap_bucket *e);
 
+/**
+ * read the data from the bucket
+ * @param e The bucket to read from
+ * @param str The location to store the data in
+ * @param len The amount of data read
+ * @param block Whether the read function blocks
+ * @deffunc apr_status_t ap_bucket_read(ap_bucket *e, const char **str, apr_ssize_t *len, int block)
+ */
+API_EXPORT(apr_status_t) ap_bucket_read(ap_bucket *e, const char **str,
+                                        apr_ssize_t *len, int block);
+
+/**
+ * Setaside data so that stack data is not destroyed on returning from
+ * the function
+ * @param e The bucket to setaside
+ * @deffunc apr_status_t ap_bucket_setaside(ap_bucket *e)
+ */
+API_EXPORT(apr_status_t) ap_bucket_setaside(ap_bucket *e);
+
+/**
+ * Split one bucket in two.
+ * @param e The bucket to split
+ * @param point The location to split the bucket at
+ * @deffunc apr_status_t ap_bucket_split(ap_bucket *e, apr_off_t point)
+ */
+API_EXPORT(apr_status_t) ap_bucket_split(ap_bucket *e, apr_off_t point);
+
+void ap_bucket_file_register(apr_pool_t *p);
+void ap_bucket_heap_register(apr_pool_t *p);
+void ap_bucket_transient_register(apr_pool_t *p);
+void ap_bucket_mmap_register(apr_pool_t *p);
+void ap_bucket_immortal_register(apr_pool_t *p);
+void ap_bucket_socket_register(apr_pool_t *p);
+void ap_bucket_pipe_register(apr_pool_t *p);
+void ap_bucket_eos_register(apr_pool_t *p);
+
+int ap_file_type(void);
+int ap_heap_type(void);
+int ap_transient_type(void);
+int ap_mmap_type(void);
+int ap_immortal_type(void);
+int ap_socket_type(void);
+int ap_pipe_type(void);
+int ap_eos_type(void);
+
+int ap_insert_bucket_type(ap_bucket_type *type);
 
 /*  *****  Shared reference-counted buckets  *****  */
 

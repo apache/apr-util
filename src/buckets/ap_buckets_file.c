@@ -57,6 +57,8 @@
 #include "ap_buckets.h"
 #include <stdlib.h>
 
+static int file_type;
+
 /* XXX: We should obey the block flag */
 static apr_status_t file_read(ap_bucket *e, const char **str,
 			      apr_ssize_t *len, int block)
@@ -121,13 +123,9 @@ API_EXPORT(ap_bucket *) ap_bucket_make_file(ap_bucket *b, apr_file_t *fd,
     f->fd = fd;
     f->offset = offset;
 
-    b->type = AP_BUCKET_FILE;
+    b->type = file_type;
     b->data = f;
     b->length = len;
-    b->destroy = NULL;
-    b->read = file_read;
-    b->setaside = NULL;
-    b->split = NULL;
 
     return b;
 }
@@ -136,3 +134,21 @@ API_EXPORT(ap_bucket *) ap_bucket_create_file(apr_file_t *fd, apr_off_t offset, 
 {
     ap_bucket_do_create(ap_bucket_make_file(b, fd, offset, len));
 }
+
+void ap_bucket_file_register(apr_pool_t *p)
+{
+    ap_bucket_type type;
+
+    type.destroy = NULL;
+    type.read = file_read;
+    type.setaside = NULL;
+    type.split = NULL;
+
+    file_type = ap_insert_bucket_type(&type);
+}
+
+int ap_file_type(void)
+{
+    return file_type;
+}
+

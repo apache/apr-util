@@ -62,13 +62,44 @@
 #endif
 #include "ap_buckets.h"
 
+static apr_array_header_t *bucket_types;
+
 API_EXPORT(apr_status_t) ap_bucket_destroy(ap_bucket *e)
 {
-    if (e->destroy) {
-        e->destroy(e->data);
+    ap_bucket_type *type = (ap_bucket_type *)bucket_types->elts;
+    if (type[e->type].destroy) {
+        type[e->type].destroy(e->data);
     }
     free(e);
     return APR_SUCCESS;
+}
+
+API_EXPORT(apr_status_t) ap_bucket_read(ap_bucket *e, const char **str, 
+                                        apr_ssize_t *len, int block)
+{
+    ap_bucket_type *type = (ap_bucket_type *)bucket_types->elts;
+    if (type[e->type].read) {
+        return type[e->type].read(e, str, len, block);
+    }
+    return APR_ENOTIMPL;
+}
+
+API_EXPORT(apr_status_t) ap_bucket_setaside(ap_bucket *e)
+{
+    ap_bucket_type *type = (ap_bucket_type *)bucket_types->elts;
+    if (type[e->type].setaside) {
+        return type[e->type].setaside(e);
+    }
+    return APR_ENOTIMPL;
+}
+
+API_EXPORT(apr_status_t) ap_bucket_split(ap_bucket *e, apr_off_t point)
+{
+    ap_bucket_type *type = (ap_bucket_type *)bucket_types->elts;
+    if (type[e->type].split) {
+        return type[e->type].split(e, point);
+    }
+    return APR_ENOTIMPL;
 }
 
 static apr_status_t ap_brigade_cleanup(void *data)
@@ -137,7 +168,7 @@ API_EXPORT(int) ap_brigade_to_iovec(ap_bucket_brigade *b,
     AP_BRIGADE_FOREACH(e, b) {
 	if (nvec-- == 0)
             break;
-	e->read(e, (const char **)&vec->iov_base, &iov_len, 0);
+	ap_bucket_read(e, (const char **)&vec->iov_base, &iov_len, 0);
         vec->iov_len = iov_len; /* set indirectly in case size differs */
 	++vec;
     }
@@ -209,3 +240,29 @@ API_EXPORT(int) ap_brigade_vprintf(ap_bucket_brigade *b, const char *fmt, va_lis
 
     return res;
 }
+
+void ap_init_bucket_types(apr_pool_t *p)
+{
+    bucket_types = apr_make_array(p, 1, sizeof(ap_bucket_type));
+    ap_bucket_heap_register(p);
+    ap_bucket_transient_register(p);
+    ap_bucket_file_register(p);
+    ap_bucket_mmap_register(p);
+    ap_bucket_immortal_register(p);
+    ap_bucket_socket_register(p);
+    ap_bucket_pipe_register(p);
+    ap_bucket_eos_register(p);
+}
+
+int ap_insert_bucket_type(ap_bucket_type *type)
+{
+    ap_bucket_type *newone = (ap_bucket_type *)apr_push_array(bucket_types);
+
+    newone->read = type->read;
+    newone->setaside = type->setaside;
+    newone->destroy = type->destroy;
+    newone->split = type->split;
+
+    return bucket_types->nelts - 1;
+}
+
