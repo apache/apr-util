@@ -94,6 +94,8 @@ typedef struct
 #define APR_DBM_READONLY        1       /**< open for read-only access */
 #define APR_DBM_READWRITE       2       /**< open for read-write access */
 #define APR_DBM_RWCREATE        3       /**< open for r/w, create if needed */
+#define APR_DBM_RWTRUNC         4       /**< open for r/w, truncating a existing
+                                          DB if present */
 
 /**
  * Open a dbm file by file name
@@ -104,6 +106,7 @@ typedef struct
  *           APR_DBM_READONLY   open for read-only access
  *           APR_DBM_READWRITE  open for read-write access
  *           APR_DBM_RWCREATE   open for r/w, create if needed
+ *           APR_DBM_RWTRUNC    open for r/w, truncatate if already there
  * </PRE>
  * @param perm Permissions to apply to if created
  * @param cntxt The pool to use when creating the dbm
