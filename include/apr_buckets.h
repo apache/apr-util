@@ -152,11 +152,6 @@ typedef struct apr_bucket_brigade apr_bucket_brigade;
 typedef struct apr_bucket apr_bucket;
 typedef struct apr_bucket_alloc_t apr_bucket_alloc_t;
 
-/** This bucket type represents actual data to send to the client. */
-#define APR_BUCKET_DATA             0
-/** This bucket type represents metadata. */
-#define APR_BUCKET_METADATA         1
-
 typedef struct apr_bucket_type_t apr_bucket_type_t;
 struct apr_bucket_type_t {
     /**
@@ -169,9 +164,21 @@ struct apr_bucket_type_t {
      */
     int num_func;
     /**
-     * Does the bucket contain metadata
+     * Whether the bucket contains metadata (ie, information that
+     * describes the regular contents of the brigade).  The metadata
+     * is not returned by apr_bucket_read() and is not indicated by
+     * the ->length of the apr_bucket itself.  In other words, an
+     * empty bucket is safe to arbitrarily remove if and only if it
+     * contains no metadata.  In this sense, "data" is just raw bytes
+     * that are the "content" of the brigade and "metadata" describes
+     * that data but is not a proper part of it.
      */
-    int is_metadata;
+    enum {
+        /** This bucket type represents actual data to send to the client. */
+        APR_BUCKET_DATA = 0,
+        /** This bucket type represents metadata. */
+        APR_BUCKET_METADATA = 1
+    } is_metadata;
     /**
      * Free the private data and any resources used by the bucket (if they
      *  aren't shared with another bucket).  This function is required to be
@@ -456,7 +463,8 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
 #define APR_BUCKET_INIT(e)	APR_RING_ELEM_INIT((e), link)
 
 /**
- * Determind if a bucket contains metadata
+ * Determine if a bucket contains metadata.  An empty bucket is
+ * safe to arbitrarily remove if and only if this is false.
  * @param e The bucket to inspect
  * @return true or false
  */
