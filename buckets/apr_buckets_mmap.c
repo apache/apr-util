@@ -78,7 +78,7 @@ static void mmap_destroy(void *data)
 {
     apr_bucket_mmap *m = data;
 
-    if (apr_bucket_shared_destroy(data)) {
+    if (apr_bucket_shared_destroy(m)) {
         /* XXX: apr_mmap_delete(m->mmap)? */
         free(m);
     }

@@ -72,7 +72,7 @@ static void heap_destroy(void *data)
 {
     apr_bucket_heap *h = data;
 
-    if (apr_bucket_shared_destroy(data)) {
+    if (apr_bucket_shared_destroy(h)) {
         free(h->base);
         free(h);
     }
