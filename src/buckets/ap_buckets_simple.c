@@ -57,6 +57,9 @@
 #include "ap_buckets.h"
 #include <stdlib.h>
 
+static int immortal_type;
+static int transient_type;
+
 /*
  * We can't simplify this function by using an ap_bucket_make function
  * because we aren't sure of the exact type of this bucket.
@@ -116,12 +119,8 @@ API_EXPORT(ap_bucket *) ap_bucket_make_immortal(ap_bucket *b,
     bd->start   = buf;
     bd->end     = buf+length;
 
-    b->type     = AP_BUCKET_IMMORTAL;
+    b->type     = immortal_type;
     b->length   = length;
-    b->setaside = NULL;
-    b->destroy  = free;
-    b->split    = simple_split;
-    b->read     = simple_read;
     b->data     = bd;
 
     return b;
@@ -131,6 +130,23 @@ API_EXPORT(ap_bucket *) ap_bucket_create_immortal(
 		const char *buf, apr_size_t length)
 {
     ap_bucket_do_create(ap_bucket_make_immortal(b, buf, length));
+}
+
+void ap_bucket_immortal_register(apr_pool_t *p)
+{
+    ap_bucket_type type;
+
+    type.setaside = NULL;
+    type.destroy  = free;
+    type.split    = simple_split;
+    type.read     = simple_read;
+
+    immortal_type = ap_insert_bucket_type(&type);
+}
+
+int ap_immortal_type(void)
+{
+    return immortal_type;
 }
 
 /*
@@ -167,8 +183,7 @@ API_EXPORT(ap_bucket *) ap_bucket_make_transient(ap_bucket *b,
     if (b == NULL) {
 	return NULL;
     }
-    b->type = AP_BUCKET_TRANSIENT;
-    b->setaside = transient_setaside;
+    b->type = transient_type;
     return b;
 }
 
@@ -176,4 +191,21 @@ API_EXPORT(ap_bucket *) ap_bucket_create_transient(
 		const char *buf, apr_size_t length)
 {
     ap_bucket_do_create(ap_bucket_make_transient(b, buf, length));
+}
+
+void ap_bucket_transient_register(apr_pool_t *p)
+{
+    ap_bucket_type type;
+
+    type.destroy = NULL;
+    type.read = NULL;
+    type.setaside = transient_setaside;
+    type.split = NULL;
+
+    transient_type = ap_insert_bucket_type(&type);
+}
+
+int ap_transient_type(void)
+{
+    return transient_type;
 }
