@@ -310,22 +310,22 @@ SOURCE=.\include\apr_ldap.hw
 
 !IF  "$(CFG)" == "aprutil - Win32 Release"
 
-# Begin Custom Build - Creating apr_ldap.h from apr_ldap.hw 
+# Begin Custom Build - Creating apr_ldap.h from apr_ldap.hw
 InputPath=.\include\apr_ldap.hw
 
 ".\include\apr_ldap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	type .\include\apr_ldap.hw > .\include\apr_ldap.h
-	
+
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
 
-# Begin Custom Build - Creating apr_ldap.h from apr_ldap.hw 
+# Begin Custom Build - Creating apr_ldap.h from apr_ldap.hw
 InputPath=.\include\apr_ldap.hw
 
 ".\include\apr_ldap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	type .\include\apr_ldap.hw > .\include\apr_ldap.h
-	
+
 # End Custom Build
 
 !ENDIF 
@@ -345,22 +345,22 @@ SOURCE=.\include\apu.hw
 
 !IF  "$(CFG)" == "aprutil - Win32 Release"
 
-# Begin Custom Build - Creating apu.h from apu.hw 
+# Begin Custom Build - Creating apu.h from apu.hw
 InputPath=.\include\apu.hw
 
 ".\include\apu.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	type .\include\apu.hw > .\include\apu.h
-	
+
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
 
-# Begin Custom Build - Creating apu.h from apu.hw 
+# Begin Custom Build - Creating apu.h from apu.hw
 InputPath=.\include\apu.hw
 
 ".\include\apu.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	type .\include\apu.hw > .\include\apu.h
-	
+
 # End Custom Build
 
 !ENDIF 
@@ -376,22 +376,22 @@ SOURCE=.\include\private\apu_config.hw
 
 !IF  "$(CFG)" == "aprutil - Win32 Release"
 
-# Begin Custom Build - Creating apu_config.h from apu_config.hw 
+# Begin Custom Build - Creating apu_config.h from apu_config.hw
 InputPath=.\include\private\apu_config.hw
 
 ".\include\private\apu_config.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	type .\include\private\apu_config.hw > .\include\private\apu_config.h
-	
+
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
 
-# Begin Custom Build - Creating apu_config.h from apu_config.hw 
+# Begin Custom Build - Creating apu_config.h from apu_config.hw
 InputPath=.\include\private\apu_config.hw
 
 ".\include\private\apu_config.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	type .\include\private\apu_config.hw > .\include\private\apu_config.h
-	
+
 # End Custom Build
 
 !ENDIF 
@@ -407,22 +407,22 @@ SOURCE=.\include\private\apu_select_dbm.hw
 
 !IF  "$(CFG)" == "aprutil - Win32 Release"
 
-# Begin Custom Build - Creating apu_select_dbm.h from apu_select_dbm.hw 
+# Begin Custom Build - Creating apu_select_dbm.h from apu_select_dbm.hw
 InputPath=.\include\private\apu_select_dbm.hw
 
 ".\include\private\apu_select_dbm.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	type .\include\private\apu_select_dbm.hw > .\include\private\apu_select_dbm.h
-	
+
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
 
-# Begin Custom Build - Creating apu_select_dbm.h from apu_select_dbm.hw 
+# Begin Custom Build - Creating apu_select_dbm.h from apu_select_dbm.hw
 InputPath=.\include\private\apu_select_dbm.hw
 
 ".\include\private\apu_select_dbm.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	type .\include\private\apu_select_dbm.hw > .\include\private\apu_select_dbm.h
-	
+
 # End Custom Build
 
 !ENDIF 
@@ -438,8 +438,8 @@ SOURCE=.\uri\gen_uri_delims.exe
 InputPath=.\uri\gen_uri_delims.exe
 
 ".\uri\uri_delims.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	.\uri\gen_uri_delims.exe >.\uri\uri_delims.h 
-	
+	.\uri\gen_uri_delims.exe >.\uri\uri_delims.h
+
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
@@ -448,8 +448,8 @@ InputPath=.\uri\gen_uri_delims.exe
 InputPath=.\uri\gen_uri_delims.exe
 
 ".\uri\uri_delims.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	.\uri\gen_uri_delims.exe >.\uri\uri_delims.h 
-	
+	.\uri\gen_uri_delims.exe >.\uri\uri_delims.h
+
 # End Custom Build
 
 !ENDIF 
