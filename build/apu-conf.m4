@@ -57,7 +57,6 @@ AC_MSG_RESULT($APR_INCLUDES)
 AC_SUBST(APR_BUILD_DIR)
 AC_SUBST(APR_SOURCE_DIR)
 AC_SUBST(APR_INCLUDES)
-dnl not sure --  AC_SUBST(APRUTIL_INCLUDES)
 ])
 
 dnl
@@ -491,11 +490,8 @@ APR_XML_DIR=$bundled_subdir
 AC_SUBST(APR_XML_SUBDIRS)
 AC_SUBST(APR_XML_DIR)
 
-dnl APR_ADDTO(INCLUDES, [-I$expat_include_dir])
 APR_ADDTO(APRUTIL_INCLUDES, [-I$expat_include_dir])
-APR_ADDTO(LIBS, [$expat_libs])
 APR_ADDTO(APRUTIL_EXPORT_LIBS, [$expat_libs])
-dnl ### export the Expat includes?
 ])
 
 
