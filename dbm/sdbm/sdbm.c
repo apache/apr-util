@@ -177,8 +177,8 @@ sdbm_prep(SDBM **pdb, const char *dirname, const char *pagname,
         /*
          * need the dirfile size to establish max bit number.
          */
-        if (((status = apr_getfileinfo(&finfo, APR_FINFO_SIZE, db->dirf)) 
-              != APR_SUCCESS) || !(finfo.valid & APR_FINFO_SIZE))
+        if ((status = apr_getfileinfo(&finfo, APR_FINFO_NORM, db->dirf)) 
+                != APR_SUCCESS)
             goto error;
 
         /*
