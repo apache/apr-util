@@ -341,7 +341,7 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
  * Insert a list of buckets at the end of a brigade
  * @param b The brigade to add to
  * @param e The first bucket in a list of buckets to insert
- * @deffunc void APR_BRIGADE_INSERT_HEAD(apr_bucket_brigade *b, apr_bucket *e)
+ * @deffunc void APR_BRIGADE_INSERT_TAIL(apr_bucket_brigade *b, apr_bucket *e)
  */
 #define APR_BRIGADE_INSERT_TAIL(b, e) do {				\
 	apr_bucket *ap__b = (e);					\
