@@ -65,6 +65,7 @@ CLEAN :
 	-@erase "$(INTDIR)\apr_dbm.obj"
 	-@erase "$(INTDIR)\apr_hooks.obj"
 	-@erase "$(INTDIR)\apr_sha1.obj"
+	-@erase "$(INTDIR)\apr_uri.obj"
 	-@erase "$(INTDIR)\apr_xml.obj"
 	-@erase "$(INTDIR)\aprutil.idb"
 	-@erase "$(INTDIR)\sdbm.obj"
@@ -138,6 +139,7 @@ LIB32_OBJS= \
 	"$(INTDIR)\apr_dbm.obj" \
 	"$(INTDIR)\apr_hooks.obj" \
 	"$(INTDIR)\apr_sha1.obj" \
+	"$(INTDIR)\apr_uri.obj" \
 	"$(INTDIR)\apr_xml.obj" \
 	"$(INTDIR)\sdbm.obj" \
 	"$(INTDIR)\sdbm_hash.obj" \
@@ -190,6 +192,7 @@ CLEAN :
 	-@erase "$(INTDIR)\apr_dbm.obj"
 	-@erase "$(INTDIR)\apr_hooks.obj"
 	-@erase "$(INTDIR)\apr_sha1.obj"
+	-@erase "$(INTDIR)\apr_uri.obj"
 	-@erase "$(INTDIR)\apr_xml.obj"
 	-@erase "$(INTDIR)\aprutil.idb"
 	-@erase "$(INTDIR)\aprutil.pdb"
@@ -264,6 +267,7 @@ LIB32_OBJS= \
 	"$(INTDIR)\apr_dbm.obj" \
 	"$(INTDIR)\apr_hooks.obj" \
 	"$(INTDIR)\apr_sha1.obj" \
+	"$(INTDIR)\apr_uri.obj" \
 	"$(INTDIR)\apr_xml.obj" \
 	"$(INTDIR)\sdbm.obj" \
 	"$(INTDIR)\sdbm_hash.obj" \
@@ -708,6 +712,26 @@ DEP_CPP_APR_H=\
 
 "$(INTDIR)\apr_hooks.obj" : $(SOURCE) $(DEP_CPP_APR_H) "$(INTDIR)"\
  ".\include\apu.h"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+SOURCE=.\uri\apr_uri.c
+DEP_CPP_APR_X=\
+	"..\apr\include\apr.h"\
+	"..\apr\include\apr_errno.h"\
+	"..\apr\include\apr_pools.h"\
+	"..\apr\include\apr_strings.h"\
+	"..\apr\include\apr_want.h"\
+	".\include\apr_uri.h"\
+	".\include\apu.h"\
+	".\include\private\apu_config.h"\
+	
+NODEP_CPP_APR_X=\
+	".\uri\uri_delims.h"\
+	
+
+"$(INTDIR)\apr_xml.obj" : $(SOURCE) $(DEP_CPP_APR_X) "$(INTDIR)"\
+ ".\include\private\apu_config.h" ".\include\apu.h"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
