@@ -107,11 +107,7 @@ static apr_rmm_off_t find_block_of_size(apr_rmm_t *rmm, apr_size_t size)
         }
     }
 
-    if (best) {
-        return best;
-    }
-     
-    return 0;
+    return best;
 }
 
 static void move_block(apr_rmm_t *rmm, apr_rmm_off_t this, int free)
@@ -216,8 +212,7 @@ APU_DECLARE(apr_status_t) apr_rmm_init(apr_rmm_t **rmm, apr_anylock_t *lock,
     blk->prev = 0;
     blk->next = 0;
 
-    APR_ANYLOCK_UNLOCK(lock);
-    return APR_SUCCESS;
+    return APR_ANYLOCK_UNLOCK(lock);
 }
 
 APU_DECLARE(apr_status_t) apr_rmm_destroy(apr_rmm_t *rmm)
@@ -250,8 +245,7 @@ APU_DECLARE(apr_status_t) apr_rmm_destroy(apr_rmm_t *rmm)
     rmm->base->abssize = 0;
     rmm->size = 0;
 
-    APR_ANYLOCK_UNLOCK(&rmm->lock);
-    return APR_SUCCESS;
+    return APR_ANYLOCK_UNLOCK(&rmm->lock);
 }
 
 APU_DECLARE(apr_status_t) apr_rmm_attach(apr_rmm_t **rmm, apr_anylock_t *lock,
@@ -335,7 +329,7 @@ APU_DECLARE(apr_rmm_off_t) apr_rmm_realloc(apr_rmm_t *rmm, void *entity,
     old = apr_rmm_offset_get(rmm, entity);
 
     if ((this = apr_rmm_malloc(rmm, reqsize)) == 0) {
-        return this;
+        return 0;
     }
 
     blk = (rmm_block_t*)((char*)rmm->base + old);
@@ -393,8 +387,7 @@ APU_DECLARE(apr_status_t) apr_rmm_free(apr_rmm_t *rmm, apr_rmm_off_t this)
      */
     move_block(rmm, this, 1);
     
-    APR_ANYLOCK_UNLOCK(&rmm->lock);
-    return APR_SUCCESS;
+    return APR_ANYLOCK_UNLOCK(&rmm->lock);
 }
 
 APU_DECLARE(void *) apr_rmm_addr_get(apr_rmm_t *rmm, apr_rmm_off_t entity) 
