@@ -73,10 +73,14 @@ typedef struct apr_anylock_t {
     } type;
     union apr_anylock_u_t {
         apr_proc_mutex_t *pm;
+#if APR_HAS_THREADS
         apr_thread_mutex_t *tm;
         apr_thread_rwlock_t *rw;
+#endif
     } lock;
 } apr_anylock_t;
+
+#if APR_HAS_THREADS
 
 #define APR_ANYLOCK_LOCK(lck)                \
     (((lck)->type == apr_anylock_none)         \
@@ -91,6 +95,19 @@ typedef struct apr_anylock_t {
                       ? apr_thread_rwlock_wrlock((lck)->lock.rw) \
                       : APR_EINVAL)))))
 
+#else /* APR_HAS_THREADS */
+
+#define APR_ANYLOCK_LOCK(lck)                \
+    (((lck)->type == apr_anylock_none)         \
+      ? APR_SUCCESS                              \
+          : (((lck)->type == apr_anylock_procmutex)    \
+              ? apr_proc_mutex_lock((lck)->lock.pm)      \
+                      : APR_EINVAL))
+
+#endif /* APR_HAS_THREADS */
+
+#if APR_HAS_THREADS
+
 #define APR_ANYLOCK_TRYLOCK(lck)                \
     (((lck)->type == apr_anylock_none)            \
       ? APR_SUCCESS                                 \
@@ -104,6 +121,19 @@ typedef struct apr_anylock_t {
                       ? apr_thread_rwlock_trywrlock((lck)->lock.rw) \
                           : APR_EINVAL)))))
 
+#else /* APR_HAS_THREADS */
+
+#define APR_ANYLOCK_TRYLOCK(lck)                \
+    (((lck)->type == apr_anylock_none)            \
+      ? APR_SUCCESS                                 \
+          : (((lck)->type == apr_anylock_procmutex)       \
+              ? apr_proc_mutex_trylock((lck)->lock.pm)      \
+                          : APR_EINVAL))
+
+#endif /* APR_HAS_THREADS */
+
+#if APR_HAS_THREADS
+
 #define APR_ANYLOCK_UNLOCK(lck)              \
     (((lck)->type == apr_anylock_none)         \
       ? APR_SUCCESS                              \
@@ -116,5 +146,15 @@ typedef struct apr_anylock_t {
                   ? apr_thread_rwlock_unlock((lck)->lock.rw)   \
                       : APR_EINVAL))))
 
+#else /* APR_HAS_THREADS */
+
+#define APR_ANYLOCK_UNLOCK(lck)              \
+    (((lck)->type == apr_anylock_none)         \
+      ? APR_SUCCESS                              \
+          : (((lck)->type == apr_anylock_procmutex)    \
+              ? apr_proc_mutex_unlock((lck)->lock.pm)    \
+                      : APR_EINVAL))
+
+#endif /* APR_HAS_THREADS */
 
 #endif /* !APR_ANYLOCK_H */
