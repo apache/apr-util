@@ -1,5 +1,11 @@
 Changes with APR-util b1  
 
+  *) We now create exports.c and export_vars.h, which in turn create
+     exports.c.  From this we generate two more files with different
+     purposes: aprutil.exp - list of exported symbols; and exports.lo
+     (exports.o) - an object file that can be linked with an executable
+     to force resolution of all apr-util symbols.   [Aaron Bannert]
+
   *) Fix Berkley DBM support [Ian Holsman <ianh@apache.org>]
 
   *) Fix apr_brigade_vprintf so that it can handle more than
