@@ -26,6 +26,7 @@
 #include "apr_errno.h"
 #include "apr_pools.h"
 #include "apr_strings.h"
+#include "apr_tables.h"
 
 #if APR_HAS_LDAP
 
@@ -302,7 +303,9 @@ static int option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
 static int option_set_cert(apr_pool_t *pool, LDAP *ldap,
                            const void *invalue, apr_ldap_err_t *result)
 {
-    apr_ldap_opt_tls_cert_t *cert = (apr_ldap_opt_tls_cert_t *)invalue;
+    apr_array_header_t *certs = (apr_array_header_t *)invalue;
+    struct apr_ldap_opt_tls_cert_t *ents = (struct apr_ldap_opt_tls_cert_t *)certs->elts;
+    int i = 0;
 
 #if APR_HAS_LDAP_SSL
 
@@ -312,21 +315,23 @@ static int option_set_cert(apr_pool_t *pool, LDAP *ldap,
     const char *secmod = NULL;
     const char *key3db = NULL;
     const char *cert7db = NULL;
+    const char *password = NULL;
 
     /* set up cert7.db, key3.db and secmod parameters */
-    while (cert) {
-        switch (cert->type) {
+    for (i = 0; i < certs->nelts; i++) {
+        switch (ents[i].type) {
         case APR_LDAP_CA_TYPE_CERT7_DB:
-            cert7db = cert->path;
+            cert7db = ents[i].path;
             break;
         case APR_LDAP_CA_TYPE_SECMOD:
-            secmod = cert->path;
+            secmod = ents[i].path;
             break;
         case APR_LDAP_CERT_TYPE_KEY3_DB:
-            key3db = cert->path;
+            key3db = ents[i].path;
             break;
         case APR_LDAP_CERT_TYPE_NICKNAME:
-            nickname = cert->path;
+            nickname = ents[i].path;
+            password = ents[i].password;
             break;
         default:
             result->rc = -1;
@@ -338,14 +343,13 @@ static int option_set_cert(apr_pool_t *pool, LDAP *ldap,
         if (result->rc != LDAP_SUCCESS) {
             break;
         }
-        cert = cert->next;
     }
 
     /* actually set the certificate parameters */
     if (result->rc == LDAP_SUCCESS) {
         if (nickname) {
             result->rc = ldapssl_enable_clientauth(ldap, "",
-                                                   cert->password,
+                                                   password,
                                                    nickname);
             if (result->rc != LDAP_SUCCESS) {
                 result->reason = "LDAP: could not set client certificate: "
@@ -407,41 +411,41 @@ static int option_set_cert(apr_pool_t *pool, LDAP *ldap,
         }
     }
     /* set one or more certificates */
-    while (LDAP_SUCCESS == result->rc && cert) {
+    for (i = 0; LDAP_SUCCESS == result->rc && i < certs->nelts; i++) {
         /* Novell SDK supports DER or BASE64 files. */
-        switch (cert->type) {
+        switch (ents[i].type) {
         case APR_LDAP_CA_TYPE_DER:
-            result->rc = ldapssl_add_trusted_cert((void *)cert->path,
+            result->rc = ldapssl_add_trusted_cert((void *)ents[i].path,
                                                   LDAPSSL_CERT_FILETYPE_DER);
             result->msg = ldap_err2string(result->rc);
             break;
         case APR_LDAP_CA_TYPE_BASE64:
-            result->rc = ldapssl_add_trusted_cert((void *)cert->path,
+            result->rc = ldapssl_add_trusted_cert((void *)ents[i].path,
                                                   LDAPSSL_CERT_FILETYPE_B64);
             result->msg = ldap_err2string(result->rc);
             break;
         case APR_LDAP_CERT_TYPE_DER:
-            result->rc = ldapssl_set_client_cert((void *)cert->path,
+            result->rc = ldapssl_set_client_cert((void *)ents[i].path,
                                                  LDAPSSL_CERT_FILETYPE_DER,
-                                                 (void*)cert->password);
+                                                 (void*)ents[i].password);
             result->msg = ldap_err2string(result->rc);
             break;
         case APR_LDAP_CERT_TYPE_BASE64: 
-            result->rc = ldapssl_set_client_cert((void *)cert->path,
+            result->rc = ldapssl_set_client_cert((void *)ents[i].path,
                                                  LDAPSSL_CERT_FILETYPE_B64,
-                                                 (void*)cert->password);
+                                                 (void*)ents[i].password);
             result->msg = ldap_err2string(result->rc);
             break;
         case APR_LDAP_KEY_TYPE_DER:
-            result->rc = ldapssl_set_client_private_key((void *)cert->path,
+            result->rc = ldapssl_set_client_private_key((void *)ents[i].path,
                                                         LDAPSSL_CERT_FILETYPE_DER,
-                                                        (void*)cert->password);
+                                                        (void*)ents[i].password);
             result->msg = ldap_err2string(result->rc);
             break;
         case APR_LDAP_KEY_TYPE_BASE64:
-            result->rc = ldapssl_set_client_private_key((void *)cert->path,
+            result->rc = ldapssl_set_client_private_key((void *)ents[i].path,
                                                         LDAPSSL_CERT_FILETYPE_B64,
-                                                        (void*)cert->password);
+                                                        (void*)ents[i].password);
             result->msg = ldap_err2string(result->rc);
             break;
         default:
@@ -453,7 +457,6 @@ static int option_set_cert(apr_pool_t *pool, LDAP *ldap,
         if (result->rc != LDAP_SUCCESS) {
             break;
         }
-        cert = cert->next;
     }
 #else
     result->reason = "LDAP: ldapssl_client_init(), "
@@ -470,22 +473,22 @@ static int option_set_cert(apr_pool_t *pool, LDAP *ldap,
 #ifdef LDAP_OPT_X_TLS_CACERTFILE
     /* set one or more certificates */
     /* FIXME: make it support setting directories as well as files */
-    while (cert) {
+    for (i = 0; i < certs->nelts; i++) {
         /* OpenLDAP SDK supports BASE64 files. */
-        switch (cert->type) {
+        switch (ents[i].type) {
         case APR_LDAP_CA_TYPE_BASE64:
             result->rc = ldap_set_option(ldap, LDAP_OPT_X_TLS_CACERTFILE,
-                                         (void *)cert->path);
+                                         (void *)ents[i].path);
             result->msg = ldap_err2string(result->rc);
             break;
         case APR_LDAP_CERT_TYPE_BASE64:
             result->rc = ldap_set_option(ldap, LDAP_OPT_X_TLS_CERTFILE,
-                                         (void *)cert->path);
+                                         (void *)ents[i].path);
             result->msg = ldap_err2string(result->rc);
             break;
         case APR_LDAP_KEY_TYPE_BASE64:
             result->rc = ldap_set_option(ldap, LDAP_OPT_X_TLS_KEYFILE,
-                                         (void *)cert->path);
+                                         (void *)ents[i].path);
             result->msg = ldap_err2string(result->rc);
             break;
         default:
@@ -497,7 +500,6 @@ static int option_set_cert(apr_pool_t *pool, LDAP *ldap,
         if (result->rc != LDAP_SUCCESS) {
             break;
         }
-        cert = cert->next;
     }
 #else
     result->reason = "LDAP: LDAP_OPT_X_TLS_CACERTFILE not "
@@ -542,3 +544,4 @@ static int option_set_cert(apr_pool_t *pool, LDAP *ldap,
 }
 
 #endif /* APR_HAS_LDAP */
+

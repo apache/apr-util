@@ -49,7 +49,7 @@
  * This structure includes possible options to set certificates on
  * system initialisation. Different SDKs have different certificate
  * requirements, and to achieve this multiple certificates must be
- * specified at once.
+ * specified at once passed as an (apr_array_header_t *).
  *
  * Netscape:
  * Needs the CA cert database (cert7.db), the client cert database (key3.db)
@@ -108,7 +108,6 @@ struct apr_ldap_opt_tls_cert_t {
     int type;
     const char *path;
     const char *password;
-    apr_ldap_opt_tls_cert_t *next;
 };
 
 /**
