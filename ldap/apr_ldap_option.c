@@ -174,14 +174,14 @@ static void option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
      * 
      * STARTTLS is supported by the ldap_start_tls_s() method
      */
-    /*if ((tls == APR_LDAP_SSL) || (tls == APR_LDAP_STARTTLS)) {
+    if (tls == APR_LDAP_SSL) {
         result->rc = ldapssl_install_routines(ldap);
         if (result->rc != LDAP_SUCCESS) {
             result->msg = ldap_err2string(result->rc);
             result->reason = "LDAP: Could not switch SSL on for this "
                              "connection.";
         }
-    }*/
+    }
     if (tls == APR_LDAP_STARTTLS) {
         result->rc = ldapssl_start_tls(ldap);
         if (result->rc != LDAP_SUCCESS) {
