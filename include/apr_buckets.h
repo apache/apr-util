@@ -497,27 +497,6 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
  */
 #define APR_BUCKET_IS_POOL(e)        (e->type == &apr_bucket_type_pool)
 
-/**
- * Remove all zero length buckets from the brigade.
- * @param b The bucket brigade
- * @deprecated CAUTION: This macro will be removed from the API soon, as it
- *             is *not* safe to remove zero-length buckets from a brigade
- *             arbitrarily; metadata buckets are zero-length.
- */
-#define APR_BRIGADE_NORMALIZE(b)       \
-do { \
-    apr_bucket *e = APR_BRIGADE_FIRST(b); \
-    do {  \
-        if (e->length == 0) { \
-            apr_bucket *d; \
-            d = APR_BUCKET_NEXT(e); \
-            apr_bucket_delete(e); \
-            e = d; \
-        } \
-        e = APR_BUCKET_NEXT(e); \
-    } while (!APR_BRIGADE_EMPTY(b) && (e != APR_BRIGADE_SENTINEL(b))); \
-} while (0)
-
 /*
  * General-purpose reference counting for the various bucket types.
  *
