@@ -54,6 +54,10 @@
 
 #include "apr_dbm_private.h"
 
+#if APR_HAVE_STDLIB_H
+#include <stdlib.h> /* for abort() */
+#endif
+
 /*
  * We pick up all varieties of Berkeley DB through db.h (included through
  * apu_select_dbm.h). This code has been compiled/tested against DB1,
