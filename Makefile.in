@@ -50,27 +50,27 @@ delete-lib:
 	fi
 
 install: $(TARGET_LIB)
-	if [ ! -d $(includedir) ]; then \
-	    @APR_SOURCE_DIR@/build/mkdir.sh $(includedir); \
+	if [ ! -d $(DESTDIR)$(includedir) ]; then \
+	    @APR_SOURCE_DIR@/build/mkdir.sh $(DESTDIR)$(includedir); \
 	fi;
-	cp -p $(top_srcdir)/include/*.h $(includedir)
+	cp -p $(top_srcdir)/include/*.h $(DESTDIR)$(includedir)
 
 	if [ -n "$(top_blddir)" ]; then \
-		cp -p $(top_blddir)/include/*.h $(includedir); \
+		cp -p $(top_blddir)/include/*.h $(DESTDIR)$(includedir); \
 	fi;
 	
-	if [ ! -d $(libdir) ]; then \
-	    @APR_SOURCE_DIR@/build/mkdir.sh $(libdir); \
+	if [ ! -d $(DESTDIR)$(libdir) ]; then \
+	    @APR_SOURCE_DIR@/build/mkdir.sh $(DESTDIR)$(libdir); \
 	fi;
-	$(LIBTOOL) --mode=install cp $(TARGET_LIB) $(libdir)
-	$(LIBTOOL) --mode=install cp aprutil.exp $(libdir)
-	if [ ! -d $(bindir) ]; then \
-		@APR_SOURCE_DIR@/build/mkdir.sh $(bindir); \
+	$(LIBTOOL) --mode=install cp $(TARGET_LIB) $(DESTDIR)$(libdir)
+	$(LIBTOOL) --mode=install cp aprutil.exp $(DESTDIR)$(libdir)
+	if [ ! -d $(DESTDIR)$(bindir) ]; then \
+		@APR_SOURCE_DIR@/build/mkdir.sh $(DESTDIR)$(bindir); \
 	fi;
-	$(LIBTOOL) --mode=install cp apu-config $(bindir)
-	chmod 755 $(bindir)/apu-config
+	$(LIBTOOL) --mode=install cp apu-config $(DESTDIR)$(bindir)
+	chmod 755 $(DESTDIR)$(bindir)/apu-config
 	list='$(INSTALL_SUBDIRS)'; for i in $$list; do \
-		( cd $$i ; $(MAKE) install ); \
+		( cd $$i ; $(MAKE) root=$(DESTDIR) install ); \
 	done
 
 $(TARGET_LIB):
