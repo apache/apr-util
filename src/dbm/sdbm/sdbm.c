@@ -203,7 +203,7 @@ sdbm_prep(SDBM **pdb, const char *dirname, const char *pagname,
             (void) apr_close(db->dirf);
         if (db->pagf != NULL) {
             (void) sdbm_unlock(db);
-            (void) apr_close(db->dirf);
+            (void) apr_close(db->pagf);
         }
         free(db);
         return status;
