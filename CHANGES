@@ -1,5 +1,7 @@
 Changes with APR-util b1  
 
+  *) Added string-matching API (apr_strmatch.h)  [Brian Pane]
+
   *) Rearrange INCLUDES so that APRUTIL_PRIV_INCLUDES is always
      first.  [Garrett Rooney <rooneg@electricjellyfish.net>]
 
