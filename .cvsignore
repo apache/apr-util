@@ -8,8 +8,7 @@ config.status
 config.nice
 configure
 libtool
-libaprutil.la
-libaprutil-0.la
+libaprutil*.la
 aprutil.exp
 exports.c
 export_vars.h
