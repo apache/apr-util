@@ -796,7 +796,7 @@ APU_DECLARE(int) apr_brigade_vprintf(apr_bucket_brigade *b,
  * @param block Whether the read function blocks
  * @deffunc apr_status_t apr_bucket_read(apr_bucket *e, const char **str, apr_size_t *len, apr_read_type_e block)
  */
-#define apr_bucket_read(e,str,len,block) (e)e->type->read(e, str, len, block)
+#define apr_bucket_read(e,str,len,block) (e)->type->read(e, str, len, block)
 
 /**
  * Setaside data so that stack data is not destroyed on returning from
