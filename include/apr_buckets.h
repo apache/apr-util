@@ -158,14 +158,16 @@ struct apr_bucket_type_t {
      */
     int num_func;
     /**
-     * Free the private data and any resources used by the bucket
-     *  (if they aren't shared with another bucket).
+     * Free the private data and any resources used by the bucket (if they
+     *  aren't shared with another bucket).  This function is required to be
+     *  implemented for all bucket types, though it might be a no-op on some
+     *  of them (namely ones that never allocate any private data structures).
      * @param data The private data pointer from the bucket to be destroyed
      */
     void (*destroy)(void *data);
 
     /**
-     * Read the data from the bucket. This is guaranteed to be implemented
+     * Read the data from the bucket. This is required to be implemented
      *  for all bucket types.
      * @param b The bucket to read from
      * @param str A place to store the data read.  Allocation should only be
@@ -218,8 +220,8 @@ struct apr_bucket_type_t {
 };
 
 /**
- * apr_bucket structures are allocated on the malloc() heap and
- * their lifetime is controlled by the parent apr_bucket_brigade
+ * apr_bucket structures are allocated from an SMS with apr_sms_malloc()
+ * and their lifetime is controlled by the parent apr_bucket_brigade
  * structure. Buckets can move from one brigade to another e.g. by
  * calling APR_BRIGADE_CONCAT(). In general the data in a bucket has
  * the same lifetime as the bucket and is freed when the bucket is
