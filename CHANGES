@@ -1,5 +1,8 @@
 Changes with APR-util 0.9.2
   
+  *) Fix race conditions in apr_queue
+     [Jacob Lewallen <jlwalle@cs.ucr.edu>]
+
   *) Stop buildconf copying rules.mk, copy it at configure time. 
      [Thom May]
 

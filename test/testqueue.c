@@ -82,7 +82,7 @@ int producer_activity=300;
 int verbose=0;
 static void * APR_THREAD_FUNC consumer(apr_thread_t *thd, void *data);
 static void * APR_THREAD_FUNC producer(apr_thread_t *thd, void *data);
-static void usage();
+static void usage(void);
 
 static void * APR_THREAD_FUNC consumer(apr_thread_t *thd, void *data)
 {
@@ -159,7 +159,7 @@ static void * APR_THREAD_FUNC producer(apr_thread_t *thd, void *data)
     return NULL;
 } 
 
-static void usage()
+static void usage(void)
 {
     fprintf(stderr,"usage: testqueue -p n -P n -c n -C n -q n -s n ");
     fprintf(stderr,"-c # of consumer\n");
