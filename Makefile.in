@@ -9,7 +9,7 @@ include $(top_builddir)/build/rules.mk
 
 SUBDIRS = src . test build
 DISTCLEAN_TARGETS = config.cache config.log config.status config.sub \
-	include/apu_config.h
+	include/apu_config.h aprutils.exports configure
 EXTRACLEAN_TARGETS = configure libtool aclocal.m4 include/apu_config.h.in
 
 ### fix this up at some point (install location)
