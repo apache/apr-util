@@ -174,9 +174,9 @@ impl(ret) ap_run_##name args_decl \
 #define AP_HOOK_LAST		20
 #define AP_HOOK_REALLY_LAST	30
 
-extern API_EXPORT_VAR ap_pool_t *ap_global_hook_pool;
-extern API_EXPORT_VAR int ap_debug_module_hooks;
-extern API_EXPORT_VAR const char *ap_debug_module_name;
+extern API_VAR_EXPORT ap_pool_t *ap_global_hook_pool;
+extern API_VAR_EXPORT int ap_debug_module_hooks;
+extern API_VAR_EXPORT const char *ap_debug_module_name;
 
 API_EXPORT(void) ap_hook_sort_register(const char *szHookName, 
                                       ap_array_header_t **aHooks);
