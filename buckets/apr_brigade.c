@@ -260,7 +260,7 @@ static int check_brigade_flush(const char **str,
                 e = apr_bucket_transient_create(*str, *n);
             }
             else {
-                e = apr_bucket_heap_create(*str, *n, 0, NULL);
+                e = apr_bucket_heap_create(*str, *n, 0);
             }
             APR_BRIGADE_INSERT_TAIL(bb, e);
             return 1;
@@ -329,7 +329,7 @@ APU_DECLARE(apr_status_t) apr_brigade_write(apr_bucket_brigade *bb,
 
         if (APR_BRIGADE_EMPTY(bb) || !APR_BUCKET_IS_HEAP(b)) {
             buf = malloc(APR_BUCKET_BUFF_SIZE);
-            b = apr_bucket_heap_create(buf, APR_BUCKET_BUFF_SIZE, 0, NULL);
+            b = apr_bucket_heap_create(buf, APR_BUCKET_BUFF_SIZE, 0);
             APR_BRIGADE_INSERT_TAIL(bb, b);
             b->length = 0;   /* We are writing into the brigade, and
                               * allocating more memory than we need.  This
