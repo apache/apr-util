@@ -804,12 +804,12 @@ InputPath=.\include\private\apu_select_dbm.hw
 !IF  "$(CFG)" == "libaprutil - Win32 Release"
 
 "libapr - Win32 Release" : 
-   cd "\clean\httpd-2.0\srclib\apr"
+   cd "..\..\srclib\apr"
    $(MAKE) /$(MAKEFLAGS) /F ".\libapr.mak" CFG="libapr - Win32 Release" 
    cd "..\apr-util"
 
 "libapr - Win32 ReleaseCLEAN" : 
-   cd "\clean\httpd-2.0\srclib\apr"
+   cd "..\..\srclib\apr"
    $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\libapr.mak" CFG="libapr - Win32 Release"\
  RECURSE=1 
    cd "..\apr-util"
@@ -817,12 +817,12 @@ InputPath=.\include\private\apu_select_dbm.hw
 !ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
 
 "libapr - Win32 Debug" : 
-   cd "\clean\httpd-2.0\srclib\apr"
+   cd "..\..\srclib\apr"
    $(MAKE) /$(MAKEFLAGS) /F ".\libapr.mak" CFG="libapr - Win32 Debug" 
    cd "..\apr-util"
 
 "libapr - Win32 DebugCLEAN" : 
-   cd "\clean\httpd-2.0\srclib\apr"
+   cd "..\..\srclib\apr"
    $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\libapr.mak" CFG="libapr - Win32 Debug"\
  RECURSE=1 
    cd "..\apr-util"
@@ -832,12 +832,12 @@ InputPath=.\include\private\apu_select_dbm.hw
 !IF  "$(CFG)" == "libaprutil - Win32 Release"
 
 "libexpat - Win32 Release" : 
-   cd "\clean\httpd-2.0\srclib\expat-lite"
+   cd "..\..\srclib\expat-lite"
    $(MAKE) /$(MAKEFLAGS) /F ".\libexpat.mak" CFG="libexpat - Win32 Release" 
    cd "..\apr-util"
 
 "libexpat - Win32 ReleaseCLEAN" : 
-   cd "\clean\httpd-2.0\srclib\expat-lite"
+   cd "..\..\srclib\expat-lite"
    $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\libexpat.mak"\
  CFG="libexpat - Win32 Release" RECURSE=1 
    cd "..\apr-util"
@@ -845,12 +845,12 @@ InputPath=.\include\private\apu_select_dbm.hw
 !ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
 
 "libexpat - Win32 Debug" : 
-   cd "\clean\httpd-2.0\srclib\expat-lite"
+   cd "..\..\srclib\expat-lite"
    $(MAKE) /$(MAKEFLAGS) /F ".\libexpat.mak" CFG="libexpat - Win32 Debug" 
    cd "..\apr-util"
 
 "libexpat - Win32 DebugCLEAN" : 
-   cd "\clean\httpd-2.0\srclib\expat-lite"
+   cd "..\..\srclib\expat-lite"
    $(MAKE) /$(MAKEFLAGS) CLEAN /F ".\libexpat.mak" CFG="libexpat - Win32 Debug"\
  RECURSE=1 
    cd "..\apr-util"
