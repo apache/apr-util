@@ -2,8 +2,8 @@ VPATH = @srcdir@
 
 INCLUDES = @APRUTIL_PRIV_INCLUDES@ @APR_INCLUDES@ @APRUTIL_INCLUDES@
 
-PROGRAMS = testdbm testdate testmd4 testmd5 testxml testrmm teststrmatch \
-	testuuid testreslist testqueue testuri testpass
+PROGRAMS = testall testdbm testdate testmd4 testmd5 testxml testrmm \
+	teststrmatch testreslist testqueue testuri testpass
 TARGETS = $(PROGRAMS)
 
 APRUTIL_DOTTED_VERSION=@APRUTIL_DOTTED_VERSION@
