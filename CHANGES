@@ -1,4 +1,5 @@
 Changes with APR-util b1  
+  *) Use apr_mmap_dup in MMap Bucket [Brian Pane <bpane@pacbell.net>]
 
   *) Dropped the "w" parameter from apr_bucket_heap_create() and
      apr_bucket_heap_make().  That parameter was originally intended
