@@ -1,3 +1,5 @@
 
+TARGETS = ap_hooks.lo
+
 top_builddir = @top_builddir@
 include $(top_builddir)/build/rules.mk
