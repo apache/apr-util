@@ -1,5 +1,10 @@
 Changes with APR-util b1  
 
+  *) Adopted apr-util/xlate from apr/i18n for inclusion of apr-iconv
+     as required by missing libiconv.  [William Rowe]
+
+  *) Adopted apr-util/crypto/ uuid and md5 from apr.  [William Rowe]
+
   *) Look for expat in lib64 directories.  [Peter Poeml <poeml@suse.de>]
 
   *) Faster implementation of apr_brigade_puts()  [Brian Pane]
