@@ -60,6 +60,7 @@ EXEC_PREFIX="@exec_prefix@"
 BINDIR="@bindir@"
 LIBDIR="@libdir@"
 TOP_SRCDIR="@top_srcdir@"
+TOP_BUILDDIR="@top_builddir@"
 LIBS="@APRUTIL_EXPORT_LIBS@"
 INCLUDES="@APRUTIL_INCLUDES@"
 LDFLAGS="@APRUTIL_LDFLAGS@"
@@ -100,9 +101,9 @@ while test $# -gt 0; do
     ;;
     --libs)
     if [ -f $PREFIX/lib/libexpat.la ] ; then
-      TMP_SRCDIR=`echo "$TOP_SRCDIR/xml/expat" | sed 's/\\//\\\\\\//g'`
+      TMP_BUILDDIR=`echo "$TOP_BUILDDIR/xml/expat" | sed 's/\\//\\\\\\//g'`
       TMP_PREFIX=`echo $PREFIX | sed 's/\\//\\\\\\//g'`
-      LIBS=`echo "$LIBS" | sed "s/$TMP_SRCDIR/$TMP_PREFIX/g"`
+      LIBS=`echo "$LIBS" | sed "s/$TMP_BUILDDIR/$TMP_PREFIX/g"`
     fi
     echo "$LIBS"
     ;;
