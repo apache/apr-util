@@ -384,7 +384,7 @@ APU_DECLARE_NONSTD(apr_status_t) apr_brigade_printf(apr_bucket_brigade *b,
     return rv;
 }
 
-struct bridgade_vprintf_data_t {
+struct brigade_vprintf_data_t {
     apr_vformatter_buff_t vbuff;
 
     apr_bucket_brigade *b;  /* associated brigade */
@@ -401,8 +401,8 @@ static apr_status_t brigade_flush(apr_vformatter_buff_t *buff)
      * buff.curpos > buff.endpos
      */
 
-    /* "downcast," have really passed a bridgade_vprintf_data_t* */
-    struct bridgade_vprintf_data_t *vd = (struct bridgade_vprintf_data_t*)buff;
+    /* "downcast," have really passed a brigade_vprintf_data_t* */
+    struct brigade_vprintf_data_t *vd = (struct brigade_vprintf_data_t*)buff;
     apr_status_t res = APR_SUCCESS;
 
     res = apr_brigade_write(vd->b, *vd->flusher, vd->ctx, vd->cbuff,
@@ -424,7 +424,7 @@ APU_DECLARE(apr_status_t) apr_brigade_vprintf(apr_bucket_brigade *b,
                                               const char *fmt, va_list va)
 {
     /* the cast, in order of appearance */
-    struct bridgade_vprintf_data_t vd;
+    struct brigade_vprintf_data_t vd;
     char buf[APR_BUCKET_BUFF_SIZE];
     apr_size_t written;
 
