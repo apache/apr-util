@@ -13,6 +13,7 @@ sinclude(build/apu-iconv.m4)
 sinclude(build/apu-hints.m4)
 sinclude(build/apr_common.m4)
 sinclude(build/find_apr.m4)
+sinclude(build/dbm.m4)
 
 dnl Generate ./config.nice for reproducing runs of configure
 dnl 
