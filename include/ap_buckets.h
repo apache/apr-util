@@ -59,6 +59,7 @@
 #include "apr_general.h"
 #include "apr_mmap.h"
 #include "apr_errno.h"
+#include "ap_ring.h"
 #ifdef HAVE_SYS_UIO_H
 #include <sys/uio.h>	/* for struct iovec */
 #endif
@@ -70,18 +71,18 @@
  * @package Bucket Brigades
  */
 
-typedef struct ap_bucket_brigade ap_bucket_brigade;
-
-/* The basic concept behind bucket brigades.....
+/*
+ * The basic concept behind bucket brigades.....
  *
- * A bucket brigade is simply a doubly linked list of buckets, so
- * we aren't limited to inserting at the front and removing at the
- * end.
+ * A bucket brigade is a doubly linked list of buckets, so we
+ * aren't limited to inserting at the front and removing at the end.
+ * Buckets are only passed around as members of a brigade, although
+ * singleton buckets can occur for short periods of time.
  *
- * Buckets are just data stores.  They can be files, mmap areas, or just
- * pre-allocated memory.  The point of buckets is to store data.  Along with
- * that data, come some functions to access it.  The functions are relatively
- * simple, read, split, setaside, and destroy.
+ * Buckets are data stores. They can be files, mmap areas, or just
+ * pre-allocated memory. Along with that data come some functions to
+ * access it. The functions are relatively simple: read, split,
+ * setaside, and destroy.
  *
  * read reads a string of data.  Currently, it assumes we read all of the 
  * data in the bucket.  This should be changed to only read the specified 
@@ -122,6 +123,12 @@ typedef enum {
 
 #define AP_END_OF_BRIGADE       -1
 
+/**
+ * Forward declaration of the main types.
+ */
+
+typedef struct ap_bucket_brigade ap_bucket_brigade;
+
 typedef struct ap_bucket ap_bucket;
 
 /**
@@ -134,15 +141,13 @@ typedef struct ap_bucket ap_bucket;
  * after a split) the data is freed when the last bucket goes away.
  */
 struct ap_bucket {
+    /** Links to the rest of the brigade */
+    AP_RING_ENTRY(ap_bucket) link;
     /** The type of bucket.  These types can be found in the enumerated
      *  type above */
     ap_bucket_type_e type;
     /** type-dependent data hangs off this pointer */
     void *data;	
-    /** The next bucket in the brigade */
-    ap_bucket *next;
-    /** The previous bucket in the brigade */
-    ap_bucket *prev;
     /** The length of the data in the bucket.  This could have been implemented
      *  with a function, but this is an optimization, because the most
      *  common thing to do will be to get the length.  If the length is unknown,
@@ -198,10 +203,8 @@ struct ap_bucket_brigade {
      *  the destroying function is responsible for killing the cleanup.
      */
     apr_pool_t *p;
-    /** The start of the bucket list. */
-    ap_bucket *head;
-    /** The end of the bucket list. */
-    ap_bucket *tail;
+    /** The buckets in the brigade are on this list. */
+    AP_RING_HEAD(, ap_bucket) list;
 };
 
 /**
@@ -311,7 +314,7 @@ struct ap_bucket_pipe {
 /**
  * Create a new bucket brigade.  The bucket brigade is originally empty.
  * @param The pool to associate with the brigade.  Data is not allocated out
-q *        of the pool, but a cleanup is registered.
+ *        of the pool, but a cleanup is registered.
  * @return The empty bucket brigade
  * @deffunc ap_bucket_brigade *ap_brigade_create(apr_pool_t *p)
  */
@@ -326,23 +329,45 @@ API_EXPORT(ap_bucket_brigade *) ap_brigade_create(apr_pool_t *p);
 API_EXPORT(apr_status_t) ap_brigade_destroy(ap_bucket_brigade *b);
 
 /**
- * append bucket(s) to a bucket_brigade.  This is the correct way to add
- * buckets to the end of a bucket briagdes bucket list.  This will accept
- * a list of buckets of any length.
- * @param b The bucket brigade to append to
- * @param e The bucket list to append
+ * add a bucket to the end of a bucket_brigade.
+ * @param b The bucket brigade to add the bucket to
+ * @param e The bucket list to add
  * @deffunc void ap_brigade_append_buckets(ap_bucket_brigade *b, ap_bucket *e)
  */
-API_EXPORT(void) ap_brigade_append_buckets(ap_bucket_brigade *b,
-                                                  ap_bucket *e);
+API_EXPORT(void) ap_brigade_add_bucket(ap_bucket_brigade *b,
+				       ap_bucket *e);
+
+/**
+ * Concatenate bucket_brigade b onto the end of bucket_brigade a,
+ * emptying bucket_brigade b in the process. Neither bucket brigade
+ * can be NULL, but either one of them can be emtpy when calling this
+ * function.
+ * @param a The brigade to catenate to.
+ * @param b The brigade to add to a.  This brigade will be empty on return
+ * @deffunc void ap_brigade_catenate(ap_bucket_brigade *a, ap_bucket_brigade *b)
+ */
+API_EXPORT(void) ap_brigade_catenate(ap_bucket_brigade *a, 
+				     ap_bucket_brigade *b);
+
+/**
+ * Split a bucket brigade into two, such that the given bucket is the
+ * first in the new bucket brigade. This function is useful when a
+ * filter wants to pass only the initial part of a brigade to the next
+ * filter.
+ * @param b The brigade to split
+ * @param e The first element of the new brigade
+ * @return The new brigade
+ * @deffunc ap_bucket_brigade *ap_brigade_split(ap_bucket_brigade *b, ap_bucket *e)
+ */
+API_EXPORT(ap_bucket_brigade *) ap_brigade_split(ap_bucket_brigade *b,
+						 ap_bucket *e);
 
 /**
  * consume nbytes from beginning of b -- call ap_bucket_destroy as
  * appropriate, and/or modify start on last element 
  * @param b The brigade to consume data from
  * @param nbytes The number of bytes to consume
- * @deffunc void ap_brigade_consume(ap_bucket_brigade *b, int nbytes)
- */
+ * @deffunc void ap_brigade_consume(ap_bucket_brigade *b, int nbytes) */
 API_EXPORT(void) ap_brigade_consume(ap_bucket_brigade *b, int nbytes);
 
 /**
@@ -356,19 +381,7 @@ API_EXPORT(void) ap_brigade_consume(ap_bucket_brigade *b, int nbytes);
  * @deffunc int ap_brigade_to_iovec(ap_bucket_brigade *b, struct iovec *vec, int nvec);
  */
 API_EXPORT(int) ap_brigade_to_iovec(ap_bucket_brigade *b, 
-                                           struct iovec *vec, int nvec);
-
-/**
- * Concatenate bucket_brigade b onto the end of bucket_brigade a,
- * emptying bucket_brigade b in the process. Neither bucket brigade
- * can be NULL, but either one of them can be emtpy when calling this
- * function.
- * @param a The brigade to catenate to.
- * @param b The brigade to add to a.  This brigade will be empty on return
- * @deffunc void ap_brigade_catenate(ap_bucket_brigade *a, ap_bucket_brigade *b)
- */
-API_EXPORT(void) ap_brigade_catenate(ap_bucket_brigade *a, 
-                                            ap_bucket_brigade *b);
+				    struct iovec *vec, int nvec);
 
 /**
  * This function writes a list of strings into a bucket brigade.  We just 
@@ -489,8 +502,7 @@ API_EXPORT_NONSTD(apr_status_t) ap_bucket_split_shared(ap_bucket *b, apr_off_t p
 	    free(b);				\
 	    return NULL;			\
 	}					\
-	ap__b->next = NULL;			\
-	ap__b->prev = NULL;			\
+	AP_RING_ELEM_INIT(ap__b, link);		\
 	return ap__b;				\
     } while(0)
 
