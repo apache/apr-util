@@ -83,18 +83,16 @@
  * LDAPv2 doesn't support extended search. Since auth_ldap doesn't use
  * it anyway, we just translate the extended search into a normal search.
  */
-int
-ldap_search_ext_s(LDAP *ldap, char *base, int scope, char *filter,
-		  char **attrs, int attrsonly, void *servertrls, void *clientctrls,
-		  void *timeout, int sizelimit, LDAPMessage **res)
+int ldap_search_ext_s(LDAP *ldap, char *base, int scope, char *filter,
+		      char **attrs, int attrsonly, void *servertrls, void *clientctrls,
+		      void *timeout, int sizelimit, LDAPMessage **res)
 {
-  return ldap_search_s(ldap, base, scope, filter, attrs, attrsonly, res);
+    return ldap_search_s(ldap, base, scope, filter, attrs, attrsonly, res);
 }
 
-void
-ldap_memfree(void *p)
+void ldap_memfree(void *p)
 {
-  free(p);
+    free(p);
 }
 
 #endif /* if LDAP_VERSION_MAX */
