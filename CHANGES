@@ -1,5 +1,9 @@
 Changes with APR-util 1.0
 
+  *) The whole codebase was relicensed and is now available under
+     the Apache License, Version 2.0 (http://www.apache.org/licenses).
+     [Apache Software Foundation]
+
   *) Switch to a single, top-level make. [Greg Stein]
 
   *) Add timeout feature to apr_reslist_acquire().  
