@@ -9,6 +9,7 @@ AC_CONFIG_HEADER(include/private/apu_config.h)
 AC_CONFIG_AUX_DIR(build)
 
 AC_PROG_CC
+AC_PROG_AWK
 AC_CHECK_PROG(RM, rm, rm)
 
 dnl

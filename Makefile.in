@@ -47,7 +47,7 @@ delete-exports:
 	fi
 
 $(TARGET_EXPORTS):
-	perl @APR_SOURCE_DIR@/helpers/make_export.pl -o $@ include/*.h
+	$(AWK) -f @APR_SOURCE_DIR@/helpers/make_export.awk include/*.h > $@ ;
 
 docs:
 	mkdir ./docs

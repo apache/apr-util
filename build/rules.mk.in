@@ -63,6 +63,7 @@ top_builddir=@top_builddir@
 APR_SOURCE_DIR=@APR_SOURCE_DIR@
 
 CC=@CC@
+AWK=@AWK@
 LIBTOOL=@LIBTOOL@
 
 CFLAGS=@CFLAGS@
