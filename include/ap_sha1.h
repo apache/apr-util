@@ -90,11 +90,11 @@ struct AP_SHA1_CTX {
     /** 
      * message digest
      */
-    ap_uint32_t digest[5];
+    apr_uint32_t digest[5];
     /** 64-bit bit counts */
-    ap_uint32_t count_lo, count_hi;
+    apr_uint32_t count_lo, count_hi;
     /** SHA data buffer */
-    ap_uint32_t data[16];
+    apr_uint32_t data[16];
     /** unprocessed amount in data */
     int local;
 };

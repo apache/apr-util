@@ -120,11 +120,11 @@
 #define SHA_BLOCKSIZE           64
 
 #ifdef CHARSET_EBCDIC
-static ap_xlate_t *ebcdic2ascii_xlate;
+static apr_xlate_t *ebcdic2ascii_xlate;
 
-API_EXPORT(ap_status_t) ap_SHA1InitEBCDIC(ap_xlate_t *x)
+API_EXPORT(apr_status_t) ap_SHA1InitEBCDIC(apr_xlate_t *x)
 {
-    ap_status_t rv;
+    apr_status_t rv;
     int onoff;
 
     /* Only single-byte conversion is supported.
@@ -147,7 +147,7 @@ typedef unsigned char AP_BYTE;
 static void sha_transform(AP_SHA1_CTX *sha_info)
 {
     int i;
-    ap_uint32_t temp, A, B, C, D, E, W[80];
+    apr_uint32_t temp, A, B, C, D, E, W[80];
 
     for (i = 0; i < 16; ++i) {
 	W[i] = sha_info->data[i];
@@ -219,13 +219,13 @@ static char isLittleEndian(void)
 /* change endianness of data */
 
 /* count is the number of bytes to do an endian flip */
-static void maybe_byte_reverse(ap_uint32_t *buffer, int count)
+static void maybe_byte_reverse(apr_uint32_t *buffer, int count)
 {
     int i;
     AP_BYTE ct[4], *cp;
 
     if (isLittleEndian()) {	/* do the swap only if it is little endian */
-	count /= sizeof(ap_uint32_t);
+	count /= sizeof(apr_uint32_t);
 	cp = (AP_BYTE *) buffer;
 	for (i = 0; i < count; ++i) {
 	    ct[0] = cp[0];
@@ -236,7 +236,7 @@ static void maybe_byte_reverse(ap_uint32_t *buffer, int count)
 	    cp[1] = ct[2];
 	    cp[2] = ct[1];
 	    cp[3] = ct[0];
-	    cp += sizeof(ap_uint32_t);
+	    cp += sizeof(apr_uint32_t);
 	}
     }
 }
@@ -263,11 +263,11 @@ API_EXPORT(void) ap_SHA1Update_binary(AP_SHA1_CTX *sha_info,
 {
     unsigned int i;
 
-    if ((sha_info->count_lo + ((ap_uint32_t) count << 3)) < sha_info->count_lo) {
+    if ((sha_info->count_lo + ((apr_uint32_t) count << 3)) < sha_info->count_lo) {
 	++sha_info->count_hi;
     }
-    sha_info->count_lo += (ap_uint32_t) count << 3;
-    sha_info->count_hi += (ap_uint32_t) count >> 29;
+    sha_info->count_lo += (apr_uint32_t) count << 3;
+    sha_info->count_hi += (apr_uint32_t) count >> 29;
     if (sha_info->local) {
 	i = SHA_BLOCKSIZE - sha_info->local;
 	if (i > count) {
@@ -302,13 +302,13 @@ API_EXPORT(void) ap_SHA1Update(AP_SHA1_CTX *sha_info, const char *buf,
 #ifdef CHARSET_EBCDIC
     int i;
     const AP_BYTE *buffer = (const AP_BYTE *) buf;
-    ap_size_t inbytes_left, outbytes_left;
+    apr_size_t inbytes_left, outbytes_left;
 
-    if ((sha_info->count_lo + ((ap_uint32_t) count << 3)) < sha_info->count_lo) {
+    if ((sha_info->count_lo + ((apr_uint32_t) count << 3)) < sha_info->count_lo) {
 	++sha_info->count_hi;
     }
-    sha_info->count_lo += (ap_uint32_t) count << 3;
-    sha_info->count_hi += (ap_uint32_t) count >> 29;
+    sha_info->count_lo += (apr_uint32_t) count << 3;
+    sha_info->count_hi += (apr_uint32_t) count >> 29;
     /* Is there a remainder of the previous Update operation? */
     if (sha_info->local) {
 	i = SHA_BLOCKSIZE - sha_info->local;
@@ -354,7 +354,7 @@ API_EXPORT(void) ap_SHA1Final(unsigned char digest[SHA_DIGESTSIZE],
                              AP_SHA1_CTX *sha_info)
 {
     int count, i, j;
-    ap_uint32_t lo_bit_count, hi_bit_count, k;
+    apr_uint32_t lo_bit_count, hi_bit_count, k;
 
     lo_bit_count = sha_info->count_lo;
     hi_bit_count = sha_info->count_hi;
@@ -400,7 +400,7 @@ API_EXPORT(void) ap_sha1_base64(const char *clear, int len, char *out)
     ap_SHA1Final(digest, &context);
 
     /* private marker. */
-    ap_cpystrn(out, AP_SHA1PW_ID, AP_SHA1PW_IDLEN + 1);
+    apr_cpystrn(out, AP_SHA1PW_ID, AP_SHA1PW_IDLEN + 1);
 
     /* SHA1 hash is always 20 chars */
     l = ap_base64encode_binary(out + AP_SHA1PW_IDLEN, digest, sizeof(digest));

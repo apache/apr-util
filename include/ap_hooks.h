@@ -57,7 +57,7 @@
 
 #include "ap_config.h"
 
-/* For ap_array_header_t */
+/* For apr_array_header_t */
 #include "apr_lib.h"
 
 /**
@@ -82,7 +82,7 @@ typedef struct _LINK_##name \
 static struct { members } _hooks;
 
 #define AP_HOOK_LINK(name) \
-    ap_array_header_t *link_##name;
+    apr_array_header_t *link_##name;
 
 #define AP_IMPLEMENT_HOOK_BASE(name) \
 API_EXPORT(void) ap_hook_##name(HOOK_##name *pf,const char * const *aszPre, \
@@ -91,10 +91,10 @@ API_EXPORT(void) ap_hook_##name(HOOK_##name *pf,const char * const *aszPre, \
     LINK_##name *pHook; \
     if(!_hooks.link_##name) \
 	{ \
-	_hooks.link_##name=ap_make_array(ap_global_hook_pool,1,sizeof(LINK_##name)); \
+	_hooks.link_##name=apr_make_array(ap_global_hook_pool,1,sizeof(LINK_##name)); \
 	ap_hook_sort_register(#name,&_hooks.link_##name); \
 	} \
-    pHook=ap_push_array(_hooks.link_##name); \
+    pHook=apr_push_array(_hooks.link_##name); \
     pHook->pFunc=pf; \
     pHook->aszPredecessors=aszPre; \
     pHook->aszSuccessors=aszSucc; \
@@ -180,20 +180,20 @@ API_EXPORT(ret) ap_run_##name args_decl \
 
 /**
  * The global pool used to allocate any memory needed by the hooks.
- * @defvar ap_pool_t *ap_global_hook_pool
+ * @defvar apr_pool_t *ap_global_hook_pool
  */ 
-extern API_VAR_EXPORT ap_pool_t *ap_global_hook_pool;
+extern API_VAR_EXPORT apr_pool_t *ap_global_hook_pool;
 
 /**
  * A global variable to determine if debugging information about the
  * hooks functions should be printed
- * @defvar ap_pool_t *ap_debug_module_hooks
+ * @defvar apr_pool_t *ap_debug_module_hooks
  */ 
 extern API_VAR_EXPORT int ap_debug_module_hooks;
 
 /**
  * The name of the module that is currently registering a function
- * @defvar ap_pool_t *ap_debug_module_name
+ * @defvar apr_pool_t *ap_debug_module_name
  */ 
 extern API_VAR_EXPORT const char *ap_debug_module_name;
 
@@ -204,7 +204,7 @@ extern API_VAR_EXPORT const char *ap_debug_module_name;
  * @deffunc void ap_hook_sort_register(const char *szHookName, ap_arry_header_t **aHooks)
  */
 API_EXPORT(void) ap_hook_sort_register(const char *szHookName, 
-                                      ap_array_header_t **aHooks);
+                                      apr_array_header_t **aHooks);
 /**
  * Sort all of the registerd functions for a given hook
  * @deffunc void ap_sort_hooks(void)
