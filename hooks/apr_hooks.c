@@ -3,10 +3,10 @@
 #include <assert.h>
 
 #if 0
-#define ap_palloc(pool,size)	malloc(size)
+#define apr_palloc(pool,size)	malloc(size)
 #endif
 
-API_VAR_EXPORT ap_pool_t *ap_global_hook_pool = NULL;
+API_VAR_EXPORT apr_pool_t *ap_global_hook_pool = NULL;
 API_VAR_EXPORT int ap_debug_module_hooks = FALSE;
 API_VAR_EXPORT const char *ap_debug_module_name = NULL;
 
@@ -36,15 +36,15 @@ static int crude_order(const void *a_,const void *b_)
     return a->nOrder-b->nOrder;
 }
 
-static TSort *prepare(ap_pool_t *p,TSortData *pItems,int nItems)
+static TSort *prepare(apr_pool_t *p,TSortData *pItems,int nItems)
 {
-    TSort *pData=ap_palloc(p,nItems*sizeof *pData);
+    TSort *pData=apr_palloc(p,nItems*sizeof *pData);
     int n;
     
     qsort(pItems,nItems,sizeof *pItems,crude_order);
     for(n=0 ; n < nItems ; ++n) {
 	pData[n].nPredecessors=0;
-	pData[n].ppPredecessors=ap_pcalloc(p,nItems*sizeof *pData[n].ppPredecessors);
+	pData[n].ppPredecessors=apr_pcalloc(p,nItems*sizeof *pData[n].ppPredecessors);
 	pData[n].pNext=NULL;
 	pData[n].pData=&pItems[n];
     }
@@ -115,23 +115,23 @@ static TSort *tsort(TSort *pData,int nItems)
     return pHead;
 }
 
-static ap_array_header_t *sort_hook(ap_array_header_t *pHooks,const char *szName)
+static apr_array_header_t *sort_hook(apr_array_header_t *pHooks,const char *szName)
 {
-    ap_pool_t *p;
+    apr_pool_t *p;
     TSort *pSort;
-    ap_array_header_t *pNew;
+    apr_array_header_t *pNew;
     int n;
 
-    ap_create_pool(&p, ap_global_hook_pool);
+    apr_create_pool(&p, ap_global_hook_pool);
     pSort=prepare(p,(TSortData *)pHooks->elts,pHooks->nelts);
     pSort=tsort(pSort,pHooks->nelts);
-    pNew=ap_make_array(ap_global_hook_pool,pHooks->nelts,sizeof(TSortData));
+    pNew=apr_make_array(ap_global_hook_pool,pHooks->nelts,sizeof(TSortData));
     if(ap_debug_module_hooks)
 	printf("Sorting %s:",szName);
     for(n=0 ; pSort ; pSort=pSort->pNext,++n) {
 	TSortData *pHook;
 	assert(n < pHooks->nelts);
-	pHook=ap_push_array(pNew);
+	pHook=apr_push_array(pNew);
 	memcpy(pHook,pSort->pData,sizeof *pHook);
 	if(ap_debug_module_hooks)
 	    printf(" %s",pHook->szName);
@@ -141,21 +141,21 @@ static ap_array_header_t *sort_hook(ap_array_header_t *pHooks,const char *szName
     return pNew;
 }
 
-static ap_array_header_t *s_aHooksToSort;
+static apr_array_header_t *s_aHooksToSort;
 typedef struct
 {
     const char *szHookName;
-    ap_array_header_t **paHooks;
+    apr_array_header_t **paHooks;
 } HookSortEntry;
 
 API_EXPORT(void) ap_hook_sort_register(const char *szHookName,
-                                      ap_array_header_t **paHooks)
+                                      apr_array_header_t **paHooks)
 {
     HookSortEntry *pEntry;
 
     if(!s_aHooksToSort)
-	s_aHooksToSort=ap_make_array(ap_global_hook_pool,1,sizeof(HookSortEntry));
-    pEntry=ap_push_array(s_aHooksToSort);
+	s_aHooksToSort=apr_make_array(ap_global_hook_pool,1,sizeof(HookSortEntry));
+    pEntry=apr_push_array(s_aHooksToSort);
     pEntry->szHookName=szHookName;
     pEntry->paHooks=paHooks;
 }
