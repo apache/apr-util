@@ -13,4 +13,7 @@ Debug
 Release
 LibD
 LibR
+aprutil.opt
+aprutil.ncb
 *.plg
+*.
