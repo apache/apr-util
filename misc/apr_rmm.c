@@ -409,5 +409,8 @@ APU_DECLARE(apr_rmm_off_t) apr_rmm_offset_get(apr_rmm_t *rmm, void* entity)
 
 APU_DECLARE(apr_size_t) apr_rmm_overhead_get(int n) 
 {
-    return RMM_HDR_BLOCK_SIZE + n * RMM_BLOCK_SIZE;
+    /* overhead per block is at most APR_ALIGN_DEFAULT(1) wasted bytes
+     * for alignment overhead, plus the size of the rmm_block_t
+     * structure. */
+    return RMM_HDR_BLOCK_SIZE + n * (RMM_BLOCK_SIZE + APR_ALIGN_DEFAULT(1));
 }
