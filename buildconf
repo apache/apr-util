@@ -1,17 +1,17 @@
 #!/bin/sh
 
 # Remove aclocal.m4 as it'll break some builds...
-rm -rf aclocal.m4 autom4te.cache
+rm -rf aclocal.m4 autom4te*.cache
 
 #
 # Generate the autoconf header (include/apu_config.h) and ./configure
 #
 echo "Creating include/private/apu_config.h ..."
-autoheader
+${AUTOHEADER:-autoheader}
 
 echo "Creating configure ..."
 ### do some work to toss config.cache?
-if autoconf; then
+if ${AUTOCONF:-autoconf}; then
   :
 else
   echo "autoconf failed"
