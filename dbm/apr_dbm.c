@@ -332,7 +332,7 @@ APU_DECLARE(void) apr_dbm_get_usednames(apr_pool_t *p,
     /* ### one day, we will pass in a DBM name and need to look it up.
        ### for now, it is constant. */
 
-    return (*DBM_VTABLE.getusednames)(p, pathname, used1, used2);
+    (*DBM_VTABLE.getusednames)(p, pathname, used1, used2);
 }
 
 /* Most DBM libraries take a POSIX mode for creating files.  Don't trust
