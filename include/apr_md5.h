@@ -102,8 +102,10 @@ extern "C" {
  * @{
  */
 
+/** The MD5 digest size */
 #define MD5_DIGESTSIZE 16
 
+/** @see apr_md5_ctx_t */
 typedef struct apr_md5_ctx_t apr_md5_ctx_t;
 
 /** MD5 context. */

@@ -82,24 +82,24 @@ extern "C" {
  * @{
  */
 
-#define APR_URI_FTP_DEFAULT_PORT         21
-#define APR_URI_SSH_DEFAULT_PORT         22
-#define APR_URI_TELNET_DEFAULT_PORT      23
-#define APR_URI_GOPHER_DEFAULT_PORT      70
-#define APR_URI_HTTP_DEFAULT_PORT        80
-#define APR_URI_POP_DEFAULT_PORT        110
-#define APR_URI_NNTP_DEFAULT_PORT       119
-#define APR_URI_IMAP_DEFAULT_PORT       143
-#define APR_URI_PROSPERO_DEFAULT_PORT   191
-#define APR_URI_WAIS_DEFAULT_PORT       210
-#define APR_URI_LDAP_DEFAULT_PORT       389
-#define APR_URI_HTTPS_DEFAULT_PORT      443
-#define APR_URI_RTSP_DEFAULT_PORT       554
-#define APR_URI_SNEWS_DEFAULT_PORT      563
-#define APR_URI_ACAP_DEFAULT_PORT       674
-#define APR_URI_NFS_DEFAULT_PORT       2049
-#define APR_URI_TIP_DEFAULT_PORT       3372
-#define APR_URI_SIP_DEFAULT_PORT       5060
+#define APR_URI_FTP_DEFAULT_PORT         21 /**< default FTP port */
+#define APR_URI_SSH_DEFAULT_PORT         22 /**< default SSH port */
+#define APR_URI_TELNET_DEFAULT_PORT      23 /**< default telnet port */
+#define APR_URI_GOPHER_DEFAULT_PORT      70 /**< default Gopher port */
+#define APR_URI_HTTP_DEFAULT_PORT        80 /**< default HTTP port */
+#define APR_URI_POP_DEFAULT_PORT        110 /**< default POP port */
+#define APR_URI_NNTP_DEFAULT_PORT       119 /**< default NNTP port */
+#define APR_URI_IMAP_DEFAULT_PORT       143 /**< default IMAP port */
+#define APR_URI_PROSPERO_DEFAULT_PORT   191 /**< default Prospero port */
+#define APR_URI_WAIS_DEFAULT_PORT       210 /**< default WAIS port */
+#define APR_URI_LDAP_DEFAULT_PORT       389 /**< default LDAP port */
+#define APR_URI_HTTPS_DEFAULT_PORT      443 /**< default HTTPS port */
+#define APR_URI_RTSP_DEFAULT_PORT       554 /**< default RTSP port */
+#define APR_URI_SNEWS_DEFAULT_PORT      563 /**< default SNEWS port */
+#define APR_URI_ACAP_DEFAULT_PORT       674 /**< default ACAP port */
+#define APR_URI_NFS_DEFAULT_PORT       2049 /**< default NFS port */
+#define APR_URI_TIP_DEFAULT_PORT       3372 /**< default TIP port */
+#define APR_URI_SIP_DEFAULT_PORT       5060 /**< default SIP port */
 
 /** Flags passed to unparse_uri_components(): */
 /** suppress "scheme://user@site:port" */
@@ -118,6 +118,7 @@ extern "C" {
 /** Omit the "?queryarg" from the path */
 #define APR_URI_UNP_OMITQUERY       (1U<<5)
 
+/** @see apr_uri_t */
 typedef struct apr_uri_t apr_uri_t;
 
 /**

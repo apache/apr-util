@@ -81,13 +81,13 @@
 extern "C" {
 #endif
 
-
+/** A bad date. */
 #define APR_DATE_BAD ((apr_time_t)0)
 
 /**
  * Compare a string to a mask
  * @param data The string to compare
- * @mask Mask characters (arbitrary maximum is 256 characters, just in case):
+ * @param mask Mask characters (arbitrary maximum is 256 characters):
  * <PRE>
  *   @ - uppercase letter
  *   $ - lowercase letter

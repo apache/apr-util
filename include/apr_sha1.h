@@ -85,11 +85,12 @@ extern "C" {
 /** length of the SHA Password */
 #define APR_SHA1PW_IDLEN 5
 
-/**
- * SHA1 context structure
- */
+/** @see apr_sha1_ctx_t */
 typedef struct apr_sha1_ctx_t apr_sha1_ctx_t;
 
+/** 
+ * SHA1 context structure
+ */
 struct apr_sha1_ctx_t {
     /** message digest */
     apr_uint32_t digest[5];

@@ -76,16 +76,19 @@ extern "C" {
  * @{
  */
 
+/** @see apr_strmatch_pattern */
 typedef struct apr_strmatch_pattern apr_strmatch_pattern;
+
 /**
  * Precompiled search pattern
  */
 struct apr_strmatch_pattern {
+    /** Function called to compare */
     const char *(*compare)(const apr_strmatch_pattern *this_pattern,
                            const char *s, apr_size_t slen);
-    const char *pattern;
-    apr_size_t length;
-    void *context;  /* hook for subclasses to add precomputed metadata */
+    const char *pattern;    /**< Current pattern */
+    apr_size_t length;      /**< Current length */
+    void *context;          /**< hook to add precomputed metadata */
 };
 
 #if defined(DOXYGEN)
@@ -98,7 +101,7 @@ struct apr_strmatch_pattern {
  *         NULL if not found
  */
 APU_DECLARE(const char *) apr_strmatch(const apr_strmatch_pattern *pattern,
-                                       const char *s; apr_size_t s);
+                                       const char *s, apr_size_t slen);
 #else
 #define apr_strmatch(pattern, s, slen) (*((pattern)->compare))((pattern), (s), (slen))
 #endif

@@ -81,13 +81,21 @@ extern "C" {
 /** Opaque resource list object */
 typedef struct apr_reslist_t apr_reslist_t;
 
-/**
- * Generic prototypes for the constructor and destructor that
- * is called by the resource list any time it needs to create
- * or destroy a resource.
+/* Generic constructor called by resource list when it needs to create a
+ * resource.
+ * @param resource opaque resource
+ * @param param flags
+ * @param pool  Pool
  */
 typedef apr_status_t (*apr_reslist_constructor)(void **resource, void *params,
                                                 apr_pool_t *pool);
+
+/* Generic destructor called by resource list when it needs to destroy a
+ * resource.
+ * @param resource opaque resource
+ * @param param flags
+ * @param pool  Pool
+ */
 typedef apr_status_t (*apr_reslist_destructor)(void *resource, void *params,
                                                apr_pool_t *pool);
 
@@ -100,11 +108,12 @@ typedef apr_status_t (*apr_reslist_destructor)(void *resource, void *params,
  *            creates new resources only when needed.
  * @param smax Resources will be destroyed to meet this maximum
  *             restriction as they expire.
- * @param hmaxx Absolute maximum limit on the number of total resources.
- * @param expire If non-zero, sets the maximum amount of time a resource
+ * @param hmax Absolute maximum limit on the number of total resources.
+ * @param ttl If non-zero, sets the maximum amount of time a resource
  *               may be available while exceeding the soft limit.
  * @param con Constructor routine that is called to create a new resource.
  * @param de Destructor routine that is called to destroy an expired resource.
+ * @param params Passed to constructor and deconstructor
  * @param pool The pool from which to create this resoure list. Also the
  *             same pool that is passed to the constructor and destructor
  *             routines.
@@ -123,7 +132,7 @@ APU_DECLARE(apr_status_t) apr_reslist_create(apr_reslist_t **reslist,
  * FIXME: Should this block until all resources become available,
  *        or maybe just destroy all the free ones, or maybe destroy
  *        them even though they might be in use by something else?
- * @param rmm The relocatable memory block to destroy
+ * @param reslist The reslist to destroy
  */
 APU_DECLARE(apr_status_t) apr_reslist_destroy(apr_reslist_t *reslist);
 

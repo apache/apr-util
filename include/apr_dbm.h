@@ -117,7 +117,6 @@ typedef struct
  * </PRE>
  * @param perm Permissions to apply to if created
  * @param cntxt The pool to use when creating the dbm
- * @deffunc apr_status_t apr_dbm_open(apr_dbm_t **dbm, const char *name, int mode
  * @tip The dbm name may not be a true file name, as many dbm packages
  * append suffixes for seperate data and index files.
  */
@@ -141,7 +140,6 @@ APU_DECLARE(apr_status_t) apr_dbm_open_ex(apr_dbm_t **dbm, const char* type,
  * </PRE>
  * @param perm Permissions to apply to if created
  * @param cntxt The pool to use when creating the dbm
- * @deffunc apr_status_t apr_dbm_open(apr_dbm_t **dbm, const char *name, int mode
  * @tip The dbm name may not be a true file name, as many dbm packages
  * append suffixes for seperate data and index files.
  */
@@ -152,7 +150,6 @@ APU_DECLARE(apr_status_t) apr_dbm_open(apr_dbm_t **dbm, const char *name,
 /**
  * Close a dbm file previously opened by apr_dbm_open
  * @param dbm The database to close
- * @deffunc void apr_dbm_close(apr_dbm_t *dbm)
  */
 APU_DECLARE(void) apr_dbm_close(apr_dbm_t *dbm);
 
@@ -160,8 +157,7 @@ APU_DECLARE(void) apr_dbm_close(apr_dbm_t *dbm);
  * Fetch a dbm record value by key
  * @param dbm The database 
  * @param key The key datum to find this record
- * @param value The value datum retrieved for this record
- * @deffunc apr_status_t apr_dbm_fetch(apr_dbm_t *dbm, apr_datum_t key
+ * @param pvalue The value datum retrieved for this record
  */
 APU_DECLARE(apr_status_t) apr_dbm_fetch(apr_dbm_t *dbm, apr_datum_t key,
                                         apr_datum_t *pvalue);
@@ -170,7 +166,6 @@ APU_DECLARE(apr_status_t) apr_dbm_fetch(apr_dbm_t *dbm, apr_datum_t key,
  * @param dbm The database 
  * @param key The key datum to store this record by
  * @param value The value datum to store in this record
- * @deffunc apr_status_t apr_dbm_store(apr_dbm_t *dbm, apr_datum_t key, apr_datum_t value)
  */
 APU_DECLARE(apr_status_t) apr_dbm_store(apr_dbm_t *dbm, apr_datum_t key, 
                                         apr_datum_t value);
@@ -179,7 +174,6 @@ APU_DECLARE(apr_status_t) apr_dbm_store(apr_dbm_t *dbm, apr_datum_t key,
  * Delete a dbm record value by key
  * @param dbm The database 
  * @param key The key datum of the record to delete
- * @deffunc apr_status_t apr_dbm_delete(apr_dbm_t *dbm, apr_datum_t key)
  * @tip It is not an error to delete a non-existent record.
  */
 APU_DECLARE(apr_status_t) apr_dbm_delete(apr_dbm_t *dbm, apr_datum_t key);
@@ -188,23 +182,20 @@ APU_DECLARE(apr_status_t) apr_dbm_delete(apr_dbm_t *dbm, apr_datum_t key);
  * Search for a key within the dbm
  * @param dbm The database 
  * @param key The datum describing a key to test
- * @deffunc int apr_dbm_exists(apr_dbm_t *dbm, apr_datum_t key)
  */
 APU_DECLARE(int) apr_dbm_exists(apr_dbm_t *dbm, apr_datum_t key);
 
 /**
  * Retrieve the first record key from a dbm
  * @param dbm The database 
- * @param key The key datum of the first record
- * @deffunc apr_status_t apr_dbm_firstkey(apr_dbm_t *dbm, apr_datum_t *pkey)
+ * @param pkey The key datum of the first record
  */
 APU_DECLARE(apr_status_t) apr_dbm_firstkey(apr_dbm_t *dbm, apr_datum_t *pkey);
 
 /**
  * Retrieve the next record key from a dbm
  * @param dbm The database 
- * @param key The key datum of the next record
- * @deffunc apr_status_t apr_dbm_nextkey(apr_dbm_t *dbm, apr_datum_t *pkey)
+ * @param pkey The key datum of the next record
  */
 APU_DECLARE(apr_status_t) apr_dbm_nextkey(apr_dbm_t *dbm, apr_datum_t *pkey);
 
@@ -212,7 +203,6 @@ APU_DECLARE(apr_status_t) apr_dbm_nextkey(apr_dbm_t *dbm, apr_datum_t *pkey);
  * Proactively toss any memory associated with the apr_datum_t.
  * @param dbm The database 
  * @param data The datum to free.
- * @deffunc void apr_dbm_freedatum(apr_dbm_t *dbm, apr_datum_t data)
  */
 APU_DECLARE(void) apr_dbm_freedatum(apr_dbm_t *dbm, apr_datum_t data);
 
@@ -224,7 +214,6 @@ APU_DECLARE(void) apr_dbm_freedatum(apr_dbm_t *dbm, apr_datum_t data);
  * @param errbuf Location to store the error text
  * @param errbufsize The size of the provided buffer
  * @return The errbuf parameter, for convenience.
- * @deffunc const char * apr_dbm_geterror(apr_dbm_t *dbm, int *errcode, char *errbuf, apr_size_t errbufsize)
  */
 APU_DECLARE(char *) apr_dbm_geterror(apr_dbm_t *dbm, int *errcode,
                                      char *errbuf, apr_size_t errbufsize);
