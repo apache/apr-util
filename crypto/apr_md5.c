@@ -99,6 +99,7 @@
 #include "apr_md5.h"
 #include "apr_lib.h"
 #include "apu_config.h"
+#include "apr_sha1.h"
 
 #if APR_HAVE_STRING_H
 #include <string.h>
@@ -703,10 +704,10 @@ static void crypt_mutex_unlock(void)
 #endif
 
 /*
- * Validate a plaintext password against a smashed one.  Use either
- * crypt() (if available) or apr_md5_encode(), depending upon the format
- * of the smashed input password.  Return APR_SUCCESS if they match, or
- * APR_EMISMATCH if they don't.
+ * Validate a plaintext password against a smashed one.  Uses either
+ * crypt() (if available) or apr_md5_encode() or apr_sha1_base64(), depending
+ * upon the format of the smashed input password.  Returns APR_SUCCESS if
+ * they match, or APR_EMISMATCH if they don't.
  */
 
 APU_DECLARE(apr_status_t) apr_password_validate(const char *passwd, 
@@ -721,6 +722,9 @@ APU_DECLARE(apr_status_t) apr_password_validate(const char *passwd,
          * The hash was created using our custom algorithm.
          */
         apr_md5_encode(passwd, hash, sample, sizeof(sample));
+    }
+    else if(!strncmp(hash, APR_SHA1PW_ID, strlen(APR_SHA1PW_ID))) {
+         apr_sha1_base64(passwd, strlen(passwd), sample);
     }
     else {
         /*
