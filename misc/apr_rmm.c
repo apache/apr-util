@@ -388,8 +388,9 @@ APU_DECLARE(apr_rmm_off_t) apr_rmm_realloc(apr_rmm_t *rmm, void *entity,
 
     if (old >= 0) {
         memcpy(apr_rmm_addr_get(rmm, this),
-               apr_rmm_addr_get(rmm, old),reqsize);
+               apr_rmm_addr_get(rmm, old), reqsize);
         move_block(rmm, old, 1);
+        apr_rmm_free(rmm, old);
     }
 
     return this;
