@@ -414,15 +414,21 @@ APU_DECLARE(char *) apr_xml_parser_geterror(apr_xml_parser *parser,
                                             char *errbuf,
                                             apr_size_t errbufsize)
 {
-    int error = parser->error;
+    int error = 0;
     const char *msg;
 
     /* clear our record of an error */
-    parser->error = 0;
+    if (parser != NULL) {
+        error = parser->error;
+        parser->error = 0;
+    }
 
     switch (error) {
     case 0:
-        msg = "No error.";
+        if (parser != NULL)
+            msg = "No error.";
+        else
+            msg = "No parser.";
         break;
 
     case APR_XML_NS_ERROR_UNKNOWN_PREFIX:
