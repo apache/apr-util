@@ -204,8 +204,8 @@ apr_status_t apr_sdbm_open(apr_sdbm_t **db, const char *file,
                            apr_int32_t flags, apr_fileperms_t perms,
                            apr_pool_t *p)
 {
-    char *dirname = apr_pstrcat(p, file, SDBM_DIRFEXT, NULL);
-    char *pagname = apr_pstrcat(p, file, SDBM_PAGFEXT, NULL);
+    char *dirname = apr_pstrcat(p, file, APR_SDBM_DIRFEXT, NULL);
+    char *pagname = apr_pstrcat(p, file, APR_SDBM_PAGFEXT, NULL);
     
     return prep(db, dirname, pagname, flags, perms, p);
 }

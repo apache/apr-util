@@ -78,8 +78,8 @@ typedef struct {
 } apr_sdbm_datum_t;
 
 /* The extensions used for the database files */
-#define SDBM_DIRFEXT	".dir"
-#define SDBM_PAGFEXT	".pag"
+#define APR_SDBM_DIRFEXT	".dir"
+#define APR_SDBM_PAGFEXT	".pag"
 
 /* Standard dbm interface */
 
