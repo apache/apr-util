@@ -4,3 +4,5 @@ uri_delims.h
 *.lo
 *.la
 .libs
+Debug
+Release
