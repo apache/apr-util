@@ -695,7 +695,7 @@ APU_DECLARE(apr_status_t) apr_brigade_length(apr_bucket_brigade *bb,
  * @param len The maximum length of the char array. On return, it is the
  *            actual length of the char array.
  */
-APU_DECLARE(apr_status_t) apr_brigade_getline(apr_bucket_brigade *bb,
+APU_DECLARE(apr_status_t) apr_brigade_flatten(apr_bucket_brigade *bb,
                                               char *c,
                                               apr_size_t *len);
 
@@ -705,7 +705,7 @@ APU_DECLARE(apr_status_t) apr_brigade_getline(apr_bucket_brigade *bb,
  * @param p The pool to allocate the string from.
  * Note: This string is NULL-terminated.
  */
-APU_DECLARE(char *) apr_brigade_pgetline(apr_bucket_brigade *bb, 
+APU_DECLARE(char *) apr_brigade_pflatten(apr_bucket_brigade *bb, 
                                          apr_pool_t *pool);
 
 /**

@@ -221,7 +221,7 @@ APU_DECLARE(apr_status_t) apr_brigade_length(apr_bucket_brigade *bb,
     return APR_SUCCESS;
 }
 
-APU_DECLARE(apr_status_t) apr_brigade_getline(apr_bucket_brigade *bb,
+APU_DECLARE(apr_status_t) apr_brigade_flatten(apr_bucket_brigade *bb,
                                               char *c, apr_size_t *len)
 {
     apr_size_t actual = 0;
@@ -256,7 +256,7 @@ APU_DECLARE(apr_status_t) apr_brigade_getline(apr_bucket_brigade *bb,
     return APR_SUCCESS;
 }
 
-APU_DECLARE(char *) apr_brigade_pgetline(apr_bucket_brigade *bb,
+APU_DECLARE(char *) apr_brigade_pflatten(apr_bucket_brigade *bb,
                                          apr_pool_t *pool)
 {
     apr_off_t tmp;
@@ -268,7 +268,7 @@ APU_DECLARE(char *) apr_brigade_pgetline(apr_bucket_brigade *bb,
     
     c = apr_palloc(pool, actual + 1);
     
-    apr_brigade_getline(bb, c, &actual);
+    apr_brigade_flatten(bb, c, &actual);
     c[actual] = '\0';
 
     return APR_SUCCESS;
