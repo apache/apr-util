@@ -548,8 +548,10 @@ if test "$expat_include_dir" = "$srcdir/xml/expat/include" -o "$expat_include_di
 fi
 fi
 APR_XML_DIR=$bundled_subdir
+APR_XML_EXPAT_OLD=$expat_old
 AC_SUBST(APR_XML_SUBDIRS)
 AC_SUBST(APR_XML_DIR)
+AC_SUBST(APR_XML_EXPAT_OLD)
 
 if test "$expat_include_dir" != "/usr/include"; then
   APR_ADDTO(APRUTIL_INCLUDES, [-I$expat_include_dir])
