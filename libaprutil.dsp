@@ -275,6 +275,14 @@ SOURCE=.\strmatch\apr_strmatch.c
 SOURCE=.\uri\apr_uri.c
 # End Source File
 # End Group
+# Begin Group "xlate"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\xlate\xlate.c
+# End Source File
+# End Group
 # Begin Group "xml"
 
 # PROP Default_Filter ""
@@ -514,6 +522,10 @@ SOURCE=.\include\apr_uri.h
 # Begin Source File
 
 SOURCE=.\include\apr_uuid.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\apr_xlate.h
 # End Source File
 # Begin Source File
 
