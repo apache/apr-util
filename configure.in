@@ -94,6 +94,21 @@ APU_CHECK_DBM
 APU_FIND_EXPAT
 APU_FIND_ICONV
 
+AC_SEARCH_LIBS(crypt, crypt ufc)
+AC_MSG_CHECKING(if system crypt() function is threadsafe)
+if test "x$apu_crypt_threadsafe" = "x1"; then
+  AC_DEFINE(APU_CRYPT_THREADSAFE, 1, [Define if the system crypt() function is threadsafe])
+  msg="yes"
+else
+  msg="no"
+fi
+AC_MSG_RESULT([$msg])
+
+AC_CHECK_FUNCS(crypt_r, [ crypt_r="1" ], [ crypt_r="0" ])
+if test "$crypt_r" = "1"; then
+  APR_CHECK_CRYPT_R_STYLE
+fi
+
 so_ext=$APR_SO_EXT
 lib_target=$APR_LIB_TARGET
 AC_SUBST(so_ext)

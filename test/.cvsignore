@@ -8,6 +8,7 @@ Debug
 testdbm
 testmd4
 testmd5
+testpass
 testqueue
 testreslist
 testrmm
