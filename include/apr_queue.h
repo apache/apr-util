@@ -58,6 +58,7 @@
 
 #ifndef APR_QUEUE_H
 #define APR_QUEUE_H
+#if APR_HAS_THREADS
 /**
  * @file apr_queue.h
  * @brief Thread Safe FIFO bounded queue
@@ -152,4 +153,5 @@ apr_status_t apr_queue_interrupt_all(apr_queue_t *queue);
  */
 apr_status_t apr_queue_term(apr_queue_t *queue);
 
+#endif /*  APR_HAS_THREADS */
 #endif /* APRQUEUE_H */
