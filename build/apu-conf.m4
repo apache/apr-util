@@ -154,7 +154,12 @@ AC_CHECK_HEADER(db.h, [
       apu_db_header=db.h
       apu_db_lib=db
       apu_db_version=4
-    ])])])
+    ], [
+      AC_CHECK_LIB(db, db_create_4001, [
+      apu_db_header=db.h
+      apu_db_lib=db
+      apu_db_version=4
+    ])])])])
 fi
 ])
 
