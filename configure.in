@@ -199,7 +199,7 @@ dnl everthing is done.
 MAKEFILES="Makefile $test_Makefile"
 AC_OUTPUT([
     export_vars.sh
-    apu-config
+    apu-$APRUTIL_MAJOR_VERSION-config:apu-config.in
     apr-util.pc
     include/private/apu_select_dbm.h
     include/apr_ldap.h
@@ -207,5 +207,7 @@ AC_OUTPUT([
     include/apu_want.h
     $MAKEFILES
 	],[
-chmod +x apu-config
+chmod +x apu-$APRUTIL_MAJOR_VERSION-config
+],[
+APRUTIL_MAJOR_VERSION=$APRUTIL_MAJOR_VERSION
 ])
