@@ -73,7 +73,7 @@ extern "C" {
 /**
  * Function to implemnt the APR_OPTIONAL_HOOK Macro
  * @internal
- * @see APR_OPTIONAL_HOOOK
+ * @see APR_OPTIONAL_HOOK
  *
  * @param name The name of the hook
  * @param pfn A pointer to a function that will be called
