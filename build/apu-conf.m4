@@ -722,12 +722,12 @@ dnl The iPlanet C SDK 5.0 is as yet untested...
       APU_FIND_LDAPLIB("ldapssl20")
       APU_FIND_LDAPLIB("ldap", "-llber")
       APU_FIND_LDAPLIB("ldap", "-llber -lresolv")
-      APU_FIND_LDAPLIB("ldap", "-llber -lsocket -lnsl -lresolv")
+      APU_FIND_LDAPLIB("ldap", "-llber -lresolv -lsocket -lnsl")
       APU_FIND_LDAPLIB("ldap", "-ldl -lpthread")
     else
       APU_FIND_LDAPLIB($LIBLDAP)
       APU_FIND_LDAPLIB($LIBLDAP, "-lresolv")
-      APU_FIND_LDAPLIB($LIBLDAP, "-lsocket -lnsl -lresolv")
+      APU_FIND_LDAPLIB($LIBLDAP, "-lresolv -lsocket -lnsl")
       APU_FIND_LDAPLIB($LIBLDAP, "-ldl -lpthread")
     fi
 
