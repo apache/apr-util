@@ -55,6 +55,7 @@
 #ifndef APR_DBM_H
 #define APR_DBM_H
 
+#include "apu.h"
 #include "apr.h"
 #include "apr_errno.h"
 #include "apr_pools.h"

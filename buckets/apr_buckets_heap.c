@@ -87,7 +87,7 @@ static void heap_destroy(void *data)
     free(h);
 }
 
-APR_DECLARE(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
+APU_DECLARE(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
 		const char *buf, apr_size_t length, int copy, apr_size_t *w)
 {
     ap_bucket_heap *h;
@@ -134,13 +134,13 @@ APR_DECLARE(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
     return b;
 }
 
-APR_DECLARE(ap_bucket *) ap_bucket_create_heap(
+APU_DECLARE(ap_bucket *) ap_bucket_create_heap(
 		const char *buf, apr_size_t length, int copy, apr_size_t *w)
 {
     ap_bucket_do_create(ap_bucket_make_heap(b, buf, length, copy, w));
 }
 
-APR_DECLARE_DATA const ap_bucket_type ap_heap_type = {
+APU_DECLARE_DATA const ap_bucket_type ap_heap_type = {
     "HEAP", 5,
     heap_destroy,
     heap_read,

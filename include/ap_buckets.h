@@ -55,6 +55,7 @@
 #ifndef AP_BUCKETS_H
 #define AP_BUCKETS_H
 
+#include "apu.h"
 #include "apr_network_io.h"
 #include "apr_file_io.h"
 #include "apr_general.h"
@@ -560,7 +561,7 @@ struct ap_bucket_file {
  * @return The empty bucket brigade
  * @deffunc ap_bucket_brigade *ap_brigade_create(apr_pool_t *p)
  */
-APR_DECLARE(ap_bucket_brigade *) ap_brigade_create(apr_pool_t *p);
+APU_DECLARE(ap_bucket_brigade *) ap_brigade_create(apr_pool_t *p);
 
 /**
  * destroy an entire bucket brigade.  This includes destroying all of the
@@ -568,7 +569,7 @@ APR_DECLARE(ap_bucket_brigade *) ap_brigade_create(apr_pool_t *p);
  * @param b The bucket brigade to destroy
  * @deffunc apr_status_t ap_brigade_destroy(ap_bucket_brigade *b)
  */
-APR_DECLARE(apr_status_t) ap_brigade_destroy(ap_bucket_brigade *b);
+APU_DECLARE(apr_status_t) ap_brigade_destroy(ap_bucket_brigade *b);
 
 /**
  * Split a bucket brigade into two, such that the given bucket is the
@@ -580,7 +581,7 @@ APR_DECLARE(apr_status_t) ap_brigade_destroy(ap_bucket_brigade *b);
  * @return The new brigade
  * @deffunc ap_bucket_brigade *ap_brigade_split(ap_bucket_brigade *b, ap_bucket *e)
  */
-APR_DECLARE(ap_bucket_brigade *) ap_brigade_split(ap_bucket_brigade *b,
+APU_DECLARE(ap_bucket_brigade *) ap_brigade_split(ap_bucket_brigade *b,
 						 ap_bucket *e);
 
 /**
@@ -593,7 +594,7 @@ APR_DECLARE(ap_bucket_brigade *) ap_brigade_split(ap_bucket_brigade *b,
  *         or NULL in any error condition (including partition past the end)
  * @deffunc ap_bucket *ap_brigade_partition(ap_bucket_brigade *b, apr_off_t point)
  */
-APR_DECLARE(ap_bucket *) ap_brigade_partition(ap_bucket_brigade *b, apr_off_t point);
+APU_DECLARE(ap_bucket *) ap_brigade_partition(ap_bucket_brigade *b, apr_off_t point);
 
 #if APR_NOT_DONE_YET
 /**
@@ -603,7 +604,7 @@ APR_DECLARE(ap_bucket *) ap_brigade_partition(ap_bucket_brigade *b, apr_off_t po
  * @param nbytes The number of bytes to consume
  * @deffunc void ap_brigade_consume(ap_bucket_brigade *b, int nbytes)
  */
-APR_DECLARE(void) ap_brigade_consume(ap_bucket_brigade *b, int nbytes);
+APU_DECLARE(void) ap_brigade_consume(ap_bucket_brigade *b, int nbytes);
 #endif
 
 /**
@@ -616,7 +617,7 @@ APR_DECLARE(void) ap_brigade_consume(ap_bucket_brigade *b, int nbytes);
  * @return The number of iovec elements actually filled out.
  * @deffunc int ap_brigade_to_iovec(ap_bucket_brigade *b, struct iovec *vec, int nvec);
  */
-APR_DECLARE(int) ap_brigade_to_iovec(ap_bucket_brigade *b, 
+APU_DECLARE(int) ap_brigade_to_iovec(ap_bucket_brigade *b, 
 				    struct iovec *vec, int nvec);
 
 /**
@@ -627,7 +628,7 @@ APR_DECLARE(int) ap_brigade_to_iovec(ap_bucket_brigade *b,
  * @return The number of bytes added to the brigade
  * @deffunc int ap_brigade_vputstrs(ap_bucket_brigade *b, va_list va)
  */
-APR_DECLARE(int) ap_brigade_vputstrs(ap_bucket_brigade *b, va_list va);
+APU_DECLARE(int) ap_brigade_vputstrs(ap_bucket_brigade *b, va_list va);
 
 /**
  * This function writes an unspecified number of strings into a bucket brigade.
@@ -637,7 +638,7 @@ APR_DECLARE(int) ap_brigade_vputstrs(ap_bucket_brigade *b, va_list va);
  * @return The number of bytes added to the brigade
  * @deffunc int ap_brigade_putstrs(ap_bucket_brigade *b, ...)
  */
-APR_DECLARE_NONSTD(int) ap_brigade_putstrs(ap_bucket_brigade *b, ...);
+APU_DECLARE_NONSTD(int) ap_brigade_putstrs(ap_bucket_brigade *b, ...);
 
 /**
  * Evaluate a printf and put the resulting string into a bucket at the end 
@@ -648,7 +649,7 @@ APR_DECLARE_NONSTD(int) ap_brigade_putstrs(ap_bucket_brigade *b, ...);
  * @return The number of bytes added to the brigade
  * @deffunc int ap_brigade_printf(ap_bucket_brigade *b, const char *fmt, ...) 
  */
-APR_DECLARE_NONSTD(int) ap_brigade_printf(ap_bucket_brigade *b, const char *fmt, ...);
+APU_DECLARE_NONSTD(int) ap_brigade_printf(ap_bucket_brigade *b, const char *fmt, ...);
 
 /**
  * Evaluate a printf and put the resulting string into a bucket at the end 
@@ -659,7 +660,7 @@ APR_DECLARE_NONSTD(int) ap_brigade_printf(ap_bucket_brigade *b, const char *fmt,
  * @return The number of bytes added to the brigade
  * @deffunc int ap_brigade_vprintf(ap_bucket_brigade *b, const char *fmt, va_list va) 
  */
-APR_DECLARE(int) ap_brigade_vprintf(ap_bucket_brigade *b, const char *fmt, va_list va);
+APU_DECLARE(int) ap_brigade_vprintf(ap_bucket_brigade *b, const char *fmt, va_list va);
 
 
 /*  *****  Bucket Functions  *****  */
@@ -726,7 +727,7 @@ void ap_init_bucket_types(apr_pool_t *p);
  * @return APR_ENOTIMPL
  * @deffunc apr_status_t ap_bucket_setaside_notimpl(ap_bucket *data)
  */ 
-APR_DECLARE_NONSTD(apr_status_t) ap_bucket_setaside_notimpl(ap_bucket *data);
+APU_DECLARE_NONSTD(apr_status_t) ap_bucket_setaside_notimpl(ap_bucket *data);
 /**
  * A place holder function that signifies that the split function was not
  * implemented for this bucket
@@ -735,7 +736,7 @@ APR_DECLARE_NONSTD(apr_status_t) ap_bucket_setaside_notimpl(ap_bucket *data);
  * @return APR_ENOTIMPL
  * @deffunc apr_status_t ap_bucket_split_notimpl(ap_bucket *data)
  */ 
-APR_DECLARE_NONSTD(apr_status_t) ap_bucket_split_notimpl(ap_bucket *data, 
+APU_DECLARE_NONSTD(apr_status_t) ap_bucket_split_notimpl(ap_bucket *data, 
                                                  apr_off_t point);
 /**
  * A place holder function that signifies that the copy function was not
@@ -745,7 +746,7 @@ APR_DECLARE_NONSTD(apr_status_t) ap_bucket_split_notimpl(ap_bucket *data,
  * @return APR_ENOTIMPL
  * @deffunc apr_status_t ap_bucket_copy_notimpl(ap_bucket *e, ap_bucket **c)
  */
-APR_DECLARE_NONSTD(apr_status_t) ap_bucket_copy_notimpl(ap_bucket *e,
+APU_DECLARE_NONSTD(apr_status_t) ap_bucket_copy_notimpl(ap_bucket *e,
                                                         ap_bucket **c);
 /**
  * A place holder function that signifies that the destroy function was not
@@ -753,7 +754,7 @@ APR_DECLARE_NONSTD(apr_status_t) ap_bucket_copy_notimpl(ap_bucket *e,
  * @param data The bucket to destroy
  * @deffunc void ap_bucket_destroy(ap_bucket *data)
  */ 
-APR_DECLARE_NONSTD(void) ap_bucket_destroy_notimpl(void *data);
+APU_DECLARE_NONSTD(void) ap_bucket_destroy_notimpl(void *data);
 /* There is no ap_bucket_read_notimpl, because it is a required function
  */
 
@@ -769,52 +770,52 @@ int ap_insert_bucket_type(const ap_bucket_type *type);
  * The flush bucket type.  This signifies that all data should be flushed to
  * the next filter.  The flush bucket should be sent with the other buckets.
  */
-APR_DECLARE_DATA extern const ap_bucket_type ap_flush_type;
+APU_DECLARE_DATA extern const ap_bucket_type ap_flush_type;
 /**
  * The EOS bucket type.  This signifies that there will be no more data, ever.
  * All filters MUST send all data to the next filter when they receive a
  * bucket of this type
  */
-APR_DECLARE_DATA extern const ap_bucket_type ap_eos_type;
+APU_DECLARE_DATA extern const ap_bucket_type ap_eos_type;
 /**
  * The FILE bucket type.  This bucket represents a file on disk
  */
-APR_DECLARE_DATA extern const ap_bucket_type ap_file_type;
+APU_DECLARE_DATA extern const ap_bucket_type ap_file_type;
 /**
  * The HEAP bucket type.  This bucket represents a data allocated out of the
  * heap.
  */
-APR_DECLARE_DATA extern const ap_bucket_type ap_heap_type;
+APU_DECLARE_DATA extern const ap_bucket_type ap_heap_type;
 /**
  * The MMAP bucket type.  This bucket represents an MMAP'ed file
  */
-APR_DECLARE_DATA extern const ap_bucket_type ap_mmap_type;
+APU_DECLARE_DATA extern const ap_bucket_type ap_mmap_type;
 /**
  * The POOL bucket type.  This bucket represents a data that was allocated
  * out of a pool.  IF this bucket is still available when the pool is cleared,
  * the data is copied on to the heap.
  */
-APR_DECLARE_DATA extern const ap_bucket_type ap_pool_type;
+APU_DECLARE_DATA extern const ap_bucket_type ap_pool_type;
 /**
  * The PIPE bucket type.  This bucket represents a pipe to another program.
  */
-APR_DECLARE_DATA extern const ap_bucket_type ap_pipe_type;
+APU_DECLARE_DATA extern const ap_bucket_type ap_pipe_type;
 /**
  * The IMMORTAL bucket type.  This bucket represents a segment of data that
  * the creator is willing to take responsability for.  The core will do
  * nothing with the data in an immortal bucket
  */
-APR_DECLARE_DATA extern const ap_bucket_type ap_immortal_type;
+APU_DECLARE_DATA extern const ap_bucket_type ap_immortal_type;
 /**
  * The TRANSIENT bucket type.  This bucket represents a data allocated off
  * the stack.  When the setaside function is called, this data is copied on
  * to the heap
  */
-APR_DECLARE_DATA extern const ap_bucket_type ap_transient_type;
+APU_DECLARE_DATA extern const ap_bucket_type ap_transient_type;
 /**
  * The SOCKET bucket type.  This bucket represents a socket to another machine
  */
-APR_DECLARE_DATA extern const ap_bucket_type ap_socket_type;
+APU_DECLARE_DATA extern const ap_bucket_type ap_socket_type;
 
 
 /*  *****  Shared reference-counted buckets  *****  */
@@ -836,7 +837,7 @@ APR_DECLARE_DATA extern const ap_bucket_type ap_socket_type;
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_make_shared(ap_bucket_refcount *r, apr_off_t start, apr_off_t end) 
  */
-APR_DECLARE(ap_bucket *) ap_bucket_make_shared(ap_bucket *b, void *data,
+APU_DECLARE(ap_bucket *) ap_bucket_make_shared(ap_bucket *b, void *data,
 					      apr_off_t start, apr_off_t end);
 
 /**
@@ -849,7 +850,7 @@ APR_DECLARE(ap_bucket *) ap_bucket_make_shared(ap_bucket *b, void *data,
  *         must be destroyed because its reference count is zero
  * @deffunc void *ap_bucket_destroy_shared(ap_bucket *b)
  */
-APR_DECLARE(void *) ap_bucket_destroy_shared(void *data);
+APU_DECLARE(void *) ap_bucket_destroy_shared(void *data);
 
 /**
  * Split a bucket into two at the given point, and adjust the refcount
@@ -863,7 +864,7 @@ APR_DECLARE(void *) ap_bucket_destroy_shared(void *data);
  *         or APR_SUCCESS
  * @deffunc apr_status_t ap_bucket_split_shared(ap_bucket *b, apr_off_t point)
  */
-APR_DECLARE_NONSTD(apr_status_t) ap_bucket_split_shared(ap_bucket *b, apr_off_t point);
+APU_DECLARE_NONSTD(apr_status_t) ap_bucket_split_shared(ap_bucket *b, apr_off_t point);
 
 /**
  * Copy a refcounted bucket, incrementing the reference count. Most
@@ -875,7 +876,7 @@ APR_DECLARE_NONSTD(apr_status_t) ap_bucket_split_shared(ap_bucket *b, apr_off_t 
            or APR_SUCCESS
  * @deffunc apr_status_t ap_bucket_copy_shared(ap_bucket *a, ap_bucket **c)
  */
-APR_DECLARE_NONSTD(apr_status_t) ap_bucket_copy_shared(ap_bucket *a, ap_bucket **c);
+APU_DECLARE_NONSTD(apr_status_t) ap_bucket_copy_shared(ap_bucket *a, ap_bucket **c);
 
 
 /*  *****  Functions to Create Buckets of varying type  *****  */
@@ -916,7 +917,7 @@ APR_DECLARE_NONSTD(apr_status_t) ap_bucket_copy_shared(ap_bucket *a, ap_bucket *
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_create_eos(void)
  */
-APR_DECLARE(ap_bucket *) ap_bucket_create_eos(void);
+APU_DECLARE(ap_bucket *) ap_bucket_create_eos(void);
 /**
  * Make the bucket passed in an EOS bucket.  This indicates that there is no 
  * more data coming from down the filter stack.  All filters should flush at 
@@ -925,7 +926,7 @@ APR_DECLARE(ap_bucket *) ap_bucket_create_eos(void);
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_make_eos(ap_bucket *b)
  */
-APR_DECLARE(ap_bucket *) ap_bucket_make_eos(ap_bucket *b);
+APU_DECLARE(ap_bucket *) ap_bucket_make_eos(ap_bucket *b);
 
 /**
  * Create a flush  bucket.  This indicates that filters should flush their
@@ -934,7 +935,7 @@ APR_DECLARE(ap_bucket *) ap_bucket_make_eos(ap_bucket *b);
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_create_flush(void)
  */
-APR_DECLARE(ap_bucket *) ap_bucket_create_flush(void);
+APU_DECLARE(ap_bucket *) ap_bucket_create_flush(void);
 /**
  * Make the bucket passed in a FLUSH  bucket.  This indicates that filters 
  * should flush their data.  There is no guarantee that they will flush it, 
@@ -943,7 +944,7 @@ APR_DECLARE(ap_bucket *) ap_bucket_create_flush(void);
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_make_flush(ap_bucket *b)
  */
-APR_DECLARE(ap_bucket *) ap_bucket_make_flush(ap_bucket *b);
+APU_DECLARE(ap_bucket *) ap_bucket_make_flush(ap_bucket *b);
 
 /**
  * Create a bucket referring to long-lived data.
@@ -952,7 +953,7 @@ APR_DECLARE(ap_bucket *) ap_bucket_make_flush(ap_bucket *b);
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_create_transient(const char *buf, apr_size_t nbyte, apr_size_t *w)
  */
-APR_DECLARE(ap_bucket *) ap_bucket_create_immortal(
+APU_DECLARE(ap_bucket *) ap_bucket_create_immortal(
 		const char *buf, apr_size_t nbyte);
 /**
  * Make the bucket passed in a bucket refer to long-lived data
@@ -963,7 +964,7 @@ APR_DECLARE(ap_bucket *) ap_bucket_create_immortal(
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_make_immortal(ap_bucket *b, const char *buf, apr_size_t nbyte, apr_size_t *w)
  */
-APR_DECLARE(ap_bucket *) ap_bucket_make_immortal(ap_bucket *b,
+APU_DECLARE(ap_bucket *) ap_bucket_make_immortal(ap_bucket *b,
 		const char *buf, apr_size_t nbyte);
 
 /**
@@ -973,7 +974,7 @@ APR_DECLARE(ap_bucket *) ap_bucket_make_immortal(ap_bucket *b,
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_create_transient(const char *buf, apr_size_t nbyte, apr_size_t *w)
  */
-APR_DECLARE(ap_bucket *) ap_bucket_create_transient(
+APU_DECLARE(ap_bucket *) ap_bucket_create_transient(
 		const char *buf, apr_size_t nbyte);
 /**
  * Make the bucket passed in a bucket refer to stack data
@@ -983,7 +984,7 @@ APR_DECLARE(ap_bucket *) ap_bucket_create_transient(
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_make_transient(ap_bucket *b, const char *buf, apr_size_t nbyte)
  */
-APR_DECLARE(ap_bucket *) ap_bucket_make_transient(ap_bucket *b,
+APU_DECLARE(ap_bucket *) ap_bucket_make_transient(ap_bucket *b,
 		const char *buf, apr_size_t nbyte);
 
 /**
@@ -1001,7 +1002,7 @@ APR_DECLARE(ap_bucket *) ap_bucket_make_transient(ap_bucket *b,
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_create_heap(const char *buf, apr_size_t nbyte, int copy, apr_size_t *w)
  */
-APR_DECLARE(ap_bucket *) ap_bucket_create_heap(
+APU_DECLARE(ap_bucket *) ap_bucket_create_heap(
 		const char *buf, apr_size_t nbyte, int copy, apr_size_t *w);
 /**
  * Make the bucket passed in a bucket refer to heap data
@@ -1014,7 +1015,7 @@ APR_DECLARE(ap_bucket *) ap_bucket_create_heap(
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_make_heap(ap_bucket *b, const char *buf, apr_size_t nbyte, int copy, apr_size_t *w)
  */
-APR_DECLARE(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
+APU_DECLARE(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
 		const char *buf, apr_size_t nbyte, int copy, apr_size_t *w);
 
 /**
@@ -1024,7 +1025,7 @@ APR_DECLARE(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_create_pool(const char *buf, apr_size_t *length, apr_pool_t *p)
  */
-APR_DECLARE(ap_bucket *) ap_bucket_create_pool(const char *buf,  
+APU_DECLARE(ap_bucket *) ap_bucket_create_pool(const char *buf,  
                                             apr_size_t length, apr_pool_t *p);
 /**
  * Make the bucket passed in a bucket refer to pool data
@@ -1034,7 +1035,7 @@ APR_DECLARE(ap_bucket *) ap_bucket_create_pool(const char *buf,
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_make_pool(ap_bucket *b, const char *buf, apr_size_t *length, apr_pool_t *p)
  */
-APR_DECLARE(ap_bucket *) ap_bucket_make_pool(ap_bucket *b,
+APU_DECLARE(ap_bucket *) ap_bucket_make_pool(ap_bucket *b,
 		const char *buf, apr_size_t length, apr_pool_t *p);
 
 /**
@@ -1046,7 +1047,7 @@ APR_DECLARE(ap_bucket *) ap_bucket_make_pool(ap_bucket *b,
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_create_mmap(const apr_mmap_t *mm, apr_size_t start, apr_size_t length)
  */
-APR_DECLARE(ap_bucket *) ap_bucket_create_mmap(
+APU_DECLARE(ap_bucket *) ap_bucket_create_mmap(
 		apr_mmap_t *mm, apr_off_t start, apr_size_t length);
 /**
  * Make the bucket passed in a bucket refer to an MMAP'ed file
@@ -1058,7 +1059,7 @@ APR_DECLARE(ap_bucket *) ap_bucket_create_mmap(
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_make_mmap(ap_bucket *b, const apr_mmap_t *mm, apr_size_t start, apr_size_t length)
  */
-APR_DECLARE(ap_bucket *) ap_bucket_make_mmap(ap_bucket *b,
+APU_DECLARE(ap_bucket *) ap_bucket_make_mmap(ap_bucket *b,
 		apr_mmap_t *mm, apr_off_t start, apr_size_t length);
 
 /**
@@ -1067,7 +1068,7 @@ APR_DECLARE(ap_bucket *) ap_bucket_make_mmap(ap_bucket *b,
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_create_socket(apr_socket_t *thissocket)
  */
-APR_DECLARE(ap_bucket *) ap_bucket_create_socket(apr_socket_t *thissock);
+APU_DECLARE(ap_bucket *) ap_bucket_create_socket(apr_socket_t *thissock);
 /**
  * Make the bucket passed in a bucket refer to a socket
  * @param b The bucket to make into a SOCKET bucket
@@ -1075,7 +1076,7 @@ APR_DECLARE(ap_bucket *) ap_bucket_create_socket(apr_socket_t *thissock);
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_make_socket(ap_bucket *b, apr_socket_t *thissocket)
  */
-APR_DECLARE(ap_bucket *) ap_bucket_make_socket(ap_bucket *b, apr_socket_t *thissock);
+APU_DECLARE(ap_bucket *) ap_bucket_make_socket(ap_bucket *b, apr_socket_t *thissock);
 
 /**
  * Create a bucket referring to a pipe.
@@ -1083,7 +1084,7 @@ APR_DECLARE(ap_bucket *) ap_bucket_make_socket(ap_bucket *b, apr_socket_t *thiss
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_create_pipe(apr_file_t *thispipe)
  */
-APR_DECLARE(ap_bucket *) ap_bucket_create_pipe(apr_file_t *thispipe);
+APU_DECLARE(ap_bucket *) ap_bucket_create_pipe(apr_file_t *thispipe);
 /**
  * Make the bucket passed in a bucket refer to a pipe
  * @param b The bucket to make into a PIPE bucket
@@ -1091,7 +1092,7 @@ APR_DECLARE(ap_bucket *) ap_bucket_create_pipe(apr_file_t *thispipe);
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_make_pipe(ap_bucket *b, apr_file_t *thispipe)
  */
-APR_DECLARE(ap_bucket *) ap_bucket_make_pipe(ap_bucket *b, apr_file_t *thispipe);
+APU_DECLARE(ap_bucket *) ap_bucket_make_pipe(ap_bucket *b, apr_file_t *thispipe);
 
 /**
  * Create a bucket referring to a file.
@@ -1101,7 +1102,7 @@ APR_DECLARE(ap_bucket *) ap_bucket_make_pipe(ap_bucket *b, apr_file_t *thispipe)
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_create_file(apr_file_t *fd, apr_off_t offset, apr_size_t len)
  */
-APR_DECLARE(ap_bucket *) ap_bucket_create_file(apr_file_t *fd, apr_off_t offset, apr_size_t len);
+APU_DECLARE(ap_bucket *) ap_bucket_create_file(apr_file_t *fd, apr_off_t offset, apr_size_t len);
 /**
  * Make the bucket passed in a bucket refer to a file
  * @param b The bucket to make into a FILE bucket
@@ -1111,7 +1112,7 @@ APR_DECLARE(ap_bucket *) ap_bucket_create_file(apr_file_t *fd, apr_off_t offset,
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_make_file(ap_bucket *b, apr_file_t *fd, apr_off_t offset, apr_size_t len)
  */
-APR_DECLARE(ap_bucket *) ap_bucket_make_file(ap_bucket *b, apr_file_t *fd, 
+APU_DECLARE(ap_bucket *) ap_bucket_make_file(ap_bucket *b, apr_file_t *fd, 
                                             apr_off_t offset, apr_size_t len);
 
 #endif /* !AP_BUCKETS_H */
