@@ -49,6 +49,8 @@ else
   exit 1
 fi
 
+set -e
+
 # Remove some files, then copy them from apr source tree
 rm -f build/apr_common.m4 build/find_apr.m4 build/install.sh \
       build/config.guess build/config.sub
@@ -102,16 +104,14 @@ rm -rf autom4te*.cache
 # Create RPM Spec file
 if [ -f `which cut` ]; then
   echo rebuilding rpm spec file
-  ( REVISION=`build/get-version.sh all include/apu_version.h APU`
-    VERSION=`echo $REVISION | cut -d- -s -f1`
-    RELEASE=`echo $REVISION | cut -d- -s -f2`
-    if [ "x$VERSION" = "x" ]; then
+  REVISION=`build/get-version.sh all include/apu_version.h APU`
+  VERSION=`echo $REVISION | cut -d- -s -f1`
+  RELEASE=`echo $REVISION | cut -d- -s -f2`
+  if [ "x$VERSION" = "x" ]; then
       VERSION=$REVISION
       RELEASE=1
-    fi
-    cat ./build/rpm/apr-util.spec.in | \
-    sed -e "s/APU_VERSION/$VERSION/" \
-        -e "s/APU_RELEASE/$RELEASE/" \
-    > apr-util.spec )
+  fi
+  sed -e "s/APU_VERSION/$VERSION/" -e "s/APU_RELEASE/$RELEASE/" \
+    ./build/rpm/apr-util.spec.in > apr-util.spec
 fi
 
