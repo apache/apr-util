@@ -386,6 +386,22 @@
  *	    ...
  * 	}
  * </pre>
+ * @warning Be aware that you *cannot* change the value of ep within
+ * the foreach loop, nor can you destroy or otherwise modify the
+ * ring element pointed to by ep.  If you do, then APR_RING_FOREACH
+ * will have no way to find out what element to use for its next
+ * iteration.  The reason for this can be seen by looking closely
+ * at the equivalent loops given in the tip above.  So, for example,
+ * if you are writing a loop that empties out a ring one element
+ * at a time, APR_RING_FOREACH just won't work for you.  Do it
+ * by hand, like so:
+ * <pre>
+ *      while (!APR_RING_EMPTY(hp, elem, link)) {
+ *          ep = APR_RING_FIRST(hp);
+ *          ...
+ *          APR_RING_REMOVE(ep, link);
+ *      }
+ * </pre>
  * @deffunc void APR_RING_FOREACH(elem *ep, head *hp, struct elem, APR_RING_ENTRY link)
  */
 #define APR_RING_FOREACH(ep, hp, elem, link)				\
