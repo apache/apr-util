@@ -30,13 +30,11 @@
 #include "expat.h"
 #endif
 
-#include "ascii.h"
-
 #define DEBUG_CR "\r\n"
 
-static const char APR_KW_xmlns[] = { ASCII_x, ASCII_m, ASCII_l, ASCII_n, ASCII_s, '\0' };
-static const char APR_KW_xmlns_lang[] = { ASCII_x, ASCII_m, ASCII_l, ASCII_COLON, ASCII_l, ASCII_a, ASCII_n, ASCII_g, '\0' };
-static const char APR_KW_DAV[] = { ASCII_D, ASCII_A, ASCII_V, ASCII_COLON, '\0' };
+static const char APR_KW_xmlns[] = { 0x78, 0x6D, 0x6C, 0x6E, 0x73, '\0' };
+static const char APR_KW_xmlns_lang[] = { 0x78, 0x6D, 0x6C, 0x3A, 0x6C, 0x61, 0x6E, 0x67, '\0' };
+static const char APR_KW_DAV[] = { 0x44, 0x41, 0x56, 0x3A, '\0' };
 
 /* errors related to namespace processing */
 #define APR_XML_NS_ERROR_UNKNOWN_PREFIX (-1000)
@@ -44,9 +42,9 @@ static const char APR_KW_DAV[] = { ASCII_D, ASCII_A, ASCII_V, ASCII_COLON, '\0' 
 
 /* test for a namespace prefix that begins with [Xx][Mm][Ll] */
 #define APR_XML_NS_IS_RESERVED(name) \
-	( (name[0] == ASCII_X || name[0] == ASCII_x) && \
-	  (name[1] == ASCII_M || name[1] == ASCII_m) && \
-	  (name[2] == ASCII_L || name[2] == ASCII_l) )
+	( (name[0] == 0x58 || name[0] == 0x78) && \
+	  (name[1] == 0x4D || name[1] == 0x6D) && \
+	  (name[2] == 0x4C || name[2] == 0x6C) )
 
 
 /* the real (internal) definition of the parser context */
@@ -178,7 +176,7 @@ static void start_handler(void *userdata, const char *name, const char **attrs)
 	    apr_xml_ns_scope *ns_scope;
 
 	    /* test for xmlns:foo= form and xmlns= form */
-	    if (*prefix == ASCII_COLON) {
+	    if (*prefix == 0x3A) {
                 /* a namespace prefix declaration must have a
                    non-empty value. */
                 if (attr->value[0] == '\0') {
@@ -240,7 +238,7 @@ static void start_handler(void *userdata, const char *name, const char **attrs)
 	elem->lang = elem->parent->lang;
 
     /* adjust the element's namespace */
-    colon = strchr(elem_name, ASCII_COLON);
+    colon = strchr(elem_name, 0x3A);
     if (colon == NULL) {
 	/*
 	 * The element is using the default namespace, which will always
@@ -272,7 +270,7 @@ static void start_handler(void *userdata, const char *name, const char **attrs)
          */
         char *attr_name = (char *)attr->name;
 
-	colon = strchr(attr_name, ASCII_COLON);
+	colon = strchr(attr_name, 0x3A);
 	if (colon == NULL) {
 	    /*
 	     * Attributes do NOT use the default namespace. Therefore,
