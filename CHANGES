@@ -1,5 +1,8 @@
 Changes with APR-util b1  
 
+  *) Repair calling convention for apr_register_optional_fn to
+     eliminate GP fault on Win32.  [William Rowe]
+
   *) Substantial changes to correct linkage and declarations for
      generic hooks on dso architectures.  [Ben Laurie, Will Rowe]
 
