@@ -246,9 +246,8 @@ APU_DECLARE(int) apr_ldap_init(apr_pool_t *pool,
  * This function returns a string describing the LDAP toolkit
  * currently in use. The string is placed inside result_err->reason.
  */
-APU_DECLARE(int) apr_ldap_info(apr_ldap_err_t **result_err,
-                               apr_pool_t *pool) {
-
+APU_DECLARE(int) apr_ldap_info(apr_pool_t *pool, apr_ldap_err_t **result_err)
+{
     apr_ldap_err_t *result = (apr_ldap_err_t *)apr_pcalloc(pool, sizeof(apr_ldap_err_t));
     *result_err = result;
 
