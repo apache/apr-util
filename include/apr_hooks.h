@@ -67,12 +67,16 @@ extern "C" {
  * @package Apache hooks functions
  */
 
+#define APR_IMPLEMENT_HOOK_GET_PROTO(ns,link,name) \
+link##_DECLARE(apr_array_header_t *) ns##_hook_get_##name(void)
+
 #define APR_DECLARE_EXTERNAL_HOOK(ns,link,ret,name,args) \
 typedef ret ns##_HOOK_##name##_t args; \
 link##_DECLARE(void) ns##_hook_##name(ns##_HOOK_##name##_t *pf, \
                                       const char * const *aszPre, \
                                       const char * const *aszSucc, int nOrder); \
 link##_DECLARE(ret) ns##_run_##name args; \
+APR_IMPLEMENT_HOOK_GET_PROTO(ns,link,name); \
 typedef struct ns##_LINK_##name##_t \
     { \
     ns##_HOOK_##name##_t *pFunc; \
@@ -106,6 +110,10 @@ link##_DECLARE(void) ns##_hook_##name(ns##_HOOK_##name##_t *pf,const char * cons
     pHook->szName=apr_current_hooking_module; \
     if(apr_debug_module_hooks) \
 	apr_show_hook(#name,aszPre,aszSucc); \
+    } \
+    APR_IMPLEMENT_HOOK_GET_PROTO(ns,link,name) \
+    { \
+        return _hooks.link_##name; \
     }
 
 /**

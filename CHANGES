@@ -1,4 +1,7 @@
 Changes with APR-util b1  
+  *) Make APR_IMPLEMENT_EXTERNAL_HOOK_BASE generate a 
+     ${namespace}_hook_get_${hookname} function to fetch the
+     list of registered hooks [Doug MacEachern]
 
   *) Allow LTFLAGS to be overridden by the configure command-line
      (default="--silent") and introduce LT_LDFLAGS.  [Roy Fielding]
