@@ -452,6 +452,31 @@ APU_DECLARE(apr_status_t) apr_brigade_puts(apr_bucket_brigade *b,
                                            apr_brigade_flush flush, void *ctx,
                                            const char *str)
 {
+    apr_bucket *e = APR_BRIGADE_LAST(b);
+    if (!APR_BRIGADE_EMPTY(b) && APR_BUCKET_IS_HEAP(e)) {
+        /* If there is some space available in a heap bucket
+         * at the end of the brigade, start copying the string
+         */
+        apr_bucket_heap *h = e->data;
+        char *buf = h->base + e->start + e->length;
+        apr_size_t bytes_avail = h->alloc_len - e->length;
+        const char *s = str;
+
+        while (bytes_avail && *s) {
+            *buf++ = *s++;
+            bytes_avail--;
+        }
+        e->length += (s - str);
+        if (!*s) {
+            return APR_SUCCESS;
+        }
+        str = s;
+    }
+
+    /* If the string has not been copied completely to the brigade,
+     * delegate the remaining work to apr_brigade_write(), which
+     * knows how to grow the brigade
+     */
     return apr_brigade_write(b, flush, ctx, str, strlen(str));
 }
 
