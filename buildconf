@@ -38,7 +38,7 @@ rm -f build/apr_common.m4 build/find_apr.m4 build/install.sh \
       build/config.guess build/config.sub
 cp $apr_src_dir/build/apr_common.m4 $apr_src_dir/build/find_apr.m4 \
    $apr_src_dir/build/install.sh $apr_src_dir/build/config.guess  \
-   $apr_src_dir/build/config.sub $apr_src_dir/build/rules.mk build
+   $apr_src_dir/build/config.sub build
 
 # Remove aclocal.m4 as it'll break some builds...
 rm -rf aclocal.m4 autom4te*.cache

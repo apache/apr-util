@@ -1,5 +1,8 @@
 Changes with APR-util 0.9.2
   
+  *) Stop buildconf copying rules.mk, copy it at configure time. 
+     [Thom May]
+
   *) Make buildconf copy rules.mk as well. 
      [Garrett Rooney <rooneg@electricjellyfish.net>]
 
