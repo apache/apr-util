@@ -316,7 +316,7 @@ APU_DECLARE(apr_time_t) apr_date_parse_http(const char *date)
      */
     ds.tm_usec = 0;
     ds.tm_gmtoff = 0;
-    if (apr_implode_time(&result, &ds) != APR_SUCCESS) 
+    if (apr_time_exp_get(&result, &ds) != APR_SUCCESS) 
         return APR_DATE_BAD;
     
     return result;
@@ -602,7 +602,7 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
         }
     }
 
-    /* apr_implode_time uses tm_usec field, but it hasn't been set yet. 
+    /* apr_time_exp_get uses tm_usec field, but it hasn't been set yet. 
      * It should be safe to just zero out this value.
      * tm_usec is the number of microseconds into the second.  HTTP only
      * cares about second granularity.
