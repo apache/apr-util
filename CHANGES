@@ -1,5 +1,8 @@
 Changes with APR-util 1.0.2
 
+  *) Fix the detection of ldap.h on Solaris - it needs lber.h to be
+     defined first. [Graham Leggett]
+
   *) Add a build script to create a solaris package. [Graham Leggett]
 
 Changes with APR-util 1.0.1
