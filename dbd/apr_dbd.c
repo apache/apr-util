@@ -1,0 +1,164 @@
+/*        Copyright (c) 2004, Nick Kew.  All rights reserved.
+
+        If this is accepted by ASF for inclusion in APR-UTIL,
+        I will assign copyright to ASF and license under ASF terms.
+
+        Otherwise I will retain copyright and license under
+        terms of my choice.
+*/
+
+#include <stdio.h>
+
+#include "apu.h"
+#include "apr_pools.h"
+#include "apr_dbd.h"
+#include "apr_hash.h"
+#include "apr_thread_mutex.h"
+#include "apr_dso.h"
+#include "apr_strings.h"
+
+static apr_hash_t *drivers = NULL;
+
+
+#if APR_HAS_DSO
+#if APR_HAS_THREADS
+static apr_thread_mutex_t* mutex = NULL;
+#endif
+#else
+#define DRIVER_LOAD(name,driver,pool) \
+    {   \
+        extern apr_dbd_driver_t *driver; \
+        apr_hash_set(drivers,name,APR_HASH_KEY_STRING,driver); \
+        if (driver->init) {     \
+            driver->init(pool); \
+        }  \
+    }
+#endif
+
+APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool)
+{
+    apr_status_t ret;
+    drivers = apr_hash_make(pool);
+
+#if APR_HAS_DSO
+
+#if APR_HAS_THREADS
+    ret = apr_thread_mutex_create(&mutex, APR_THREAD_MUTEX_DEFAULT, pool);
+    apr_pool_cleanup_register(pool, mutex, (void*)apr_thread_mutex_destroy,
+                              apr_pool_cleanup_null);
+#endif
+
+#else
+#if APU_HAVE_MYSQL
+    DRIVER_LOAD("mysql", apr_dbd_mysql_driver, pool);
+#endif
+#if APU_HAVE_PGSQL
+    DRIVER_LOAD("pgsql", apr_dbd_pgsql_driver, pool);
+#endif
+#if APU_HAVE_FIREBIRD
+    DRIVER_LOAD("firebird", apr_dbd_firebird_driver, pool);
+#endif
+#if APU_HAVE_MSQL
+    DRIVER_LOAD("msql", apr_dbd_msql_driver, pool);
+#endif
+#if APU_HAVE_DB2
+    DRIVER_LOAD("db2", apr_dbd_db2_driver, pool);
+#endif
+#if APU_HAVE_ODBC
+    DRIVER_LOAD("odbc", apr_dbd_odbc_driver, pool);
+#endif
+#if APU_HAVE_ORACLE
+    DRIVER_LOAD("oracle", apr_dbd_oracle_driver, pool);
+#endif
+#if APU_HAVE_MSSQL
+    DRIVER_LOAD("mssql", apr_dbd_mssql_driver, pool);
+#endif
+#endif
+    return ret;
+}
+APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
+                                             apr_dbd_driver_t **driver)
+{
+#if APR_HAS_DSO
+    char path[80];
+    apr_dso_handle_t *dlhandle = NULL;
+#endif
+    apr_status_t rv;
+
+   *driver = apr_hash_get(drivers, name, APR_HASH_KEY_STRING);
+    if (*driver) {
+        return APR_SUCCESS;
+    }
+
+#if APR_HAS_DSO
+
+#if APR_HAS_THREADS
+    rv = apr_thread_mutex_lock(mutex);
+    if (rv != APR_SUCCESS) {
+        goto unlock;
+    }
+    *driver = apr_hash_get(drivers, name, APR_HASH_KEY_STRING);
+    if (*driver) {
+        goto unlock;
+    }
+#endif
+
+    sprintf(path, "apr_dbd_%s.so", name);
+    rv = apr_dso_load(&dlhandle, path, pool);
+    if (rv != APR_SUCCESS) { /* APR_EDSOOPEN */
+        goto unlock;
+    }
+    sprintf(path, "apr_dbd_%s_driver", name);
+    rv = apr_dso_sym((void*)driver, dlhandle, path);
+    if (rv != APR_SUCCESS) { /* APR_ESYMNOTFOUND */
+        apr_dso_unload(dlhandle);
+        goto unlock;
+    }
+    if ((*driver)->init) {
+        (*driver)->init(pool);
+    }
+    apr_hash_set(drivers, name, APR_HASH_KEY_STRING, *driver);
+
+unlock:
+#if APR_HAS_THREADS
+    apr_thread_mutex_unlock(mutex);
+#endif
+
+#else	/* APR_HAS_DSO - so if it wasn't already loaded, it's NOTIMPL */
+    rv = APR_ENOTIMPL;
+#endif
+
+    return rv;
+}
+APU_DECLARE(apr_status_t) apr_dbd_open(apr_dbd_driver_t *driver,
+                                       apr_pool_t *pool, const char *params,
+                                       apr_dbd_t **handle)
+{
+    *handle = driver->open(pool, params);
+    if (*handle == NULL) {
+        return APR_EGENERAL;
+    }
+    if (apr_dbd_check_conn(driver, pool, *handle) != APR_SUCCESS) {
+        apr_dbd_close(driver, *handle);
+        return APR_EGENERAL;
+    }
+    return APR_SUCCESS;
+}
+APU_DECLARE(int) apr_dbd_transaction_start(apr_dbd_driver_t *driver,
+                                           apr_pool_t *pool, apr_dbd_t *handle,
+                                           apr_dbd_transaction **trans)
+{
+    int ret = driver->transaction(pool, handle, trans);
+    if (*trans) {
+        apr_pool_cleanup_register(pool, *trans, (void*)driver->end_transaction,
+                                  apr_pool_cleanup_null);
+    }
+    return ret;
+}
+APU_DECLARE(int) apr_dbd_transaction_end(apr_dbd_driver_t *driver,
+                                         apr_pool_t *pool,
+                                         apr_dbd_transaction *trans)
+{
+    apr_pool_cleanup_kill(pool, trans, (void*)driver->end_transaction);
+    return driver->end_transaction(trans);
+}
