@@ -52,6 +52,8 @@
  * <http://www.apache.org/>.
  */
 
+#if 0
+
 #ifndef APR_XML_H
 #define APR_XML_H
 
@@ -359,3 +361,5 @@ APU_DECLARE(int) apr_xml_insert_uri(apr_array_header_t *uri_array,
 #endif
 
 #endif /* APR_XML_H */
+
+#endif /* 0 */
