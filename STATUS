@@ -1,5 +1,5 @@
 APRUTIL LIBRARY STATUS:						-*-text-*-
-Last modified at [$Date: 2001/01/24 09:10:05 $]
+Last modified at [$Date: 2001/01/24 10:24:00 $]
 
 Release:
     2.0a9   : released December 12, 2000
@@ -11,9 +11,6 @@ RELEASE SHOWSTOPPERS:
       [Will voulenteers - is on it]
 
 RELEASE NON-SHOWSTOPPERS BUT WOULD BE REAL NICE TO WRAP THESE UP:
-
-    * fix apr_dbm_geterror() prototype
-      Status: OtherBill +1, Greg +1
 
 
 Other bugs that need fixing:

@@ -104,7 +104,7 @@ static apr_status_t g2s(int gerr)
 {
     if (gerr == -1) {
         /* ### need to fix this */
-        return APR_EINVAL;
+        return APR_EGENERAL;
     }
 
     return APR_SUCCESS;
@@ -137,43 +137,45 @@ static apr_status_t datum_cleanup(void *dptr)
     return APR_SUCCESS;
 }
 
-#define REG_CLEANUP(db, pdatum) \
+#define REG_CLEANUP(dbm, pdatum) \
     if ((pdatum)->dptr) \
-        apr_register_cleanup((db)->pool, (pdatum)->dptr, \
+        apr_register_cleanup((dbm)->pool, (pdatum)->dptr, \
                              datum_cleanup, apr_null_cleanup); \
     else
 
 #else /* NEEDS_CLEANUP */
 
-#define REG_CLEANUP(db, pdatum) if (0) ; else   /* stop "no effect" warning */
+#define REG_CLEANUP(dbm, pdatum) if (0) ; else   /* stop "no effect" warning */
 
 #endif /* NEEDS_CLEANUP */
 
-static apr_status_t set_error(apr_dbm_t *db)
+static apr_status_t set_error(apr_dbm_t *dbm, apr_status_t dbm_said)
 {
     apr_status_t rv = APR_SUCCESS;
 
+    /* ### ignore whatever the DBM said (dbm_said); ask it explicitly */
+
 #if APU_USE_SDBM
 
-    if ((db->errcode = sdbm_error(db->file)) == 0) {
-        db->errmsg = NULL;
+    if ((dbm->errcode = sdbm_error(dbm->file)) == 0) {
+        dbm->errmsg = NULL;
     }
     else {
-        db->errmsg = "I/O error occurred.";
-        rv = APR_EINVAL;        /* ### need something better */
+        dbm->errmsg = "I/O error occurred.";
+        rv = APR_EGENERAL;        /* ### need something better */
     }
 
     /* captured it. clear it now. */
-    sdbm_clearerr(db->file);
+    sdbm_clearerr(dbm->file);
 
 #elif APU_USE_GDBM
 
-    if ((db->errcode = gdbm_errno) == GDBM_NO_ERROR) {
-        db->errmsg = NULL;
+    if ((dbm->errcode = gdbm_errno) == GDBM_NO_ERROR) {
+        dbm->errmsg = NULL;
     }
     else {
-        db->errmsg = gdbm_strerror(gdbm_errno);
-        rv = APR_EINVAL;        /* ### need something better */
+        dbm->errmsg = gdbm_strerror(gdbm_errno);
+        rv = APR_EGENERAL;        /* ### need something better */
     }
 
     /* captured it. clear it now. */
@@ -231,109 +233,102 @@ APU_DECLARE(apr_status_t) apr_dbm_open(apr_dbm_t **pdb, const char *pathname,
     return APR_SUCCESS;
 }
 
-APU_DECLARE(void) apr_dbm_close(apr_dbm_t *db)
+APU_DECLARE(void) apr_dbm_close(apr_dbm_t *dbm)
 {
-    APR_DBM_CLOSE(db->file);
+    APR_DBM_CLOSE(dbm->file);
 }
 
-APU_DECLARE(apr_status_t) apr_dbm_fetch(apr_dbm_t *db, apr_datum_t key,
+APU_DECLARE(apr_status_t) apr_dbm_fetch(apr_dbm_t *dbm, apr_datum_t key,
                                         apr_datum_t *pvalue)
 {
-    *(real_datum_t *) pvalue = APR_DBM_FETCH(db->file, A2R_DATUM(key));
+    *(real_datum_t *) pvalue = APR_DBM_FETCH(dbm->file, A2R_DATUM(key));
 
-    REG_CLEANUP(db, pvalue);
+    REG_CLEANUP(dbm, pvalue);
 
-    /* store the error info into DB, and return a status code. Also, note
+    /* store the error info into DBM, and return a status code. Also, note
        that *pvalue should have been cleared on error. */
-    return set_error(db);
+    return set_error(dbm, APR_SUCCESS);
 }
 
-APU_DECLARE(apr_status_t) apr_dbm_store(apr_dbm_t *db, apr_datum_t key,
+APU_DECLARE(apr_status_t) apr_dbm_store(apr_dbm_t *dbm, apr_datum_t key,
                                         apr_datum_t value)
 {
     apr_status_t rv;
 
-    rv = APR_DBM_STORE(db->file, A2R_DATUM(key), A2R_DATUM(value));
+    rv = APR_DBM_STORE(dbm->file, A2R_DATUM(key), A2R_DATUM(value));
 
-    /* ### is this the right handling of set_error() and rv? */
-
-    /* store the error info into DB, and return a status code. Also, note
-       that *pvalue should have been cleared on error. */
-    (void) set_error(db);
-
-    return rv;
+    /* store any error info into DBM, and return a status code. */
+    return set_error(dbm, rv);
 }
 
-APU_DECLARE(apr_status_t) apr_dbm_delete(apr_dbm_t *db, apr_datum_t key)
+APU_DECLARE(apr_status_t) apr_dbm_delete(apr_dbm_t *dbm, apr_datum_t key)
 {
     apr_status_t rv;
 
-    rv = APR_DBM_DELETE(db->file, A2R_DATUM(key));
+    rv = APR_DBM_DELETE(dbm->file, A2R_DATUM(key));
 
-    /* ### is this the right handling of set_error() and rv? */
-
-    /* store the error info into DB, and return a status code. Also, note
-       that *pvalue should have been cleared on error. */
-    (void) set_error(db);
-
-    return rv;
+    /* store any error info into DBM, and return a status code. */
+    return set_error(dbm, rv);
 }
 
-APU_DECLARE(int) apr_dbm_exists(apr_dbm_t *db, apr_datum_t key)
+APU_DECLARE(int) apr_dbm_exists(apr_dbm_t *dbm, apr_datum_t key)
 {
     int exists;
 
 #if APU_USE_SDBM
     {
-	sdbm_datum value = sdbm_fetch(db->file, A2R_DATUM(key));
-	sdbm_clearerr(db->file);	/* don't need the error */
+	sdbm_datum value = sdbm_fetch(dbm->file, A2R_DATUM(key));
+	sdbm_clearerr(dbm->file);	/* don't need the error */
 	exists = value.dptr != NULL;
     }
 #elif APU_USE_GDBM
-    exists = gdbm_exists(db->file, A2R_DATUM(key)) != 0;
+    exists = gdbm_exists(dbm->file, A2R_DATUM(key)) != 0;
 #endif
     return exists;
 }
 
-APU_DECLARE(apr_status_t) apr_dbm_firstkey(apr_dbm_t *db, apr_datum_t *pkey)
+APU_DECLARE(apr_status_t) apr_dbm_firstkey(apr_dbm_t *dbm, apr_datum_t *pkey)
 {
-    *(real_datum_t *) pkey = APR_DBM_FIRSTKEY(db->file);
+    *(real_datum_t *) pkey = APR_DBM_FIRSTKEY(dbm->file);
 
-    REG_CLEANUP(db, pkey);
+    REG_CLEANUP(dbm, pkey);
 
-    /* store the error info into DB, and return a status code. Also, note
-       that *pvalue should have been cleared on error. */
-    return set_error(db);
+    /* store any error info into DBM, and return a status code. */
+    return set_error(dbm, APR_SUCCESS);
 }
 
-APU_DECLARE(apr_status_t) apr_dbm_nextkey(apr_dbm_t *db, apr_datum_t *pkey)
+APU_DECLARE(apr_status_t) apr_dbm_nextkey(apr_dbm_t *dbm, apr_datum_t *pkey)
 {
-    *(real_datum_t *) pkey = APR_DBM_NEXTKEY(db->file, A2R_DATUM(*pkey));
+    *(real_datum_t *) pkey = APR_DBM_NEXTKEY(dbm->file, A2R_DATUM(*pkey));
 
-    REG_CLEANUP(db, pkey);
+    REG_CLEANUP(dbm, pkey);
 
-    /* store the error info into DB, and return a status code. Also, note
-       that *pvalue should have been cleared on error. */
-    return set_error(db);
+    /* store any error info into DBM, and return a status code. */
+    return set_error(dbm, APR_SUCCESS);
 }
 
-APU_DECLARE(void) apr_dbm_freedatum(apr_dbm_t *db, apr_datum_t data)
+APU_DECLARE(void) apr_dbm_freedatum(apr_dbm_t *dbm, apr_datum_t data)
 {
 #ifdef NEEDS_CLEANUP
-    (void) apr_run_cleanup(db->pool, data.dptr, datum_cleanup);
+    (void) apr_run_cleanup(dbm->pool, data.dptr, datum_cleanup);
 #else
     APR_DBM_FREEDPTR(data.dptr);
 #endif
 }
 
-/* XXX: This is wrong... need to return a canonical errcode as part
- * of this package, and follow the apr_dso_error prototype.
- */
-APU_DECLARE(void) apr_dbm_geterror(apr_dbm_t *db, int *errcode, 
-                                   const char **errmsg)
+APU_DECLARE(char *) apr_dbm_geterror(apr_dbm_t *dbm, int *errcode,
+                                     char *errbuf, apr_size_t errbufsize)
 {
-    *errcode = db->errcode;
-    *errmsg = db->errmsg;
+    if (errcode != NULL)
+        *errcode = dbm->errcode;
+
+    /* assert: errbufsize > 0 */
+
+    if (dbm->errmsg == NULL)
+        *errbuf = '\0';
+    else
+        (void) apr_cpystrn(errbuf, dbm->errmsg, errbufsize);
+    return errbuf;
 }
 
 APU_DECLARE(void) apr_dbm_get_usednames(apr_pool_t *p,
