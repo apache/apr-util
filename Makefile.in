@@ -37,13 +37,13 @@ delete-lib:
 
 install: $(TARGET_LIB)
 	if [ ! -d $(includedir) ]; then \
-            @APR_SOURCE_DIR@/build/mkdir.sh $(includedir); \
-        fi; \
-        cp include/*.h $(includedir); \
-        if [ ! -d $(libdir) ]; then \
-            @APR_SOURCE_DIR@/build/mkdir.sh $(libdir); \
-        fi; \
-        libtool --mode=install cp $(TARGET_LIB) $(libdir)
+	    @APR_SOURCE_DIR@/build/mkdir.sh $(includedir); \
+	fi; \
+	cp include/*.h $(includedir); \
+	if [ ! -d $(libdir) ]; then \
+	    @APR_SOURCE_DIR@/build/mkdir.sh $(libdir); \
+	fi; \
+	libtool --mode=install cp $(TARGET_LIB) $(libdir)
 
 $(TARGET_LIB):
 	@objects="`find $(SUBDIRS) -name '*.lo'`" ; \
