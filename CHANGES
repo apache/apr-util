@@ -1,5 +1,8 @@
 Changes with APR-util 1.0
 
+  *) Add an apr_ldap_err_t structure to handle the return of LDAP
+     specific error codes. [Graham Leggett, Brad Nicholes]
+
   *) Add APR functions to do the job of ldap_init(), hiding toolkit
      specific SSL/TLS handling. Code derived from httpd util_ldap.
      [Graham Leggett]
