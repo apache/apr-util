@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include "apu.h"
+
 #if APU_HAVE_PGSQL
 
 #include <ctype.h>
@@ -25,10 +27,13 @@
 
 #define QUERY_MAX_ARGS 40
 
-typedef PGconn apr_dbd_t;
+typedef struct {
+    PGconn *conn;
+} apr_dbd_t;
+
 typedef struct {
     int errnum;
-    apr_dbd_t *handle;
+    PGconn *handle;
 } apr_dbd_transaction;
 
 typedef struct {
@@ -68,7 +73,7 @@ static int dbd_pgsql_select(apr_pool_t *pool, apr_dbd_t *sql,
         return trans->errnum;
     }
     if (seek) { /* synchronous query */
-        res = PQexec(sql, query);
+        res = PQexec(sql->conn, query);
         if (res) {
             ret = PQresultStatus(res);
             if (dbd_pgsql_is_success(ret)) {
@@ -96,7 +101,7 @@ static int dbd_pgsql_select(apr_pool_t *pool, apr_dbd_t *sql,
                                   apr_pool_cleanup_null);
     }
     else {
-        if (PQsendQuery(sql, query) == 0) {
+        if (PQsendQuery(sql->conn, query) == 0) {
             if (trans) {
                 trans->errnum = 1;
             }
@@ -106,7 +111,7 @@ static int dbd_pgsql_select(apr_pool_t *pool, apr_dbd_t *sql,
             *results = apr_pcalloc(pool, sizeof(apr_dbd_results));
         }
         (*results)->random = seek;
-        (*results)->handle = sql;
+        (*results)->handle = sql->conn;
     }
     return 0;
 }
@@ -183,7 +188,7 @@ static const char *dbd_pgsql_get_entry(const apr_dbd_row *row, int n)
 
 static const char *dbd_pgsql_error(apr_dbd_t *sql, int n)
 {
-    return PQerrorMessage(sql);
+    return PQerrorMessage(sql->conn);
 }
 
 static int dbd_pgsql_query(apr_dbd_t *sql, apr_dbd_transaction *trans,
@@ -194,7 +199,7 @@ static int dbd_pgsql_query(apr_dbd_t *sql, apr_dbd_transaction *trans,
     if (trans && trans->errnum) {
         return trans->errnum;
     }
-    res = PQexec(sql, query);
+    res = PQexec(sql->conn, query);
     if (res) {
         ret = PQresultStatus(res);
         if (dbd_pgsql_is_success(ret)) {
@@ -321,7 +326,7 @@ static int dbd_pgsql_prepare(apr_pool_t *pool, apr_dbd_t *sql,
     sqlptr += strlen(pgquery);
     *sqlptr = 0;
 
-    res = PQexec(sql, sqlcmd);
+    res = PQexec(sql->conn, sqlcmd);
     if ( res ) {
         ret = PQresultStatus(res);
         if (dbd_pgsql_is_success(ret)) {
@@ -346,10 +351,12 @@ static int dbd_pgsql_pquery(apr_pool_t *pool, apr_dbd_t *sql,
     int ret;
     PGresult *res;
     if (statement->prepared) {
-        res = PQexecPrepared(sql, statement->name, nargs, values, 0, 0, 0);
+        res = PQexecPrepared(sql->conn, statement->name, nargs, values, 0, 0,
+                             0);
     }
     else {
-        res = PQexecParams(sql, statement->name, nargs, 0, values, 0, 0, 0);
+        res = PQexecParams(sql->conn, statement->name, nargs, 0, values, 0, 0,
+                           0);
     }
     if (res) {
         ret = PQresultStatus(res);
@@ -404,10 +411,12 @@ static int dbd_pgsql_pselect(apr_pool_t *pool, apr_dbd_t *sql,
     int ret = 0;
     if (seek) { /* synchronous query */
         if (statement->prepared) {
-            res = PQexecPrepared(sql, statement->name, nargs, values, 0, 0, 0);
+            res = PQexecPrepared(sql->conn, statement->name, nargs, values, 0,
+                                 0, 0);
         }
         else {
-            res = PQexecParams(sql, statement->name, nargs, 0, values, 0, 0, 0);
+            res = PQexecParams(sql->conn, statement->name, nargs, 0, values, 0,
+                               0, 0);
         }
         if (res) {
             ret = PQresultStatus(res);
@@ -439,12 +448,12 @@ static int dbd_pgsql_pselect(apr_pool_t *pool, apr_dbd_t *sql,
     }
     else {
         if (statement->prepared) {
-            rv = PQsendQueryPrepared(sql, statement->name, nargs, values,0,0,
-                                     0);
+            rv = PQsendQueryPrepared(sql->conn, statement->name, nargs, values,
+                                     0, 0, 0);
         }
         else {
-            rv = PQsendQueryParams(sql, statement->name, nargs, 0, values,0,0,
-                                   0);
+            rv = PQsendQueryParams(sql->conn, statement->name, nargs, 0,
+                                   values, 0, 0, 0);
         }
         if (rv == 0) {
             if (trans) {
@@ -456,7 +465,7 @@ static int dbd_pgsql_pselect(apr_pool_t *pool, apr_dbd_t *sql,
             *results = apr_pcalloc(pool, sizeof(apr_dbd_results));
         }
         (*results)->random = seek;
-        (*results)->handle = sql;
+        (*results)->handle = sql->conn;
     }
 
     if (trans) {
@@ -497,7 +506,7 @@ static int dbd_pgsql_transaction(apr_pool_t *pool, apr_dbd_t *handle,
                                  apr_dbd_transaction **trans)
 {
     int ret = 0;
-    PGresult *res = PQexec(handle, "BEGIN TRANSACTION");
+    PGresult *res = PQexec(handle->conn, "BEGIN TRANSACTION");
     if (res) {
         ret = PQresultStatus(res);
         if (dbd_pgsql_is_success(ret)) {
@@ -507,7 +516,7 @@ static int dbd_pgsql_transaction(apr_pool_t *pool, apr_dbd_t *handle,
             }
         }
         PQclear(res);
-        (*trans)->handle = handle;
+        (*trans)->handle = handle->conn;
     }
     else {
         ret = PGRES_FATAL_ERROR;
@@ -543,21 +552,38 @@ static int dbd_pgsql_end_transaction(apr_dbd_transaction *trans)
 
 static apr_dbd_t *dbd_pgsql_open(apr_pool_t *pool, const char *params)
 {
-    return PQconnectdb(params);
+    apr_dbd_t *sql;
+    
+    PGconn *conn = PQconnectdb(params);
+
+    /* if there's an error in the connect string or something we get
+     * back a * bogus connection object, and things like PQreset are
+     * liable to segfault, so just close it out now.  it would be nice
+     * if we could give an indication of why we failed to connect... */
+    if (PQstatus(conn) != CONNECTION_OK) {
+        PQfinish(conn);
+        return NULL;
+    }
+
+    sql = apr_pcalloc (pool, sizeof (*sql));
+
+    sql->conn = conn;
+
+    return sql;
 }
 
 static apr_status_t dbd_pgsql_close(apr_dbd_t *handle)
 {
-    PQfinish(handle);
+    PQfinish(handle->conn);
     return APR_SUCCESS;
 }
 
 static apr_status_t dbd_pgsql_check_conn(apr_pool_t *pool,
                                          apr_dbd_t *handle)
 {
-    if (PQstatus(handle) != CONNECTION_OK) {
-        PQreset(handle);
-        if (PQstatus(handle) != CONNECTION_OK) {
+    if (PQstatus(handle->conn) != CONNECTION_OK) {
+        PQreset(handle->conn);
+        if (PQstatus(handle->conn) != CONNECTION_OK) {
             return APR_EGENERAL;
         }
     }
@@ -572,7 +598,7 @@ static int dbd_pgsql_select_db(apr_pool_t *pool, apr_dbd_t *handle,
 
 static void *dbd_pgsql_native(apr_dbd_t *handle)
 {
-    return handle;
+    return handle->conn;
 }
 
 static int dbd_pgsql_num_cols(apr_dbd_results* res)
