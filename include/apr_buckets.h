@@ -619,7 +619,7 @@ AP_DECLARE(ap_bucket *) ap_bucket_make_eos(ap_bucket *b);
 
 /**
  * Create a flush  bucket.  This indicates that filters should flush their
- * data.  There is no garauntee that they will flush it, but this is the
+ * data.  There is no guarantee that they will flush it, but this is the
  * best we can do.
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_create_flush(void)
