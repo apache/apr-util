@@ -1,5 +1,5 @@
 APRUTIL LIBRARY STATUS:
-Last modified at [$Date: 2000/12/02 16:13:46 $]
+Last modified at [$Date: 2000/12/02 22:10:38 $]
 
 Release:
 
@@ -11,7 +11,25 @@ RELEASE SHOWSTOPPERS:
 RELEASE NON-SHOWSTOPPERS BUT WOULD BE REAL NICE TO WRAP THESE UP:
 
 
+Other bugs that need fixing:
+
+
+Other features that need writing:
+
+
 Documentation that needs writing:
 
     * API documentation
         Status:
+
+
+Available Patches:
+
+
+Open Issues:
+
+    * How to move files from other repositories.
+      Message-ID: <20001202140552.S12166@lyra.org>
+      Status:
+        Option (1): Ryan +1, Greg +1
+	Option (2): Greg -0
