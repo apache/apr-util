@@ -103,6 +103,14 @@ API_EXPORT(ap_bucket *) ap_bucket_make_pipe(ap_bucket *b, apr_file_t *p)
      * XXX: We rely on a cleanup on some pool or other to actually
      * destroy the pipe. We should probably explicitly call apr to
      * destroy it instead.
+     *
+     * Note that typically the pipe is allocated from the request pool
+     * so it will disappear when the request is finished. However the
+     * core filter may decide to set aside the tail end of a CGI
+     * response if the connection is pipelined. This turns out not to
+     * be a problem because the core will have read to the end of the
+     * stream so the bucket(s) that it sets aside will be the heap
+     * buckets created by pipe_read() above.
      */
     b->type     = AP_BUCKET_PIPE;
     b->length   = -1;
