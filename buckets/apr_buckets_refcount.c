@@ -58,96 +58,53 @@
 
 #include "apr_buckets.h"
 
-APU_DECLARE_NONSTD(apr_status_t) apr_bucket_shared_split(apr_bucket *a, apr_off_t point)
+APU_DECLARE_NONSTD(apr_status_t) apr_bucket_shared_split(apr_bucket *a,
+                                                         apr_off_t point)
 {
-    apr_bucket *b;
-    apr_bucket_shared *ad, *bd;
+    apr_bucket_refcount *r = a->data;
     apr_status_t rv;
 
-    if (point < 0 || point > a->length) {
-	return APR_EINVAL;
-    }
-
-    rv = apr_bucket_shared_copy(a, &b);
-    if (rv != APR_SUCCESS) {
+    if ((rv = apr_bucket_simple_split(a, point)) != APR_SUCCESS) {
         return rv;
     }
-
-    ad = a->data;
-    bd = b->data;
-
-    a->length = point;
-    ad->end = ad->start + point;
-    b->length -= point;
-    bd->start += point;
-
-    APR_BUCKET_INSERT_AFTER(a, b);
+    r->refcount++;
 
     return APR_SUCCESS;
 }
 
-APU_DECLARE_NONSTD(apr_status_t) apr_bucket_shared_copy(apr_bucket *a, apr_bucket **c)
+APU_DECLARE_NONSTD(apr_status_t) apr_bucket_shared_copy(apr_bucket *a,
+                                                        apr_bucket **b)
 {
-    apr_bucket *b;
-    apr_bucket_shared *ad, *bd;
-    apr_bucket_refcount *r;
+    apr_bucket_refcount *r = a->data;
+    apr_status_t rv;
 
-    b = malloc(sizeof(*b));
-    if (b == NULL) {
-        return APR_ENOMEM;
+    if ((rv = apr_bucket_simple_copy(a, b)) != APR_SUCCESS) {
+        return rv;
     }
-    bd = malloc(sizeof(*bd));
-    if (bd == NULL) {
-        free(b);
-        return APR_ENOMEM;
-    }
-    *b = *a;
-    ad = a->data;
-    b->data = bd;
-    *bd = *ad;
-
-    r = ad->data;
-    r->refcount += 1;
-
-    *c = b;
+    r->refcount++;
 
     return APR_SUCCESS;
 }
 
+/* XXX: can this just return true or false? */
 APU_DECLARE(void *) apr_bucket_shared_destroy(void *data)
 {
-    apr_bucket_shared *s = data;
-    apr_bucket_refcount *r = s->data;
-
-    free(s);
-    r->refcount -= 1;
-    if (r->refcount == 0) {
-	return r;
-    }
-    else {
-	return NULL;
-    }
+    apr_bucket_refcount *r = data;
+    r->refcount--;
+    return (r->refcount == 0) ? r : NULL;
 }
 
 APU_DECLARE(apr_bucket *) apr_bucket_shared_make(apr_bucket *b, void *data,
-					      apr_off_t start, apr_off_t end)
+                                                 apr_off_t start,
+                                                 apr_off_t length)
 {
-    apr_bucket_shared *s;
     apr_bucket_refcount *r = data;
 
-    s = malloc(sizeof(*s));
-    if (s == NULL) {
-	return NULL;
-    }
-
-    b->data = s;
-    b->length = end - start;
-    /* caller initializes the type field and function pointers */
-    s->start = start;
-    s->end = end;
-    s->data = r;
+    b->data   = r;
+    b->start  = start;
+    b->length = length;
+    /* caller initializes the type field */
     r->refcount = 1;
-    /* caller initializes the rest of r */
 
     return b;
 }

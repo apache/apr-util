@@ -61,11 +61,10 @@
 static apr_status_t heap_read(apr_bucket *b, const char **str, 
 			      apr_size_t *len, apr_read_type_e block)
 {
-    apr_bucket_shared *s = b->data;
-    apr_bucket_heap *h = s->data;
+    apr_bucket_heap *h = b->data;
 
-    *str = h->base + s->start;
-    *len = s->end - s->start;
+    *str = h->base + b->start;
+    *len = b->length;
     return APR_SUCCESS;
 }
 
@@ -109,14 +108,6 @@ APU_DECLARE(apr_bucket *) apr_bucket_heap_make(apr_bucket *b,
     }
 
     b = apr_bucket_shared_make(b, h, 0, length);
-    if (b == NULL) {
-	if (copy) {
-	    free(h->base);
-	}
-	free(h);
-	return NULL;
-    }
-
     b->type = &apr_bucket_type_heap;
 
     if (w)

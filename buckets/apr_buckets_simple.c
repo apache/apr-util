@@ -55,56 +55,35 @@
 #include "apr_buckets.h"
 #include <stdlib.h>
 
-/*
- * We can't simplify this function by using an apr_bucket_make function
- * because we aren't sure of the exact type of this bucket.
- */
-static apr_status_t simple_copy(apr_bucket *a, apr_bucket **c)
+APU_DECLARE_NONSTD(apr_status_t) apr_bucket_simple_copy(apr_bucket *a,
+                                                        apr_bucket **b)
 {
-    apr_bucket *b;
-    apr_bucket_simple *ad, *bd;
-
-    b = malloc(sizeof(*b)); 
-    if (b == NULL) {
+    if ((*b = malloc(sizeof(**b))) == NULL) {
 	return APR_ENOMEM;
     }
-    bd = malloc(sizeof(*bd));
-    if (bd == NULL) {
-	free(b);
-	return APR_ENOMEM;
-    }
-    *b = *a;
-    ad = a->data;
-    b->data = bd;
-    *bd = *ad;
-
-    *c = b;
+    **b = *a;
 
     return APR_SUCCESS;
 }
 
-static apr_status_t simple_split(apr_bucket *a, apr_off_t point)
+APU_DECLARE_NONSTD(apr_status_t) apr_bucket_simple_split(apr_bucket *a,
+                                                         apr_off_t point)
 {
     apr_bucket *b;
-    apr_bucket_simple *ad, *bd;
     apr_status_t rv;
 
     if (point < 0 || point > a->length) {
 	return APR_EINVAL;
     }
 
-    rv = simple_copy(a, &b);
+    rv = apr_bucket_simple_copy(a, &b);
     if (rv != APR_SUCCESS) {
         return rv;
     }
 
-    ad = a->data;
-    bd = b->data;
-
-    a->length = point;
-    ad->end = ad->start + point;
+    a->length  = point;
     b->length -= point;
-    bd->start += point;
+    b->start  += point;
 
     APR_BUCKET_INSERT_AFTER(a, b);
 
@@ -114,28 +93,18 @@ static apr_status_t simple_split(apr_bucket *a, apr_off_t point)
 static apr_status_t simple_read(apr_bucket *b, const char **str, 
 				apr_size_t *len, apr_read_type_e block)
 {
-    apr_bucket_simple *bd = b->data;
-    *str = bd->start;
-    *len = bd->end - bd->start;
+    *str = b->data + b->start;
+    *len = b->length;
     return APR_SUCCESS;
 }
 
 APU_DECLARE(apr_bucket *) apr_bucket_immortal_make(apr_bucket *b,
 		const char *buf, apr_size_t length)
 {
-    apr_bucket_simple *bd;
-
-    bd = malloc(sizeof(*bd));
-    if (bd == NULL) {
-	return NULL;
-    }
-
-    bd->start   = buf;
-    bd->end     = buf+length;
-
-    b->type     = &apr_bucket_type_immortal;
-    b->length   = length;
-    b->data     = bd;
+    b->data   = (char *)buf;
+    b->length = length;
+    b->start  = 0;
+    b->type   = &apr_bucket_type_immortal;
 
     return b;
 }
@@ -157,30 +126,20 @@ APU_DECLARE(apr_bucket *) apr_bucket_immortal_create(
  */
 static apr_status_t transient_setaside(apr_bucket *b)
 {
-    apr_bucket_simple *bd;
-    const char *start, *end;
-    apr_size_t w;
-    
-    bd = b->data;
-    start = bd->start;
-    end = bd->end;
-    /* XXX: handle small heap buckets */
-    b = apr_bucket_heap_make(b, start, end-start, 1, &w);
-    if (b == NULL || w != end-start) {
-	return APR_ENOMEM;
+    b = apr_bucket_heap_make(b, b->data+b->start, b->length, 1, NULL);
+    if (b == NULL) {
+        return APR_ENOMEM;
     }
-    free(bd);
     return APR_SUCCESS;
 }
 
 APU_DECLARE(apr_bucket *) apr_bucket_transient_make(apr_bucket *b,
 		const char *buf, apr_size_t length)
 {
-    b = apr_bucket_immortal_make(b, buf, length);
-    if (b == NULL) {
-	return NULL;
-    }
-    b->type = &apr_bucket_type_transient;
+    b->data   = (char *)buf;
+    b->length = length;
+    b->start  = 0;
+    b->type   = &apr_bucket_type_transient;
     return b;
 }
 
@@ -195,8 +154,8 @@ const apr_bucket_type_t apr_bucket_type_immortal = {
     free,
     simple_read,
     apr_bucket_setaside_notimpl,
-    simple_split,
-    simple_copy
+    apr_bucket_simple_split,
+    apr_bucket_simple_copy
 };
 
 APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_transient = {
@@ -204,6 +163,6 @@ APU_DECLARE_DATA const apr_bucket_type_t apr_bucket_type_transient = {
     free, 
     simple_read,
     transient_setaside,
-    simple_split,
-    simple_copy
+    apr_bucket_simple_split,
+    apr_bucket_simple_copy
 };

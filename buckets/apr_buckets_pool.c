@@ -57,37 +57,36 @@
 
 static apr_status_t pool_bucket_cleanup(void *data)
 {
-    apr_bucket_shared *s = data;
-    apr_bucket_shared *new;
-    apr_bucket_pool *h = s->data;
+    apr_bucket_pool *h = data;
     apr_bucket *b = h->b;
-    apr_size_t w;
+    apr_off_t start  = b->start;
+    apr_off_t length = b->length;
 
-    apr_bucket_heap_make(b, h->base, b->length, 1, &w);
-    new = b->data;
-
-    new->start = s->start;
-    new->end = s->end;
-
-    apr_bucket_shared_destroy(s);
+    b = apr_bucket_heap_make(b, h->base, b->length, 1, NULL);
+    b->start  = start;
+    b->length = length;
+    /*
+     * XXX: this is fubar... only the *first* apr_bucket to reference
+     * the bucket is changed to a heap bucket... ALL references must
+     * be changed or at least "notified" in some way.  Fix is in the
+     * works.  --jcw
+     */
     return APR_SUCCESS;
 }
 
 static apr_status_t pool_read(apr_bucket *b, const char **str, 
 			      apr_size_t *len, apr_read_type_e block)
 {
-    apr_bucket_shared *s = b->data;
-    apr_bucket_pool *h = s->data;
+    apr_bucket_pool *h = b->data;
 
-    *str = h->base + s->start;
-    *len = s->end - s->start;
+    *str = h->base + b->start;
+    *len = b->length;
     return APR_SUCCESS;
 }
 
 static void pool_destroy(void *data)
 {
-    apr_bucket_shared *s = data;
-    apr_bucket_pool *h = s->data;
+    apr_bucket_pool *h = data;
 
     apr_pool_cleanup_kill(h->p, data, pool_bucket_cleanup);
     h = apr_bucket_shared_destroy(data);
@@ -114,13 +113,8 @@ APU_DECLARE(apr_bucket *) apr_bucket_pool_make(apr_bucket *b,
     h->p    = p;
 
     b = apr_bucket_shared_make(b, h, 0, length);
-    if (b == NULL) {
-	free(h);
-	return NULL;
-    }
-
     b->type = &apr_bucket_type_pool;
-    h->b = b;
+    h->b = b;  /* XXX: see comment in pool_bucket_cleanup() */
 
     apr_pool_cleanup_register(h->p, b->data, pool_bucket_cleanup, apr_pool_cleanup_null);
     return b;
