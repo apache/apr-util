@@ -10,3 +10,8 @@ LibR
 *.plg
 *.dep
 *.mak
+BuildLog.htm
+*.stc
+*.stt
+*.sto
+*.vcproj
