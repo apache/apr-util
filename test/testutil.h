@@ -42,6 +42,7 @@ void apr_assert_success(abts_case* tc, const char *context, apr_status_t rv);
 
 void initialize(void);
 
+abts_suite *testuri(abts_suite *);
 abts_suite *testuuid(abts_suite *suite);
 
 #endif /* APR_TEST_INCLUDES */
