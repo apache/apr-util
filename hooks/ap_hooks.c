@@ -52,16 +52,21 @@
  * <http://www.apache.org/>.
  */
 
+#include <assert.h>
+#include <stdio.h>
+
+#include "apr_pools.h"
+#include "apr_tables.h"
+
 #include "ap_config.h"
 #include "ap_hooks.h"
-#include <assert.h>
 
 #if 0
 #define apr_palloc(pool,size)	malloc(size)
 #endif
 
 AP_DECLARE_DATA apr_pool_t *ap_global_hook_pool = NULL;
-AP_DECLARE_DATA int ap_debug_module_hooks = FALSE;
+AP_DECLARE_DATA int ap_debug_module_hooks = 0;
 AP_DECLARE_DATA const char *ap_debug_module_name = NULL;
 
 /* NB: This must echo the LINK_##name structure */
