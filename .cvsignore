@@ -7,4 +7,4 @@ config.status
 configure
 libtool
 libaprutil.la
-aprutil.export
+aprutil.exports
