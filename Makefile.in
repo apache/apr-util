@@ -33,7 +33,7 @@ CLEAN_TARGETS = exports.c export_vars.c aprutil.exp .make.dirs apu-config.out
 DISTCLEAN_TARGETS = config.cache config.log config.status libtool \
 	include/private/apu_config.h include/private/apu_private.h \
 	include/private/apu_select_dbm.h include/apr_ldap.h include/apu.h \
-	export_vars.sh apu-config build/rules.mk include/apu_want.h \
+	export_vars.sh $(APU_CONFIG) build/rules.mk include/apu_want.h \
 	apr-util.pc
 EXTRACLEAN_TARGETS = configure aclocal.m4 include/private/apu_config.h.in \
 	exports.c build-outputs.mk \
@@ -49,8 +49,8 @@ top_srcdir=@abs_srcdir@
 top_blddir=@abs_builddir@
 
 # Create apu-config script suitable for the install tree
-apu-config.out: apu-config
-	sed 's,^\(location=\).*$$,\1installed,' < apu-config > $@
+apu-config.out: $(APU_CONFIG)
+	sed 's,^\(location=\).*$$,\1installed,' < $(APU_CONFIG) > $@
 
 install: $(TARGET_LIB) apu-config.out
 	if [ ! -d $(DESTDIR)$(includedir) ]; then \
@@ -76,9 +76,8 @@ install: $(TARGET_LIB) apu-config.out
 	if [ ! -d $(DESTDIR)$(bindir) ]; then \
 		$(APR_MKDIR) $(DESTDIR)$(bindir); \
 	fi;
-	$(LIBTOOL) --mode=install cp apu-config.out $(DESTDIR)$(bindir)/apu-config
 	$(LIBTOOL) --mode=install cp apu-config.out $(DESTDIR)$(bindir)/$(APU_CONFIG)
-	chmod 755 $(DESTDIR)$(bindir)/apu-config $(DESTDIR)$(bindir)/$(APU_CONFIG)
+	chmod 755 $(DESTDIR)$(bindir)/$(APU_CONFIG)
 
 $(TARGET_LIB): $(OBJECTS)
 	$(LINK) @lib_target@ $(ALL_LIBS) $(EXTRA_OS_LINK)

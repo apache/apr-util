@@ -43,7 +43,7 @@ location=@APU_CONFIG_LOCATION@
 show_usage()
 {
     cat << EOF
-Usage: apu-config [OPTION]
+Usage: apu-$APRUTIL_MAJOR_VERSION-config [OPTION]
 
 Known values for OPTION are:
   --prefix[=DIR]    change prefix to DIR
@@ -62,9 +62,9 @@ Known values for OPTION are:
   --help            print this help
 
 When linking with libtool, an application should do something like:
-  APU_LIBS="\`apu-config --link-libtool --libs\`"
+  APU_LIBS="\`apu-$APRUTIL_MAJOR_VERSION-config --link-libtool --libs\`"
 or when linking directly:
-  APU_LIBS="\`apu-config --link-ld --libs\`"
+  APU_LIBS="\`apu-$APRUTIL_MAJOR_VERSION-config --link-ld --libs\`"
 
 An application should use the results of --includes, and --ldflags in
 their build process.

@@ -1,5 +1,8 @@
 Changes with APR-util 1.0
 
+  *) Only install apu-$MAJOR-config and add appropriate detection code to
+     find_apu.m4 (APU_FIND_APU).  [Max Bowsher <maxb ukf.net>]
+
   *) Overhaul support for LDAP URL parsing. Instead of using incompatible
      URL parsers and memory that needs freeing, apr-util provides a parser
      which parses the URL and allocates memory from a pool. [Graham Leggett]
