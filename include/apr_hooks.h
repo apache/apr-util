@@ -63,7 +63,7 @@
  * @package Apache hooks functions
  */
 
-#define AP_DECLARE_EXTERNAL_HOOK(link,ret,name,args) \
+#define APU_DECLARE_EXTERNAL_HOOK(link,ret,name,args) \
 typedef ret HOOK_##name args; \
 link##_DECLARE(void) ap_hook_##name(HOOK_##name *pf, const char* const* aszPre, \
                                     const char * const *aszSucc, int nOrder); \
