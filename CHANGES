@@ -1,5 +1,9 @@
 Changes with APR-util 0.9.5
 
+  *) Fixed a bug in apr_rmm that would cause it to mishandle blocks of
+     a size close to the one requested from the allocator.
+     [Kevin Wang <xwang_tech yahoo.com>]
+
 Changes with APR-util 0.9.4
 
   *) Changed apr_bucket_alloc_create() so that it uses the allocator
