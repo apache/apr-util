@@ -57,7 +57,7 @@
 
 /** 
  * @file apr_reslist.h
- * @brief APR Resource List Routines
+ * @brief APR-UTIL Resource List Routines
  */
 
 #include "apr.h"
@@ -69,8 +69,8 @@
 #if APR_HAS_THREADS
 
 /**
- * @defgroup APR_RL Resource List Routines
- * @ingroup APR
+ * @defgroup APR_Util_RL Resource List Routines
+ * @ingroup APR_Util
  * @{
  */
 
