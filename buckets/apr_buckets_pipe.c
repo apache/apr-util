@@ -102,7 +102,7 @@ static apr_status_t pipe_read(apr_bucket *a, const char **str,
      * new bucket.
      */
     if (*len > 0) {
-        b = apr_bucket_pipe_creat(p);
+        b = apr_bucket_pipe_create(p);
 	APR_BUCKET_INSERT_AFTER(a, b);
     }
     else if (rv == APR_EOF) {
@@ -134,7 +134,7 @@ APU_DECLARE(apr_bucket *) apr_bucket_pipe_make(apr_bucket *b, apr_file_t *p)
     return b;
 }
 
-APU_DECLARE(apr_bucket *) apr_bucket_pipe_creat(apr_file_t *p)
+APU_DECLARE(apr_bucket *) apr_bucket_pipe_create(apr_file_t *p)
 {
     apr_bucket_do_create(apr_bucket_pipe_make(b, p));
 }

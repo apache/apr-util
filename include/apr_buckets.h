@@ -1183,9 +1183,9 @@ APU_DECLARE(apr_bucket *)
  * Create a bucket referring to a pipe.
  * @param thispipe The pipe to put in the bucket
  * @return The new bucket, or NULL if allocation failed
- * @deffunc apr_bucket *apr_bucket_pipe_creat(apr_file_t *thispipe)
+ * @deffunc apr_bucket *apr_bucket_pipe_create(apr_file_t *thispipe)
  */
-APU_DECLARE(apr_bucket *) apr_bucket_pipe_creat(apr_file_t *thispipe);
+APU_DECLARE(apr_bucket *) apr_bucket_pipe_create(apr_file_t *thispipe);
 
 /**
  * Make the bucket passed in a bucket refer to a pipe
