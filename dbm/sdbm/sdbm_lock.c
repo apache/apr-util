@@ -58,11 +58,11 @@
 #include "sdbm_private.h"
 
 /* NOTE: this function blocks until it acquires the lock */
-apr_status_t sdbm_lock(SDBM *db)
+apr_status_t sdbm_lock(SDBM *db, int exclusive)
 {
     int type;
 
-    if ((db->flags & SDBM_RDONLY) == 0)
+    if (exclusive)
         type = APR_FLOCK_EXCLUSIVE;
     else
         type = APR_FLOCK_SHARED;
