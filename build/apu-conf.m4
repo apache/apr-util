@@ -404,7 +404,9 @@ if test "$expat_include_dir" = "$srcdir/xml/expat/include" -o "$expat_include_di
   APR_XML_SUBDIRS="`echo $bundled_subdir | sed -e 's%xml/%%'`"
 fi
 fi
+APR_XML_DIR=$bundled_subdir
 AC_SUBST(APR_XML_SUBDIRS)
+AC_SUBST(APR_XML_DIR)
 
 APR_ADDTO(INCLUDES, [-I$expat_include_dir])
 APR_ADDTO(LIBS, [$expat_libs])
