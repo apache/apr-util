@@ -46,7 +46,7 @@ if test "x$apu_iconv_inbuf_const" = "x"; then
     ], apu_iconv_inbuf_const="0", apu_iconv_inbuf_const="1")
 fi
 if test "$apu_iconv_inbuf_const" = "1"; then
-    AC_DEFINE(APR_ICONV_INBUF_CONST, 1, [Define if the inbuf parm to iconv() is const char **])
+    AC_DEFINE(APU_ICONV_INBUF_CONST, 1, [Define if the inbuf parm to iconv() is const char **])
     msg="const char **"
 else
     msg="char **"

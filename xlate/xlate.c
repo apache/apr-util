@@ -53,6 +53,7 @@
  */
 
 #include "apu.h"
+#include "apu_config.h"
 #include "apr_lib.h"
 #include "apr_strings.h"
 #include "apr_xlate.h"
@@ -79,7 +80,7 @@
 #include <iconv.h>
 #endif
 
-#if defined(APR_ICONV_INBUF_CONST) || APR_HAS_APR_ICONV
+#if defined(APU_ICONV_INBUF_CONST) || APR_HAS_APR_ICONV
 #define ICONV_INBUF_TYPE const char **
 #else
 #define ICONV_INBUF_TYPE char **
@@ -87,9 +88,9 @@
 
 #if APR_HAS_APR_ICONV
 #define HAVE_ICONV
-#define iconv_(n) apr_iconv_##n
+#define iconv_(n) apr_iconv##n
 #else
-#define iconv_(n) iconv_##n
+#define iconv_(n) iconv##n
 #endif
 
 #ifndef min
@@ -208,8 +209,10 @@ static void check_sbcs(apr_xlate_t *convset)
     }
 
     inbytes_left = outbytes_left = sizeof(inbuf);
-    translated = iconv_()(convset->ich, (ICONV_INBUF_TYPE)&inbufptr, 
-                       &inbytes_left, &outbufptr, &outbytes_left);
+
+    /* The space in 'iconv_( )' is required by the preprocessor */
+    translated = iconv_( )(convset->ich, (ICONV_INBUF_TYPE)&inbufptr,
+                           &inbytes_left, &outbufptr, &outbytes_left);
     if (translated != (apr_size_t) -1 &&
         inbytes_left == 0 &&
         outbytes_left == 0) {
@@ -322,9 +325,10 @@ APU_DECLARE(apr_status_t) apr_xlate_conv_buffer(apr_xlate_t *convset,
     if (convset->ich != (iconv_(_t))-1) {
         const char *inbufptr = inbuf;
         char *outbufptr = outbuf;
-        
-        translated = iconv_()(convset->ich, (ICONV_INBUF_TYPE)&inbufptr, 
-                           inbytes_left, &outbufptr, outbytes_left);
+
+        /* The space in 'iconv_( )' is required by the preprocessor */
+        translated = iconv_( )(convset->ich, (ICONV_INBUF_TYPE)&inbufptr,
+                               inbytes_left, &outbufptr, outbytes_left);
         /* If everything went fine but we ran out of buffer, don't
          * report it as an error.  Caller needs to look at the two
          * bytes-left values anyway.
