@@ -55,12 +55,14 @@
 #ifndef UTIL_XML_H
 #define UTIL_XML_H
 
+#include "apr_pools.h"
+#include "apr_tables.h"
+
+#include "apu.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "httpd.h"
-#include "apr_lib.h"
 
 /**
  * @package Apache XML library
@@ -71,25 +73,25 @@ extern "C" {
 /* ### these will need to move at some point to a more logical spot */
 
 /* simple strutures to keep a linked list of pieces of text */
-typedef struct ap_text ap_text;
+typedef struct apr_text apr_text;
 
 /** Structure to keep a linked list of pieces of text */
-struct ap_text {
+struct apr_text {
     /** The current piece of text */
     const char *text;
     /** a pointer to the next piece of text 
-     *  @defvar ap_text *next */
-    struct ap_text *next;
+     *  @defvar apr_text *next */
+    struct apr_text *next;
 };
 
-typedef struct ap_text_header ap_text_header;
+typedef struct apr_text_header apr_text_header;
 
 /** A list of pieces of text */
-struct ap_text_header {
+struct apr_text_header {
     /** The first piece of text in the list */
-    ap_text *first;
+    apr_text *first;
     /** The last piece of text in the list */
-    ap_text *last;
+    apr_text *last;
 };
 
 /**
@@ -97,10 +99,10 @@ struct ap_text_header {
  * @param p The pool to allocate out of
  * @param hdr The text header to append to
  * @param text The new text to append
- * @deffunc void ap_text_append(apr_pool_t *p, ap_text_header *hdr, const char *text)
+ * @deffunc void apr_text_append(apr_pool_t *p, apr_text_header *hdr, const char *text)
  */
-AP_DECLARE(void) ap_text_append(apr_pool_t *p, ap_text_header *hdr,
-                                const char *text);
+APU_DECLARE(void) apr_text_append(apr_pool_t *p, apr_text_header *hdr,
+                                  const char *text);
 
 
 /* --------------------------------------------------------------------
@@ -111,12 +113,12 @@ AP_DECLARE(void) ap_text_append(apr_pool_t *p, ap_text_header *hdr,
 /*
 ** Qualified namespace values
 **
-** AP_XML_NS_DAV_ID
+** APR_XML_NS_DAV_ID
 **    We always insert the "DAV:" namespace URI at the head of the
 **    namespace array. This means that it will always be at ID==0,
 **    making it much easier to test for.
 **
-** AP_XML_NS_NONE
+** APR_XML_NS_NONE
 **    This special ID is used for two situations:
 **
 **    1) The namespace prefix begins with "xml" (and we do not know
@@ -152,22 +154,22 @@ AP_DECLARE(void) ap_text_append(apr_pool_t *p, ap_text_header *hdr,
 **
 ** Note: currently, mod_dav understands the "xmlns" prefix and the
 **     "xml:lang" attribute. These are handled specially (they aren't
-**     left within the XML tree), so the AP_XML_NS_NONE value won't ever
+**     left within the XML tree), so the APR_XML_NS_NONE value won't ever
 **     really apply to these values.
 */
-#define AP_XML_NS_DAV_ID	0	/* namespace ID for "DAV:" */
-#define AP_XML_NS_NONE		-10	/* no namespace for this elem/attr */
+#define APR_XML_NS_DAV_ID	0	/* namespace ID for "DAV:" */
+#define APR_XML_NS_NONE		-10	/* no namespace for this elem/attr */
 
-#define AP_XML_NS_ERROR_BASE	-100	/* used only during processing */
-#define AP_XML_NS_IS_ERROR(e)	((e) <= AP_XML_NS_ERROR_BASE)
+#define APR_XML_NS_ERROR_BASE	-100	/* used only during processing */
+#define APR_XML_NS_IS_ERROR(e)	((e) <= APR_XML_NS_ERROR_BASE)
 
 
-typedef struct ap_xml_attr ap_xml_attr;
-typedef struct ap_xml_elem ap_xml_elem;
-typedef struct ap_xml_doc ap_xml_doc;
+typedef struct apr_xml_attr apr_xml_attr;
+typedef struct apr_xml_elem apr_xml_elem;
+typedef struct apr_xml_doc apr_xml_doc;
 
-/** ap_xml_attr: holds a parsed XML attribute */
-struct ap_xml_attr {
+/** apr_xml_attr: holds a parsed XML attribute */
+struct apr_xml_attr {
     /** attribute name */
     const char *name;
     /** index into namespace array */
@@ -177,12 +179,12 @@ struct ap_xml_attr {
     const char *value;
 
     /** next attribute
-     *  @defvar ap_xml_attr *next */
-    struct ap_xml_attr *next;
+     *  @defvar apr_xml_attr *next */
+    struct apr_xml_attr *next;
 };
 
-/** ap_xml_elem: holds a parsed XML element */
-struct ap_xml_elem {
+/** apr_xml_elem: holds a parsed XML element */
+struct apr_xml_elem {
     /** element name */
     const char *name;
     /** index into namespace array */
@@ -191,56 +193,57 @@ struct ap_xml_elem {
     const char *lang;
 
     /** cdata right after start tag */
-    ap_text_header first_cdata;
+    apr_text_header first_cdata;
     /** cdata after MY end tag */
-    ap_text_header following_cdata;
+    apr_text_header following_cdata;
 
     /** parent element 
-     *  @defvar ap_xml_elem *parent */
-    struct ap_xml_elem *parent;	
+     *  @defvar apr_xml_elem *parent */
+    struct apr_xml_elem *parent;	
     /** next (sibling) element 
-     *  @defvar ap_xml_elem *next */
-    struct ap_xml_elem *next;	
+     *  @defvar apr_xml_elem *next */
+    struct apr_xml_elem *next;	
     /** first child element 
-     *  @defvar ap_xml_elem *first_child */
-    struct ap_xml_elem *first_child;
+     *  @defvar apr_xml_elem *first_child */
+    struct apr_xml_elem *first_child;
     /** first attribute 
-     *  @defvar ap_xml_attr *attr */
-    struct ap_xml_attr *attr;		
+     *  @defvar apr_xml_attr *attr */
+    struct apr_xml_attr *attr;		
 
     /* used only during parsing */
     /** last child element 
-     *  @defvar ap_xml_elem *last_child */
-    struct ap_xml_elem *last_child;
+     *  @defvar apr_xml_elem *last_child */
+    struct apr_xml_elem *last_child;
     /** namespaces scoped by this elem 
-     *  @defvar ap_xml_ns_scope *ns_scope */
-    struct ap_xml_ns_scope *ns_scope;
+     *  @defvar apr_xml_ns_scope *ns_scope */
+    struct apr_xml_ns_scope *ns_scope;
 
     /* used by modules during request processing */
     /** Place for modules to store private data */
     void *private;
 };
 
-#define AP_XML_ELEM_IS_EMPTY(e)	((e)->first_child == NULL && \
-				 (e)->first_cdata.first == NULL)
+#define APR_XML_ELEM_IS_EMPTY(e) ((e)->first_child == NULL && \
+                                  (e)->first_cdata.first == NULL)
 
-/** ap_xml_doc: holds a parsed XML document */
-struct ap_xml_doc {
+/** apr_xml_doc: holds a parsed XML document */
+struct apr_xml_doc {
     /** root element */
-    ap_xml_elem *root;	
+    apr_xml_elem *root;	
     /** array of namespaces used */
     apr_array_header_t *namespaces;
 };
 
+#if 0
 /**
  * Get XML post data and parse it
  * @param r The current request
  * @param pdoc The XML post data
  * @return HTTP status code
- * @deffunc int ap_xml_parse_input(request_rec *r, ap_xml_doc **pdoc)
+ * @deffunc int ap_xml_parse_input(request_rec *r, apr_xml_doc **pdoc)
  */
-AP_DECLARE(int) ap_xml_parse_input(request_rec *r, ap_xml_doc **pdoc);
-
+APU_DECLARE(int) ap_xml_parse_input(request_rec *r, apr_xml_doc **pdoc);
+#endif
 
 /**
  * Converts an XML element tree to flat text 
@@ -248,37 +251,37 @@ AP_DECLARE(int) ap_xml_parse_input(request_rec *r, ap_xml_doc **pdoc);
  * @param elem The XML element to convert
  * @param style How to covert the XML.  One of:
  * <PRE>
- *     AP_XML_X2T_FULL                start tag, contents, end tag 
- *     AP_XML_X2T_INNER               contents only 
- *     AP_XML_X2T_LANG_INNER          xml:lang + inner contents 
- *     AP_XML_X2T_FULL_NS_LANG        FULL + ns defns + xml:lang 
+ *     APR_XML_X2T_FULL                start tag, contents, end tag 
+ *     APR_XML_X2T_INNER               contents only 
+ *     APR_XML_X2T_LANG_INNER          xml:lang + inner contents 
+ *     APR_XML_X2T_FULL_NS_LANG        FULL + ns defns + xml:lang 
  * </PRE>
  * @param namespaces The namespace of the current XML element
  * @param ns_map Namespace mapping
  * @param pbuf Buffer to put the converted text into
  * @param psize Size of the converted text
- * @deffunc void ap_xml_to_text(apr_pool_t *p, const ap_xml_elem *elem, int style, apr_array_header_t *namespaces, int *ns_map, const char **pbuf, size_t *psize);
+ * @deffunc void apr_xml_to_text(apr_pool_t *p, const apr_xml_elem *elem, int style, apr_array_header_t *namespaces, int *ns_map, const char **pbuf, size_t *psize);
  */
-AP_DECLARE(void) ap_xml_to_text(apr_pool_t *p, const ap_xml_elem *elem,
-				int style, apr_array_header_t *namespaces,
-				int *ns_map, const char **pbuf,
-                                apr_size_t *psize);
+APU_DECLARE(void) apr_xml_to_text(apr_pool_t *p, const apr_xml_elem *elem,
+                                  int style, apr_array_header_t *namespaces,
+                                  int *ns_map, const char **pbuf,
+                                  apr_size_t *psize);
 
 /* style argument values: */
-#define AP_XML_X2T_FULL		0	/* start tag, contents, end tag */
-#define AP_XML_X2T_INNER 	1	/* contents only */
-#define AP_XML_X2T_LANG_INNER	2	/* xml:lang + inner contents */
-#define AP_XML_X2T_FULL_NS_LANG	3	/* FULL + ns defns + xml:lang */
+#define APR_XML_X2T_FULL         0	/* start tag, contents, end tag */
+#define APR_XML_X2T_INNER        1	/* contents only */
+#define APR_XML_X2T_LANG_INNER   2	/* xml:lang + inner contents */
+#define APR_XML_X2T_FULL_NS_LANG 3	/* FULL + ns defns + xml:lang */
 
 /**
  * empty XML element
  * @param p The pool to allocate out of
  * @param elem The XML element to empty
  * @return the string that was stored in the XML element
- * @deffunc const char *ap_xml_empty_elem(apr_pool_t *p, const ap_xml_elem *elem)
+ * @deffunc const char *apr_xml_empty_elem(apr_pool_t *p, const apr_xml_elem *elem)
  */
-AP_DECLARE(const char *) ap_xml_empty_elem(apr_pool_t *p,
-                                           const ap_xml_elem *elem);
+APU_DECLARE(const char *) apr_xml_empty_elem(apr_pool_t *p,
+                                             const apr_xml_elem *elem);
 
 /**
  * quote an XML string
@@ -287,31 +290,31 @@ AP_DECLARE(const char *) ap_xml_empty_elem(apr_pool_t *p,
  * @param s The string to quote
  * @param quotes If quotes is true, then replace '"' with '&quot;'.
  * @return The quoted string
- * @deffunc const char *ap_xml_quote_string(apr_pool_t *p, const char *s, int quotes)
+ * @deffunc const char *apr_xml_quote_string(apr_pool_t *p, const char *s, int quotes)
  */
-AP_DECLARE(const char *) ap_xml_quote_string(apr_pool_t *p, const char *s,
-                                             int quotes);
+APU_DECLARE(const char *) apr_xml_quote_string(apr_pool_t *p, const char *s,
+                                               int quotes);
 
 /**
  * Quote an XML element
  * @param p The pool to allocate out of
  * @param elem The element to quote
- * @deffunc void ap_xml_quote_elem(apr_pool_t *p, ap_xml_elem *elem)
+ * @deffunc void apr_xml_quote_elem(apr_pool_t *p, apr_xml_elem *elem)
  */
-AP_DECLARE(void) ap_xml_quote_elem(apr_pool_t *p, ap_xml_elem *elem);
+APU_DECLARE(void) apr_xml_quote_elem(apr_pool_t *p, apr_xml_elem *elem);
 
-/* manage an array of unique URIs: ap_xml_insert_uri() and AP_XML_URI_ITEM() */
+/* manage an array of unique URIs: apr_xml_insert_uri() and APR_XML_URI_ITEM() */
 
 /**
  * return the URI's (existing) index, or insert it and return a new index 
  * @param uri_array array to insert into
  * @param uri The uri to insert
  * @return int The uri's index
- * @deffunc int ap_xml_insert_uri(apr_array_header_t *uri_array, const char *uri)
+ * @deffunc int apr_xml_insert_uri(apr_array_header_t *uri_array, const char *uri)
  */
-AP_DECLARE(int) ap_xml_insert_uri(apr_array_header_t *uri_array,
-                                  const char *uri);
-#define AP_XML_GET_URI_ITEM(ary, i)    (((const char * const *)(ary)->elts)[i])
+APU_DECLARE(int) apr_xml_insert_uri(apr_array_header_t *uri_array,
+                                    const char *uri);
+#define APR_XML_GET_URI_ITEM(ary, i) (((const char * const *)(ary)->elts)[i])
 
 #ifdef __cplusplus
 }
