@@ -26,7 +26,9 @@ const struct testlist {
     {testuri},
     {testuuid},
     {testbuckets},
-    {testpass}
+    {testpass},
+    {testmd4},
+    {testmd5}
 };
 
 #endif /* APR_TEST_INCLUDES */

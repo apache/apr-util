@@ -14,22 +14,20 @@
  */
 
 #include <assert.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "apr_md5.h"
 #include "apr_xlate.h"
 #include "apr_general.h"
-#include "test_apu.h"
 
-int cur; 
+#include "abts.h"
+#include "testutil.h"
 
-struct testcase {
-    const char *s;
+static struct {
+    const char *string;
     const char *digest;
-};
-
-struct testcase testcases[] =
+} md5sums[] = 
 {
     {"Jeff was here!",
      "\xa5\x25\x8a\x89\x11\xb2\x9d\x1f\x81\x75\x96\x3b\x60\x94\x49\xc0"},
@@ -47,95 +45,33 @@ struct testcase testcases[] =
      "\xd1\xa1\xc0\x97\x8a\x60\xbb\xfb\x2a\x25\x46\x9d\xa5\xae\xd0\xb0"}
 };
 
-static void try(const void *buf, apr_size_t bufLen, apr_xlate_t *xlate,
-                const void *digest)
+static int num_sums = sizeof(md5sums) / sizeof(md5sums[0]);
+static int count;
+
+static void test_md5sum(abts_case *tc, void *data)
 {
-    int i;
-    apr_md5_ctx_t context;
-    unsigned char hash[APR_MD5_DIGESTSIZE];
-    
-    printf("Trying translation %d\n", cur + 1);
+        apr_md5_ctx_t context;
+        unsigned char digest[APR_MD5_DIGESTSIZE];
+        const void *string = md5sums[count].string;
+        const void *sum = md5sums[count].digest;
+        unsigned int len = strlen(string);
 
-    STD_TEST_NEQ("    apr_md5_init", apr_md5_init(&context))
-
-    if (xlate) {
-#if APR_HAS_XLATE
-        STD_TEST_NEQ("    apr_md5_set_xlate", 
-                     apr_md5_set_xlate(&context, xlate))
-#else
-        printf("    Didn't expect a translation handle! Not fatal.\n");
-#endif
-    }
-    
-    STD_TEST_NEQ("    apr_md5_update", apr_md5_update(&context, buf, bufLen))
-    STD_TEST_NEQ("    apr_md5_final", apr_md5_final(hash, &context))
-
-    printf("     (MD5 hash : ");
-    for (i = 0; i < APR_MD5_DIGESTSIZE; i++) {
-        printf("%02x",hash[i]);
-    }
-    
-    printf(")\n");
-
-    printf("%-60s", "    Checking hash against expected");
-    if (memcmp(hash, digest, APR_MD5_DIGESTSIZE)) {
-        /* This is a fatal error...report on stderr */
-        fprintf(stderr, "The digest is not as expected!\n");
-#if 'A' != 0x41
-        fprintf(stderr,
-                "Maybe you didn't tell me what character sets "
-                "to translate between?\n"
-                "The expected digest is based on the string "
-                "being in ASCII.\n");
-#endif
-    }
-    printf("OK\n");
+        ABTS_ASSERT(tc, "apr_md5_init", (apr_md5_init(&context) == 0));
+        ABTS_ASSERT(tc, "apr_md5_update", 
+                    (apr_md5_update(&context, string, len) == 0));
+        ABTS_ASSERT(tc, "apr_md5_final", (apr_md5_final(digest, &context)
+                                          == 0));
+        ABTS_ASSERT(tc, "check for correct md5 digest",
+                    (memcmp(digest, sum, APR_MD5_DIGESTSIZE) == 0));
 }
 
-int main(int argc, char **argv)
+abts_suite *testmd5(abts_suite *suite)
 {
-    apr_status_t rv;
-    apr_xlate_t *xlate = NULL;
-    apr_pool_t *pool;
-    const char *src = NULL, *dst = NULL;
+        suite = ADD_SUITE(suite);
+        
+        for (count=0; count < num_sums; count++) {
+            abts_run_test(suite, test_md5sum, NULL);
+        }
 
-    switch(argc) {
-    case 1:
-        break;
-    case 3:
-        src = argv[1];
-        dst = argv[2];
-        break;
-    default:
-        fprintf(stderr,
-                "Usage: %s [src-charset dst-charset]\n",
-                argv[0]);
-        exit(1);
-    }
-
-    rv = apr_initialize();
-    assert(!rv);
-    atexit(apr_terminate);
-
-    printf("APR MD5 Test\n============\n\n");
-    STD_TEST_NEQ("Creating pool", apr_pool_create(&pool, NULL))
-
-    if (src) {
-#if APR_HAS_XLATE
-        STD_TEST_NEQ("Opening xlate functions", 
-                     apr_xlate_open(&xlate, dst, src, pool))
-#else
-        /* This isn't a fatal error, so just report it... */
-        printf("APR doesn't implement translation for this "
-               "configuration.\n");
-#endif
-    }
-
-    for (cur = 0; cur < sizeof(testcases) / sizeof(testcases[0]); cur++) {
-        try(testcases[cur].s, strlen(testcases[cur].s), xlate,
-            testcases[cur].digest);
-    }
-
-    printf("\nMD5 Test passed.\n");    
-    return 0;
+        return suite;
 }

@@ -1,5 +1,7 @@
 Changes with APR-util 1.1.0
 
+  *) Port testmd4 and testmd5 to the new test suite. [Thom May]
+
   *) Allow passing NULL inbuf/inbytes_left parameters to
      apr_xlate_conv_buffer(), required to correctly terminate the
      output buffer for some stateful character set encodings.
