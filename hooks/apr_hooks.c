@@ -103,6 +103,7 @@ typedef struct tsort_
 } TSort;
 
 #ifdef NETWARE
+#include "apr_private.h"
 #define get_apd                 APP_DATA* apd = (APP_DATA*)get_app_data(gLibId);
 #define s_aHooksToSort          ((apr_array_header_t *)(apd->gs_aHooksToSort))
 #define s_phOptionalHooks       ((apr_hash_t *)(apd->gs_phOptionalHooks))
