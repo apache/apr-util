@@ -58,6 +58,10 @@
 #include <stdlib.h>     /* for free() */
 #endif
 
+#include "apu.h"
+
+#if APU_HAVE_GDBM 
+
 #include "apr_dbm_private.h"
 
 #include <gdbm.h>
@@ -303,3 +307,5 @@ APU_DECLARE_DATA const apr_dbm_type_t apr_dbm_type_gdbm = {
     vt_gdbm_freedatum,
     vt_gdbm_usednames
 };
+
+#endif /* APU_HAVE_GDBM */

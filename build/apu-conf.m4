@@ -61,11 +61,11 @@ AC_SUBST(APR_SOURCE_DIR)
 dnl
 dnl APU_CHECK_DB1: is DB1 present?
 dnl
-dnl if present: sets apu_use_db=1, db_header, and db_lib
+dnl if present: sets apu_have_db=1, db_header, and db_lib
 dnl
 AC_DEFUN(APU_CHECK_DB1,[
 AC_CHECK_HEADER(db1/db.h, [
-  apu_use_db=1
+  apu_have_db=1
   db_header=db1/db.h
   db_lib=db1
   ])
@@ -74,11 +74,11 @@ AC_CHECK_HEADER(db1/db.h, [
 dnl
 dnl APU_CHECK_DB185: is DB1.85 present?
 dnl
-dnl if present: sets apu_use_db=1, db_header, and db_lib
+dnl if present: sets apu_have_db=1, db_header, and db_lib
 dnl
 AC_DEFUN(APU_CHECK_DB185,[
 AC_CHECK_HEADER(db_185.h, [
-  apu_use_db=1
+  apu_have_db=1
   db_header=db_185.h
   db_lib=db1
   ])
@@ -87,11 +87,11 @@ AC_CHECK_HEADER(db_185.h, [
 dnl
 dnl APU_CHECK_DB2or3: are DB2 or DB3 present?
 dnl
-dnl if present: sets apu_use_db=1, db_header, and db_lib
+dnl if present: sets apu_have_db=1, db_header, and db_lib
 dnl
 AC_DEFUN(APU_CHECK_DB2or3,[
 AC_CHECK_HEADER(db.h, [
-  apu_use_db=1
+  apu_have_db=1
   db_header=db.h
   db_lib=db
   ])
@@ -126,16 +126,16 @@ dnl if found, then which_dbm is set to one of: db1, db185, db2, db3
 dnl
 AC_DEFUN(APU_FIND_DB,[
   APU_CHECK_DB2or3
-  if test $apu_use_db = 1; then
+  if test $apu_have_db = 1; then
     APU_CHECK_DB_VSN
     which_dbm="db$db_version"
   else
     APU_CHECK_DB1
-    if test $apu_use_db = 1; then
+    if test $apu_have_db = 1; then
       which_dbm="db1"
     else
       APU_CHECK_DB185
-      if test $apu_use_db = 1; then
+      if test $apu_have_db = 1; then
         which_dbm="db185"
       fi
     fi
@@ -150,6 +150,11 @@ AC_DEFUN(APU_CHECK_DBM,[
 apu_use_sdbm=0
 apu_use_gdbm=0
 apu_use_db=0
+dnl it's in our codebase
+apu_have_sdbm=1
+apu_have_gdbm=0
+apu_have_db=0
+
 db_header=db.h		# default so apu_select_dbm.h is syntactically correct
 
 AC_ARG_WITH(dbm,
@@ -164,6 +169,14 @@ One of: sdbm, gdbm, db, db1, db185, db2, db3])
   look_for=default
 ])
 
+AC_CHECK_LIB( gdbm, gdbm_open, 
+    [ AC_CHECK_HEADER( gdbm.h, 
+        apu_have_gdbm=1,
+        apu_have_gdbm=0)],
+      AC_MSG_WARN( "gdbm DBM not found"),)
+
+APU_FIND_DB
+
 case "$look_for" in
   sdbm)
     apu_use_sdbm=1
@@ -174,29 +187,34 @@ case "$look_for" in
     which_dbm=gdbm
     ;;
   db)
-    APU_FIND_DB
-    if test -n "$which_dbm"; then
-      # pretend we were looking for this one
-      look_for=$which_dbm
+    if test $apu_have_db = 1; then
+      apu_use_db=1
+      which_dbm=db
     else
-      look_errmsg="could not find a DB header"
+     look_errmsg="couldn't find berkley DB"
     fi
     ;;
   db1)
+    apu_have_db=0
     APU_CHECK_DB1
-    if test $apu_use_db = 1; then
+    if test $apu_have_db = 1; then
       which_dbm=db1
+      apu_use_db=1
     fi
     ;;
   db185)
+    apu_have_db=0
     APU_CHECK_DB185
-    if test $apu_use_db = 1; then
+    if test $apu_have_db = 1; then
       which_dbm=db185
+      apu_use_db=1
     fi
     ;;
   db2)
+    apu_have_db=0
     APU_CHECK_DB2or3
-    if test $apu_use_db = 1; then
+    if test $apu_have_db = 1; then
+      apu_use_db=1
       APU_CHECK_DB_VSN
       if test "$db_version" = 2; then
         which_dbm=db2
@@ -206,8 +224,10 @@ case "$look_for" in
     fi
     ;;
   db3)
+    apu_have_db=0
     APU_CHECK_DB2or3
-    if test $apu_use_db = 1; then
+    if test $apu_have_db = 1; then
+      apu_use_db=1
       APU_CHECK_DB_VSN
       if test "$db_version" = 3; then
         which_dbm=db3
@@ -241,12 +261,14 @@ fi
 AC_SUBST(apu_use_sdbm)
 AC_SUBST(apu_use_gdbm)
 AC_SUBST(apu_use_db)
+
+AC_SUBST(apu_have_sdbm)
+AC_SUBST(apu_have_gdbm)
+AC_SUBST(apu_have_db)
 AC_SUBST(db_header)
+AC_SUBST(db_version)
 
-DBM_OBJECT_FILE=apr_dbm_sdbm.lo
-
-if test $apu_use_gdbm = 1; then
-  DBM_OBJECT_FILE=apr_dbm_gdbm.lo
+if test $apu_have_gdbm = 1; then
   lib_save="$LIBS"
   LIBS=""
   AC_CHECK_LIB(gdbm, gdbm_open)
@@ -254,15 +276,11 @@ if test $apu_use_gdbm = 1; then
   LIBS="$lib_save $LIBS"
 fi
 
-if test $apu_use_db = 1; then
-  DBM_OBJECT_FILE=apr_dbm_berkeleydb.lo
+if test $apu_have_db = 1; then
   dnl ### use AC_CHECK_LIB?
   LIBS="$LIBS -l$db_lib"
   APRUTIL_EXPORT_LIBS="$APRUTIL_EXPORT_LIBS -l$db_lib"
 fi
-
-dnl build and link this object into apr_dbm
-AC_SUBST(DBM_OBJECT_FILE)
 
 ])
 

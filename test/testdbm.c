@@ -77,7 +77,7 @@
 
 static const char *progname;
 static int rflag;
-static const char *usage = "%s [-R] cat | look |... dbmname";
+static const char *usage = "%s [-t DBMtype] [-R] cat | look |... dbmname";
 
 #define DERROR      0
 #define DLOOK       1
@@ -125,7 +125,7 @@ static const cmd cmds[] = {
 
 #define CTABSIZ (sizeof (cmds)/sizeof (cmd))
 
-static void doit(const cmd *act, const char *file, apr_pool_t *pool);
+static void doit(const cmd *act, const char*type, const char *file, apr_pool_t *pool);
 static void badk(const char *word);
 static const cmd *parse(const char *str);
 static void prdatum(FILE *stream, apr_datum_t d);
@@ -140,6 +140,7 @@ int main(int argc, const char * const * argv)
     apr_getopt_t *os;
     char optch;
     const char *optarg;
+    const char*dbtype;
 
     (void) apr_initialize();
     apr_pool_create(&pool, NULL);
@@ -148,13 +149,17 @@ int main(int argc, const char * const * argv)
     (void) apr_getopt_init(&os, pool, argc, argv);
 
     progname = argv[0];
+    dbtype = "default";
 
-    while (apr_getopt(os, "R", &optch, &optarg) == APR_SUCCESS)
+    while (apr_getopt(os, "Rt:", &optch, &optarg) == APR_SUCCESS)
         switch (optch) {
         case 'R':       /* raw processing  */
             rflag++;
             break;
 
+        case 't':
+            dbtype=optarg;
+            break;
         default:
             oops(NULL, APR_EGENERAL, "(unknown option) usage: %s", usage);
             break;
@@ -166,14 +171,14 @@ int main(int argc, const char * const * argv)
     if ((act = parse(argv[os->ind])) == NULL)
         badk(argv[os->ind]);
     os->ind++;
-    doit(act, argv[os->ind], pool);
+    doit(act, dbtype, argv[os->ind], pool);
 
     apr_pool_destroy(pool);
 
     return 0;
 }
 
-static void doit(const cmd *act, const char *file, apr_pool_t *pool)
+static void doit(const cmd *act, const char*type, const char *file, apr_pool_t *pool)
 {
     apr_status_t rv;
     apr_datum_t key;
@@ -189,7 +194,7 @@ static void doit(const cmd *act, const char *file, apr_pool_t *pool)
     extern long time();
 #endif
 
-    rv = apr_dbm_open(&db, file, act->flags, APR_OS_DEFAULT, pool);
+    rv = apr_dbm_open_ex(&db, type, file, act->flags, APR_OS_DEFAULT, pool);
     if (rv != APR_SUCCESS)
         oops(db, rv, "cannot open: %s", file);
 
