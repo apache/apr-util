@@ -59,15 +59,19 @@
 /* For apr_array_header_t */
 #include "apr_tables.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /**
  * @file apr_hooks.h
  * @brief Apache hook functions
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+/**
+ * @defgroup APR_Util_Hook Hook Functions
+ * @ingroup APR_Util
+ * @{
+ */
 /** macro to return the prototype of the hook function */    
 #define APR_IMPLEMENT_HOOK_GET_PROTO(ns,link,name) \
 link##_DECLARE(apr_array_header_t *) ns##_hook_get_##name(void)
@@ -274,6 +278,7 @@ APU_DECLARE(void) apr_show_hook(const char *szName,const char * const *aszPre,
  */
 APU_DECLARE(void) apr_hook_deregister_all(void);
 
+/** @} */
 #ifdef __cplusplus
 }
 #endif

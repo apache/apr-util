@@ -69,7 +69,11 @@ extern "C" {
  * @file apr_dbm.h
  * @brief APR-UTIL DBM library
  */
-
+/** 
+ * @defgroup APR_Util_DBM DBM routines
+ * @ingroup APR_Util
+ * @{
+ */
 /**
  * Structure for referencing a dbm
  */
@@ -208,6 +212,7 @@ APU_DECLARE(void) apr_dbm_get_usednames(apr_pool_t *pool,
                                         const char **used1,
                                         const char **used2);
 
+/** @} */
 #ifdef __cplusplus
 }
 #endif
