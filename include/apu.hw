@@ -56,10 +56,18 @@
  * Note: This is a Windows specific version of apu.h. It is renamed to
  * apu.h at the start of a Windows build.
  */
+/* @file apu.h
+ * @brief APR-Utility main file
+ */
 
 #ifdef WIN32
 #ifndef APU_H
 #define APU_H
+/**
+ * @defgroup APR_Util APR Utility Functions
+ * @{
+ */
+
 
 /**
  * APU_DECLARE_EXPORT is defined when building the APR-UTIL dynamic library,
@@ -108,10 +116,29 @@
 #define APU_DECLARE_NONSTD(type)     __declspec(dllexport) type
 #define APU_DECLARE_DATA             __declspec(dllexport)
 #else
+/**
+ * The public APR-UTIL functions are declared with APU_DECLARE(), so they may
+ * use the most appropriate calling convention.  Public APR functions with 
+ * variable arguments must use APU_DECLARE_NONSTD().
+ *
+ */
 #define APU_DECLARE(type)            __declspec(dllimport) type __stdcall
+/**
+ * The public APR-UTIL functions using variable arguments are declared with 
+ * APU_DECLARE_NONSTD(), as they must use the C language calling convention.
+ *
+ */
 #define APU_DECLARE_NONSTD(type)     __declspec(dllimport) type
+/**
+ * The public APR-UTIL variables are declared with APU_DECLARE_DATA.
+ * This assures the appropriate indirection is invoked at compile time.
+ *
+ * @remark extern APU_DECLARE_DATA type apr_variable; syntax is required for
+ * declarations within headers to properly import the variable.
+ */
 #define APU_DECLARE_DATA             __declspec(dllimport)
 #endif
+/** @} */
 
 #endif /* APU_H */
 #endif /* WIN32 */

@@ -56,20 +56,26 @@
 #define APR_OPTIONAL_H
 
 #include "apu.h"
-
+/** 
+ * @file apr_optional.h
+ * @brief APR-UTIL registration of functions exported by modules
+ */
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/*
+/** 
+ * @defgroup APR_Util_Opt Optional Functions
+ * @ingroup APR_Util
+ *
  * Typesafe registration and retrieval of functions that may not be present
  * (i.e. functions exported by optional modules)
+ * @{
  */
 
 /**
  * The type of an optional function.
  * @param name The name of the function
- * @deffunc APR_OPTIONAL_FN_TYPE(name)
  */
 #define APR_OPTIONAL_FN_TYPE(name) apr_OFN_##name##_t
 
@@ -82,12 +88,14 @@ extern "C" {
 #define APR_DECLARE_OPTIONAL_FN(ret,name,args) \
 typedef ret (APR_OPTIONAL_FN_TYPE(name)) args
 
-/* XXX: This doesn't belong here, then!
+/**
+ * XXX: This doesn't belong here, then!
  * Private function! DO NOT USE! 
+ * @internal
  */
 
 typedef void (apr_opt_fn_t)(void);
-
+/** @internal */
 APU_DECLARE_NONSTD(void) apr_register_optional_fn(const char *szName, 
                                                   apr_opt_fn_t *pfn);
     
@@ -97,13 +105,14 @@ APU_DECLARE_NONSTD(void) apr_register_optional_fn(const char *szName,
  * name. Like all global functions, the name must be unique. Note that,
  * confusingly but correctly, the function itself can be static!
  * @param name The name of the function
- * @deffunc void APR_REGISTER_OPTIONAL_FN(name)
  */
 #define APR_REGISTER_OPTIONAL_FN(name) \
     (((void (*)(const char *, APR_OPTIONAL_FN_TYPE(name) *)) \
                &apr_register_optional_fn)(#name,name))
 
-/* Private function! DO NOT USE! */
+/** @internal
+ * Private function! DO NOT USE! 
+ */
 APU_DECLARE(apr_opt_fn_t *) apr_retrieve_optional_fn(const char *szName);
 
 /**
@@ -113,7 +122,7 @@ APU_DECLARE(apr_opt_fn_t *) apr_retrieve_optional_fn(const char *szName);
 #define APR_RETRIEVE_OPTIONAL_FN(name) \
 	(APR_OPTIONAL_FN_TYPE(name) *)apr_retrieve_optional_fn(#name)
 
-
+/** @} */
 #ifdef __cplusplus
 }
 #endif

@@ -81,13 +81,18 @@
 
 #include "apu.h"
 #include "apr_xlate.h"
-
+/**
+ * @file apr_md4.h
+ * @brief APR-UTIL MD4 Library
+ */
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
- * @package APR MD4 Library
+ * @defgroup APR_Util_MD4 MD4 Library
+ * @ingroup APR_Util
+ * @{
  */
 
 #define APR_MD4_DIGESTSIZE 16
@@ -111,7 +116,6 @@ struct apr_md4_ctx_t {
 /**
  * MD4 Initialize.  Begins an MD4 operation, writing a new context.
  * @param context The MD4 context to initialize.
- * @deffunc apr_status_t apr_md4_init(apr_md4_ctx_t *context)
  */
 APU_DECLARE(apr_status_t) apr_md4_init(apr_md4_ctx_t *context);
 
@@ -121,7 +125,6 @@ APU_DECLARE(apr_status_t) apr_md4_init(apr_md4_ctx_t *context);
  * for translating the content before calculating the digest.
  * @param context The MD4 content to set the translation for.
  * @param xlate The translation handle to use for this MD4 context 
- * @deffunc apr_status_t apr_md4_set_xlate(apr_md4_ctx_t *context, apr_xlate_t *xlate)
  */
 APU_DECLARE(apr_status_t) apr_md4_set_xlate(apr_md4_ctx_t *context,
                                             apr_xlate_t *xlate);
@@ -135,7 +138,6 @@ APU_DECLARE(apr_status_t) apr_md4_set_xlate(apr_md4_ctx_t *context,
  * @param context The MD4 content to update.
  * @param input next message block to update
  * @param inputLen The length of the next message block
- * @deffunc apr_status_t apr_md4_update(apr_md4_ctx_t *context, const unsigned char *input, apr_size_t inputLen)
  */
 APU_DECLARE(apr_status_t) apr_md4_update(apr_md4_ctx_t *context,
                                          const unsigned char *input,
@@ -146,7 +148,6 @@ APU_DECLARE(apr_status_t) apr_md4_update(apr_md4_ctx_t *context,
  * message digest and zeroing the context
  * @param digest The final MD4 digest
  * @param context The MD4 content we are finalizing.
- * @deffunc apr_status_t apr_md4_final(unsigned char digest[APR_MD4_DIGESTSIZE], apr_md4_ctx_t *context)
  */
 APU_DECLARE(apr_status_t) apr_md4_final(
                                     unsigned char digest[APR_MD4_DIGESTSIZE],
@@ -157,12 +158,12 @@ APU_DECLARE(apr_status_t) apr_md4_final(
  * @param digest The MD4 digest
  * @param input message block to use
  * @param inputLen The length of the message block
- * @deffunc apr_status_t apr_md4(unsigned char digest[APR_MD4_DIGESTSIZE], const unsigned char *input, apr_size_t inputLen);
  */
 APU_DECLARE(apr_status_t) apr_md4(unsigned char digest[APR_MD4_DIGESTSIZE],
                                   const unsigned char *input,
                                   apr_size_t inputLen);
 
+/** @} */
 #ifdef __cplusplus
 }
 #endif

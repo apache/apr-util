@@ -58,13 +58,18 @@
 
 #ifndef APR_DATE_H
 #define APR_DATE_H
-
+/**
+ * @file apr_date.h
+ * @brief APR-UTIL date routines
+ */
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
- * @package Apache date routines
+ * @defgroup APR_Util_Date Date routines
+ * @ingroup APR_Util
+ * @{
  */
 
 /*
@@ -90,7 +95,6 @@ extern "C" {
  *  <x> - exact match for any other character
  * </PRE>
  * @return 1 if the string matches, 0 otherwise
- * @deffunc int apr_date_checkmask(const char *data, const char *mask)
  */
 APU_DECLARE(int) apr_date_checkmask(const char *data, const char *mask);
 
@@ -104,7 +108,6 @@ APU_DECLARE(int) apr_date_checkmask(const char *data, const char *mask);
  * @param date The date in one of the three formats above
  * @return the apr_time_t number of microseconds since 1 Jan 1970 GMT, or
  *         0 if this would be out of range or if the date is invalid.
- * @deffunc apr_time_t apr_date_parse_http(const char *date)
  */
 APU_DECLARE(apr_time_t) apr_date_parse_http(const char *date);
 
@@ -131,10 +134,10 @@ APU_DECLARE(apr_time_t) apr_date_parse_http(const char *date);
  * @param date The date in one of the formats above
  * @return the apr_time_t number of microseconds since 1 Jan 1970 GMT, or
  *         0 if this would be out of range or if the date is invalid.
- * @deffunc apr_time_t apr_date_parse_rfc(char *date)
  */
 APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date);
 
+/** @} */
 #ifdef __cplusplus
 }
 #endif
