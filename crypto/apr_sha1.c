@@ -82,12 +82,10 @@
  *	This code is hereby placed in the public domain
  */
 
-#include <string.h>
-
 #include "ap_config.h"
-#include "httpd.h"
 #include "ap_sha1.h"
-#include "ap.h"
+#include "ap_base64.h"
+#include "apr_lib.h"
 #ifdef CHARSET_EBCDIC
 #include "ebcdic.h"
 #endif /*CHARSET_EBCDIC*/
@@ -126,7 +124,7 @@ typedef unsigned char AP_BYTE;
 static void sha_transform(AP_SHA1_CTX *sha_info)
 {
     int i;
-    AP_LONG temp, A, B, C, D, E, W[80];
+    ap_uint32_t temp, A, B, C, D, E, W[80];
 
     for (i = 0; i < 16; ++i) {
 	W[i] = sha_info->data[i];
@@ -198,13 +196,13 @@ static char isLittleEndian(void)
 /* change endianness of data */
 
 /* count is the number of bytes to do an endian flip */
-static void maybe_byte_reverse(AP_LONG *buffer, int count)
+static void maybe_byte_reverse(ap_uint32_t *buffer, int count)
 {
     int i;
     AP_BYTE ct[4], *cp;
 
     if (isLittleEndian()) {	/* do the swap only if it is little endian */
-	count /= sizeof(AP_LONG);
+	count /= sizeof(ap_uint32_t);
 	cp = (AP_BYTE *) buffer;
 	for (i = 0; i < count; ++i) {
 	    ct[0] = cp[0];
@@ -215,7 +213,7 @@ static void maybe_byte_reverse(AP_LONG *buffer, int count)
 	    cp[1] = ct[2];
 	    cp[2] = ct[1];
 	    cp[3] = ct[0];
-	    cp += sizeof(AP_LONG);
+	    cp += sizeof(ap_uint32_t);
 	}
     }
 }
@@ -242,11 +240,11 @@ API_EXPORT(void) ap_SHA1Update_binary(AP_SHA1_CTX *sha_info,
 {
     unsigned int i;
 
-    if ((sha_info->count_lo + ((AP_LONG) count << 3)) < sha_info->count_lo) {
+    if ((sha_info->count_lo + ((ap_uint32_t) count << 3)) < sha_info->count_lo) {
 	++sha_info->count_hi;
     }
-    sha_info->count_lo += (AP_LONG) count << 3;
-    sha_info->count_hi += (AP_LONG) count >> 29;
+    sha_info->count_lo += (ap_uint32_t) count << 3;
+    sha_info->count_hi += (ap_uint32_t) count >> 29;
     if (sha_info->local) {
 	i = SHA_BLOCKSIZE - sha_info->local;
 	if (i > count) {
@@ -282,11 +280,11 @@ API_EXPORT(void) ap_SHA1Update(AP_SHA1_CTX *sha_info, const char *buf,
     int i;
     const AP_BYTE *buffer = (const AP_BYTE *) buf;
 
-    if ((sha_info->count_lo + ((AP_LONG) count << 3)) < sha_info->count_lo) {
+    if ((sha_info->count_lo + ((ap_uint32_t) count << 3)) < sha_info->count_lo) {
 	++sha_info->count_hi;
     }
-    sha_info->count_lo += (AP_LONG) count << 3;
-    sha_info->count_hi += (AP_LONG) count >> 29;
+    sha_info->count_lo += (ap_uint32_t) count << 3;
+    sha_info->count_hi += (ap_uint32_t) count >> 29;
     /* Is there a remainder of the previous Update operation? */
     if (sha_info->local) {
 	i = SHA_BLOCKSIZE - sha_info->local;
@@ -326,7 +324,7 @@ API_EXPORT(void) ap_SHA1Final(unsigned char digest[SHA_DIGESTSIZE],
                               AP_SHA1_CTX *sha_info)
 {
     int count, i, j;
-    AP_LONG lo_bit_count, hi_bit_count, k;
+    ap_uint32_t lo_bit_count, hi_bit_count, k;
 
     lo_bit_count = sha_info->count_lo;
     hi_bit_count = sha_info->count_hi;
