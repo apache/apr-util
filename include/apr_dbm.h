@@ -52,8 +52,8 @@
  * <http://www.apache.org/>.
  */
 
-#ifndef APU_DBM_H
-#define APU_DBM_H
+#ifndef APR_DBM_H
+#define APR_DBM_H
 
 #include "apr.h"
 #include "apr_errno.h"
@@ -69,7 +69,7 @@ typedef struct
 {
     char *dptr;
     apr_size_t dsize;
-} apu_datum_t;
+} apr_datum_t;
 
 /* modes to open the DB */
 #define APR_DBM_READONLY        1       /* open for read-only access */
@@ -80,14 +80,14 @@ typedef struct
 apr_status_t apr_dbm_open(const char *pathname, apr_pool_t *pool, int mode,
                           apr_dbm_t **pdb);
 void apr_dbm_close(apr_dbm_t *db);
-apr_status_t apr_dbm_fetch(apr_dbm_t *db, apu_datum_t key,
-                           apu_datum_t *pvalue);
-apr_status_t apr_dbm_store(apr_dbm_t *db, apu_datum_t key, apu_datum_t value);
-apr_status_t apr_dbm_delete(apr_dbm_t *db, apu_datum_t key);
-int apr_dbm_exists(apr_dbm_t *db, apu_datum_t key);
-apr_status_t apr_dbm_firstkey(apr_dbm_t *db, apu_datum_t *pkey);
-apr_status_t apr_dbm_nextkey(apr_dbm_t *db, apu_datum_t *pkey);
-void apr_dbm_freedatum(apr_dbm_t *db, apu_datum_t data);
+apr_status_t apr_dbm_fetch(apr_dbm_t *db, apr_datum_t key,
+                           apr_datum_t *pvalue);
+apr_status_t apr_dbm_store(apr_dbm_t *db, apr_datum_t key, apr_datum_t value);
+apr_status_t apr_dbm_delete(apr_dbm_t *db, apr_datum_t key);
+int apr_dbm_exists(apr_dbm_t *db, apr_datum_t key);
+apr_status_t apr_dbm_firstkey(apr_dbm_t *db, apr_datum_t *pkey);
+apr_status_t apr_dbm_nextkey(apr_dbm_t *db, apr_datum_t *pkey);
+void apr_dbm_freedatum(apr_dbm_t *db, apr_datum_t data);
 
 void apr_dbm_geterror(apr_dbm_t *db, int *errcode, const char **errmsg);
 
@@ -95,6 +95,6 @@ void apr_dbm_geterror(apr_dbm_t *db, int *errcode, const char **errmsg);
 }
 #endif
 
-#endif	/* !APU_DBM_H */
+#endif	/* !APR_DBM_H */
 
 

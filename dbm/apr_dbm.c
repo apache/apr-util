@@ -121,9 +121,9 @@ struct apr_dbm_t
     const char *errmsg;
 };
 
-/* apu_datum <=> real_datum casting/conversions */
+/* apr_datum <=> real_datum casting/conversions */
 #define A2R_DATUM(d)    (*(real_datum_t *)&(d))
-#define R2A_DATUM(d)    (*(apu_datum_t *)&(d))
+#define R2A_DATUM(d)    (*(apr_datum_t *)&(d))
 
 
 static apr_status_t set_error(apr_dbm_t *db)
@@ -213,7 +213,7 @@ void apr_dbm_close(apr_dbm_t *db)
     APR_DBM_CLOSE(db->file);
 }
 
-apr_status_t apr_dbm_fetch(apr_dbm_t *db, apu_datum_t key, apu_datum_t *pvalue)
+apr_status_t apr_dbm_fetch(apr_dbm_t *db, apr_datum_t key, apr_datum_t *pvalue)
 {
     *(real_datum_t *) pvalue = APR_DBM_FETCH(db->file, A2R_DATUM(key));
 
@@ -222,7 +222,7 @@ apr_status_t apr_dbm_fetch(apr_dbm_t *db, apu_datum_t key, apu_datum_t *pvalue)
     return set_error(db);
 }
 
-apr_status_t apr_dbm_store(apr_dbm_t *db, apu_datum_t key, apu_datum_t value)
+apr_status_t apr_dbm_store(apr_dbm_t *db, apr_datum_t key, apr_datum_t value)
 {
     apr_status_t rv;
 
@@ -237,7 +237,7 @@ apr_status_t apr_dbm_store(apr_dbm_t *db, apu_datum_t key, apu_datum_t value)
     return rv;
 }
 
-apr_status_t apr_dbm_delete(apr_dbm_t *db, apu_datum_t key)
+apr_status_t apr_dbm_delete(apr_dbm_t *db, apr_datum_t key)
 {
     apr_status_t rv;
 
@@ -252,7 +252,7 @@ apr_status_t apr_dbm_delete(apr_dbm_t *db, apu_datum_t key)
     return rv;
 }
 
-int apr_dbm_exists(apr_dbm_t *db, apu_datum_t key)
+int apr_dbm_exists(apr_dbm_t *db, apr_datum_t key)
 {
     int exists;
 
@@ -268,7 +268,7 @@ int apr_dbm_exists(apr_dbm_t *db, apu_datum_t key)
     return exists;
 }
 
-apr_status_t apr_dbm_firstkey(apr_dbm_t *db, apu_datum_t *pkey)
+apr_status_t apr_dbm_firstkey(apr_dbm_t *db, apr_datum_t *pkey)
 {
     *(real_datum_t *) pkey = APR_DBM_FIRSTKEY(db->file);
 
@@ -277,7 +277,7 @@ apr_status_t apr_dbm_firstkey(apr_dbm_t *db, apu_datum_t *pkey)
     return set_error(db);
 }
 
-apr_status_t apr_dbm_nextkey(apr_dbm_t *db, apu_datum_t *pkey)
+apr_status_t apr_dbm_nextkey(apr_dbm_t *db, apr_datum_t *pkey)
 {
     *(real_datum_t *) pkey = APR_DBM_NEXTKEY(db->file, A2R_DATUM(*pkey));
 
@@ -286,7 +286,7 @@ apr_status_t apr_dbm_nextkey(apr_dbm_t *db, apu_datum_t *pkey)
     return set_error(db);
 }
 
-void apr_dbm_freedatum(apr_dbm_t *db, apu_datum_t data)
+void apr_dbm_freedatum(apr_dbm_t *db, apr_datum_t data)
 {
     APR_DBM_FREEDATUM(db, data);
 }
