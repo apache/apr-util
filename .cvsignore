@@ -14,6 +14,7 @@ exports.c
 export_vars.[ch]
 export_vars.sh
 apu-config
+apu-*-config
 apu-config.out
 Debug
 Release

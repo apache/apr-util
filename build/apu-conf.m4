@@ -8,7 +8,7 @@ dnl
 AC_DEFUN(APU_FIND_APR,[
 
   dnl use the find_apr.m4 script to locate APR. sets apr_found and apr_config
-  APR_FIND_APR
+  APR_FIND_APR(,,,[1])
   if test "$apr_found" = "no"; then
     AC_MSG_ERROR(APR could not be located. Please use the --with-apr option.)
   fi
