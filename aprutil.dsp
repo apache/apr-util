@@ -1,5 +1,5 @@
 # Microsoft Developer Studio Project File - Name="aprutil" - Package Owner=<4>
-# Microsoft Developer Studio Generated Build File, Format Version 6.00
+# Microsoft Developer Studio Generated Build File, Format Version 5.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Static Library" 0x0104
@@ -22,11 +22,9 @@ CFG=aprutil - Win32 Debug
 !MESSAGE 
 
 # Begin Project
-# PROP AllowPerConfigDependencies 0
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
 CPP=cl.exe
-RSC=rc.exe
 
 !IF  "$(CFG)" == "aprutil - Win32 Release"
 
@@ -40,10 +38,11 @@ RSC=rc.exe
 # PROP Output_Dir "LibR"
 # PROP Intermediate_Dir "LibR"
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /MD /W3 /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FD /c
-# ADD CPP /nologo /MD /W3 /O2 /I "./include" /I "../apr/include" /I "./include/private" /I "./dbm/sdbm" /I "./xml/expat/lib" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "APR_DECLARE_STATIC" /D "APU_DECLARE_STATIC" /D "APU_USE_SDBM" /Fd"LibR\aprutil" /FD /c
+RSC=rc.exe
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
+# ADD BASE CPP /nologo /MD /W3 /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FD /c
+# ADD CPP /nologo /MD /W3 /O2 /I "./include" /I "../apr/include" /I "./include/private" /I "./dbm/sdbm" /I "./xml/expat/lib" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "APR_DECLARE_STATIC" /D "APU_DECLARE_STATIC" /D "APU_USE_SDBM" /Fd"LibR\aprutil" /FD /c
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -64,10 +63,11 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "LibD"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /MDd /W3 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FD /c
-# ADD CPP /nologo /MDd /W3 /GX /ZI /Od /I "./include" /I "../apr/include" /I "./include/private" /I "./dbm/sdbm" /I "./xml/expat/lib" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "APR_DECLARE_STATIC" /D "APU_DECLARE_STATIC" /D "APU_USE_SDBM" /Fd"LibD\aprutil" /FD /c
+RSC=rc.exe
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
+# ADD BASE CPP /nologo /MDd /W3 /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FD /c
+# ADD CPP /nologo /MDd /W3 /GX /Zi /Od /I "./include" /I "../apr/include" /I "./include/private" /I "./dbm/sdbm" /I "./xml/expat/lib" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "APR_DECLARE_STATIC" /D "APU_DECLARE_STATIC" /D "APU_USE_SDBM" /Fd"LibD\aprutil" /FD /c
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -203,6 +203,10 @@ SOURCE=.\hooks\apr_hooks.c
 # Begin Group "uri"
 
 # PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\uri\apr_uri.c
+# End Source File
 # End Group
 # Begin Group "xml"
 
@@ -213,7 +217,7 @@ SOURCE=.\xml\apr_xml.c
 # End Source File
 # End Group
 # End Group
-# Begin Group "Generated Headers"
+# Begin Group "Generated"
 
 # PROP Default_Filter ""
 # Begin Source File
@@ -288,7 +292,7 @@ SOURCE=.\include\private\apu_select_dbm.hw
 InputPath=.\include\private\apu_select_dbm.hw
 
 ".\include\private\apu_select_dbm.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	copy .\include\private\apu_select_dbm.hw .\include\private\apu_select_dbm.h >  nul 
+	copy .\include\private\apu_select_dbm.hw .\include\private\apu_select_dbm.h > nul 
 	echo Created apu_select_dbm.h from apu_select_dbm.hw 
 	
 # End Custom Build
@@ -299,8 +303,37 @@ InputPath=.\include\private\apu_select_dbm.hw
 InputPath=.\include\private\apu_select_dbm.hw
 
 ".\include\private\apu_select_dbm.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	copy .\include\private\apu_select_dbm.hw .\include\private\apu_select_dbm.h >  nul 
+	copy .\include\private\apu_select_dbm.hw .\include\private\apu_select_dbm.h > nul 
 	echo Created apu_select_dbm.h from apu_select_dbm.hw 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\uri\gen_uri_delims.exe
+
+!IF  "$(CFG)" == "aprutil - Win32 Release"
+
+# Begin Custom Build - Generating uri_delims.h
+InputPath=.\uri\gen_uri_delims.exe
+
+".\uri\uri_delims.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	.\uri\gen_uri_delims.exe >.\uri\uri_delims.h 
+	echo Generated uri_delims.h from gen_uri_delims.exe 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
+
+# Begin Custom Build - Generating uri_delims.h
+InputPath=.\uri\gen_uri_delims.exe
+
+".\uri\uri_delims.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	.\uri\gen_uri_delims.exe >.\uri\uri_delims.h 
+	echo Generated uri_delims.h from gen_uri_delims.exe 
 	
 # End Custom Build
 

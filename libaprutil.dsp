@@ -1,5 +1,5 @@
 # Microsoft Developer Studio Project File - Name="libaprutil" - Package Owner=<4>
-# Microsoft Developer Studio Generated Build File, Format Version 6.00
+# Microsoft Developer Studio Generated Build File, Format Version 5.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Dynamic-Link Library" 0x0102
@@ -22,7 +22,6 @@ CFG=libaprutil - Win32 Debug
 !MESSAGE 
 
 # Begin Project
-# PROP AllowPerConfigDependencies 0
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
 CPP=cl.exe
@@ -68,8 +67,8 @@ LINK32=link.exe
 # PROP Intermediate_Dir "Debug"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /MDd /W3 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FD /c
-# ADD CPP /nologo /MDd /W3 /GX /ZI /Od /I "./include" /I "../apr/include" /I "./include/private" /I "./dbm/sdbm" /I "./xml/expat/lib" /I "./expat/lib" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" /Fd"Debug\aprutil" /FD /c
+# ADD BASE CPP /nologo /MDd /W3 /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FD /c
+# ADD CPP /nologo /MDd /W3 /GX /Zi /Od /I "./include" /I "../apr/include" /I "./include/private" /I "./dbm/sdbm" /I "./xml/expat/lib" /I "./expat/lib" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" /Fd"Debug\aprutil" /FD /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
@@ -209,6 +208,10 @@ SOURCE=.\hooks\apr_hooks.c
 # Begin Group "uri"
 
 # PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\uri\apr_uri.c
+# End Source File
 # End Group
 # Begin Group "xml"
 
@@ -219,7 +222,7 @@ SOURCE=.\xml\apr_xml.c
 # End Source File
 # End Group
 # End Group
-# Begin Group "Generated Headers"
+# Begin Group "Generated"
 
 # PROP Default_Filter ""
 # Begin Source File
@@ -307,6 +310,35 @@ InputPath=.\include\private\apu_select_dbm.hw
 ".\include\private\apu_select_dbm.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	copy .\include\private\apu_select_dbm.hw .\include\private\apu_select_dbm.h >  nul 
 	echo Created apu_select_dbm.h from apu_select_dbm.hw 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\uri\gen_uri_delims.exe
+
+!IF  "$(CFG)" == "libaprutil - Win32 Release"
+
+# Begin Custom Build - Generating uri_delims.h
+InputPath=.\uri\gen_uri_delims.exe
+
+".\uri\uri_delims.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	.\uri\gen_uri_delims.exe >.\uri\uri_delims.h 
+	echo Generated uri_delims.h from gen_uri_delims.exe 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
+
+# Begin Custom Build - Generating uri_delims.h
+InputPath=.\uri\gen_uri_delims.exe
+
+".\uri\uri_delims.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	.\uri\gen_uri_delims.exe >.\uri\uri_delims.h 
+	echo Generated uri_delims.h from gen_uri_delims.exe 
 	
 # End Custom Build
 
