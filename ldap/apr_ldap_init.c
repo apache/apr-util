@@ -46,6 +46,49 @@ APU_DECLARE(int) apr_ldap_ssl_init(apr_pool_t *pool,
                                    int cert_file_type,
                                    apr_ldap_err_t **result_err) {
 
+    apr_ldap_err_t *result;
+
+    if (cert_auth_file) {
+        return apr_ldap_ssl_add_cert(pool, cert_auth_file, cert_file_type, result_err);
+    }
+    else {
+        result = (apr_ldap_err_t *)apr_pcalloc(pool, sizeof(apr_ldap_err_t));
+        *result_err = result;
+#if APR_HAS_LDAP_SSL /* compiled with ssl support */
+
+#if APR_HAS_NOVELL_LDAPSDK
+        result->rc = ldapssl_client_init(NULL, NULL);
+
+        if (LDAP_SUCCESS == result->rc) {
+            return APR_SUCCESS;
+        }
+        else {
+            result->msg = ldap_err2string(result-> rc);
+            result->reason = apr_pstrdup (pool, "LDAP: Could not initialize SSL");
+            return APR_EGENERAL;
+        }
+#endif
+
+#else
+        result->reason = "LDAP: Attempt to initialize SSL failed. "
+                  "Not built with SSL support.";
+        result->rc = -1;
+        return APR_EGENERAL;
+#endif
+    }
+
+    /* if no cert_auth_file was passed, we assume SSL support
+     * is possible, as we have not been specifically told otherwise.
+     */
+    return APR_SUCCESS;
+
+} 
+
+APU_DECLARE(int) apr_ldap_ssl_add_cert(apr_pool_t *pool,
+                                   const char *cert_auth_file,
+                                   int cert_file_type,
+                                   apr_ldap_err_t **result_err) {
+
     apr_ldap_err_t *result = (apr_ldap_err_t *)apr_pcalloc(pool, sizeof(apr_ldap_err_t));
     *result_err = result;
 
@@ -96,7 +139,7 @@ APU_DECLARE(int) apr_ldap_ssl_init(apr_pool_t *pool,
             result->reason = "LDAP: Invalid certificate type: "
                              "DER or BASE64 type required";
             result->rc = -1;
-        }
+        }        
 
 #elif APR_HAS_OPENLDAP_LDAPSDK
 
