@@ -117,25 +117,26 @@ APU_DECLARE(apr_bucket *) apr_bucket_mmap_create(
 
 static apr_status_t mmap_setaside(apr_bucket *data, apr_pool_t *p)
 {
-    apr_bucket_mmap *m;
-    apr_mmap_t *mm;
+    apr_bucket_mmap *m = data->data;
+    apr_mmap_t *mm = m->mmap;
     char *base;
     void *addr;
     apr_status_t ok;
 
-    m = data->data;
-    mm = m->mmap;
     if (apr_pool_is_ancestor(mm->cntxt, p)) {
         return APR_SUCCESS;
     }
-    
-    base = apr_pcalloc(p, data->length);
+
     ok = apr_mmap_offset(&addr, m->mmap, data->start);
     if (ok != APR_SUCCESS) {
         return ok;
     }
+
+    base = apr_palloc(p, data->length);
     memcpy(base, addr, data->length);
     data = apr_bucket_pool_make(data, base, data->length, p);
+    mmap_destroy(m);
+
     return APR_SUCCESS;
 }
 
