@@ -55,6 +55,7 @@
 #ifndef AP_BUF_H
 #define AP_BUF_H
 
+#include "httpd.h"
 #include "apr_general.h"
 #include "apr_mmap.h"
 #include "apr_errno.h"
@@ -291,7 +292,7 @@ struct ap_bucket_mmap {
  * @return The empty bucket brigade
  * @deffunc ap_bucket_brigade *ap_brigade_create(apr_pool_t *p)
  */
-APR_EXPORT(ap_bucket_brigade *) ap_brigade_create(apr_pool_t *p);
+API_EXPORT(ap_bucket_brigade *) ap_brigade_create(apr_pool_t *p);
 
 /**
  * destroy an enitre bucket brigade.  This includes destroying all of the
@@ -299,7 +300,7 @@ APR_EXPORT(ap_bucket_brigade *) ap_brigade_create(apr_pool_t *p);
  * @param b The bucket brigade to destroy
  * @deffunc apr_status_t ap_brigade_destroy(void *b)
  */
-APR_EXPORT(apr_status_t) ap_brigade_destroy(void *b);
+API_EXPORT(apr_status_t) ap_brigade_destroy(void *b);
 
 /**
  * append bucket(s) to a bucket_brigade.  This is the correct way to add
@@ -309,7 +310,7 @@ APR_EXPORT(apr_status_t) ap_brigade_destroy(void *b);
  * @param e The bucket list to append
  * @deffunc void ap_brigade_append_buckets(ap_bucket_brigade *b, ap_bucket *e)
  */
-APR_EXPORT(void) ap_brigade_append_buckets(ap_bucket_brigade *b,
+API_EXPORT(void) ap_brigade_append_buckets(ap_bucket_brigade *b,
                                                   ap_bucket *e);
 
 /**
@@ -319,7 +320,7 @@ APR_EXPORT(void) ap_brigade_append_buckets(ap_bucket_brigade *b,
  * @param nbytes The number of bytes to consume
  * @deffunc void ap_brigade_consume(ap_bucket_brigade *b, int nbytes)
  */
-APR_EXPORT(void) ap_brigade_consume(ap_bucket_brigade *b, int nbytes);
+API_EXPORT(void) ap_brigade_consume(ap_bucket_brigade *b, int nbytes);
 
 /**
  * create an iovec of the elements in a bucket_brigade... return number 
@@ -331,7 +332,7 @@ APR_EXPORT(void) ap_brigade_consume(ap_bucket_brigade *b, int nbytes);
  * @return The number of iovec elements actually filled out.
  * @deffunc int ap_brigade_to_iovec(ap_bucket_brigade *b, struct iovec *vec, int nvec);
  */
-APR_EXPORT(int) ap_brigade_to_iovec(ap_bucket_brigade *b, 
+API_EXPORT(int) ap_brigade_to_iovec(ap_bucket_brigade *b, 
                                            struct iovec *vec, int nvec);
 
 /**
@@ -342,7 +343,7 @@ APR_EXPORT(int) ap_brigade_to_iovec(ap_bucket_brigade *b,
  * @param b The brigade to add to a.  This brigade will be empty on return
  * @deffunc void ap_brigade_catenate(ap_bucket_brigade *a, ap_bucket_brigade *b)
  */
-APR_EXPORT(void) ap_brigade_catenate(ap_bucket_brigade *a, 
+API_EXPORT(void) ap_brigade_catenate(ap_bucket_brigade *a, 
                                             ap_bucket_brigade *b);
 
 /**
@@ -355,7 +356,7 @@ APR_EXPORT(void) ap_brigade_catenate(ap_bucket_brigade *a,
  * @return The number of bytes added to the brigade
  * @deffunc int ap_brigade_vputstrs(ap_bucket_brigade *b, ava_list va)
  */
-APR_EXPORT(int) ap_brigade_vputstrs(ap_bucket_brigade *b, va_list va);
+API_EXPORT(int) ap_brigade_vputstrs(ap_bucket_brigade *b, va_list va);
 
 /**
  * Evaaluate a printf and put the resulting string into a bucket at the end 
@@ -366,7 +367,7 @@ APR_EXPORT(int) ap_brigade_vputstrs(ap_bucket_brigade *b, va_list va);
  * @return The number of bytes added to the brigade
  * @deffunc int ap_brigade_printf(ap_bucket_brigade *b, const char *fmt, ...) 
  */
-APR_EXPORT(int) ap_brigade_printf(ap_bucket_brigade *b, const char *fmt, ...);
+API_EXPORT(int) ap_brigade_printf(ap_bucket_brigade *b, const char *fmt, ...);
 
 /**
  * Evaaluate a printf and put the resulting string into a bucket at the end 
@@ -377,7 +378,7 @@ APR_EXPORT(int) ap_brigade_printf(ap_bucket_brigade *b, const char *fmt, ...);
  * @return The number of bytes added to the brigade
  * @deffunc int ap_brigade_vprintf(ap_bucket_brigade *b, const char *fmt, va_list va) 
  */
-APR_EXPORT(int) ap_brigade_vprintf(ap_bucket_brigade *b, const char *fmt, va_list va);
+API_EXPORT(int) ap_brigade_vprintf(ap_bucket_brigade *b, const char *fmt, va_list va);
 
 /*   ******  Bucket Functions  *****  */
 
@@ -390,7 +391,7 @@ APR_EXPORT(int) ap_brigade_vprintf(ap_bucket_brigade *b, const char *fmt, va_lis
  * @param e The bucket to destroy
  * @deffunc apr_status_t ap_bucket_destroy(ap_bucket *e)
  */
-APR_EXPORT(apr_status_t) ap_bucket_destroy(ap_bucket *e);
+API_EXPORT(apr_status_t) ap_bucket_destroy(ap_bucket *e);
 
 /****** Functions to Create Buckets of varying type ******/
 
@@ -414,7 +415,7 @@ APR_EXPORT(apr_status_t) ap_bucket_destroy(ap_bucket *e);
  * @return The new bucket
  * @deffunc ap_bucket *ap_bucket_heap_create(const void *buf, apr_size_t nbyte, apr_ssize_t *w)
  */
-APR_EXPORT(ap_bucket *) ap_bucket_heap_create(const void *buf,
+API_EXPORT(ap_bucket *) ap_bucket_heap_create(const void *buf,
                                 apr_size_t nbyte, apr_ssize_t *w);
 
 
@@ -426,7 +427,7 @@ APR_EXPORT(ap_bucket *) ap_bucket_heap_create(const void *buf,
  * @return The new bucket
  * @deffunc ap_bucket *ap_bucket_mmap_create(const apr_mmap_t *buf, apr_size_t nbyte, apr_ssize_t *w)
  */
-APR_EXPORT(ap_bucket *) ap_bucket_mmap_create(const apr_mmap_t *buf,
+API_EXPORT(ap_bucket *) ap_bucket_mmap_create(const apr_mmap_t *buf,
                                       apr_size_t nbytes, apr_ssize_t *w);
 
 /**
@@ -437,7 +438,7 @@ APR_EXPORT(ap_bucket *) ap_bucket_mmap_create(const apr_mmap_t *buf,
  * @return The new bucket
  * @deffunc ap_bucket *ap_bucket_transient_create(const void *buf, apr_size_t nbyte, apr_ssize_t *w)
  */
-APR_EXPORT(ap_bucket *) ap_bucket_transient_create(const void *buf,
+API_EXPORT(ap_bucket *) ap_bucket_transient_create(const void *buf,
                                apr_size_t nbyte, apr_ssize_t *w);
 
 /**
@@ -446,7 +447,7 @@ APR_EXPORT(ap_bucket *) ap_bucket_transient_create(const void *buf,
  * @return The new bucket
  * @deffunc ap_bucket *ap_bucket_eos_create(void)
  */
-APR_EXPORT(ap_bucket *) ap_bucket_eos_create(void);
+API_EXPORT(ap_bucket *) ap_bucket_eos_create(void);
 
 #endif
 
