@@ -11,7 +11,7 @@ libtool
 libaprutil*.la
 aprutil.exp
 exports.c
-export_vars.h
+export_vars.[ch]
 export_vars.sh
 apu-config
 apu-config.out
