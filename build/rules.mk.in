@@ -101,7 +101,7 @@ local-clean:
 all-recursive depend-recursive clean-recursive distclean-recursive \
   extraclean-recursive:
 	@otarget=`echo $@|sed s/-recursive//`; \
-	for i in $(SUBDIRS); do \
+	list='$(SUBDIRS)'; for i in $$list; do \
 	    target="$$otarget"; \
 	    echo "Making $$target in $$i"; \
 	    if test "$$i" = "."; then \
