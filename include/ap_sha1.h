@@ -67,29 +67,90 @@
 extern "C" {
 #endif
 
+/**
+ * @package SHA1 library
+ */
+
 #define SHA_DIGESTSIZE 20
 
-/*
+/**
  * Define the Magic String prefix that identifies a password as being
  * hashed using our algorithm.
+ * @defvar AP_SHA1PW_ID "{SHA}"
  */
 #define AP_SHA1PW_ID "{SHA}"
 #define AP_SHA1PW_IDLEN 5
 
-typedef struct {
-    ap_uint32_t digest[5];          /* message digest */
-    ap_uint32_t count_lo, count_hi; /* 64-bit bit count */
-    ap_uint32_t data[16];           /* SHA data buffer */
-    int local;                      /* unprocessed amount in data */
-} AP_SHA1_CTX;
+typedef struct AP_SHA1_CTX AP_SHA1_CTX;
 
+/**
+ * SHA1 context structure
+ */
+struct AP_SHA1_CTX {
+    /** 
+     * message digest
+     */
+    ap_uint32_t digest[5];
+    /** 64-bit bit counts */
+    ap_uint32_t count_lo, count_hi;
+    /** SHA data buffer */
+    ap_uint32_t data[16];
+    /** unprocessed amount in data */
+    int local;
+};
+
+/**
+ * Provide a means to SHA1 crypt/encode a plaintext password in a way which
+ * makes password file compatible with those commonly use in netscape web
+ * and ldap installations.
+ * @param clear The plaintext password
+ * @param len The length of the plaintext password
+ * @param out The encrypted/encoded password
+ * @tip SHA1 support is useful for migration purposes, but is less
+ *     secure than Apache's password format, since Apache's (MD5)
+ *     password format uses a random eight character salt to generate
+ *     one of many possible hashes for the same password.  Netscape
+ *     uses plain SHA1 without a salt, so the same password
+ *     will always generate the same hash, making it easier
+ *     to break since the search space is smaller.
+ * @deffunc void ap_sha1_base64(const char *clear, int len, char *out)
+ */
 API_EXPORT(void) ap_sha1_base64(const char *clear, int len, char *out);
+
+/**
+ * Initialize the SHA digest
+ * @param context The SHA context to initialize
+ * @deffunc void ap_SHA1Init(AP_SHA1_CTX *context);
+ */
 API_EXPORT(void) ap_SHA1Init(AP_SHA1_CTX *context);
+
+/**
+ * Update the SHA digest
+ * @param context The SHA1 context to update
+ * @param input The buffer to add to the SHA digest
+ * @param inputLen The length of the input buffer
+ * @deffunc void ap_SHA1Update(AP_SHA1_CTX *context, const char *input, unsigned int inputLen)
+ */
 API_EXPORT(void) ap_SHA1Update(AP_SHA1_CTX *context, const char *input,
                               unsigned int inputLen);
+
+/**
+ * Update the SHA digest with binary data
+ * @param context The SHA1 context to update
+ * @param input The buffer to add to the SHA digest
+ * @param inputLen The length of the input buffer
+ * @deffunc void ap_SHA1Update_binary(AP_SHA1_CTX *context, const unsigned char *input, unsigned int inputLen)
+ */
 API_EXPORT(void) ap_SHA1Update_binary(AP_SHA1_CTX *context,
                                      const unsigned char *input,
                                      unsigned int inputLen);
+
+/**
+ * Finish computing the SHA digest
+ * @param digest the output buffer in which to store the digest
+ * @param context The context to finalize
+ * @deffunc void ap_SHA1Final(unsigned char digest[SHA_DIGESTSIZE], AP_SHA1_CTX *context)
+ */
 API_EXPORT(void) ap_SHA1Final(unsigned char digest[SHA_DIGESTSIZE],
                              AP_SHA1_CTX *context);
 
