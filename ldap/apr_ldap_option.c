@@ -538,7 +538,6 @@ static void option_set_cert(apr_pool_t *pool, LDAP *ldap,
     result->rc = -1;
 #endif /* APR_HAS_LDAP_SSL */
 
-    return result->rc;
 }
 
 #endif /* APR_HAS_LDAP */
