@@ -61,7 +61,7 @@ static apr_status_t eos_read(ap_bucket *b, const char **str,
 {
     *str = NULL;
     *len = AP_END_OF_BRIGADE;
-    return AP_END_OF_BRIGADE;
+    return APR_SUCCESS;
 }
 
 API_EXPORT(ap_bucket *) ap_bucket_make_eos(ap_bucket *b)
