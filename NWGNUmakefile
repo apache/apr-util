@@ -239,14 +239,18 @@ FILES_lib_objs = \
 	$(OBJDIR)/apr_dbm_sdbm.o \
 	$(OBJDIR)/apr_hooks.o \
 	$(OBJDIR)/apr_md4.o \
+	$(OBJDIR)/apr_md5.o \
 	$(OBJDIR)/apr_rmm.o \
 	$(OBJDIR)/apr_sha1.o \
+	$(OBJDIR)/getuuid.o \
+	$(OBJDIR)/uuid.o \
 	$(OBJDIR)/apr_strmatch.o \
 	$(OBJDIR)/apr_uri.o \
 	$(OBJDIR)/sdbm.o \
 	$(OBJDIR)/sdbm_hash.o \
 	$(OBJDIR)/sdbm_lock.o \
 	$(OBJDIR)/sdbm_pair.o \
+	$(OBJDIR)/xlate.o \
 	$(EOLIST)
 
 #
@@ -303,6 +307,10 @@ $(OBJDIR)/%.o: uri/%.c $(OBJDIR)\cc.opt
 	@echo Compiling $<
 	$(CC) uri\$(<F) -o=$(OBJDIR)\$(@F) @$(OBJDIR)\cc.opt
 
+$(OBJDIR)/%.o: xlate/%.c $(OBJDIR)\cc.opt
+	@echo Compiling $<
+	$(CC) xlate\$(<F) -o=$(OBJDIR)\$(@F) @$(OBJDIR)\cc.opt
+	
 $(OBJDIR)/%.o: xml/%.c $(OBJDIR)\cc.opt
 	@echo Compiling $<
 	$(CC) xml\$(<F) -o=$(OBJDIR)\$(@F) @$(OBJDIR)\cc.opt
