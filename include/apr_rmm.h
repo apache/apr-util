@@ -93,7 +93,7 @@ APU_DECLARE(apr_status_t) apr_rmm_init(apr_rmm_t **rmm, void* membuf,
  * Destroy a managed memory block.
  * @param rmm The relocatable memory block to destroy
  */
-APU_DECLARE(apr_status_t) apr_shm_destroy(apr_rmm_t *rmm);
+APU_DECLARE(apr_status_t) apr_rmm_destroy(apr_rmm_t *rmm);
 
 /**
  * Attach to a relocatable memory block already managed by the apr_rmm API.
