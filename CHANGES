@@ -4,6 +4,10 @@ Changes with APR-util 1.0
      the Apache License, Version 2.0 (http://www.apache.org/licenses).
      [Apache Software Foundation]
 
+  *) A new function, apr_reslist_invalidate, was added so that invalid
+     resources can be removed from a reslist instead of being returned
+     to the reslist in a broken state.  [Nick Kew <nick webthing.com>]
+
   *) Switch to a single, top-level make. [Greg Stein]
 
   *) Add timeout feature to apr_reslist_acquire().  
