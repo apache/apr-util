@@ -1,5 +1,5 @@
-APRUTIL LIBRARY STATUS:
-Last modified at [$Date: 2000/12/03 06:28:52 $]
+APRUTIL LIBRARY STATUS:						-*-text-*-
+Last modified at [$Date: 2000/12/08 23:17:44 $]
 
 Release:
 
@@ -28,12 +28,6 @@ Available Patches:
 
 Open Issues:
 
-    * How to move files from other repositories.
-      Message-ID: <20001202140552.S12166@lyra.org>
-      Status:
-        Option (1): Ryan +1, Greg +1
-	Option (2): Greg -0
-
     * Use of libtool.
       Status: +1: Ryan, Greg
 
@@ -50,3 +44,11 @@ Open Issues:
       Status:
         apr-util/include/: Ryan +1, Greg +0, OtherBill +1
 	apache-2.0/src/include/: Greg +1, Ryan -0.5, OtherBill -0.5
+
+    * revise the included SDBM package to use the apr_ prefix (on the
+      header and on the function/typedef names.
+      Status: Greg +0, Ryan +1(?)
+
+    * Pick up APRVARS from APR (for building the test progs). Export
+      some library variables from APRUTIL (e.g. -lgdbm) for clients to
+      use. (Greg volunteers)
