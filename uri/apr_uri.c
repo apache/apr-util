@@ -119,11 +119,11 @@ APU_DECLARE(apr_port_t) apr_uri_default_port_for_scheme(const char *scheme_str)
     return 0;
 }
 
-/* Unparse a apr_uri_components structure to an URI string.
+/* Unparse a apr_uri_t structure to an URI string.
  * Optionally suppress the password for security reasons.
  */
-APU_DECLARE(char *) apr_uri_unparse_components(apr_pool_t *p, 
-                                               const apr_uri_components *uptr, 
+APU_DECLARE(char *) apr_uri_unparse(apr_pool_t *p, 
+                                               const apr_uri_t *uptr, 
                                                unsigned flags)
 {
     char *ret = "";
@@ -217,8 +217,8 @@ APU_DECLARE(char *) apr_uri_unparse_components(apr_pool_t *p,
  *  - fills in fields of uri_components *uptr
  *  - none on any of the r->* fields
  */
-APU_DECLARE(int) apr_uri_parse_components(apr_pool_t *p, const char *uri, 
-                                          apr_uri_components *uptr)
+APU_DECLARE(int) apr_uri_parse(apr_pool_t *p, const char *uri, 
+                                          apr_uri_t *uptr)
 {
     const char *s;
     const char *s1;
@@ -342,9 +342,9 @@ deal_with_host:
  * currently at http://www.mcom.com/newsref/std/tunneling_ssl.html
  * for the format of the "CONNECT host:port HTTP/1.0" request
  */
-APU_DECLARE(int) apr_uri_parse_hostinfo_components(apr_pool_t *p, 
+APU_DECLARE(int) apr_uri_parse_hostinfo(apr_pool_t *p, 
                                                    const char *hostinfo, 
-                                                   apr_uri_components *uptr)
+                                                   apr_uri_t *uptr)
 {
     const char *s;
     char *endstr;
