@@ -19,7 +19,7 @@ typedef struct _LINK_##name \
 static struct { members } _hooks;
 
 #define HOOK_LINK(name) \
-    array_header *link_##name;
+    ap_array_header_t *link_##name;
 
 #define IMPLEMENT_HOOK_BASE(name) \
 void ap_hook_##name(HOOK_##name *pf,const char * const *aszPre, \
@@ -115,11 +115,11 @@ ret ap_run_##name args_decl \
 #define HOOK_LAST		20
 #define HOOK_REALLY_LAST	30
 
-extern pool *g_pHookPool;
+extern ap_context_t *g_pHookPool;
 extern int g_bDebugHooks;
 extern const char *g_szCurrentHookName;
 
-void ap_hook_sort_register(const char *szHookName,array_header **aHooks);
+void ap_hook_sort_register(const char *szHookName, ap_array_header_t **aHooks);
 void ap_sort_hooks(void);
 void ap_show_hook(const char *szName,const char * const *aszPre,
 		  const char * const *aszSucc);
