@@ -82,18 +82,49 @@
 /* this whole thing disappears if LDAP is not enabled */
 #if !APR_HAS_LDAP
 
-#define APR_HAS_LDAP_URL_PARSE    0
-#define APU_HAS_LDAP_NETSCAPE_SSL 0
-#define APU_HAS_LDAP_STARTTLS     0
+#define APR_HAS_NETSCAPE_LDAPSDK    0
+#define APR_HAS_NOVELL_LDAPSDK      0
+#define APR_HAS_OPENLDAP_LDAPSDK    0
+#define APR_HAS_MICROSOFT_LDAPSDK   0
+#define APR_HAS_OTHER_LDAPSDK       0
 
+#define APR_HAS_LDAP_SSL            0
+#define APR_HAS_LDAP_URL_PARSE    0
+
+
+#else /* ldap support available */
+
+
+   /* There a several LDAPv3 SDKs available on various platforms
+    * define which LDAP SDK is used 
+   */
+#define APR_HAS_NETSCAPE_LDAPSDK    0
+#define APR_HAS_NOVELL_LDAPSDK      0
+#define APR_HAS_OPENLDAP_LDAPSDK    0
+#define APR_HAS_MICROSOFT_LDAPSDK   1
+#define APR_HAS_OTHER_LDAPSDK       0
+
+   /* define if LDAP SSL support is available 
+   */
+#define APR_HAS_LDAP_SSL            1
+
+   /* If no APR_HAS_xxx_LDAPSDK is defined error out
+    * Define if the SDK supports the ldap_url_parse function 
+   */
+#if APR_HAS_NETSCAPE_LDAPSDK 
+   #define APR_HAS_LDAP_URL_PARSE      1
+#elif APR_HAS_NOVELL_LDAPSDK 
+   #define APR_HAS_LDAP_URL_PARSE      1
+#elif APR_HAS_OPENLDAP_LDAPSDK
+   #define APR_HAS_LDAP_URL_PARSE      1
+#elif APR_HAS_MICROSOFT_LDAPSDK
+   #define APR_HAS_LDAP_URL_PARSE      0
+#elif APR_HAS_OTHER_LDAPSDK
+   #define APR_HAS_LDAP_URL_PARSE      0
 #else
-
-/* presume all unices do, win32, for example, does not */
-#define APR_HAS_LDAP_URL_PARSE    0
-
-/* LDAP secure capabilities */
-#define APR_HAS_LDAP_NETSCAPE_SSL 0
-#define APR_HAS_LDAP_STARTTLS     0
+   #define APR_HAS_LDAP_URL_PARSE      0
+   #error "ERROR no LDAP SDK defined!"
+#endif
 
 /* These are garbage, our public macros are always APR_HAS_ prefixed,
  * and use 0/1 values, not defined/undef semantics.  
@@ -104,39 +135,49 @@
 #define APU_HAS_LDAP
 #endif
 
-#if APR_HAS_LDAP_NETSCAPE_SSL
-#define APU_HAS_LDAP_NETSCAPE_SSL 
+
+/* LDAP header files */
+
+#if APR_HAS_NETSCAPE_LDAPSDK
+#include <ldap.h>
+#include <lber.h>
+#if APR_HAS_LDAP_SSL 
+#include <ldap_ssl.h>
+#endif
 #endif
 
-#if APR_HAS_LDAP_STARTTLS
-#define APU_HAS_LDAP_STARTTLS
+#if APR_HAS_NOVELL_LDAPSDK
+#include <ldap.h>
+#include <lber.h>
+#if APR_HAS_LDAP_SSL 
+#include <ldap_ssl.h>
+#endif
+#endif
+
+#if APR_HAS_OPENLDAP_LDAPSDK
+#include <ldap.h>
+#include <lber.h>
 #endif
 
 /* Included in Windows 2000 and later, earlier 9x/NT 4.0 clients
  * will need to obtain the Active Directory Client Extensions.
  */
-#include <Winldap.h>
+#if APR_HAS_MICROSOFT_LDAPSDK
+#include <winldap.h>
+#define LDAPS_PORT LDAP_SSL_PORT
+#endif
 
-/*
- * LDAP Compatibility
- */
 
-/* These don't apply on Win32, leave them in place for reference 
+/* LDAPv2 SDKs don't use const parameters in their prototypes.  
+ * LDAPv3 SDKs do use const.  When compiling with LDAPv2 SDKs, const_cast 
+ * casts away the constness, but won't under LDAPv3 
  */
 #if LDAP_VERSION_MAX <= 2
-int ldap_search_ext_s(LDAP *ldap, char *base, int scope, char *filter,
-		      char **attrs, int attrsonly, void *servertrls, void *clientctrls,
-		      void *timeout, int sizelimit, LDAPMessage **res);
-void ldap_memfree(void *p);
-
-/* The const_cast is used to get around the fact that some of the LDAPv2 prototypes
- * have non-const parameters, while the same ones in LDAPv3 are const. If compiling
- * with LDAPv2, the const_cast casts away the constness, but won't under LDAPv3
- */
 #define const_cast(x) ((char *)(x))
 #else
 #define const_cast(x) (x)
-#endif /* LDAP_VERSION_MAX */
+#endif
+   
 
 #include "apr_ldap_url.h"
 
@@ -150,5 +191,5 @@ void ldap_memfree(void *p);
 #endif
 
 /** @} */
-#endif /* APU_HAS_LDAP */
+#endif /* APR_HAS_LDAP */
 #endif /* APU_LDAP_H */
