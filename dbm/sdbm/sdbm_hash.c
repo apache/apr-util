@@ -62,6 +62,7 @@
  */
 
 #include "apr_sdbm.h"
+#include "sdbm_private.h"
 
 /*
  * polynomial conversion ignoring overflows
