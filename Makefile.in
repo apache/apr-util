@@ -21,6 +21,7 @@ TARGET_LIB = lib@APRUTIL_LIBNAME@.la
 INSTALL_SUBDIRS = @APR_XML_DIR@
 EXTRA_SOURCE_DIRS = @APR_XML_DIR@
 EXTRA_OS_LINK=@EXTRA_OS_LINK@
+APRUTIL_PCFILE = apr-util-$(APRUTIL_MAJOR_VERSION).pc
 
 TARGETS = $(TARGET_LIB) aprutil.exp
 
@@ -30,7 +31,8 @@ TARGETS = $(TARGET_LIB) aprutil.exp
 
 CLEAN_SUBDIRS = test
 
-CLEAN_TARGETS = exports.c export_vars.c aprutil.exp .make.dirs apu-config.out
+CLEAN_TARGETS = exports.c export_vars.c aprutil.exp .make.dirs apu-config.out \
+	$(APRUTIL_PCFILE)
 DISTCLEAN_TARGETS = config.cache config.log config.status libtool \
 	include/private/apu_config.h include/private/apu_private.h \
 	include/private/apu_select_dbm.h include/apr_ldap.h include/apu.h \
@@ -53,7 +55,11 @@ top_blddir=@abs_builddir@
 apu-config.out: apu-config
 	sed 's,^\(location=\).*$$,\1installed,' < apu-config > $@
 
-install: $(TARGET_LIB) apu-config.out
+$(APRUTIL_PCFILE): apr-util.pc
+	@rm -f $@
+	cp apr-util.pc $@
+
+install: $(TARGET_LIB) apu-config.out $(APRUTIL_PCFILE)
 	if [ ! -d $(DESTDIR)$(includedir) ]; then \
 	    $(APR_BUILD_DIR)/mkdir.sh $(DESTDIR)$(includedir); \
 	fi;
@@ -68,7 +74,7 @@ install: $(TARGET_LIB) apu-config.out
 	if [ ! -d $(DESTDIR)$(libdir)/pkgconfig ]; then \
 	    $(APR_BUILD_DIR)/mkdir.sh $(DESTDIR)$(libdir)/pkgconfig; \
 	fi;
-	cp -p apr-util.pc $(DESTDIR)$(libdir)/pkgconfig;
+	cp -p $(APRUTIL_PCFILE) $(DESTDIR)$(libdir)/pkgconfig
 	list='$(INSTALL_SUBDIRS)'; for i in $$list; do \
 		( cd $$i ; $(MAKE) DESTDIR=$(DESTDIR) install ); \
 	done
