@@ -163,12 +163,10 @@ static apr_status_t file_read(apr_bucket *e, const char **str,
     buf = malloc(*len);
 
     /* Handle offset ... */
-    if (fileoffset) {
-        rv = apr_file_seek(f, APR_SET, &fileoffset);
-        if (rv != APR_SUCCESS) {
-            free(buf);
-            return rv;
-        }
+    rv = apr_file_seek(f, APR_SET, &fileoffset);
+    if (rv != APR_SUCCESS) {
+        free(buf);
+        return rv;
     }
     rv = apr_file_read(f, buf, len);
     if (rv != APR_SUCCESS && rv != APR_EOF) {
