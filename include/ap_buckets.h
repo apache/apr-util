@@ -369,7 +369,7 @@ struct ap_bucket_file {
  * @return The empty bucket brigade
  * @deffunc ap_bucket_brigade *ap_brigade_create(apr_pool_t *p)
  */
-API_EXPORT(ap_bucket_brigade *) ap_brigade_create(apr_pool_t *p);
+AP_DECLARE(ap_bucket_brigade *) ap_brigade_create(apr_pool_t *p);
 
 /**
  * destroy an enitre bucket brigade.  This includes destroying all of the
@@ -377,7 +377,7 @@ API_EXPORT(ap_bucket_brigade *) ap_brigade_create(apr_pool_t *p);
  * @param b The bucket brigade to destroy
  * @deffunc apr_status_t ap_brigade_destroy(ap_bucket_brigade *b)
  */
-API_EXPORT(apr_status_t) ap_brigade_destroy(ap_bucket_brigade *b);
+AP_DECLARE(apr_status_t) ap_brigade_destroy(ap_bucket_brigade *b);
 
 /**
  * Split a bucket brigade into two, such that the given bucket is the
@@ -389,7 +389,7 @@ API_EXPORT(apr_status_t) ap_brigade_destroy(ap_bucket_brigade *b);
  * @return The new brigade
  * @deffunc ap_bucket_brigade *ap_brigade_split(ap_bucket_brigade *b, ap_bucket *e)
  */
-API_EXPORT(ap_bucket_brigade *) ap_brigade_split(ap_bucket_brigade *b,
+AP_DECLARE(ap_bucket_brigade *) ap_brigade_split(ap_bucket_brigade *b,
 						 ap_bucket *e);
 
 /**
@@ -398,7 +398,7 @@ API_EXPORT(ap_bucket_brigade *) ap_brigade_split(ap_bucket_brigade *b,
  * @param b The brigade to consume data from
  * @param nbytes The number of bytes to consume
  * @deffunc void ap_brigade_consume(ap_bucket_brigade *b, int nbytes) */
-API_EXPORT(void) ap_brigade_consume(ap_bucket_brigade *b, int nbytes);
+AP_DECLARE(void) ap_brigade_consume(ap_bucket_brigade *b, int nbytes);
 
 /**
  * create an iovec of the elements in a bucket_brigade... return number 
@@ -410,7 +410,7 @@ API_EXPORT(void) ap_brigade_consume(ap_bucket_brigade *b, int nbytes);
  * @return The number of iovec elements actually filled out.
  * @deffunc int ap_brigade_to_iovec(ap_bucket_brigade *b, struct iovec *vec, int nvec);
  */
-API_EXPORT(int) ap_brigade_to_iovec(ap_bucket_brigade *b, 
+AP_DECLARE(int) ap_brigade_to_iovec(ap_bucket_brigade *b, 
 				    struct iovec *vec, int nvec);
 
 /**
@@ -421,7 +421,7 @@ API_EXPORT(int) ap_brigade_to_iovec(ap_bucket_brigade *b,
  * @return The number of bytes added to the brigade
  * @deffunc int ap_brigade_vputstrs(ap_bucket_brigade *b, va_list va)
  */
-API_EXPORT(int) ap_brigade_vputstrs(ap_bucket_brigade *b, va_list va);
+AP_DECLARE(int) ap_brigade_vputstrs(ap_bucket_brigade *b, va_list va);
 
 /**
  * This function writes an unspecified number of strings into a bucket brigade.
@@ -431,7 +431,7 @@ API_EXPORT(int) ap_brigade_vputstrs(ap_bucket_brigade *b, va_list va);
  * @return The number of bytes added to the brigade
  * @deffunc int ap_brigade_putstrs(ap_bucket_brigade *b, ...)
  */
-API_EXPORT_NONSTD(int) ap_brigade_putstrs(ap_bucket_brigade *b, ...);
+AP_DECLARE_NONSTD(int) ap_brigade_putstrs(ap_bucket_brigade *b, ...);
 
 /**
  * Evaluate a printf and put the resulting string into a bucket at the end 
@@ -442,7 +442,7 @@ API_EXPORT_NONSTD(int) ap_brigade_putstrs(ap_bucket_brigade *b, ...);
  * @return The number of bytes added to the brigade
  * @deffunc int ap_brigade_printf(ap_bucket_brigade *b, const char *fmt, ...) 
  */
-API_EXPORT_NONSTD(int) ap_brigade_printf(ap_bucket_brigade *b, const char *fmt, ...);
+AP_DECLARE_NONSTD(int) ap_brigade_printf(ap_bucket_brigade *b, const char *fmt, ...);
 
 /**
  * Evaluate a printf and put the resulting string into a bucket at the end 
@@ -453,7 +453,7 @@ API_EXPORT_NONSTD(int) ap_brigade_printf(ap_bucket_brigade *b, const char *fmt, 
  * @return The number of bytes added to the brigade
  * @deffunc int ap_brigade_vprintf(ap_bucket_brigade *b, const char *fmt, va_list va) 
  */
-API_EXPORT(int) ap_brigade_vprintf(ap_bucket_brigade *b, const char *fmt, va_list va);
+AP_DECLARE(int) ap_brigade_vprintf(ap_bucket_brigade *b, const char *fmt, va_list va);
 
 
 /*  *****  Bucket Functions  *****  */
@@ -472,7 +472,7 @@ void ap_init_bucket_types(apr_pool_t *p);
  * @param e The bucket to destroy
  * @deffunc apr_status_t ap_bucket_destroy(ap_bucket *e)
  */
-API_EXPORT(apr_status_t) ap_bucket_destroy(ap_bucket *e);
+AP_DECLARE(apr_status_t) ap_bucket_destroy(ap_bucket *e);
 
 /**
  * read the data from the bucket
@@ -482,7 +482,7 @@ API_EXPORT(apr_status_t) ap_bucket_destroy(ap_bucket *e);
  * @param block Whether the read function blocks
  * @deffunc apr_status_t ap_bucket_read(ap_bucket *e, const char **str, apr_ssize_t *len, int block)
  */
-API_EXPORT(apr_status_t) ap_bucket_read(ap_bucket *e, const char **str,
+AP_DECLARE(apr_status_t) ap_bucket_read(ap_bucket *e, const char **str,
                                         apr_ssize_t *len, int block);
 
 /**
@@ -491,7 +491,7 @@ API_EXPORT(apr_status_t) ap_bucket_read(ap_bucket *e, const char **str,
  * @param e The bucket to setaside
  * @deffunc apr_status_t ap_bucket_setaside(ap_bucket *e)
  */
-API_EXPORT(apr_status_t) ap_bucket_setaside(ap_bucket *e);
+AP_DECLARE(apr_status_t) ap_bucket_setaside(ap_bucket *e);
 
 /**
  * Split one bucket in two.
@@ -499,15 +499,15 @@ API_EXPORT(apr_status_t) ap_bucket_setaside(ap_bucket *e);
  * @param point The location to split the bucket at
  * @deffunc apr_status_t ap_bucket_split(ap_bucket *e, apr_off_t point)
  */
-API_EXPORT(apr_status_t) ap_bucket_split(ap_bucket *e, apr_off_t point);
+AP_DECLARE(apr_status_t) ap_bucket_split(ap_bucket *e, apr_off_t point);
 
 
 /* Bucket type handling */
 
-API_EXPORT(apr_status_t) ap_bucket_setaside_notimpl(ap_bucket *data);
-API_EXPORT(apr_status_t) ap_bucket_split_notimpl(ap_bucket *data, 
+AP_DECLARE(apr_status_t) ap_bucket_setaside_notimpl(ap_bucket *data);
+AP_DECLARE(apr_status_t) ap_bucket_split_notimpl(ap_bucket *data, 
                                                  apr_off_t point);
-API_EXPORT(void) ap_bucket_destroy_notimpl(void *data);
+AP_DECLARE(void) ap_bucket_destroy_notimpl(void *data);
 /* There is no ap_bucket_read_notimpl, because it is a required function
  */
 int ap_insert_bucket_type(const ap_bucket_type *type);
@@ -540,8 +540,8 @@ extern const ap_bucket_type ap_socket_type;
  * @param end The end of the data in the bucket
  *            relative to the private base pointer
  * @return The new bucket, or NULL if allocation failed
- * @deffunc API_EXPORT(ap_bucket *) ap_bucket_shared_create(ap_bucket_refcount *r, apr_off_t start, apr_off_t end) */
-API_EXPORT(ap_bucket *) ap_bucket_make_shared(ap_bucket *b, void *data,
+ * @deffunc AP_DECLARE(ap_bucket *) ap_bucket_shared_create(ap_bucket_refcount *r, apr_off_t start, apr_off_t end) */
+AP_DECLARE(ap_bucket *) ap_bucket_make_shared(ap_bucket *b, void *data,
 					      apr_off_t start, apr_off_t end);
 
 /**
@@ -552,8 +552,8 @@ API_EXPORT(ap_bucket *) ap_bucket_make_shared(ap_bucket *b, void *data,
  * @return NULL if nothing needs to be done,
  *         otherwise a pointer to the private data structure which
  *         must be destroyed because its reference count is zero
- * @deffunc API_EXPORT(void *) ap_bucket_shared_destroy(ap_bucket *b) */
-API_EXPORT(void *) ap_bucket_destroy_shared(void *data);
+ * @deffunc AP_DECLARE(void *) ap_bucket_shared_destroy(ap_bucket *b) */
+AP_DECLARE(void *) ap_bucket_destroy_shared(void *data);
 
 /**
  * Split a bucket into two at the given point, and adjust the refcount
@@ -565,9 +565,9 @@ API_EXPORT(void *) ap_bucket_destroy_shared(void *data);
  * @return APR_EINVAL if the point is not within the bucket;
  *         APR_ENOMEM if allocation failed;
  *         or APR_SUCCESS
- * @deffunc API_EXPORT(apr_status_t) ap_bucket_shared_split(ap_bucket *b, apr_off_t point)
+ * @deffunc AP_DECLARE(apr_status_t) ap_bucket_shared_split(ap_bucket *b, apr_off_t point)
  */
-API_EXPORT_NONSTD(apr_status_t) ap_bucket_split_shared(ap_bucket *b, apr_off_t point);
+AP_DECLARE_NONSTD(apr_status_t) ap_bucket_split_shared(ap_bucket *b, apr_off_t point);
 
 
 /*  *****  Functions to Create Buckets of varying type  *****  */
@@ -609,8 +609,8 @@ API_EXPORT_NONSTD(apr_status_t) ap_bucket_split_shared(ap_bucket *b, apr_off_t p
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_create_eos(void)
  */
-API_EXPORT(ap_bucket *) ap_bucket_create_eos(void);
-API_EXPORT(ap_bucket *) ap_bucket_make_eos(ap_bucket *b);
+AP_DECLARE(ap_bucket *) ap_bucket_create_eos(void);
+AP_DECLARE(ap_bucket *) ap_bucket_make_eos(ap_bucket *b);
 
 
 /**
@@ -620,9 +620,9 @@ API_EXPORT(ap_bucket *) ap_bucket_make_eos(ap_bucket *b);
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_create_transient(const char *buf, apr_size_t nbyte, apr_ssize_t *w)
  */
-API_EXPORT(ap_bucket *) ap_bucket_create_immortal(
+AP_DECLARE(ap_bucket *) ap_bucket_create_immortal(
 		const char *buf, apr_size_t nbyte);
-API_EXPORT(ap_bucket *) ap_bucket_make_immortal(ap_bucket *b,
+AP_DECLARE(ap_bucket *) ap_bucket_make_immortal(ap_bucket *b,
 		const char *buf, apr_size_t nbyte);
 
 /**
@@ -632,9 +632,9 @@ API_EXPORT(ap_bucket *) ap_bucket_make_immortal(ap_bucket *b,
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_create_transient(const char *buf, apr_size_t nbyte, apr_ssize_t *w)
  */
-API_EXPORT(ap_bucket *) ap_bucket_create_transient(
+AP_DECLARE(ap_bucket *) ap_bucket_create_transient(
 		const char *buf, apr_size_t nbyte);
-API_EXPORT(ap_bucket *) ap_bucket_make_transient(ap_bucket *b,
+AP_DECLARE(ap_bucket *) ap_bucket_make_transient(ap_bucket *b,
 		const char *buf, apr_size_t nbyte);
 
 /**
@@ -652,9 +652,9 @@ API_EXPORT(ap_bucket *) ap_bucket_make_transient(ap_bucket *b,
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_create_heap(const char *buf, apr_size_t nbyte, int copy, apr_ssize_t *w)
  */
-API_EXPORT(ap_bucket *) ap_bucket_create_heap(
+AP_DECLARE(ap_bucket *) ap_bucket_create_heap(
 		const char *buf, apr_size_t nbyte, int copy, apr_ssize_t *w);
-API_EXPORT(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
+AP_DECLARE(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
 		const char *buf, apr_size_t nbyte, int copy, apr_ssize_t *w);
 
 /**
@@ -666,9 +666,9 @@ API_EXPORT(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_create_mmap(const apr_mmap_t *buf, apr_size_t nbyte, apr_ssize_t *w)
  */
-API_EXPORT(ap_bucket *) ap_bucket_create_mmap(
+AP_DECLARE(ap_bucket *) ap_bucket_create_mmap(
 		apr_mmap_t *mm, apr_off_t start, apr_size_t length);
-API_EXPORT(ap_bucket *) ap_bucket_make_mmap(ap_bucket *b,
+AP_DECLARE(ap_bucket *) ap_bucket_make_mmap(ap_bucket *b,
 		apr_mmap_t *mm, apr_off_t start, apr_size_t length);
 
 /**
@@ -677,8 +677,8 @@ API_EXPORT(ap_bucket *) ap_bucket_make_mmap(ap_bucket *b,
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_create_socket(apr_socket_t *thissocket)
  */
-API_EXPORT(ap_bucket *) ap_bucket_create_socket(apr_socket_t *thissock);
-API_EXPORT(ap_bucket *) ap_bucket_make_socket(ap_bucket *b, apr_socket_t *thissock);
+AP_DECLARE(ap_bucket *) ap_bucket_create_socket(apr_socket_t *thissock);
+AP_DECLARE(ap_bucket *) ap_bucket_make_socket(ap_bucket *b, apr_socket_t *thissock);
 
 /**
  * Create a bucket referring to a pipe.
@@ -686,8 +686,8 @@ API_EXPORT(ap_bucket *) ap_bucket_make_socket(ap_bucket *b, apr_socket_t *thisso
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_create_pipe(apr_file_t *thispipe)
  */
-API_EXPORT(ap_bucket *) ap_bucket_create_pipe(apr_file_t *thispipe);
-API_EXPORT(ap_bucket *) ap_bucket_make_pipe(ap_bucket *b, apr_file_t *thispipe);
+AP_DECLARE(ap_bucket *) ap_bucket_create_pipe(apr_file_t *thispipe);
+AP_DECLARE(ap_bucket *) ap_bucket_make_pipe(ap_bucket *b, apr_file_t *thispipe);
 
 /**
  * Create a bucket referring to a file.
@@ -697,8 +697,8 @@ API_EXPORT(ap_bucket *) ap_bucket_make_pipe(ap_bucket *b, apr_file_t *thispipe);
  * @return The new bucket, or NULL if allocation failed
  * @deffunc ap_bucket *ap_bucket_create_file(apr_file_t *thispipe)
  */
-API_EXPORT(ap_bucket *) ap_bucket_create_file(apr_file_t *fd, apr_off_t offset, apr_size_t len);
-API_EXPORT(ap_bucket *) ap_bucket_make_file(ap_bucket *b, apr_file_t *fd, 
+AP_DECLARE(ap_bucket *) ap_bucket_create_file(apr_file_t *fd, apr_off_t offset, apr_size_t len);
+AP_DECLARE(ap_bucket *) ap_bucket_make_file(ap_bucket *b, apr_file_t *fd, 
                                             apr_off_t offset, apr_size_t len);
 
 #endif /* !AP_BUCKETS_H */

@@ -88,7 +88,7 @@ static void heap_destroy(void *data)
     free(h);
 }
 
-API_EXPORT(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
+AP_DECLARE(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
 		const char *buf, apr_size_t length, int copy, apr_ssize_t *w)
 {
     ap_bucket_heap *h;
@@ -135,7 +135,7 @@ API_EXPORT(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
     return b;
 }
 
-API_EXPORT(ap_bucket *) ap_bucket_create_heap(
+AP_DECLARE(ap_bucket *) ap_bucket_create_heap(
 		const char *buf, apr_size_t length, int copy, apr_ssize_t *w)
 {
     ap_bucket_do_create(ap_bucket_make_heap(b, buf, length, copy, w));

@@ -97,7 +97,7 @@ static apr_status_t socket_read(ap_bucket *a, const char **str,
     return APR_SUCCESS;
 }
 
-API_EXPORT(ap_bucket *) ap_bucket_make_socket(ap_bucket *b, apr_socket_t *p)
+AP_DECLARE(ap_bucket *) ap_bucket_make_socket(ap_bucket *b, apr_socket_t *p)
 {
     /*
      * XXX: We rely on a cleanup on some pool or other to actually
@@ -114,7 +114,7 @@ API_EXPORT(ap_bucket *) ap_bucket_make_socket(ap_bucket *b, apr_socket_t *p)
     return b;
 }
 
-API_EXPORT(ap_bucket *) ap_bucket_create_socket(apr_socket_t *p)
+AP_DECLARE(ap_bucket *) ap_bucket_create_socket(apr_socket_t *p)
 {
     ap_bucket_do_create(ap_bucket_make_socket(b, p));
 }

@@ -58,7 +58,7 @@
 
 #include "ap_buckets.h"
 
-API_EXPORT_NONSTD(apr_status_t) ap_bucket_split_shared(ap_bucket *a, apr_off_t point)
+AP_DECLARE_NONSTD(apr_status_t) ap_bucket_split_shared(ap_bucket *a, apr_off_t point)
 {
     ap_bucket *b;
     ap_bucket_shared *ad, *bd;
@@ -95,7 +95,7 @@ API_EXPORT_NONSTD(apr_status_t) ap_bucket_split_shared(ap_bucket *a, apr_off_t p
     return APR_SUCCESS;
 }
 
-API_EXPORT(void *) ap_bucket_destroy_shared(void *data)
+AP_DECLARE(void *) ap_bucket_destroy_shared(void *data)
 {
     ap_bucket_shared *s = data;
     ap_bucket_refcount *r = s->data;
@@ -110,7 +110,7 @@ API_EXPORT(void *) ap_bucket_destroy_shared(void *data)
     }
 }
 
-API_EXPORT(ap_bucket *) ap_bucket_make_shared(ap_bucket *b, void *data,
+AP_DECLARE(ap_bucket *) ap_bucket_make_shared(ap_bucket *b, void *data,
 					      apr_off_t start, apr_off_t end)
 {
     ap_bucket_shared *s;

@@ -64,25 +64,25 @@
 
 static apr_array_header_t *bucket_types;
 
-API_EXPORT(apr_status_t) ap_bucket_destroy(ap_bucket *e)
+AP_DECLARE(apr_status_t) ap_bucket_destroy(ap_bucket *e)
 {
     e->type->destroy(e->data);
     free(e);
     return APR_SUCCESS;
 }
 
-API_EXPORT(apr_status_t) ap_bucket_read(ap_bucket *e, const char **str, 
+AP_DECLARE(apr_status_t) ap_bucket_read(ap_bucket *e, const char **str, 
                                         apr_ssize_t *len, int block)
 {
     return e->type->read(e, str, len, block);
 }
 
-API_EXPORT(apr_status_t) ap_bucket_setaside(ap_bucket *e)
+AP_DECLARE(apr_status_t) ap_bucket_setaside(ap_bucket *e)
 {
     return e->type->setaside(e);
 }
 
-API_EXPORT(apr_status_t) ap_bucket_split(ap_bucket *e, apr_off_t point)
+AP_DECLARE(apr_status_t) ap_bucket_split(ap_bucket *e, apr_off_t point)
 {
     return e->type->split(e, point);
 }
@@ -106,13 +106,13 @@ static apr_status_t ap_brigade_cleanup(void *data)
      */
     return APR_SUCCESS;
 }
-API_EXPORT(apr_status_t) ap_brigade_destroy(ap_bucket_brigade *b)
+AP_DECLARE(apr_status_t) ap_brigade_destroy(ap_bucket_brigade *b)
 {
     apr_kill_cleanup(b->p, b, ap_brigade_cleanup);
     return ap_brigade_cleanup(b);
 }
 
-API_EXPORT(ap_bucket_brigade *) ap_brigade_create(apr_pool_t *p)
+AP_DECLARE(ap_bucket_brigade *) ap_brigade_create(apr_pool_t *p)
 {
     ap_bucket_brigade *b;
 
@@ -124,7 +124,7 @@ API_EXPORT(ap_bucket_brigade *) ap_brigade_create(apr_pool_t *p)
     return b;
 }
 
-API_EXPORT(ap_bucket_brigade *) ap_brigade_split(ap_bucket_brigade *b,
+AP_DECLARE(ap_bucket_brigade *) ap_brigade_split(ap_bucket_brigade *b,
 						 ap_bucket *e)
 {
     ap_bucket_brigade *a;
@@ -142,7 +142,7 @@ API_EXPORT(ap_bucket_brigade *) ap_brigade_split(ap_bucket_brigade *b,
     return a;
 }
 
-API_EXPORT(int) ap_brigade_to_iovec(ap_bucket_brigade *b, 
+AP_DECLARE(int) ap_brigade_to_iovec(ap_bucket_brigade *b, 
 				    struct iovec *vec, int nvec)
 {
     ap_bucket *e;
@@ -160,7 +160,7 @@ API_EXPORT(int) ap_brigade_to_iovec(ap_bucket_brigade *b,
     return vec - orig;
 }
 
-API_EXPORT(int) ap_brigade_vputstrs(ap_bucket_brigade *b, va_list va)
+AP_DECLARE(int) ap_brigade_vputstrs(ap_bucket_brigade *b, va_list va)
 {
     ap_bucket *r;
     const char *x;
@@ -187,7 +187,7 @@ API_EXPORT(int) ap_brigade_vputstrs(ap_bucket_brigade *b, va_list va)
     return k;
 }
 
-API_EXPORT_NONSTD(int) ap_brigade_putstrs(ap_bucket_brigade *b, ...)
+AP_DECLARE_NONSTD(int) ap_brigade_putstrs(ap_bucket_brigade *b, ...)
 {
     va_list va;
     int written;
@@ -198,7 +198,7 @@ API_EXPORT_NONSTD(int) ap_brigade_putstrs(ap_bucket_brigade *b, ...)
     return written;
 }
 
-API_EXPORT_NONSTD(int) ap_brigade_printf(ap_bucket_brigade *b, const char *fmt, ...)
+AP_DECLARE_NONSTD(int) ap_brigade_printf(ap_bucket_brigade *b, const char *fmt, ...)
 {
     va_list ap;
     int res;
@@ -209,7 +209,7 @@ API_EXPORT_NONSTD(int) ap_brigade_printf(ap_bucket_brigade *b, const char *fmt, 
     return res;
 }
 
-API_EXPORT(int) ap_brigade_vprintf(ap_bucket_brigade *b, const char *fmt, va_list va)
+AP_DECLARE(int) ap_brigade_vprintf(ap_bucket_brigade *b, const char *fmt, va_list va)
 {
     /* XXX:  This needs to be replaced with a function to printf
      * directly into a bucket.  I'm being lazy right now.  RBB
@@ -250,17 +250,17 @@ int ap_insert_bucket_type(const ap_bucket_type *type)
     return bucket_types->nelts - 1;
 }
 
-API_EXPORT(apr_status_t) ap_bucket_setaside_notimpl(ap_bucket *data)
+AP_DECLARE(apr_status_t) ap_bucket_setaside_notimpl(ap_bucket *data)
 {
     return APR_ENOTIMPL;
 }
 
-API_EXPORT(apr_status_t) ap_bucket_split_notimpl(ap_bucket *data, apr_off_t point)
+AP_DECLARE(apr_status_t) ap_bucket_split_notimpl(ap_bucket *data, apr_off_t point)
 {
     return APR_ENOTIMPL;
 }
 
-API_EXPORT(void) ap_bucket_destroy_notimpl(void *data)
+AP_DECLARE(void) ap_bucket_destroy_notimpl(void *data)
 {
     return;
 }
