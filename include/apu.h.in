@@ -55,6 +55,18 @@
 /*
  * apu.h is generated from apu.h.in by configure -- do not edit apu.h
  */
+/* 
+ * Note: This is a Windows specific version of apu.h. It is renamed to
+ * apu.h at the start of a Windows build.
+ */
+/* @file apu.h
+ * @brief APR-Utility main file
+ */
+/**
+ * @defgroup APR_Util APR Utility Functions
+ * @{
+ */
+
 
 #ifndef APU_H
 #define APU_H
@@ -98,3 +110,4 @@
 #define APU_DECLARE_DATA
 
 #endif /* APU_H */
+/** @} */

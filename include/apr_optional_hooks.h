@@ -51,6 +51,11 @@
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  */
+/**
+ * @file apr_optional_hooks.h
+ * @brief Apache optional hook functions
+ */
+
 
 #ifndef APR_OPTIONAL_HOOK_H
 #define APR_OPTIONAL_HOOK_H
@@ -60,12 +65,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/**
- * @file apr_optional_hooks.h
- * @brief Apache optional hook functions
+/** 
+ * @defgroup APR_Util_OPT_HOOK Optional Hook Functions
+ * @ingroup APR_Util_Hook
+ * @{
  */
-
 /**
  * Function to implemnt the APR_OPTIONAL_HOOK Macro
  * @internal
@@ -138,6 +142,7 @@ link##_DECLARE(ret) ns##_run_##name args_decl \
     return ok; \
     }
 
+/** @} */
 #ifdef __cplusplus
 }
 #endif
