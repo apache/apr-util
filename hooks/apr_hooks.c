@@ -131,7 +131,9 @@ static TSort *prepare(apr_pool_t *p,TSortData *pItems,int nItems)
    changing that behaviour might compromise some of Apache's behaviour (in
    particular, mod_log_forensic might otherwise get pushed to the end, and
    core.c's log open function used to end up at the end when pushing items
-   to the back was the methedology).
+   to the back was the methedology). Also note that the algorithm could
+   go back to its original simplicity by sorting from the back instead of
+   the front.
 */
 static TSort *tsort(TSort *pData,int nItems)
 {
