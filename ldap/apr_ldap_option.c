@@ -20,11 +20,12 @@
  *
  */
 
-#include <apu.h>
-#include <apr_ldap.h>
-#include <apr_errno.h>
-#include <apr_pools.h>
-#include <apr_strings.h>
+#include "apr.h"
+#include "apu.h"
+#include "apr_ldap.h"
+#include "apr_errno.h"
+#include "apr_pools.h"
+#include "apr_strings.h"
 
 #if APR_HAS_LDAP
 
