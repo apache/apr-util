@@ -176,7 +176,7 @@ API_EXPORT_NONSTD(int) ap_brigade_putstrs(ap_bucket_brigade *b, ...)
     return written;
 }
 
-API_EXPORT(int) ap_brigade_printf(ap_bucket_brigade *b, const char *fmt, ...)
+API_EXPORT_NONSTD(int) ap_brigade_printf(ap_bucket_brigade *b, const char *fmt, ...)
 {
     va_list ap;
     int res;
