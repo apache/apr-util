@@ -316,16 +316,21 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
  * @param e The first bucket in a list of buckets to insert
  * @deffunc void APR_BRIGADE_INSERT_HEAD(apr_bucket_brigade *b, apr_bucket *e)
  */
-#define APR_BRIGADE_INSERT_HEAD(b, e)					\
-	APR_RING_INSERT_HEAD(&(b)->list, (e), apr_bucket, link)
+#define APR_BRIGADE_INSERT_HEAD(b, e) do {				\
+	apr_bucket *ap__b = (e);                                        \
+	APR_RING_INSERT_HEAD(&(b)->list, ap__b, apr_bucket, link);	\
+    } while (0)
+
 /**
  * Insert a list of buckets at the end of a brigade
  * @param b The brigade to add to
  * @param e The first bucket in a list of buckets to insert
  * @deffunc void APR_BRIGADE_INSERT_HEAD(apr_bucket_brigade *b, apr_bucket *e)
  */
-#define APR_BRIGADE_INSERT_TAIL(b, e)					\
-	APR_RING_INSERT_TAIL(&(b)->list, (e), apr_bucket, link)
+#define APR_BRIGADE_INSERT_TAIL(b, e) do {				\
+	apr_bucket *ap__b = (e);					\
+	APR_RING_INSERT_TAIL(&(b)->list, ap__b, apr_bucket, link);	\
+    } while (0)
 
 /**
  * Concatenate two brigades together
@@ -342,16 +347,21 @@ typedef apr_status_t (*apr_brigade_flush)(apr_bucket_brigade *bb, void *ctx);
  * @param b The bucket to insert before
  * @deffunc void APR_BUCKET_INSERT_BEFORE(apr_bucket *a, apr_bucket *b)
  */
-#define APR_BUCKET_INSERT_BEFORE(a, b)					\
-	APR_RING_INSERT_BEFORE((a), (b), link)
+#define APR_BUCKET_INSERT_BEFORE(a, b) do {				\
+	apr_bucket *ap__a = (a), *ap__b = (b);				\
+	APR_RING_INSERT_BEFORE(ap__a, ap__b, link);			\
+    } while (0)
+
 /**
  * Insert a list of buckets after a specified bucket
  * @param a The buckets to insert
  * @param b The bucket to insert after
  * @deffunc void APR_BUCKET_INSERT_AFTER(apr_bucket *a, apr_bucket *b)
  */
-#define APR_BUCKET_INSERT_AFTER(a, b)					\
-	APR_RING_INSERT_AFTER((a), (b), link)
+#define APR_BUCKET_INSERT_AFTER(a, b) do {				\
+	apr_bucket *ap__a = (a), *ap__b = (b);				\
+	APR_RING_INSERT_AFTER(ap__a, ap__b, link);			\
+    } while (0)
 
 /**
  * Get the next bucket in the list
