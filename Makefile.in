@@ -3,7 +3,7 @@
 #
 CPP = @CPP@
 
-INCLUDES=-I./include -I../include -I@APR_SOURCE_DIR@/include
+INCLUDES=-I./include -I$(srcdir)/include @APR_INCLUDES@
 
 TARGET_LIB = libaprutil.la
 INSTALL_SUBDIRS = @APR_XML_DIR@
