@@ -1,5 +1,9 @@
 Changes with APR-util 1.1.0
 
+  *) Rework the LDAP toolkit detection to be more accurate than "OpenLDAP
+     detected regardless", while remaining backwards compatible with v1.0.
+     [Graham Leggett]
+
   *) Fix the detection of ldap.h on Solaris - it needs lber.h to be
      defined first. [Graham Leggett]
 
