@@ -410,7 +410,7 @@ APU_DECLARE(apr_status_t) apr_brigade_write(apr_bucket_brigade *b,
     if (!APR_BRIGADE_EMPTY(b) && APR_BUCKET_IS_HEAP(e)) {
         apr_bucket_heap *h = e->data;
 
-        remaining = h->alloc_len - e->length;
+        remaining = h->alloc_len - (e->length + e->start);
         buf = h->base + e->start + e->length;
     }
 
