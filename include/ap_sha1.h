@@ -131,7 +131,7 @@ APU_DECLARE(void) ap_SHA1Init(AP_SHA1_CTX *context);
  * @deffunc void ap_SHA1Update(AP_SHA1_CTX *context, const char *input, unsigned int inputLen)
  */
 APU_DECLARE(void) ap_SHA1Update(AP_SHA1_CTX *context, const char *input,
-                              unsigned int inputLen);
+                                unsigned int inputLen);
 
 /**
  * Update the SHA digest with binary data
@@ -141,8 +141,8 @@ APU_DECLARE(void) ap_SHA1Update(AP_SHA1_CTX *context, const char *input,
  * @deffunc void ap_SHA1Update_binary(AP_SHA1_CTX *context, const unsigned char *input, unsigned int inputLen)
  */
 APU_DECLARE(void) ap_SHA1Update_binary(AP_SHA1_CTX *context,
-                                     const unsigned char *input,
-                                     unsigned int inputLen);
+                                       const unsigned char *input,
+                                       unsigned int inputLen);
 
 /**
  * Finish computing the SHA digest
@@ -151,7 +151,7 @@ APU_DECLARE(void) ap_SHA1Update_binary(AP_SHA1_CTX *context,
  * @deffunc void ap_SHA1Final(unsigned char digest[SHA_DIGESTSIZE], AP_SHA1_CTX *context)
  */
 APU_DECLARE(void) ap_SHA1Final(unsigned char digest[SHA_DIGESTSIZE],
-                             AP_SHA1_CTX *context);
+                               AP_SHA1_CTX *context);
 
 #ifdef __cplusplus
 }
