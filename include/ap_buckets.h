@@ -586,7 +586,7 @@ API_EXPORT(ap_bucket *) ap_bucket_make_transient(ap_bucket *b,
  * @param w The number of bytes actually copied into the bucket.
  *          If copy is zero then this return value can be ignored by passing a NULL pointer.
  * @return The new bucket, or NULL if allocation failed
- * @deffunc ap_bucket *ap_bucket_create_heap(const char *buf, apr_size_t nbyte, apr_ssize_t *w)
+ * @deffunc ap_bucket *ap_bucket_create_heap(const char *buf, apr_size_t nbyte, int copy, apr_ssize_t *w)
  */
 API_EXPORT(ap_bucket *) ap_bucket_create_heap(
 		const char *buf, apr_size_t nbyte, int copy, apr_ssize_t *w);
