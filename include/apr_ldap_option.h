@@ -33,39 +33,112 @@
 /*
  * The following defines handle the different TLS certificate
  * options available. If these options are missing, APR will try and
- * emulate support for this using the derecated ldap_start_tls_s()
+ * emulate support for this using the deprecated ldap_start_tls_s()
  * function.
  */
-#ifdef LDAP_OPT_X_TLS_NEVER
-#define APR_LDAP_OPT_TLS_NEVER LDAP_OPT_X_TLS_NEVER
-#else
-#define APR_LDAP_OPT_TLS_NEVER 0
-#endif
+#define APR_LDAP_OPT_TLS 0x6fff
+#define APR_LDAP_OPT_TLS_CERT 0x6ffe
 
-#ifdef LDAP_OPT_X_TLS_HARD
-#define APR_LDAP_OPT_TLS_HARD LDAP_OPT_X_TLS_HARD
-#else
-#define APR_LDAP_OPT_TLS_HARD 1
-#endif
+/**
+ * Structures for the apr_set_option() cases
+ */
 
-#ifdef LDAP_OPT_X_TLS_DEMAND
-#define APR_LDAP_OPT_TLS_DEMAND LDAP_OPT_X_TLS_DEMAND
-#else
-#define APR_LDAP_OPT_TLS_DEMAND 2
-#endif
+/**
+ * APR_LDAP_OPT_TLS_CERT
+ *
+ * This structure includes possible options to set certificates on
+ * system initialisation. Different SDKs have different certificate
+ * requirements, and to achieve this multiple certificates must be
+ * specified at once.
+ *
+ * Netscape:
+ * Needs the CA cert database (cert7.db), the client cert database (key3.db)
+ * and the security module file (secmod.db) set at the system initialisation
+ * time. Three types are supported: APR_LDAP_CERT7_DB, APR_LDAP_KEY3_DB and
+ * APR_LDAP_SECMOD.
+ *
+ * To specify a client cert connection, a certificate nickname needs to be
+ * provided with a type of APR_LDAP_CERT.
+ * int ldapssl_enable_clientauth( LDAP *ld, char *keynickname,
+ * char *keypasswd, char *certnickname );
+ * keynickname is currently not used, and should be set to ""
+ *
+ * Novell:
+ * Needs CA certificates and client certificates set at system initialisation
+ * time. Three types are supported: APR_LDAP_CA*, APR_LDAP_CERT* and
+ * APR_LDAP_KEY*.
+ *
+ * Certificates cannot be specified per connection.
+ *
+ * The functions used are:
+ * ldapssl_add_trusted_cert(serverTrustedRoot, serverTrustedRootEncoding);
+ * Clients certs and keys are set at system initialisation time with
+ * int ldapssl_set_client_cert (
+ *  void   *cert,
+ *  int     type
+ *  void   *password); 
+ * type can be LDAPSSL_CERT_FILETYPE_B64 or LDAPSSL_CERT_FILETYPE_DER
+ *  ldapssl_set_client_private_key(clientPrivateKey,
+ *                                 clientPrivateKeyEncoding,
+ *                                 clientPrivateKeyPassword);
+ *
+ * OpenSSL:
+ * Needs one or more CA certificates to be set at system initialisation time
+ * with a type of APR_LDAP_CA*.
+ *
+ * May have one or more client certificates set per connection with a type of
+ * APR_LDAP_CERT*, and keys with APR_LDAP_KEY*.
+ */
+#define APR_LDAP_CA_TYPE_UNKNOWN  0
+#define APR_LDAP_CA_TYPE_DER      1
+#define APR_LDAP_CA_TYPE_BASE64   2
+#define APR_LDAP_CA_TYPE_CERT7_DB 3
+#define APR_LDAP_CA_TYPE_SECMOD 4
+#define APR_LDAP_CERT_TYPE_UNKNOWN 5
+#define APR_LDAP_CERT_TYPE_DER 6
+#define APR_LDAP_CERT_TYPE_BASE64 7
+#define APR_LDAP_CERT_TYPE_KEY3_DB 8
+#define APR_LDAP_KEY_TYPE_UNKNOWN 9
+#define APR_LDAP_KEY_TYPE_DER 10
+#define APR_LDAP_KEY_TYPE_BASE64 11
 
-#ifdef LDAP_OPT_X_TLS_ALLOW
-#define APR_LDAP_OPT_TLS_ALLOW LDAP_OPT_X_TLS_ALLOW
-#else
-#define APR_LDAP_OPT_TLS_ALLOW 3
-#endif
+typedef struct apr_ldap_opt_tls_cert_t apr_ldap_opt_tls_cert_t;
+struct apr_ldap_opt_tls_cert_t {
+    int type;
+    const char *path;
+    const char *password;
+    apr_ldap_opt_tls_cert_t *next;
+};
 
-#ifdef LDAP_OPT_X_TLS_TRY
-#define APR_LDAP_OPT_TLS_TRY LDAP_OPT_X_TLS_TRY
-#else
-#define APR_LDAP_OPT_TLS_TRY 4
-#endif
-
+/**
+ * APR_LDAP_OPT_TLS
+ *
+ * This sets the SSL level on the LDAP handle.
+ *
+ * Netscape/Mozilla:
+ * Supports SSL, but not STARTTLS
+ * SSL is enabled by calling ldapssl_install_routines().
+ *
+ * Novell:
+ * Supports SSL and STARTTLS.
+ * SSL is enabled by calling ldapssl_install_routines(). Note that calling
+ * other ldap functions before ldapssl_install_routines() may cause this
+ * function to fail.
+ * STARTTLS is enabled by calling ldapssl_start_tls_s() after calling
+ * ldapssl_install_routines() (check this).
+ *
+ * OpenLDAP:
+ * Supports SSL and apparently supports STARTTLS
+ * Currently it is not clear whether OpenLDAP can support SSL, apparently it
+ * can.
+ * Support for STARTTLS is also unconfirmed - ldap_start_tls_s() has been
+ * deprecated, but no replacement method or function has been defined. Even the
+ * OpenLDAP source code is uncommented and yields no clues...
+ */
+#define APR_LDAP_NONE 0
+#define APR_LDAP_SSL 1
+#define APR_LDAP_STARTTLS 2
+#define APR_LDAP_STOPTLS 3
 
 /**
  * APR LDAP get option function
