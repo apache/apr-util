@@ -256,20 +256,25 @@ APU_DECLARE(apr_status_t) apr_brigade_flatten(apr_bucket_brigade *bb,
     return APR_SUCCESS;
 }
 
-APU_DECLARE(char *) apr_brigade_pflatten(apr_bucket_brigade *bb,
-                                         apr_pool_t *pool)
+APU_DECLARE(apr_status_t) apr_brigade_pflatten(apr_bucket_brigade *bb,
+                                               char **c,
+                                               apr_off_t *len,
+                                               apr_pool_t *pool)
 {
-    apr_off_t tmp, actual;
-    char *c;
+    apr_off_t total;
+    apr_status_t rv;
 
-    apr_brigade_length(bb, 1, &tmp);
-    actual = tmp;
+    apr_brigade_length(bb, 1, &total);
     
-    c = apr_palloc(pool, actual + 1);
+    *c = apr_palloc(pool, total);
     
-    apr_brigade_flatten(bb, c, &actual);
-    c[actual] = '\0';
+    rv = apr_brigade_flatten(bb, *c, &total);
 
+    if (rv != APR_SUCCESS) {
+        return rv;
+    }
+
+    *len = total;
     return APR_SUCCESS;
 }
 

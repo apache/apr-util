@@ -700,13 +700,16 @@ APU_DECLARE(apr_status_t) apr_brigade_flatten(apr_bucket_brigade *bb,
                                               apr_off_t *len);
 
 /**
- * Returns a pool-allocated string representing a flat bucket brigade
+ * Creates a pool-allocated string representing a flat bucket brigade
  * @param bb The bucket brigade to create the iovec from
+ * @param c On return, the allocated char array
+ * @param len On return, the length of the char array.
  * @param p The pool to allocate the string from.
- * Note: This string is NULL-terminated.
  */
-APU_DECLARE(char *) apr_brigade_pflatten(apr_bucket_brigade *bb, 
-                                         apr_pool_t *pool);
+APU_DECLARE(apr_status_t) apr_brigade_pflatten(apr_bucket_brigade *bb, 
+                                               char **c,
+                                               apr_off_t *len,
+                                               apr_pool_t *pool);
 
 /**
  * Split a brigade to represent one LF line.
