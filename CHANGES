@@ -1,4 +1,7 @@
 Changes with APR-util b1  
+  *) Rename field "private" in struct apr_xml_elem to "priv" for C++
+     compatibility.  PR #7727  [Joshua MacDonald <jmacd@cs.berkeley.edu>]
+
   *) Make APR_IMPLEMENT_EXTERNAL_HOOK_BASE generate a 
      ${namespace}_hook_get_${hookname} function to fetch the
      list of registered hooks [Doug MacEachern]
