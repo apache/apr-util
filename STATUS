@@ -1,5 +1,5 @@
 APRUTIL LIBRARY STATUS:						-*-text-*-
-Last modified at [$Date: 2001/11/23 13:53:11 $]
+Last modified at [$Date: 2001/11/29 10:25:27 $]
 
 Release:
     2.0a9   : released December 12, 2000
@@ -21,6 +21,12 @@ RELEASE SHOWSTOPPERS:
       script at the hackathon. 
 
 RELEASE NON-SHOWSTOPPERS BUT WOULD BE REAL NICE TO WRAP THESE UP:
+
+    * Try doing --with-dbm=db2 when you have db3 available.  No go.
+      Justin says:  We'll probably need to add logic to check first
+                    in db2/db.h when we want db2 and db3/db.h for db3.
+                    Only fallback to db.h when the above don't exist
+                    in the include path.
 
 
 Other bugs that need fixing:
