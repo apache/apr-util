@@ -110,10 +110,6 @@ static apr_status_t pipe_read(apr_bucket *a, const char **str,
         *str = a->data;
         if (rv == APR_EOF) {
             apr_file_close(p);
-            if (block == APR_NONBLOCK_READ) {
-                /* XXX: this is bogus, should return APR_SUCCESS */
-                return APR_EOF;
-            }
         }
     }
     return APR_SUCCESS;
