@@ -1,4 +1,5 @@
 .libs
+.deps
 Makefile
 aclocal.m4
 config.cache
