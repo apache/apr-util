@@ -1,5 +1,7 @@
 Makefile
 *.lo
+*.plg
+Debug
 *.la
 .libs
 testdbm
