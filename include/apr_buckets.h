@@ -757,16 +757,33 @@ APU_DECLARE(int) apr_brigade_vprintf(apr_bucket_brigade *b,
 APU_DECLARE(void) apr_bucket_init_types(apr_pool_t *p);
 
 /**
- * free the resources used by a bucket. If multiple buckets refer to
+ * Free the resources used by a bucket. If multiple buckets refer to
  * the same resource it is freed when the last one goes away.
+ * @see apr_bucket_delete()
  * @param e The bucket to destroy
  * @deffunc void apr_bucket_destroy(apr_bucket *e)
  */
-#define apr_bucket_destroy(e) \
-    { \
-    e->type->destroy(e->data); \
-    free(e); \
-    }
+#define apr_bucket_destroy(e) do {					\
+        e->type->destroy(e->data);					\
+        free(e);							\
+    } while (0)
+
+/**
+ * Delete a bucket by removing it from its brigade (if any) and then
+ * destroying it.
+ * @tip This mainly acts as an aid in avoiding code verbosity.  It is
+ * the preferred exact equivalent to:
+ * <pre>
+ *      APR_BUCKET_REMOVE(e);
+ *      apr_bucket_destroy(e);
+ * </pre>
+ * @param e The bucket to delete
+ * @deffunc void apr_bucket_delete(apr_bucket *e)
+ */
+#define apr_bucket_delete(e) do {					\
+        APR_BUCKET_REMOVE(e);						\
+        apr_bucket_destroy(e);						\
+    } while (0)
 
 /**
  * read the data from the bucket
