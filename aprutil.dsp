@@ -135,6 +135,10 @@ SOURCE=.\src\buckets\ap_buckets_socket.c
 # Begin Group "crypto"
 
 # PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\src\crypto\ap_sha1.c
+# End Source File
 # End Group
 # Begin Group "dbm"
 
@@ -146,10 +150,6 @@ SOURCE=.\src\buckets\ap_buckets_socket.c
 # Begin Source File
 
 SOURCE=.\src\encoding\ap_base64.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\encoding\ap_sha1.c
 # End Source File
 # End Group
 # Begin Group "hooks"
