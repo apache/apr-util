@@ -75,7 +75,11 @@ AC_DEFUN(APU_CHECK_BERKELEY_DB, [
       ;;
     esac
 
-    AC_MSG_NOTICE([checking for Berkeley DB $bdb_version in $description])
+    # Since there is no AC_MSG_NOTICE in autoconf 2.13, we use this
+    # trick to display a message instead.
+    AC_MSG_CHECKING([checking for Berkeley DB $bdb_version in $description])
+    AC_MSG_RESULT()
+
     for bdb_libname in $bdb_default_search_lib_names; do
       for bdb_header in $bdb_default_search_headers; do
         # Clear the header cache variable for each location
