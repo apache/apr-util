@@ -101,14 +101,22 @@ extern "C" {
 #define APR_URI_TIP_DEFAULT_PORT       3372
 #define APR_URI_SIP_DEFAULT_PORT       5060
 
-/* Flags passed to unparse_uri_components(): */
-#define APR_URI_UNP_OMITSITEPART	(1U<<0)	/* suppress "scheme://user@site:port" */
-#define	APR_URI_UNP_OMITUSER		(1U<<1)	/* Just omit user */
-#define	APR_URI_UNP_OMITPASSWORD	(1U<<2)	/* Just omit password */
-#define	APR_URI_UNP_OMITUSERINFO	(APR_URI_UNP_OMITUSER|APR_URI_UNP_OMITPASSWORD)	/* omit "user:password@" part */
-#define	APR_URI_UNP_REVEALPASSWORD	(1U<<3)	/* Show plain text password (default: show XXXXXXXX) */
-#define APR_URI_UNP_OMITPATHINFO	(1U<<4)	/* Show "scheme://user@site:port" only */
-#define APR_URI_UNP_OMITQUERY	        (1U<<5)	/* Omit the "?queryarg" from the path */
+/** Flags passed to unparse_uri_components(): */
+/** suppress "scheme://user@site:port" */
+#define APR_URI_UNP_OMITSITEPART    (1U<<0)
+/** Just omit user */
+#define APR_URI_UNP_OMITUSER        (1U<<1)
+/** Just omit password */
+#define APR_URI_UNP_OMITPASSWORD    (1U<<2)
+/** omit "user:password@" part */
+#define APR_URI_UNP_OMITUSERINFO    (APR_URI_UNP_OMITUSER | \
+                                     APR_URI_UNP_OMITPASSWORD)
+/** Show plain text password (default: show XXXXXXXX) */
+#define APR_URI_UNP_REVEALPASSWORD  (1U<<3)
+/** Show "scheme://user@site:port" only */
+#define APR_URI_UNP_OMITPATHINFO    (1U<<4)
+/** Omit the "?queryarg" from the path */
+#define APR_URI_UNP_OMITQUERY       (1U<<5)
 
 typedef struct apr_uri_t apr_uri_t;
 
@@ -178,8 +186,8 @@ APU_DECLARE(apr_port_t) apr_uri_default_port_for_scheme(const char *scheme_str);
  * @return The uri as a string
  */
 APU_DECLARE(char *) apr_uri_unparse(apr_pool_t *p, 
-                                               const apr_uri_t *uptr,
-                                               unsigned flags);
+                                    const apr_uri_t *uptr,
+                                    unsigned flags);
 
 /**
  * Parse a given URI, fill in all supplied fields of a apr_uri_t
@@ -191,7 +199,7 @@ APU_DECLARE(char *) apr_uri_unparse(apr_pool_t *p,
  * @return An HTTP status code
  */
 APU_DECLARE(int) apr_uri_parse(apr_pool_t *p, const char *uri, 
-                                          apr_uri_t *uptr);
+                               apr_uri_t *uptr);
 
 /**
  * Special case for CONNECT parsing: it comes with the hostinfo part only
@@ -201,12 +209,12 @@ APU_DECLARE(int) apr_uri_parse(apr_pool_t *p, const char *uri,
  * @return An HTTP status code
  */
 APU_DECLARE(int) apr_uri_parse_hostinfo(apr_pool_t *p, 
-                                                   const char *hostinfo, 
-                                                   apr_uri_t *uptr);
+                                        const char *hostinfo, 
+                                        apr_uri_t *uptr);
 
 /** @} */
 #ifdef __cplusplus
 }
 #endif
 
-#endif /*APR_URI_H*/
+#endif /* APR_URI_H */
