@@ -81,6 +81,42 @@ Package=<4>
 
 ###############################################################################
 
+Project: "libapriconv_ccs_modules"="..\apr-iconv\ccs\libapriconv_ccs_modules.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libapr
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libapriconv
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "libapriconv_ces_modules"="..\apr-iconv\ces\libapriconv_ces_modules.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libapr
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libapriconv
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "libaprutil"=".\libaprutil.dsp" - Package Owner=<4>
 
 Package=<5>
