@@ -32,7 +32,7 @@ DISTCLEAN_TARGETS = config.cache config.log config.status libtool \
 	include/private/apu_select_dbm.h include/apr_ldap.h include/apu.h \
 	export_vars.sh apu-config build/rules.mk include/apu_want.h
 EXTRACLEAN_TARGETS = configure aclocal.m4 include/private/apu_config.h.in \
-	exports.c export_vars.h uri/uri_delims.h build-outputs.mk \
+	exports.c export_vars.h build-outputs.mk \
 	build/apr_common.m4 build/find_apr.m4 build/install.sh \
 	build/config.guess build/config.sub
 

@@ -59,13 +59,6 @@ else
 fi
 
 #
-# Generate the URI delimiter table
-#
-### this is so stupidly static, that I'm not sure why we generate it...
-echo "Generating uri_delims.h ..."
-build/gen-uri-delims.py > uri/uri_delims.h
-
-#
 # Generate build-outputs.mk for the build systme
 #
 echo "Generating 'make' outputs ..."
