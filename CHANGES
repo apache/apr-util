@@ -1,5 +1,8 @@
 Changes with APR-util 1.1.0
 
+  *) Fix the detection of ldap.h on Solaris - it needs lber.h to be
+     defined first. [Graham Leggett]
+
   *) Add a build script to create a solaris package. [Graham Leggett]
   
   *) Added the apr_ldap_ssl_add_cert() API to allow multiple certificates

@@ -275,8 +275,12 @@ dnl The iPlanet C SDK 5.0 is as yet untested...
     test ${apu_has_ldap} != "1" && AC_MSG_ERROR(could not find an LDAP library)
     AC_CHECK_LIB(lber, ber_init)
 
-    AC_CHECK_HEADERS(ldap.h, ldap_h=["#include <ldap.h>"])
     AC_CHECK_HEADERS(lber.h, lber_h=["#include <lber.h>"])
+    AC_CHECK_HEADERS(ldap.h, ldap_h=["#include <ldap.h>"], [],
+[#if HAVE_LBER_H
+# include <lber.h>
+# endif
+])
     AC_CHECK_HEADERS(ldap_ssl.h, ldap_ssl_h=["#include <ldap_ssl.h>"])
 
     CPPFLAGS=$save_cppflags
