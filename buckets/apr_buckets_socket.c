@@ -112,7 +112,7 @@ static apr_status_t socket_read(ap_bucket *a, const char **str,
     return APR_SUCCESS;
 }
 
-APR_DECLARE(ap_bucket *) ap_bucket_make_socket(ap_bucket *b, apr_socket_t *p)
+APU_DECLARE(ap_bucket *) ap_bucket_make_socket(ap_bucket *b, apr_socket_t *p)
 {
     /*
      * XXX: We rely on a cleanup on some pool or other to actually
@@ -129,12 +129,12 @@ APR_DECLARE(ap_bucket *) ap_bucket_make_socket(ap_bucket *b, apr_socket_t *p)
     return b;
 }
 
-APR_DECLARE(ap_bucket *) ap_bucket_create_socket(apr_socket_t *p)
+APU_DECLARE(ap_bucket *) ap_bucket_create_socket(apr_socket_t *p)
 {
     ap_bucket_do_create(ap_bucket_make_socket(b, p));
 }
 
-APR_DECLARE_DATA const ap_bucket_type ap_socket_type = {
+APU_DECLARE_DATA const ap_bucket_type ap_socket_type = {
     "SOCKET", 5,
     ap_bucket_destroy_notimpl,
     socket_read,

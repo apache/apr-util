@@ -66,9 +66,9 @@
 #define apr_palloc(pool,size)	malloc(size)
 #endif
 
-APR_DECLARE_DATA apr_pool_t *ap_global_hook_pool = NULL;
-APR_DECLARE_DATA int ap_debug_module_hooks = 0;
-APR_DECLARE_DATA const char *ap_debug_module_name = NULL;
+APU_DECLARE_DATA apr_pool_t *ap_global_hook_pool = NULL;
+APU_DECLARE_DATA int ap_debug_module_hooks = 0;
+APU_DECLARE_DATA const char *ap_debug_module_name = NULL;
 
 /* NB: This must echo the LINK_##name structure */
 typedef struct
@@ -208,7 +208,7 @@ typedef struct
     apr_array_header_t **paHooks;
 } HookSortEntry;
 
-APR_DECLARE(void) ap_hook_sort_register(const char *szHookName,
+APU_DECLARE(void) ap_hook_sort_register(const char *szHookName,
                                       apr_array_header_t **paHooks)
 {
     HookSortEntry *pEntry;
@@ -220,7 +220,7 @@ APR_DECLARE(void) ap_hook_sort_register(const char *szHookName,
     pEntry->paHooks=paHooks;
 }
 
-APR_DECLARE(void) ap_sort_hooks()
+APU_DECLARE(void) ap_sort_hooks()
 {
     int n;
 
@@ -230,7 +230,7 @@ APR_DECLARE(void) ap_sort_hooks()
     }
 }
     
-APR_DECLARE(void) ap_hook_deregister_all(void)
+APU_DECLARE(void) ap_hook_deregister_all(void)
 {
     int n;    
 
@@ -241,7 +241,7 @@ APR_DECLARE(void) ap_hook_deregister_all(void)
     s_aHooksToSort=NULL;
 }
 
-APR_DECLARE(void) ap_show_hook(const char *szName,const char * const *aszPre,
+APU_DECLARE(void) ap_show_hook(const char *szName,const char * const *aszPre,
 		             const char * const *aszSucc)
 {
     int nFirst;
