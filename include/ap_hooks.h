@@ -76,9 +76,6 @@ typedef struct _LINK_##name \
     int nOrder; \
     } LINK_##name;
 
-#define AP_DECLARE_HOOK(ret,name,args) \
-AP_DECLARE_EXTERNAL_HOOK(AP,ret,name,args)
-
 #define AP_HOOK_STRUCT(members) \
 static struct { members } _hooks;
 
@@ -105,14 +102,18 @@ link##_DECLARE(void) ap_hook_##name(HOOK_##name *pf,const char * const *aszPre, 
 	ap_show_hook(#name,aszPre,aszSucc); \
     }
 
-#define AP_IMPLEMENT_HOOK_BASE(name) \
-AP_IMPLEMENT_EXTERNAL_HOOK_BASE(AP,name)
-
-/* RUN_ALL runs to the first one to return other than ok or decline
-   RUN_FIRST runs to the first one to return other than decline
-   VOID runs all
-*/
-
+/**
+ * Implement a hook that has no return code, and therefore runs all of the
+ * registered functions
+ * @param link The linkage declaration prefix of the hook
+ * @param name The name of the hook
+ * @param args_decl The declaration of the arguments for the hook
+ * @param args_used The names for the arguments for the hook
+ * @deffunc void AP_IMPLEMENT_EXTERNAL_HOOK_VOID(link, name, args_decl, args_use)
+ * @tip The link prefix FOO corresponds to FOO_DECLARE() macros, which
+ * provide export linkage from the module that IMPLEMENTs the hook, and
+ * import linkage from external modules that link to the hook's module.
+ */
 #define AP_IMPLEMENT_EXTERNAL_HOOK_VOID(link,name,args_decl,args_use) \
 AP_IMPLEMENT_EXTERNAL_HOOK_BASE(link,name) \
 link##_DECLARE(void) ap_run_##name args_decl \
@@ -128,27 +129,20 @@ link##_DECLARE(void) ap_run_##name args_decl \
 	pHook[n].pFunc args_use; \
     }
 
-/**
- * Implement a hook that has no return code, and therefore runs all of the
- * registered functions
- * @param name The name of the hook
- * @param args_decl The declaration of the arguments for the hook
- * @param args_used The names for the arguments for the hook
- * @deffunc void AP_IMPLEMENT_VOID(name, args_decl, args_use)
- */
-#define AP_IMPLEMENT_HOOK_VOID(name,args_decl,args_use) \
-AP_IMPLEMENT_EXTERNAL_HOOK_VOID(AP,name,args_decl,args_use)
-
 /* FIXME: note that this returns ok when nothing is run. I suspect it should
    really return decline, but that breaks Apache currently - Ben
 */
 /**
  * Implement a hook that runs until one of the functions returns something
  * other than OK or DECLINE
+ * @param link The linkage declaration prefix of the hook
  * @param name The name of the hook
  * @param args_decl The declaration of the arguments for the hook
  * @param args_used The names for the arguments for the hook
- * @deffunc int AP_IMPLEMENT_ALL(name, args_decl, args_use)
+ * @deffunc int AP_IMPLEMENT_EXTERNAL_HOOK_RUN_ALL(link, name, args_decl, args_use)
+ * @tip The link prefix FOO corresponds to FOO_DECLARE() macros, which
+ * provide export linkage from the module that IMPLEMENTs the hook, and
+ * import linkage from external modules that link to the hook's module.
  */
 #define AP_IMPLEMENT_EXTERNAL_HOOK_RUN_ALL(link,ret,name,args_decl,args_use,ok,decline) \
 AP_IMPLEMENT_EXTERNAL_HOOK_BASE(link,name) \
@@ -172,16 +166,18 @@ link##_DECLARE(ret) ap_run_##name args_decl \
     return ok; \
     }
 
-#define AP_IMPLEMENT_HOOK_RUN_ALL(ret,name,args_decl,args_use,ok,decline) \
-AP_IMPLEMENT_EXTERNAL_HOOK_RUN_ALL(AP,ret,name,args_decl,args_use,ok,decline)
 
 /**
  * Implement a hook that runs until the first function returns something
  * other than DECLINE
+ * @param link The linkage declaration prefix of the hook
  * @param name The name of the hook
  * @param args_decl The declaration of the arguments for the hook
  * @param args_used The names for the arguments for the hook
- * @deffunc int AP_IMPLEMENT_FIRST(name, args_decl, args_use)
+ * @deffunc int AP_IMPLEMENT_HOOK_RUN_FIRST(link, name, args_decl, args_use)
+ * @tip The link prefix FOO corresponds to FOO_DECLARE() macros, which
+ * provide export linkage from the module that IMPLEMENTs the hook, and
+ * import linkage from external modules that link to the hook's module.
  */
 #define AP_IMPLEMENT_EXTERNAL_HOOK_RUN_FIRST(link,ret,name,args_decl,args_use,decline) \
 AP_IMPLEMENT_EXTERNAL_HOOK_BASE(link,name) \
@@ -204,9 +200,6 @@ link##_DECLARE(ret) ap_run_##name args_decl \
 	} \
     return decline; \
     }
-
-#define AP_IMPLEMENT_HOOK_RUN_FIRST(ret,name,args_decl,args_use,decline) \
-AP_IMPLEMENT_EXTERNAL_HOOK_RUN_FIRST(AP,ret,name,args_decl,args_use,decline)
 
      /* Hook orderings */
 #define AP_HOOK_REALLY_FIRST	(-10)
