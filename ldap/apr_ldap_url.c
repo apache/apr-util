@@ -49,6 +49,13 @@
  * is provided ``as is'' without express or implied warranty.
  */
 
+/*
+ * WARNING: This code below is DEPRECATED in APR v1.0.
+ *
+ * It requires an overhaul, which will be available in a later release
+ * of APR. Please expect the code below to change without notice.
+ */
+
 /*  apr_ldap_url.c -- LDAP URL (RFC 2255) related routines
  *
  *  Win32 and perhaps other non-OpenLDAP based ldap libraries may be
