@@ -81,7 +81,7 @@
 #include <apr_iconv.h>
 #endif
 
-#if defined(APU_ICONV_INBUF_CONST) || APU_HAS_APR_ICONV
+#if defined(APU_ICONV_INBUF_CONST) || APU_HAVE_APR_ICONV
 #define ICONV_INBUF_TYPE const char **
 #else
 #define ICONV_INBUF_TYPE char **
@@ -119,7 +119,7 @@ static apr_status_t apr_xlate_cleanup(void *convset)
 {
     apr_xlate_t *old = convset;
 
-#if APU_HAS_APR_ICONV
+#if APU_HAVE_APR_ICONV
     if (old->ich != (apr_iconv_t)-1) {
         return apr_iconv_close(old->ich);
     }
@@ -222,7 +222,7 @@ APU_DECLARE(apr_status_t) apr_xlate_open(apr_xlate_t **convset,
         make_identity_table(new);
     }
 
-#if APU_HAS_APR_ICONV
+#if APU_HAVE_APR_ICONV
     if (!found) {
         rv = apr_iconv_open(topage, frompage, pool, &new->ich);
         if (rv != APR_SUCCESS) {
