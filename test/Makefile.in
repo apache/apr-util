@@ -1,3 +1,17 @@
+targets =
+
+PROGRAMS = dbu
 
 top_builddir = @top_builddir@
 include $(top_builddir)/build/rules.mk
+
+PROGRAM_LDADD        = $(EXTRA_LDFLAGS) $(PROGRAM_DEPENDENCIES) $(EXTRA_LIBS)
+PROGRAM_DEPENDENCIES = ../srclib/apr-util/libaprutil.la \
+	../srclib/apr/libapr.a
+
+test: $(PROGRAMS)
+
+dbu_OBJECTS = testdbm.lo
+dbu: $(dbu_OBJECTS)
+	$(LINK) $(dbu_OBJECTS) $(PROGRAM_LDADD)
+
