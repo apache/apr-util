@@ -55,6 +55,7 @@
 #include "apr_buckets.h"
 #define APR_WANT_MEMFUNC
 #include "apr_want.h"
+#include <stdlib.h>
 
 #if APR_HAS_MMAP
 
@@ -81,7 +82,7 @@ static void mmap_destroy(void *data)
     if (apr_bucket_shared_destroy(m)) {
         /* no need to apr_mmap_delete(m->mmap) here... it will
          * get done automatically when the pool gets cleaned up. */
-        apr_sms_free(m->sms, m);
+        free(m);
     }
 }
 
@@ -93,12 +94,14 @@ APU_DECLARE(apr_bucket *) apr_bucket_mmap_make(apr_bucket *b,
 {
     apr_bucket_mmap *m;
 
-    m = (apr_bucket_mmap *)apr_sms_malloc(b->sms, sizeof(*m));
+    m = malloc(sizeof(*m));
+    if (m == NULL) {
+	return NULL;
+    }
     m->mmap = mm;
-    m->sms = b->sms;
 
-    apr_bucket_shared_make(b, m, start, length);
-    b->type = &apr_bucket_type_mmap;
+    b = apr_bucket_shared_make(b, m, start, length);
+    b->type     = &apr_bucket_type_mmap;
 
     return b;
 }
@@ -107,16 +110,10 @@ APU_DECLARE(apr_bucket *) apr_bucket_mmap_make(apr_bucket *b,
 APU_DECLARE(apr_bucket *) apr_bucket_mmap_create(
 		apr_mmap_t *mm, apr_off_t start, apr_size_t length)
 {
-    apr_sms_t *sms;
-    apr_bucket *b;
+    apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
 
-    if (!apr_bucket_global_sms) {
-        apr_sms_std_create(&apr_bucket_global_sms);
-    }
-    sms = apr_bucket_global_sms;
-    b = (apr_bucket *)apr_sms_malloc(sms, sizeof(*b));
     APR_BUCKET_INIT(b);
-    b->sms = sms;
+    b->free = free;
     return apr_bucket_mmap_make(b, mm, start, length);
 }
 
@@ -139,7 +136,7 @@ static apr_status_t mmap_setaside(apr_bucket *data, apr_pool_t *p)
 
     base = apr_palloc(p, data->length);
     memcpy(base, addr, data->length);
-    apr_bucket_pool_make(data, base, data->length, p);
+    data = apr_bucket_pool_make(data, base, data->length, p);
     mmap_destroy(m);
 
     return APR_SUCCESS;

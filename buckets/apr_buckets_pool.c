@@ -116,7 +116,7 @@ static void pool_destroy(void *data)
          */
         if (apr_bucket_shared_destroy(p)) {
             apr_pool_cleanup_kill(p->pool, p, pool_bucket_cleanup);
-            apr_sms_free(p->heap.sms, p);
+            free(p);
         }
     }
     else {
@@ -134,7 +134,10 @@ APU_DECLARE(apr_bucket *) apr_bucket_pool_make(apr_bucket *b,
 {
     apr_bucket_pool *p;
 
-    p = (apr_bucket_pool *)apr_sms_malloc(b->sms, sizeof(*p));
+    p = malloc(sizeof(*p));
+    if (p == NULL) {
+	return NULL;
+    }
 
     /* XXX: we lose the const qualifier here which indicates
      * there's something screwy with the API...
@@ -144,13 +147,12 @@ APU_DECLARE(apr_bucket *) apr_bucket_pool_make(apr_bucket *b,
     p->base = (char *) buf;
     p->pool = pool;
 
-    apr_bucket_shared_make(b, p, 0, length);
+    b = apr_bucket_shared_make(b, p, 0, length);
     b->type = &apr_bucket_type_pool;
 
     /* pre-initialize heap bucket member */
     p->heap.alloc_len = length;
     p->heap.base      = NULL;
-    p->heap.sms       = b->sms;
 
     apr_pool_cleanup_register(p->pool, p, pool_bucket_cleanup,
                               apr_pool_cleanup_null);
@@ -160,16 +162,10 @@ APU_DECLARE(apr_bucket *) apr_bucket_pool_make(apr_bucket *b,
 APU_DECLARE(apr_bucket *) apr_bucket_pool_create(
 		const char *buf, apr_size_t length, apr_pool_t *pool)
 {
-    apr_sms_t *sms;
-    apr_bucket *b;
+    apr_bucket *b = (apr_bucket *)malloc(sizeof(*b));
 
-    if (!apr_bucket_global_sms) {
-        apr_sms_std_create(&apr_bucket_global_sms);
-    }
-    sms = apr_bucket_global_sms;
-    b = (apr_bucket *)apr_sms_malloc(sms, sizeof(*b));
     APR_BUCKET_INIT(b);
-    b->sms = sms;
+    b->free = free;
     return apr_bucket_pool_make(b, buf, length, pool);
 }
 

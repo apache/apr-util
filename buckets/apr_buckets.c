@@ -54,8 +54,6 @@
 
 #include "apr_buckets.h"
 
-APU_DECLARE_DATA apr_sms_t *apr_bucket_global_sms = NULL;
-
 APU_DECLARE_NONSTD(apr_status_t) apr_bucket_setaside_noop(apr_bucket *data,
                                                           apr_pool_t *pool)
 {
