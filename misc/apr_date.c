@@ -526,7 +526,7 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(char *date)
     }
     else if (apr_date_checkmask(date, " # @$$ #### ##:##:## *")) {   
         /* RFC 1123 format with a space instead of a leading zero. */
-	ds.tm_year = ((date[7] - '0') * 10 + (date[8] - '0') - 19) * 100;
+        ds.tm_year = ((date[7] - '0') * 10 + (date[8] - '0') - 19) * 100;
 
         if (ds.tm_year < 0)
             return APR_DATE_BAD;
