@@ -197,6 +197,7 @@ AC_OUTPUT([
     include/private/apu_select_dbm.h
     include/apr_ldap.h
     include/apu.h
+    include/apu_want.h
     $MAKEFILES
 	],[
 chmod +x apu-config
