@@ -57,8 +57,6 @@
 #include "ap_buckets.h"
 #include <stdlib.h>
 
-static int socket_type;
-
 /* XXX: We should obey the block flag */
 static apr_status_t socket_read(ap_bucket *a, const char **str,
 			      apr_ssize_t *len, int block)
@@ -99,6 +97,10 @@ static apr_status_t socket_read(ap_bucket *a, const char **str,
     return APR_SUCCESS;
 }
 
+ap_bucket_type ap_socket_type = { "SOCKET", 4, ap_bucket_destroy_notimpl, 
+                          socket_read, ap_bucket_setaside_notimpl, 
+                          ap_bucket_split_notimpl };
+
 API_EXPORT(ap_bucket *) ap_bucket_make_socket(ap_bucket *b, apr_socket_t *p)
 {
     /*
@@ -109,7 +111,7 @@ API_EXPORT(ap_bucket *) ap_bucket_make_socket(ap_bucket *b, apr_socket_t *p)
      * Note that typically the socket is allocated from the connection pool
      * so it will disappear when the connection is finished. 
      */
-    b->type     = socket_type;
+    b->type     = &ap_socket_type;
     b->length   = -1;
     b->data     = p;
 
@@ -123,17 +125,6 @@ API_EXPORT(ap_bucket *) ap_bucket_create_socket(apr_socket_t *p)
 
 void ap_bucket_socket_register(apr_pool_t *p)
 {
-    ap_bucket_type type;
-
-    type.setaside = NULL;
-    type.destroy  = NULL;
-    type.split    = NULL;
-    type.read     = socket_read;
- 
-    socket_type = ap_insert_bucket_type(&type);
+    ap_insert_bucket_type(&ap_socket_type);
 }
 
-int ap_socket_type(void)
-{
-    return socket_type;
-}

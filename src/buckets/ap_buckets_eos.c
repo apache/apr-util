@@ -56,8 +56,6 @@
 #include "ap_buckets.h"
 #include <stdlib.h>
 
-static int eos_type;
-
 static apr_status_t eos_read(ap_bucket *b, const char **str, 
                                 apr_ssize_t *len, int block)
 {
@@ -66,12 +64,15 @@ static apr_status_t eos_read(ap_bucket *b, const char **str,
     return APR_SUCCESS;
 }
 
+ap_bucket_type ap_eos_type = { "EOS", 4, ap_bucket_destroy_notimpl, eos_read,
+                          ap_bucket_setaside_notimpl, ap_bucket_split_notimpl };
+
 API_EXPORT(ap_bucket *) ap_bucket_make_eos(ap_bucket *b)
 {
     b->length    = AP_END_OF_BRIGADE;
     b->data      = NULL;
 
-    b->type      = eos_type;
+    b->type      = &ap_eos_type;
     
     return b;
 }
@@ -83,16 +84,6 @@ API_EXPORT(ap_bucket *) ap_bucket_create_eos(void)
 
 void ap_bucket_eos_register(apr_pool_t *p)
 {
-    ap_bucket_type type;
-    type.read      = eos_read;
-    type.setaside  = NULL;
-    type.split     = NULL;
-    type.destroy   = NULL;
-
-    eos_type = ap_insert_bucket_type(&type);
+    ap_insert_bucket_type(&ap_eos_type);
 }
 
-int ap_eos_type(void)
-{
-    return eos_type;
-}

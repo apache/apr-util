@@ -56,7 +56,6 @@
 #include "ap_buckets.h"
 #include <stdlib.h>
 
-static int heap_type;
 /*
  * The size of heap bucket memory allocations.
  * XXX: This is currently a guess and should be adjusted to an
@@ -88,6 +87,9 @@ static void heap_destroy(void *data)
     free(h->base);
     free(h);
 }
+
+ap_bucket_type ap_heap_type = { "HEAP", 4, heap_destroy, heap_read,
+                          ap_bucket_setaside_notimpl, ap_bucket_split_shared };
 
 API_EXPORT(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
 		const char *buf, apr_size_t length, int copy, apr_ssize_t *w)
@@ -128,7 +130,7 @@ API_EXPORT(ap_bucket *) ap_bucket_make_heap(ap_bucket *b,
 	return NULL;
     }
 
-    b->type     = heap_type;
+    b->type = &ap_heap_type;
 
     if (w)
         *w = length;
@@ -144,17 +146,6 @@ API_EXPORT(ap_bucket *) ap_bucket_create_heap(
 
 void ap_bucket_heap_register(apr_pool_t *p)
 {
-    ap_bucket_type type;
-
-    type.split    = ap_bucket_split_shared;
-    type.destroy  = heap_destroy;
-    type.read     = heap_read;
-    type.setaside = NULL;
-
-    heap_type = ap_insert_bucket_type(&type);
+    ap_insert_bucket_type(&ap_heap_type);
 }
 
-int ap_heap_type(void)
-{
-    return heap_type;
-}

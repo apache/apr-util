@@ -56,8 +56,6 @@
 #include "ap_buckets.h"
 #include <stdlib.h>
 
-static int mmap_type;
-
 static apr_status_t mmap_read(ap_bucket *b, const char **str, 
 			      apr_ssize_t *length, int block)
 {
@@ -86,6 +84,9 @@ static void mmap_destroy(void *data)
     free(m);
 }
 
+ap_bucket_type ap_mmap_type = { "MMAP", 4, mmap_destroy, mmap_read,
+                          ap_bucket_setaside_notimpl, ap_bucket_split_shared };
+
 /*
  * XXX: are the start and length arguments useful?
  */
@@ -106,7 +107,7 @@ API_EXPORT(ap_bucket *) ap_bucket_make_mmap(ap_bucket *b,
 	return NULL;
     }
 
-    b->type     = mmap_type;
+    b->type     = &ap_mmap_type;
 
     return b;
 }
@@ -120,16 +121,6 @@ API_EXPORT(ap_bucket *) ap_bucket_create_mmap(
 
 void ap_bucket_mmap_register(apr_pool_t *p)
 {
-    ap_bucket_type type;
-    type.split    = ap_bucket_split_shared;
-    type.destroy  = mmap_destroy;
-    type.read     = mmap_read;
-    type.setaside = NULL;
-
-    mmap_type = ap_insert_bucket_type(&type);
+    ap_insert_bucket_type(&ap_mmap_type);
 }
 
-int ap_mmap_type(void)
-{
-    return mmap_type;
-}

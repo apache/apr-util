@@ -66,10 +66,7 @@ static apr_array_header_t *bucket_types;
 
 API_EXPORT(apr_status_t) ap_bucket_destroy(ap_bucket *e)
 {
-    ap_bucket_type *type = (ap_bucket_type *)bucket_types->elts;
-    if (type[e->type].destroy) {
-        type[e->type].destroy(e->data);
-    }
+    e->type->destroy(e->data);
     free(e);
     return APR_SUCCESS;
 }
@@ -77,29 +74,17 @@ API_EXPORT(apr_status_t) ap_bucket_destroy(ap_bucket *e)
 API_EXPORT(apr_status_t) ap_bucket_read(ap_bucket *e, const char **str, 
                                         apr_ssize_t *len, int block)
 {
-    ap_bucket_type *type = (ap_bucket_type *)bucket_types->elts;
-    if (type[e->type].read) {
-        return type[e->type].read(e, str, len, block);
-    }
-    return APR_ENOTIMPL;
+    return e->type->read(e, str, len, block);
 }
 
 API_EXPORT(apr_status_t) ap_bucket_setaside(ap_bucket *e)
 {
-    ap_bucket_type *type = (ap_bucket_type *)bucket_types->elts;
-    if (type[e->type].setaside) {
-        return type[e->type].setaside(e);
-    }
-    return APR_ENOTIMPL;
+    return e->type->setaside(e);
 }
 
 API_EXPORT(apr_status_t) ap_bucket_split(ap_bucket *e, apr_off_t point)
 {
-    ap_bucket_type *type = (ap_bucket_type *)bucket_types->elts;
-    if (type[e->type].split) {
-        return type[e->type].split(e, point);
-    }
-    return APR_ENOTIMPL;
+    return e->type->split(e, point);
 }
 
 static apr_status_t ap_brigade_cleanup(void *data)
@@ -243,7 +228,7 @@ API_EXPORT(int) ap_brigade_vprintf(ap_bucket_brigade *b, const char *fmt, va_lis
 
 void ap_init_bucket_types(apr_pool_t *p)
 {
-    bucket_types = apr_make_array(p, 1, sizeof(ap_bucket_type));
+    bucket_types = apr_make_array(p, 8, sizeof(ap_bucket_type));
     ap_bucket_heap_register(p);
     ap_bucket_transient_register(p);
     ap_bucket_file_register(p);
@@ -256,13 +241,24 @@ void ap_init_bucket_types(apr_pool_t *p)
 
 int ap_insert_bucket_type(ap_bucket_type *type)
 {
-    ap_bucket_type *newone = (ap_bucket_type *)apr_push_array(bucket_types);
+    ap_bucket_type **newone = (ap_bucket_type **)apr_push_array(bucket_types);
 
-    newone->read = type->read;
-    newone->setaside = type->setaside;
-    newone->destroy = type->destroy;
-    newone->split = type->split;
+    newone = &type;
 
     return bucket_types->nelts - 1;
 }
 
+API_EXPORT(apr_status_t) ap_bucket_setaside_notimpl(ap_bucket *data)
+{
+    return APR_ENOTIMPL;
+}
+
+API_EXPORT(apr_status_t) ap_bucket_split_notimpl(ap_bucket *data, apr_off_t point)
+{
+    return APR_ENOTIMPL;
+}
+
+API_EXPORT(void) ap_bucket_destroy_notimpl(void *data)
+{
+    return;
+}

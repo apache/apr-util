@@ -131,33 +131,17 @@ typedef struct ap_bucket_brigade ap_bucket_brigade;
 
 typedef struct ap_bucket ap_bucket;
 
-/**
- * ap_bucket_t structures are allocated on the malloc() heap and
- * their lifetime is controlled by the parent ap_brigade_t
- * structure. Buckets can move from one brigade to another e.g. by
- * calling ap_brigade_concat(). In general the data in a bucket has
- * the same lifetime as the bucket and is freed when the bucket is
- * destroyed; if the data is shared by more than one bucket (e.g.
- * after a split) the data is freed when the last bucket goes away.
- */
-struct ap_bucket {
-    /** Links to the rest of the brigade */
-    AP_RING_ENTRY(ap_bucket) link;
-    /** The type of bucket.  These types can be found in the enumerated
-     *  type above */
-    int type;
-    /** type-dependent data hangs off this pointer */
-    void *data;	
-    /** The length of the data in the bucket.  This could have been implemented
-     *  with a function, but this is an optimization, because the most
-     *  common thing to do will be to get the length.  If the length is unknown,
-     *  the value of this field will be -1.
-     */
-    apr_off_t length;
-};
-
 typedef struct ap_bucket_type ap_bucket_type;
 struct ap_bucket_type {
+    /**
+     * The name of the bucket type
+     */
+    char *name;
+    /** 
+     * The number of functions this bucket understands.  Can not be less than
+     * four.
+     */
+    int num_func;
     /**
      * Free the private data and any resources used by the bucket
      * (if they aren't shared with another bucket).
@@ -191,6 +175,31 @@ struct ap_bucket_type {
      * @deffunc apr_status_t split(ap_bucket *e, apr_off_t point)
      */
     apr_status_t (*split)(ap_bucket *e, apr_off_t point);
+};
+
+/**
+ * ap_bucket_t structures are allocated on the malloc() heap and
+ * their lifetime is controlled by the parent ap_brigade_t
+ * structure. Buckets can move from one brigade to another e.g. by
+ * calling ap_brigade_concat(). In general the data in a bucket has
+ * the same lifetime as the bucket and is freed when the bucket is
+ * destroyed; if the data is shared by more than one bucket (e.g.
+ * after a split) the data is freed when the last bucket goes away.
+ */
+struct ap_bucket {
+    /** Links to the rest of the brigade */
+    AP_RING_ENTRY(ap_bucket) link;
+    /** The type of bucket.  These types can be found in the enumerated
+     *  type above */
+    ap_bucket_type *type;
+    /** The length of the data in the bucket.  This could have been implemented
+     *  with a function, but this is an optimization, because the most
+     *  common thing to do will be to get the length.  If the length is unknown,
+     *  the value of this field will be -1.
+     */
+    apr_off_t length;
+    /** type-dependent data hangs off this pointer */
+    void *data;	
 };
 
 /** A list of buckets */
@@ -240,6 +249,15 @@ struct ap_bucket_brigade {
 #define AP_BUCKET_PREV(e)	AP_RING_PREV((e), link)
 
 #define AP_BUCKET_REMOVE(e)	AP_RING_REMOVE((e), link)
+
+#define AP_BUCKET_IS_EOS(e)         (e->type == &ap_eos_type)
+#define AP_BUCKET_IS_FILE(e)        (e->type == &ap_file_type)
+#define AP_BUCKET_IS_PIPE(e)        (e->type == &ap_pipe_type)
+#define AP_BUCKET_IS_SOCKET(e)      (e->type == &ap_socket_type)
+#define AP_BUCKET_IS_HEAP(e)        (e->type == &ap_heap_type)
+#define AP_BUCKET_IS_TRANSIENT(e)   (e->type == &ap_transient_type)
+#define AP_BUCKET_IS_IMMORTAL(e)    (e->type == &ap_immortal_type)
+#define AP_BUCKET_IS_mmap(e)        (e->type == &ap_mmap_type)
 
 /**
  * General-purpose reference counting for the varous bucket types.
@@ -492,16 +510,23 @@ void ap_bucket_socket_register(apr_pool_t *p);
 void ap_bucket_pipe_register(apr_pool_t *p);
 void ap_bucket_eos_register(apr_pool_t *p);
 
-int ap_file_type(void);
-int ap_heap_type(void);
-int ap_transient_type(void);
-int ap_mmap_type(void);
-int ap_immortal_type(void);
-int ap_socket_type(void);
-int ap_pipe_type(void);
-int ap_eos_type(void);
-
+API_EXPORT(apr_status_t) ap_bucket_setaside_notimpl(ap_bucket *data);
+API_EXPORT(apr_status_t) ap_bucket_split_notimpl(ap_bucket *data, 
+                                                 apr_off_t point);
+API_EXPORT(void) ap_bucket_destroy_notimpl(void *data);
+/* There is no ap_bucket_read_notimpl, because it is a required function
+ */
 int ap_insert_bucket_type(ap_bucket_type *type);
+
+/* All of the bucket types implemented by the core */
+extern ap_bucket_type ap_eos_type;
+extern ap_bucket_type ap_file_type;
+extern ap_bucket_type ap_heap_type;
+extern ap_bucket_type ap_mmap_type;
+extern ap_bucket_type ap_pipe_type;
+extern ap_bucket_type ap_immortal_type;
+extern ap_bucket_type ap_transient_type;
+extern ap_bucket_type ap_socket_type;
 
 /*  *****  Shared reference-counted buckets  *****  */
 
