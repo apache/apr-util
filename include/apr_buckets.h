@@ -824,26 +824,26 @@ APU_DECLARE(apr_status_t) apr_brigade_vprintf(apr_bucket_brigade *b,
  *          to allocate the memory handed out by the allocator]
  * @warning The allocator must never be used by more than one thread at a time.
  */
-APU_DECLARE(apr_bucket_alloc_t *) apr_bucket_alloc_create(apr_pool_t *p);
+APU_DECLARE_NONSTD(apr_bucket_alloc_t *) apr_bucket_alloc_create(apr_pool_t *p);
 
 /**
  * Destroy a bucket allocator.
  * @param list The allocator to be destroyed
  */
-APU_DECLARE(void) apr_bucket_alloc_destroy(apr_bucket_alloc_t *list);
+APU_DECLARE_NONSTD(void) apr_bucket_alloc_destroy(apr_bucket_alloc_t *list);
 
 /**
  * Allocate memory for use by the buckets.
  * @param size The amount to allocate.
  * @param list The allocator from which to allocate the memory.
  */
-APU_DECLARE(void *) apr_bucket_alloc(apr_size_t size, apr_bucket_alloc_t *list);
+APU_DECLARE_NONSTD(void *) apr_bucket_alloc(apr_size_t size, apr_bucket_alloc_t *list);
 
 /**
  * Free memory previously allocated with apr_bucket_alloc().
  * @param block The block of memory to be freed.
  */
-APU_DECLARE(void) apr_bucket_free(void *block);
+APU_DECLARE_NONSTD(void) apr_bucket_free(void *block);
 
 
 /*  *****  Bucket Functions  *****  */
