@@ -155,7 +155,7 @@ APU_DECLARE(int) apr_dbd_transaction_start(apr_dbd_driver_t *driver,
                                            apr_pool_t *pool, apr_dbd_t *handle,
                                            apr_dbd_transaction **trans)
 {
-    int ret = driver->transaction(pool, handle, trans);
+    int ret = driver->start_transaction(pool, handle, trans);
     if (*trans) {
         apr_pool_cleanup_register(pool, *trans, (void*)driver->end_transaction,
                                   apr_pool_cleanup_null);
