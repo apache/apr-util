@@ -42,6 +42,7 @@ static apr_status_t test_rmm(apr_pool_t *parpool)
     apr_size_t size, fragsize;
     apr_rmm_off_t *off;
     int i;
+    void *entity;
 
     rv = apr_pool_create(&pool, parpool);
     if (rv != APR_SUCCESS) {
@@ -156,6 +157,27 @@ static apr_status_t test_rmm(apr_pool_t *parpool)
 
     printf("Freeing large segment............................");
     apr_rmm_free(rmm, off[0]);
+    fprintf(stdout, "OK\n");
+
+    printf("Checking realloc.................................");
+    off[0] = apr_rmm_calloc(rmm, SHARED_SIZE - 100);
+    off[1] = apr_rmm_calloc(rmm, 100);
+    if (off[0] == 0 || off[1] == 0) {
+        printf("FAILED\n");
+        return APR_EINVAL;
+    }
+    entity = apr_rmm_addr_get(rmm, off[1]);
+    rv = apr_rmm_free(rmm, off[0]);
+    if (rv != APR_SUCCESS) {
+        printf("FAILED\n");
+        return rv;
+    }
+    /* now we can realloc off[1] and get many more bytes */
+    off[0] = apr_rmm_realloc(rmm, entity, SHARED_SIZE - 100);
+    if (off[0] == 0) {
+        printf("FAILED\n");
+        return APR_EINVAL;
+    }
     fprintf(stdout, "OK\n");
 
     printf("Destroying rmm segment...........................");

@@ -321,6 +321,8 @@ APU_DECLARE(apr_rmm_off_t) apr_rmm_realloc(apr_rmm_t *rmm, void *entity,
 {
     apr_rmm_off_t this;
     apr_rmm_off_t old;
+    struct rmm_block_t *blk;
+    apr_size_t oldsize;
 
     if (!entity) {
         return apr_rmm_malloc(rmm, reqsize);
@@ -333,8 +335,11 @@ APU_DECLARE(apr_rmm_off_t) apr_rmm_realloc(apr_rmm_t *rmm, void *entity,
         return this;
     }
 
+    blk = (rmm_block_t*)((char*)rmm->base + old);
+    oldsize = blk->size;
+
     memcpy(apr_rmm_addr_get(rmm, this),
-           apr_rmm_addr_get(rmm, old), reqsize);
+           apr_rmm_addr_get(rmm, old), oldsize < reqsize ? oldsize : reqsize);
     apr_rmm_free(rmm, old);
 
     return this;
