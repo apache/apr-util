@@ -160,6 +160,12 @@ APU_DECLARE(char *) apr_uri_unparse(apr_pool_t *p,
         /* Construct scheme://site string */
         if (uptr->hostname) {
             int is_default_port;
+            const char *lbrk = "", *rbrk = "";
+
+            if (strchr(uptr->hostname, ':')) { /* v6 literal */
+                lbrk = "[";
+                rbrk = "]";
+            }
 
             is_default_port =
                 (uptr->port_str == NULL ||
@@ -167,11 +173,11 @@ APU_DECLARE(char *) apr_uri_unparse(apr_pool_t *p,
                  uptr->port == apr_uri_port_of_scheme(uptr->scheme));
 
             ret = apr_pstrcat(p,
-                      uptr->scheme, "://", ret, 
-                      uptr->hostname ? uptr->hostname : "",
-                      is_default_port ? "" : ":",
-                      is_default_port ? "" : uptr->port_str,
-                      NULL);
+                              uptr->scheme, "://", ret,
+                              lbrk, uptr->hostname, rbrk,
+                              is_default_port ? "" : ":",
+                              is_default_port ? "" : uptr->port_str,
+                              NULL);
         }
     }
 
@@ -244,6 +250,7 @@ APU_DECLARE(int) apr_uri_parse(apr_pool_t *p, const char *uri,
     const char *hostinfo;
     char *endstr;
     int port;
+    int v6_offset1 = 0, v6_offset2 = 0;
 
     /* Initialize the structure. parse_uri() and parse_uri_components()
      * can be called more than once per request.
@@ -318,15 +325,33 @@ deal_with_path:
         /* again we want the common case to be fall through */
 deal_with_host:
         /* We expect hostinfo to point to the first character of
-         * the hostname.  If there's a port it is the first colon.
+         * the hostname.  If there's a port it is the first colon,
+         * except with IPv6.
          */
-        s = memchr(hostinfo, ':', uri - hostinfo);
+        if (*hostinfo == '[') {
+            v6_offset1 = 1;
+            v6_offset2 = 2;
+            s = uri;
+            do {
+                --s;
+            } while (s >= hostinfo && *s != ':' && *s != ']');
+            if (s < hostinfo || *s == ']') {
+                s = NULL; /* no port */
+            }
+        }
+        else {
+            s = memchr(hostinfo, ':', uri - hostinfo);
+        }
         if (s == NULL) {
             /* we expect the common case to have no port */
-            uptr->hostname = apr_pstrmemdup(p, hostinfo, uri - hostinfo);
+            uptr->hostname = apr_pstrmemdup(p,
+                                            hostinfo + v6_offset1,
+                                            uri - hostinfo - v6_offset2);
             goto deal_with_path;
         }
-        uptr->hostname = apr_pstrmemdup(p, hostinfo, s - hostinfo);
+        uptr->hostname = apr_pstrmemdup(p,
+                                        hostinfo + v6_offset1,
+                                        s - hostinfo - v6_offset2);
         ++s;
         uptr->port_str = apr_pstrmemdup(p, s, uri - s);
         if (uri != s) {
@@ -367,6 +392,8 @@ APU_DECLARE(int) apr_uri_parse_hostinfo(apr_pool_t *p,
 {
     const char *s;
     char *endstr;
+    const char *rsb;
+    int v6_offset1 = 0;
 
     /* Initialize the structure. parse_uri() and parse_uri_components()
      * can be called more than once per request.
@@ -378,11 +405,23 @@ APU_DECLARE(int) apr_uri_parse_hostinfo(apr_pool_t *p,
     /* We expect hostinfo to point to the first character of
      * the hostname.  There must be a port, separated by a colon
      */
-    s = strchr(hostinfo, ':');
+    if (*hostinfo == '[') {
+        if ((rsb = strchr(hostinfo, ']')) == NULL ||
+            *(rsb + 1) != ':') {
+            return APR_EGENERAL;
+        }
+        /* literal IPv6 address */
+        s = rsb + 1;
+        ++hostinfo;
+        v6_offset1 = 1;
+    }
+    else {
+        s = strchr(hostinfo, ':');
+    }
     if (s == NULL) {
         return APR_EGENERAL;
     }
-    uptr->hostname = apr_pstrndup(p, hostinfo, s - hostinfo);
+    uptr->hostname = apr_pstrndup(p, hostinfo, s - hostinfo - v6_offset1);
     ++s;
     uptr->port_str = apr_pstrdup(p, s);
     if (*s != '\0') {

@@ -80,6 +80,18 @@ struct aup_test aup_tests[] =
         0, "http", "127.0.0.1:9999", NULL, NULL, "127.0.0.1", "9999", "/asdf.html", NULL, NULL, 9999
     },
     {
+        "http://127.0.0.1:9999a/asdf.html",
+        APR_EGENERAL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0
+    },
+    {
+        "http://[::127.0.0.1]:9999/asdf.html",
+        0, "http", "[::127.0.0.1]:9999", NULL, NULL, "::127.0.0.1", "9999", "/asdf.html", NULL, NULL, 9999
+    },
+    {
+        "http://[::127.0.0.1]:9999a/asdf.html",
+        APR_EGENERAL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0
+    },
+    {
         "/error/include/top.html",
         0, NULL, NULL, NULL, NULL, NULL, NULL, "/error/include/top.html", NULL, NULL, 0
     },
@@ -104,8 +116,48 @@ struct aup_test aup_tests[] =
         0, "http", "sonyamt:garbage@127.0.0.1", "sonyamt", "garbage", "127.0.0.1", NULL, "/filespace/", NULL, NULL, 0
     },
     {
-        "http://sonyamt@127.0.0.1/filespace/?arg1=store",
-        0, "http", "sonyamt@127.0.0.1", "sonyamt", NULL, "127.0.0.1", NULL, "/filespace/", "arg1=store", NULL, 0
+        "http://sonyamt:garbage@[fe80::1]/filespace/",
+        0, "http", "sonyamt:garbage@[fe80::1]", "sonyamt", "garbage", "fe80::1", NULL, "/filespace/", NULL, NULL, 0
+    },
+    {
+        "http://sonyamt@[fe80::1]/filespace/?arg1=store",
+        0, "http", "sonyamt@[fe80::1]", "sonyamt", NULL, "fe80::1", NULL, "/filespace/", "arg1=store", NULL, 0
+    }
+};
+
+struct uph_test {
+    const char *hostinfo;
+    apr_status_t rv;
+    const char *hostname;
+    const char *port_str;
+    apr_port_t port;
+};
+
+struct uph_test uph_tests[] =
+{
+    {
+        "www.ibm.com:443",
+        0, "www.ibm.com", "443", 443
+    },
+    {
+        "[fe80::1]:443",
+        0, "fe80::1", "443", 443
+    },
+    {
+        "127.0.0.1:443",
+        0, "127.0.0.1", "443", 443
+    },
+    {
+        "127.0.0.1",
+        APR_EGENERAL, NULL, NULL, 0
+    },
+    {
+        "[fe80:80",
+        APR_EGENERAL, NULL, NULL, 0
+    },
+    {
+        "fe80::80]:443",
+        APR_EGENERAL, NULL, NULL, 0
     }
 };
 
@@ -164,7 +216,7 @@ static int test_aup(apr_pool_t *p)
         t = &aup_tests[i];
         rv = apr_uri_parse(p, t->uri, &info);
         failed = (rv != t->rv) ? "bad rc" : NULL;
-        if (!failed) {
+        if (!failed && t->rv == APR_SUCCESS) {
             if (!same_str(info.scheme, t->scheme))
                 failed = "bad scheme";
             if (!same_str(info.hostinfo, t->hostinfo))
@@ -192,6 +244,48 @@ static int test_aup(apr_pool_t *p)
                     t->uri, failed);
             show_info(rv, t->rv, &info);
         }
+        else if (t->rv == APR_SUCCESS) {
+            const char *s = apr_uri_unparse(p, &info,
+                                            APR_URI_UNP_REVEALPASSWORD);
+
+            if (strcmp(s, t->uri)) {
+                fprintf(stderr, "apr_uri_unparsed failed for testcase %d\n", i);
+                fprintf(stderr, "  got %s, expected %s\n", s, t->uri);
+            }
+        }
+    }
+
+    return rc;
+}
+
+static int test_uph(apr_pool_t *p)
+{
+    int i;
+    apr_status_t rv;
+    apr_uri_t info;
+    struct uph_test *t;
+    const char *failed;
+    int rc = 0;
+
+    for (i = 0; i < sizeof(uph_tests) / sizeof(uph_tests[0]); i++) {
+        memset(&info, 0, sizeof(info));
+        t = &uph_tests[i];
+        rv = apr_uri_parse_hostinfo(p, t->hostinfo, &info);
+        failed = (rv != t->rv) ? "bad rc" : NULL;
+        if (!failed && t->rv == APR_SUCCESS) {
+            if (!same_str(info.hostname, t->hostname))
+                failed = "bad hostname";
+            if (!same_str(info.port_str, t->port_str))
+                failed = "bad port_str";
+            if (info.port != t->port)
+                failed = "bad port";
+        }
+        if (failed) {
+            ++rc;
+            fprintf(stderr, "failure for testcase %d/hostinfo %s: %s\n", i,
+                    t->hostinfo, failed);
+            show_info(rv, t->rv, &info);
+        }
     }
 
     return rc;
@@ -209,5 +303,9 @@ int main(void)
 
     rc = test_aup(pool);
 
+    if (!rc) {
+        rc = test_uph(pool);
+    }
+    
     return rc;
 }

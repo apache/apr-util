@@ -1,5 +1,8 @@
 Changes with APR-util 0.9.2
 
+  *) Add IPv6 literal address support to apr_uri_parse(), apr_uri_unparse(), 
+     and apr_uri_parse_hostinfo().  PR 11887  [Jeff Trawick]
+
   *) Add apr_brigade_writev()  [Brian Pane]
 
   *) Add support for Berkeley DB 4.1.  [Justin Erenkrantz]
