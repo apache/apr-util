@@ -60,6 +60,8 @@
 # Configuration variables
 #
 top_builddir=@top_builddir@
+top_srcdir=@top_srcdir@
+APR_BUILD_DIR=@APR_BUILD_DIR@
 APR_SOURCE_DIR=@APR_SOURCE_DIR@
 
 CC=@CC@

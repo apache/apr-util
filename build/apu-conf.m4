@@ -15,28 +15,46 @@ AC_ARG_WITH(apr,
         AC_MSG_ERROR(You need to specify a directory with --with-apr)
     fi
     absdir="`cd $withval ; pwd`"
-    if test -f "$absdir/apr_pools.h"; then
+    if test -f "$absdir/apr.h"; then
 	APR_INCLUDES="$absdir"
-    elif test -f "$absdir/include/apr_pools.h"; then
-	APR_SOURCE_DIR="$absdir"
+    elif test -f "$absdir/include/apr.h"; then
+	APR_BUILD_DIR="$absdir"
     fi
 ],[
     dnl see if we can find APR
-    if test -f "$srcdir/apr/include/apr_pools.h"; then
-	APR_SOURCE_DIR="$srcdir/apr"
-    elif test -f "$srcdir/../apr/include/apr_pools.h"; then
-	APR_SOURCE_DIR="`cd $srcdir/../apr ; pwd`"
+    if test -f "$srcdir/apr/include/apr.h"; then
+	APR_BUILD_DIR="$srcdir/apr"
+    elif test -f "$srcdir/../apr/include/apr.h"; then
+	APR_BUILD_DIR="`cd $srcdir/../apr ; pwd`"
     fi
 ])
-if test -n "$APR_SOURCE_DIR"; then
-    APR_INCLUDES="$APR_SOURCE_DIR/include"
+
+dnl
+dnl grab flags from APR.
+dnl ### APR doesn't have "nice" names for its exports (yet), but it isn't
+dnl ### a problem to deal with them right here
+dnl
+
+. "$APR_BUILD_DIR/APRVARS"
+APR_EXPORT_CPPFLAGS="$EXTRA_CPPFLAGS"
+APR_EXPORT_CFLAGS="$EXTRA_CFLAGS"
+APR_EXPORT_LIBS="$EXTRA_LIBS"
+
+if test -n "$APR_BUILD_DIR"; then
+    APR_INCLUDES="-I$APR_BUILD_DIR/include"
+    if test "$APR_BUILD_DIR" != "$APR_SOURCE_DIR"; then
+        APR_INCLUDES="$APR_INCLUDES -I$APR_SOURCE_DIR/include"
+    fi
 fi
+
 if test -z "$APR_INCLUDES"; then
     AC_MSG_RESULT(not found)
     AC_MSG_ERROR(APR could not be located. Please use the --with-apr option.)
 fi
+
 AC_MSG_RESULT($APR_INCLUDES)
 
+AC_SUBST(APR_BUILD_DIR)
 AC_SUBST(APR_SOURCE_DIR)
 ])
 
@@ -353,7 +371,7 @@ AC_ARG_WITH([expat],
 ])
 
 if test -z "$expat_include_dir"; then
-  for d in /usr /usr/local xml/expat-cvs xml/expat ; do
+  for d in /usr /usr/local xml/expat-cvs xml/expat $srcdir/xml/expat ; do
     APU_TEST_EXPAT($d)
     if test -n "$expat_include_dir"; then
       break
@@ -371,6 +389,15 @@ fi
 dnl special-case the bundled distribution (use absolute dirs)
 if test "$expat_include_dir" = "xml/expat/lib" -o "$expat_include_dir" = "xml/expat-cvs/lib"; then
   bundled_subdir="`echo $expat_include_dir | sed -e 's%/lib%%'`"
+  APU_SUBDIR_CONFIG($bundled_subdir)
+  expat_include_dir=$top_builddir/$bundled_subdir/lib
+  expat_libs=$top_builddir/$bundled_subdir/lib/libexpat.la
+  APR_XML_SUBDIRS="`echo $bundled_subdir | sed -e 's%xml/%%'`"
+fi
+if test "$expat_include_dir" = "$srcdir/xml/expat/include" -o "$expat_include_dir" = "$srcdir/xml/expat/lib"; then
+  dnl This is a bit of a hack.  This only works because we know that
+  dnl we are working with the bundled version of the software.
+  bundled_subdir="xml/expat"
   APU_SUBDIR_CONFIG($bundled_subdir)
   expat_include_dir=$top_builddir/$bundled_subdir/lib
   expat_libs=$top_builddir/$bundled_subdir/lib/libexpat.la
