@@ -92,7 +92,9 @@ static apr_status_t pipe_read(ap_bucket *b, const char **str,
         b = ap_bucket_make_heap(b, buf, l, 1, &toss);
         b->read(b, str, len, block); /* set str to new location of data */
 
-        b->next->prev = a;
+        if (b->next) {
+            b->next->prev = a;
+        }
         a->next = b->next;
         b->next = a;
         a->prev = b;
