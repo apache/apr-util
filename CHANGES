@@ -1,5 +1,8 @@
 Changes with APR-util 0.9.7
 
+  *) Backport the apr_reslist_timeout_set and apr_reslist_invalidate 
+     functions already in APR 1.0.x. [Paul Querna]
+
   *) Fix linking problem on cygwin.  [Max Bowsher <maxb ukf.net>]
 
 Changes with APR-util 0.9.6
