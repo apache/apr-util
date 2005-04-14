@@ -3,6 +3,7 @@
 #
 
 SUBDIRS = \
+	ldap \
 	xml \
 	$(EOLIST) 
 
@@ -243,9 +244,6 @@ FILES_lib_objs = \
 	$(OBJDIR)/apr_dbm_berkeleydb.o \
 	$(OBJDIR)/apr_dbm_sdbm.o \
 	$(OBJDIR)/apr_hooks.o \
-	$(OBJDIR)/apr_ldap_init.o \
-	$(OBJDIR)/apr_ldap_option.o \
-	$(OBJDIR)/apr_ldap_url.o \
 	$(OBJDIR)/apr_md4.o \
 	$(OBJDIR)/apr_md5.o \
 	$(OBJDIR)/apr_queue.o \

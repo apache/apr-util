@@ -63,10 +63,14 @@
  * Include the standard LDAP header files.
  */
 
+#ifdef GENEXPORTS
+#define LDAP_VERSION_MAX 3
+#else
 #include <lber.h>
 #include <ldap.h>
 #if APR_HAS_LDAP_SSL 
 #include <ldap_ssl.h>
+#endif
 #endif
 
 
