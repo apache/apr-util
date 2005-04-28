@@ -1,5 +1,8 @@
 Changes with APR-util 0.9.7
 
+  *) Fix build failure with non-threaded APR on AIX.  PR 34655.
+     [Ryan Murray <rmurray+apache cyberhqz.com>]
+
   *) Backport the apr_reslist_timeout_set and apr_reslist_invalidate 
      functions already in APR 1.0.x. [Paul Querna]
 
