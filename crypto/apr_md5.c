@@ -716,7 +716,7 @@ APU_DECLARE(apr_status_t) apr_password_validate(const char *passwd,
          * problems in configure logic can result in the wrong
          * choice being made.
          */
-#if defined(_AIX) && defined(APR_HAS_THREADS)
+#if defined(_AIX) && APR_HAS_THREADS
 #error Configuration error!  crypt_r() should have been selected!
 #endif
 
