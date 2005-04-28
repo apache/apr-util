@@ -1,5 +1,8 @@
 Changes with APR-util 1.2.0
 
+  *) Fix build failure with non-threaded APR on AIX.  PR 34655.
+     [Ryan Murray <rmurray+apache cyberhqz.com>]
+
   *) Add sqlite2 support to APR DBD. [Ryan Phillips <ryan trolocsis.com>]
 
   *) Introduction of APR DBD layer.  [Nick Kew]
