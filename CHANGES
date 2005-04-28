@@ -1,5 +1,8 @@
 Changes with APR-util 1.1.2
 
+  *) Fix build failure with non-threaded APR on AIX.  PR 34655.
+     [Ryan Murray <rmurray+apache cyberhqz.com>]
+
   *) Fix libaprutil.rc for Win32 builds [William Rowe, Justin Erenkrantz]
 
 Changes with APR-util 1.1.1
