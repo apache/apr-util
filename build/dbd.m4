@@ -119,6 +119,44 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
     APR_ADDTO(APRUTIL_LIBS,[-lmysqlclient_r])
   fi
 ])
+dnl
+AC_DEFUN([APU_CHECK_DBD_SQLITE3], [
+  apu_have_sqlite3=0
+
+  AC_ARG_WITH([sqlite3], [
+  --with-sqlite3=DIR         
+  ], [
+    apu_have_sqlite3=0
+    if test "$withval" = "yes"; then
+      AC_CHECK_HEADER(sqlite3.h, AC_CHECK_LIB(sqlite3, sqlite3_open, [apu_have_sqlite3=1]))
+    elif test "$withval" = "no"; then
+      apu_have_sqlite3=0
+    else
+      CPPFLAGS="-I$withval/include"
+      LIBS="-L$withval/lib "
+
+      AC_MSG_NOTICE(checking for sqlite3 in $withval)
+      AC_CHECK_HEADER(sqlite3.h, AC_CHECK_LIB(sqlite3, sqlite3_open, [apu_have_sqlite3=1]))
+      if test "$apu_have_sqlite3" != "0"; then
+        APR_ADDTO(APRUTIL_LDFLAGS, [-L$withval/lib])
+        APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/include])
+      fi
+    fi
+  ], [
+    apu_have_sqlite3=0
+    AC_CHECK_HEADER(sqlite3.h, AC_CHECK_LIB(sqlite3, sqlite3_open, [apu_have_sqlite3=1]))
+  ])
+
+  AC_SUBST(apu_have_sqlite3)
+
+  dnl Since we have already done the AC_CHECK_LIB tests, if we have it, 
+  dnl we know the library is there.
+  if test "$apu_have_sqlite3" = "1"; then
+    APR_ADDTO(APRUTIL_EXPORT_LIBS,[-lsqlite3])
+    APR_ADDTO(APRUTIL_LIBS,[-lsqlite3])
+  fi
+])
+dnl
 AC_DEFUN([APU_CHECK_DBD_SQLITE2], [
   apu_have_sqlite2=0
 
