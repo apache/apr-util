@@ -68,6 +68,9 @@ APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool)
 #if APU_HAVE_PGSQL
     DRIVER_LOAD("pgsql", apr_dbd_pgsql_driver, pool);
 #endif
+#if APU_HAVE_SQLITE3
+    DRIVER_LOAD("sqlite3", apr_dbd_sqlite3_driver, pool);
+#endif
 #if APU_HAVE_SQLITE2
     DRIVER_LOAD("sqlite2", apr_dbd_sqlite2_driver, pool);
 #endif
@@ -135,6 +138,7 @@ APU_DECLARE(apr_status_t) apr_dbd_open(apr_dbd_driver_t *driver,
                                        apr_pool_t *pool, const char *params,
                                        apr_dbd_t **handle)
 {
+
     *handle = driver->open(pool, params);
     if (*handle == NULL) {
         return APR_EGENERAL;

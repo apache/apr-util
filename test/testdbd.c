@@ -99,9 +99,6 @@ static void select_rows(abts_case *tc, apr_dbd_t* handle,
     ABTS_ASSERT(tc, sql, rv == APR_SUCCESS);
     ABTS_PTR_NOTNULL(tc, res);
 
-    rv = apr_dbd_num_tuples(driver, res);
-    ABTS_ASSERT(tc, "no row counts for async selects", rv == -1);
-
     apr_pool_create(&tpool, pool);
     i = count;
     while (i > 0) {
@@ -183,14 +180,41 @@ static void test_dbd_sqlite2(abts_case *tc, void *data)
 }
 #endif
 
+#if APU_HAVE_SQLITE3
+static void test_dbd_sqlite3(abts_case *tc, void *data)
+{
+    apr_pool_t *pool = p;
+    apr_status_t rv;
+    apr_dbd_driver_t* driver = NULL;
+    apr_dbd_t* handle = NULL;
+
+    rv = apr_dbd_get_driver(pool, "sqlite3", &driver);
+    ABTS_ASSERT(tc, "failed to fetch driver", rv == APR_SUCCESS);
+    ABTS_PTR_NOTNULL(tc, driver);
+
+    ABTS_STR_EQUAL(tc, apr_dbd_name(driver), "sqlite3");
+
+    rv = apr_dbd_open(driver, pool, "data/sqlite3.db", &handle);
+    ABTS_ASSERT(tc, "failed to open database", rv == APR_SUCCESS);
+    ABTS_PTR_NOTNULL(tc, handle);
+
+    test_dbd_generic(tc, handle, driver);
+}
+#endif
+
 abts_suite *testdbd(abts_suite *suite)
 {
     suite = ADD_SUITE(suite);
 
 
     abts_run_test(suite, test_dbd_init, NULL);
+
 #if APU_HAVE_SQLITE2
     abts_run_test(suite, test_dbd_sqlite2, NULL);
+#endif
+
+#if APU_HAVE_SQLITE3
+    abts_run_test(suite, test_dbd_sqlite3, NULL);
 #endif
     return suite;
 }
