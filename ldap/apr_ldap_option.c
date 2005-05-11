@@ -103,6 +103,48 @@ APU_DECLARE(int) apr_ldap_set_option(apr_pool_t *pool,
         option_set_tls(pool, ldap, invalue, result);
         break;
         
+    case APR_LDAP_OPT_VERIFY_CERT:
+#if APR_HAS_NETSCAPE_LDAPSDK || APR_HAS_SOLARIS_LDAPSDK || APR_HAS_MOZILLA_LDAPSK
+        result->reason = "LDAP: Verify certificate not yet supported by APR on the "
+                         "Netscape, Solaris or Mozilla LDAP SDKs";
+        result->rc = -1;
+        return APR_EGENERAL;
+#endif
+#if APR_HAS_NOVELL_LDAPSDK
+        if (*((int*)invalue)) {
+            result->rc = ldapssl_set_verify_mode(LDAPSSL_VERIFY_SERVER);
+        }
+        else {
+            result->rc = ldapssl_set_verify_mode(LDAPSSL_VERIFY_NONE);
+        }
+#endif
+#if APR_HAS_OPENLDAP_LDAPSDK
+#ifdef LDAP_OPT_X_TLS
+		/* This is not a per-connection setting so just pass NULL for the
+		   Ldap connection handle */
+        if (*((int*)invalue)) {
+			int i = LDAP_OPT_X_TLS_DEMAND;
+			result->rc = ldap_set_option(NULL, LDAP_OPT_X_TLS_REQUIRE_CERT, &i);
+        }
+        else {
+			int i = LDAP_OPT_X_TLS_NEVER;
+			result->rc = ldap_set_option(NULL, LDAP_OPT_X_TLS_REQUIRE_CERT, &i);
+        }
+#else
+        result->reason = "LDAP: SSL/TLS not yet supported by APR on this "
+                         "version of the OpenLDAP toolkit";
+        result->rc = -1;
+        return APR_EGENERAL;
+#endif
+#endif
+
+        /* handle the error case */
+        if (result->rc != LDAP_SUCCESS) {
+            result->msg = ldap_err2string(result->rc);
+            result->reason = "LDAP: Could not set verify mode";
+        }
+        break;
+        
     default:
         /* set the option specified using the native LDAP function */
         result->rc = ldap_set_option(ldap, option, (void *)invalue);
