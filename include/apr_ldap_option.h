@@ -51,6 +51,11 @@ extern "C" {
  * keys globally, or per connection (where supported).
  */
 #define APR_LDAP_OPT_TLS_CERT 0x6ffe
+/**
+ * Set the LDAP library to no verify the server certificate.  This means
+ * all servers are considered trusted.
+ */
+#define APR_LDAP_OPT_VERIFY_CERT 0x6ffd
 
 /**
  * Structures for the apr_set_option() cases
