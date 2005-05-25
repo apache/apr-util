@@ -154,7 +154,7 @@ APU_DECLARE(char *) apr_uri_unparse(apr_pool_t *p,
  * @param p The pool to allocate out of
  * @param uri The uri to parse
  * @param uptr The apr_uri_t to fill out
- * @return An HTTP status code
+ * @return 0 for success or error code
  */
 APU_DECLARE(int) apr_uri_parse(apr_pool_t *p, const char *uri, 
                                apr_uri_t *uptr);
@@ -164,7 +164,7 @@ APU_DECLARE(int) apr_uri_parse(apr_pool_t *p, const char *uri,
  * @param p The pool to allocate out of
  * @param hostinfo The hostinfo string to parse
  * @param uptr The apr_uri_t to fill out
- * @return An HTTP status code
+ * @return 0 for success or error code
  */
 APU_DECLARE(int) apr_uri_parse_hostinfo(apr_pool_t *p, 
                                         const char *hostinfo, 
