@@ -19,6 +19,7 @@
 #include "apu.h"
 #include "apr_pools.h"
 #include "apr_dbd.h"
+#include "apr_strings.h"
 
 static void test_dbd_init(abts_case *tc, void *data)
 {
@@ -29,6 +30,7 @@ static void test_dbd_init(abts_case *tc, void *data)
     ABTS_ASSERT(tc, "failed to init apr_dbd", rv == APR_SUCCESS);
 }
 
+#if APU_HAVE_SQLITE2 || APU_HAVE_SQLITE3
 static void test_statement(abts_case *tc, apr_dbd_t* handle, 
                            apr_dbd_driver_t* driver, const char* sql)
 {
@@ -157,6 +159,7 @@ static void test_dbd_generic(abts_case *tc, apr_dbd_t* handle,
     rv = apr_dbd_close(driver, handle);
     ABTS_ASSERT(tc, "failed to close database", rv == APR_SUCCESS);
 }
+#endif
 
 #if APU_HAVE_SQLITE2
 static void test_dbd_sqlite2(abts_case *tc, void *data)
