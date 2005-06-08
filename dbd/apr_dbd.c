@@ -107,7 +107,11 @@ APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
     }
 #endif
 
+#ifdef WIN32
+    sprintf(path, "apr_dbd_%s.dll", name);
+#else
     sprintf(path, "apr_dbd_%s.so", name);
+#endif
     rv = apr_dso_load(&dlhandle, path, pool);
     if (rv != APR_SUCCESS) { /* APR_EDSOOPEN */
         goto unlock;

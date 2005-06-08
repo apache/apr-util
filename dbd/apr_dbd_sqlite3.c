@@ -95,6 +95,10 @@ static int dbd_sqlite3_select(apr_pool_t * pool, apr_dbd_t * sql, apr_dbd_result
 
     char *hold = NULL;
 
+    if (sql->trans && sql->trans->errnum) {
+        return sql->trans->errnum;
+    }
+
     apr_thread_mutex_lock(sql->mutex);
 
     ret = sqlite3_prepare(sql->conn, query, strlen(query), &stmt, &tail);
@@ -174,6 +178,10 @@ static int dbd_sqlite3_select(apr_pool_t * pool, apr_dbd_t * sql, apr_dbd_result
     }
     ret = sqlite3_finalize(stmt);
     apr_thread_mutex_unlock(sql->mutex);
+
+    if (sql->trans) {
+        sql->trans->errnum = ret;
+    }
     return ret;
 }
 
@@ -228,8 +236,13 @@ static int dbd_sqlite3_query(apr_dbd_t * sql, int *nrows, const char *query)
     apr_status_t res;
     apr_pool_t *pool;
 
+    if (sql->trans && sql->trans->errnum) {
+        return sql->trans->errnum;
+    }
+
     res = apr_pool_create(&pool, sql->pool);
     if (res != APR_SUCCESS) {
+        sql->trans->errnum = res;
         return SQLITE_ERROR;
     }
     length = strlen(query);
@@ -239,8 +252,7 @@ static int dbd_sqlite3_query(apr_dbd_t * sql, int *nrows, const char *query)
         ret = sqlite3_prepare(sql->conn, query, length, &stmt, &tail);
         if (ret != SQLITE_OK) {
             sqlite3_finalize(stmt);
-            apr_thread_mutex_unlock(sql->mutex);
-            return ret;
+            break;
         }
 
         ret = sqlite3_step(stmt);
@@ -251,11 +263,14 @@ static int dbd_sqlite3_query(apr_dbd_t * sql, int *nrows, const char *query)
     } while (length > 0);
 
     if (dbd_sqlite3_is_success(ret)) {
-        ret = 0;
+        res = 0;
     }
     apr_thread_mutex_unlock(sql->mutex);
     apr_pool_destroy(pool);
-    return ret;
+    if (sql->trans) {
+        sql->trans->errnum = res;
+    }
+    return res;
 }
 
 static const char *dbd_sqlite3_escape(apr_pool_t * pool, const char *arg, apr_dbd_t * sql)
@@ -346,6 +361,7 @@ static apr_dbd_t *dbd_sqlite3_open(apr_pool_t * pool, const char *params)
     sql = apr_pcalloc(pool, sizeof(*sql));
     sql->conn = conn;
     sql->pool = pool;
+    sql->trans = NULL;
     /* Create a mutex */
     res = apr_thread_mutex_create(&sql->mutex, APR_THREAD_MUTEX_DEFAULT, pool);
     if (res != APR_SUCCESS) {
