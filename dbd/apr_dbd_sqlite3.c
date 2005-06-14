@@ -86,7 +86,7 @@ static int dbd_sqlite3_select(apr_pool_t * pool, apr_dbd_t * sql, apr_dbd_result
 {
     sqlite3_stmt *stmt = NULL;
     const char *tail = NULL;
-    int i, ret, retry_count;
+    int i, ret, retry_count = 0;
     size_t num_tuples = 0;
     int increment = 0;
     apr_dbd_row_t *row = NULL;
@@ -187,8 +187,8 @@ static int dbd_sqlite3_select(apr_pool_t * pool, apr_dbd_t * sql, apr_dbd_result
 
 static int dbd_sqlite3_get_row(apr_pool_t * pool, apr_dbd_results_t * res, apr_dbd_row_t ** rowp, int rownum)
 {
-    int ret, retry_count, i = 0;
-    apr_dbd_row_t *row;
+    int i = 0;
+
     if (rownum == -1) {
         *rowp = res->next_row;
         if (*rowp == 0)
@@ -232,7 +232,7 @@ static int dbd_sqlite3_query(apr_dbd_t * sql, int *nrows, const char *query)
 {
     sqlite3_stmt *stmt = NULL;
     const char *tail = NULL;
-    int ret, retry_count = 0, length = 0;
+    int ret, length = 0;
     apr_status_t res;
     apr_pool_t *pool;
 

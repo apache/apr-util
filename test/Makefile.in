@@ -10,7 +10,7 @@ APRUTIL_DOTTED_VERSION=@APRUTIL_DOTTED_VERSION@
 APRUTIL_MAJOR_VERSION=@APRUTIL_MAJOR_VERSION@
 TARGET_LIB_PATH = ../lib@APRUTIL_LIBNAME@.la
 
-CLEAN_TARGETS = manyfile.bin testfile.txt
+CLEAN_TARGETS = manyfile.bin testfile.txt data/sqlite*.db
 
 # bring in rules.mk for standard functionality
 @INCLUDE_RULES@
