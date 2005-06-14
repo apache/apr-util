@@ -185,7 +185,8 @@ static int dbd_sqlite3_select(apr_pool_t * pool, apr_dbd_t * sql, apr_dbd_result
     return ret;
 }
 
-static int dbd_sqlite3_get_row(apr_pool_t * pool, apr_dbd_results_t * res, apr_dbd_row_t ** rowp, int rownum)
+static int dbd_sqlite3_get_row(apr_pool_t *pool, apr_dbd_results_t *res,
+                               apr_dbd_row_t **rowp, int rownum)
 {
     int i = 0;
 
@@ -211,7 +212,7 @@ static int dbd_sqlite3_get_row(apr_pool_t * pool, apr_dbd_results_t * res, apr_d
 
 }
 
-static const char *dbd_sqlite3_get_entry(const apr_dbd_row_t * row, int n)
+static const char *dbd_sqlite3_get_entry(const apr_dbd_row_t *row, int n)
 {
     apr_dbd_column_t *column;
     const char *value;
@@ -223,12 +224,12 @@ static const char *dbd_sqlite3_get_entry(const apr_dbd_row_t * row, int n)
     return value;
 }
 
-static const char *dbd_sqlite3_error(apr_dbd_t * sql, int n)
+static const char *dbd_sqlite3_error(apr_dbd_t *sql, int n)
 {
     return sqlite3_errmsg(sql->conn);
 }
 
-static int dbd_sqlite3_query(apr_dbd_t * sql, int *nrows, const char *query)
+static int dbd_sqlite3_query(apr_dbd_t *sql, int *nrows, const char *query)
 {
     sqlite3_stmt *stmt = NULL;
     const char *tail = NULL;
@@ -273,44 +274,53 @@ static int dbd_sqlite3_query(apr_dbd_t * sql, int *nrows, const char *query)
     return res;
 }
 
-static const char *dbd_sqlite3_escape(apr_pool_t * pool, const char *arg, apr_dbd_t * sql)
+static const char *dbd_sqlite3_escape(apr_pool_t *pool, const char *arg,
+                                      apr_dbd_t *sql)
 {
     char *ret = sqlite3_mprintf(arg);
-    apr_pool_cleanup_register(pool, ret, (void *) sqlite3_free, apr_pool_cleanup_null);
+    apr_pool_cleanup_register(pool, ret, (void *) sqlite3_free,
+                              apr_pool_cleanup_null);
     return ret;
 }
 
-static int dbd_sqlite3_prepare(apr_pool_t * pool, apr_dbd_t * sql,
-                               const char *query, const char *label, apr_dbd_prepared_t ** statement)
+static int dbd_sqlite3_prepare(apr_pool_t *pool, apr_dbd_t *sql,
+                               const char *query, const char *label,
+                               apr_dbd_prepared_t **statement)
 {
     return APR_ENOTIMPL;
 }
 
-static int dbd_sqlite3_pquery(apr_pool_t * pool, apr_dbd_t * sql,
-                              int *nrows, apr_dbd_prepared_t * statement, int nargs, const char **values)
+static int dbd_sqlite3_pquery(apr_pool_t *pool, apr_dbd_t *sql,
+                              int *nrows, apr_dbd_prepared_t *statement,
+                              int nargs, const char **values)
 {
     return APR_ENOTIMPL;
 }
 
-static int dbd_sqlite3_pvquery(apr_pool_t * pool, apr_dbd_t * sql, int *nrows, apr_dbd_prepared_t * statement, ...)
+static int dbd_sqlite3_pvquery(apr_pool_t *pool, apr_dbd_t *sql, int *nrows,
+                               apr_dbd_prepared_t *statement, ...)
 {
     return APR_ENOTIMPL;
 }
 
-static int dbd_sqlite3_pselect(apr_pool_t * pool, apr_dbd_t * sql,
-                               apr_dbd_results_t ** results,
-                               apr_dbd_prepared_t * statement, int seek, int nargs, const char **values)
+static int dbd_sqlite3_pselect(apr_pool_t *pool, apr_dbd_t *sql,
+                               apr_dbd_results_t **results,
+                               apr_dbd_prepared_t *statement, int seek,
+                               int nargs, const char **values)
 {
     return APR_ENOTIMPL;
 }
 
-static int dbd_sqlite3_pvselect(apr_pool_t * pool, apr_dbd_t * sql,
-                                apr_dbd_results_t ** results, apr_dbd_prepared_t * statement, int seek, ...)
+static int dbd_sqlite3_pvselect(apr_pool_t *pool, apr_dbd_t *sql,
+                                apr_dbd_results_t **results,
+                                apr_dbd_prepared_t *statement, int seek, ...)
 {
     return APR_ENOTIMPL;
 }
 
-static int dbd_sqlite3_start_transaction(apr_pool_t * pool, apr_dbd_t * handle, apr_dbd_transaction_t ** trans)
+static int dbd_sqlite3_start_transaction(apr_pool_t *pool,
+                                         apr_dbd_t *handle,
+                                         apr_dbd_transaction_t **trans)
 {
     int ret = 0;
     int nrows = 0;
@@ -325,7 +335,7 @@ static int dbd_sqlite3_start_transaction(apr_pool_t * pool, apr_dbd_t * handle, 
     return ret;
 }
 
-static int dbd_sqlite3_end_transaction(apr_dbd_transaction_t * trans)
+static int dbd_sqlite3_end_transaction(apr_dbd_transaction_t *trans)
 {
     int ret = 0;
     int nrows = 0;
@@ -344,7 +354,7 @@ static int dbd_sqlite3_end_transaction(apr_dbd_transaction_t * trans)
     return ret;
 }
 
-static apr_dbd_t *dbd_sqlite3_open(apr_pool_t * pool, const char *params)
+static apr_dbd_t *dbd_sqlite3_open(apr_pool_t *pool, const char *params)
 {
     apr_dbd_t *sql = NULL;
     sqlite3 *conn = NULL;
@@ -363,7 +373,8 @@ static apr_dbd_t *dbd_sqlite3_open(apr_pool_t * pool, const char *params)
     sql->pool = pool;
     sql->trans = NULL;
     /* Create a mutex */
-    res = apr_thread_mutex_create(&sql->mutex, APR_THREAD_MUTEX_DEFAULT, pool);
+    res = apr_thread_mutex_create(&sql->mutex, APR_THREAD_MUTEX_DEFAULT,
+                                  pool);
     if (res != APR_SUCCESS) {
         return NULL;
     }
@@ -371,34 +382,36 @@ static apr_dbd_t *dbd_sqlite3_open(apr_pool_t * pool, const char *params)
     return sql;
 }
 
-static apr_status_t dbd_sqlite3_close(apr_dbd_t * handle)
+static apr_status_t dbd_sqlite3_close(apr_dbd_t *handle)
 {
     sqlite3_close(handle->conn);
     apr_thread_mutex_destroy(handle->mutex);
     return APR_SUCCESS;
 }
 
-static apr_status_t dbd_sqlite3_check_conn(apr_pool_t * pool, apr_dbd_t * handle)
+static apr_status_t dbd_sqlite3_check_conn(apr_pool_t *pool,
+                                           apr_dbd_t *handle)
 {
     return (handle->conn != NULL) ? APR_SUCCESS : APR_EGENERAL;
 }
 
-static int dbd_sqlite3_select_db(apr_pool_t * pool, apr_dbd_t * handle, const char *name)
+static int dbd_sqlite3_select_db(apr_pool_t *pool, apr_dbd_t *handle,
+                                 const char *name)
 {
     return APR_ENOTIMPL;
 }
 
-static void *dbd_sqlite3_native(apr_dbd_t * handle)
+static void *dbd_sqlite3_native(apr_dbd_t *handle)
 {
     return handle->conn;
 }
 
-static int dbd_sqlite3_num_cols(apr_dbd_results_t * res)
+static int dbd_sqlite3_num_cols(apr_dbd_results_t *res)
 {
     return res->sz;
 }
 
-static int dbd_sqlite3_num_tuples(apr_dbd_results_t * res)
+static int dbd_sqlite3_num_tuples(apr_dbd_results_t *res)
 {
     return res->tuples;
 }
