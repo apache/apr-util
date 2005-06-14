@@ -1,5 +1,9 @@
 Changes with APR-util 1.1.2
 
+  *) Fix handling of a premature EOF with the FILE bucket; a new bucket
+     is not inserted for each attempt to read past EOF.  PR 34708.
+     [Jeff Trawick, Joe Orton]
+
   *) Fix build failure with non-threaded APR on AIX.  PR 34655.
      [Ryan Murray <rmurray+apache cyberhqz.com>]
 
