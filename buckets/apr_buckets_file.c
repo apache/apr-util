@@ -132,7 +132,7 @@ static apr_status_t file_bucket_read(apr_bucket *e, const char **str,
     apr_bucket_heap_make(e, buf, *len, apr_bucket_free);
 
     /* If we have more to read from the file, then create another bucket */
-    if (filelength > 0) {
+    if (filelength > 0 && rv != APR_EOF) {
         /* for efficiency, we can just build a new apr_bucket struct
          * to wrap around the existing file bucket */
         b = apr_bucket_alloc(sizeof(*b), e->list);
@@ -149,7 +149,7 @@ static apr_status_t file_bucket_read(apr_bucket *e, const char **str,
     }
 
     *str = buf;
-    return APR_SUCCESS;
+    return rv;
 }
 
 APU_DECLARE(apr_bucket *) apr_bucket_file_make(apr_bucket *b, apr_file_t *fd,

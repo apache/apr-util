@@ -208,6 +208,42 @@ static void test_splitline(abts_case *tc, void *data)
 }
 
 
+/* Regression test for PR 34708, where a file bucket will keep
+ * duplicating itself on being read() when EOF is reached
+ * prematurely. */
+static void test_truncfile(abts_case *tc, void *data)
+{
+    apr_bucket_alloc_t *ba = apr_bucket_alloc_create(p);
+    apr_bucket_brigade *bb = apr_brigade_create(p, ba);
+    apr_file_t *f = make_test_file(tc, "testfile.txt", "hello");
+    apr_bucket *e;
+    const char *buf;
+    apr_size_t len;
+
+    apr_brigade_insert_file(bb, f, 0, 5, p);
+
+    apr_file_trunc(f, 0);
+
+    e = APR_BRIGADE_FIRST(bb);
+
+    ABTS_ASSERT(tc, "single bucket in brigade",
+                APR_BUCKET_NEXT(e) == APR_BRIGADE_SENTINEL(bb));
+
+    apr_bucket_file_enable_mmap(e, 0);
+
+    ABTS_ASSERT(tc, "read gave APR_EOF",
+                apr_bucket_read(e, &buf, &len, APR_BLOCK_READ) == APR_EOF);
+
+    ABTS_ASSERT(tc, "read length 0", len == 0);
+    
+    ABTS_ASSERT(tc, "still a single bucket in brigade",
+                APR_BUCKET_NEXT(e) == APR_BRIGADE_SENTINEL(bb));
+
+    apr_file_close(f);
+    apr_brigade_destroy(bb);
+    apr_bucket_alloc_destroy(ba);
+}
+
 abts_suite *testbuckets(abts_suite *suite)
 {
     suite = ADD_SUITE(suite);
@@ -218,6 +254,7 @@ abts_suite *testbuckets(abts_suite *suite)
     abts_run_test(suite, test_split, NULL);
     abts_run_test(suite, test_bwrite, NULL);
     abts_run_test(suite, test_splitline, NULL);
+    abts_run_test(suite, test_truncfile, NULL);
 
     return suite;
 }
