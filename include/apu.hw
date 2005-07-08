@@ -99,5 +99,15 @@
 #define APU_HAVE_ICONV         0
 #define APR_HAS_XLATE          (APU_HAVE_APR_ICONV || APU_HAVE_ICONV)
 
+#if !defined(APU_HAVE_PGSQL)
+#define APU_HAVE_PGSQL      0
+#endif
+#if !defined(APU_HAVE_SQLITE2)
+#define APU_HAVE_SQLITE2    0
+#endif
+#if !defined(APU_HAVE_SQLITE3)
+#define APU_HAVE_SQLITE3    0
+#endif
+
 #endif /* APU_H */
 #endif /* WIN32 */
