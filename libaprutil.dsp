@@ -170,6 +170,25 @@ SOURCE=.\crypto\getuuid.c
 SOURCE=.\crypto\uuid.c
 # End Source File
 # End Group
+# Begin Group "dbd"
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\dbd\apr_dbd.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\dbd\apr_dbd_pgsql.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\dbd\apr_dbd_sqlite2.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\dbd\apr_dbd_sqlite3.c
+# End Source File
+# End Group
 # Begin Group "dbm"
 
 # PROP Default_Filter ""
