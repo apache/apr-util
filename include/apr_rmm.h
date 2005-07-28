@@ -39,21 +39,22 @@ extern "C" {
 /** Structure to access Relocatable, Managed Memory */
 typedef struct apr_rmm_t apr_rmm_t;
 
-/** Fundemental allocation unit, within a spcific apr_rmm_off_t */
+/** Fundamental allocation unit, within a specific apr_rmm_t */
 typedef apr_size_t   apr_rmm_off_t;
 
 /**
  * Initialize a relocatable memory block to be managed by the apr_rmm API.
  * @param rmm The relocatable memory block
- * @param lock An apr_anylock_t of the appropriate type of lock
- * @param membuf The block of relocateable memory to be managed
- * @param memsize The size of relocateable memory block to be managed
+ * @param lock An apr_anylock_t of the appropriate type of lock, or NULL
+ *             if no locking is required.
+ * @param membuf The block of relocatable memory to be managed
+ * @param memsize The size of relocatable memory block to be managed
  * @param cont The pool to use for local storage and management
  * @remark Both @param membuf and @param memsize must be aligned
  * (for instance using APR_ALIGN_DEFAULT).
  */
 APU_DECLARE(apr_status_t) apr_rmm_init(apr_rmm_t **rmm, apr_anylock_t *lock,
-                                       void* membuf, apr_size_t memsize, 
+                                       void *membuf, apr_size_t memsize, 
                                        apr_pool_t *cont);
 
 /**
@@ -66,11 +67,11 @@ APU_DECLARE(apr_status_t) apr_rmm_destroy(apr_rmm_t *rmm);
  * Attach to a relocatable memory block already managed by the apr_rmm API.
  * @param rmm The relocatable memory block
  * @param lock An apr_anylock_t of the appropriate type of lock
- * @param membuf The block of relocateable memory already under management
+ * @param membuf The block of relocatable memory already under management
  * @param cont The pool to use for local storage and management
  */
 APU_DECLARE(apr_status_t) apr_rmm_attach(apr_rmm_t **rmm, apr_anylock_t *lock,
-                                         void* membuf, apr_pool_t *cont);
+                                         void *membuf, apr_pool_t *cont);
 
 /**
  * Detach from the managed block of memory.
@@ -120,7 +121,7 @@ APU_DECLARE(void *) apr_rmm_addr_get(apr_rmm_t *rmm, apr_rmm_off_t entity);
  * @param rmm The relocatable memory block
  * @param entity The physical address to convert to an offset
  */
-APU_DECLARE(apr_rmm_off_t) apr_rmm_offset_get(apr_rmm_t *rmm, void* entity);
+APU_DECLARE(apr_rmm_off_t) apr_rmm_offset_get(apr_rmm_t *rmm, void *entity);
 
 /**
  * Compute the required overallocation of memory needed to fit n allocs
