@@ -20,6 +20,35 @@
 #include "apr_lib.h"
 #include "apr_strings.h"
 
+/* The RMM region is made up of two doubly-linked-list of blocks; the
+ * list of used blocks, and the list of free blocks (either list may
+ * be empty).  The base pointer, rmm->base, points at the beginning of
+ * the shmem region in use.  Each block is addressable by an
+ * apr_rmm_off_t value, which represents the offset from the base
+ * pointer.  The term "address" is used here to mean such a value; an
+ * "offset from rmm->base".
+ *
+ * The RMM region contains exactly one "rmm_hdr_block_t" structure,
+ * the "header block", which is always stored at the base pointer.
+ * The firstused field in this structure is the address of the first
+ * block in the "used blocks" list; the firstfree field is the address
+ * of the first block in the "free blocks" list.
+ *
+ * Each block is prefixed by an "rmm_block_t" structure, followed by
+ * the caller-usable region represented by the block.  The next and
+ * prev fields of the structure are zero if the block is at the end or
+ * beginning of the linked-list respectively, or otherwise hold the
+ * address of the next and previous blocks in the list.  ("address 0",
+ * i.e. rmm->base is *not* a valid address for a block, since the
+ * header block is always stored at that address).
+ *
+ * At creation, the RMM region is initialized to hold a single block
+ * on the free list representing the entire available shm segment
+ * (minus header block); subsequent allocation and deallocation of
+ * blocks involves splitting blocks and coalescing adjacent blocks,
+ * and switching them between the free and used lists as
+ * appropriate. */
+
 typedef struct rmm_block_t {
     apr_size_t size;
     apr_rmm_off_t prev;
