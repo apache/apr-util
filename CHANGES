@@ -1,5 +1,8 @@
 Changes with APR-util 1.2.0
 
+  *) Fix apr_rmm_realloc() offset calculation bug.  [Keith Kelleman
+     <keith.kelleman oracle.com>]
+
   *) Add sqlite3 support to APR DBD. [Rick Keiner <rick_keiner yahoo.com>]
 
   *) Fix build failure with non-threaded APR on AIX.  PR 34655.
