@@ -332,7 +332,7 @@ APU_DECLARE(apr_rmm_off_t) apr_rmm_realloc(apr_rmm_t *rmm, void *entity,
         return 0;
     }
 
-    blk = (rmm_block_t*)((char*)rmm->base + old);
+    blk = (rmm_block_t*)((char*)rmm->base + old - RMM_BLOCK_SIZE);
     oldsize = blk->size;
 
     memcpy(apr_rmm_addr_get(rmm, this),
