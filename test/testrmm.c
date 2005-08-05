@@ -191,12 +191,37 @@ static apr_status_t test_rmm(apr_pool_t *parpool)
         printf("FAILED\n");
         return rv;
     }
+
+    {
+        unsigned char *c = entity;
+
+        /* Fill in the region; the first half with zereos, which will
+         * likely catch the apr_rmm_realloc offset calculation bug by
+         * making it think the old region was zero length. */
+        for (i = 0; i < 100; i++) {
+            c[i] = (i < 50) ? 0 : i;
+        }
+    }
+
     /* now we can realloc off[1] and get many more bytes */
     off[0] = apr_rmm_realloc(rmm, entity, SHARED_SIZE - 100);
     if (off[0] == 0) {
         printf("FAILED\n");
         return APR_EINVAL;
     }
+
+    {
+        unsigned char *c = apr_rmm_addr_get(rmm, off[0]);
+
+        /* fill in the region */
+        for (i = 0; i < 100; i++) {
+            if (c[i] != (i < 50 ? 0 : i)) {
+                printf("FAILED at offset %d: %hx\n", i, c[i]);
+                return APR_EGENERAL;
+            }
+        }
+    }
+
     fprintf(stdout, "OK\n");
 
     printf("Destroying rmm segment...........................");
