@@ -1,5 +1,8 @@
 Changes with APR-util 0.9.7
 
+  *) Fix apr_rmm_realloc() offset calculation bug.  [Keith Kelleman
+     <keith.kelleman oracle.com>]
+
   *) Fix handling of a premature EOF with the FILE bucket; a new bucket
      is not inserted for each attempt to read past EOF.  PR 34708.
      [Jeff Trawick, Joe Orton]
