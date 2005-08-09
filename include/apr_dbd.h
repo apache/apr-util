@@ -29,6 +29,7 @@ extern "C" {
 #include "apr_dbd_internal.h"
 #else
 /* These are opaque structs.  Instantiation is up to each backend */
+typedef struct apr_dbd_driver_t apr_dbd_driver_t;
 typedef struct apr_dbd_t apr_dbd_t;
 typedef struct apr_dbd_transaction_t apr_dbd_transaction_t;
 typedef struct apr_dbd_results_t apr_dbd_results_t;
