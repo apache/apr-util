@@ -65,6 +65,7 @@ typedef struct
 } apr_dbd_prepared_t;
 
 #define APR_DBD_INTERNAL
+#include "apr_dbd_internal.h"
 #include "apr_dbd.h"
 
 #define FREE_ERROR_MSG(dbd) \

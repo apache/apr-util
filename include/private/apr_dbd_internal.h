@@ -26,6 +26,7 @@ extern "C" {
 #endif
 
 #ifndef APR_DBD_INTERNAL
+#define APR_DBD_INTERNAL
 typedef struct apr_dbd_t apr_dbd_t;
 typedef struct apr_dbd_transaction_t apr_dbd_transaction_t;
 typedef struct apr_dbd_results_t apr_dbd_results_t;
