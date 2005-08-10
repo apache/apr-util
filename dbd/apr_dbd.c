@@ -16,8 +16,6 @@
 
 #include <stdio.h>
 
-#define APR_DBD_C
-
 #include "apu.h"
 #include "apr_pools.h"
 #include "apr_dbd_internal.h"

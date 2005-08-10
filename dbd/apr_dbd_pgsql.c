@@ -64,6 +64,7 @@ typedef struct {
                                  || ((x) == PGRES_TUPLES_OK))
 
 #define APR_DBD_INTERNAL
+#include "apr_dbd_internal.h"
 #include "apr_dbd.h"
 
 static int dbd_pgsql_select(apr_pool_t *pool, apr_dbd_t *sql,
