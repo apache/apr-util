@@ -80,6 +80,7 @@ typedef struct {
 		|| ((x) == SQLITE_OK ))
 
 #define APR_DBD_INTERNAL
+#include "apr_dbd_internal.h"
 #include "apr_dbd.h"
 
 static int dbd_sqlite3_select(apr_pool_t * pool, apr_dbd_t * sql, apr_dbd_results_t ** results, const char *query, int seek)

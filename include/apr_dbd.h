@@ -25,10 +25,8 @@
 extern "C" {
 #endif
 
-#if defined APR_DBD_INTERNAL || defined APR_DBD_C
-#include "apr_dbd_internal.h"
-#else
 /* These are opaque structs.  Instantiation is up to each backend */
+#ifndef APR_DBD_INTERNAL_H
 typedef struct apr_dbd_driver_t apr_dbd_driver_t;
 typedef struct apr_dbd_t apr_dbd_t;
 typedef struct apr_dbd_transaction_t apr_dbd_transaction_t;
