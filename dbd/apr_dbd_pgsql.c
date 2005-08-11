@@ -26,46 +26,42 @@
 #include "apr_strings.h"
 #include "apr_time.h"
 
+#include "apr_dbd_internal.h"
+
 #define QUERY_MAX_ARGS 40
 
-typedef struct apr_dbd_t apr_dbd_t;
-
-typedef struct {
+struct apr_dbd_transaction_t {
     int errnum;
     apr_dbd_t *handle;
-} apr_dbd_transaction_t;
+};
 
 struct apr_dbd_t {
     PGconn *conn;
     apr_dbd_transaction_t *trans;
 };
 
-typedef struct {
+struct apr_dbd_results_t {
     int random;
     PGconn *handle;
     PGresult *res;
     size_t ntuples;
     size_t sz;
     size_t index;
-} apr_dbd_results_t;
+};
 
-typedef struct {
+struct apr_dbd_row_t {
     int n;
     apr_dbd_results_t *res;
-} apr_dbd_row_t;
+};
 
-typedef struct {
+struct apr_dbd_prepared_t {
     const char *name;
     int prepared;
-} apr_dbd_prepared_t;
+};
 
 #define dbd_pgsql_is_success(x) (((x) == PGRES_EMPTY_QUERY) \
                                  || ((x) == PGRES_COMMAND_OK) \
                                  || ((x) == PGRES_TUPLES_OK))
-
-#define APR_DBD_INTERNAL
-#include "apr_dbd_internal.h"
-#include "apr_dbd.h"
 
 static int dbd_pgsql_select(apr_pool_t *pool, apr_dbd_t *sql,
                             apr_dbd_results_t **results,
