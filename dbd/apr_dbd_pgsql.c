@@ -378,17 +378,16 @@ static int dbd_pgsql_pquery(apr_pool_t *pool, apr_dbd_t *sql,
 }
 
 static int dbd_pgsql_pvquery(apr_pool_t *pool, apr_dbd_t *sql,
-                             int *nrows, apr_dbd_prepared_t *statement, ...)
+                             int *nrows, apr_dbd_prepared_t *statement,
+                             va_list args)
 {
     const char *arg;
     int nargs = 0;
-    va_list args;
     const char *values[QUERY_MAX_ARGS];
 
     if (sql->trans && sql->trans->errnum) {
         return sql->trans->errnum;
     }
-    va_start(args, statement);
     while ( arg = va_arg(args, const char*), arg ) {
         if ( nargs >= QUERY_MAX_ARGS) {
             va_end(args);
@@ -396,7 +395,6 @@ static int dbd_pgsql_pvquery(apr_pool_t *pool, apr_dbd_t *sql,
         }
         values[nargs++] = apr_pstrdup(pool, arg);
     }
-    va_end(args);
     values[nargs] = NULL;
     return dbd_pgsql_pquery(pool, sql, nrows, statement, nargs, values);
 }
@@ -477,18 +475,16 @@ static int dbd_pgsql_pselect(apr_pool_t *pool, apr_dbd_t *sql,
 static int dbd_pgsql_pvselect(apr_pool_t *pool, apr_dbd_t *sql,
                               apr_dbd_results_t **results,
                               apr_dbd_prepared_t *statement,
-                              int seek, ...)
+                              int seek, va_list args)
 {
     const char *arg;
     int nargs = 0;
-    va_list args;
     const char *values[QUERY_MAX_ARGS];
 
     if (sql->trans && sql->trans->errnum) {
         return sql->trans->errnum;
     }
 
-    va_start(args, seek);
     while (arg = va_arg(args, const char*), arg) {
         if ( nargs >= QUERY_MAX_ARGS) {
             va_end(args);
@@ -496,7 +492,6 @@ static int dbd_pgsql_pvselect(apr_pool_t *pool, apr_dbd_t *sql,
         }
         values[nargs++] = apr_pstrdup(pool, arg);
     }
-    va_end(args);
     return dbd_pgsql_pselect(pool, sql, results, statement,
                              seek, nargs, values) ;
 }

@@ -203,11 +203,11 @@ typedef struct apr_dbd_driver_t {
      *  @param handle - the connection
      *  @param nrows - number of rows affected.
      *  @param statement - the prepared statement to execute
-     *  @param ... - args to prepared statement
+     *  @param args - args to prepared statement
      *  @return 0 for success or error code
      */
     int (*pvquery)(apr_pool_t *pool, apr_dbd_t *handle, int *nrows,
-                   apr_dbd_prepared_t *statement, ...);
+                   apr_dbd_prepared_t *statement, va_list args);
 
     /** pvselect: select using a prepared statement + args
      *
@@ -216,12 +216,12 @@ typedef struct apr_dbd_driver_t {
      *  @param res - pointer to query results.  May point to NULL on entry
      *  @param statement - the prepared statement to execute
      *  @param random - Whether to support random-access to results
-     *  @param ... - args to prepared statement
+     *  @param args - args to prepared statement
      *  @return 0 for success or error code
      */
     int (*pvselect)(apr_pool_t *pool, apr_dbd_t *handle,
                     apr_dbd_results_t **res,
-                    apr_dbd_prepared_t *statement, int random, ...);
+                    apr_dbd_prepared_t *statement, int random, va_list args);
 
     /** pquery: query using a prepared statement + args
      *
