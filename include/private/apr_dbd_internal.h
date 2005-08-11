@@ -21,20 +21,13 @@
 #ifndef APR_DBD_INTERNAL_H
 #define APR_DBD_INTERNAL_H
 
+#include "apr_dbd.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#ifndef APR_DBD_INTERNAL
-#define APR_DBD_INTERNAL
-typedef struct apr_dbd_t apr_dbd_t;
-typedef struct apr_dbd_transaction_t apr_dbd_transaction_t;
-typedef struct apr_dbd_results_t apr_dbd_results_t;
-typedef struct apr_dbd_row_t apr_dbd_row_t;
-typedef struct apr_dbd_prepared_t apr_dbd_prepared_t;
-#endif
-
-typedef struct apr_dbd_driver_t {
+struct apr_dbd_driver_t {
     /** name */
     const char *name;
 
@@ -253,7 +246,7 @@ typedef struct apr_dbd_driver_t {
                    int random, int nargs, const char **args);
 
 
-} apr_dbd_driver_t;
+};
 
 
 #ifdef __cplusplus

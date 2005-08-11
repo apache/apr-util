@@ -26,17 +26,15 @@
 #include "apr_strings.h"
 #include "apr_time.h"
 
+#include "apr_dbd_internal.h"
+
 #define MAX_RETRY_COUNT 15
 #define MAX_RETRY_SLEEP 100000
 
-typedef struct apr_dbd_t apr_dbd_t;
-typedef struct apr_dbd_results_t apr_dbd_results_t;
-typedef struct apr_dbd_column_t apr_dbd_column_t;
-typedef struct apr_dbd_row_t apr_dbd_row_t;
-typedef struct {
+struct apr_dbd_transaction_t {
     int errnum;
     apr_dbd_t *handle;
-} apr_dbd_transaction_t;
+};
 
 struct apr_dbd_t {
     sqlite3 *conn;
@@ -45,19 +43,19 @@ struct apr_dbd_t {
     apr_pool_t *pool;
 };
 
+typedef struct {
+    char *name;
+    char *value;
+    int size;
+    int type;
+} apr_dbd_column_t;
+
 struct apr_dbd_row_t {
     apr_dbd_results_t *res;
     apr_dbd_column_t **columns;
     apr_dbd_row_t *next_row;
     int columnCount;
     int rownum;
-};
-
-struct apr_dbd_column_t {
-    char *name;
-    char *value;
-    int size;
-    int type;
 };
 
 struct apr_dbd_results_t {
@@ -69,19 +67,13 @@ struct apr_dbd_results_t {
     int tuples;
 };
 
-
-
-typedef struct {
+struct apr_dbd_prepared_t {
     const char *name;
     int prepared;
-} apr_dbd_prepared_t;
+};
 
 #define dbd_sqlite3_is_success(x) (((x) == SQLITE_DONE ) \
 		|| ((x) == SQLITE_OK ))
-
-#define APR_DBD_INTERNAL
-#include "apr_dbd_internal.h"
-#include "apr_dbd.h"
 
 static int dbd_sqlite3_select(apr_pool_t * pool, apr_dbd_t * sql, apr_dbd_results_t ** results, const char *query, int seek)
 {
