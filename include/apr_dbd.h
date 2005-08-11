@@ -26,14 +26,12 @@ extern "C" {
 #endif
 
 /* These are opaque structs.  Instantiation is up to each backend */
-#ifndef APR_DBD_INTERNAL_H
 typedef struct apr_dbd_driver_t apr_dbd_driver_t;
 typedef struct apr_dbd_t apr_dbd_t;
 typedef struct apr_dbd_transaction_t apr_dbd_transaction_t;
 typedef struct apr_dbd_results_t apr_dbd_results_t;
 typedef struct apr_dbd_row_t apr_dbd_row_t;
 typedef struct apr_dbd_prepared_t apr_dbd_prepared_t;
-#endif
 
 /** apr_dbd_init: perform once-only initialisation.  Call once only.
  *

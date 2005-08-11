@@ -26,47 +26,38 @@
 #include "apr_strings.h"
 #include "apr_time.h"
 
-typedef struct apr_dbd_t apr_dbd_t;
+#include "apr_dbd_internal.h"
 
-typedef struct
-{
+struct apr_dbd_transaction_t {
     int errnum;
     apr_dbd_t *handle;
-} apr_dbd_transaction_t;
+};
 
-struct apr_dbd_t
-{
+struct apr_dbd_t {
     sqlite *conn;
     char *errmsg;
     apr_dbd_transaction_t *trans;
 };
 
-typedef struct
-{
+struct apr_dbd_results_t {
     int random;
     sqlite *handle;
     char **res;
     size_t ntuples;
     size_t sz;
     size_t index;
-} apr_dbd_results_t;
+};
 
-typedef struct
-{
+struct apr_dbd_row_t {
     int n;
     char **data;
     apr_dbd_results_t *res;
-} apr_dbd_row_t;
+};
 
-typedef struct
-{
+struct apr_dbd_prepared_t {
     const char *name;
     int prepared;
-} apr_dbd_prepared_t;
-
-#define APR_DBD_INTERNAL
-#include "apr_dbd_internal.h"
-#include "apr_dbd.h"
+};
 
 #define FREE_ERROR_MSG(dbd) \
 	do { \
