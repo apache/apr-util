@@ -21,8 +21,9 @@
 #ifndef APR_DBD_INTERNAL_H
 #define APR_DBD_INTERNAL_H
 
+#include <stdarg.h>
+
 #include "apr_dbd.h"
-#include "stdarg.h"
 
 #ifdef __cplusplus
 extern "C" {
