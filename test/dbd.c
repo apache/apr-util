@@ -284,7 +284,7 @@ static int test_pselect(apr_pool_t* pool, apr_dbd_t* handle,
                apr_dbd_error(driver, handle, rv));
         return rv;
     }
-    rv = driver->pvselect(pool, handle, &res, statement, 0, "3", NULL);
+    rv = apr_dbd_pvselect(driver, pool, handle, &res, statement, 0, "3", NULL);
     if (rv) {
         printf("Exec of prepared statement failed!\n%s\n",
                apr_dbd_error(driver, handle, rv));
@@ -327,7 +327,7 @@ static int test_pquery(apr_pool_t* pool, apr_dbd_t* handle,
         return rv;
     }
     apr_dbd_transaction_start(driver, pool, handle, &trans);
-    rv = driver->pvquery(pool, handle, &nrows, statement,
+    rv = apr_dbd_pvquery(driver, pool, handle, &nrows, statement,
                          "prepared", "insert", "2", NULL);
     apr_dbd_transaction_end(driver, pool, trans);
     if (rv) {
