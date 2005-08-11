@@ -50,7 +50,7 @@ APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool);
  *  @return APR_ESYMNOTFOUND if the driver file doesn't contain a driver
  */
 APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
-                                             apr_dbd_driver_t **driver);
+                                             const apr_dbd_driver_t **driver);
 
 /** apr_dbd_open: open a connection to a backend
  *
@@ -61,7 +61,7 @@ APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
  *  @return APR_SUCCESS for success
  *  @return APR_EGENERAL if driver exists but connection failed
  */
-APU_DECLARE(apr_status_t) apr_dbd_open(apr_dbd_driver_t *driver,
+APU_DECLARE(apr_status_t) apr_dbd_open(const apr_dbd_driver_t *driver,
                                        apr_pool_t *ptmp, const char *params,
                                        apr_dbd_t **handle);
 
@@ -72,7 +72,7 @@ APU_DECLARE(apr_status_t) apr_dbd_open(apr_dbd_driver_t *driver,
  *  @param driver - driver struct.
  *  @return APR_SUCCESS for success or error status
  */
-APU_DECLARE(apr_status_t) apr_dbd_close(apr_dbd_driver_t *driver,
+APU_DECLARE(apr_status_t) apr_dbd_close(const apr_dbd_driver_t *driver,
                                         apr_dbd_t *handle);
 
 /* apr-function-shaped versions of things */
@@ -82,7 +82,7 @@ APU_DECLARE(apr_status_t) apr_dbd_close(apr_dbd_driver_t *driver,
  *  @param driver - the driver
  *  @return - name
  */
-APU_DECLARE(const char*) apr_dbd_name(apr_dbd_driver_t *driver);
+APU_DECLARE(const char*) apr_dbd_name(const apr_dbd_driver_t *driver);
 
 /** apr_dbd_native_handle: get native database handle of the underlying db
  *
@@ -90,7 +90,7 @@ APU_DECLARE(const char*) apr_dbd_name(apr_dbd_driver_t *driver);
  *  @param handle - apr_dbd handle
  *  @return - native handle
  */
-APU_DECLARE(void*) apr_dbd_native_handle(apr_dbd_driver_t *driver,
+APU_DECLARE(void*) apr_dbd_native_handle(const apr_dbd_driver_t *driver,
                                          apr_dbd_t *handle);
 
 /** check_conn: check status of a database connection
@@ -100,7 +100,7 @@ APU_DECLARE(void*) apr_dbd_native_handle(apr_dbd_driver_t *driver,
  *  @param handle - the connection to check
  *  @return APR_SUCCESS or error
  */
-APU_DECLARE(int) apr_dbd_check_conn(apr_dbd_driver_t *driver, apr_pool_t *pool,
+APU_DECLARE(int) apr_dbd_check_conn(const apr_dbd_driver_t *driver, apr_pool_t *pool,
                                     apr_dbd_t *handle);
 
 /** apr_dbd_set_dbname: select database name.  May be a no-op if not supported.
@@ -111,7 +111,7 @@ APU_DECLARE(int) apr_dbd_check_conn(apr_dbd_driver_t *driver, apr_pool_t *pool,
  *  @param name - the database to select
  *  @return 0 for success or error code
  */
-APU_DECLARE(int) apr_dbd_set_dbname(apr_dbd_driver_t *driver, apr_pool_t *pool,
+APU_DECLARE(int) apr_dbd_set_dbname(const apr_dbd_driver_t *driver, apr_pool_t *pool,
                                     apr_dbd_t *handle, const char *name);
 
 /** apr_dbd_transaction_start: start a transaction.  May be a no-op.
@@ -122,7 +122,7 @@ APU_DECLARE(int) apr_dbd_set_dbname(apr_dbd_driver_t *driver, apr_pool_t *pool,
  *  @param transaction - ptr to a transaction.  May be null on entry
  *  @return 0 for success or error code
  */
-APU_DECLARE(int) apr_dbd_transaction_start(apr_dbd_driver_t *driver,
+APU_DECLARE(int) apr_dbd_transaction_start(const apr_dbd_driver_t *driver,
                                            apr_pool_t *pool,
                                            apr_dbd_t *handle,
                                            apr_dbd_transaction_t **trans);
@@ -136,7 +136,7 @@ APU_DECLARE(int) apr_dbd_transaction_start(apr_dbd_driver_t *driver,
  *  @param transaction - the transaction.
  *  @return 0 for success or error code
  */
-APU_DECLARE(int) apr_dbd_transaction_end(apr_dbd_driver_t *driver,
+APU_DECLARE(int) apr_dbd_transaction_end(const apr_dbd_driver_t *driver,
                                          apr_pool_t *pool,
                                          apr_dbd_transaction_t *trans);
 
@@ -148,7 +148,7 @@ APU_DECLARE(int) apr_dbd_transaction_end(apr_dbd_driver_t *driver,
  *  @param statement - the SQL statement to execute
  *  @return 0 for success or error code
  */
-APU_DECLARE(int) apr_dbd_query(apr_dbd_driver_t *driver, apr_dbd_t *handle,
+APU_DECLARE(int) apr_dbd_query(const apr_dbd_driver_t *driver, apr_dbd_t *handle,
                                int *nrows, const char *statement);
 
 /** apr_dbd_select: execute an SQL query that returns a result set
@@ -163,7 +163,7 @@ APU_DECLARE(int) apr_dbd_query(apr_dbd_driver_t *driver, apr_dbd_t *handle,
  *                    (async access - faster)
  *  @return 0 for success or error code
  */
-APU_DECLARE(int) apr_dbd_select(apr_dbd_driver_t *driver, apr_pool_t *pool,
+APU_DECLARE(int) apr_dbd_select(const apr_dbd_driver_t *driver, apr_pool_t *pool,
                                 apr_dbd_t *handle, apr_dbd_results_t **res,
                                 const char *statement, int random);
 
@@ -173,7 +173,7 @@ APU_DECLARE(int) apr_dbd_select(apr_dbd_driver_t *driver, apr_pool_t *pool,
  *  @param res - result set.
  *  @return number of columns
  */
-APU_DECLARE(int) apr_dbd_num_cols(apr_dbd_driver_t *driver,
+APU_DECLARE(int) apr_dbd_num_cols(const apr_dbd_driver_t *driver,
                                   apr_dbd_results_t *res);
 
 /** apr_dbd_num_tuples: get the number of rows in a results set
@@ -183,7 +183,7 @@ APU_DECLARE(int) apr_dbd_num_cols(apr_dbd_driver_t *driver,
  *  @param res - result set.
  *  @return number of rows, or -1 if the results are asynchronous
  */
-APU_DECLARE(int) apr_dbd_num_tuples(apr_dbd_driver_t *driver,
+APU_DECLARE(int) apr_dbd_num_tuples(const apr_dbd_driver_t *driver,
                                     apr_dbd_results_t *res);
 
 /** apr_dbd_get_row: get a row from a result set
@@ -196,7 +196,7 @@ APU_DECLARE(int) apr_dbd_num_tuples(apr_dbd_driver_t *driver,
  *                  access is not supported.
  *  @return 0 for success, -1 for rownum out of range or data finished
  */
-APU_DECLARE(int) apr_dbd_get_row(apr_dbd_driver_t *driver, apr_pool_t *pool,
+APU_DECLARE(int) apr_dbd_get_row(const apr_dbd_driver_t *driver, apr_pool_t *pool,
                                  apr_dbd_results_t *res, apr_dbd_row_t **row,
                                  int rownum);
 
@@ -207,7 +207,7 @@ APU_DECLARE(int) apr_dbd_get_row(apr_dbd_driver_t *driver, apr_pool_t *pool,
  *  @param col - entry number
  *  @return value from the row, or NULL if col is out of bounds.
  */
-APU_DECLARE(const char*) apr_dbd_get_entry(apr_dbd_driver_t *driver,
+APU_DECLARE(const char*) apr_dbd_get_entry(const apr_dbd_driver_t *driver,
                                            apr_dbd_row_t *row, int col);
 
 /** apr_dbd_error: get current error message (if any)
@@ -218,7 +218,7 @@ APU_DECLARE(const char*) apr_dbd_get_entry(apr_dbd_driver_t *driver,
  *  @return the database current error message, or message for errnum
  *          (implementation-dependent whether errnum is ignored)
  */
-APU_DECLARE(const char*) apr_dbd_error(apr_dbd_driver_t *driver,
+APU_DECLARE(const char*) apr_dbd_error(const apr_dbd_driver_t *driver,
                                        apr_dbd_t *handle, int errnum);
 
 /** apr_dbd_escape: escape a string so it is safe for use in query/select
@@ -229,7 +229,7 @@ APU_DECLARE(const char*) apr_dbd_error(apr_dbd_driver_t *driver,
  *  @param handle - the connection
  *  @return the escaped, safe string
  */
-APU_DECLARE(const char*) apr_dbd_escape(apr_dbd_driver_t *driver,
+APU_DECLARE(const char*) apr_dbd_escape(const apr_dbd_driver_t *driver,
                                         apr_pool_t *pool, const char *string,
                                         apr_dbd_t *handle);
 
@@ -245,7 +245,7 @@ APU_DECLARE(const char*) apr_dbd_escape(apr_dbd_driver_t *driver,
  *  @param statement - statement to prepare.  May point to null on entry.
  *  @return 0 for success or error code
  */
-APU_DECLARE(int) apr_dbd_prepare(apr_dbd_driver_t *driver, apr_pool_t *pool,
+APU_DECLARE(int) apr_dbd_prepare(const apr_dbd_driver_t *driver, apr_pool_t *pool,
                                  apr_dbd_t *handle, const char *query,
                                  const char *label,
                                  apr_dbd_prepared_t **statement);
@@ -262,7 +262,7 @@ APU_DECLARE(int) apr_dbd_prepare(apr_dbd_driver_t *driver, apr_pool_t *pool,
  *  @param args - args to prepared statement
  *  @return 0 for success or error code
  */
-APU_DECLARE(int) apr_dbd_pquery(apr_dbd_driver_t *driver, apr_pool_t *pool,
+APU_DECLARE(int) apr_dbd_pquery(const apr_dbd_driver_t *driver, apr_pool_t *pool,
                                 apr_dbd_t *handle, int *nrows,
                                 apr_dbd_prepared_t *statement, int nargs,
                                 const char **args);
@@ -279,7 +279,7 @@ APU_DECLARE(int) apr_dbd_pquery(apr_dbd_driver_t *driver, apr_pool_t *pool,
  *  @param args - args to prepared statement
  *  @return 0 for success or error code
  */
-APU_DECLARE(int) apr_dbd_pselect(apr_dbd_driver_t *driver, apr_pool_t *pool,
+APU_DECLARE(int) apr_dbd_pselect(const apr_dbd_driver_t *driver, apr_pool_t *pool,
                                  apr_dbd_t *handle, apr_dbd_results_t **res,
                                  apr_dbd_prepared_t *statement, int random,
                                  int nargs, const char **args);
@@ -294,7 +294,7 @@ APU_DECLARE(int) apr_dbd_pselect(apr_dbd_driver_t *driver, apr_pool_t *pool,
  *  @param ... - varargs list
  *  @return 0 for success or error code
  */
-APU_DECLARE(int) apr_dbd_pvquery(apr_dbd_driver_t *driver, apr_pool_t *pool,
+APU_DECLARE(int) apr_dbd_pvquery(const apr_dbd_driver_t *driver, apr_pool_t *pool,
                                  apr_dbd_t *handle, int *nrows,
                                  apr_dbd_prepared_t *statement, ...);
 
@@ -309,7 +309,7 @@ APU_DECLARE(int) apr_dbd_pvquery(apr_dbd_driver_t *driver, apr_pool_t *pool,
  *  @param ... - varargs list
  *  @return 0 for success or error code
  */
-APU_DECLARE(int) apr_dbd_pvselect(apr_dbd_driver_t *driver, apr_pool_t *pool,
+APU_DECLARE(int) apr_dbd_pvselect(const apr_dbd_driver_t *driver, apr_pool_t *pool,
                                   apr_dbd_t *handle, apr_dbd_results_t **res,
                                   apr_dbd_prepared_t *statement, int random,
                                   ...);
