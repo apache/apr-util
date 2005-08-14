@@ -1,4 +1,4 @@
-Changes with APR-util 1.2.0
+Changes with APR-util 1.2.1
 
   *) Fix apr_rmm_realloc() offset calculation bug.  [Keith Kelleman
      <keith.kelleman oracle.com>]
