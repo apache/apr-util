@@ -32,7 +32,7 @@ static void test_dbd_init(abts_case *tc, void *data)
 
 #if APU_HAVE_SQLITE2 || APU_HAVE_SQLITE3
 static void test_statement(abts_case *tc, apr_dbd_t* handle, 
-                           apr_dbd_driver_t* driver, const char* sql)
+                           const apr_dbd_driver_t* driver, const char* sql)
 {
     int nrows;
     apr_status_t rv;
@@ -43,7 +43,7 @@ static void test_statement(abts_case *tc, apr_dbd_t* handle,
 }
 
 static void create_table(abts_case *tc, apr_dbd_t* handle, 
-                              apr_dbd_driver_t* driver)
+                         const apr_dbd_driver_t* driver)
 {
     const char *sql = "CREATE TABLE apr_dbd_test ("
                              "col1 varchar(40) not null,"
@@ -54,14 +54,14 @@ static void create_table(abts_case *tc, apr_dbd_t* handle,
 }
 
 static void drop_table(abts_case *tc, apr_dbd_t* handle, 
-                              apr_dbd_driver_t* driver)
+                       const apr_dbd_driver_t* driver)
 {
     const char *sql = "DROP TABLE apr_dbd_test";
     test_statement(tc, handle, driver, sql);
 }
 
 static void delete_rows(abts_case *tc, apr_dbd_t* handle, 
-                              apr_dbd_driver_t* driver)
+                        const apr_dbd_driver_t* driver)
 {
     const char *sql = "DELETE FROM apr_dbd_test";
     test_statement(tc, handle, driver, sql);
@@ -69,7 +69,7 @@ static void delete_rows(abts_case *tc, apr_dbd_t* handle,
 
 
 static void insert_data(abts_case *tc, apr_dbd_t* handle, 
-                        apr_dbd_driver_t* driver, int count)
+                        const apr_dbd_driver_t* driver, int count)
 {
     apr_pool_t* pool = p;
     const char* sql = "INSERT INTO apr_dbd_test VALUES('%d', '%d', %d)";
@@ -87,7 +87,7 @@ static void insert_data(abts_case *tc, apr_dbd_t* handle,
 }
 
 static void select_rows(abts_case *tc, apr_dbd_t* handle, 
-                        apr_dbd_driver_t* driver, int count)
+                        const apr_dbd_driver_t* driver, int count)
 {
     apr_status_t rv;
     apr_pool_t* pool = p;
@@ -137,7 +137,7 @@ static void select_rows(abts_case *tc, apr_dbd_t* handle,
 }
 
 static void test_dbd_generic(abts_case *tc, apr_dbd_t* handle, 
-                             apr_dbd_driver_t* driver)
+                             const apr_dbd_driver_t* driver)
 {
     void* native;
     apr_pool_t *pool = p;
@@ -166,7 +166,7 @@ static void test_dbd_sqlite2(abts_case *tc, void *data)
 {
     apr_pool_t *pool = p;
     apr_status_t rv;
-    apr_dbd_driver_t* driver = NULL;
+    const apr_dbd_driver_t* driver = NULL;
     apr_dbd_t* handle = NULL;
 
     rv = apr_dbd_get_driver(pool, "sqlite2", &driver);
@@ -188,7 +188,7 @@ static void test_dbd_sqlite3(abts_case *tc, void *data)
 {
     apr_pool_t *pool = p;
     apr_status_t rv;
-    apr_dbd_driver_t* driver = NULL;
+    const apr_dbd_driver_t* driver = NULL;
     apr_dbd_t* handle = NULL;
 
     rv = apr_dbd_get_driver(pool, "sqlite3", &driver);
