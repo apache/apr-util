@@ -156,7 +156,6 @@ struct apr_dbd_driver_t {
      *  @param val - entry to fill
      *  @return 0 for success, -1 for no data, +1 for general error
      */
-    //int (*get_entry)(const apr_dbd_row_t *row, int col, apr_dbd_datum_t *val);
     const char* (*get_entry)(const apr_dbd_row_t *row, int col);
   
     /** error: get current error message (if any)
