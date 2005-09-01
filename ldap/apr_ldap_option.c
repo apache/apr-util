@@ -304,6 +304,7 @@ static void option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
             result->msg = ldap_err2string(result->rc);
         }
     }
+#if APR_HAS_LDAP_START_TLS_S
     else if (tls == APR_LDAP_STARTTLS) {
         result->rc = ldap_start_tls_s(ldap, NULL, NULL, NULL, NULL);
         if (result->rc != LDAP_SUCCESS) {
@@ -318,6 +319,7 @@ static void option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
             result->msg = ldap_err2string(result->rc);
         }
     }
+#endif
 #endif
 
 #if APR_HAS_OTHER_LDAPSDK

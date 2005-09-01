@@ -145,8 +145,10 @@ APU_DECLARE(int) apr_ldap_init(apr_pool_t *pool,
     apr_ldap_err_t *result = (apr_ldap_err_t *)apr_pcalloc(pool, sizeof(apr_ldap_err_t));
     *result_err = result;
 
-#if APR_HAS_NOVELL_LDAPSDK
+#if APR_HAS_LDAPSSL_INIT
     *ldap = ldapssl_init(hostname, portno, 0);
+#elif APR_HAS_LDAP_SSLINIT
+    *ldap = ldap_sslinit((char *)hostname, portno, 0);
 #else
     *ldap = ldap_init((char *)hostname, portno);
 #endif
