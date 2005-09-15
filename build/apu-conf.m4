@@ -287,6 +287,10 @@ AC_ARG_WITH(ldap,[  --with-ldap=library     ldap library to use],
       APR_ADDTO(APRUTIL_LDFLAGS, [-L$with_ldap_lib])
     fi
 
+    dnl Find GSSAPI for Novell SDK
+    AC_CHECK_LIB(gssapi_krb5, GSS_C_NT_HOSTBASED_SERVICE)
+    AC_CHECK_LIB(gssapi, GSS_C_NT_HOSTBASED_SERVICE)
+
     LIBLDAP="$withval"
     if test "$LIBLDAP" = "yes"; then
 dnl The iPlanet C SDK 5.0 is as yet untested... 
@@ -295,6 +299,7 @@ dnl The iPlanet C SDK 5.0 is as yet untested...
       APU_FIND_LDAPLIB("ldapssl40")
       APU_FIND_LDAPLIB("ldapssl30")
       APU_FIND_LDAPLIB("ldapssl20")
+      APU_FIND_LDAPLIB("ldapsdk", "-lldapx -lldapssl -lldapgss")
       APU_FIND_LDAPLIB("ldap", "-llber")
       APU_FIND_LDAPLIB("ldap", "-llber -lresolv")
       APU_FIND_LDAPLIB("ldap", "-llber -lresolv -lsocket -lnsl")

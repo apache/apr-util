@@ -1,5 +1,7 @@
 Changes with APR-util 1.3.0
 
+  *) Teach configure how to find the Novell SDK. [Graham Leggett]
+
   *) Fix GMT offset for several date formats and add a new format.
      [Maxime Petazzoni <maxime.petazzoni bulix.org>]
 
