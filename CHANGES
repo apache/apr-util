@@ -1,5 +1,7 @@
 Changes with APR-util 1.2.2
-  
+ 
+  *) Teach configure how to find the Novell LDAP SDK. [Graham Leggett]
+ 
   *) Fix usage of ldapssl_init/ldap_sslinit on platforms that support
      these API's including Win32.  Support APR_HAS_LDAP_START_TLS_S
      flag in the Win32 LDAP API, to drop usage of ldap_start_ssl_s
