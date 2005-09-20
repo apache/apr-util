@@ -296,6 +296,7 @@ dnl The iPlanet C SDK 5.0 is as yet untested...
       APU_FIND_LDAPLIB("ldapssl30")
       APU_FIND_LDAPLIB("ldapssl20")
       APU_FIND_LDAPLIB("ldapsdk", "-lldapx -lldapssl -lldapgss -lgssapi_krb5")
+      APU_FIND_LDAPLIB("ldapsdk", "-lldapx -lldapssl -lldapgss -lgss -lresolv -lsocket")
       APU_FIND_LDAPLIB("ldap", "-llber")
       APU_FIND_LDAPLIB("ldap", "-llber -lresolv")
       APU_FIND_LDAPLIB("ldap", "-llber -lresolv -lsocket -lnsl")
