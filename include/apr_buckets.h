@@ -697,6 +697,10 @@ APU_DECLARE(apr_bucket_brigade *) apr_brigade_split(apr_bucket_brigade *b,
  * @param b The brigade to partition
  * @param point The offset at which to partition the brigade
  * @param after_point Returns a pointer to the first bucket after the partition
+ * @return APR_SUCCESS on success, APR_INCOMPLETE if the contents of the
+ * brigade were shorter than @a point, or an error code.
+ * @remark if APR_INCOMPLETE is returned, @a after_point will be set to
+ * the brigade sentinel.
  */
 APU_DECLARE(apr_status_t) apr_brigade_partition(apr_bucket_brigade *b,
                                                 apr_off_t point,
