@@ -32,7 +32,7 @@
     fflush(stdout);
 
 static int create_table(apr_pool_t* pool, apr_dbd_t* handle,
-                        apr_dbd_driver_t* driver)
+                        const apr_dbd_driver_t* driver)
 {
     int rv = 0;
     int nrows;
@@ -44,7 +44,7 @@ static int create_table(apr_pool_t* pool, apr_dbd_t* handle,
     return rv;
 }
 static int drop_table(apr_pool_t* pool, apr_dbd_t* handle,
-                      apr_dbd_driver_t* driver)
+                      const apr_dbd_driver_t* driver)
 {
     int rv = 0;
     int nrows;
@@ -53,7 +53,7 @@ static int drop_table(apr_pool_t* pool, apr_dbd_t* handle,
     return rv;
 }
 static int insert_rows(apr_pool_t* pool, apr_dbd_t* handle,
-                       apr_dbd_driver_t* driver)
+                       const apr_dbd_driver_t* driver)
 {
     int i;
     int rv = 0;
@@ -91,7 +91,7 @@ static int insert_rows(apr_pool_t* pool, apr_dbd_t* handle,
     return rv;
 }
 static int invalid_op(apr_pool_t* pool, apr_dbd_t* handle,
-                      apr_dbd_driver_t* driver)
+                      const apr_dbd_driver_t* driver)
 {
     int rv = 0;
     int nrows;
@@ -105,7 +105,7 @@ static int invalid_op(apr_pool_t* pool, apr_dbd_t* handle,
     return rv;
 }
 static int select_sequential(apr_pool_t* pool, apr_dbd_t* handle,
-                             apr_dbd_driver_t* driver)
+                             const apr_dbd_driver_t* driver)
 {
     int rv = 0;
     int i = 0;
@@ -137,7 +137,7 @@ static int select_sequential(apr_pool_t* pool, apr_dbd_t* handle,
     return (rv == -1) ? 0 : 1;
 }
 static int select_random(apr_pool_t* pool, apr_dbd_t* handle,
-                         apr_dbd_driver_t* driver)
+                         const apr_dbd_driver_t* driver)
 {
     int rv = 0;
     int n;
@@ -193,7 +193,7 @@ static int select_random(apr_pool_t* pool, apr_dbd_t* handle,
     return rv;
 }
 static int test_transactions(apr_pool_t* pool, apr_dbd_t* handle,
-                             apr_dbd_driver_t* driver)
+                             const apr_dbd_driver_t* driver)
 {
     int rv = 0;
     int nrows;
@@ -266,7 +266,7 @@ static int test_transactions(apr_pool_t* pool, apr_dbd_t* handle,
     return rv;
 }
 static int test_pselect(apr_pool_t* pool, apr_dbd_t* handle,
-                        apr_dbd_driver_t* driver)
+                        const apr_dbd_driver_t* driver)
 {
     int rv = 0;
     int i, n;
@@ -310,7 +310,7 @@ static int test_pselect(apr_pool_t* pool, apr_dbd_t* handle,
     return (rv == -1) ? 0 : 1;
 }
 static int test_pquery(apr_pool_t* pool, apr_dbd_t* handle,
-                       apr_dbd_driver_t* driver)
+                       const apr_dbd_driver_t* driver)
 {
     int rv = 0;
     const char *query = "INSERT INTO apr_dbd_test VALUES (%s, %s, %d)";
@@ -345,7 +345,7 @@ int main(int argc, char** argv)
     const char *params;
     apr_pool_t *pool = NULL;
     apr_dbd_t *sql = NULL;
-    apr_dbd_driver_t *driver = NULL;
+    const apr_dbd_driver_t *driver = NULL;
     int rv;
 
     apr_initialize();
