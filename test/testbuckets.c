@@ -209,6 +209,22 @@ static void test_splitline(abts_case *tc, void *data)
     apr_bucket_alloc_destroy(ba);
 }
 
+/* Test that bucket E has content EDATA of length ELEN. */
+static void test_bucket_content(abts_case *tc,
+                                apr_bucket *e,
+                                const char *edata,
+                                apr_size_t elen)
+{
+    const char *adata;
+    apr_size_t alen;
+
+    apr_assert_success(tc, "read from bucket",
+                       apr_bucket_read(e, &adata, &alen, 
+                                       APR_BLOCK_READ));
+
+    ABTS_ASSERT(tc, "read expected length", alen == elen);
+    ABTS_STR_NEQUAL(tc, edata, adata, elen);
+}
 
 static void test_splits(abts_case *tc, void *ctx)
 {
@@ -414,6 +430,36 @@ static void test_truncfile(abts_case *tc, void *data)
     apr_bucket_alloc_destroy(ba);
 }
 
+static const char hello[] = "hello, world";
+
+static void test_partition(abts_case *tc, void *data)
+{
+    apr_bucket_alloc_t *ba = apr_bucket_alloc_create(p);
+    apr_bucket_brigade *bb = apr_brigade_create(p, ba);
+    apr_bucket *e;
+
+    e = apr_bucket_immortal_create(hello, strlen(hello), ba);
+    APR_BRIGADE_INSERT_HEAD(bb, e);
+
+    apr_assert_success(tc, "partition brigade",
+                       apr_brigade_partition(bb, 5, &e));
+
+    test_bucket_content(tc, APR_BRIGADE_FIRST(bb),
+                        "hello", 5);
+
+    test_bucket_content(tc, APR_BRIGADE_LAST(bb),
+                        ", world", 7);
+
+    ABTS_ASSERT(tc, "partition returns APR_INCOMPLETE",
+                apr_brigade_partition(bb, 8192, &e));
+
+    ABTS_ASSERT(tc, "APR_INCOMPLETE partition returned sentinel",
+                e == APR_BRIGADE_SENTINEL(bb));
+
+    apr_brigade_destroy(bb);
+    apr_bucket_alloc_destroy(ba);
+}
+
 abts_suite *testbuckets(abts_suite *suite)
 {
     suite = ADD_SUITE(suite);
@@ -428,6 +474,7 @@ abts_suite *testbuckets(abts_suite *suite)
     abts_run_test(suite, test_insertfile, NULL);
     abts_run_test(suite, test_manyfile, NULL);
     abts_run_test(suite, test_truncfile, NULL);
+    abts_run_test(suite, test_partition, NULL);
 
     return suite;
 }
