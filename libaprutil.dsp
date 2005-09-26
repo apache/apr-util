@@ -47,7 +47,7 @@ RSC=rc.exe
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
-# ADD RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG" /d "APR_VERSION_ONLY" /I "./include" /I "../apr/include" 
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -73,7 +73,7 @@ LINK32=link.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
-# ADD RSC /l 0x409 /d "_DEBUG"
+# ADD RSC /l 0x409 /d "_DEBUG" /d "APR_VERSION_ONLY" /I "./include" /I "../apr/include" 
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -596,35 +596,6 @@ SOURCE=.\include\apu_compat.h
 # Begin Source File
 
 SOURCE=.\libaprutil.rc
-# End Source File
-# Begin Source File
-
-SOURCE=..\apr\build\win32ver.awk
-
-!IF  "$(CFG)" == "libaprutil - Win32 Release"
-
-# PROP Ignore_Default_Tool 1
-# Begin Custom Build - Creating Version Resource
-InputPath=..\apr\build\win32ver.awk
-
-".\libaprutil.rc" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	awk -f ../apr/build/win32ver.awk libaprutil.dll "Apache APR Utility Library"  ../../include/ap_release.h > .\libaprutil.rc
-
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
-
-# PROP Ignore_Default_Tool 1
-# Begin Custom Build - Creating Version Resource
-InputPath=..\apr\build\win32ver.awk
-
-".\libaprutil.rc" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	awk -f ../apr/build/win32ver.awk libaprutil.dll "Apache APR Utility Library"  ../../include/ap_release.h > .\libaprutil.rc
-
-# End Custom Build
-
-!ENDIF 
-
 # End Source File
 # End Target
 # End Project
