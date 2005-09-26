@@ -1,3 +1,7 @@
+Changes with APR-util 1.2.3-dev
+
+
+
 Changes with APR-util 1.2.2
  
   *) Teach configure how to find the Novell LDAP SDK. [Graham Leggett]
