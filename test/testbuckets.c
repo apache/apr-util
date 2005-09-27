@@ -344,8 +344,16 @@ static void test_insertfile(abts_case *tc, void *ctx)
     }
 
     ABTS_ASSERT(tc, "total size of buckets incorrect", count == bignum);
-    
+
     apr_brigade_destroy(bb);
+
+    /* Truncate the file to zero size before close() so that we don't
+     * actually write out the large file if we are on a non-sparse file
+     * system - like Mac OS X's HFS.  Otherwise, pity the poor user who
+     * has to wait for the 8GB file to be written to disk.
+     */
+    apr_file_trunc(f, 0);
+
     apr_file_close(f);
     apr_bucket_alloc_destroy(ba);
     apr_file_remove(TIF_FNAME, p);
