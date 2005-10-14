@@ -189,11 +189,6 @@ APU_DECLARE(int) apr_dbd_transaction_end(const apr_dbd_driver_t *driver,
     return driver->end_transaction(trans);
 }
 
-APU_DECLARE(apr_status_t) apr_dbd_reset(const apr_dbd_driver_t *driver,
-                                        apr_dbd_t *handle)
-{
-    return driver->reset(handle);
-}
 APU_DECLARE(apr_status_t) apr_dbd_close(const apr_dbd_driver_t *driver,
                                         apr_dbd_t *handle)
 {

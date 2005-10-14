@@ -611,10 +611,6 @@ static int dbd_pgsql_num_tuples(apr_dbd_results_t* res)
         return -1;
     }
 }
-static apr_status_t dbd_pgsql_reset(apr_dbd_t *handle)
-{
-    return APR_ENOTIMPL;
-}
 
 APU_DECLARE_DATA const apr_dbd_driver_t apr_dbd_pgsql_driver = {
     "pgsql",
@@ -639,6 +635,5 @@ APU_DECLARE_DATA const apr_dbd_driver_t apr_dbd_pgsql_driver = {
     dbd_pgsql_pvselect,
     dbd_pgsql_pquery,
     dbd_pgsql_pselect,
-    dbd_pgsql_reset,
 };
 #endif
