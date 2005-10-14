@@ -249,6 +249,9 @@ struct apr_dbd_driver_t {
 
 };
 
+/* Export mutex lock/unlock for drivers that need it */
+apr_status_t apr_dbd_mutex_lock();
+apr_status_t apr_dbd_mutex_unlock();
 
 #ifdef __cplusplus
 }
