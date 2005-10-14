@@ -32,11 +32,26 @@ static apr_hash_t *drivers = NULL;
  * #define APR_DSO_BUILD APR_HAS_DSO
  */
 
-#if APR_DSO_BUILD
 #if APR_HAS_THREADS
 static apr_thread_mutex_t* mutex = NULL;
-#endif
+apr_status_t apr_dbd_mutex_lock()
+{
+    return apr_thread_mutex_lock(mutex);
+}
+apr_status_t apr_dbd_mutex_unlock()
+{
+    return apr_thread_mutex_unlock(mutex);
+}
 #else
+apr_status_t apr_dbd_mutex_lock() {
+    return APR_SUCCESS;
+}
+apr_status_t apr_dbd_mutex_unlock() {
+    return APR_SUCCESS;
+}
+#endif
+
+#ifndef APR_DSO_BUILD
 #define DRIVER_LOAD(name,driver,pool) \
     {   \
         extern const apr_dbd_driver_t driver; \
@@ -49,10 +64,9 @@ static apr_thread_mutex_t* mutex = NULL;
 
 APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool)
 {
-    apr_status_t ret;
+    apr_status_t ret = APR_SUCCESS;
     drivers = apr_hash_make(pool);
 
-#if APR_DSO_BUILD
 
 #if APR_HAS_THREADS
     ret = apr_thread_mutex_create(&mutex, APR_THREAD_MUTEX_DEFAULT, pool);
@@ -60,8 +74,7 @@ APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool)
                               apr_pool_cleanup_null);
 #endif
 
-#else
-    ret = APR_SUCCESS;
+#ifndef APR_DSO_BUILD
 
 #if APU_HAVE_MYSQL
     DRIVER_LOAD("mysql", apr_dbd_mysql_driver, pool);
@@ -75,10 +88,13 @@ APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool)
 #if APU_HAVE_SQLITE2
     DRIVER_LOAD("sqlite2", apr_dbd_sqlite2_driver, pool);
 #endif
+#if APU_HAVE_ORACLE
+    DRIVER_LOAD("oracle", apr_dbd_oracle_driver, pool);
+#endif
 #if APU_HAVE_SOME_OTHER_BACKEND
     DRIVER_LOAD("firebird", apr_dbd_other_driver, pool);
 #endif
-#endif
+#endif /* APR_DSO_BUILD */
     return ret;
 }
 APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
