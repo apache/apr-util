@@ -359,10 +359,6 @@ static int dbd_sqlite_num_tuples(apr_dbd_results_t * res)
 {
     return res->ntuples;
 }
-static apr_status_t dbd_sqlite_reset(apr_dbd_t *handle)
-{
-    return APR_ENOTIMPL;
-}
 
 APU_DECLARE_DATA const apr_dbd_driver_t apr_dbd_sqlite2_driver = {
     "sqlite2",
@@ -387,6 +383,5 @@ APU_DECLARE_DATA const apr_dbd_driver_t apr_dbd_sqlite2_driver = {
     dbd_sqlite_pvselect,
     dbd_sqlite_pquery,
     dbd_sqlite_pselect,
-    dbd_sqlite_reset,
 };
 #endif
