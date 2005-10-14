@@ -342,7 +342,6 @@ static apr_dbd_t *dbd_sqlite3_open(apr_pool_t *pool, const char *params)
 {
     apr_dbd_t *sql = NULL;
     sqlite3 *conn = NULL;
-    apr_status_t res;
     int sqlres;
     if (!params)
         return NULL;
