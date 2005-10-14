@@ -246,6 +246,12 @@ struct apr_dbd_driver_t {
                    apr_dbd_results_t **res, apr_dbd_prepared_t *statement,
                    int random, int nargs, const char **args);
 
+    /** reset: reset a persistent connection for re-use
+     *
+     *  @param handle - the connection to reset
+     *  @return APR_SUCCESS or error
+     */
+    apr_status_t (*reset)(apr_dbd_t *handle);
 
 };
 
