@@ -39,7 +39,6 @@ struct apr_dbd_transaction_t {
 struct apr_dbd_t {
     sqlite3 *conn;
     apr_dbd_transaction_t *trans;
-    apr_thread_mutex_t *mutex;
     apr_pool_t *pool;
 };
 
@@ -92,11 +91,11 @@ static int dbd_sqlite3_select(apr_pool_t * pool, apr_dbd_t * sql, apr_dbd_result
         return sql->trans->errnum;
     }
 
-    apr_thread_mutex_lock(sql->mutex);
+    apr_dbd_mutex_lock();
 
     ret = sqlite3_prepare(sql->conn, query, strlen(query), &stmt, &tail);
     if (!dbd_sqlite3_is_success(ret)) {
-        apr_thread_mutex_unlock(sql->mutex);
+        apr_dbd_mutex_unlock();
         return ret;
     } else {
         int column_count;
@@ -115,9 +114,9 @@ static int dbd_sqlite3_select(apr_pool_t * pool, apr_dbd_t * sql, apr_dbd_result
                 if (retry_count++ > MAX_RETRY_COUNT) {
                     ret = SQLITE_ERROR;
                 } else {
-                    apr_thread_mutex_unlock(sql->mutex);
+                    apr_dbd_mutex_unlock();
                     apr_sleep(MAX_RETRY_SLEEP);
-                    apr_thread_mutex_lock(sql->mutex);
+                    apr_dbd_mutex_lock();
                 }
             } else if (ret == SQLITE_ROW) {
                 int length;
@@ -170,7 +169,7 @@ static int dbd_sqlite3_select(apr_pool_t * pool, apr_dbd_t * sql, apr_dbd_result
         } while (ret == SQLITE_ROW || ret == SQLITE_BUSY);
     }
     ret = sqlite3_finalize(stmt);
-    apr_thread_mutex_unlock(sql->mutex);
+    apr_dbd_mutex_unlock();
 
     if (sql->trans) {
         sql->trans->errnum = ret;
@@ -233,7 +232,7 @@ static int dbd_sqlite3_query(apr_dbd_t *sql, int *nrows, const char *query)
     }
 
     length = strlen(query);
-    apr_thread_mutex_lock(sql->mutex);
+    apr_dbd_mutex_lock();
 
     do {
         ret = sqlite3_prepare(sql->conn, query, length, &stmt, &tail);
@@ -251,7 +250,7 @@ static int dbd_sqlite3_query(apr_dbd_t *sql, int *nrows, const char *query)
     if (dbd_sqlite3_is_success(ret)) {
         ret =  0;
     }
-    apr_thread_mutex_unlock(sql->mutex);
+    apr_dbd_mutex_unlock();
     if (sql->trans) {
         sql->trans->errnum = ret;
     }
@@ -357,12 +356,6 @@ static apr_dbd_t *dbd_sqlite3_open(apr_pool_t *pool, const char *params)
     sql->conn = conn;
     sql->pool = pool;
     sql->trans = NULL;
-    /* Create a mutex */
-    res = apr_thread_mutex_create(&sql->mutex, APR_THREAD_MUTEX_DEFAULT,
-                                  pool);
-    if (res != APR_SUCCESS) {
-        return NULL;
-    }
 
     return sql;
 }
@@ -370,7 +363,6 @@ static apr_dbd_t *dbd_sqlite3_open(apr_pool_t *pool, const char *params)
 static apr_status_t dbd_sqlite3_close(apr_dbd_t *handle)
 {
     sqlite3_close(handle->conn);
-    apr_thread_mutex_destroy(handle->mutex);
     return APR_SUCCESS;
 }
 
