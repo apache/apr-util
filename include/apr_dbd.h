@@ -65,16 +65,6 @@ APU_DECLARE(apr_status_t) apr_dbd_open(const apr_dbd_driver_t *driver,
                                        apr_pool_t *ptmp, const char *params,
                                        apr_dbd_t **handle);
 
-/** apr_dbd_reset: reset a connection to a backend.
- *  Clear a persistent connection for re-use
- *
- *  @param handle - handle to close
- *  @param driver - driver struct.
- *  @return APR_SUCCESS for success or error status
- */
-APU_DECLARE(apr_status_t) apr_dbd_reset(const apr_dbd_driver_t *driver,
-                                        apr_dbd_t *handle);
-
 /** apr_dbd_close: close a connection to a backend.
  *  Only required for explicit close or
  *
