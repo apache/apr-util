@@ -518,7 +518,7 @@ static apr_status_t storage_cmd_write(apr_memcache_t *mc,
     vec[1].iov_base = (void*)key;
     vec[1].iov_len  = key_size;
 
-    klen = snprintf(conn->buffer, BUFFER_SIZE, " %u %u %u" MC_EOL, flags, timeout, data_size);
+    klen = apr_snprintf(conn->buffer, BUFFER_SIZE, " %u %u %u" MC_EOL, flags, timeout, data_size);
 
     vec[2].iov_base = conn->buffer;
     vec[2].iov_len  = klen;
@@ -771,7 +771,7 @@ apr_memcache_delete(apr_memcache_t *mc,
     vec[1].iov_base = (void*)key;
     vec[1].iov_len  = klen;
 
-    klen = snprintf(conn->buffer, BUFFER_SIZE, " %u" MC_EOL, timeout);
+    klen = apr_snprintf(conn->buffer, BUFFER_SIZE, " %u" MC_EOL, timeout);
 
     vec[2].iov_base = conn->buffer;
     vec[2].iov_len  = klen;
@@ -840,7 +840,7 @@ static apr_status_t num_cmd_write(apr_memcache_t *mc,
     vec[1].iov_base = (void*)key;
     vec[1].iov_len  = klen;
 
-    klen = snprintf(conn->buffer, BUFFER_SIZE, " %u" MC_EOL, inc);
+    klen = apr_snprintf(conn->buffer, BUFFER_SIZE, " %u" MC_EOL, inc);
 
     vec[2].iov_base = conn->buffer;
     vec[2].iov_len  = klen;
