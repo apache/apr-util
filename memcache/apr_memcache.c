@@ -24,7 +24,7 @@
 struct apr_memcache_conn_t
 {
     char *buffer;
-    apr_uint32_t blen;
+    apr_size_t blen;
     apr_pool_t *p;
     apr_socket_t *sock;
     apr_bucket_alloc_t *balloc;
@@ -437,7 +437,7 @@ static const apr_uint32_t crc32tab[256] = {
   0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d,
 };
 
-APR_DECLARE(apr_uint32_t) apr_memcache_hash(const char *data, const apr_uint32_t data_len)
+APR_DECLARE(apr_uint32_t) apr_memcache_hash(const char *data, const apr_size_t data_len)
 {
     apr_uint32_t i;
     apr_uint32_t crc;
