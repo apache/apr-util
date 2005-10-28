@@ -91,7 +91,7 @@ typedef struct
  * @remark The crc32 hash is not compatible with old memcached clients.
  */
 APR_DECLARE(apr_uint32_t)
-apr_memcache_hash(const char *data, apr_uint32_t data_len);
+apr_memcache_hash(const char *data, apr_size_t data_len);
 
 /**
  * Picks a server based on a hash
