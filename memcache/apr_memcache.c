@@ -479,10 +479,10 @@ static apr_status_t get_server_line(apr_memcache_conn_t *conn)
 
 static apr_status_t storage_cmd_write(apr_memcache_t *mc,
                                       char *cmd,
-                                      const apr_uint32_t cmd_size,
+                                      const apr_size_t cmd_size,
                                       const char *key,
                                       char *data,
-                                      const apr_uint32_t data_size,
+                                      const apr_size_t data_size,
                                       apr_uint32_t timeout,
                                       apr_uint16_t flags)
 {
@@ -494,7 +494,7 @@ static apr_status_t storage_cmd_write(apr_memcache_t *mc,
     struct iovec vec[5];
     int klen;
 
-    int key_size = strlen(key);
+    apr_size_t key_size = strlen(key);
 
     hash = apr_memcache_hash(key, key_size);
 
@@ -518,7 +518,8 @@ static apr_status_t storage_cmd_write(apr_memcache_t *mc,
     vec[1].iov_base = (void*)key;
     vec[1].iov_len  = key_size;
 
-    klen = apr_snprintf(conn->buffer, BUFFER_SIZE, " %u %u %u" MC_EOL, flags, timeout, data_size);
+    klen = apr_snprintf(conn->buffer, BUFFER_SIZE, " %u %u %" APR_SIZE_T_FMT " " MC_EOL,
+                        flags, timeout, data_size);
 
     vec[2].iov_base = conn->buffer;
     vec[2].iov_len  = klen;
@@ -564,7 +565,7 @@ APR_DECLARE(apr_status_t)
 apr_memcache_set(apr_memcache_t *mc,
                  const char *key,
                  char *data,
-                 const apr_uint32_t data_size,
+                 const apr_size_t data_size,
                  apr_uint32_t timeout,
                  apr_uint16_t flags)
 {
@@ -579,7 +580,7 @@ APR_DECLARE(apr_status_t)
 apr_memcache_add(apr_memcache_t *mc,
                  const char *key,
                  char *data,
-                 const apr_uint32_t data_size,
+                 const apr_size_t data_size,
                  apr_uint32_t timeout,
                  apr_uint16_t flags)
 {
@@ -594,7 +595,7 @@ APR_DECLARE(apr_status_t)
 apr_memcache_replace(apr_memcache_t *mc,
                  const char *key,
                  char *data,
-                 const apr_uint32_t data_size,
+                 const apr_size_t data_size,
                  apr_uint32_t timeout,
                  apr_uint16_t flags)
 {

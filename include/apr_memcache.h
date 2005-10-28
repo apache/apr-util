@@ -213,7 +213,7 @@ APR_DECLARE(apr_status_t)
 apr_memcache_set(apr_memcache_t *mc,
                  const char *key,
                  char *baton,
-                 const apr_uint32_t data_size,
+                 const apr_size_t data_size,
                  apr_uint32_t timeout,
                  apr_uint16_t flags);
 
@@ -232,7 +232,7 @@ APR_DECLARE(apr_status_t)
 apr_memcache_add(apr_memcache_t *mc,
                  const char *key,
                  char *baton,
-                 const apr_uint32_t data_size,
+                 const apr_size_t data_size,
                  apr_uint32_t timeout,
                  apr_uint16_t flags);
 
@@ -251,7 +251,7 @@ APR_DECLARE(apr_status_t)
 apr_memcache_replace(apr_memcache_t *mc,
                  const char *key,
                  char *data,
-                 const apr_uint32_t data_size,
+                 const apr_size_t data_size,
                  apr_uint32_t timeout,
                  apr_uint16_t flags);
 /**
