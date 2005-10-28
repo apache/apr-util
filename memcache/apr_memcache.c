@@ -164,7 +164,7 @@ apr_memcache_find_server_hash(apr_memcache_t *mc, const apr_uint32_t hash)
         i++;
     } while(i < mc->ntotal);
 
-    if(i == mc->ntotal) {
+    if (i == mc->ntotal) {
         ms = NULL;
     }
 
@@ -456,13 +456,13 @@ static apr_status_t get_server_line(apr_memcache_conn_t *conn)
 
     rv = apr_brigade_split_line(conn->tb, conn->bb, APR_BLOCK_READ, BUFFER_SIZE);
 
-    if(rv != APR_SUCCESS) {
+    if (rv != APR_SUCCESS) {
         return rv;
     }
 
     rv = apr_brigade_flatten(conn->tb, conn->buffer, &bsize);
 
-    if(rv != APR_SUCCESS) {
+    if (rv != APR_SUCCESS) {
         return rv;
     }
 
@@ -471,7 +471,7 @@ static apr_status_t get_server_line(apr_memcache_conn_t *conn)
 
     apr_brigade_cleanup(conn->tb);
 
-    if(rv != APR_SUCCESS) {
+    if (rv != APR_SUCCESS) {
         return rv;
     }
     return rv;
@@ -867,8 +867,9 @@ static apr_status_t num_cmd_write(apr_memcache_t *mc,
         rv = APR_NOTFOUND;
     }
     else {
-        if(new_value)
+        if (new_value) {
             *new_value = atoi(conn->buffer);
+        }
         rv = APR_SUCCESS;
     }
 
@@ -1217,8 +1218,9 @@ apr_memcache_stats(apr_memcache_server_t *ms,
 
     ms_release_conn(ms, conn);
 
-    if(stats)
+    if (stats) {
         *stats = ret;
+    }
 
     return rv;
 }
