@@ -260,8 +260,8 @@ mc_conn_construct(void **conn_, void *params, apr_pool_t *pool)
 {
     apr_status_t rv = APR_SUCCESS;
     apr_memcache_conn_t *conn;
-    apr_bucket* e;
-    apr_pool_t* np;
+    apr_bucket *e;
+    apr_pool_t *np;
     apr_memcache_server_t *ms = params;
 
     rv = apr_pool_create(&np, pool);
@@ -310,7 +310,7 @@ APR_DECLARE(apr_status_t) apr_memcache_server_create(apr_pool_t *p,
 {
     apr_status_t rv = APR_SUCCESS;
     apr_memcache_server_t *server;
-    apr_pool_t* np;
+    apr_pool_t *np;
 
     rv = apr_pool_create(&np, p);
 
@@ -745,8 +745,8 @@ apr_memcache_delete(apr_memcache_t *mc,
                     apr_uint32_t timeout)
 {
     apr_status_t rv;
-    apr_memcache_server_t* ms;
-    apr_memcache_conn_t* conn;
+    apr_memcache_server_t *ms;
+    apr_memcache_conn_t *conn;
     apr_uint32_t hash;
     apr_size_t written;
     struct iovec vec[3];
@@ -880,7 +880,7 @@ static apr_status_t num_cmd_write(apr_memcache_t *mc,
 
 APR_DECLARE(apr_status_t)
 apr_memcache_incr(apr_memcache_t *mc,
-                    const char* key,
+                    const char *key,
                     apr_int32_t inc,
                     apr_uint32_t *new_value)
 {
@@ -1054,7 +1054,7 @@ apr_status_t mc_version_ping(apr_memcache_server_t *ms)
 #define STAT_limit_maxbytes_LEN (sizeof(STAT_limit_maxbytes)-1)
 
 
-static const char* stat_read_string(apr_pool_t *p, char *buf, int len)
+static const char *stat_read_string(apr_pool_t *p, char *buf, int len)
 {
     /* remove trailing \r\n and null char */
     return apr_pstrmemdup(p, buf, len-2);
@@ -1080,10 +1080,10 @@ static apr_time_t stat_read_time(apr_pool_t *p, char *buf, int len)
 
 static apr_time_t stat_read_rtime(apr_pool_t *p, char *buf, int len)
 {
-    char* tok;
-    char* secs;
-    char* usecs;
-    const char* sep = ":";
+    char *tok;
+    char *secs;
+    char *usecs;
+    const char *sep = ":";
 
     buf[len-2] = '\0';
 
