@@ -97,10 +97,14 @@ struct apr_memcache_conn_t
 
 static apr_status_t make_server_dead(apr_memcache_t *mc, apr_memcache_server_t *ms)
 {
+#if APR_HAS_THREADS
     apr_thread_mutex_lock(ms->lock);
+#endif
     ms->status = APR_MC_SERVER_DEAD;
     ms->btime = apr_time_now();
+#if APR_HAS_THREADS
     apr_thread_mutex_unlock(ms->lock);
+#endif
     return APR_SUCCESS;
 }
 
@@ -148,17 +152,23 @@ apr_memcache_find_server_hash(apr_memcache_t *mc, const apr_uint32_t hash)
             if (curtime == 0) {
                 curtime = apr_time_now();
             }
+#if APR_HAS_THREADS
             apr_thread_mutex_lock(ms->lock);
+#endif
             /* Try the the dead server, every 5 seconds */
             if (curtime - ms->btime >  apr_time_from_sec(5)) {
                 if (mc_version_ping(ms) == APR_SUCCESS) {
                     ms->btime = curtime;
                     make_server_live(mc, ms);
+#if APR_HAS_THREADS
                     apr_thread_mutex_unlock(ms->lock);
+#endif
                     break;
                 }
             }
+#if APR_HAS_THREADS
             apr_thread_mutex_unlock(ms->lock);
+#endif
         }
         h++;
         i++;
