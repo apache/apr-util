@@ -27,6 +27,7 @@
 
 static apr_hash_t *drivers = NULL;
 
+#define CLEANUP_CAST (apr_status_t (*)(void*))
 
 /* Once the autofoo supports building it for dynamic load, we can use
  * #define APR_DSO_BUILD APR_HAS_DSO
@@ -70,7 +71,8 @@ APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool)
 
 #if APR_HAS_THREADS
     ret = apr_thread_mutex_create(&mutex, APR_THREAD_MUTEX_DEFAULT, pool);
-    apr_pool_cleanup_register(pool, mutex, (void*)apr_thread_mutex_destroy,
+    apr_pool_cleanup_register(pool, mutex,
+                              CLEANUP_CAST apr_thread_mutex_destroy,
                               apr_pool_cleanup_null);
 #endif
 
@@ -176,7 +178,8 @@ APU_DECLARE(int) apr_dbd_transaction_start(const apr_dbd_driver_t *driver,
 {
     int ret = driver->start_transaction(pool, handle, trans);
     if (*trans) {
-        apr_pool_cleanup_register(pool, *trans, (void*)driver->end_transaction,
+        apr_pool_cleanup_register(pool, *trans,
+                                  CLEANUP_CAST driver->end_transaction,
                                   apr_pool_cleanup_null);
     }
     return ret;
@@ -185,7 +188,7 @@ APU_DECLARE(int) apr_dbd_transaction_end(const apr_dbd_driver_t *driver,
                                          apr_pool_t *pool,
                                          apr_dbd_transaction_t *trans)
 {
-    apr_pool_cleanup_kill(pool, trans, (void*)driver->end_transaction);
+    apr_pool_cleanup_kill(pool, trans, CLEANUP_CAST driver->end_transaction);
     return driver->end_transaction(trans);
 }
 
