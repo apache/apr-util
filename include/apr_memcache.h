@@ -69,7 +69,9 @@ struct apr_memcache_server_t
     apr_memcache_conn_t *conn;
 #endif
     apr_pool_t *p; /** Pool to use for private allocations */
+#if APR_HAS_THREADS
     apr_thread_mutex_t *lock;
+#endif
     apr_time_t btime;
 };
 
