@@ -308,7 +308,7 @@ static apr_dbd_t *dbd_sqlite_open(apr_pool_t * pool, const char *params_)
 
     perm = strstr(params, ":");
     if (perm) {
-        *(perm++) = '\x00';     // split the filename and permissions
+        *(perm++) = '\x00';     /* split the filename and permissions */
 
         if (strlen(perm) > 0)
             iperms = atoi(perm);
