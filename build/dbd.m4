@@ -194,4 +194,42 @@ AC_DEFUN([APU_CHECK_DBD_SQLITE2], [
   fi
 ])
 dnl
+AC_DEFUN([APU_CHECK_DBD_ORACLE], [
+  apu_have_oracle=0
 
+  AC_ARG_WITH([oracle], [
+  --with-oracle=DIR         specify ORACLE_HOME location
+  ], [
+    apu_have_oracle=0
+    if test "$withval" = "yes"; then
+      AC_CHECK_HEADER(oci.h, AC_CHECK_LIB(clntsh, OCILogon, [apu_have_oracle=1]))
+    elif test "$withval" = "no"; then
+      apu_have_oracle=0
+    else
+      CPPFLAGS="-I$withval/rdbms/demo -I$withval/rdbms/public"
+      LIBS="-L$withval/lib "
+
+      AC_MSG_NOTICE(checking for oracle in $withval)
+      AC_CHECK_HEADER(oci.h, AC_CHECK_LIB(clntsh, OCILogon, [apu_have_oracle=1]))
+      if test "$apu_have_oracle" != "0"; then
+        APR_ADDTO(APRUTIL_LDFLAGS, [-L$withval/lib])
+        APR_ADDTO(APRUTIL_LDFLAGS, [-R$withval/lib])
+        APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/rdbms/demo])
+        APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/rdbms/public])
+      fi
+    fi
+  ], [
+    apu_have_oracle=0
+    AC_CHECK_HEADER(oci.h, AC_CHECK_LIB(clntsh, OCILogon, [apu_have_oracle=1]))
+  ])
+
+  AC_SUBST(apu_have_oracle)
+
+  dnl Since we have already done the AC_CHECK_LIB tests, if we have it, 
+  dnl we know the library is there.
+  if test "$apu_have_oracle" = "1"; then
+    APR_ADDTO(APRUTIL_EXPORT_LIBS,[-lclntsh])
+    APR_ADDTO(APRUTIL_LIBS,[-lclntsh])
+  fi
+])
+dnl
