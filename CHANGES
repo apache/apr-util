@@ -1,5 +1,7 @@
 Changes with APR-util 1.3.0
 
+  *) Add apr_dbd_oracle driver [Nick Kew and Chris Darroch]
+
   *) Fix bug in test suite that cause testbuckets to write 8GB file
      on Mac OS X.  [Justin Erenkrantz]
 
