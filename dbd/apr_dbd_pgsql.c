@@ -247,8 +247,13 @@ static int dbd_pgsql_prepare(apr_pool_t *pool, apr_dbd_t *sql,
     }
     /* Translate from apr_dbd to native query format */
     for (sqlptr = (char*)query; *sqlptr; ++sqlptr) {
-        if ((sqlptr[0] == '%') && isalpha(sqlptr[1])) {
-            ++nargs;
+        if (sqlptr[0] == '%') {
+            if (isalpha(sqlptr[1])) {
+                ++nargs;
+            }
+            else if (sqlptr[1] == '%') {
+                ++sqlptr;
+            }
         }
     }
     length = strlen(query) + 1;
