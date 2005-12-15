@@ -108,8 +108,8 @@ AC_DEFUN([APR_FIND_APU], [
 
   AC_MSG_CHECKING(for APR-util)
   AC_ARG_WITH(apr-util,
-  [  --with-apr-util=PATH    prefix for installed APU, path to APU build tree,
-                          or the full path to apu-config],
+  [  --with-apr-util=PATH    prefix for installed APU or the full path to 
+                             apu-config],
   [
     if test "$withval" = "no" || test "$withval" = "yes"; then
       AC_MSG_ERROR([--with-apr-util requires a directory or file to be provided])
