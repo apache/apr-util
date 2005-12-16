@@ -159,7 +159,7 @@ AC_DEFUN([APR_FIND_APU], [
           apu_acceptable="yes"
           $5
           if test "$apu_acceptable" != "yes"; then
-            AC_MSG_WARN([Found APU in $apu_config, but we think it's bad])
+            AC_MSG_WARN([skipped APR-util at $apu_config, version not acceptable])
             continue
           fi])
           apu_found="yes"
@@ -173,7 +173,7 @@ AC_DEFUN([APR_FIND_APU], [
               apu_acceptable="yes"
               $5
               if test "$apu_acceptable" != "yes"; then
-                AC_MSG_WARN([Found APU in $apu_config, but we think it's bad])
+                AC_MSG_WARN([skipped APR-util at $apu_config, version not acceptable])
                 continue
               fi])
               apu_found="yes"
