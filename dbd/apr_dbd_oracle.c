@@ -16,7 +16,8 @@
 
 /* Developed initially by Nick Kew and Chris Darroch.
  * Contributed to the APR project by kind permission of
- * Pearson Education Central Media Group (CMG).
+ * Pearson Education Core Technology Group (CTG),
+ * formerly Central Media Group (CMG).
  */
 
 /* apr_dbd_oracle - a painful attempt
@@ -79,7 +80,10 @@
 #include "apr_hash.h"
 
 #define TRANS_TIMEOUT 30
-#define MAX_ARG_LEN 256	/*OK what should this be?  */
+#define MAX_ARG_LEN 256	/* in line with other apr_dbd drivers.  We alloc this
+                         * lots of times, so a large value gets hungry.
+			 * Should really make it configurable
+			 */
 #define DEFAULT_LONG_SIZE 4096
 #define DBD_ORACLE_MAX_COLUMNS 256
 #define NUMERIC_FIELD_SIZE 32
@@ -155,7 +159,7 @@ struct apr_dbd_row_t {
 typedef struct {
     dbd_field_type type;
     sb2 ind;
-    ub2 len;
+    sb4 len;
     OCIBind *bind;
     union {
         void *raw;
@@ -225,11 +229,6 @@ static apr_status_t dbd_free_snapshot(void *snap)
     }
 }
 
-static void dbd_terminate(void)
-{
-    OCITerminate(OCI_DEFAULT);
-}
-
 #ifdef GLOBAL_PREPARED_STATEMENTS
 static apr_status_t freeStatements(void *ptr)
 {
@@ -265,22 +264,12 @@ static apr_status_t freeStatements(void *ptr)
 static void dbd_oracle_init(apr_pool_t *pool)
 {
     if (dbd_oracle_env == NULL) {
-#if BELIEVE_THE_DOCS
-        /* The Oracle docs say use OCIEnvCreate.  But that leaves
-         * dbd_oracle_env NULL.  So lets ignore the docs and
-         * snarf something from cdemo81.c instead.
+        /* Sadly, OCI_SHARED seems to be impossible to use, due to
+         * various Oracle bugs.  See, for example, Oracle MetaLink bug 2972890
+         * and PHP bug http://bugs.php.net/bug.php?id=23733
          */
-        OCIEnvCreate(&dbd_oracle_env, OCI_THREADED|OCI_SHARED, NULL,
+        OCIEnvCreate(&dbd_oracle_env, OCI_THREADED, NULL,
                      NULL, NULL, NULL, 0, NULL);
-#else
-        /* this is from cdemo81.c */
-        OCIInitialize((ub4) OCI_THREADED|OCI_SHARED, (dvoid *)0,
-                      (dvoid * (*)(dvoid *, size_t)) 0,
-                      (dvoid * (*)(dvoid *, dvoid *, size_t))0,
-                      (void (*)(dvoid *, dvoid *)) 0);
-        OCIEnvInit(&dbd_oracle_env, OCI_DEFAULT, 0, NULL);
-#endif
-        atexit(dbd_terminate);
     }
 #ifdef GLOBAL_PREPARED_STATEMENTS
     if (oracle_statements == NULL) {
@@ -887,7 +876,7 @@ static int dbd_oracle_prepare(apr_pool_t *pool, apr_dbd_t *sql,
                                        stmt->args[i].len,
                                        SQLT_STR,
                                        &stmt->args[i].ind,
-                                       &stmt->args[i].len,
+                                       NULL,
                                        (ub2) 0, (ub4) 0,
                                        (ub4 *) 0, OCI_DEFAULT);
             break;
@@ -899,7 +888,7 @@ static int dbd_oracle_prepare(apr_pool_t *pool, apr_dbd_t *sql,
                                        sizeof(stmt->args[i].value.floatval),
                                        SQLT_FLT,
                                        &stmt->args[i].ind,
-                                       &stmt->args[i].len,
+                                       NULL,
                                        (ub2) 0, (ub4) 0,
                                        (ub4 *) 0, OCI_DEFAULT);
             break;
@@ -911,7 +900,7 @@ static int dbd_oracle_prepare(apr_pool_t *pool, apr_dbd_t *sql,
                                        sizeof(*stmt->args[i].value.ival),
                                        SQLT_INT,
                                        &stmt->args[i].ind,
-                                       &stmt->args[i].len,
+                                       NULL,
                                        (ub2) 0, (ub4) 0,
                                        (ub4 *) 0, OCI_DEFAULT);
             break;
@@ -937,7 +926,7 @@ static int dbd_oracle_prepare(apr_pool_t *pool, apr_dbd_t *sql,
                                        -1,
                                        SQLT_BLOB,
                                        &stmt->args[i].ind,
-                                       &stmt->args[i].len,
+                                       NULL,
                                        (ub2) 0, (ub4) 0,
                                        (ub4 *) 0, OCI_DEFAULT);
             break;
@@ -957,7 +946,7 @@ static int dbd_oracle_prepare(apr_pool_t *pool, apr_dbd_t *sql,
                                        -1,
                                        SQLT_CLOB,
                                        &stmt->args[i].ind,
-                                       &stmt->args[i].len,
+                                       NULL,
                                        (ub2) 0, (ub4) 0,
                                        (ub4 *) 0, OCI_DEFAULT);
             break;
@@ -1106,7 +1095,7 @@ static int outputParams(apr_dbd_t *sql, apr_dbd_prepared_t *stmt)
             sql->status = OCIDescriptorAlloc(dbd_oracle_env,
                                              (dvoid**)&stmt->out[i].buf.lobval,
                                              OCI_DTYPE_LOB, 0, NULL);
-            apr_pool_cleanup_register(sql->pool, stmt->out[i].buf.lobval,
+            apr_pool_cleanup_register(stmt->pool, stmt->out[i].buf.lobval,
                                       dbd_free_lobdesc,
                                       apr_pool_cleanup_null);
             sql->status = OCIDefineByPos(stmt->stmt, &stmt->out[i].defn,
@@ -1189,7 +1178,7 @@ static int dbd_oracle_pvquery(apr_pool_t *pool, apr_dbd_t *sql,
                                        (void*)statement->args[i].value.raw,
                                        statement->args[i].len, SQLT_LNG,
                                        &statement->args[i].ind,
-                                       &statement->args[i].len,
+                                       NULL,
                                        (ub2) 0, (ub4) 0,
                                        (ub4 *) 0, OCI_DEFAULT);
             break;
@@ -1339,7 +1328,7 @@ static int dbd_oracle_pquery(apr_pool_t *pool, apr_dbd_t *sql,
                                        (void*)statement->args[i].value.raw,
                                        statement->args[i].len, SQLT_LNG,
                                        &statement->args[i].ind,
-                                       &statement->args[i].len,
+                                       NULL,
                                        (ub2) 0, (ub4) 0,
                                        (ub4 *) 0, OCI_DEFAULT);
             break;
