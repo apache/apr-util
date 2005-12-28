@@ -253,8 +253,8 @@ static const unsigned char uri_delims[256] = {
  *  - fills in fields of uri_components *uptr
  *  - none on any of the r->* fields
  */
-APU_DECLARE(int) apr_uri_parse(apr_pool_t *p, const char *uri, 
-                               apr_uri_t *uptr)
+APU_DECLARE(apr_status_t) apr_uri_parse(apr_pool_t *p, const char *uri, 
+                                        apr_uri_t *uptr)
 {
     const char *s;
     const char *s1;
@@ -413,9 +413,9 @@ deal_with_host:
  * currently at http://www.mcom.com/newsref/std/tunneling_ssl.html
  * for the format of the "CONNECT host:port HTTP/1.0" request
  */
-APU_DECLARE(int) apr_uri_parse_hostinfo(apr_pool_t *p, 
-                                        const char *hostinfo, 
-                                        apr_uri_t *uptr)
+APU_DECLARE(apr_status_t) apr_uri_parse_hostinfo(apr_pool_t *p, 
+                                                 const char *hostinfo, 
+                                                 apr_uri_t *uptr)
 {
     const char *s;
     char *endstr;
