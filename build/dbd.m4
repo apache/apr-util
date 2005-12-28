@@ -202,7 +202,7 @@ AC_DEFUN([APU_CHECK_DBD_ORACLE], [
   ], [
     apu_have_oracle=0
     if test "$withval" = "yes"; then
-      AC_CHECK_HEADER(oci.h, AC_CHECK_LIB(clntsh, OCILogon, [apu_have_oracle=1]))
+      AC_CHECK_HEADER(oci.h, AC_CHECK_LIB(clntsh, OCIEnvCreate, [apu_have_oracle=1]))
     elif test "$withval" = "no"; then
       apu_have_oracle=0
     else
@@ -210,7 +210,7 @@ AC_DEFUN([APU_CHECK_DBD_ORACLE], [
       LIBS="-L$withval/lib "
 
       AC_MSG_NOTICE(checking for oracle in $withval)
-      AC_CHECK_HEADER(oci.h, AC_CHECK_LIB(clntsh, OCILogon, [apu_have_oracle=1]))
+      AC_CHECK_HEADER(oci.h, AC_CHECK_LIB(clntsh, OCIEnvCreate, [apu_have_oracle=1]))
       if test "$apu_have_oracle" != "0"; then
         APR_ADDTO(APRUTIL_LDFLAGS, [-L$withval/lib])
         APR_ADDTO(APRUTIL_LDFLAGS, [-R$withval/lib])
@@ -220,7 +220,7 @@ AC_DEFUN([APU_CHECK_DBD_ORACLE], [
     fi
   ], [
     apu_have_oracle=0
-    AC_CHECK_HEADER(oci.h, AC_CHECK_LIB(clntsh, OCILogon, [apu_have_oracle=1]))
+    AC_CHECK_HEADER(oci.h, AC_CHECK_LIB(clntsh, OCIEnvCreate, [apu_have_oracle=1]))
   ])
 
   AC_SUBST(apu_have_oracle)
