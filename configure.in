@@ -100,16 +100,33 @@ APR_ADDTO(CPPFLAGS, `$apr_config --cppflags`)
 dnl
 dnl  Find the APR-ICONV directory.
 dnl
-if test -d ../apr-iconv; then
-  APR_SUBDIR_CONFIG(../apr-iconv,
-                    [$apache_apr_flags --prefix=$prefix --exec-prefix=$exec_prefix --libdir=$libdir --includedir=$includedir --bindir=$bindir --datadir=$datadir --with-installbuilddir=$installbuilddir],
-                    [--enable-layout=*|\'--enable-layout=*])
-  APRUTIL_EXPORT_LIBS="$abs_srcdir/../apr-iconv/lib/libapriconv.la $APRUTIL_EXPORT_LIBS"
-  APRUTIL_INCLUDES="-I$abs_srcdir/../apr-iconv/include $APRUTIL_INCLUDES"
-  APR_ICONV_DIR=../apr-iconv
-else
-  APR_ICONV_DIR=""
-fi
+AC_ARG_WITH(apr-iconv,
+            [  --with-apr-iconv=DIR    relative path to apr-iconv source],
+  [ apu_apriconv_dir="$withval"
+    if test "$apu_apriconv_dir" != "no"; then
+      if test -d "$apu_apriconv_dir"; then
+        APR_SUBDIR_CONFIG("$apu_apriconv_dir",
+                          [$apache_apr_flags \
+                             --prefix=$prefix \
+                             --exec-prefix=$exec_prefix \
+                             --libdir=$libdir \
+                             --includedir=$includedir \
+                             --bindir=$bindir \
+                             --datadir=$datadir \
+                             --with-installbuilddir=$installbuilddir],
+                          [--enable-layout=*|\'--enable-layout=*])
+        APRUTIL_EXPORT_LIBS="$abs_srcdir/$apu_apriconv_dir/lib/libapriconv.la \
+                             $APRUTIL_EXPORT_LIBS"
+        APRUTIL_INCLUDES="-I$abs_srcdir/apu_apriconv_dir/include \
+                          $APRUTIL_INCLUDES"
+        APR_ICONV_DIR="$apu_apriconv_dir"
+      else
+       APR_ICONV_DIR=""
+      fi
+    else
+      APR_ICONV_DIR=""
+    fi
+  ])
 AC_SUBST(APR_ICONV_DIR)
 
 dnl Find LDAP library
