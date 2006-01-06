@@ -80,10 +80,10 @@
 #include "apr_hash.h"
 
 #define TRANS_TIMEOUT 30
-#define MAX_ARG_LEN 256	/* in line with other apr_dbd drivers.  We alloc this
+#define MAX_ARG_LEN 256 /* in line with other apr_dbd drivers.  We alloc this
                          * lots of times, so a large value gets hungry.
-			 * Should really make it configurable
-			 */
+                         * Should really make it configurable
+                         */
 #define DEFAULT_LONG_SIZE 4096
 #define DBD_ORACLE_MAX_COLUMNS 256
 #define NUMERIC_FIELD_SIZE 32
@@ -319,6 +319,12 @@ static apr_dbd_t *dbd_oracle_open(apr_pool_t *pool, const char *params)
         for (key = ptr-1; isspace(*key); --key);
         klen = 0;
         while (isalpha(*key)) {
+            if (key == params) {
+                /* Don't parse off the front of the params */
+                --key;
+                ++klen;
+                break;
+            }
             --key;
             ++klen;
         }
@@ -909,7 +915,7 @@ static int dbd_oracle_prepare(apr_pool_t *pool, apr_dbd_t *sql,
          * holding it in memory
          */
         case APR_DBD_ORACLE_LOB:
-            break;	/* bind LOBs at write-time */
+            break;        /* bind LOBs at write-time */
         /* This is also cited in the docs for LOB, if we don't
          * want the whole thing in memory
          */
@@ -1034,7 +1040,7 @@ static int outputParams(apr_dbd_t *sql, apr_dbd_prepared_t *stmt)
                 stmt->out[i].sz = 171;
                 break;
             case SQLT_CHR:           /* 1: char */
-	    case SQLT_AFC:           /* 96: ANSI fixed char */
+            case SQLT_AFC:           /* 96: ANSI fixed char */
                 stmt->out[i].sz *= 4; /* ugh, wasteful UCS-4 handling */
                 break;
             case SQLT_DAT:           /* 12: date, depends on NLS date format */
