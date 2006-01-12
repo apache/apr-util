@@ -429,6 +429,25 @@ AC_DEFUN(APU_CHECK_DB43, [
     apu_db_version=4
   fi
 ])
+dnl
+dnl APU_CHECK_DB44: is DB4.4 present?
+dnl
+dnl if present: sets apu_db_header, apu_db_lib, and apu_db_version
+dnl
+AC_DEFUN([APU_CHECK_DB44], [
+  places=$1
+  if test -z "$places"; then
+    places="std /usr/local/BerkeleyDB.4.4 /boot/home/config"
+  fi
+  APU_CHECK_BERKELEY_DB("4", "4", "-1",
+    "$places",
+    "db44/db.h db4/db.h db.h",
+    "db-4.4 db4-4.4 db44 db4 db"
+  )
+  if test "$apu_have_db" = "1"; then
+    apu_db_version=4
+  fi
+])
 
 
 AC_DEFUN(APU_CHECK_DB, [
@@ -490,6 +509,12 @@ AC_DEFUN(APU_CHECK_DB, [
       AC_MSG_ERROR(Berkeley db4 not found)
     fi
     ;;
+  db44)
+    APU_CHECK_DB44("$check_places")
+    if test "$apu_db_version" != "4"; then
+      AC_MSG_ERROR(Berkeley db4 not found)
+    fi
+    ;;
   default)
     APU_CHECK_DB_ALL("$check_places")
     ;;
@@ -502,21 +527,24 @@ dnl
 AC_DEFUN(APU_CHECK_DB_ALL, [
   all_places=$1
  
-  APU_CHECK_DB43("$all_places")
+  APU_CHECK_DB44("$all_places")
   if test "$apu_db_version" != "4"; then
-    APU_CHECK_DB42("$all_places")
+    APU_CHECK_DB43("$all_places")
     if test "$apu_db_version" != "4"; then
-      APU_CHECK_DB41("$all_places")
+      APU_CHECK_DB42("$all_places")
       if test "$apu_db_version" != "4"; then
-        APU_CHECK_DB4("$all_places")
+        APU_CHECK_DB41("$all_places")
         if test "$apu_db_version" != "4"; then
-          APU_CHECK_DB3("$all_places")
-          if test "$apu_db_version" != "3"; then
-            APU_CHECK_DB2("$all_places")
-            if test "$apu_db_version" != "2"; then
-              APU_CHECK_DB1("$all_places")
-              if test "$apu_db_version" != "1"; then
-                APU_CHECK_DB185("$all_places")
+          APU_CHECK_DB4("$all_places")
+          if test "$apu_db_version" != "4"; then
+            APU_CHECK_DB3("$all_places")
+            if test "$apu_db_version" != "3"; then
+              APU_CHECK_DB2("$all_places")
+              if test "$apu_db_version" != "2"; then
+                APU_CHECK_DB1("$all_places")
+                if test "$apu_db_version" != "1"; then
+                  APU_CHECK_DB185("$all_places")
+                fi
               fi
             fi
           fi
@@ -552,11 +580,11 @@ AC_DEFUN(APU_CHECK_DBM, [
 
   AC_ARG_WITH(dbm, [
     --with-dbm=DBM          choose the DBM type to use.
-      DBM={sdbm,gdbm,ndbm,db,db1,db185,db2,db3,db4,db41,db42,db43}
+      DBM={sdbm,gdbm,ndbm,db,db1,db185,db2,db3,db4,db41,db42,db43,db44}
   ], [
     if test "$withval" = "yes"; then
       AC_MSG_ERROR([--with-dbm needs to specify a DBM type to use.
-        One of: sdbm, gdbm, ndbm, db, db1, db185, db2, db3, db4, db41, db42, db43])
+        One of: sdbm, gdbm, ndbm, db, db1, db185, db2, db3, db4, db41, db42, db43, db44])
     fi
     requested="$withval"
   ], [
@@ -738,6 +766,10 @@ AC_DEFUN(APU_CHECK_DBM, [
       apu_use_db=1
       apu_default_dbm=db4
       ;;
+    db44)
+      apu_use_db=1
+      apu_default_dbm=db4
+      ;;
     default)
       dnl ### use more sophisticated DBMs for the default?
       apu_default_dbm="sdbm (default)"
@@ -745,7 +777,7 @@ AC_DEFUN(APU_CHECK_DBM, [
       ;;
     *)
       AC_MSG_ERROR([--with-dbm=$look_for is an unknown DBM type.
-        Use one of: sdbm, gdbm, ndbm, db, db1, db185, db2, db3, db4, db41, db42])
+        Use one of: sdbm, gdbm, ndbm, db, db1, db185, db2, db3, db4, db41, db42, db43, db44])
       ;;
   esac
 
