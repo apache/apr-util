@@ -2,7 +2,8 @@ The MySQL driver is not distributed from apache.org due to licensing issues.
 
 If you wish to build the driver, download apr_dbd_mysql.c from
 http://apache.webthing.com/database/
-and copy it into the dbd directory before running configure.
+and copy it into the dbd directory.
+Now run buildconf, followed by configure.
 
 It is distributed under the GPL to conform with MySQL License terms
 This means it cannot be distributed from apache.org, as that would
