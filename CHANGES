@@ -3,8 +3,11 @@ Changes with APR-util 1.2.3-dev
   *) Add support for Berkeley DB 4.4 to the configure scripts.
      [Garrett Rooney]
 
+  *) Fix bug in test suite that cause testbuckets to write 8GB file
+     on Mac OS X.  [Justin Erenkrantz]
+
 Changes with APR-util 1.2.2
- 
+
   *) Teach configure how to find the Novell LDAP SDK. [Graham Leggett]
  
   *) Fix usage of ldapssl_init/ldap_sslinit on platforms that support
