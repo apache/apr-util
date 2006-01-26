@@ -157,21 +157,21 @@ APU_DECLARE(char *) apr_uri_unparse(apr_pool_t *p,
  * @param p The pool to allocate out of
  * @param uri The uri to parse
  * @param uptr The apr_uri_t to fill out
- * @return An HTTP status code
+ * @return APR_SUCCESS for success or error code
  */
-APU_DECLARE(int) apr_uri_parse(apr_pool_t *p, const char *uri, 
-                               apr_uri_t *uptr);
+APU_DECLARE(apr_status_t) apr_uri_parse(apr_pool_t *p, const char *uri, 
+                                        apr_uri_t *uptr);
 
 /**
  * Special case for CONNECT parsing: it comes with the hostinfo part only
  * @param p The pool to allocate out of
  * @param hostinfo The hostinfo string to parse
  * @param uptr The apr_uri_t to fill out
- * @return An HTTP status code
+ * @return APR_SUCCESS for success or error code
  */
-APU_DECLARE(int) apr_uri_parse_hostinfo(apr_pool_t *p, 
-                                        const char *hostinfo, 
-                                        apr_uri_t *uptr);
+APU_DECLARE(apr_status_t) apr_uri_parse_hostinfo(apr_pool_t *p, 
+                                                 const char *hostinfo, 
+                                                 apr_uri_t *uptr);
 
 /** @} */
 #ifdef __cplusplus
