@@ -143,12 +143,13 @@ APU_DECLARE(apr_status_t) apr_dbd_open(const apr_dbd_driver_t *driver,
                                        apr_pool_t *pool, const char *params,
                                        apr_dbd_t **handle)
 {
-
+    apr_status_t rv;
     *handle = driver->open(pool, params);
     if (*handle == NULL) {
         return APR_EGENERAL;
     }
-    if (apr_dbd_check_conn(driver, pool, *handle) != APR_SUCCESS) {
+    rv = apr_dbd_check_conn(driver, pool, *handle);
+    if ((rv != APR_SUCCESS) && (rv != APR_ENOTIMPL)) {
         apr_dbd_close(driver, *handle);
         return APR_EGENERAL;
     }
