@@ -1,5 +1,9 @@
 Changes with APR-util 1.3.0
 
+  *) Fix the escape implementations for the sqlite2 and sqlite3 dbd
+     back ends.
+     [Ronen Mizrahi <ronen tversity.com>, Garrett Rooney]
+
   *) On platforms that use autoconf stop automatically linking against
      apr-iconv when an apr-iconv source dir is found in ../apr-iconv.
      Instead, add a --with-apr-iconv option to configure that lets you
