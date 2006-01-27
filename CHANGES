@@ -1,4 +1,4 @@
-Changes with APR-util 0.9.8-dev
+Changes with APR-util 0.9.8
 
   *) Add support for Berkeley DB 4.4 to the configure scripts.
      [Garrett Rooney]
