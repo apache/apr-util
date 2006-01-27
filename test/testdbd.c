@@ -136,6 +136,14 @@ static void select_rows(abts_case *tc, apr_dbd_t* handle,
     ABTS_ASSERT(tc, "If we overseek, get_row should return -1", rv == -1);
 }
 
+static void test_escape(abts_case *tc, apr_dbd_t *handle,
+                        const apr_dbd_driver_t *driver)
+{
+  const char *escaped = apr_dbd_escape(driver, p, "foo'bar", handle);
+
+  ABTS_STR_EQUAL(tc, "foo''bar", escaped);
+}
+
 static void test_dbd_generic(abts_case *tc, apr_dbd_t* handle, 
                              const apr_dbd_driver_t* driver)
 {
@@ -155,6 +163,8 @@ static void test_dbd_generic(abts_case *tc, apr_dbd_t* handle,
     delete_rows(tc, handle, driver);
     select_rows(tc, handle, driver, 0);
     drop_table(tc, handle, driver);
+
+    test_escape(tc, handle, driver);
 
     rv = apr_dbd_close(driver, handle);
     ABTS_ASSERT(tc, "failed to close database", rv == APR_SUCCESS);

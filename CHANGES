@@ -1,5 +1,9 @@
 Changes with APR-util 1.2.3-dev
 
+  *) Fix the escape implementations for the sqlite2 and sqlite3 dbd
+     back ends.
+     [Ronen Mizrahi <ronen tversity.com>, Garrett Rooney]
+
   *) Add support for Berkeley DB 4.4 to the configure scripts.
      [Garrett Rooney]
 
