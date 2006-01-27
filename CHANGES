@@ -1,4 +1,4 @@
-Changes with APR-util 1.2.3-dev
+Changes with APR-util 1.2.3
 
   *) Fix the escape implementations for the sqlite2 and sqlite3 dbd
      back ends.
