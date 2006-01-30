@@ -125,18 +125,33 @@
 #define LDAPS_PORT LDAP_SSL_PORT
 #endif
 
-
-/* LDAPv2 SDKs don't use const parameters in their prototypes.  
- * LDAPv3 SDKs do use const.  When compiling with LDAPv2 SDKs, const_cast 
- * casts away the constness, but won't under LDAPv3 
+/* MS & v2 LDAP SDKs don't use const parameters in their prototypes,
+ * LDAPv3 SDKs mostly use const.  Bridge the gap for clean compilation.
  */
-#if LDAP_VERSION_MAX <= 2
-#define const_cast(x) ((char *)(x))
+
+#if LDAP_VERSION_MAX <= 2 || APR_HAS_MICROSOFT_LDAPSDK || defined(DOXYGEN)
+/**
+ * Cast away constness to compile cleanly against v2 and MS LDAP SDKs
+ * @param conststr The value to un-constify on older LDAP SDKs
+ */
+#define APR_LDAP_UNCONST(conststr) ((char *)(conststr))
 #else
-#define const_cast(x) (x)
+#define APR_LDAP_UNCONST(conststr) (conststr)
 #endif
 
-
+#ifndef __cplusplus
+/**
+ * Cast away constness to compile against v2 and MS LDAP SDKs
+ * @param conststr The value to un-constify on older LDAP SDKs
+ * @bug The apr_ldap.h macro const_cast violated three rules;
+ *   it was a C++ reserved keyword, it violated the uppercase-only
+ *   style guideline for apr macros, and it was not namespace protected.
+ *   It exists here soley to avoid breaking legacy sources using APR 0.9.
+ * @deprecated @see APR_LDAP_UNCONST
+ */
+#define const_cast(conststr) APR_LDAP_UNCONST(conststr)
+#endif
+   
 #include "apr_ldap_url.h"
 
 /* Define some errors that are mysteriously gone from OpenLDAP 2.x */
