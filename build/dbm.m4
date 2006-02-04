@@ -607,6 +607,7 @@ AC_DEFUN([APU_CHECK_DBM], [
     requested=default
   ])
 
+  dnl We don't pull in GDBM unless the user asks for it, since it's GPL
   AC_ARG_WITH([gdbm], [
     --with-gdbm=DIR          specify GDBM location
   ], [
@@ -626,9 +627,6 @@ AC_DEFUN([APU_CHECK_DBM], [
         APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/include])
       fi
     fi
-  ], [
-    apu_have_gdbm=0
-    AC_CHECK_HEADER(gdbm.h, AC_CHECK_LIB(gdbm, gdbm_open, [apu_have_gdbm=1]))
   ])
 
   AC_ARG_WITH([ndbm], [
