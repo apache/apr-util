@@ -1,5 +1,13 @@
 Changes with APR-util 1.2.4
 
+  *) Fix VPATH builds, and symlink builds where apr and apr-util 
+     reside in parallel as symlinks to directories with more explicit
+     names, e.g. apr-1.x and apr-util-1.x.  This solves various breakage
+     on Solaris in particular with ./buildconf and ./configure.  Also
+     eliminated the nested ../apr-iconv/buildconf, given that apr-util
+     didn't bother with ../apr/buildconf, and this was inconsistant.
+     [William Rowe]
+
   *) Fix the escape implementations for the sqlite2 and sqlite3 dbd
      back ends.
      [Ronen Mizrahi <ronen tversity.com>, Garrett Rooney]
