@@ -142,7 +142,7 @@ dnl
 AC_DEFUN([APU_FIND_EXPAT], [
 
 AC_ARG_WITH([expat],
-[  --with-expat=DIR        specify Expat location], [
+[  --with-expat=DIR        specify Expat location or 'builtin'], [
   if test "$withval" = "yes"; then
     AC_MSG_ERROR([a directory must be specified for --with-expat])
   elif test "$withval" = "no"; then
