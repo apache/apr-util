@@ -186,8 +186,7 @@ if test -d ./test; then
 fi
 
 if test ! -d "$top_builddir/include/private"; then
-    mkdir $top_builddir/include
-    mkdir $top_builddir/include/private
+    $mkdir_p $top_builddir/include/private
 fi
 
 dnl
