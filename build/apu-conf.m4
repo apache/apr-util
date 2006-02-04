@@ -147,6 +147,12 @@ AC_ARG_WITH([expat],
     AC_MSG_ERROR([a directory must be specified for --with-expat])
   elif test "$withval" = "no"; then
     AC_MSG_ERROR([Expat cannot be disabled (at this time)])
+  elif test "$withval" = "builtin"; then
+    abs_expatdir="`cd $srcdir/xml/expat && pwd`"
+    if test -d $abs_expatdir/. -a ! -d xml/expat/.; then
+      $mkdir_p xml/expat
+    fi
+    APU_TEST_EXPAT($abs_expatdir, xml/expat)
   else
     abs_expatdir="`cd $withval && pwd`"
     APU_TEST_EXPAT($abs_expatdir, $withval)
