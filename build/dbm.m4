@@ -699,6 +699,10 @@ AC_DEFUN([APU_CHECK_DBM], [
   fi
 
   dnl We're going to try to find the highest version of Berkeley DB supported.
+  dnl
+  dnl Note that we only do this if the user requested it, since the Sleepycat
+  dbl license is viral and requires distribution of source along with programs
+  dnl that use it.
   AC_ARG_WITH([berkeley-db], [
     --with-berkeley-db=PATH
       Find the Berkeley DB header and library in \`PATH/include' and
@@ -723,8 +727,6 @@ AC_DEFUN([APU_CHECK_DBM], [
         AC_ERROR(Berkeley DB not found.)
       fi
     fi 
-  ],[
-    APU_CHECK_DB($requested, "")
   ])
 
   if test -n "$apu_db_xtra_libs"; then
