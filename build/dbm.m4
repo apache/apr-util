@@ -701,7 +701,7 @@ AC_DEFUN([APU_CHECK_DBM], [
   dnl We're going to try to find the highest version of Berkeley DB supported.
   dnl
   dnl Note that we only do this if the user requested it, since the Sleepycat
-  dbl license is viral and requires distribution of source along with programs
+  dnl license is viral and requires distribution of source along with programs
   dnl that use it.
   AC_ARG_WITH([berkeley-db], [
     --with-berkeley-db=PATH
