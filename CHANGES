@@ -1,5 +1,11 @@
 Changes with APR-util 1.3.0
 
+  *) Stop trying to link against Berkeley DB by default.  To enable use
+     of Berkeley DB users must now explicitly pass --with-berkeley-db to
+     configure, since Berkeley DB is released under a viral license that
+     requires distribution of source code for any program that uses it.
+     [Garrett Rooney]
+
   *) Stop trying to link against GDBM by default.  To enable use of GDBM
      users must now explicitly pass --with-gdbm to configure, since GDBM
      is licensed under the GPL.
