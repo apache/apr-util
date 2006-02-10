@@ -25,6 +25,16 @@
 extern "C" {
 #endif
 
+/**
+ * @file apr_dbd.h
+ * @brief APR-UTIL DBD library
+ */
+/**
+ * @defgroup APR_Util_DBD DBD routines
+ * @ingroup APR_Util
+ * @{
+ */
+
 /* These are opaque structs.  Instantiation is up to each backend */
 typedef struct apr_dbd_driver_t apr_dbd_driver_t;
 typedef struct apr_dbd_t apr_dbd_t;
@@ -313,6 +323,8 @@ APU_DECLARE(int) apr_dbd_pvselect(const apr_dbd_driver_t *driver, apr_pool_t *po
                                   apr_dbd_t *handle, apr_dbd_results_t **res,
                                   apr_dbd_prepared_t *statement, int random,
                                   ...);
+
+/** @} */
 
 #ifdef __cplusplus
 }
