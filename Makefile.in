@@ -22,7 +22,7 @@ APU_CONFIG = apu-$(APRUTIL_MAJOR_VERSION)-config
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 
-TARGETS = $(TARGET_LIB) aprutil.exp
+TARGETS = $(TARGET_LIB) aprutil.exp apu-config.out
 
 # bring in rules.mk for standard functionality
 @INCLUDE_RULES@
@@ -53,7 +53,7 @@ top_blddir=@abs_builddir@
 apu-config.out: $(APU_CONFIG)
 	sed 's,^\(location=\).*$$,\1installed,' < $(APU_CONFIG) > $@
 
-install: $(TARGET_LIB) apu-config.out
+install: $(TARGETS)
 	$(APR_MKDIR) $(DESTDIR)$(includedir) $(DESTDIR)$(libdir)/pkgconfig \
 		     $(DESTDIR)$(libdir) $(DESTDIR)$(bindir)
 	for f in $(top_srcdir)/include/*.h $(top_blddir)/include/*.h; do \
