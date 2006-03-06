@@ -147,11 +147,11 @@ static void get_current_time(apr_uint64_t *timestamp)
 {
     /* ### this needs to be made thread-safe! */
 
-    apr_time_t time_now;
-    static apr_interval_time_t time_last = 0;
-    static apr_interval_time_t fudge = 0;
+    apr_uint64_t time_now;
+    static apr_uint64_t time_last = 0;
+    static apr_uint64_t fudge = 0;
 
-    time_now = apr_time_now();
+    get_system_time(&time_now);
         
     /* if clock reading changed since last UUID generated... */
     if (time_last != time_now) {
