@@ -1,5 +1,10 @@
 Changes with APR-util 0.9.9
 
+  *) Unix: No longer require an APR source directory to be available at
+     ./configure time, by making use of mkdir.sh, make_exports.awk,
+     make_var_export.awk installed to the installbuilddir by APR >= 0.9.9.
+     [Max Bowsher]
+
   *) Stop trying to link against Berkeley DB by default.  To enable use
      of Berkeley DB users must now explicitly pass --with-berkeley-db to
      configure, since Berkeley DB is released under a viral license that

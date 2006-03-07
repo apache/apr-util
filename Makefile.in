@@ -58,7 +58,7 @@ apu-config.out: apu-config
 install: $(TARGET_LIB) apu-config.out
 install: $(TARGET_LIB)
 	if [ ! -d $(DESTDIR)$(includedir) ]; then \
-	    @APR_SOURCE_DIR@/build/mkdir.sh $(DESTDIR)$(includedir); \
+	    $(APR_MKDIR) $(DESTDIR)$(includedir); \
 	fi;
 	cp -p $(top_srcdir)/include/*.h $(DESTDIR)$(includedir)
 
@@ -66,7 +66,7 @@ install: $(TARGET_LIB)
 		cp -p $(top_blddir)/include/*.h $(DESTDIR)$(includedir); \
 	fi;
 	if [ ! -d $(DESTDIR)$(libdir) ]; then \
-	    @APR_SOURCE_DIR@/build/mkdir.sh $(DESTDIR)$(libdir); \
+	    $(APR_MKDIR) $(DESTDIR)$(libdir); \
 	fi;
 	list='$(INSTALL_SUBDIRS)'; for i in $$list; do \
 		( cd $$i ; $(MAKE) DESTDIR=$(DESTDIR) install ); \
@@ -74,7 +74,7 @@ install: $(TARGET_LIB)
 	$(LIBTOOL) --mode=install cp $(TARGET_LIB) $(DESTDIR)$(libdir)
 	$(LIBTOOL) --mode=install cp aprutil.exp $(DESTDIR)$(libdir)
 	if [ ! -d $(DESTDIR)$(bindir) ]; then \
-		@APR_SOURCE_DIR@/build/mkdir.sh $(DESTDIR)$(bindir); \
+		$(APR_MKDIR) $(DESTDIR)$(bindir); \
 	fi;
 	$(LIBTOOL) --mode=install cp apu-config.out $(DESTDIR)$(bindir)/apu-config
 	chmod 755 $(DESTDIR)$(bindir)/apu-config
@@ -96,10 +96,10 @@ delete-exports:
 	fi
 
 exports.c:
-	$(AWK) -f @APR_SOURCE_DIR@/build/make_exports.awk $(EXPORT_FILES) > $@
+	$(APR_MKEXPORT) $(EXPORT_FILES) > $@
 
 export_vars.h:
-	$(AWK) -f @APR_SOURCE_DIR@/build/make_var_export.awk $(EXPORT_FILES) > $@
+	$(APR_MKVAREXPORT) $(EXPORT_FILES) > $@
 
 aprutil.exp: exports.c export_vars.h
 	@echo "#! lib@APRUTIL_LIBNAME@.so" > $@
