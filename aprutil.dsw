@@ -42,9 +42,6 @@ Package=<4>
     Project_Dep_Name apr
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name gen_uri_delims
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name xml
     End Project Dependency
     Begin Project Dependency
@@ -129,26 +126,11 @@ Package=<4>
     Project_Dep_Name libapr
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name gen_uri_delims
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name xml
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libapriconv
     End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "gen_uri_delims"=".\uri\gen_uri_delims.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
 }}}
 
 ###############################################################################

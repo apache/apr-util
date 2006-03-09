@@ -490,33 +490,6 @@ InputPath=.\include\apu_want.hw
 !ENDIF 
 
 # End Source File
-# Begin Source File
-
-SOURCE=.\uri\gen_uri_delims.exe
-
-!IF  "$(CFG)" == "aprutil - Win32 Release"
-
-# Begin Custom Build - Generating uri_delims.h
-InputPath=.\uri\gen_uri_delims.exe
-
-".\uri\uri_delims.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	.\uri\gen_uri_delims.exe >.\uri\uri_delims.h
-
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
-
-# Begin Custom Build - Generating uri_delims.h
-InputPath=.\uri\gen_uri_delims.exe
-
-".\uri\uri_delims.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	.\uri\gen_uri_delims.exe >.\uri\uri_delims.h
-
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
 # End Group
 # Begin Group "Public Header Files"
 
