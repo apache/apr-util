@@ -168,6 +168,10 @@ static int dbd_sqlite_get_row(apr_pool_t * pool, apr_dbd_results_t * res,
 
 static const char *dbd_sqlite_get_entry(const apr_dbd_row_t * row, int n)
 {
+    if ((n < 0) || (n >= row->res->sz)) {
+      return NULL;
+    }
+
     return row->data[n];
 }
 
