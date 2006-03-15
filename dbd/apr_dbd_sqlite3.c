@@ -65,6 +65,7 @@ struct apr_dbd_results_t {
     apr_dbd_row_t *next_row;
     size_t sz;
     int tuples;
+    char **col_names;
 };
 
 struct apr_dbd_prepared_t {
@@ -109,6 +110,8 @@ static int dbd_sqlite3_select(apr_pool_t * pool, apr_dbd_t * sql, apr_dbd_result
         (*results)->random = seek;
         (*results)->next_row = 0;
         (*results)->tuples = 0;
+        (*results)->col_names = apr_pcalloc(pool,
+                                            column_count * sizeof(char *));
         do {
             ret = sqlite3_step((*results)->stmt);
             if (ret == SQLITE_BUSY) {
@@ -132,7 +135,13 @@ static int dbd_sqlite3_select(apr_pool_t * pool, apr_dbd_t * sql, apr_dbd_result
                 for (i = 0; i < (*results)->sz; i++) {
                     column = apr_palloc(pool, sizeof(apr_dbd_column_t));
                     row->columns[i] = column;
-                    column->name = (char *) sqlite3_column_name((*results)->stmt, i);
+                    /* copy column name once only */
+                    if ((*results)->col_names[i] == NULL) {
+                      (*results)->col_names[i] =
+                          apr_pstrdup(pool,
+                                      sqlite3_column_name((*results)->stmt, i));
+                    }
+                    column->name = (*results)->col_names[i];
                     column->size = sqlite3_column_bytes((*results)->stmt, i);
                     column->type = sqlite3_column_type((*results)->stmt, i);
                     column->value = NULL;
