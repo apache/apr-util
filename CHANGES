@@ -1,4 +1,4 @@
-Changes with APR-util 1.2.4
+Changes with APR-util 1.2.5
 
   *) Stop trying to link against Berkeley DB by default.  To enable use
      of Berkeley DB users must now explicitly pass --with-berkeley-db to
