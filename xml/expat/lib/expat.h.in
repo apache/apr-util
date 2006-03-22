@@ -726,13 +726,13 @@ XML_Expat_Version XMLPARSEAPI
 XML_ExpatVersionInfo(void);
 
 #ifndef XML_MAJOR_VERSION
-#define XML_MAJOR_VERSION @EXPAT_MAJOR_VERSION@
+#define XML_MAJOR_VERSION 1
 #endif
 #ifndef XML_MINOR_VERSION
-#define XML_MINOR_VERSION @EXPAT_MINOR_VERSION@
+#define XML_MINOR_VERSION 95
 #endif
 #ifndef XML_MICRO_VERSION
-#define XML_MICRO_VERSION @EXPAT_EDIT@
+#define XML_MICRO_VERSION 2
 #endif
 
 #ifdef __cplusplus
