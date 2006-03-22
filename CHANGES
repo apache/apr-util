@@ -1,3 +1,7 @@
+Changes with APR-util 0.9.10
+
+  *) Minor build and runtime fixes.
+
 Changes with APR-util 0.9.9
 
   *) Unix: No longer require an APR source directory to be available at
