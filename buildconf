@@ -57,6 +57,9 @@ else
   exit 1
 fi
 
+# Post autoconf cleanup...
+rm -rf autom4te*.cache
+
 #
 # If Expat has been bundled, then go and configure the thing
 # and then remove autoconf cache
