@@ -50,6 +50,9 @@ rm -f libtool.m4 ltsugar.m4
 
 cross_compile_warning="warning: AC_TRY_RUN called without default to allow cross compiling"
 
+# Remove aclocal.m4 as it'll break some builds...
+rm -rf aclocal.m4 autom4te*.cache
+
 #
 # Generate the autoconf header template (config.h.in) and ./configure
 #
