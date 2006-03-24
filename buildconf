@@ -19,7 +19,15 @@
 
 # Default place to look for apr source.  Can be overridden with 
 #   --with-apr=[directory]
+
 apr_src_dir=../apr
+apr_config=`which apr-1-config`
+if test $? -eq 0; then
+    apr_minorver=`$apr_config --version|cut -d. -s -f2`
+    if test $apr_minorver -ge 2; then
+        apr_src_dir=`$apr_config --srcdir`
+    fi
+fi
 
 while test $# -gt 0 
 do
@@ -39,6 +47,7 @@ do
 done
 
 if [ -f "$apr_src_dir/build/apr_common.m4" ]; then
+  apr_src_dir=`cd $apr_src_dir; pwd`
   echo ""
   echo "Looking for apr source in $apr_src_dir"
 else
