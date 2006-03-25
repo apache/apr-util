@@ -8,6 +8,13 @@ if [ "x$libtoolize" = "x" ]; then
     echo "libtoolize not found in path"
     exit 1
 fi
+
+# Remove any m4 cache and libtool files so one can switch between
+# autoconf and libtool versions by simply rerunning the buildconf script.
+#
+(cd conftools ; rm -f ltconfig ltmain.sh)
+rm -rf aclocal.m4 libtool.m4 ltsugar.m4 autom4te*.cache
+
 ltpath=`dirname $libtoolize`
 ltfile=${LIBTOOL_M4-`cd $ltpath/../share/aclocal ; pwd`/libtool.m4}
 echo "Incorporating $ltfile into aclocal.m4 ..."
@@ -26,12 +33,6 @@ cross_compile_warning="warning: AC_TRY_RUN called without default to allow cross
 # files since we have a special config.guess/config.sub that we
 # want to ensure is used.
 echo "Copying libtool helper files ..."
-
-# Remove any m4 cache and libtool files so one can switch between
-# autoconf and libtool versions by simply rerunning the buildconf script.
-#
-(cd conftools ; rm -f ltconfig ltmain.sh)
-rm -rf aclocal.m4 libtool.m4 ltsugar.m4 autom4te*.cache
 
 $libtoolize --copy --automake
 
