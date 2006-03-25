@@ -19,10 +19,11 @@ fi
 # want to ensure is used.
 echo "Copying libtool helper files ..."
 
-# Remove any libtool files so one can switch between libtool 1.3
-# and libtool 1.4 by simply rerunning the buildconf script.
+# Remove any m4 cache and libtool files so one can switch between
+# autoconf and libtool versions by simply rerunning the buildconf script.
+#
 (cd conftools ; rm -f ltconfig ltmain.sh)
-rm -f aclocal.m4 libtool.m4 ltsugar.m4
+rm -rf aclocal.m4 libtool.m4 ltsugar.m4 autom4te*.cache
 
 $libtoolize --copy --automake
 
@@ -49,9 +50,6 @@ fi
 rm -f libtool.m4 ltsugar.m4
 
 cross_compile_warning="warning: AC_TRY_RUN called without default to allow cross compiling"
-
-# Remove aclocal.m4 as it'll break some builds...
-rm -rf aclocal.m4 autom4te*.cache
 
 #
 # Generate the autoconf header template (config.h.in) and ./configure
