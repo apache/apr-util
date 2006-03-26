@@ -126,6 +126,16 @@ AC_SUBST(lib_target)
 APRUTIL_LIBNAME="aprutil${libsuffix}"
 AC_SUBST(APRUTIL_LIBNAME)
 
+# Use -no-install to link the test programs on all platforms
+# but Darwin, where it would cause the programs to be linked
+# against installed versions of libapr instead of those just
+# built.
+case $host in
+*-apple-darwin*) LT_NO_INSTALL="" ;;
+*) LT_NO_INSTALL="-no-install" ;;
+esac
+AC_SUBST(LT_NO_INSTALL)
+
 EXTRA_OS_LINK=""
 host_alias=`uname -s`
 case "$host_alias" in
