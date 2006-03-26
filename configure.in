@@ -181,7 +181,7 @@ case "$host_alias" in
 esac
 AC_SUBST(INCLUDE_RULES)
 
-if test -d ./test; then
+if test -f $abs_srcdir/test/Makefile.in; then
     test_Makefile="test/Makefile"
 fi
 
