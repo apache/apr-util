@@ -1,6 +1,11 @@
 Changes with APR-util 0.9.11
 
+  *) Sync get-version.sh from apr source at ./buildconf time, to correctly
+     retrieve 2 digit subversion, which broke the 0.9.10 candidate, and
+     keep any other updates in sync going forwards.  [William Rowe]
 
+  *) Port apr tree change for 'make check' test/ binaries on Darwin to
+     avoid -no-install which can break the tests.  [William Rowe, Joe Orton]
 
 Changes with APR-util 0.9.10
 
