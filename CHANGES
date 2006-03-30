@@ -1,5 +1,8 @@
 Changes with APR-util 1.3.0
 
+  *) Make apr_dbd.h work as a stand alone header, without needing other
+     files to be included before it. [Henry Jen <henryjen ztune.net>]
+
   *) Fix incorrect byte order (PR 37342) and incorrect timestamp type
      in the fallback UUID generator used when no external UUID generator
      is detected by APR.
