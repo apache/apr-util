@@ -1,5 +1,9 @@
 Changes with APR-util 1.3.0
 
+  *) Make the DBD autoconf-glue use LDFLAGS instead of LIBS in several
+     places, fixing some configure issues on Solaris.
+     [Henry Jen <henryjen ztune.net>]
+
   *) Make apr_dbd.h work as a stand alone header, without needing other
      files to be included before it. [Henry Jen <henryjen ztune.net>]
 
