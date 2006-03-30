@@ -40,7 +40,7 @@ AC_DEFUN([APU_CHECK_DBD], [
       apu_have_pgsql=0
     else
       CPPFLAGS="-I$withval/include"
-      LIBS="-L$withval/lib "
+      LDFLAGS="-L$withval/lib "
 
       AC_MSG_NOTICE(checking for pgsql in $withval)
       AC_CHECK_HEADER(libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
@@ -88,7 +88,7 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
       apu_have_mysql=0
     else
       CPPFLAGS="-I$withval/include"
-      LIBS="-L$withval/lib "
+      LDFLAGS="-L$withval/lib "
 
       AC_MSG_NOTICE(checking for mysql in $withval)
       AC_CHECK_HEADER(mysql.h, AC_CHECK_LIB(mysqlclient_r, mysql_init, [apu_have_mysql=1]))
@@ -133,7 +133,7 @@ AC_DEFUN([APU_CHECK_DBD_SQLITE3], [
       apu_have_sqlite3=0
     else
       CPPFLAGS="-I$withval/include"
-      LIBS="-L$withval/lib "
+      LDFLAGS="-L$withval/lib "
 
       AC_MSG_NOTICE(checking for sqlite3 in $withval)
       AC_CHECK_HEADER(sqlite3.h, AC_CHECK_LIB(sqlite3, sqlite3_open, [apu_have_sqlite3=1]))
@@ -170,7 +170,7 @@ AC_DEFUN([APU_CHECK_DBD_SQLITE2], [
       apu_have_sqlite2=0
     else
       CPPFLAGS="-I$withval/include"
-      LIBS="-L$withval/lib "
+      LDFLAGS="-L$withval/lib "
 
       AC_MSG_NOTICE(checking for sqlite2 in $withval)
       AC_CHECK_HEADER(sqlite.h, AC_CHECK_LIB(sqlite, sqlite_open, [apu_have_sqlite2=1]))
@@ -207,7 +207,7 @@ AC_DEFUN([APU_CHECK_DBD_ORACLE], [
       apu_have_oracle=0
     else
       CPPFLAGS="-I$withval/rdbms/demo -I$withval/rdbms/public"
-      LIBS="-L$withval/lib "
+      LDFLAGS="-L$withval/lib "
 
       AC_MSG_NOTICE(checking for oracle in $withval)
       AC_CHECK_HEADER(oci.h, AC_CHECK_LIB(clntsh, OCIEnvCreate, [apu_have_oracle=1]))
