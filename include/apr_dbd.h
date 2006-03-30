@@ -21,6 +21,9 @@
 #ifndef APR_DBD_H
 #define APR_DBD_H
 
+#include "apu.h"
+#include "apr_pools.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
