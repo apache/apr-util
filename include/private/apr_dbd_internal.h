@@ -246,6 +246,14 @@ struct apr_dbd_driver_t {
                    apr_dbd_results_t **res, apr_dbd_prepared_t *statement,
                    int random, int nargs, const char **args);
 
+  
+    /** get_name: get a column title from a result set
+     *
+     *  @param res - result set pointer
+     *  @param col - entry number
+     *  @return param name, or NULL if col is out of bounds.
+     */
+    const char* (*get_name)(const apr_dbd_results_t *res, int col);
 };
 
 /* Export mutex lock/unlock for drivers that need it */

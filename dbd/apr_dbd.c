@@ -63,17 +63,32 @@ apr_status_t apr_dbd_mutex_unlock() {
     }
 #endif
 
+static apr_status_t apr_dbd_term(void *ptr)
+{
+    /* set drivers to NULL so init can work again */
+    drivers = NULL;
+
+    /* Everything else we need is handled by cleanups registered
+     * when we created mutexes and loaded DSOs
+     */
+    return APR_SUCCESS;
+}
+
 APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool)
 {
     apr_status_t ret = APR_SUCCESS;
+
+    if (drivers != NULL) {
+        return APR_SUCCESS;
+    }
     drivers = apr_hash_make(pool);
+    apr_pool_cleanup_register(pool, NULL, apr_dbd_term,
+                              apr_pool_cleanup_null);
 
 
 #if APR_HAS_THREADS
     ret = apr_thread_mutex_create(&mutex, APR_THREAD_MUTEX_DEFAULT, pool);
-    apr_pool_cleanup_register(pool, mutex,
-                              CLEANUP_CAST apr_thread_mutex_destroy,
-                              apr_pool_cleanup_null);
+    /* This already registers a pool cleanup */
 #endif
 
 #ifndef APR_DSO_BUILD
@@ -248,6 +263,11 @@ APU_DECLARE(const char*) apr_dbd_get_entry(const apr_dbd_driver_t *driver,
                                            apr_dbd_row_t *row, int col)
 {
     return driver->get_entry(row,col);
+}
+APU_DECLARE(const char*) apr_dbd_get_name(const apr_dbd_driver_t *driver,
+                                          apr_dbd_results_t *res, int col)
+{
+    return driver->get_name(res,col);
 }
 APU_DECLARE(const char*) apr_dbd_error(const apr_dbd_driver_t *driver,
                                        apr_dbd_t *handle, int errnum)
