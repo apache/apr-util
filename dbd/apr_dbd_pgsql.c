@@ -116,6 +116,11 @@ static int dbd_pgsql_select(apr_pool_t *pool, apr_dbd_t *sql,
     return 0;
 }
 
+static const char *dbd_pgsql_get_name(const apr_dbd_results_t *res, int n)
+{
+    return (res->res ? PQfname(res->res, n) : NULL);
+}
+
 static int dbd_pgsql_get_row(apr_pool_t *pool, apr_dbd_results_t *res,
                              apr_dbd_row_t **rowp, int rownum)
 {
@@ -640,5 +645,6 @@ APU_DECLARE_DATA const apr_dbd_driver_t apr_dbd_pgsql_driver = {
     dbd_pgsql_pvselect,
     dbd_pgsql_pquery,
     dbd_pgsql_pselect,
+    dbd_pgsql_get_name
 };
 #endif

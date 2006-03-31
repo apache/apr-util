@@ -114,6 +114,15 @@ static int dbd_sqlite_select(apr_pool_t * pool, apr_dbd_t * sql,
     return ret;
 }
 
+static const char *dbd_sqlite_get_name(const apr_dbd_results_t *res, int n)
+{
+    if ((n < 0) || (n >= res->sz)) {
+        return NULL;
+    }
+
+    return res->res[n];
+}
+
 static int dbd_sqlite_get_row(apr_pool_t * pool, apr_dbd_results_t * res,
                               apr_dbd_row_t ** rowp, int rownum)
 {
@@ -387,5 +396,6 @@ APU_DECLARE_DATA const apr_dbd_driver_t apr_dbd_sqlite2_driver = {
     dbd_sqlite_pvselect,
     dbd_sqlite_pquery,
     dbd_sqlite_pselect,
+    dbd_sqlite_get_name
 };
 #endif
