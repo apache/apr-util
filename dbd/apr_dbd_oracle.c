@@ -181,6 +181,7 @@ typedef struct {
         char *stringval;
         OCILobLocator *lobval;
     } buf;
+    const char *name;
 } define_arg;
 
 struct apr_dbd_prepared_t {
@@ -524,6 +525,16 @@ static apr_size_t dbd_oracle_long_size_set(apr_dbd_t *sql,
     return old_size;
 }
 #endif
+
+static const char *dbd_oracle_get_name(const apr_dbd_results_t *res, int n)
+{
+    define_arg *val = &res->statement->out[n];
+
+    if ((n < 0) || (n >= res->statement->nout)) {
+        return NULL;
+    }
+    return val->name;
+}
 
 static int dbd_oracle_get_row(apr_pool_t *pool, apr_dbd_results_t *res,
                               apr_dbd_row_t **rowp, int rownum)
@@ -988,6 +999,8 @@ static int outputParams(apr_dbd_t *sql, apr_dbd_prepared_t *stmt)
     int_errorcode;
     ub2 paramtype[DBD_ORACLE_MAX_COLUMNS];
     ub2 paramsize[DBD_ORACLE_MAX_COLUMNS];
+    const char *paramname[DBD_ORACLE_MAX_COLUMNS];
+    ub4 paramnamelen[DBD_ORACLE_MAX_COLUMNS];
     /* Perl uses 0 where we used 1 */
     sql->status = OCIStmtExecute(sql->svc, stmt->stmt, sql->err, 0, 0,
                                  NULL, NULL, OCI_DESCRIBE_ONLY);
@@ -1016,6 +1029,10 @@ static int outputParams(apr_dbd_t *sql, apr_dbd_prepared_t *stmt)
             sql->status = OCIAttrGet(parms, OCI_DTYPE_PARAM,
                                      &paramsize[stmt->nout],
                                      0, OCI_ATTR_DATA_SIZE, sql->err);
+            sql->status = OCIAttrGet(parms, OCI_DTYPE_PARAM,
+                                     &paramname[stmt->nout],
+                                     &paramnamelen[stmt->nout],
+                                     OCI_ATTR_NAME, sql->err);
             ++stmt->nout;
         }
     }
@@ -1033,6 +1050,8 @@ static int outputParams(apr_dbd_t *sql, apr_dbd_prepared_t *stmt)
     for (i=0; i<stmt->nout; ++i) {
         stmt->out[i].type = paramtype[i];
         stmt->out[i].len = stmt->out[i].sz = paramsize[i];
+        stmt->out[i].name = apr_pstrmemdup(stmt->pool,
+                                           paramname[i], paramnamelen[i]);
         switch (stmt->out[i].type) {
         default:
             switch (stmt->out[i].type) {
@@ -1890,6 +1909,7 @@ APU_DECLARE_DATA const apr_dbd_driver_t apr_dbd_oracle_driver = {
     dbd_oracle_pvquery,
     dbd_oracle_pvselect,
     dbd_oracle_pquery,
-    dbd_oracle_pselect
+    dbd_oracle_pselect,
+    dbd_oracle_get_name
 };
 #endif
