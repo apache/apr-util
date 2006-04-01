@@ -81,7 +81,7 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
       if test "$apu_have_mysql" == "0"; then
         AC_CHECK_HEADER(mysql/mysql.h, AC_CHECK_LIB(mysqlclient_r, mysql_init, [apu_have_mysql=1]))
         if test "$apu_have_mysql" != "0"; then
-          APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/include/myql])
+          APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/include/mysql])
         fi
       fi
     elif test "$withval" = "no"; then
