@@ -223,6 +223,17 @@ APU_DECLARE(int) apr_dbd_get_row(const apr_dbd_driver_t *driver, apr_pool_t *poo
 APU_DECLARE(const char*) apr_dbd_get_entry(const apr_dbd_driver_t *driver,
                                            apr_dbd_row_t *row, int col);
 
+/** apr_dbd_get_name: get an entry name from a result set
+ *
+ *  @param driver - the driver
+ *  @param res - result set pointer
+ *  @param col - entry number
+ *  @return name of the entry, or NULL if col is out of bounds.
+ */
+APU_DECLARE(const char*) apr_dbd_get_name(const apr_dbd_driver_t *driver,
+                                          apr_dbd_results_t *res, int col);
+
+
 /** apr_dbd_error: get current error message (if any)
  *
  *  @param driver - the driver
