@@ -1,6 +1,8 @@
 Changes with APR-util 0.9.12
 
-
+  *) Win32 / Netware - add missing apu_version.c for apu_version_string()
+     to the Windows and Netware specific builds.  Unix platforms supported
+     this API since 0.9.1.  [William Rowe, Brad Nicholes].
 
 Changes with APR-util 0.9.11
 
