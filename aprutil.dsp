@@ -254,6 +254,10 @@ SOURCE=.\misc\apr_reslist.c
 
 SOURCE=.\misc\apr_rmm.c
 # End Source File
+# Begin Source File
+
+SOURCE=.\misc\apu_version.c
+# End Source File
 # End Group
 # Begin Group "sdbm"
 
