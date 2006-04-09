@@ -1,5 +1,8 @@
 Changes with APR-util 1.2.7
 
+  *) Fix apr_dbd_init to be safe to call multiple times
+     [Bojan Smojver <bojan rexursive com>, Nick Kew]
+
   *) Win32 / Netware - add missing apu_version.c for apu_version_string()
      to the Windows and Netware specific builds.  Unix platforms supported
      this API since 0.9.1.  [William Rowe, Brad Nicholes].
