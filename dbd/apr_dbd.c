@@ -48,22 +48,36 @@ static apr_thread_mutex_t* mutex = NULL;
     }
 #endif
 
+static apr_status_t apr_dbd_term(void *ptr)
+{
+    /* set drivers to NULL so init can work again */
+    drivers = NULL;
+
+    /* Everything else we need is handled by cleanups registered
+     * when we created mutexes and loaded DSOs
+     */
+    return APR_SUCCESS;
+}
+
 APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool)
 {
-    apr_status_t ret;
+    apr_status_t ret = APR_SUCCESS;
+
+    if (drivers != NULL) {
+        return APR_SUCCESS;
+    }
     drivers = apr_hash_make(pool);
+    apr_pool_cleanup_register(pool, NULL, apr_dbd_term,
+                              apr_pool_cleanup_null);
 
 #if APR_DSO_BUILD
 
 #if APR_HAS_THREADS
     ret = apr_thread_mutex_create(&mutex, APR_THREAD_MUTEX_DEFAULT, pool);
-    apr_pool_cleanup_register(pool, mutex,
-                              CLEANUP_CAST apr_thread_mutex_destroy,
-                              apr_pool_cleanup_null);
+    /* This already registers a pool cleanup */
 #endif
 
 #else
-    ret = APR_SUCCESS;
 
 #if APU_HAVE_MYSQL
     DRIVER_LOAD("mysql", apr_dbd_mysql_driver, pool);
