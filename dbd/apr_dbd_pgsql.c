@@ -371,6 +371,7 @@ static int dbd_pgsql_pquery(apr_pool_t *pool, apr_dbd_t *sql,
         if (dbd_pgsql_is_success(ret)) {
             ret = 0;
         }
+        *nrows = atoi(PQcmdTuples(res));
         PQclear(res);
     }
     else {
