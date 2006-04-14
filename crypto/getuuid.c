@@ -147,11 +147,11 @@ static void get_current_time(apr_uint64_t *timestamp)
 {
     /* ### this needs to be made thread-safe! */
 
-    apr_time_t time_now;
-    static apr_interval_time_t time_last = 0;
-    static apr_interval_time_t fudge = 0;
+    apr_uint64_t time_now;
+    static apr_uint64_t time_last = 0;
+    static apr_uint64_t fudge = 0;
 
-    time_now = apr_time_now();
+    get_system_time(&time_now);
         
     /* if clock reading changed since last UUID generated... */
     if (time_last != time_now) {
@@ -188,17 +188,21 @@ APU_DECLARE(void) apr_uuid_get(apr_uuid_t *uuid)
 
     get_current_time(&timestamp);
 
-    d[0] = (unsigned char)timestamp;
-    d[1] = (unsigned char)(timestamp >> 8);
-    d[2] = (unsigned char)(timestamp >> 16);
-    d[3] = (unsigned char)(timestamp >> 24);
-    d[4] = (unsigned char)(timestamp >> 32);
-    d[5] = (unsigned char)(timestamp >> 40);
-    d[6] = (unsigned char)(timestamp >> 48);
-    d[7] = (unsigned char)(((timestamp >> 56) & 0x0F) | 0x10);
-
+    /* time_low, uint32 */
+    d[3] = (unsigned char)timestamp;
+    d[2] = (unsigned char)(timestamp >> 8);
+    d[1] = (unsigned char)(timestamp >> 16);
+    d[0] = (unsigned char)(timestamp >> 24);
+    /* time_mid, uint16 */
+    d[5] = (unsigned char)(timestamp >> 32);
+    d[4] = (unsigned char)(timestamp >> 40);
+    /* time_hi_and_version, uint16 */
+    d[7] = (unsigned char)(timestamp >> 48);
+    d[6] = (unsigned char)(((timestamp >> 56) & 0x0F) | 0x10);
+    /* clock_seq_hi_and_reserved, uint8 */
     d[8] = (unsigned char)(((uuid_state_seqnum >> 8) & 0x3F) | 0x80);
+    /* clock_seq_low, uint8 */
     d[9] = (unsigned char)uuid_state_seqnum;
-
+    /* node, byte[6] */
     memcpy(&d[10], uuid_state_node, NODE_LENGTH);
 }
