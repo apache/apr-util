@@ -221,7 +221,7 @@ static const char *dbd_pgsql_escape(apr_pool_t *pool, const char *arg,
                                     apr_dbd_t *sql)
 {
     size_t len = strlen(arg);
-    char *ret = apr_palloc(pool, len + 1);
+    char *ret = apr_palloc(pool, 2*(len + 1));
     PQescapeString(ret, arg, len);
     return ret;
 }
@@ -366,6 +366,7 @@ static int dbd_pgsql_pquery(apr_pool_t *pool, apr_dbd_t *sql,
         if (dbd_pgsql_is_success(ret)) {
             ret = 0;
         }
+	*nrows = atoi(PQcmdTuples(res));
         PQclear(res);
     }
     else {
