@@ -1,5 +1,8 @@
 Changes with APR-util 1.2.8
 
+  *) Fix to ensure that "deprecated" LDAP interfaces are still 
+     exposed if using OpenLDAP 2.3.  [Joe Orton]
+
   *) Fix incorrect byte order and incorrect timestamp type
      in the fallback UUID generator used when no external UUID
      generator is detected by APR.  PR 37342.  [Max Bowsher]
