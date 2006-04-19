@@ -1,9 +1,8 @@
 Changes with APR-util 1.2.8
 
-  *) Fix incorrect byte order (PR 37342) and incorrect timestamp type
-     in the fallback UUID generator used when no external UUID generator
-     is detected by APR.
-     [Max Bowsher]
+  *) Fix incorrect byte order and incorrect timestamp type
+     in the fallback UUID generator used when no external UUID
+     generator is detected by APR.  PR 37342.  [Max Bowsher]
 
 Changes with APR-util 1.2.7
 
