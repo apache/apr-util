@@ -323,6 +323,7 @@ APU_DECLARE(apr_status_t) apr_brigade_to_iovec(apr_bucket_brigade *b,
     apr_bucket *e;
     struct iovec *orig;
     apr_size_t iov_len;
+    const char *iov_base;
     apr_status_t rv;
 
     orig = vec;
@@ -334,11 +335,12 @@ APU_DECLARE(apr_status_t) apr_brigade_to_iovec(apr_bucket_brigade *b,
         if (left-- == 0)
             break;
 
-        rv = apr_bucket_read(e, (const char **)&vec->iov_base, &iov_len,
-                             APR_NONBLOCK_READ);
+        rv = apr_bucket_read(e, &iov_base, &iov_len, APR_NONBLOCK_READ);
         if (rv != APR_SUCCESS)
             return rv;
-        vec->iov_len = iov_len; /* set indirectly in case size differs */
+        /* Set indirectly since types differ: */
+        vec->iov_len = iov_len;
+        vec->iov_base = (void *)iov_base;
         ++vec;
     }
 
