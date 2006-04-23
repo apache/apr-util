@@ -266,9 +266,9 @@ static int dbd_sqlite3_query(apr_dbd_t *sql, int *nrows, const char *query)
             if (ret != SQLITE_BUSY)
                 break;
 
-            apr_dbd_mutex_unlock(sql->mutex);
+            apr_dbd_mutex_unlock();
             apr_sleep(MAX_RETRY_SLEEP);
-            apr_dbd_mutex_lock(sql->mutex);
+            apr_dbd_mutex_lock();
         }
 
         *nrows = sqlite3_changes(sql->conn);
