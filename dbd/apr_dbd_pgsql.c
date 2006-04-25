@@ -353,6 +353,11 @@ static int dbd_pgsql_pquery(apr_pool_t *pool, apr_dbd_t *sql,
 {
     int ret;
     PGresult *res;
+
+    if (sql->trans && sql->trans->errnum) {
+        return sql->trans->errnum;
+    }
+
     if (statement->prepared) {
         res = PQexecPrepared(sql->conn, statement->name, nargs, values, 0, 0,
                              0);
@@ -409,6 +414,11 @@ static int dbd_pgsql_pselect(apr_pool_t *pool, apr_dbd_t *sql,
     PGresult *res;
     int rv;
     int ret = 0;
+
+    if (sql->trans && sql->trans->errnum) {
+        return sql->trans->errnum;
+    }
+
     if (seek) { /* synchronous query */
         if (statement->prepared) {
             res = PQexecPrepared(sql->conn, statement->name, nargs, values, 0,
