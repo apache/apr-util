@@ -245,12 +245,24 @@ static int dbd_sqlite3_query(apr_dbd_t *sql, int *nrows, const char *query)
     apr_thread_mutex_lock(sql->mutex);
 
     do {
+        int retry_count = 0;
+
         ret = sqlite3_prepare(sql->conn, query, length, &stmt, &tail);
         if (ret != SQLITE_OK) {
             sqlite3_finalize(stmt);
             break;
         }
-        ret = sqlite3_step(stmt);
+
+        while(retry_count++ <= MAX_RETRY_COUNT) {
+            ret = sqlite3_step(stmt);
+            if (ret != SQLITE_BUSY)
+                break;
+
+            apr_thread_mutex_unlock(sql->mutex);
+            apr_sleep(MAX_RETRY_SLEEP);
+            apr_thread_mutex_lock(sql->mutex);
+        }
+
         *nrows = sqlite3_changes(sql->conn);
         sqlite3_finalize(stmt);
         length -= (tail - query);
