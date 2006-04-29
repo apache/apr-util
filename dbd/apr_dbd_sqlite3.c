@@ -331,7 +331,7 @@ static int dbd_sqlite3_start_transaction(apr_pool_t *pool,
     int ret = 0;
     int nrows = 0;
 
-    ret = dbd_sqlite3_query(handle, &nrows, "BEGIN TRANSACTION;");
+    ret = dbd_sqlite3_query(handle, &nrows, "BEGIN");
     if (!*trans) {
         *trans = apr_pcalloc(pool, sizeof(apr_dbd_transaction_t));
         (*trans)->handle = handle;
@@ -343,16 +343,15 @@ static int dbd_sqlite3_start_transaction(apr_pool_t *pool,
 
 static int dbd_sqlite3_end_transaction(apr_dbd_transaction_t *trans)
 {
-    int ret = 0;
+    int ret = -1; /* ending transaction that was never started is an error */
     int nrows = 0;
 
     if (trans) {
-        ret = dbd_sqlite3_query(trans->handle, &nrows, "END TRANSACTION;");
         if (trans->errnum) {
             trans->errnum = 0;
-            ret = dbd_sqlite3_query(trans->handle, &nrows, "ROLLBACK;");
+            ret = dbd_sqlite3_query(trans->handle, &nrows, "ROLLBACK");
         } else {
-            ret = dbd_sqlite3_query(trans->handle, &nrows, "COMMIT;");
+            ret = dbd_sqlite3_query(trans->handle, &nrows, "COMMIT");
         }
         trans->handle->trans = NULL;
     }
