@@ -31,6 +31,8 @@
 #define MAX_RETRY_COUNT 15
 #define MAX_RETRY_SLEEP 100000
 
+#define QUERY_MAX_ARGS 40
+
 struct apr_dbd_transaction_t {
     int errnum;
     apr_dbd_t *handle;
@@ -40,6 +42,7 @@ struct apr_dbd_t {
     sqlite3 *conn;
     apr_dbd_transaction_t *trans;
     apr_pool_t *pool;
+    apr_dbd_prepared_t *prep;
 };
 
 typedef struct {
@@ -68,8 +71,8 @@ struct apr_dbd_results_t {
 };
 
 struct apr_dbd_prepared_t {
-    const char *name;
-    int prepared;
+    sqlite3_stmt *stmt;
+    apr_dbd_prepared_t *next;
 };
 
 #define dbd_sqlite3_is_success(x) (((x) == SQLITE_DONE ) \
@@ -85,7 +88,6 @@ static int dbd_sqlite3_select(apr_pool_t * pool, apr_dbd_t * sql, apr_dbd_result
     apr_dbd_row_t *row = NULL;
     apr_dbd_row_t *lastrow = NULL;
     apr_dbd_column_t *column;
-
     char *hold = NULL;
 
     if (sql->trans && sql->trans->errnum) {
@@ -278,7 +280,7 @@ static int dbd_sqlite3_query(apr_dbd_t *sql, int *nrows, const char *query)
     } while (length > 0);
 
     if (dbd_sqlite3_is_success(ret)) {
-        ret =  0;
+        ret = 0;
     }
     apr_dbd_mutex_unlock();
     if (sql->trans) {
@@ -300,20 +302,122 @@ static int dbd_sqlite3_prepare(apr_pool_t *pool, apr_dbd_t *sql,
                                const char *query, const char *label,
                                apr_dbd_prepared_t **statement)
 {
-    return APR_ENOTIMPL;
+    sqlite3_stmt *stmt;
+    char *p, *slquery = apr_pstrdup(pool, query);
+    const char *tail = NULL, *q;
+    int ret;
+
+    for (p = slquery, q = query; *q; ++q) {
+        if (q[0] == '%') {
+            if (isalpha(q[1])) {
+                *p++ = '?';
+                ++q;
+            }
+            else if (q[1] == '%') {
+                /* reduce %% to % */
+                *p++ = *q++;
+            }
+            else {
+                *p++ = *q;
+            }
+        }
+        else {
+            *p++ = *q;
+        }
+    }
+    *p = 0;
+
+    if (sql->trans && sql->trans->errnum) {
+        return sql->trans->errnum;
+    }
+
+    apr_dbd_mutex_lock();
+
+    ret = sqlite3_prepare(sql->conn, slquery, strlen(query), &stmt, &tail);
+    if (ret == SQLITE_OK) {
+        apr_dbd_prepared_t *prep; 
+
+        prep = apr_pcalloc(sql->pool, sizeof(*prep));
+        prep->stmt = stmt;
+        prep->next = sql->prep;
+
+        /* link new statement to the handle */
+        sql->prep = prep;
+
+        *statement = prep;
+    } else {
+        sqlite3_finalize(stmt);
+    }
+   
+    apr_dbd_mutex_unlock();
+
+    return ret;
 }
 
 static int dbd_sqlite3_pquery(apr_pool_t *pool, apr_dbd_t *sql,
                               int *nrows, apr_dbd_prepared_t *statement,
                               int nargs, const char **values)
 {
-    return APR_ENOTIMPL;
+    sqlite3_stmt *stmt = statement->stmt;
+    int ret = -1, retry_count = 0, i;
+
+    if (sql->trans && sql->trans->errnum) {
+        return sql->trans->errnum;
+    }
+
+    apr_dbd_mutex_lock();
+
+    ret = sqlite3_reset(stmt);
+    if (ret == SQLITE_OK) {
+        for (i=0; i < nargs; i++) {
+            sqlite3_bind_text(stmt, i + 1, values[i], strlen(values[i]),
+                              SQLITE_STATIC);
+        }
+
+        while(retry_count++ <= MAX_RETRY_COUNT) {
+            ret = sqlite3_step(stmt);
+            if (ret != SQLITE_BUSY)
+                break;
+
+            apr_dbd_mutex_unlock();
+            apr_sleep(MAX_RETRY_SLEEP);
+            apr_dbd_mutex_lock();
+        }
+
+        *nrows = sqlite3_changes(sql->conn);
+    }
+
+    if (dbd_sqlite3_is_success(ret)) {
+        ret = 0;
+    }
+    apr_dbd_mutex_unlock();
+    if (sql->trans) {
+        sql->trans->errnum = ret;
+    }
+
+    return ret;
 }
 
 static int dbd_sqlite3_pvquery(apr_pool_t *pool, apr_dbd_t *sql, int *nrows,
                                apr_dbd_prepared_t *statement, va_list args)
 {
-    return APR_ENOTIMPL;
+    const char *arg, *values[QUERY_MAX_ARGS];
+    int nargs = 0;
+
+    if (sql->trans && sql->trans->errnum) {
+        return sql->trans->errnum;
+    }
+
+    while (arg = va_arg(args, const char*), arg) {
+        if (nargs >= QUERY_MAX_ARGS) {
+            va_end(args);
+            return -1;
+        }
+        values[nargs++] = apr_pstrdup(pool, arg);
+    }
+    values[nargs] = NULL;
+
+    return dbd_sqlite3_pquery(pool, sql, nrows, statement, nargs, values);
 }
 
 static int dbd_sqlite3_pselect(apr_pool_t *pool, apr_dbd_t *sql,
@@ -321,7 +425,113 @@ static int dbd_sqlite3_pselect(apr_pool_t *pool, apr_dbd_t *sql,
                                apr_dbd_prepared_t *statement, int seek,
                                int nargs, const char **values)
 {
-    return APR_ENOTIMPL;
+    sqlite3_stmt *stmt = statement->stmt;
+    int i, ret, retry_count = 0;
+    size_t num_tuples = 0;
+    int increment = 0;
+    apr_dbd_row_t *row = NULL;
+    apr_dbd_row_t *lastrow = NULL;
+    apr_dbd_column_t *column;
+    char *hold = NULL;
+
+    if (sql->trans && sql->trans->errnum) {
+        return sql->trans->errnum;
+    }
+
+    apr_dbd_mutex_lock();
+
+    ret = sqlite3_reset(stmt);
+    if (ret == SQLITE_OK) {
+        int column_count;
+
+        for (i=0; i < nargs; i++) {
+            sqlite3_bind_text(stmt, i + 1, values[i], strlen(values[i]),
+                              SQLITE_STATIC);
+        }
+
+        column_count = sqlite3_column_count(stmt);
+        if (!*results) {
+            *results = apr_pcalloc(pool, sizeof(apr_dbd_results_t));
+        }
+        (*results)->stmt = stmt;
+        (*results)->sz = column_count;
+        (*results)->random = seek;
+        (*results)->next_row = 0;
+        (*results)->tuples = 0;
+        (*results)->col_names = apr_pcalloc(pool,
+                                            column_count * sizeof(char *));
+        do {
+            ret = sqlite3_step((*results)->stmt);
+            if (ret == SQLITE_BUSY) {
+                if (retry_count++ > MAX_RETRY_COUNT) {
+                    ret = SQLITE_ERROR;
+                } else {
+                    apr_dbd_mutex_unlock();
+                    apr_sleep(MAX_RETRY_SLEEP);
+                    apr_dbd_mutex_lock();
+                }
+            } else if (ret == SQLITE_ROW) {
+                int length;
+                apr_dbd_column_t *col;
+                row = apr_palloc(pool, sizeof(apr_dbd_row_t));
+                row->res = *results;
+                row->res->stmt = (*results)->stmt;
+                increment = sizeof(apr_dbd_column_t *);
+                length = increment * (*results)->sz;
+                row->columns = apr_palloc(pool, length);
+                row->columnCount = column_count;
+                for (i = 0; i < (*results)->sz; i++) {
+                    column = apr_palloc(pool, sizeof(apr_dbd_column_t));
+                    row->columns[i] = column;
+                    /* copy column name once only */
+                    if ((*results)->col_names[i] == NULL) {
+                      (*results)->col_names[i] =
+                          apr_pstrdup(pool,
+                                      sqlite3_column_name((*results)->stmt, i));
+                    }
+                    column->name = (*results)->col_names[i];
+                    column->size = sqlite3_column_bytes((*results)->stmt, i);
+                    column->type = sqlite3_column_type((*results)->stmt, i);
+                    column->value = NULL;
+                    switch (column->type) {
+                    case SQLITE_FLOAT:
+                    case SQLITE_INTEGER:
+                    case SQLITE_TEXT:
+                        hold = NULL;
+                        hold = (char *) sqlite3_column_text((*results)->stmt, i);
+                        if (hold) {
+                            column->value = apr_palloc(pool, column->size + 1);
+                            strncpy(column->value, hold, column->size + 1);
+                        }
+                        break;
+                    case SQLITE_BLOB:
+                        break;
+                    case SQLITE_NULL:
+                        break;
+                    }
+                    col = row->columns[i];
+                }
+                row->rownum = num_tuples++;
+                row->next_row = 0;
+                (*results)->tuples = num_tuples;
+                if ((*results)->next_row == 0) {
+                    (*results)->next_row = row;
+                }
+                if (lastrow != 0) {
+                    lastrow->next_row = row;
+                }
+                lastrow = row;
+            } else if (ret == SQLITE_DONE) {
+                ret = SQLITE_OK;
+            }
+        } while (ret == SQLITE_ROW || ret == SQLITE_BUSY);
+    }
+    apr_dbd_mutex_unlock();
+
+    if (sql->trans) {
+        sql->trans->errnum = ret;
+    }
+    return ret;
 }
 
 static int dbd_sqlite3_pvselect(apr_pool_t *pool, apr_dbd_t *sql,
@@ -329,7 +539,24 @@ static int dbd_sqlite3_pvselect(apr_pool_t *pool, apr_dbd_t *sql,
                                 apr_dbd_prepared_t *statement, int seek,
                                 va_list args)
 {
-    return APR_ENOTIMPL;
+    const char *arg, *values[QUERY_MAX_ARGS];
+    int nargs = 0;
+
+    if (sql->trans && sql->trans->errnum) {
+        return sql->trans->errnum;
+    }
+
+    while (arg = va_arg(args, const char*), arg) {
+        if (nargs >= QUERY_MAX_ARGS) {
+            va_end(args);
+            return -1;
+        }
+        values[nargs++] = apr_pstrdup(pool, arg);
+    }
+    values[nargs] = NULL;
+
+    return dbd_sqlite3_pselect(pool, sql, results, statement,
+                               seek, nargs, values);
 }
 
 static int dbd_sqlite3_start_transaction(apr_pool_t *pool,
@@ -390,6 +617,14 @@ static apr_dbd_t *dbd_sqlite3_open(apr_pool_t *pool, const char *params)
 
 static apr_status_t dbd_sqlite3_close(apr_dbd_t *handle)
 {
+    apr_dbd_prepared_t *prep = handle->prep;
+
+    /* finalize all prepared statements, or we'll get SQLITE_BUSY on close */
+    while (prep) {
+        sqlite3_finalize(prep->stmt);
+        prep = prep->next;
+    }
+
     sqlite3_close(handle->conn);
     return APR_SUCCESS;
 }
