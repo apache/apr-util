@@ -1,5 +1,8 @@
 Changes with APR-util 1.3.0
 
+  *) Implement prepared statement support in SQLite3 DBD driver
+     [Bojan Smojver]
+
   *) Add get (column) name to apr_dbd API
      [Bojan Smojver <bojan rexursive.com>] and
      [Chris Darroch <chrisd pearsoncmg com>]
