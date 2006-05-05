@@ -327,10 +327,6 @@ static int dbd_sqlite3_prepare(apr_pool_t *pool, apr_dbd_t *sql,
     }
     *p = 0;
 
-    if (sql->trans && sql->trans->errnum) {
-        return sql->trans->errnum;
-    }
-
     apr_dbd_mutex_lock();
 
     ret = sqlite3_prepare(sql->conn, slquery, strlen(query), &stmt, &tail);
