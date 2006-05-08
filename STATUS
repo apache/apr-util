@@ -38,6 +38,12 @@ RELEASE NON-SHOWSTOPPERS BUT WOULD BE REAL NICE TO WRAP THESE UP:
 
     * GDBM usage of errno is not-thread-safe.  Fix.
 
+    * Expat 1.99.2 is getting stale, 1.99.8 for sanity's sake, and
+      push to Expat 2.x for apr-util 2.0
+
+    * http://www.ibm.com/software/globalization/icu/downloads.jsp
+      (under an X-style license) for an apr_xlate alternative to iconv
+
 Other bugs that need fixing:
 
 
