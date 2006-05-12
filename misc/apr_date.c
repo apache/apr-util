@@ -334,7 +334,7 @@ APU_DECLARE(apr_time_t) apr_date_parse_rfc(const char *date)
     if (!date)
         return APR_DATE_BAD;
 
-    /* Not all dates have text months at the beginning. */
+    /* Not all dates have text days at the beginning. */
     if (!apr_isdigit(date[0]))
     {
         while (*date && apr_isspace(*date)) /* Find first non-whitespace char */
