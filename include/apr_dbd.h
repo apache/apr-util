@@ -67,19 +67,33 @@ APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
 
 /** apr_dbd_open: open a connection to a backend
  *
- *  @param ptmp - working pool
+ *  @param pool - working pool
  *  @param params - arguments to driver (implementation-dependent)
  *  @param handle - pointer to handle to return
  *  @param driver - driver struct.
  *  @return APR_SUCCESS for success
  *  @return APR_EGENERAL if driver exists but connection failed
+ *  @remarks PostgreSQL: the params is passed directly to the PQconnectdb()
+ *  function (check PostgreSQL documentation for more details on the syntax).
+ *  @remarks SQLite2: the params is split on a colon, with the first part used
+ *  as the filename and second part converted to an integer and used as file
+ *  mode.
+ *  @remarks SQLite3: the params is passed directly to the sqlite3_open()
+ *  function as a filename to be opened (check SQLite3 documentation for more
+ *  details).
+ *  @remarks Oracle: the params can have "user", "pass", "dbname" and "server"
+ *  keys, each followed by an equal sign and a value. Such key/value pairs can
+ *  be delimited by space, CR, LF, tab, semicolon, vertical bar or comma.
+ *  @remarks MySQL: the params can have "host", "port", "user", "pass",
+ *  "dbname" and "sock" keys, each followed by an equal sign and a value.
+ *  Such key/value pairs can be delimited by space, CR, LF, tab, semicolon,
+ *  vertical bar or comma.
  */
 APU_DECLARE(apr_status_t) apr_dbd_open(const apr_dbd_driver_t *driver,
-                                       apr_pool_t *ptmp, const char *params,
+                                       apr_pool_t *pool, const char *params,
                                        apr_dbd_t **handle);
 
-/** apr_dbd_close: close a connection to a backend.
- *  Only required for explicit close or
+/** apr_dbd_close: close a connection to a backend
  *
  *  @param handle - handle to close
  *  @param driver - driver struct.
@@ -132,8 +146,11 @@ APU_DECLARE(int) apr_dbd_set_dbname(const apr_dbd_driver_t *driver, apr_pool_t *
  *  @param driver - the driver
  *  @param pool - a pool to use for error messages (if any).
  *  @param handle - the db connection
- *  @param transaction - ptr to a transaction.  May be null on entry
+ *  @param trans - ptr to a transaction.  May be null on entry
  *  @return 0 for success or error code
+ *  @remarks If any of the query/select calls during a transaction return
+ *  non-zero status code, the transaction will inherit this code and any
+ *  further query/select calls will fail immediately.
  */
 APU_DECLARE(int) apr_dbd_transaction_start(const apr_dbd_driver_t *driver,
                                            apr_pool_t *pool,
@@ -146,7 +163,7 @@ APU_DECLARE(int) apr_dbd_transaction_start(const apr_dbd_driver_t *driver,
  *
  *  @param driver - the driver
  *  @param handle - the db connection
- *  @param transaction - the transaction.
+ *  @param trans - the transaction.
  *  @return 0 for success or error code
  */
 APU_DECLARE(int) apr_dbd_transaction_end(const apr_dbd_driver_t *driver,
@@ -268,6 +285,12 @@ APU_DECLARE(const char*) apr_dbd_escape(const apr_dbd_driver_t *driver,
  *                 (eg within a Request in httpd)
  *  @param statement - statement to prepare.  May point to null on entry.
  *  @return 0 for success or error code
+ *  @remarks To specify parameters of the prepared query, use %s in place of
+ *  database specific parameter syntax (e.g. for PostgreSQL, this would be $1,
+ *  $2, for SQLite3 this would be ? etc.). For instance: "SELECT name FROM
+ *  customers WHERE name=%s" would be a query that this function understands.
+ *  Some drivers may support different data types using printf-like format:
+ *  for example %d (e.g. PostgreSQL) or %f for numeric data.
  */
 APU_DECLARE(int) apr_dbd_prepare(const apr_dbd_driver_t *driver, apr_pool_t *pool,
                                  apr_dbd_t *handle, const char *query,
