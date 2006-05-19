@@ -1,5 +1,8 @@
 Changes with APR-util 1.2.8
 
+  *) Implement prepared statement support in SQLite3 DBD driver
+     [Bojan Smojver]
+
   *) Fix to ensure that "deprecated" LDAP interfaces are still 
      exposed if using OpenLDAP 2.3.  [Joe Orton]
 
