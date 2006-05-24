@@ -18,10 +18,16 @@
 
 #if APU_HAVE_PGSQL
 
+#include "apu_config.h"
+
 #include <ctype.h>
 #include <stdlib.h>
 
+#ifdef HAVE_LIBPQ_FE_H
 #include <libpq-fe.h>
+#elif defined(HAVE_POSTGRESQL_LIBPQ_FE_H)
+#include <postgresql/libpq-fe.h>
+#endif
 
 #include "apr_strings.h"
 #include "apr_time.h"
