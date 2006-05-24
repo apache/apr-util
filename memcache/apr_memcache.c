@@ -479,12 +479,7 @@ static apr_status_t get_server_line(apr_memcache_conn_t *conn)
     conn->blen = bsize;
     conn->buffer[bsize] = '\0';
 
-    apr_brigade_cleanup(conn->tb);
-
-    if (rv != APR_SUCCESS) {
-        return rv;
-    }
-    return rv;
+    return apr_brigade_cleanup(conn->tb);
 }
 
 static apr_status_t storage_cmd_write(apr_memcache_t *mc,
