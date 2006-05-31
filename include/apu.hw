@@ -1,4 +1,4 @@
-/* Copyright 2000-2006 The Apache Software Foundation or its licensors, as
+/* Copyright 2000-2005 The Apache Software Foundation or its licensors, as
  * applicable.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -94,12 +94,10 @@
 #define APU_HAVE_DB     0
 #endif
 
-/* Allow external override */
-#if !defined(APU_HAS_XLATE)
+
 #define APU_HAVE_APR_ICONV     1
 #define APU_HAVE_ICONV         0
 #define APR_HAS_XLATE          (APU_HAVE_APR_ICONV || APU_HAVE_ICONV)
-#endif
 
 #if !defined(APU_HAVE_PGSQL)
 #define APU_HAVE_PGSQL      0
