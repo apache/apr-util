@@ -30,7 +30,7 @@ AC_DEFUN([APU_CHECK_DBD], [
     apu_have_pgsql=0
     if test "$withval" = "yes"; then
       AC_CHECK_HEADERS(libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
-      if test "$apu_have_pgsql" == "0"; then
+      if test "$apu_have_pgsql" = "0"; then
         AC_CHECK_HEADERS(postgresql/libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
       fi
     elif test "$withval" = "no"; then
@@ -97,7 +97,7 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
         fi
 
         AC_CHECK_HEADERS(mysql.h, AC_CHECK_LIB(mysqlclient_r, mysql_init, [apu_have_mysql=1]))
-        if test "$apu_have_mysql" == "0"; then
+        if test "$apu_have_mysql" = "0"; then
           AC_CHECK_HEADERS(mysql/mysql.h, AC_CHECK_LIB(mysqlclient_r, mysql_init, [apu_have_mysql=1]))
         else
           if test "x$MYSQL_CONFIG" != 'x'; then
