@@ -85,9 +85,12 @@ APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
  *  keys, each followed by an equal sign and a value. Such key/value pairs can
  *  be delimited by space, CR, LF, tab, semicolon, vertical bar or comma.
  *  @remarks MySQL: the params can have "host", "port", "user", "pass",
- *  "dbname" and "sock" keys, each followed by an equal sign and a value.
- *  Such key/value pairs can be delimited by space, CR, LF, tab, semicolon,
- *  vertical bar or comma.
+ *  "dbname", "sock", "flags" and "fldsz" keys, each followed by an equal sign
+ *  and a value. Such key/value pairs can be delimited by space, CR, LF, tab,
+ *  semicolon, vertical bar or comma. For now, "flags" can only recognise
+ *  CLIENT_FOUND_ROWS (check MySQL manual for details). The value associated
+ *  with "fldsz" determines maximum amount of memory (in bytes) for each of
+ *  the fields in the result set. By default, this value is 1 MB.
  */
 APU_DECLARE(apr_status_t) apr_dbd_open(const apr_dbd_driver_t *driver,
                                        apr_pool_t *pool, const char *params,
