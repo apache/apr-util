@@ -35,6 +35,27 @@
 extern "C" {
 #endif /* __cplusplus */
 
+
+/**
+ * Macro to detect security related return values.
+ */
+#if defined(LDAP_INSUFFICIENT_ACCESS)
+#define APU_LDAP_INSUFFICIENT_ACCESS LDAP_INSUFFICIENT_ACCESS
+#elif defined(LDAP_INSUFFICIENT_RIGHTS)
+#define APU_LDAP_INSUFFICIENT_ACCESS LDAP_INSUFFICIENT_RIGHTS
+#endif
+
+#if defined(LDAP_SECURITY_ERROR1)
+#define APU_LDAP_SECURITY_ERROR LDAP_SECURITY_ERROR
+#else
+#define APU_LDAP_SECURITY_ERROR(n)	\
+    (LDAP_INAPPROPRIATE_AUTH == n) ? 1 \
+    : (LDAP_INVALID_CREDENTIALS == n) ? 1 \
+    : (APU_LDAP_INSUFFICIENT_ACCESS == n) ? 1 \
+    : 0
+#endif
+
+
 /**
  * APR LDAP SSL Initialise function
  *
