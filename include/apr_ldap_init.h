@@ -43,9 +43,11 @@ extern "C" {
 #define APU_LDAP_INSUFFICIENT_ACCESS LDAP_INSUFFICIENT_ACCESS
 #elif defined(LDAP_INSUFFICIENT_RIGHTS)
 #define APU_LDAP_INSUFFICIENT_ACCESS LDAP_INSUFFICIENT_RIGHTS
+#else
+#error The security return codes must be added to support this LDAP toolkit.
 #endif
 
-#if defined(LDAP_SECURITY_ERROR1)
+#if defined(LDAP_SECURITY_ERROR)
 #define APU_LDAP_SECURITY_ERROR LDAP_SECURITY_ERROR
 #else
 #define APU_LDAP_SECURITY_ERROR(n)	\

@@ -66,6 +66,7 @@
 
 #ifdef GENEXPORTS
 #define LDAP_VERSION_MAX 3
+#define LDAP_INSUFFICIENT_ACCESS
 #else
 #include <lber.h>
 #include <ldap.h>
