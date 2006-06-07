@@ -157,8 +157,7 @@ static int dbd_pgsql_get_row(apr_pool_t *pool, apr_dbd_results_t *res,
     if (res->random) {
         if (row->n >= res->ntuples) {
             *rowp = NULL;
-            apr_pool_cleanup_kill(pool, res->res, clear_result);
-            PQclear(res->res);
+            apr_pool_cleanup_run(pool, res->res, clear_result);
             res->res = NULL;
             return -1;
         }
