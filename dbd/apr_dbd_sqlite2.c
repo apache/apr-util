@@ -67,6 +67,11 @@ struct apr_dbd_prepared_t {
 		} \
 	} while(0);
 
+static apr_status_t free_table(void *data)
+{
+    sqlite_free_table(data); 
+    return APR_SUCCESS;
+}
 
 static int dbd_sqlite_select(apr_pool_t * pool, apr_dbd_t * sql,
                              apr_dbd_results_t ** results, const char *query,
@@ -97,7 +102,7 @@ static int dbd_sqlite_select(apr_pool_t * pool, apr_dbd_t * sql,
         (*results)->random = seek;
 
         if (tuples > 0)
-            apr_pool_cleanup_register(pool, result, (void *) sqlite_free_table,
+            apr_pool_cleanup_register(pool, result, free_table,
                                       apr_pool_cleanup_null);
 
         ret = 0;
@@ -207,11 +212,17 @@ static int dbd_sqlite_query(apr_dbd_t * sql, int *nrows, const char *query)
     return ret;
 }
 
+static apr_status_t free_mem(void *data)
+{
+    sqlite_freemem(data);
+    return APR_SUCCESS
+}
+
 static const char *dbd_sqlite_escape(apr_pool_t * pool, const char *arg,
                                      apr_dbd_t * sql)
 {
     char *ret = sqlite_mprintf("%q", arg);
-    apr_pool_cleanup_register(pool, ret, (void *) sqlite_freemem,
+    apr_pool_cleanup_register(pool, ret, free_mem,
                               apr_pool_cleanup_null);
     return ret;
 }
