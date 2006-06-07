@@ -92,17 +92,12 @@ static int dbd_sqlite_select(apr_pool_t * pool, apr_dbd_t * sql,
         }
 
         (*results)->res = result;
-        if (seek) {
-            (*results)->ntuples = tuples;
-        }
-        else {
-            (*results)->ntuples = -1;
-        }
+        (*results)->ntuples = tuples;
         (*results)->sz = fields;
         (*results)->random = seek;
 
         if (tuples > 0)
-            apr_pool_cleanup_register(pool, result, (void *) free,
+            apr_pool_cleanup_register(pool, *result, (void *) free,
                                       apr_pool_cleanup_null);
 
         ret = 0;
