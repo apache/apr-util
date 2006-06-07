@@ -97,7 +97,7 @@ static int dbd_sqlite_select(apr_pool_t * pool, apr_dbd_t * sql,
         (*results)->random = seek;
 
         if (tuples > 0)
-            apr_pool_cleanup_register(pool, *result, (void *) free,
+            apr_pool_cleanup_register(pool, result, (void *) sqlite_free_table,
                                       apr_pool_cleanup_null);
 
         ret = 0;
@@ -307,7 +307,7 @@ static apr_dbd_t *dbd_sqlite_open(apr_pool_t * pool, const char *params_)
 {
     apr_dbd_t *sql;
     sqlite *conn = NULL;
-    char *filename, *perm;
+    char *perm;
     int iperms = 600;
     char* params = apr_pstrdup(pool, params_);
     /* params = "[filename]:[permissions]"
