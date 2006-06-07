@@ -69,6 +69,12 @@ struct apr_dbd_prepared_t {
                                  || ((x) == PGRES_COMMAND_OK) \
                                  || ((x) == PGRES_TUPLES_OK))
 
+static apr_status_t clear_result(void *data)
+{
+    PQclear(data);
+    return APR_SUCCESS;
+}
+
 static int dbd_pgsql_select(apr_pool_t *pool, apr_dbd_t *sql,
                             apr_dbd_results_t **results,
                             const char *query, int seek)
@@ -103,7 +109,7 @@ static int dbd_pgsql_select(apr_pool_t *pool, apr_dbd_t *sql,
         (*results)->ntuples = PQntuples(res);
         (*results)->sz = PQnfields(res);
         (*results)->random = seek;
-        apr_pool_cleanup_register(pool, res, (void*)PQclear,
+        apr_pool_cleanup_register(pool, res, clear_result,
                                   apr_pool_cleanup_null);
     }
     else {
@@ -464,7 +470,7 @@ static int dbd_pgsql_pselect(apr_pool_t *pool, apr_dbd_t *sql,
         (*results)->ntuples = PQntuples(res);
         (*results)->sz = PQnfields(res);
         (*results)->random = seek;
-        apr_pool_cleanup_register(pool, res, (void*)PQclear,
+        apr_pool_cleanup_register(pool, res, clear_result,
                                   apr_pool_cleanup_null);
     }
     else {
