@@ -287,11 +287,17 @@ static int dbd_sqlite3_query(apr_dbd_t *sql, int *nrows, const char *query)
     return ret;
 }
 
+static apr_status_t free_mem(void *data)
+{
+    sqlite3_free(data);
+    return APR_SUCCESS;
+}
+
 static const char *dbd_sqlite3_escape(apr_pool_t *pool, const char *arg,
                                       apr_dbd_t *sql)
 {
     char *ret = sqlite3_mprintf("%q", arg);
-    apr_pool_cleanup_register(pool, ret, (void *) sqlite3_free,
+    apr_pool_cleanup_register(pool, ret, free_mem,
                               apr_pool_cleanup_null);
     return ret;
 }
