@@ -146,8 +146,7 @@ static int dbd_sqlite_get_row(apr_pool_t * pool, apr_dbd_results_t * res,
 
     if (row->n >= res->ntuples) {
         *rowp = NULL;
-        apr_pool_cleanup_kill(pool, res->res, free_table);
-        sqlite_free_table(res->res); 
+        apr_pool_cleanup_run(pool, res->res, free_table);
         res->res = NULL;
         return -1;
     }
@@ -225,7 +224,7 @@ static int dbd_sqlite_query(apr_dbd_t * sql, int *nrows, const char *query)
 static apr_status_t free_mem(void *data)
 {
     sqlite_freemem(data);
-    return APR_SUCCESS
+    return APR_SUCCESS;
 }
 
 static const char *dbd_sqlite_escape(apr_pool_t * pool, const char *arg,
