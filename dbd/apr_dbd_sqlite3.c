@@ -31,8 +31,6 @@
 #define MAX_RETRY_COUNT 15
 #define MAX_RETRY_SLEEP 100000
 
-#define QUERY_MAX_ARGS 40
-
 struct apr_dbd_transaction_t {
     int errnum;
     apr_dbd_t *handle;
@@ -403,21 +401,18 @@ static int dbd_sqlite3_pquery(apr_pool_t *pool, apr_dbd_t *sql,
 static int dbd_sqlite3_pvquery(apr_pool_t *pool, apr_dbd_t *sql, int *nrows,
                                apr_dbd_prepared_t *statement, va_list args)
 {
-    const char *arg, *values[QUERY_MAX_ARGS];
-    int nargs = 0;
+    const char **values;
+    int i, nargs = sqlite3_bind_parameter_count(statement->stmt);
 
     if (sql->trans && sql->trans->errnum) {
         return sql->trans->errnum;
     }
 
-    while (arg = va_arg(args, const char*), arg) {
-        if (nargs >= QUERY_MAX_ARGS) {
-            va_end(args);
-            return -1;
-        }
-        values[nargs++] = apr_pstrdup(pool, arg);
+    values = apr_palloc(pool, sizeof(*values) * nargs);
+
+    for (i = 0; i < nargs; i++) {
+        values[i] = apr_pstrdup(pool, va_arg(args, const char*));
     }
-    values[nargs] = NULL;
 
     return dbd_sqlite3_pquery(pool, sql, nrows, statement, nargs, values);
 }
@@ -541,21 +536,18 @@ static int dbd_sqlite3_pvselect(apr_pool_t *pool, apr_dbd_t *sql,
                                 apr_dbd_prepared_t *statement, int seek,
                                 va_list args)
 {
-    const char *arg, *values[QUERY_MAX_ARGS];
-    int nargs = 0;
+    const char **values;
+    int i, nargs = sqlite3_bind_parameter_count(statement->stmt);
 
     if (sql->trans && sql->trans->errnum) {
         return sql->trans->errnum;
     }
 
-    while (arg = va_arg(args, const char*), arg) {
-        if (nargs >= QUERY_MAX_ARGS) {
-            va_end(args);
-            return -1;
-        }
-        values[nargs++] = apr_pstrdup(pool, arg);
+    values = apr_palloc(pool, sizeof(*values) * nargs);
+
+    for (i = 0; i < nargs; i++) {
+        values[i] = apr_pstrdup(pool, va_arg(args, const char*));
     }
-    values[nargs] = NULL;
 
     return dbd_sqlite3_pselect(pool, sql, results, statement,
                                seek, nargs, values);
