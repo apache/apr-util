@@ -208,6 +208,19 @@ APU_DECLARE(int) apr_dbd_transaction_end(const apr_dbd_driver_t *driver,
     return driver->end_transaction(trans);
 }
 
+APU_DECLARE(int) apr_dbd_transaction_mode_get(const apr_dbd_driver_t *driver,
+                                              apr_dbd_transaction_t *trans)
+{
+    return driver->transaction_mode_get(trans);
+}
+
+APU_DECLARE(int) apr_dbd_transaction_mode_set(const apr_dbd_driver_t *driver,
+                                              apr_dbd_transaction_t *trans,
+                                              int mode)
+{
+    return driver->transaction_mode_set(trans, mode);
+}
+
 APU_DECLARE(apr_status_t) apr_dbd_close(const apr_dbd_driver_t *driver,
                                         apr_dbd_t *handle)
 {
