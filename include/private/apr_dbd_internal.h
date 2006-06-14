@@ -29,6 +29,17 @@
 extern "C" {
 #endif
 
+#define TXN_IGNORE_ERRORS(t) \
+  ((t) && ((t)->mode & APR_DBD_TRANSACTION_IGNORE_ERRORS))
+#define TXN_NOTICE_ERRORS(t) \
+  ((t) && !((t)->mode & APR_DBD_TRANSACTION_IGNORE_ERRORS))
+
+#define TXN_DO_COMMIT(t)   (!((t)->mode & APR_DBD_TRANSACTION_ROLLBACK))
+#define TXN_DO_ROLLBACK(t) ((t)->mode & APR_DBD_TRANSACTION_ROLLBACK)
+
+#define TXN_MODE_BITS \
+  (APR_DBD_TRANSACTION_ROLLBACK|APR_DBD_TRANSACTION_IGNORE_ERRORS)
+
 struct apr_dbd_driver_t {
     /** name */
     const char *name;
@@ -82,9 +93,9 @@ struct apr_dbd_driver_t {
 
     /** transaction: start a transaction.  May be a no-op.
      *
-     *  @param pool - a pool to use for error messages (if any).
+     *  @param pool   - a pool to use for error messages (if any).
      *  @param handle - the connection
-     *  @param transaction - ptr to a transaction.  May be null on entry
+     *  @param trans  - ptr to a transaction.  May be null on entry
      *  @return 0 for success or error code
      */
     int (*start_transaction)(apr_pool_t *pool, apr_dbd_t *handle,
@@ -94,7 +105,7 @@ struct apr_dbd_driver_t {
      *  (commit on success, rollback on error).
      *  May be a no-op.
      *
-     *  @param transaction - the transaction.
+     *  @param trans - the transaction.
      *  @return 0 for success or error code
      */
     int (*end_transaction)(apr_dbd_transaction_t *trans);
@@ -254,6 +265,21 @@ struct apr_dbd_driver_t {
      *  @return param name, or NULL if col is out of bounds.
      */
     const char* (*get_name)(const apr_dbd_results_t *res, int col);
+
+    /** transaction_mode_get: get the mode of transaction
+     *
+     *  @param trans - the transaction.
+     *  @return mode of transaction
+     */
+    int (*transaction_mode_get)(apr_dbd_transaction_t *trans);
+
+    /** transaction_mode_set: get the mode of transaction
+     *
+     *  @param trans - the transaction.
+     *  @param mode  - new mode of the transaction
+     *  @return the mode of transaction in force after the call
+     */
+    int (*transaction_mode_set)(apr_dbd_transaction_t *trans, int mode);
 };
 
 /* Export mutex lock/unlock for drivers that need it */

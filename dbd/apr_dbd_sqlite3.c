@@ -32,6 +32,7 @@
 #define MAX_RETRY_SLEEP 100000
 
 struct apr_dbd_transaction_t {
+    int mode;
     int errnum;
     apr_dbd_t *handle;
 };
@@ -178,7 +179,7 @@ static int dbd_sqlite3_select(apr_pool_t * pool, apr_dbd_t * sql, apr_dbd_result
     ret = sqlite3_finalize(stmt);
     apr_dbd_mutex_unlock();
 
-    if (sql->trans) {
+    if (TXN_NOTICE_ERRORS(sql->trans)) {
         sql->trans->errnum = ret;
     }
     return ret;
@@ -279,7 +280,7 @@ static int dbd_sqlite3_query(apr_dbd_t *sql, int *nrows, const char *query)
         ret = 0;
     }
     apr_dbd_mutex_unlock();
-    if (sql->trans) {
+    if (TXN_NOTICE_ERRORS(sql->trans)) {
         sql->trans->errnum = ret;
     }
     return ret;
@@ -391,7 +392,7 @@ static int dbd_sqlite3_pquery(apr_pool_t *pool, apr_dbd_t *sql,
         ret = 0;
     }
     apr_dbd_mutex_unlock();
-    if (sql->trans) {
+    if (TXN_NOTICE_ERRORS(sql->trans)) {
         sql->trans->errnum = ret;
     }
 
@@ -525,7 +526,7 @@ static int dbd_sqlite3_pselect(apr_pool_t *pool, apr_dbd_t *sql,
     }
     apr_dbd_mutex_unlock();
 
-    if (sql->trans) {
+    if (TXN_NOTICE_ERRORS(sql->trans)) {
         sql->trans->errnum = ret;
     }
     return ret;
@@ -576,7 +577,8 @@ static int dbd_sqlite3_end_transaction(apr_dbd_transaction_t *trans)
     int nrows = 0;
 
     if (trans) {
-        if (trans->errnum) {
+        /* rollback on error or explicit rollback request */
+        if (trans->errnum || TXN_DO_ROLLBACK(trans)) {
             trans->errnum = 0;
             ret = dbd_sqlite3_query(trans->handle, &nrows, "ROLLBACK");
         } else {
@@ -586,6 +588,23 @@ static int dbd_sqlite3_end_transaction(apr_dbd_transaction_t *trans)
     }
 
     return ret;
+}
+
+static int dbd_sqlite3_transaction_mode_get(apr_dbd_transaction_t *trans)
+{
+    if (!trans)
+        return APR_DBD_TRANSACTION_COMMIT;
+
+    return trans->mode;
+}
+
+static int dbd_sqlite3_transaction_mode_set(apr_dbd_transaction_t *trans,
+                                            int mode)
+{
+    if (!trans)
+        return APR_DBD_TRANSACTION_COMMIT;
+
+    return trans->mode = (mode & TXN_MODE_BITS);
 }
 
 static apr_dbd_t *dbd_sqlite3_open(apr_pool_t *pool, const char *params)
@@ -673,6 +692,8 @@ APU_DECLARE_DATA const apr_dbd_driver_t apr_dbd_sqlite3_driver = {
     dbd_sqlite3_pvselect,
     dbd_sqlite3_pquery,
     dbd_sqlite3_pselect,
-    dbd_sqlite3_get_name
+    dbd_sqlite3_get_name,
+    dbd_sqlite3_transaction_mode_get,
+    dbd_sqlite3_transaction_mode_set
 };
 #endif
