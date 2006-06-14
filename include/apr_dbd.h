@@ -152,9 +152,12 @@ APU_DECLARE(int) apr_dbd_set_dbname(const apr_dbd_driver_t *driver, apr_pool_t *
  *  @param handle - the db connection
  *  @param trans - ptr to a transaction.  May be null on entry
  *  @return 0 for success or error code
- *  @remarks If any of the query/select calls during a transaction return
- *  non-zero status code, the transaction will inherit this code and any
- *  further query/select calls will fail immediately.
+ *  @remarks Note that transaction modes, set by calling
+ *  apr_dbd_transaction_mode_set(), will affect all query/select calls within
+ *  a transaction. By default, any error in query/select during a transaction
+ *  will cause the transaction to inherit the error code and any further
+ *  query/select calls will fail immediately. Put transaction in "ignore
+ *  errors" mode to avoid that. Use "rollback" mode to do explicit rollback.
  */
 APU_DECLARE(int) apr_dbd_transaction_start(const apr_dbd_driver_t *driver,
                                            apr_pool_t *pool,
@@ -173,6 +176,30 @@ APU_DECLARE(int) apr_dbd_transaction_start(const apr_dbd_driver_t *driver,
 APU_DECLARE(int) apr_dbd_transaction_end(const apr_dbd_driver_t *driver,
                                          apr_pool_t *pool,
                                          apr_dbd_transaction_t *trans);
+
+#define APR_DBD_TRANSACTION_COMMIT        0x00  /**< commit the transaction */
+#define APR_DBD_TRANSACTION_ROLLBACK      0x01  /**< rollback the transaction */
+#define APR_DBD_TRANSACTION_IGNORE_ERRORS 0x02  /**< ignore transaction errors */
+
+/** apr_dbd_transaction_mode_get: get the mode of transaction
+ *
+ *  @param driver - the driver
+ *  @param trans  - the transaction
+ *  @return mode of transaction
+ */
+APU_DECLARE(int) apr_dbd_transaction_mode_get(const apr_dbd_driver_t *driver,
+                                              apr_dbd_transaction_t *trans);
+
+/** apr_dbd_transaction_mode_set: set the mode of transaction
+ *
+ *  @param driver - the driver
+ *  @param trans  - the transaction
+ *  @param mode   - new mode of the transaction
+ *  @return the mode of transaction in force after the call
+ */
+APU_DECLARE(int) apr_dbd_transaction_mode_set(const apr_dbd_driver_t *driver,
+                                              apr_dbd_transaction_t *trans,
+                                              int mode);
 
 /** apr_dbd_query: execute an SQL query that doesn't return a result set
  *

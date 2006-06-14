@@ -37,6 +37,7 @@
 #define QUERY_MAX_ARGS 40
 
 struct apr_dbd_transaction_t {
+    int mode;
     int errnum;
     apr_dbd_t *handle;
 };
@@ -86,6 +87,19 @@ static int dbd_pgsql_select(apr_pool_t *pool, apr_dbd_t *sql,
         return sql->trans->errnum;
     }
     if (seek) { /* synchronous query */
+        if (TXN_IGNORE_ERRORS(sql->trans)) {
+            PGresult *res = PQexec(sql->conn, "SAVEPOINT APR_DBD_TXN_SP");
+            if (res) {
+                ret = PQresultStatus(res);
+                PQclear(res);
+                if (!dbd_pgsql_is_success(ret)) {
+                    sql->trans->errnum = ret;
+                    return PGRES_FATAL_ERROR;
+                }
+            } else {
+                return sql->trans->errnum = PGRES_FATAL_ERROR;
+            }
+        }
         res = PQexec(sql->conn, query);
         if (res) {
             ret = PQresultStatus(res);
@@ -98,10 +112,38 @@ static int dbd_pgsql_select(apr_pool_t *pool, apr_dbd_t *sql,
             ret = PGRES_FATAL_ERROR;
         }
         if (ret != 0) {
-            if (sql->trans) {
+            if (TXN_IGNORE_ERRORS(sql->trans)) {
+                PGresult *res = PQexec(sql->conn,
+                                       "ROLLBACK TO SAVEPOINT APR_DBD_TXN_SP");
+                if (res) {
+                    ret = PQresultStatus(res);
+                    PQclear(res);
+                    if (!dbd_pgsql_is_success(ret)) {
+                        sql->trans->errnum = ret;
+                        return PGRES_FATAL_ERROR;
+                    }
+                } else {
+                    return sql->trans->errnum = PGRES_FATAL_ERROR;
+                }
+            } else if (TXN_NOTICE_ERRORS(sql->trans)){
                 sql->trans->errnum = ret;
             }
             return ret;
+        } else {
+            if (TXN_IGNORE_ERRORS(sql->trans)) {
+                PGresult *res = PQexec(sql->conn,
+                                       "RELEASE SAVEPOINT APR_DBD_TXN_SP");
+                if (res) {
+                    ret = PQresultStatus(res);
+                    PQclear(res);
+                    if (!dbd_pgsql_is_success(ret)) {
+                        sql->trans->errnum = ret;
+                        return PGRES_FATAL_ERROR;
+                    }
+                } else {
+                    return sql->trans->errnum = PGRES_FATAL_ERROR;
+                }
+            }
         }
         if (!*results) {
             *results = apr_pcalloc(pool, sizeof(apr_dbd_results_t));
@@ -114,11 +156,52 @@ static int dbd_pgsql_select(apr_pool_t *pool, apr_dbd_t *sql,
                                   apr_pool_cleanup_null);
     }
     else {
+        if (TXN_IGNORE_ERRORS(sql->trans)) {
+            PGresult *res = PQexec(sql->conn, "SAVEPOINT APR_DBD_TXN_SP");
+            if (res) {
+                ret = PQresultStatus(res);
+                PQclear(res);
+                if (!dbd_pgsql_is_success(ret)) {
+                    sql->trans->errnum = ret;
+                    return PGRES_FATAL_ERROR;
+                }
+            } else {
+                return sql->trans->errnum = PGRES_FATAL_ERROR;
+            }
+        }
         if (PQsendQuery(sql->conn, query) == 0) {
-            if (sql->trans) {
+            if (TXN_IGNORE_ERRORS(sql->trans)) {
+                PGresult *res = PQexec(sql->conn,
+                                       "ROLLBACK TO SAVEPOINT APR_DBD_TXN_SP");
+                if (res) {
+                    ret = PQresultStatus(res);
+                    PQclear(res);
+                    if (!dbd_pgsql_is_success(ret)) {
+                        sql->trans->errnum = ret;
+                        return PGRES_FATAL_ERROR;
+                    }
+                } else {
+                    return sql->trans->errnum = PGRES_FATAL_ERROR;
+                }
+            } else if (TXN_NOTICE_ERRORS(sql->trans)){
                 sql->trans->errnum = 1;
             }
             return 1;
+        } else {
+            if (TXN_IGNORE_ERRORS(sql->trans)) {
+                PGresult *res = PQexec(sql->conn,
+                                       "RELEASE SAVEPOINT APR_DBD_TXN_SP");
+                if (res) {
+                    ret = PQresultStatus(res);
+                    PQclear(res);
+                    if (!dbd_pgsql_is_success(ret)) {
+                        sql->trans->errnum = ret;
+                        return PGRES_FATAL_ERROR;
+                    }
+                } else {
+                    return sql->trans->errnum = PGRES_FATAL_ERROR;
+                }
+            }
         }
         if (*results == NULL) {
             *results = apr_pcalloc(pool, sizeof(apr_dbd_results_t));
@@ -215,6 +298,21 @@ static int dbd_pgsql_query(apr_dbd_t *sql, int *nrows, const char *query)
     if (sql->trans && sql->trans->errnum) {
         return sql->trans->errnum;
     }
+
+    if (TXN_IGNORE_ERRORS(sql->trans)) {
+        PGresult *res = PQexec(sql->conn, "SAVEPOINT APR_DBD_TXN_SP");
+        if (res) {
+            ret = PQresultStatus(res);
+            PQclear(res);
+            if (!dbd_pgsql_is_success(ret)) {
+                sql->trans->errnum = ret;
+                return PGRES_FATAL_ERROR;
+            }
+        } else {
+            return sql->trans->errnum = PGRES_FATAL_ERROR;
+        }
+    }
+
     res = PQexec(sql->conn, query);
     if (res) {
         ret = PQresultStatus(res);
@@ -228,9 +326,43 @@ static int dbd_pgsql_query(apr_dbd_t *sql, int *nrows, const char *query)
     else {
         ret = PGRES_FATAL_ERROR;
     }
-    if (sql->trans) {
-        sql->trans->errnum = ret;
+    
+    if (ret != 0){
+        if (TXN_IGNORE_ERRORS(sql->trans)) {
+            PGresult *res = PQexec(sql->conn,
+                                   "ROLLBACK TO SAVEPOINT APR_DBD_TXN_SP");
+            if (res) {
+                ret = PQresultStatus(res);
+                PQclear(res);
+                if (!dbd_pgsql_is_success(ret)) {
+                    sql->trans->errnum = ret;
+                    return PGRES_FATAL_ERROR;
+                }
+            } else {
+                sql->trans->errnum = ret;
+                return PGRES_FATAL_ERROR;
+            }
+        } else if (TXN_NOTICE_ERRORS(sql->trans)){
+            sql->trans->errnum = ret;
+        }
+    } else {
+        if (TXN_IGNORE_ERRORS(sql->trans)) {
+            PGresult *res = PQexec(sql->conn,
+                                   "RELEASE SAVEPOINT APR_DBD_TXN_SP");
+            if (res) {
+                ret = PQresultStatus(res);
+                PQclear(res);
+                if (!dbd_pgsql_is_success(ret)) {
+                    sql->trans->errnum = ret;
+                    return PGRES_FATAL_ERROR;
+                }
+            } else {
+                sql->trans->errnum = ret;
+                return PGRES_FATAL_ERROR;
+            }
+        }
     }
+
     return ret;
 }
 
@@ -375,6 +507,20 @@ static int dbd_pgsql_pquery(apr_pool_t *pool, apr_dbd_t *sql,
         return sql->trans->errnum;
     }
 
+    if (TXN_IGNORE_ERRORS(sql->trans)) {
+        PGresult *res = PQexec(sql->conn, "SAVEPOINT APR_DBD_TXN_SP");
+        if (res) {
+            ret = PQresultStatus(res);
+            PQclear(res);
+            if (!dbd_pgsql_is_success(ret)) {
+                sql->trans->errnum = ret;
+                return PGRES_FATAL_ERROR;
+            }
+        } else {
+            return sql->trans->errnum = PGRES_FATAL_ERROR;
+        }
+    }
+
     if (statement->prepared) {
         res = PQexecPrepared(sql->conn, statement->name, nargs, values, 0, 0,
                              0);
@@ -395,9 +541,42 @@ static int dbd_pgsql_pquery(apr_pool_t *pool, apr_dbd_t *sql,
         ret = PGRES_FATAL_ERROR;
     }
 
-    if (sql->trans) {
-        sql->trans->errnum = ret;
+    if (ret != 0){
+        if (TXN_IGNORE_ERRORS(sql->trans)) {
+            PGresult *res = PQexec(sql->conn,
+                                   "ROLLBACK TO SAVEPOINT APR_DBD_TXN_SP");
+            if (res) {
+                ret = PQresultStatus(res);
+                PQclear(res);
+                if (!dbd_pgsql_is_success(ret)) {
+                    sql->trans->errnum = ret;
+                    return PGRES_FATAL_ERROR;
+                }
+            } else {
+                sql->trans->errnum = ret;
+                return PGRES_FATAL_ERROR;
+            }
+        } else if (TXN_NOTICE_ERRORS(sql->trans)){
+            sql->trans->errnum = ret;
+        }
+    } else {
+        if (TXN_IGNORE_ERRORS(sql->trans)) {
+            PGresult *res = PQexec(sql->conn,
+                                   "RELEASE SAVEPOINT APR_DBD_TXN_SP");
+            if (res) {
+                ret = PQresultStatus(res);
+                PQclear(res);
+                if (!dbd_pgsql_is_success(ret)) {
+                    sql->trans->errnum = ret;
+                    return PGRES_FATAL_ERROR;
+                }
+            } else {
+                sql->trans->errnum = ret;
+                return PGRES_FATAL_ERROR;
+            }
+        }
     }
+
     return ret;
 }
 
@@ -436,6 +615,20 @@ static int dbd_pgsql_pselect(apr_pool_t *pool, apr_dbd_t *sql,
     }
 
     if (seek) { /* synchronous query */
+        if (TXN_IGNORE_ERRORS(sql->trans)) {
+            PGresult *res = PQexec(sql->conn, "SAVEPOINT APR_DBD_TXN_SP");
+            if (res) {
+                ret = PQresultStatus(res);
+                PQclear(res);
+                if (!dbd_pgsql_is_success(ret)) {
+                    sql->trans->errnum = ret;
+                    return PGRES_FATAL_ERROR;
+                }
+            } else {
+                sql->trans->errnum = ret;
+                return PGRES_FATAL_ERROR;
+            }
+        }
         if (statement->prepared) {
             res = PQexecPrepared(sql->conn, statement->name, nargs, values, 0,
                                  0, 0);
@@ -457,10 +650,40 @@ static int dbd_pgsql_pselect(apr_pool_t *pool, apr_dbd_t *sql,
             ret = PGRES_FATAL_ERROR;
         }
         if (ret != 0) {
-            if (sql->trans) {
+            if (TXN_IGNORE_ERRORS(sql->trans)) {
+                PGresult *res = PQexec(sql->conn,
+                                       "ROLLBACK TO SAVEPOINT APR_DBD_TXN_SP");
+                if (res) {
+                    ret = PQresultStatus(res);
+                    PQclear(res);
+                    if (!dbd_pgsql_is_success(ret)) {
+                        sql->trans->errnum = ret;
+                        return PGRES_FATAL_ERROR;
+                    }
+                } else {
+                    sql->trans->errnum = ret;
+                    return PGRES_FATAL_ERROR;
+                }
+            } else if (TXN_NOTICE_ERRORS(sql->trans)){
                 sql->trans->errnum = ret;
             }
             return ret;
+        } else {
+            if (TXN_IGNORE_ERRORS(sql->trans)) {
+                PGresult *res = PQexec(sql->conn,
+                                       "RELEASE SAVEPOINT APR_DBD_TXN_SP");
+                if (res) {
+                    ret = PQresultStatus(res);
+                    PQclear(res);
+                    if (!dbd_pgsql_is_success(ret)) {
+                        sql->trans->errnum = ret;
+                        return PGRES_FATAL_ERROR;
+                    }
+                } else {
+                    sql->trans->errnum = ret;
+                    return PGRES_FATAL_ERROR;
+                }
+            }
         }
         if (!*results) {
             *results = apr_pcalloc(pool, sizeof(apr_dbd_results_t));
@@ -473,6 +696,20 @@ static int dbd_pgsql_pselect(apr_pool_t *pool, apr_dbd_t *sql,
                                   apr_pool_cleanup_null);
     }
     else {
+        if (TXN_IGNORE_ERRORS(sql->trans)) {
+            PGresult *res = PQexec(sql->conn, "SAVEPOINT APR_DBD_TXN_SP");
+            if (res) {
+                ret = PQresultStatus(res);
+                PQclear(res);
+                if (!dbd_pgsql_is_success(ret)) {
+                    sql->trans->errnum = ret;
+                    return PGRES_FATAL_ERROR;
+                }
+            } else {
+                sql->trans->errnum = ret;
+                return PGRES_FATAL_ERROR;
+            }
+        }
         if (statement->prepared) {
             rv = PQsendQueryPrepared(sql->conn, statement->name, nargs, values,
                                      0, 0, 0);
@@ -482,10 +719,40 @@ static int dbd_pgsql_pselect(apr_pool_t *pool, apr_dbd_t *sql,
                                    values, 0, 0, 0);
         }
         if (rv == 0) {
-            if (sql->trans) {
+            if (TXN_IGNORE_ERRORS(sql->trans)) {
+                PGresult *res = PQexec(sql->conn,
+                                       "ROLLBACK TO SAVEPOINT APR_DBD_TXN_SP");
+                if (res) {
+                    ret = PQresultStatus(res);
+                    PQclear(res);
+                    if (!dbd_pgsql_is_success(ret)) {
+                        sql->trans->errnum = ret;
+                        return PGRES_FATAL_ERROR;
+                    }
+                } else {
+                    sql->trans->errnum = ret;
+                    return PGRES_FATAL_ERROR;
+                }
+            } else if (TXN_NOTICE_ERRORS(sql->trans)){
                 sql->trans->errnum = 1;
             }
             return 1;
+        } else {
+            if (TXN_IGNORE_ERRORS(sql->trans)) {
+                PGresult *res = PQexec(sql->conn,
+                                       "RELEASE SAVEPOINT APR_DBD_TXN_SP");
+                if (res) {
+                    ret = PQresultStatus(res);
+                    PQclear(res);
+                    if (!dbd_pgsql_is_success(ret)) {
+                        sql->trans->errnum = ret;
+                        return PGRES_FATAL_ERROR;
+                    }
+                } else {
+                    sql->trans->errnum = ret;
+                    return PGRES_FATAL_ERROR;
+                }
+            }
         }
         if (!*results) {
             *results = apr_pcalloc(pool, sizeof(apr_dbd_results_t));
@@ -494,9 +761,6 @@ static int dbd_pgsql_pselect(apr_pool_t *pool, apr_dbd_t *sql,
         (*results)->handle = sql->conn;
     }
 
-    if (sql->trans) {
-        sql->trans->errnum = ret;
-    }
     return ret;
 }
 
@@ -554,7 +818,8 @@ static int dbd_pgsql_end_transaction(apr_dbd_transaction_t *trans)
     PGresult *res;
     int ret = -1;                /* no transaction is an error cond */
     if (trans) {
-        if (trans->errnum) {
+        /* rollback on error or explicit rollback request */
+        if (trans->errnum || TXN_DO_ROLLBACK(trans)) {
             trans->errnum = 0;
             res = PQexec(trans->handle->conn, "ROLLBACK");
         }
@@ -574,6 +839,23 @@ static int dbd_pgsql_end_transaction(apr_dbd_transaction_t *trans)
         trans->handle->trans = NULL;
     }
     return ret;
+}
+
+static int dbd_pgsql_transaction_mode_get(apr_dbd_transaction_t *trans)
+{
+    if (!trans)
+        return APR_DBD_TRANSACTION_COMMIT;
+
+    return trans->mode;
+}
+
+static int dbd_pgsql_transaction_mode_set(apr_dbd_transaction_t *trans,
+                                          int mode)
+{
+    if (!trans)
+        return APR_DBD_TRANSACTION_COMMIT;
+
+    return trans->mode = (mode & TXN_MODE_BITS);
 }
 
 static apr_dbd_t *dbd_pgsql_open(apr_pool_t *pool, const char *params)
@@ -665,6 +947,8 @@ APU_DECLARE_DATA const apr_dbd_driver_t apr_dbd_pgsql_driver = {
     dbd_pgsql_pvselect,
     dbd_pgsql_pquery,
     dbd_pgsql_pselect,
-    dbd_pgsql_get_name
+    dbd_pgsql_get_name,
+    dbd_pgsql_transaction_mode_get,
+    dbd_pgsql_transaction_mode_set
 };
 #endif

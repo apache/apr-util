@@ -123,6 +123,7 @@ static int dbd_oracle_start_transaction(apr_pool_t *pool, apr_dbd_t *sql,
 static int dbd_oracle_end_transaction(apr_dbd_transaction_t *trans);
 
 struct apr_dbd_transaction_t {
+    int mode;
     enum { TRANS_NONE, TRANS_ERROR, TRANS_1, TRANS_2 } status;
     apr_dbd_t *handle;
     OCITrans *trans;
@@ -1234,7 +1235,7 @@ static int dbd_oracle_pvquery(apr_pool_t *pool, apr_dbd_t *sql,
 #endif
         /* fallthrough */
     default:
-        if (trans) {
+        if (TXN_NOTICE_ERRORS(trans)) {
             trans->status = TRANS_ERROR;
         }
         return 1;
@@ -1277,7 +1278,7 @@ static int dbd_oracle_pvquery(apr_pool_t *pool, apr_dbd_t *sql,
 #endif
             /* fallthrough */
         default:
-            if (trans) {
+            if (TXN_NOTICE_ERRORS(trans)) {
                 trans->status = TRANS_ERROR;
             }
             return 1;
@@ -1383,7 +1384,7 @@ static int dbd_oracle_pquery(apr_pool_t *pool, apr_dbd_t *sql,
 #endif
         /* fallthrough */
     default:
-        if (trans) {
+        if (TXN_NOTICE_ERRORS(trans)) {
             trans->status = TRANS_ERROR;
         }
         return 1;
@@ -1476,7 +1477,7 @@ static int dbd_oracle_pvselect(apr_pool_t *pool, apr_dbd_t *sql,
         printf("Executing prepared statement: %s\n", sql->buf);
 #endif
     default:
-        if (trans) {
+        if (TXN_NOTICE_ERRORS(trans)) {
             trans->status = TRANS_ERROR;
         }
         return 1;
@@ -1571,7 +1572,7 @@ static int dbd_oracle_pselect(apr_pool_t *pool, apr_dbd_t *sql,
         printf("Executing prepared statement: %s\n", sql->buf);
 #endif
     default:
-        if (trans) {
+        if (TXN_NOTICE_ERRORS(trans)) {
             trans->status = TRANS_ERROR;
         }
         return 1;
@@ -1664,7 +1665,12 @@ static int dbd_oracle_end_transaction(apr_dbd_transaction_t *trans)
             status = OCITransRollback(handle->svc, handle->err, OCI_DEFAULT);
             break;
         default:
-            status = OCITransCommit(handle->svc, handle->err, OCI_DEFAULT);
+            /* rollback on explicit rollback request */
+            if (TXN_DO_ROLLBACK(trans)) {
+                status = OCITransRollback(handle->svc, handle->err, OCI_DEFAULT);
+            } else {
+                status = OCITransCommit(handle->svc, handle->err, OCI_DEFAULT);
+            }
             break;
         }
 
@@ -1680,6 +1686,23 @@ static int dbd_oracle_end_transaction(apr_dbd_transaction_t *trans)
         }
     }
     return ret;
+}
+
+static int dbd_oracle_transaction_mode_get(apr_dbd_transaction_t *trans)
+{
+    if (!trans)
+        return APR_DBD_TRANSACTION_COMMIT;
+
+    return trans->mode;
+}
+
+static int dbd_oracle_transaction_mode_set(apr_dbd_transaction_t *trans,
+                                           int mode)
+{
+    if (!trans)
+        return APR_DBD_TRANSACTION_COMMIT;
+
+    return trans->mode = (mode & TXN_MODE_BITS);
 }
 
 /* This doesn't work for BLOB because of NULLs, but it can fake it
@@ -1910,6 +1933,8 @@ APU_DECLARE_DATA const apr_dbd_driver_t apr_dbd_oracle_driver = {
     dbd_oracle_pvselect,
     dbd_oracle_pquery,
     dbd_oracle_pselect,
-    dbd_oracle_get_name
+    dbd_oracle_get_name,
+    dbd_oracle_transaction_mode_get,
+    dbd_oracle_transaction_mode_set
 };
 #endif
