@@ -24,9 +24,19 @@ dnl
 AC_DEFUN([APU_FIND_SSL], [
   apu_have_ssl=0
 
-  APU_CHECK_OPENSSL
-  dnl add checks for other varieties of ssl here
-
+  AC_ARG_WITH([ssl], [
+    --with-ssl
+  ], [
+    if test "$withval" = "no"; then
+      ap_have_ssl=0
+    else
+      APU_CHECK_OPENSSL
+      dnl add checks for other varieties of ssl here
+    fi
+  ], [
+      APU_CHECK_OPENSSL
+      dnl add checks for other varieties of ssl here
+  ])
 
   if test "$apu_have_ssl" = "1"; then
     AC_DEFINE([APU_HAVE_SSL], 1, [Define that we have SSL capability])
@@ -44,26 +54,11 @@ AC_DEFUN([APU_CHECK_OPENSSL], [
     --with-openssl=DIR 
   ], [
     if test "$withval" = "yes"; then
-      old_cppflags="$CPPFLAGS"
-      old_ldflags="$LDFLAGS"
-
-      openssl_CPPFLAGS="-I$withval/include"
-      openssl_LDFLAGS="-L$withval/lib "
-
-      APR_ADDTO(CPPFLAGS, [$openssl_CPPFLAGS])
-      APR_ADDTO(LDFLAGS, [$openssl_LDFLAGS])
-
-      AC_MSG_NOTICE(checking for openssl in $withval)
       AC_CHECK_HEADERS(openssl/x509.h, [openssl_have_headers=1])
       AC_CHECK_LIB(crypto, BN_init, AC_CHECK_LIB(ssl, SSL_accept, [openssl_have_libs=1]))
       if test "$openssl_have_headers" != "0" && test "$openssl_have_libs" != "0"; then
         apu_have_openssl=1
-        APR_ADDTO(APRUTIL_LDFLAGS, [-L$withval/lib])
-        APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/include])
       fi
-
-      CPPFLAGS="$old_cppflags"
-      LDFLAGS="$old_ldflags"
     elif test "$withval" = "no"; then
       apu_have_openssl=0
     else
@@ -99,19 +94,11 @@ AC_DEFUN([APU_CHECK_OPENSSL], [
       LDFLAGS="$old_ldflags"
     fi
   ], [
-    old_cppflags="$CPPFLAGS"
-    old_ldflags="$LDFLAGS"
-
     AC_CHECK_HEADERS(openssl/x509.h, [openssl_have_headers=1])
     AC_CHECK_LIB(crypto, BN_init, AC_CHECK_LIB(ssl, SSL_accept, [openssl_have_libs=1]))
     if test "$openssl_have_headers" != "0" && test "$openssl_have_libs" != "0"; then
       apu_have_openssl=1
-      APR_ADDTO(APRUTIL_LDFLAGS, [-L$withval/lib])
-      APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/include])
     fi
-
-    CPPFLAGS="$old_cppflags"
-    LDFLAGS="$old_ldflags"
   ])
 
 
@@ -120,8 +107,8 @@ AC_DEFUN([APU_CHECK_OPENSSL], [
   dnl Add the libraries we will need now that we have set apu_have_openssl correctly
   if test "$apu_have_openssl" = "1"; then
     AC_DEFINE([APU_HAVE_OPENSSL], 1, [Define that we have OpenSSL available])
-    APR_ADDTO(APRUTIL_EXPORT_LIBS,[-lcrypto -lssl])
-    APR_ADDTO(APRUTIL_LIBS,[-lcrypto -lssl])
+    APR_ADDTO(APRUTIL_EXPORT_LIBS,[-lssl -lcrypto])
+    APR_ADDTO(APRUTIL_LIBS,[-lssl -lcrypto])
     apu_have_ssl=1
   fi
 ])
