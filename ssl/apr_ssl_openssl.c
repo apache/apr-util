@@ -35,7 +35,7 @@
 #include "apr_ssl_private.h"
 #include "apr_ssl_openssl_private.h"
 
-apr_status_t _ssl_init(void)
+apr_status_t apu_ssl_init(void)
 {
     CRYPTO_malloc_init();
     SSL_load_error_strings();
@@ -44,12 +44,12 @@ apr_status_t _ssl_init(void)
     return APR_SUCCESS;
 }
 
-apr_status_t _ssl_factory_create(apr_ssl_factory_t *asf,
+apr_status_t apu_ssl_factory_create(apr_ssl_factory_t *asf,
                                  const char *privateKeyFn,
                                  const char *certFn,
                                  const char *digestType)
 {
-    _apu_ssl_data_t *sslData = apr_pcalloc(asf->pool, sizeof(*sslData));
+    apu_ssl_data_t *sslData = apr_pcalloc(asf->pool, sizeof(*sslData));
     if (!sslData) {
         return -1;
     }
@@ -61,7 +61,7 @@ apr_status_t _ssl_factory_create(apr_ssl_factory_t *asf,
                 !SSL_CTX_use_certificate_file(sslData->ctx, certFn, SSL_FILETYPE_PEM) ||
                 !SSL_CTX_check_private_key(sslData->ctx)) {
                 SSL_CTX_free(sslData->ctx);
-                return -1; // code?
+                return -1; /* what code shoudl we return? */
             }
         }
     } else {
@@ -70,20 +70,20 @@ apr_status_t _ssl_factory_create(apr_ssl_factory_t *asf,
 
     if (digestType) {
         sslData->md = EVP_get_digestbyname(digestType);
-        // we don't care if this fails...
+        /* we don't care if this fails... */
     }
 
     if (!sslData->ctx)
-        return APR_EGENERAL; // what code?
+        return APR_EGENERAL; /* what error code? */
 
     asf->sslData = sslData;
 
     return APR_SUCCESS;
 }
 
-apr_status_t _ssl_socket_create(apr_ssl_socket_t *sslSock, apr_ssl_factory_t *asf)
+apr_status_t apu_ssl_socket_create(apr_ssl_socket_t *sslSock, apr_ssl_factory_t *asf)
 {
-    _apu_ssl_socket_data_t *sslData = apr_pcalloc(sslSock->pool, sizeof(*sslData));
+    apu_ssl_socket_data_t *sslData = apr_pcalloc(sslSock->pool, sizeof(*sslData));
     apr_os_sock_t fd;
 
     if (!sslData || !asf->sslData)
@@ -100,7 +100,7 @@ apr_status_t _ssl_socket_create(apr_ssl_socket_t *sslSock, apr_ssl_factory_t *as
     return APR_SUCCESS;
 }
 
-apr_status_t _ssl_socket_close(apr_ssl_socket_t *sock)
+apr_status_t apu_ssl_socket_close(apr_ssl_socket_t *sock)
 {
     int sslRv;
     apr_status_t rv;
@@ -118,7 +118,7 @@ apr_status_t _ssl_socket_close(apr_ssl_socket_t *sock)
     return APR_SUCCESS;
 }
 
-apr_status_t _ssl_connect(apr_ssl_socket_t *sock)
+apr_status_t apu_ssl_connect(apr_ssl_socket_t *sock)
 {
     if (!sock->sslData->ssl)
         return APR_EINVAL;
@@ -130,7 +130,7 @@ apr_status_t _ssl_connect(apr_ssl_socket_t *sock)
     return -1;
 }
 
-apr_status_t _ssl_send(apr_ssl_socket_t *sock, const char *buf, apr_size_t *len)
+apr_status_t apu_ssl_send(apr_ssl_socket_t *sock, const char *buf, apr_size_t *len)
 {
     apr_status_t rv;
     int sslOp;
@@ -143,7 +143,7 @@ apr_status_t _ssl_send(apr_ssl_socket_t *sock, const char *buf, apr_size_t *len)
     return -1;
 }
 
-apr_status_t _ssl_recv(apr_ssl_socket_t * sock,
+apr_status_t apu_ssl_recv(apr_ssl_socket_t * sock,
                               char *buf, apr_size_t *len)
 {
     int sslOp;
@@ -156,9 +156,9 @@ apr_status_t _ssl_recv(apr_ssl_socket_t * sock,
     return -1;
 }
 
-apr_status_t _ssl_accept(apr_ssl_socket_t *newSock, apr_ssl_socket_t *oldSock, apr_pool_t *pool)
+apr_status_t apu_ssl_accept(apr_ssl_socket_t *newSock, apr_ssl_socket_t *oldSock, apr_pool_t *pool)
 {
-    _apu_ssl_socket_data_t *sslData = apr_pcalloc(pool, sizeof(*sslData));
+    apu_ssl_socket_data_t *sslData = apr_pcalloc(pool, sizeof(*sslData));
     apr_os_sock_t fd;
 
     if (!sslData || !oldSock->factory)

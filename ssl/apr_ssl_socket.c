@@ -62,7 +62,7 @@ APU_DECLARE(apr_status_t) apr_ssl_socket_create(apr_ssl_socket_t **sock,
     }
     sslSock->pool = thepool;
     sslSock->factory = asf;
-    if (_ssl_socket_create(sslSock, asf) != APR_SUCCESS) {
+    if (apu_ssl_socket_create(sslSock, asf) != APR_SUCCESS) {
         apr_socket_close(plainSock);
         return -1;
     }
@@ -77,7 +77,7 @@ APU_DECLARE(apr_status_t) apr_ssl_socket_close(apr_ssl_socket_t *sock)
     if (!sock || !sock->sslData)
         return APR_EINVAL;
 
-    if ((rv = _ssl_socket_close(sock)) != APR_SUCCESS)
+    if ((rv = apu_ssl_socket_close(sock)) != APR_SUCCESS)
         return rv;
     return apr_socket_close(sock->plain);
 }
@@ -93,20 +93,20 @@ APU_DECLARE(apr_status_t) apr_ssl_socket_connect(apr_ssl_socket_t *sock,
 
     if ((rv = apr_socket_connect(sock->plain, sa)) != APR_SUCCESS)
         return rv;
-    return _ssl_connect(sock);
+    return apu_ssl_connect(sock);
 }
 
 APU_DECLARE(apr_status_t) apr_ssl_socket_send(apr_ssl_socket_t *sock,
                                               const char *buf,
                                               apr_size_t *len)
 {
-    return _ssl_send(sock, buf, len);
+    return apu_ssl_send(sock, buf, len);
 }
 
 APU_DECLARE(apr_status_t) apr_ssl_socket_recv(apr_ssl_socket_t * sock,
                                               char *buf, apr_size_t *len)
 {
-    return _ssl_recv(sock, buf, len);
+    return apu_ssl_recv(sock, buf, len);
 }
 
 APU_DECLARE(apr_status_t) apr_ssl_socket_bind(apr_ssl_socket_t *sock,
@@ -147,7 +147,7 @@ APU_DECLARE(apr_status_t) apr_ssl_socket_accept(apr_ssl_socket_t **news,
         return ENOMEM;
     }
     newSSLSock->plain = newSock;
-    if (_ssl_accept(newSSLSock, sock, thepool) != APR_SUCCESS) {
+    if (apu_ssl_accept(newSSLSock, sock, thepool) != APR_SUCCESS) {
         apr_socket_close(newSock);
         return APR_EGENERAL;
     }

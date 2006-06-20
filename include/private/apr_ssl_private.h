@@ -31,15 +31,15 @@ extern "C" {
 
 /** @internal */
 
-typedef struct _apu_ssl_data        _apu_ssl_data_t;
-typedef struct _apu_ssl_socket_data _apu_ssl_socket_data_t;
+typedef struct apu_ssl_data        apu_ssl_data_t;
+typedef struct apu_ssl_socket_data apu_ssl_socket_data_t;
 
 /**
  * SSL factory structure
  */
 struct apr_ssl_factory {
     apr_pool_t *pool;
-    _apu_ssl_data_t *sslData;
+    apu_ssl_data_t *sslData;
 };
 
 struct apr_ssl_socket {
@@ -47,22 +47,23 @@ struct apr_ssl_socket {
     apr_socket_t *plain;
     apr_ssl_factory_t *factory;
     int connected;
-    _apu_ssl_socket_data_t *sslData;
+    apu_ssl_socket_data_t *sslData;
 };
 
 /**
  * The following functions are provided by the implementations of
- * SSL libraries.
+ * SSL libraries. They are internal ONLY and should not be referenced
+ * outside of the apr_ssl code.
  */
 
-apr_status_t _ssl_init(void);
-apr_status_t _ssl_factory_create(apr_ssl_factory_t *, const char *, const char *, const char *);
-apr_status_t _ssl_socket_create(apr_ssl_socket_t *sslSock, apr_ssl_factory_t *asf);
-apr_status_t _ssl_socket_close(apr_ssl_socket_t *);
-apr_status_t _ssl_connect(apr_ssl_socket_t *);
-apr_status_t _ssl_send(apr_ssl_socket_t *, const char *, apr_size_t *);
-apr_status_t _ssl_socket_recv(apr_ssl_socket_t *, char *, apr_size_t *);
-apr_status_t _ssl_accept(apr_ssl_socket_t *, apr_ssl_socket_t *, apr_pool_t *);
+apr_status_t apu_ssl_init(void);
+apr_status_t apu_ssl_factory_create(apr_ssl_factory_t *, const char *, const char *, const char *);
+apr_status_t apu_ssl_socket_create(apr_ssl_socket_t *sslSock, apr_ssl_factory_t *asf);
+apr_status_t apu_ssl_socket_close(apr_ssl_socket_t *);
+apr_status_t apu_ssl_connect(apr_ssl_socket_t *);
+apr_status_t apu_ssl_send(apr_ssl_socket_t *, const char *, apr_size_t *);
+apr_status_t apu_ssl_socket_recv(apr_ssl_socket_t *, char *, apr_size_t *);
+apr_status_t apu_ssl_accept(apr_ssl_socket_t *, apr_ssl_socket_t *, apr_pool_t *);
 
 #ifdef __cplusplus
 }

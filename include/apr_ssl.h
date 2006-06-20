@@ -36,10 +36,16 @@ extern "C" {
  * @ingroup APR_Util
  * @{
  */
+
 /**
  * Structure for referencing an ssl "factory"
  */
 typedef struct apr_ssl_factory   apr_ssl_factory_t;
+
+/**
+ * Structure for referencing an ssl socket. These are created
+ * by referncing an apr_ssl_factory.
+ */
 typedef struct apr_ssl_socket    apr_ssl_socket_t;
 
 APU_DECLARE(apr_status_t) apr_ssl_factory_create(apr_ssl_factory_t **,
@@ -75,4 +81,4 @@ APU_DECLARE(apr_status_t) apr_ssl_socket_accept(apr_ssl_socket_t **,
 }
 #endif
 
-#endif	/* !APR_DBM_H */
+#endif	/* !APR_SSL_H */
