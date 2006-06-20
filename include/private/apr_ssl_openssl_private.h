@@ -21,12 +21,12 @@
 
 #include <openssl/ssl.h>
 
-struct _apu_ssl_data {
+struct apu_ssl_data {
     SSL_CTX *ctx;
     const EVP_MD *md;
 };
 
-struct _apu_ssl_socket_data {
+struct apu_ssl_socket_data {
     SSL     *ssl;
 };
 

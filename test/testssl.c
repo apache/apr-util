@@ -35,6 +35,8 @@
 #include "apr_ssl.h"
 #include "apr_network_io.h"
 
+#include "apu_config.h"
+
 #if APR_HAVE_STDIO_H
 #include <stdio.h>
 #endif
@@ -50,6 +52,8 @@ int main(int argc, const char * const * argv)
     apr_ssl_factory_t *asf = NULL;
     apr_sockaddr_t *remoteSA;
     apr_status_t rv;
+
+#ifdef APU_HAVE_SSL
 
     (void) apr_initialize();
     apr_pool_create(&pool, NULL);
@@ -93,6 +97,8 @@ int main(int argc, const char * const * argv)
     }
 
     apr_pool_destroy(pool);
+
+#endif /* APU_HAVE_SSL */
 
     return 0;
 }
