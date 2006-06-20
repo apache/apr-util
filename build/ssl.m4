@@ -27,15 +27,12 @@ AC_DEFUN([APU_FIND_SSL], [
   AC_ARG_WITH([ssl], [
     --with-ssl
   ], [
-    if test "$withval" = "no"; then
-      ap_have_ssl=0
-    else
+    if test "$withval" = "yes"; then
       APU_CHECK_OPENSSL
       dnl add checks for other varieties of ssl here
     fi
   ], [
-      APU_CHECK_OPENSSL
-      dnl add checks for other varieties of ssl here
+      apu_have_ssl=0
   ])
 
   if test "$apu_have_ssl" = "1"; then
