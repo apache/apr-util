@@ -52,17 +52,17 @@ APU_DECLARE(apr_status_t) apr_ssl_factory_create(apr_ssl_factory_t **fact,
         return ENOMEM;
 
     if (! sslInit) {
-        if (_ssl_init() != APR_SUCCESS)
+        if (apu_ssl_init() != APR_SUCCESS)
             return APR_EGENERAL; /* ?? error code ?? */
         sslInit = 1;
     }
 
     *fact = NULL;
     asf->pool = p;
-    if (_ssl_factory_create(asf, privateKeyFn, certFn, digestType) != APR_SUCCESS)
+    if (apu_ssl_factory_create(asf, privateKeyFn, certFn, digestType) != APR_SUCCESS)
         return -1;
 
-    // should register a cleanup here
+    /* should we register a cleanup here? */
     *fact = asf;
     return APR_SUCCESS;
 }
