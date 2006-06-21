@@ -24,13 +24,12 @@
 #include "apr_general.h"
 
 #include "apu_config.h"
+#include "apu.h"
+#include "apr_ssl.h"
 
 #ifdef APU_HAVE_SSL
 
-#include "apu.h"
-#include "apr_ssl.h"
 #include "apr_ssl_private.h"
-
 #include "apr_network_io.h"
 #include "apr_portable.h"
 
@@ -38,7 +37,8 @@
 
 
 APU_DECLARE(apr_status_t) apr_ssl_socket_create(apr_ssl_socket_t **sock,
-                                                int family, int type, int protocol,
+                                                int family, int type,
+                                                int protocol,
                                                 apr_ssl_factory_t *asf,
                                                 apr_pool_t *p)
 {
@@ -57,7 +57,8 @@ APU_DECLARE(apr_status_t) apr_ssl_socket_create(apr_ssl_socket_t **sock,
     if (!sslSock)
         return ENOMEM;
 
-    if (apr_socket_create(&sslSock->plain, family, type, protocol, thepool) != APR_SUCCESS) {
+    if (apr_socket_create(&sslSock->plain, family, type, protocol, thepool)
+        != APR_SUCCESS) {
         return -1;
     }
     sslSock->pool = thepool;
@@ -155,5 +156,57 @@ APU_DECLARE(apr_status_t) apr_ssl_socket_accept(apr_ssl_socket_t **news,
     return APR_SUCCESS;
 }
 
+#else /* ! APU_HAVE_SSL */
+
+APU_DECLARE(apr_status_t) apr_ssl_socket_create(apr_ssl_socket_t **sock,
+                                                int family, int type,
+                                                int protocol,
+                                                apr_ssl_factory_t *asf,
+                                                apr_pool_t *p)
+{
+    return APR_ENOTIMPL;
+}
+
+APU_DECLARE(apr_status_t) apr_ssl_socket_close(apr_ssl_socket_t *sock)
+{
+    return APR_ENOTIMPL;
+}
+
+APU_DECLARE(apr_status_t) apr_ssl_socket_connect(apr_ssl_socket_t *sock,
+                                                 apr_sockaddr_t *sa)
+{
+    return APR_ENOTIMPL;
+}
+
+APU_DECLARE(apr_status_t) apr_ssl_socket_send(apr_ssl_socket_t *sock,
+                                              const char *buf,
+                                              apr_size_t *len)
+{
+    return APR_ENOTIMPL;
+}
+
+APU_DECLARE(apr_status_t) apr_ssl_socket_recv(apr_ssl_socket_t * sock,
+                                              char *buf, apr_size_t *len)
+{
+    return APR_ENOTIMPL;
+}
+
+APU_DECLARE(apr_status_t) apr_ssl_socket_bind(apr_ssl_socket_t *sock,
+                                              apr_sockaddr_t *sa)
+{
+    return APR_ENOTIMPL;
+}
+
+APU_DECLARE(apr_status_t) apr_ssl_socket_listen(apr_ssl_socket_t *sock,
+                                                apr_int32_t backlog)
+{
+    return APR_ENOTIMPL;
+}
+APU_DECLARE(apr_status_t) apr_ssl_socket_accept(apr_ssl_socket_t **news,
+                                                apr_ssl_socket_t *sock,
+                                                apr_pool_t *conn)
+{
+    return APR_ENOTIMPL;
+}
 
 #endif /* APU_HAVE_SSL */
