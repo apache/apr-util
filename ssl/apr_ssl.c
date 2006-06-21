@@ -25,13 +25,13 @@
 
 #include "apu_config.h"
 
-#ifdef APU_HAVE_SSL
 
 #include "apu.h"
 #include "apr_ssl.h"
-#include "apr_ssl_private.h"
 
-#include <stdio.h>
+#ifdef APU_HAVE_SSL
+
+#include "apr_ssl_private.h"
 
 static int sslInit = 0;
 
@@ -67,5 +67,16 @@ APU_DECLARE(apr_status_t) apr_ssl_factory_create(apr_ssl_factory_t **fact,
     return APR_SUCCESS;
 }
 
+#else /* ! APU_HAVE_SSL */
+
+APU_DECLARE(apr_status_t) apr_ssl_factory_create(apr_ssl_factory_t **fact,
+                                                 const char *privateKeyFn,
+                                                 const char *certFn,
+                                                 const char *digestType,
+                                                 apr_pool_t *p)
+
+{
+    return APR_ENOTIMPL;
+}
 
 #endif /* APU_HAVE_SSL */
