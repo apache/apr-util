@@ -28,6 +28,8 @@ struct apu_ssl_data {
 
 struct apu_ssl_socket_data {
     SSL     *ssl;
+    int      err;    /** error code returned by function call */
+    int      sslErr; /** SSL_get_error() code */ 
 };
 
 
