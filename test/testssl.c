@@ -65,13 +65,14 @@ int main(int argc, const char * const * argv)
     } else {
         apr_ssl_socket_t *sslSock;
         fprintf(stdout, "Client factory created\n");
-        if (apr_ssl_socket_create(&sslSock, AF_INET, SOCK_STREAM, 0, asf, NULL) != APR_SUCCESS) {
+        if (apr_ssl_socket_create(&sslSock, AF_INET, SOCK_STREAM, 0, asf, 
+                                  NULL) != APR_SUCCESS) {
             printf("failed to create socket\n");
         } else {
             printf("created ssl socket\n");
 
-            rv = apr_sockaddr_info_get(&remoteSA, "svn.apache.org", APR_UNSPEC,
-                                       443, 0, pool);
+            rv = apr_sockaddr_info_get(&remoteSA, "svn.apache.org", 
+                                       APR_UNSPEC, 443, 0, pool);
             if (rv == APR_SUCCESS) {
                 apr_size_t len = 16;
                 char buffer[4096];
@@ -80,18 +81,21 @@ int main(int argc, const char * const * argv)
                 printf("Connect = %s\n", (rv == APR_SUCCESS ? "OK" : "Failed"));
 
                 printf("send: %s\n",
-                       (apr_ssl_socket_send(sslSock, "GET / HTTP/1.0\n\n", &len) == APR_SUCCESS ?
+                       (apr_ssl_socket_send(sslSock, "GET / HTTP/1.0\n\n", 
+                                            &len) == APR_SUCCESS ?
                         "OK" : "Failed"));
 
                 len = 4096;
                 printf("recv: %s\n%s\n",
-                       (apr_ssl_socket_recv(sslSock, buffer, &len) == APR_SUCCESS ? "OK" : "Failed"),
+                       (apr_ssl_socket_recv(sslSock, buffer, &len) == 
+                          APR_SUCCESS ? "OK" : "Failed"),
                        buffer);
 
             }
 
             printf("close = %s\n",
-                   (apr_ssl_socket_close(sslSock) == APR_SUCCESS ? "OK" : "Failed"));
+                   (apr_ssl_socket_close(sslSock) == APR_SUCCESS ? 
+                    "OK" : "Failed"));
 
         }
     }
