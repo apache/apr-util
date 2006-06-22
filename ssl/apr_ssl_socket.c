@@ -156,6 +156,13 @@ APU_DECLARE(apr_status_t) apr_ssl_socket_accept(apr_ssl_socket_t **news,
     return APR_SUCCESS;
 }
 
+APU_DECLARE(apr_status_t) apr_ssl_socket_raw_error(apr_ssl_socket_t *sock)
+{
+    if (!sock)
+        return APR_EINVAL;
+    return apu_ssl_raw_error(sock);
+}
+
 #else /* ! APU_HAVE_SSL */
 
 APU_DECLARE(apr_status_t) apr_ssl_socket_create(apr_ssl_socket_t **sock,
@@ -202,9 +209,15 @@ APU_DECLARE(apr_status_t) apr_ssl_socket_listen(apr_ssl_socket_t *sock,
 {
     return APR_ENOTIMPL;
 }
+
 APU_DECLARE(apr_status_t) apr_ssl_socket_accept(apr_ssl_socket_t **news,
                                                 apr_ssl_socket_t *sock,
                                                 apr_pool_t *conn)
+{
+    return APR_ENOTIMPL;
+}
+
+APU_DECLARE(apr_status_t) apr_ssl_socket_raw_error(apr_ssl_socket_t *sock)
 {
     return APR_ENOTIMPL;
 }

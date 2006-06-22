@@ -193,6 +193,17 @@ APU_DECLARE(apr_status_t) apr_ssl_socket_listen(apr_ssl_socket_t *,
 APU_DECLARE(apr_status_t) apr_ssl_socket_accept(apr_ssl_socket_t **,
                                                 apr_ssl_socket_t *,
                                                 apr_pool_t *);
+
+/**
+ * @fn apr_status_t apr_ssl_socket_raw_error(apr_ssl_socket_t *sock)
+ * @brief Return the error code from the underlying SSL implementation.
+ * @note This is provided for completeness. Return values are specific
+ *       to the underlying implentation, so this should nt be used if
+ *       platform independance is desired.
+ * @param sock The socket to report the error for.
+ */
+APU_DECLARE(apr_status_t) apr_ssl_socket_raw_error(apr_ssl_socket_t *);
+
 /** @} */
 #ifdef __cplusplus
 }

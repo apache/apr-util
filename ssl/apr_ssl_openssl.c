@@ -44,6 +44,20 @@ apr_status_t apu_ssl_init(void)
     return APR_SUCCESS;
 }
 
+/* SSL_get_error() docs say that this MUST be called in the same
+ * thread as the operation that failed, and that no other
+ * SSL_ operations should be called between the error being reported
+ * and the call to get the error code made, hence this function should
+ * be called within the function that generates the error.
+ * TODO - this should be expanded to generate the correct APR_ errors
+ *        when we have created the mappings :-)
+ */
+static void openssl_get_error(apr_ssl_socket_t *sock, int fncode)
+{
+    sock->sslData->err = fncode;
+    sock->sslData->sslErr = SSL_get_error(sock->sslData->ssl, fncode);
+}
+
 apr_status_t apu_ssl_factory_create(apr_ssl_factory_t *asf,
                                  const char *privateKeyFn,
                                  const char *certFn,
@@ -57,8 +71,10 @@ apr_status_t apu_ssl_factory_create(apr_ssl_factory_t *asf,
     if (privateKeyFn && certFn) {
         sslData->ctx = SSL_CTX_new(SSLv23_server_method());
         if (sslData->ctx) {
-            if (!SSL_CTX_use_PrivateKey_file(sslData->ctx, privateKeyFn, SSL_FILETYPE_PEM) ||
-                !SSL_CTX_use_certificate_file(sslData->ctx, certFn, SSL_FILETYPE_PEM) ||
+            if (!SSL_CTX_use_PrivateKey_file(sslData->ctx, privateKeyFn,
+                                             SSL_FILETYPE_PEM) ||
+                !SSL_CTX_use_certificate_file(sslData->ctx, certFn, 
+                                              SSL_FILETYPE_PEM) ||
                 !SSL_CTX_check_private_key(sslData->ctx)) {
                 SSL_CTX_free(sslData->ctx);
                 return -1; /* what code shoudl we return? */
@@ -81,9 +97,11 @@ apr_status_t apu_ssl_factory_create(apr_ssl_factory_t *asf,
     return APR_SUCCESS;
 }
 
-apr_status_t apu_ssl_socket_create(apr_ssl_socket_t *sslSock, apr_ssl_factory_t *asf)
+apr_status_t apu_ssl_socket_create(apr_ssl_socket_t *sslSock, 
+                                   apr_ssl_factory_t *asf)
 {
-    apu_ssl_socket_data_t *sslData = apr_pcalloc(sslSock->pool, sizeof(*sslData));
+    apu_ssl_socket_data_t *sslData = apr_pcalloc(sslSock->pool, 
+                                                 sizeof(*sslData));
     apr_os_sock_t fd;
 
     if (!sslData || !asf->sslData)
@@ -120,19 +138,22 @@ apr_status_t apu_ssl_socket_close(apr_ssl_socket_t *sock)
 
 apr_status_t apu_ssl_connect(apr_ssl_socket_t *sock)
 {
+    int sslOp;
+
     if (!sock->sslData->ssl)
         return APR_EINVAL;
 
-    if (SSL_connect(sock->sslData->ssl)) {
+    if ((sslOp = SSL_connect(sock->sslData->ssl)) == 1) {
         sock->connected = 1;
         return APR_SUCCESS;
     }
+    openssl_get_error(sock, sslOp);
     return -1;
 }
 
-apr_status_t apu_ssl_send(apr_ssl_socket_t *sock, const char *buf, apr_size_t *len)
+apr_status_t apu_ssl_send(apr_ssl_socket_t *sock, const char *buf, 
+                          apr_size_t *len)
 {
-    apr_status_t rv;
     int sslOp;
 
     sslOp = SSL_write(sock->sslData->ssl, buf, *len);
@@ -140,6 +161,7 @@ apr_status_t apu_ssl_send(apr_ssl_socket_t *sock, const char *buf, apr_size_t *l
         *len = sslOp;
         return APR_SUCCESS;
     }
+    openssl_get_error(sock, sslOp);
     return -1;
 }
 
@@ -148,11 +170,15 @@ apr_status_t apu_ssl_recv(apr_ssl_socket_t * sock,
 {
     int sslOp;
 
+    if (!sock->sslData)
+        return APR_EINVAL;
+
     sslOp = SSL_read(sock->sslData->ssl, buf, *len);
     if (sslOp > 0) {
         *len = sslOp;
         return APR_SUCCESS;
     }
+    openssl_get_error(sock, sslOp);
     return -1;
 }
 
@@ -175,6 +201,17 @@ apr_status_t apu_ssl_accept(apr_ssl_socket_t *newSock, apr_ssl_socket_t *oldSock
     newSock->pool = pool;
     newSock->sslData = sslData;
     newSock->factory = oldSock->factory;
+    return APR_SUCCESS;
+}
+
+apr_status_t apu_ssl_raw_error(apr_ssl_socket_t *sock)
+{
+    if (!sock->sslData)
+        return APR_EINVAL;
+
+    if (sock->sslData->sslErr)
+        return sock->sslData->sslErr;
+
     return APR_SUCCESS;
 }
 
