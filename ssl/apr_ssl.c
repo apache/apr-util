@@ -67,6 +67,11 @@ APU_DECLARE(apr_status_t) apr_ssl_factory_create(apr_ssl_factory_t **fact,
     return APR_SUCCESS;
 }
 
+APU_DECLARE(const char *) apr_ssl_library_name(void)
+{
+    return APU_SSL_LIBRARY;
+}
+
 #else /* ! APU_HAVE_SSL */
 
 APU_DECLARE(apr_status_t) apr_ssl_factory_create(apr_ssl_factory_t **fact,
@@ -77,6 +82,11 @@ APU_DECLARE(apr_status_t) apr_ssl_factory_create(apr_ssl_factory_t **fact,
 
 {
     return APR_ENOTIMPL;
+}
+
+APU_DECLARE(const char *) apr_ssl_library_name(void)
+{
+    return NULL;
 }
 
 #endif /* APU_HAVE_SSL */

@@ -72,6 +72,13 @@ APU_DECLARE(apr_status_t) apr_ssl_factory_create(apr_ssl_factory_t **,
                                                  const char *, 
                                                  apr_pool_t *);
 
+/**
+ * @fn const char * apr_ssl_library_name(void)
+ * @brief Return the name of the library or underlying SSL
+ *        implementation in use.
+ * @return NULL in case of no SSL support.
+ */
+APU_DECLARE(const char *) apr_ssl_library_name(void);
 
 /**
  * @fn apr_status_t apr_ssl_socket_create(apr_ssl_socket_t **newSock,
@@ -203,6 +210,7 @@ APU_DECLARE(apr_status_t) apr_ssl_socket_accept(apr_ssl_socket_t **,
  * @param sock The socket to report the error for.
  */
 APU_DECLARE(apr_status_t) apr_ssl_socket_raw_error(apr_ssl_socket_t *);
+
 
 /** @} */
 #ifdef __cplusplus

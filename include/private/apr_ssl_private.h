@@ -66,6 +66,13 @@ apr_status_t apu_ssl_socket_recv(apr_ssl_socket_t *, char *, apr_size_t *);
 apr_status_t apu_ssl_accept(apr_ssl_socket_t *, apr_ssl_socket_t *, apr_pool_t *);
 apr_status_t apu_ssl_raw_error(apr_ssl_socket_t *);
 
+/**
+ * Descriptive name for the library we are using for SSL
+ */
+#ifdef APU_HAVE_OPENSSL
+#define APU_SSL_LIBRARY   "openssl"
+#endif
+
 #ifdef __cplusplus
 }
 #endif
