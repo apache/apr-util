@@ -52,12 +52,15 @@ int main(int argc, const char * const * argv)
     apr_ssl_factory_t *asf = NULL;
     apr_sockaddr_t *remoteSA;
     apr_status_t rv;
+    const char *libName;
 
 #ifdef APU_HAVE_SSL
 
     (void) apr_initialize();
     apr_pool_create(&pool, NULL);
     atexit(apr_terminate);
+
+    printf("SSL Library: %s\n", apr_ssl_library_name());
 
     if (apr_ssl_factory_create(&asf, NULL, NULL, NULL, pool) != APR_SUCCESS) {
         fprintf(stderr, "Unable to create client factory\n");
