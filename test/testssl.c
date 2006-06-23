@@ -52,7 +52,7 @@ int main(int argc, const char * const * argv)
     apr_ssl_factory_t *asf = NULL;
     apr_sockaddr_t *remoteSA;
     apr_status_t rv;
-    const char *libName;
+    apr_pollset_t *pollset;
 
 #ifdef APU_HAVE_SSL
 
@@ -61,6 +61,11 @@ int main(int argc, const char * const * argv)
     atexit(apr_terminate);
 
     printf("SSL Library: %s\n", apr_ssl_library_name());
+
+    if (apr_pollset_create(&pollset, 1, pool, 0) != APR_SUCCESS) {
+        printf("Failed to create pollset!\n");
+        exit(1);
+    }
 
     if (apr_ssl_factory_create(&asf, NULL, NULL, NULL, pool) != APR_SUCCESS) {
         fprintf(stderr, "Unable to create client factory\n");
@@ -83,6 +88,9 @@ int main(int argc, const char * const * argv)
                 rv = apr_ssl_socket_connect(sslSock, remoteSA);
                 printf("Connect = %s\n", (rv == APR_SUCCESS ? "OK" : "Failed"));
 
+                rv = apr_pollset_add_ssl_socket(pollset, sslSock);
+                printf("Pollset add = %s\n", (rv == APR_SUCCESS ? "OK" : "Failed"));
+
                 printf("send: %s\n",
                        (apr_ssl_socket_send(sslSock, "GET / HTTP/1.0\n\n", 
                                             &len) == APR_SUCCESS ?
@@ -93,6 +101,8 @@ int main(int argc, const char * const * argv)
                        (apr_ssl_socket_recv(sslSock, buffer, &len) == 
                           APR_SUCCESS ? "OK" : "Failed"),
                        buffer);
+                rv = apr_pollset_remove_ssl_socket(pollset, sslSock);
+                printf("Pollset remove = %s\n", (rv == APR_SUCCESS ? "OK" : "Failed"));
 
             }
 
