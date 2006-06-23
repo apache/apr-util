@@ -1,4 +1,4 @@
-/* Copyright 2000-2006 The Apache Software Foundation or its licensors, as
+/* Copyright 2006 The Apache Software Foundation or its licensors, as
  * applicable.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,12 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/* This file came from the SDBM package (written by oz@nexus.yorku.ca).
- * That package was under public domain. This file has been ported to
- * APR, updated to ANSI C and other, newer idioms, and added to the Apache
- * codebase under the above copyright and license.
- */
-
 /*
  * testssl: Simple APR SSL sockets test.
  */
