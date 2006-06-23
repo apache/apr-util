@@ -163,6 +163,39 @@ APU_DECLARE(apr_status_t) apr_ssl_socket_raw_error(apr_ssl_socket_t *sock)
     return apu_ssl_raw_error(sock);
 }
 
+APU_DECLARE(apr_status_t) apr_pollset_add_ssl_socket(apr_pollset_t *pollset,
+                                                     apr_ssl_socket_t *sock)
+{
+    apr_status_t rv;
+    if (sock->poll)
+        /* socket is already in a pollset - return an error... */
+        return EALREADY;
+
+    sock->poll = apr_pcalloc(sock->pool, sizeof(*sock->poll));
+
+    sock->poll->desc_type = APR_POLL_SOCKET;
+    sock->poll->reqevents = APR_POLLIN | APR_POLLOUT;
+    sock->poll->desc.s = sock->plain;
+    sock->poll->client_data = sock->plain;
+    rv = apr_pollset_add(pollset, sock->poll);
+    if (rv != APR_SUCCESS)
+        sock->poll = NULL;
+    return rv;
+}
+
+
+
+APU_DECLARE(apr_status_t) apr_pollset_remove_ssl_socket(apr_pollset_t *pollset,
+                                                        apr_ssl_socket_t *sock)
+{
+    apr_status_t rv;
+    if (!sock->poll)
+        return EINVAL;
+    rv = apr_pollset_remove(pollset, sock->poll);
+    sock->poll = NULL;
+    return rv;
+}
+
 #else /* ! APU_HAVE_SSL */
 
 APU_DECLARE(apr_status_t) apr_ssl_socket_create(apr_ssl_socket_t **sock,
@@ -218,6 +251,18 @@ APU_DECLARE(apr_status_t) apr_ssl_socket_accept(apr_ssl_socket_t **news,
 }
 
 APU_DECLARE(apr_status_t) apr_ssl_socket_raw_error(apr_ssl_socket_t *sock)
+{
+    return APR_ENOTIMPL;
+}
+
+APU_DECLARE(apr_status_t) apr_pollset_add_ssl_socket(apr_pollset_t *pollset,
+                                                     apr_ssl_socket_t *sock)
+{
+    return APR_ENOTIMPL;
+}
+
+APU_DECLARE(apr_status_t) apr_pollset_remove_ssl_socket(apr_pollset_t *pollset,
+                                                        apr_ssl_socket_t *sock)
 {
     return APR_ENOTIMPL;
 }

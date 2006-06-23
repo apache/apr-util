@@ -38,15 +38,17 @@ typedef struct apu_ssl_socket_data apu_ssl_socket_data_t;
  * SSL factory structure
  */
 struct apr_ssl_factory {
-    apr_pool_t *pool;
+    apr_pool_t     *pool;
     apu_ssl_data_t *sslData;
 };
 
 struct apr_ssl_socket {
-    apr_pool_t *pool;
-    apr_socket_t *plain;
+    apr_pool_t        *pool;
+    apr_socket_t      *plain;
     apr_ssl_factory_t *factory;
-    int connected;
+    apr_pollfd_t      *poll;
+    int                connected;
+
     apu_ssl_socket_data_t *sslData;
 };
 
