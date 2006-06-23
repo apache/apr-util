@@ -226,14 +226,25 @@ APU_DECLARE(apr_status_t) apr_pollset_add_ssl_socket(apr_pollset_t *,
                                                      apr_ssl_socket_t *);
 
 /**
- * @fn apr_status_t apr_pollset_remove_ssl_socket(apr_pollset_t *pollset,
-                                                  apr_ssl_socket_t *sock)
- * @brief remove an ssl socket from a pollset.
- * @param pollset The pollset to remove the socket from.
+ * @fn apr_status_t apr_pollset_remove_ssl_socket(apr_ssl_socket_t *sock)
+ * @brief Remove the ssl socket from it's pollset.
  * @param sock The ssl socket to remove.
  */
-APU_DECLARE(apr_status_t) apr_pollset_remove_ssl_socket(apr_pollset_t *,
-                                                        apr_ssl_socket_t *);
+APU_DECLARE(apr_status_t) apr_pollset_remove_ssl_socket(apr_ssl_socket_t *);
+
+/**
+ * @fn apr_status_t apr_ssl_socket_set_poll_events(apr_ssl_socket_t *sock,
+                                                   apr_int16_t events)
+ * @brief Set the required events for a socket.
+ * @note These will be used when apr_pollset_poll is next called for the
+ *       pollset the socket is currently attached to.
+ * @param sock The socket to set events for
+ * @param events The new events
+ * @return APR_SUCCESS if change made. Returns EINVAL if socket is not
+ *         attached to a pollset.
+ */
+APU_DECLARE(apr_status_t) apr_ssl_socket_set_poll_events(apr_ssl_socket_t *,
+                                                         apr_int16_t);
 
 /** @} */
 #ifdef __cplusplus
