@@ -22,6 +22,7 @@
 #include "apr_errno.h"
 #include "apr_pools.h"
 #include "apr_network_io.h"
+#include "apr_poll.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -211,6 +212,28 @@ APU_DECLARE(apr_status_t) apr_ssl_socket_accept(apr_ssl_socket_t **,
  */
 APU_DECLARE(apr_status_t) apr_ssl_socket_raw_error(apr_ssl_socket_t *);
 
+
+/**
+ * @fn apr_status_t apr_pollset_add_ssl_socket(apr_pollset_t *pollset
+                                               apr_ssl_socket_t *sock)
+ * @brief Add an ssl socket to a pollset.
+ * @param pollset The pollset to add the socket to.
+ * @param sock The ssl socket to add.
+ * @note This fucntion adds the socket with APR_POLLIN and APR_POLLOUT
+ *       set.
+ */
+APU_DECLARE(apr_status_t) apr_pollset_add_ssl_socket(apr_pollset_t *,
+                                                     apr_ssl_socket_t *);
+
+/**
+ * @fn apr_status_t apr_pollset_remove_ssl_socket(apr_pollset_t *pollset,
+                                                  apr_ssl_socket_t *sock)
+ * @brief remove an ssl socket from a pollset.
+ * @param pollset The pollset to remove the socket from.
+ * @param sock The ssl socket to remove.
+ */
+APU_DECLARE(apr_status_t) apr_pollset_remove_ssl_socket(apr_pollset_t *,
+                                                        apr_ssl_socket_t *);
 
 /** @} */
 #ifdef __cplusplus
