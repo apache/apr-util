@@ -46,6 +46,7 @@ struct apr_ssl_socket {
     apr_pool_t        *pool;
     apr_socket_t      *plain;
     apr_ssl_factory_t *factory;
+    apr_pollset_t     *pollset;
     apr_pollfd_t      *poll;
     int                connected;
 

@@ -167,34 +167,51 @@ APU_DECLARE(apr_status_t) apr_pollset_add_ssl_socket(apr_pollset_t *pollset,
                                                      apr_ssl_socket_t *sock)
 {
     apr_status_t rv;
-    if (sock->poll)
+    if (sock->pollset)
         /* socket is already in a pollset - return an error... */
         return EALREADY;
 
-    sock->poll = apr_pcalloc(sock->pool, sizeof(*sock->poll));
+    if (!sock->poll) {
+        sock->poll = apr_pcalloc(sock->pool, sizeof(*sock->poll));
 
-    sock->poll->desc_type = APR_POLL_SOCKET;
+        sock->poll->desc_type = APR_POLL_SOCKET;
+        sock->poll->desc.s = sock->plain;
+        sock->poll->client_data = sock;
+    }
     sock->poll->reqevents = APR_POLLIN | APR_POLLOUT;
-    sock->poll->desc.s = sock->plain;
-    sock->poll->client_data = sock->plain;
     rv = apr_pollset_add(pollset, sock->poll);
     if (rv != APR_SUCCESS)
         sock->poll = NULL;
+    sock->pollset = pollset;
     return rv;
 }
 
 
 
-APU_DECLARE(apr_status_t) apr_pollset_remove_ssl_socket(apr_pollset_t *pollset,
-                                                        apr_ssl_socket_t *sock)
+APU_DECLARE(apr_status_t) apr_pollset_remove_ssl_socket(apr_ssl_socket_t *sock)
+{
+    apr_status_t rv;
+    if (!sock->pollset)
+        return EINVAL;
+    rv = apr_pollset_remove(sock->pollset, sock->poll);
+    sock->pollset = NULL;
+    return rv;
+}
+
+APU_DECLARE(apr_status_t) apr_ssl_socket_set_poll_events(apr_ssl_socket_t *sock,
+                                                         apr_int16_t events)
 {
     apr_status_t rv;
     if (!sock->poll)
         return EINVAL;
-    rv = apr_pollset_remove(pollset, sock->poll);
-    sock->poll = NULL;
+    if ((rv = apr_pollset_remove(sock->pollset, sock->poll))
+         == APR_SUCCESS) {
+        sock->poll->reqevents = events;
+        rv = apr_pollset_add(sock->pollset, sock->poll);
+    }
     return rv;
 }
+
 
 #else /* ! APU_HAVE_SSL */
 
