@@ -46,13 +46,160 @@
 #include <stdlib.h>     /* for atexit(), malloc() */
 #include <string.h>
 
+struct sslTestCase {
+    char *host;
+    int port;
+    const char *request;
+    int result;
+} tests[] = {
+    { "svn.apache.org", 443, "GET / HTTP/1.0\n\n", 1 },
+    { NULL }
+};
+
+static apr_ssl_socket_t *createSocket(apr_ssl_factory_t *asf, 
+                                      apr_pollset_t *pollset,
+                                      apr_pool_t *pool, int blocking)
+{
+    apr_ssl_socket_t *sock;
+    apr_status_t rv;
+    printf("::Creating SSL socket\n");
+    rv = apr_ssl_socket_create(&sock, AF_INET, SOCK_STREAM, 0, asf, NULL);
+    if (rv != APR_SUCCESS) {
+        printf("\tFailed to create socket\n");
+        return NULL;
+    }
+    rv = apr_pollset_add_ssl_socket(pollset, sock);
+    if (rv != APR_SUCCESS) {
+        printf("\tFailed to add to pollset\n");
+        return NULL;
+    }
+    printf("\tOK\n");
+    return sock;
+}
+
+static apr_status_t connectSocket(apr_ssl_socket_t *sock,
+                                  const char *host, int port,
+                                  apr_pool_t *pool)
+{
+    apr_status_t rv;
+    apr_sockaddr_t *remoteSA;
+
+    printf("::Connecting socket\n");
+    rv = apr_sockaddr_info_get(&remoteSA, host, APR_UNSPEC, port, 0, pool);
+    if (rv != APR_SUCCESS) {
+        printf("\tFailed to get address for '%s', port %d\n", host, port);
+        return rv;
+    }
+    rv = apr_ssl_socket_connect(sock, remoteSA);
+    if (rv != APR_SUCCESS) {
+        printf("\tFailed to connect to '%s' port %d\n", host, port);
+        return rv;
+    }
+    printf("\tOK\n");
+    return rv;
+}
+
+static apr_status_t socketRead(apr_ssl_socket_t *sock,
+                               apr_pollset_t *pollset,
+                               char *buf, apr_size_t *len)
+{
+    int lrv;
+    const apr_pollfd_t *descs = NULL;
+    printf("::Reading from socket\n");
+    apr_status_t rv = apr_ssl_socket_set_poll_events(sock, APR_POLLIN);
+    if (rv != APR_SUCCESS) {
+        printf("\tUnable to change socket poll events!\n");
+        return rv;
+    }
+
+    rv = apr_pollset_poll(pollset, 30 * APR_USEC_PER_SEC, &lrv, &descs);
+    if (APR_STATUS_IS_TIMEUP(rv)) {
+        printf("\tTime up!\n");
+        return rv;
+    }
+
+    if (lrv != 1) {
+        printf("\tIncorrect return count, %d\n", lrv);
+        return rv;
+    }
+    if (descs[0].client_data != sock) {
+        printf("\tWrong socket returned?!\n");
+        return rv;
+    }
+    if ((descs[0].rtnevents & APR_POLLIN) == 0) {
+        printf("\tSocket wasn't ready? huh? req [%08x] vs rtn [%08x]\n",
+               descs[0].reqevents, descs[0].rtnevents);
+        return rv;
+    }
+    rv = apr_ssl_socket_recv(sock, buf, len);
+    if (rv == APR_SUCCESS)
+        printf("\tOK, read %d bytes\n", *len);
+    else
+        printf("\tFailed\n");
+    return rv;
+}
+
+static apr_status_t socketWrite(apr_ssl_socket_t *sock,
+                                apr_pollset_t *pollset,
+                                const char *buf, apr_size_t *len)
+{
+    int lrv;
+    const apr_pollfd_t *descs = NULL;
+    printf("::Writing to socket\n");
+    apr_status_t rv = apr_ssl_socket_set_poll_events(sock, APR_POLLOUT);
+    if (rv != APR_SUCCESS) {
+        printf("\tUnable to change socket poll events!\n");
+        return rv;
+    }
+
+    rv = apr_pollset_poll(pollset, 30 * APR_USEC_PER_SEC, &lrv, &descs);
+    if (APR_STATUS_IS_TIMEUP(rv)) {
+        printf("\tTime up!\n");
+        return rv;
+    }
+    if (lrv != 1) {
+        printf("\tIncorrect return count, %d\n", lrv);
+        return rv;
+    }
+    if (descs[0].client_data != sock) {
+        printf("\tWrong socket returned?!\n");
+        return rv;
+    }
+    if ((descs[0].rtnevents & APR_POLLOUT) == 0) {
+        printf("\tSocket wasn't ready? huh?\n");
+        return rv;
+    }
+    rv = apr_ssl_socket_send(sock, buf, len);
+    if (rv == APR_SUCCESS)
+        printf("\tOK, wrote %d bytes\n", *len);
+    else
+        printf("\tFailed\n");
+    return rv;
+}
+
+apr_status_t socketClose(apr_ssl_socket_t *sock, apr_pollset_t *pollset)
+{
+    apr_status_t rv;
+    printf("::Closing socket\n");
+    rv = apr_pollset_remove_ssl_socket(sock);
+    if (rv != APR_SUCCESS)
+        printf("\tUnable to remove socket from pollset?\n");
+    rv = apr_ssl_socket_close(sock);
+    if (rv != APR_SUCCESS)
+        printf("\tFailed to close SSL socket\n");
+    else
+        printf("\tOK\n");
+    return rv;
+}
+
+
 int main(int argc, const char * const * argv)
 {
     apr_pool_t *pool;
     apr_ssl_factory_t *asf = NULL;
-    apr_sockaddr_t *remoteSA;
     apr_status_t rv;
     apr_pollset_t *pollset;
+    struct sslTestCase *mytest;
 
 #ifdef APU_HAVE_SSL
 
@@ -71,51 +218,32 @@ int main(int argc, const char * const * argv)
         fprintf(stderr, "Unable to create client factory\n");
 
     } else {
-        apr_ssl_socket_t *sslSock;
-        fprintf(stdout, "Client factory created\n");
-        if (apr_ssl_socket_create(&sslSock, AF_INET, SOCK_STREAM, 0, asf, 
-                                  NULL) != APR_SUCCESS) {
-            printf("failed to create socket\n");
-        } else {
-            printf("created ssl socket\n");
+        int i;
+        for(i = 0; tests[i].host; i++) {
+            apr_ssl_socket_t *sslSock = createSocket(asf, pollset, pool, 0);
+            if (!sslSock)
+                continue;
 
-            rv = apr_sockaddr_info_get(&remoteSA, "svn.apache.org", 
-                                       APR_UNSPEC, 443, 0, pool);
+            rv = connectSocket(sslSock, tests[i].host, tests[i].port, pool);
             if (rv == APR_SUCCESS) {
-                apr_size_t len = 16;
-                char buffer[4096];
-
-                rv = apr_ssl_socket_connect(sslSock, remoteSA);
-                printf("Connect = %s\n", (rv == APR_SUCCESS ? "OK" : "Failed"));
-
-                rv = apr_pollset_add_ssl_socket(pollset, sslSock);
-                printf("Pollset add = %s\n", (rv == APR_SUCCESS ? "OK" : "Failed"));
-
-                printf("send: %s\n",
-                       (apr_ssl_socket_send(sslSock, "GET / HTTP/1.0\n\n", 
-                                            &len) == APR_SUCCESS ?
-                        "OK" : "Failed"));
-
-                len = 4096;
-                printf("recv: %s\n%s\n",
-                       (apr_ssl_socket_recv(sslSock, buffer, &len) == 
-                          APR_SUCCESS ? "OK" : "Failed"),
-                       buffer);
-                rv = apr_pollset_remove_ssl_socket(pollset, sslSock);
-                printf("Pollset remove = %s\n", (rv == APR_SUCCESS ? "OK" : "Failed"));
-
+                apr_size_t len = strlen(tests[i].request);
+                rv = socketWrite(sslSock, pollset, tests[i].request, &len);
+                if (rv == APR_SUCCESS) {
+                    char buffer[4096];
+                    len = 4096;
+                    rv = socketRead(sslSock, pollset, buffer, &len);
+                }
             }
-
-            printf("close = %s\n",
-                   (apr_ssl_socket_close(sslSock) == APR_SUCCESS ? 
-                    "OK" : "Failed"));
-
+            socketClose(sslSock, pollset);
         }
     }
 
+    apr_pollset_destroy(pollset);
     apr_pool_destroy(pool);
 
 #endif /* APU_HAVE_SSL */
 
     return 0;
 }
+
+
