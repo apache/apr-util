@@ -195,8 +195,6 @@ int main(int argc, const char * const * argv)
     apr_pollset_t *pollset;
     struct sslTestCase *mytest;
 
-#ifdef APU_HAVE_SSL
-
     (void) apr_initialize();
     apr_pool_create(&pool, NULL);
     atexit(apr_terminate);
@@ -210,7 +208,6 @@ int main(int argc, const char * const * argv)
 
     if (apr_ssl_factory_create(&asf, NULL, NULL, NULL, pool) != APR_SUCCESS) {
         fprintf(stderr, "Unable to create client factory\n");
-
     } else {
         int i;
         for(i = 0; tests[i].host; i++) {
@@ -234,8 +231,6 @@ int main(int argc, const char * const * argv)
 
     apr_pollset_destroy(pollset);
     apr_pool_destroy(pool);
-
-#endif /* APU_HAVE_SSL */
 
     return 0;
 }
