@@ -43,6 +43,7 @@ APU_DECLARE(apr_status_t) apr_ssl_factory_create(apr_ssl_factory_t **fact,
 
 {
     apr_ssl_factory_t *asf;
+    apr_status_t rv;
 
     if (!p)
         return APR_ENOPOOL;
@@ -59,8 +60,9 @@ APU_DECLARE(apr_status_t) apr_ssl_factory_create(apr_ssl_factory_t **fact,
 
     *fact = NULL;
     asf->pool = p;
-    if (apu_ssl_factory_create(asf, privateKeyFn, certFn, digestType) != APR_SUCCESS)
-        return -1;
+    if ((rv = apu_ssl_factory_create(asf, privateKeyFn, certFn, 
+                                     digestType)) != APR_SUCCESS)
+        return rv;
 
     /* should we register a cleanup here? */
     *fact = asf;

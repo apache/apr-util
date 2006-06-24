@@ -77,7 +77,7 @@ apr_status_t apu_ssl_factory_create(apr_ssl_factory_t *asf,
                                               SSL_FILETYPE_PEM) ||
                 !SSL_CTX_check_private_key(sslData->ctx)) {
                 SSL_CTX_free(sslData->ctx);
-                return -1; /* what code shoudl we return? */
+                return APR_ENOENT; /* what code shoudl we return? */
             }
         }
     } else {
@@ -182,13 +182,15 @@ apr_status_t apu_ssl_recv(apr_ssl_socket_t * sock,
     return -1;
 }
 
-apr_status_t apu_ssl_accept(apr_ssl_socket_t *newSock, apr_ssl_socket_t *oldSock, apr_pool_t *pool)
+apr_status_t apu_ssl_accept(apr_ssl_socket_t *newSock, 
+                            apr_ssl_socket_t *oldSock, apr_pool_t *pool)
 {
     apu_ssl_socket_data_t *sslData = apr_pcalloc(pool, sizeof(*sslData));
     apr_os_sock_t fd;
+    int sslOp;
 
     if (!sslData || !oldSock->factory)
-        return -1;
+        return APR_EINVAL;
 
     sslData->ssl = SSL_new(oldSock->factory->sslData->ctx);
     if (!sslData->ssl)
@@ -197,6 +199,11 @@ apr_status_t apu_ssl_accept(apr_ssl_socket_t *newSock, apr_ssl_socket_t *oldSock
     if (apr_os_sock_get(&fd, newSock->plain) != APR_SUCCESS)
         return -1;
     SSL_set_fd(sslData->ssl, fd);
+
+    if ((sslOp = SSL_accept(sslData->ssl)) != 1) {
+        openssl_get_error(newSock, sslOp);
+        return -1;
+    }
 
     newSock->pool = pool;
     newSock->sslData = sslData;
