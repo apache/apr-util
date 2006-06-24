@@ -3,7 +3,8 @@ VPATH = @srcdir@
 INCLUDES = @APRUTIL_PRIV_INCLUDES@ @APR_INCLUDES@ @APRUTIL_INCLUDES@
 
 PROGRAMS = testall testdbm testdate testxml testrmm \
-	   testreslist testqueue testxlate dbd testssl
+	   testreslist testqueue testxlate dbd testssl \
+           echod sockperf
 TARGETS = $(PROGRAMS)
 
 APRUTIL_DOTTED_VERSION=@APRUTIL_DOTTED_VERSION@
@@ -77,6 +78,18 @@ testssl_OBJECTS = testssl.lo
 testssl_LDADD =  $(TARGET_LIB_PATH)
 testssl: $(testssl_OBJECTS) $(testssl_LDADD)
 	$(LINK) $(APRUTIL_LDFLAGS) $(testssl_OBJECTS) $(testssl_LDADD) $(PROGRAM_DEPENDENCIES)
+
+echod_OBJECTS = echod.lo
+echod_LDADD =  $(TARGET_LIB_PATH)
+echod: $(echod_OBJECTS) $(echod_LDADD)
+	$(LINK) $(APRUTIL_LDFLAGS) $(echod_OBJECTS) $(echod_LDADD) \
+                $(PROGRAM_DEPENDENCIES)
+
+sockperf_OBJECTS = sockperf.lo
+sockperf_LDADD =  $(TARGET_LIB_PATH)
+sockperf: $(echod_OBJECTS) $(sockperf_LDADD)
+	$(LINK) $(APRUTIL_LDFLAGS) $(sockperf_OBJECTS) $(sockperf_LDADD) \
+                $(PROGRAM_DEPENDENCIES)
 
 testall_OBJECTS = teststrmatch.lo testuri.lo testuuid.lo abts.lo testutil.lo \
 	testbuckets.lo testpass.lo testmd4.lo testmd5.lo testldap.lo \
