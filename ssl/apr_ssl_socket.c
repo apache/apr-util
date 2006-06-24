@@ -278,8 +278,13 @@ APU_DECLARE(apr_status_t) apr_pollset_add_ssl_socket(apr_pollset_t *pollset,
     return APR_ENOTIMPL;
 }
 
-APU_DECLARE(apr_status_t) apr_pollset_remove_ssl_socket(apr_pollset_t *pollset,
-                                                        apr_ssl_socket_t *sock)
+APU_DECLARE(apr_status_t) apr_pollset_remove_ssl_socket(apr_ssl_socket_t *sock)
+{
+    return APR_ENOTIMPL;
+}
+
+APU_DECLARE(apr_status_t) apr_ssl_socket_set_poll_events(apr_ssl_socket_t *sock,
+                                                         apr_int16_t events)
 {
     return APR_ENOTIMPL;
 }

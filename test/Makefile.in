@@ -87,7 +87,7 @@ echod: $(echod_OBJECTS) $(echod_LDADD)
 
 sockperf_OBJECTS = sockperf.lo
 sockperf_LDADD =  $(TARGET_LIB_PATH)
-sockperf: $(echod_OBJECTS) $(sockperf_LDADD)
+sockperf: $(sockperf_OBJECTS) $(sockperf_LDADD)
 	$(LINK) $(APRUTIL_LDFLAGS) $(sockperf_OBJECTS) $(sockperf_LDADD) \
                 $(PROGRAM_DEPENDENCIES)
 
