@@ -240,7 +240,8 @@ int main(int argc, char **argv)
             totTime += results[i].msecs[j];
         }
         printf("<\n");
-        printf("\t  Average: %6Ld\n", totTime / results[i].iters);
+        if (totTime > 0) 
+            printf("\t  Average: %6Ld\n", totTime / results[i].iters);
     }
 
     return 0;
