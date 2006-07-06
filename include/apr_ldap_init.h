@@ -43,6 +43,12 @@ extern "C" {
 #define APU_LDAP_INSUFFICIENT_ACCESS LDAP_INSUFFICIENT_ACCESS
 #elif defined(LDAP_INSUFFICIENT_RIGHTS)
 #define APU_LDAP_INSUFFICIENT_ACCESS LDAP_INSUFFICIENT_RIGHTS
+#elif defined(APR_HAS_MICROSOFT_LDAPSDK)
+/* The macros above fail to contemplate that LDAP_RETCODE values
+ * may be represented by an enum.  autoconf tests would be much
+ * more robust.
+ */
+#define APU_LDAP_INSUFFICIENT_ACCESS LDAP_INSUFFICIENT_RIGHTS
 #else
 #error The security return codes must be added to support this LDAP toolkit.
 #endif
