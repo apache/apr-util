@@ -76,6 +76,10 @@ apr_status_t apu_ssl_raw_error(apr_ssl_socket_t *);
 #define APU_SSL_LIBRARY   "openssl"
 #endif
 
+#ifdef APU_HAVE_WINSOCKSSL
+#define APU_SSL_LIBRARY   "winsockssl"
+#endif
+
 #ifdef __cplusplus
 }
 #endif
