@@ -236,29 +236,37 @@ static apr_status_t freeStatements(void *ptr)
 {
     apr_status_t rv = APR_SUCCESS;
     OCIStmt *stmt;
-    OCIError *err;
     apr_hash_index_t *index;
     apr_pool_t *cachepool = apr_hash_pool_get(oracle_statements);
+
+#ifdef PREPARE2
+    OCIError *err;
 
     if (OCIHandleAlloc(dbd_oracle_env, (dvoid**)&err, OCI_HTYPE_ERROR, 0, NULL)
        != OCI_SUCCESS) {
         return APR_EGENERAL;
     }
+#endif
 
     for (index = apr_hash_first(cachepool, oracle_statements);
          index != NULL;
          index = apr_hash_next(index)) {
         apr_hash_this(index, NULL, NULL, (void**)&stmt);
+#ifdef PREPARE2
         if (OCIStmtRelease(stmt, err, NULL, 0, OCI_DEFAULT) != OCI_SUCCESS) {
             rv = APR_EGENERAL;
         }
+#else
         if (OCIHandleFree(stmt, OCI_HTYPE_STMT) != OCI_SUCCESS) {
             rv = APR_EGENERAL;
         }
+#endif
     }
+#ifdef PREPARE2
     if (OCIHandleFree(err, OCI_HTYPE_ERROR) != OCI_SUCCESS) {
         rv = APR_EGENERAL;
     }
+#endif
     return rv;
 }
 #endif
@@ -621,33 +629,31 @@ static const char *dbd_oracle_error(apr_dbd_t *sql, int n)
     }
 }
 
-static int freeStatement(void *statement)
+static apr_status_t freeStatement(void *statement)
 {
-    int ret = 0;
-
-    apr_dbd_t *sql = ((apr_dbd_prepared_t*)statement)->handle;
+    int rv = APR_SUCCESS;
     OCIStmt *stmt = ((apr_dbd_prepared_t*)statement)->stmt;
-    OCIError *err = sql->err;
 
-    sql->status = OCIStmtRelease(stmt, err, NULL, 0, OCI_DEFAULT);
-    switch (sql->status) {
-    case OCI_SUCCESS:
-        break;
-    default:
-        ++ret;
-        break;
+#ifdef PREPARE2
+    OCIError *err;
+
+    if (OCIHandleAlloc(dbd_oracle_env, (dvoid**)&err, OCI_HTYPE_ERROR,
+                       0, NULL) != OCI_SUCCESS) {
+        return APR_EGENERAL;
     }
-
-    sql->status = OCIHandleFree(stmt, OCI_HTYPE_STMT);
-    switch (sql->status) {
-    case OCI_SUCCESS:
-        break;
-    default:
-        ++ret;
-        break;
+    if (OCIStmtRelease(stmt, err, NULL, 0, OCI_DEFAULT) != OCI_SUCCESS) {
+        rv = APR_EGENERAL;
     }
+    if (OCIHandleFree(err, OCI_HTYPE_ERROR) != OCI_SUCCESS) {
+        rv = APR_EGENERAL;
+    }
+#else
+    if (OCIHandleFree(stmt, OCI_HTYPE_STMT) != OCI_SUCCESS) {
+        rv = APR_EGENERAL;
+    }
+#endif
 
-    return ret;
+    return rv;
 }
 
 static int dbd_oracle_select(apr_pool_t *pool, apr_dbd_t *sql,
@@ -675,6 +681,7 @@ static int dbd_oracle_query(apr_dbd_t *sql, int *nrows, const char *query)
     int ret = 0;
     apr_pool_t *pool;
     apr_dbd_prepared_t *statement = NULL;
+    sword status;
 
     if (sql->trans && sql->trans->status == TRANS_ERROR) {
         return 1;
@@ -763,6 +770,7 @@ static int dbd_oracle_prepare(apr_pool_t *pool, apr_dbd_t *sql,
     }
 #endif
     /* translate from apr_dbd to native query format */
+    stmt->nargs = 0;
     for (sqlptr = (char*)query; *sqlptr; ++sqlptr) {
         if ((sqlptr[0] == '%') && isalnum(sqlptr[1])) {
             ++stmt->nargs;
@@ -1011,9 +1019,8 @@ static int outputParams(apr_dbd_t *sql, apr_dbd_prepared_t *stmt)
         break;
     case OCI_ERROR:
 #ifdef DEBUG
-        sql->status = OCIErrorGet(sql->err, 1, NULL, &errorcode,
-                                  sql->buf, sizeof(sql->buf),
-                                  OCI_HTYPE_ERROR);
+        OCIErrorGet(sql->err, 1, NULL, &errorcode,
+                    sql->buf, sizeof(sql->buf), OCI_HTYPE_ERROR);
         printf("Describing prepared statement: %s\n", sql->buf);
 #endif
     default:
@@ -1151,7 +1158,6 @@ static int dbd_oracle_pvquery(apr_pool_t *pool, apr_dbd_t *sql,
     OCISnapshot *newsnapshot = NULL;
     apr_dbd_transaction_t* trans = sql->trans;
     int i;
-    int n;
     int exec_mode;
     int_errorcode;
 
@@ -1183,15 +1189,18 @@ static int dbd_oracle_pvquery(apr_pool_t *pool, apr_dbd_t *sql,
     for (i=0; i<statement->nargs; ++i) {
         switch (statement->args[i].type) {
         case APR_DBD_ORACLE_INT:
-            n = va_arg(args, int);
-            sprintf(statement->args[i].value.stringval, "%d", n);
+            arg = va_arg(args, char*);
+            sscanf(arg, "%d", statement->args[i].value.ival);
             break;
         case APR_DBD_ORACLE_FLOAT:
-            *statement->args[i].value.floatval = va_arg(args, double);
+            arg = va_arg(args, char*);
+            sscanf(arg, "%lf", statement->args[i].value.floatval);
             break;
         case APR_DBD_ORACLE_BLOB:
         case APR_DBD_ORACLE_CLOB:
-            /* Nothing works */
+            sql->status = OCIAttrSet(statement->args[i].value.lobval,
+                                     OCI_DTYPE_LOB, &null, 0,
+                                     OCI_ATTR_LOBEMPTY, sql->err);
             break;
         case APR_DBD_ORACLE_LOB:
             /* requires strlen() over large data, which may fail for binary */
@@ -1229,8 +1238,8 @@ static int dbd_oracle_pvquery(apr_pool_t *pool, apr_dbd_t *sql,
         break;
     case OCI_ERROR:
 #ifdef DEBUG
-        sql->status = OCIErrorGet(sql->err, 1, NULL, &errorcode,
-                                  sql->buf, sizeof(sql->buf), OCI_HTYPE_ERROR);
+        OCIErrorGet(sql->err, 1, NULL, &errorcode,
+                    sql->buf, sizeof(sql->buf), OCI_HTYPE_ERROR);
         printf("Execute error %d: %s\n", sql->status, sql->buf);
 #endif
         /* fallthrough */
@@ -1239,50 +1248,6 @@ static int dbd_oracle_pvquery(apr_pool_t *pool, apr_dbd_t *sql,
             trans->status = TRANS_ERROR;
         }
         return 1;
-    }
-
-    for (i=0; i<statement->nargs; ++i) {
-        /* what should these really be? */
-        ub1 csfrm = SQLCS_IMPLICIT;
-        ub2 csid = 0;
-        ub4 len = statement->args[i].len;
-        switch (statement->args[i].type) {
-        case APR_DBD_ORACLE_BLOB:
-        case APR_DBD_ORACLE_CLOB:
-            /* doesn't work - use APR_DBD_ORACLE_LOB instead */
-            sql->status = OCILobEnableBuffering(sql->svc, sql->err,statement->args[i].value.lobval);
-#ifdef DEBUG
-            if (sql->status == OCI_ERROR) {
-                sql->status = OCIErrorGet(sql->err, 1, NULL, &errorcode,
-                                          sql->buf, sizeof(sql->buf),
-                                          OCI_HTYPE_ERROR);
-                printf("LOB error %d: %s\n", sql->status, sql->buf);
-            }
-#endif
-            sql->status = OCILobWrite(sql->svc, sql->err,
-                                      statement->args[i].value.lobval,
-                                      &len, 0, (dvoid*) arg, strlen(arg),
-                                      OCI_ONE_PIECE, NULL, NULL, csid, csfrm);
-            break;
-        default:
-            break;
-        }
-        switch (sql->status) {
-        case OCI_SUCCESS:
-            break;
-        case OCI_ERROR:
-#ifdef DEBUG
-            sql->status = OCIErrorGet(sql->err, 1, NULL, &errorcode,
-                                      sql->buf, sizeof(sql->buf), OCI_HTYPE_ERROR);
-            printf("LOB error %d: %s\n", sql->status, sql->buf);
-#endif
-            /* fallthrough */
-        default:
-            if (TXN_NOTICE_ERRORS(trans)) {
-                trans->status = TRANS_ERROR;
-            }
-            return 1;
-        }
     }
 
     sql->status = OCIAttrGet(statement->stmt, OCI_HTYPE_STMT, nrows, 0,
@@ -1378,8 +1343,8 @@ static int dbd_oracle_pquery(apr_pool_t *pool, apr_dbd_t *sql,
         break;
     case OCI_ERROR:
 #ifdef DEBUG
-        sql->status = OCIErrorGet(sql->err, 1, NULL, &errorcode,
-                                  sql->buf, sizeof(sql->buf), OCI_HTYPE_ERROR);
+        OCIErrorGet(sql->err, 1, NULL, &errorcode,
+                    sql->buf, sizeof(sql->buf), OCI_HTYPE_ERROR);
         printf("Execute error %d: %s\n", sql->status, sql->buf);
 #endif
         /* fallthrough */
@@ -1433,10 +1398,12 @@ static int dbd_oracle_pvselect(apr_pool_t *pool, apr_dbd_t *sql,
         int len;
         switch (statement->args[i].type) {
         case APR_DBD_ORACLE_INT:
-            *statement->args[i].value.ival = va_arg(args, int);
+            arg = va_arg(args, char*);
+            sscanf(arg, "%d", statement->args[i].value.ival);
             break;
         case APR_DBD_ORACLE_FLOAT:
-            *statement->args[i].value.floatval = va_arg(args, double);
+            arg = va_arg(args, char*);
+            sscanf(arg, "%lf", statement->args[i].value.floatval);
             break;
         case APR_DBD_ORACLE_BLOB:
         case APR_DBD_ORACLE_CLOB:
@@ -1471,11 +1438,11 @@ static int dbd_oracle_pvselect(apr_pool_t *pool, apr_dbd_t *sql,
         break;
     case OCI_ERROR:
 #ifdef DEBUG
-        sql->status = OCIErrorGet(sql->err, 1, NULL, &errorcode,
-                                  sql->buf, sizeof(sql->buf),
-                                  OCI_HTYPE_ERROR);
+        OCIErrorGet(sql->err, 1, NULL, &errorcode,
+                    sql->buf, sizeof(sql->buf), OCI_HTYPE_ERROR);
         printf("Executing prepared statement: %s\n", sql->buf);
 #endif
+        /* fallthrough */
     default:
         if (TXN_NOTICE_ERRORS(trans)) {
             trans->status = TRANS_ERROR;
@@ -1530,11 +1497,9 @@ static int dbd_oracle_pselect(apr_pool_t *pool, apr_dbd_t *sql,
         nargs = statement->nargs;
     }
     for (i=0; i<nargs; ++i) {
-        int foo;
         switch (statement->args[i].type) {
         case APR_DBD_ORACLE_INT:
-            sscanf(values[i], "%d", &foo);
-            *statement->args[i].value.ival = foo;
+            sscanf(values[i], "%d", statement->args[i].value.ival);
             break;
         case APR_DBD_ORACLE_FLOAT:
             sscanf(values[i], "%lf", statement->args[i].value.floatval);
@@ -1566,11 +1531,11 @@ static int dbd_oracle_pselect(apr_pool_t *pool, apr_dbd_t *sql,
         break;
     case OCI_ERROR:
 #ifdef DEBUG
-        sql->status = OCIErrorGet(sql->err, 1, NULL, &errorcode,
-                                  sql->buf, sizeof(sql->buf),
-                                  OCI_HTYPE_ERROR);
+        OCIErrorGet(sql->err, 1, NULL, &errorcode,
+                    sql->buf, sizeof(sql->buf), OCI_HTYPE_ERROR);
         printf("Executing prepared statement: %s\n", sql->buf);
 #endif
+        /* fallthrough */
     default:
         if (TXN_NOTICE_ERRORS(trans)) {
             trans->status = TRANS_ERROR;
@@ -1737,9 +1702,8 @@ static const char *dbd_oracle_get_entry(const apr_dbd_row_t *row, int n)
             break;
         case OCI_ERROR:
 #ifdef DEBUG
-            sql->status = OCIErrorGet(sql->err, 1, NULL, &errorcode,
-                                      sql->buf, sizeof(sql->buf),
-                                      OCI_HTYPE_ERROR);
+            OCIErrorGet(sql->err, 1, NULL, &errorcode,
+                        sql->buf, sizeof(sql->buf), OCI_HTYPE_ERROR);
             printf("Finding LOB length: %s\n", sql->buf);
             break;
 #endif
@@ -1770,9 +1734,8 @@ static const char *dbd_oracle_get_entry(const apr_dbd_row_t *row, int n)
                 break;
 #ifdef DEBUG
             case OCI_ERROR:
-                sql->status = OCIErrorGet(sql->err, 1, NULL, &errorcode,
-                                          sql->buf, sizeof(sql->buf),
-                                          OCI_HTYPE_ERROR);
+                OCIErrorGet(sql->err, 1, NULL, &errorcode,
+                            sql->buf, sizeof(sql->buf), OCI_HTYPE_ERROR);
                 printf("Reading LOB character set: %s\n", sql->buf);
                 break; /*** XXX?? ***/
 #endif
@@ -1804,9 +1767,8 @@ static const char *dbd_oracle_get_entry(const apr_dbd_row_t *row, int n)
             break;
 #ifdef DEBUG
         case OCI_ERROR:
-            sql->status = OCIErrorGet(sql->err, 1, NULL, &errorcode,
-                                      sql->buf, sizeof(sql->buf),
-                                      OCI_HTYPE_ERROR);
+            OCIErrorGet(sql->err, 1, NULL, &errorcode,
+                        sql->buf, sizeof(sql->buf), OCI_HTYPE_ERROR);
             printf("Reading LOB: %s\n", sql->buf);
             buf = NULL; /*** XXX?? ***/
             break;
