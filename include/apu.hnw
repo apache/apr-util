@@ -70,9 +70,11 @@
 /*
  * we always have SDBM (it's in our codebase)
  */
-#define APU_HAVE_SDBM   1
-#define APU_HAVE_GDBM   0
-#define APU_HAVE_DB     0
+#define APU_HAVE_SDBM   	1
+#define APU_HAVE_GDBM   	0
+#define APU_HAVE_DB     	0
+#define APU_HAVE_SSL		1
+#define APU_HAVE_WINSOCKSSL	1
 
 
 #define HAVE_ICONV_H           1
