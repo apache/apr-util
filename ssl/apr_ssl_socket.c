@@ -43,7 +43,6 @@ APU_DECLARE(apr_status_t) apr_ssl_socket_create(apr_ssl_socket_t **sock,
                                                 apr_pool_t *p)
 {
     apr_ssl_socket_t *sslSock;
-    apr_socket_t *plainSock;
     apr_pool_t *thepool;
 
     if (!asf)
@@ -64,7 +63,7 @@ APU_DECLARE(apr_status_t) apr_ssl_socket_create(apr_ssl_socket_t **sock,
     sslSock->pool = thepool;
     sslSock->factory = asf;
     if (apu_ssl_socket_create(sslSock, asf) != APR_SUCCESS) {
-        apr_socket_close(plainSock);
+        apr_socket_close(sslSock->plain);
         return -1;
     }
 
