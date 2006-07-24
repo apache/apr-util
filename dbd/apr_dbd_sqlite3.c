@@ -191,7 +191,7 @@ static const char *dbd_sqlite3_get_name(const apr_dbd_results_t *res, int n)
         return NULL;
     }
 
-    return res->next_row->columns[n]->name;
+    return res->col_names[n];
 }
 
 static int dbd_sqlite3_get_row(apr_pool_t *pool, apr_dbd_results_t *res,
