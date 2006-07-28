@@ -67,6 +67,7 @@ static schemes_t schemes[] =
     {"acap",     APR_URI_ACAP_DEFAULT_PORT},
     {"telnet",   APR_URI_TELNET_DEFAULT_PORT},
     {"ssh",      APR_URI_SSH_DEFAULT_PORT},
+    {"ajp",      APR_URI_AJP_DEFAULT_PORT},
     { NULL, 0xFFFF }     /* unknown port */
 };
 

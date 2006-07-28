@@ -58,6 +58,7 @@ extern "C" {
 #define APR_URI_NFS_DEFAULT_PORT       2049 /**< default NFS port */
 #define APR_URI_TIP_DEFAULT_PORT       3372 /**< default TIP port */
 #define APR_URI_SIP_DEFAULT_PORT       5060 /**< default SIP port */
+#define APR_URI_AJP_DEFAULT_PORT       8009 /**< default AJP port */
 
 /** Flags passed to unparse_uri_components(): */
 /** suppress "scheme://user\@site:port" */
