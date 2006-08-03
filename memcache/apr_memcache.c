@@ -286,6 +286,7 @@ mc_conn_construct(void **conn_, void *params, apr_pool_t *pool)
     rv = apr_socket_create(&conn->sock, APR_INET, SOCK_STREAM, 0, np);
 
     if (rv != APR_SUCCESS) {
+        apr_pool_destroy(np);
         return rv;
     }
 
@@ -300,8 +301,13 @@ mc_conn_construct(void **conn_, void *params, apr_pool_t *pool)
     APR_BRIGADE_INSERT_TAIL(conn->bb, e);
 
     rv = conn_connect(conn);
-    *conn_ = conn;
-
+    if (rv != APR_SUCCESS) {
+        apr_pool_destroy(np);
+    }
+    else {
+        *conn_ = conn;
+    }
+    
     return rv;
 }
 
