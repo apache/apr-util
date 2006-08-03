@@ -65,6 +65,9 @@ struct apr_memcache_conn_t
 #define MC_STATS "stats"
 #define MC_STATS_LEN (sizeof(MC_STATS)-1)
 
+#define MC_QUIT "quit"
+#define MC_QUIT_LEN (sizeof(MC_QUIT)-1)
+
 /* Strings for Server Replies */
 
 #define MS_STORED "STORED"
@@ -314,7 +317,21 @@ mc_conn_construct(void **conn_, void *params, apr_pool_t *pool)
 static apr_status_t
 mc_conn_destruct(void *conn_, void *params, apr_pool_t *pool)
 {
-    /* Currently a NOOP */
+    apr_memcache_conn_t *conn = (apr_memcache_conn_t*)conn_;
+    struct iovec vec[2];
+    apr_size_t written;
+    
+    /* send a quit message to the memcached server to be nice about it. */
+    vec[0].iov_base = MC_QUIT;
+    vec[0].iov_len = MC_QUIT_LEN;
+
+    vec[1].iov_base = MC_EOL;
+    vec[1].iov_len = MC_EOL_LEN;
+    
+    /* Return values not checked, since we just want to make it go away. */
+    apr_socket_sendv(conn->sock, vec, 2, &written);
+    apr_socket_close(conn->sock);
+    
     return APR_SUCCESS;
 }
 
