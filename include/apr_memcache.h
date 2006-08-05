@@ -35,6 +35,7 @@
 #include "apr_ring.h"
 #include "apr_buckets.h"
 #include "apr_reslist.h"
+#include "apr_hash.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -84,6 +85,16 @@ typedef struct
     apr_memcache_server_t **live_servers; /**< Array of Servers */
     apr_pool_t *p; /** Pool to use for allocations */
 } apr_memcache_t;
+
+/** Returned Data from a multiple get */
+typedef struct
+{
+    apr_status_t status;
+    const char* key;
+    apr_size_t len;
+    char *data;
+    apr_uint16_t flags;
+} apr_memcache_value_t;
 
 /**
  * Creates a crc32 hash used to split keys between servers
@@ -193,6 +204,36 @@ APR_DECLARE(apr_status_t) apr_memcache_getp(apr_memcache_t *mc,
                                             char **baton,
                                             apr_size_t *len,
                                             apr_uint16_t *flags);
+
+
+/**
+ * Add a key to a hash for a multiget query
+ *  if the hash (*value) is NULL it will be created
+ * @param data_pool pool from where the hash and their items are created from
+ * @param key null terminated string containing the key
+ * @param values hash of keys and values that this key will be added to
+ * @return
+ */
+APR_DECLARE(void) 
+apr_memcache_add_multget_key(apr_pool_t *data_pool,
+                             const char* key,
+                             apr_hash_t **values);
+
+/**
+ * Gets multiple values from the server, allocating the values out of p
+ * @param mc client to use
+ * @param temp_pool Pool used for tempoary allocations. May be cleared inside this
+ *        call.
+ * @param data_pool Pool used to allocate data for the returned values.
+ * @param values hash of apr_memcache_value_t keyed by strings, contains the
+ *        result of the multiget call.
+ * @return
+ */
+APR_DECLARE(apr_status_t)
+apr_memcache_multgetp(apr_memcache_t *mc,
+                      apr_pool_t *temp_pool,
+                      apr_pool_t *data_pool,
+                      apr_hash_t *values);
 
 /**
  * Sets a value by key on the server
