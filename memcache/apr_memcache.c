@@ -1042,12 +1042,12 @@ apr_memcache_add_multget_key(apr_pool_t *data_pool,
     apr_memcache_value_t* value;
     int klen = strlen(key);
 
-    // create the value hash if need be
+    /* create the value hash if need be */
     if (!*values) {
         *values = apr_hash_make(data_pool);
     }
 
-    // init key and add it to the value hash
+    /* init key and add it to the value hash */
     value = apr_pcalloc(data_pool, sizeof(apr_memcache_value_t));
 
     value->status = APR_NOTFOUND;
@@ -1122,7 +1122,7 @@ apr_memcache_multgetp(apr_memcache_t *mc,
     apr_pollfd_t* pollfds;
 
 
-    // build all the queries
+    /* build all the queries */
     value_hash_index = apr_hash_first(temp_pool, values);
     while (value_hash_index) {
         apr_hash_this(value_hash_index, NULL, NULL, (void**)&value);
@@ -1154,7 +1154,7 @@ apr_memcache_multgetp(apr_memcache_t *mc,
             server_query->conn = conn;
             server_query->query_vec = apr_pcalloc(temp_pool, sizeof(struct iovec)*veclen);
 
-            // set up the first key
+            /* set up the first key */
             server_query->query_vec[0].iov_base = MC_GET;
             server_query->query_vec[0].iov_len  = MC_GET_LEN;
 
@@ -1185,7 +1185,7 @@ apr_memcache_multgetp(apr_memcache_t *mc,
         }
     }
 
-    // create polling structures
+    /* create polling structures */
     pollfds = apr_pcalloc(temp_pool, apr_hash_count(server_queries) * sizeof(apr_pollfd_t));
     
     rv = apr_pollset_create(&pollset, apr_hash_count(server_queries), temp_pool, 0);
@@ -1194,7 +1194,7 @@ apr_memcache_multgetp(apr_memcache_t *mc,
         return rv;
     }
 
-    // send all the queries
+    /* send all the queries */
     queries_sent = 0;
     query_hash_index = apr_hash_first(temp_pool, server_queries);
 
@@ -1230,7 +1230,7 @@ apr_memcache_multgetp(apr_memcache_t *mc,
         rv = apr_pollset_poll(pollset, MULT_GET_TIMEOUT, &queries_recvd, &activefds);
 
         if (rv != APR_SUCCESS) {
-            // timeout
+            /* timeout */
             queries_sent = 0;
             continue;
         }
@@ -1259,7 +1259,7 @@ apr_memcache_multgetp(apr_memcache_t *mc,
                apr_size_t len;
 
                start = conn->buffer;
-               key = apr_strtok(conn->buffer, " ", &last); // just the VALUE, ignore
+               key = apr_strtok(conn->buffer, " ", &last); /* just the VALUE, ignore */
                key = apr_strtok(NULL, " ", &last);
                flags = apr_strtok(NULL, " ", &last);
 
@@ -1317,16 +1317,17 @@ apr_memcache_multgetp(apr_memcache_t *mc,
                    value->status = rv;
                    value->flags = atoi(flags);
                    
-                   // stay on the server
+                   /* stay on the server */
                    i--;
                    
                }
                else {
-                   // TODO: Server Sent back a key I didn't ask for or my hash is corrupt
+                   /* TODO: Server Sent back a key I didn't ask for or my
+                    *       hash is corrupt */
                }
            }
            else if (strncmp(MS_END, conn->buffer, MS_END_LEN) == 0) {
-               // this connection is done
+               /* this connection is done */
                ms_release_conn(ms, conn);
                apr_hash_set(server_queries, &ms, sizeof(ms), NULL);
                
