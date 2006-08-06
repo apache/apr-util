@@ -1,10 +1,10 @@
-APRUTIL LIBRARY STATUS:						-*-text-*-
+APACHE PORTABLE RUNTIME UTILITIES (APR-util) LIBRARY STATUS:	-*-text-*-
 Last modified at [$Date$]
 
-Release:
+Releases:
     1.3.0     : in development
     1.2.8     : in development
-    1.2.7     : tagged April 9, 2006
+    1.2.7     : released April 14, 2006
     1.2.6     : released March 25, 2006
     1.2.5     : not released
     1.2.4     : not released
@@ -18,7 +18,7 @@ Release:
     1.0.1     : released November 19, 2004
     1.0.0     : released September 1, 2004
     0.9.13    : in development
-    0.9.12    : tagged April 9, 2006
+    0.9.12    : released April 13, 2006
     0.9.11    : released March 30, 2006
     0.9.10    : tagged March 22, 2006, not released
     0.9.9     : tagged January 30, 2006, not released
@@ -32,6 +32,7 @@ Release:
     0.9.1     : released September 11, 2002  (alpha)
     0.9.0     : not released
 
+Bundled with httpd:
     2.0a9     : released December 12, 2000
 
 
