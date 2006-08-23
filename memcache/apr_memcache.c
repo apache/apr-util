@@ -1205,9 +1205,9 @@ apr_memcache_multgetp(apr_memcache_t *mc,
         conn = server_query->conn;
         ms = server_query->ms;
 
-        for (i = 0, rv = APR_SUCCESS; i < veclen && rv == APR_SUCCESS; i += IOV_MAX) {
+        for (i = 0, rv = APR_SUCCESS; i < veclen && rv == APR_SUCCESS; i += APR_MAX_IOVEC_SIZE) {
             rv = apr_socket_sendv(conn->sock, &(server_query->query_vec[i]),
-                                  veclen-i>IOV_MAX ? IOV_MAX : veclen-i , &written);
+                                  veclen-i>APR_MAX_IOVEC_SIZE ? APR_MAX_IOVEC_SIZE : veclen-i , &written);
         }
 
         if (rv != APR_SUCCESS) {
