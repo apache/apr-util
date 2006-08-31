@@ -79,8 +79,15 @@ AC_DEFUN([APU_TEST_EXPAT], [
     expat_libtool="$1/lib64/libexpat.la"
   elif test -r "$1/include/expat.h" -a \
     -r "$1/lib/libexpat.a"; then
-    dnl Expat 1.95.* installation (without libtool)
+    dnl Expat 1.95.* static installation (without libtool)
     dnl FreeBSD textproc/expat2
+    expat_include_dir="$1/include"
+    expat_ldflags="-L$1/lib"
+    expat_libs="-lexpat"
+  elif test -r "$1/include/expat.h" -a \
+    -r "$1/lib/libexpat.so"; then
+    dnl Expat 1.95.* shared installation (without libtool)
+    dnl Solaris 10 /usr/sfw
     expat_include_dir="$1/include"
     expat_ldflags="-L$1/lib"
     expat_libs="-lexpat"
