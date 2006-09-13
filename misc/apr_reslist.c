@@ -362,6 +362,17 @@ APU_DECLARE(void) apr_reslist_timeout_set(apr_reslist_t *reslist,
     reslist->timeout = timeout;
 }
 
+APU_DECLARE(apr_uint32_t) apr_reslist_acquire_count(apr_reslist_t *reslist)
+{
+    apr_uint32_t count;
+
+    apr_thread_mutex_lock(reslist->listlock);
+    count = reslist->ntotal - reslist->nidle;
+    apr_thread_mutex_unlock(reslist->listlock);
+
+    return count;
+}
+
 APU_DECLARE(apr_status_t) apr_reslist_invalidate(apr_reslist_t *reslist,
                                                  void *resource)
 {
