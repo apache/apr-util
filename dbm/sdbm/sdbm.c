@@ -560,8 +560,8 @@ static apr_status_t getnext(apr_sdbm_datum_t *key, apr_sdbm_t *db)
         db->keyptr = 0;
         if (db->pagbno != db->blkptr++) {
             apr_off_t off = OFF_PAG(db->blkptr);
-            if ((status = apr_file_seek(db->pagf, APR_SET, &off) 
-                        != APR_SUCCESS))
+            if ((status = apr_file_seek(db->pagf, APR_SET, &off))
+                        != APR_SUCCESS)
                 return status;
         }
 
