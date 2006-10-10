@@ -1125,7 +1125,9 @@ apr_memcache_multgetp(apr_memcache_t *mc,
     /* build all the queries */
     value_hash_index = apr_hash_first(temp_pool, values);
     while (value_hash_index) {
-        apr_hash_this(value_hash_index, NULL, NULL, (void**)&value);
+        void *v;
+        apr_hash_this(value_hash_index, NULL, NULL, &v);
+        value = v;
         value_hash_index = apr_hash_next(value_hash_index);
         klen = strlen(value->key);
 
@@ -1199,7 +1201,9 @@ apr_memcache_multgetp(apr_memcache_t *mc,
     query_hash_index = apr_hash_first(temp_pool, server_queries);
 
     while (query_hash_index) {
-        apr_hash_this(query_hash_index, NULL, NULL, (void**)&server_query);
+        void *v;
+        apr_hash_this(query_hash_index, NULL, NULL, &v);
+        server_query = v;
         query_hash_index = apr_hash_next(query_hash_index);
 
         conn = server_query->conn;
@@ -1344,7 +1348,9 @@ apr_memcache_multgetp(apr_memcache_t *mc,
     
     query_hash_index = apr_hash_first(temp_pool, server_queries);
     while (query_hash_index) {
-        apr_hash_this(query_hash_index, NULL, NULL, (void**)&server_query);
+        void *v;
+        apr_hash_this(query_hash_index, NULL, NULL, &v);
+        server_query = v;
         query_hash_index = apr_hash_next(query_hash_index);
         
         conn = server_query->conn;
