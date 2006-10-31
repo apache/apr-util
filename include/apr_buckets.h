@@ -679,13 +679,15 @@ APU_DECLARE(apr_status_t) apr_brigade_destroy(apr_bucket_brigade *b);
 APU_DECLARE(apr_status_t) apr_brigade_cleanup(void *data);
 
 /**
- * Split a bucket brigade into two, such that the given bucket is the
- * first in the new bucket brigade. This function is useful when a
- * filter wants to pass only the initial part of a brigade to the next
- * filter.
- * @param b The brigade to split
- * @param e The first element of the new brigade
+ * Create a new bucket brigade and move the buckets from the tail end
+ * of an existing brigade into the new brigade.  Buckets from 
+ * @param e to the last bucket (inclusively) of brigade @param b
+ * are moved from @param b to the returned brigade.
+ * @param b The brigade to split 
+ * @param e The first bucket to move
  * @return The new brigade
+ * @warning Note that this function always allocates a new brigade
+ * so memory consumption should be carefully considered.
  */
 APU_DECLARE(apr_bucket_brigade *) apr_brigade_split(apr_bucket_brigade *b,
                                                     apr_bucket *e);
@@ -1426,6 +1428,12 @@ APU_DECLARE(apr_bucket *) apr_bucket_pipe_make(apr_bucket *b,
  *          while reading from this file bucket
  * @param list The freelist from which this bucket should be allocated
  * @return The new bucket, or NULL if allocation failed
+ * @remark If the file is truncated such that the segment of the file
+ * referenced by the bucket no longer exists, an attempt to read
+ * from the bucket will fail with APR_EOF. 
+ * @remark apr_brigade_insert_file() should generally be used to
+ * insert files into brigades, since that function can correctly
+ * handle large file issues.
  */
 APU_DECLARE(apr_bucket *) apr_bucket_file_create(apr_file_t *fd,
                                                  apr_off_t offset,
