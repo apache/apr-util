@@ -1,5 +1,8 @@
 Changes with APR-util 1.3.0
 
+  *) Allow apr_queue.h to be included before other APR headers.
+     PR 40891 [Henry Jen <henryjen ztune.net>]
+
   *) Fix precedence problem in error checking for sdbm dbm back end.
      PR 40659 [Larry Cipriani <lvc lucent.com>]
 
