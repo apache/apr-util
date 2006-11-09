@@ -17,7 +17,6 @@
 #ifndef APR_QUEUE_H
 #define APR_QUEUE_H
 
-#if APR_HAS_THREADS
 /**
  * @file apr_queue.h
  * @brief Thread Safe FIFO bounded queue
@@ -29,6 +28,8 @@
 #include "apu.h"
 #include "apr_errno.h"
 #include "apr_pools.h"
+
+#if APR_HAS_THREADS
 
 #ifdef __cplusplus
 extern "C" {
