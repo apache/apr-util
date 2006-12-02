@@ -277,6 +277,11 @@ static apr_status_t conn_connect(apr_memcache_conn_t *conn)
         return rv;
     }
 
+    rv = apr_socket_timeout_set(conn->sock, -1);
+    if (rv != APR_SUCCESS) {
+        return rv;
+    }
+
     return rv;
 }
 
