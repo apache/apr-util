@@ -1337,10 +1337,10 @@ apr_memcache_multgetp(apr_memcache_t *mc,
            }
            else if (strncmp(MS_END, conn->buffer, MS_END_LEN) == 0) {
                /* this connection is done */
+               apr_pollset_remove (pollset, &activefds[i]);
                ms_release_conn(ms, conn);
                apr_hash_set(server_queries, &ms, sizeof(ms), NULL);
                
-               apr_pollset_remove (pollset, &activefds[i]);
                queries_sent--;
            }
            else {
