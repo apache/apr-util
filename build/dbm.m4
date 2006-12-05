@@ -550,7 +550,7 @@ AC_DEFUN([APU_CHECK_DB], [
     fi
     ;;
   db45)
-    APU_CHECK_DB44("$check_places")
+    APU_CHECK_DB45("$check_places")
     if test "$apu_db_version" != "4"; then
       AC_MSG_ERROR(Berkeley db4 not found)
     fi
