@@ -69,6 +69,15 @@ Other features that need writing:
       Justin says: Do we still want to do this?  testdate is now in test.
       Status: Greg +1 (volunteers)
 
+    * unify parsing of prepared statements in DBD
+      Status: patches exist, except for Oracle driver
+              format of arguments (i.e. %s, %d etc.) needs to be finalised
+
+    * add binary argument functions to DBD
+      Status: patches exist, except for Oracle driver
+              types need to be expanded for Oracle (LOB, CLOB etc.)
+              API needs to be agreed upon
+
 Documentation that needs writing:
 
     * API documentation
