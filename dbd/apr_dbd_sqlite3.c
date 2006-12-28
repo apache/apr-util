@@ -563,7 +563,7 @@ static int dbd_sqlite3_start_transaction(apr_pool_t *pool,
     int ret = 0;
     int nrows = 0;
 
-    ret = dbd_sqlite3_query(handle, &nrows, "BEGIN");
+    ret = dbd_sqlite3_query(handle, &nrows, "BEGIN IMMEDIATE");
     if (!*trans) {
         *trans = apr_pcalloc(pool, sizeof(apr_dbd_transaction_t));
         (*trans)->handle = handle;
