@@ -283,7 +283,14 @@ AC_DEFUN([APU_CHECK_DBD_ORACLE], [
   ], [
     apu_have_oracle=0
     if test "$withval" = "yes"; then
-      AC_CHECK_HEADERS(oci.h, AC_CHECK_LIB(clntsh, OCIEnvCreate, [apu_have_oracle=1]))
+      AC_CHECK_HEADERS(oci.h, AC_CHECK_LIB(clntsh, OCIEnvCreate, [apu_have_oracle=1],[
+        unset ac_cv_lib_clntsh_OCIEnvCreate
+        AC_CHECK_LIB(clntsh, OCIEnvCreate, [
+          apu_have_oracle=1
+          APR_ADDTO(APRUTIL_EXPORT_LIBS,[-lnnz10])
+          APR_ADDTO(APRUTIL_LIBS,[-lnnz10])
+        ],,[-lnnz10])
+      ]))
     elif test "$withval" = "no"; then
       apu_have_oracle=0
     else
@@ -297,7 +304,14 @@ AC_DEFUN([APU_CHECK_DBD_ORACLE], [
       APR_ADDTO(LDFLAGS, [$oracle_LDFLAGS])
 
       AC_MSG_NOTICE(checking for oracle in $withval)
-      AC_CHECK_HEADERS(oci.h, AC_CHECK_LIB(clntsh, OCIEnvCreate, [apu_have_oracle=1]))
+      AC_CHECK_HEADERS(oci.h, AC_CHECK_LIB(clntsh, OCIEnvCreate, [apu_have_oracle=1],[
+        unset ac_cv_lib_clntsh_OCIEnvCreate
+        AC_CHECK_LIB(clntsh, OCIEnvCreate, [
+          apu_have_oracle=1
+          APR_ADDTO(APRUTIL_EXPORT_LIBS,[-lnnz10])
+          APR_ADDTO(APRUTIL_LIBS,[-lnnz10])
+        ],,[-lnnz10])
+      ]))
       if test "$apu_have_oracle" != "0"; then
         APR_ADDTO(APRUTIL_LDFLAGS, [-L$withval/lib])
         APR_ADDTO(APRUTIL_LDFLAGS, [-R$withval/lib])
@@ -310,7 +324,14 @@ AC_DEFUN([APU_CHECK_DBD_ORACLE], [
     fi
   ], [
     apu_have_oracle=0
-    AC_CHECK_HEADERS(oci.h, AC_CHECK_LIB(clntsh, OCIEnvCreate, [apu_have_oracle=1]))
+    AC_CHECK_HEADERS(oci.h, AC_CHECK_LIB(clntsh, OCIEnvCreate, [apu_have_oracle=1],[
+      unset ac_cv_lib_clntsh_OCIEnvCreate
+      AC_CHECK_LIB(clntsh, OCIEnvCreate, [
+        apu_have_oracle=1
+        APR_ADDTO(APRUTIL_EXPORT_LIBS,[-lnnz10])
+        APR_ADDTO(APRUTIL_LIBS,[-lnnz10])
+      ],,[-lnnz10])
+    ]))
   ])
 
   AC_SUBST(apu_have_oracle)
