@@ -240,6 +240,10 @@ SOURCE=.\ldap\apr_ldap_option.c
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE=.\misc\apr_thread_pool.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\misc\apr_date.c
 # End Source File
 # Begin Source File
@@ -509,6 +513,10 @@ SOURCE=.\include\apr_base64.h
 # Begin Source File
 
 SOURCE=.\include\apr_buckets.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\apr_thread_pool.h
 # End Source File
 # Begin Source File
 
