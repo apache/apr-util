@@ -1,5 +1,8 @@
 Changes with APR-util 1.3.0
 
+  *) Rewrite detection of expat in configure to fix build on e.g. biarch
+     Linux platforms.  PR 28205.  [Joe Orton]
+
   *) Add apr_thread_pool implementation.  [Henry Jen <henryjen ztune.net>]
 
   *) Add support for Berkeley DB 4.5 to the configure scripts.

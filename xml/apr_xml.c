@@ -25,10 +25,14 @@
 
 #include "apu_config.h"
 
-#ifdef APR_HAVE_OLD_EXPAT
-#include "xmlparse.h"
+#if defined(HAVE_XMLPARSE_XMLPARSE_H)
+#include <xmlparse/xmlparse.h>
+#elif defined(HAVE_XMLTOK_XMLPARSE_H)
+#include <xmltok/xmlparse.h>
+#elif defined(HAVE_XML_XMLPARSE_H)
+#include <xml/xmlparse.h>
 #else
-#include "expat.h"
+#include <expat.h>
 #endif
 
 #define DEBUG_CR "\r\n"
