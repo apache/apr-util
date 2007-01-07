@@ -28,7 +28,7 @@ TARGETS = $(TARGET_LIB) aprutil.exp apu-config.out
 @INCLUDE_RULES@
 @INCLUDE_OUTPUTS@
 
-CLEAN_SUBDIRS = test @APR_ICONV_DIR@
+CLEAN_SUBDIRS = test @APR_ICONV_DIR@ @APR_XML_DIR@
 
 CLEAN_TARGETS = exports.c export_vars.c aprutil.exp .make.dirs apu-config.out
 DISTCLEAN_TARGETS = config.cache config.log config.status libtool \
