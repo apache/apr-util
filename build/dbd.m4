@@ -24,9 +24,8 @@ dnl
 AC_DEFUN([APU_CHECK_DBD], [
   apu_have_pgsql=0
 
-  AC_ARG_WITH([pgsql], [
-  --with-pgsql=DIR          specify PostgreSQL location
-  ], [
+  AC_ARG_WITH([pgsql], APR_HELP_STRING([--with-pgsql=DIR], [specify PostgreSQL location]),
+  [
     apu_have_pgsql=0
     if test "$withval" = "yes"; then
       AC_CHECK_HEADERS(libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
@@ -79,9 +78,8 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
   apu_have_mysql=0
 
   AC_CHECK_FILES([dbd/apr_dbd_mysql.c],[
-    AC_ARG_WITH([mysql], [
-    --with-mysql=DIR          **** SEE INSTALL.MySQL ****
-    ], [
+    AC_ARG_WITH([mysql], APR_HELP_STRING([--with-mysql=DIR], [**** SEE INSTALL.MySQL ****]),
+    [
       apu_have_mysql=0
       if test "$withval" = "yes"; then
         old_cppflags="$CPPFLAGS"
@@ -186,9 +184,8 @@ dnl
 AC_DEFUN([APU_CHECK_DBD_SQLITE3], [
   apu_have_sqlite3=0
 
-  AC_ARG_WITH([sqlite3], [
-  --with-sqlite3=DIR         
-  ], [
+  AC_ARG_WITH([sqlite3], APR_HELP_STRING([--with-sqlite3=DIR], [enable sqlite3 DBD driver]),
+  [
     apu_have_sqlite3=0
     if test "$withval" = "yes"; then
       AC_CHECK_HEADERS(sqlite3.h, AC_CHECK_LIB(sqlite3, sqlite3_open, [apu_have_sqlite3=1]))
@@ -232,9 +229,8 @@ dnl
 AC_DEFUN([APU_CHECK_DBD_SQLITE2], [
   apu_have_sqlite2=0
 
-  AC_ARG_WITH([sqlite2], [
-  --with-sqlite2=DIR         
-  ], [
+  AC_ARG_WITH([sqlite2], APR_HELP_STRING([--with-sqlite2=DIR], [enable sqlite2 DBD driver]),
+  [
     apu_have_sqlite2=0
     if test "$withval" = "yes"; then
       AC_CHECK_HEADERS(sqlite.h, AC_CHECK_LIB(sqlite, sqlite_open, [apu_have_sqlite2=1]))
@@ -278,9 +274,9 @@ dnl
 AC_DEFUN([APU_CHECK_DBD_ORACLE], [
   apu_have_oracle=0
 
-  AC_ARG_WITH([oracle], [
-  --with-oracle=DIR         specify ORACLE_HOME location
-  ], [
+  AC_ARG_WITH([oracle], 
+    APR_HELP_STRING([--with-oracle=DIR], [enable Oracle DBD driver; giving ORACLE_HOME as DIR]),
+  [
     apu_have_oracle=0
     if test "$withval" = "yes"; then
       AC_CHECK_HEADERS(oci.h, AC_CHECK_LIB(clntsh, OCIEnvCreate, [apu_have_oracle=1],[
