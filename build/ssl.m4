@@ -24,9 +24,8 @@ dnl
 AC_DEFUN([APU_FIND_SSL], [
   apu_have_ssl=0
 
-  AC_ARG_WITH([ssl], [
-    --with-ssl
-  ], [
+  AC_ARG_WITH([ssl], [APR_HELP_STRING([--with-ssl], [enable SSL support])],
+  [
     if test "$withval" = "yes"; then
       APU_CHECK_OPENSSL
       dnl add checks for other varieties of ssl here
@@ -47,9 +46,9 @@ AC_DEFUN([APU_CHECK_OPENSSL], [
   openssl_have_headers=0
   openssl_have_libs=0
 
-  AC_ARG_WITH([openssl], [
-    --with-openssl=DIR 
-  ], [
+  AC_ARG_WITH([openssl], 
+  [APR_HELP_STRING([--with-openssl=DIR], [specify location of OpenSSL])],
+  [
     if test "$withval" = "yes"; then
       AC_CHECK_HEADERS(openssl/x509.h, [openssl_have_headers=1])
       AC_CHECK_LIB(crypto, BN_init, AC_CHECK_LIB(ssl, SSL_accept, [openssl_have_libs=1]))
