@@ -55,10 +55,10 @@ LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib wldap32.lib ole32.lib /nologo /base:"0x6EE60000" /subsystem:windows /dll /incremental:no /debug /opt:ref
 # ADD LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib wldap32.lib ole32.lib /nologo /base:"0x6EE60000" /subsystem:windows /dll /incremental:no /debug /out:"Release/libaprutil-1.dll" /opt:ref
 # Begin Special Build Tool
-OutDir=.\Release
+TargetPath=./Release/libaprutil-1.dll
 SOURCE="$(InputPath)"
 PostBuild_Desc=Embed .manifest
-PostBuild_Cmds=if exist $(OUTDIR)\libaprutil-1.dll.manifest mt.exe -manifest $(OUTDIR)\libaprutil-1.dll.manifest -outputresource:$(OUTDIR)\libaprutil-1.dll;2
+PostBuild_Cmds=if exist $(TargetPath).manifest mt.exe -manifest $(TargetPath).manifest -outputresource:$(TargetPath);2
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "libaprutil - Win32 Debug"
@@ -87,10 +87,10 @@ LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib wldap32.lib ole32.lib /nologo /base:"0x6EE60000" /subsystem:windows /dll /incremental:no /debug
 # ADD LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib wldap32.lib ole32.lib /nologo /base:"0x6EE60000" /subsystem:windows /dll /incremental:no /debug /out:"Debug/libaprutil-1.dll"
 # Begin Special Build Tool
-OutDir=.\Debug
+TargetPath=./Debug/libaprutil-1.dll
 SOURCE="$(InputPath)"
 PostBuild_Desc=Embed .manifest
-PostBuild_Cmds=if exist $(OUTDIR)\libaprutil-1.dll.manifest mt.exe -manifest $(OUTDIR)\libaprutil-1.dll.manifest -outputresource:$(OUTDIR)\libaprutil-1.dll;2
+PostBuild_Cmds=if exist $(TargetPath).manifest mt.exe -manifest $(TargetPath).manifest -outputresource:$(TargetPath);2
 # End Special Build Tool
 
 !ENDIF 
