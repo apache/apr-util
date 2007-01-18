@@ -274,11 +274,22 @@ dnl
 AC_DEFUN([APU_CHECK_DBD_ORACLE], [
   apu_have_oracle=0
 
+  AC_ARG_WITH([oracle-include],
+    APR_HELP_STRING([--with-oracle-include=DIR], [path to Oracle include files]))
   AC_ARG_WITH([oracle], 
     APR_HELP_STRING([--with-oracle=DIR], [enable Oracle DBD driver; giving ORACLE_HOME as DIR]),
   [
     apu_have_oracle=0
     if test "$withval" = "yes"; then
+      old_cppflags="$CPPFLAGS"
+
+      if test -n "$with_oracle_include"; then
+        oracle_CPPFLAGS="$CPPFLAGS -I$with_oracle_include"
+        APR_ADDTO(APRUTIL_INCLUDES, [-I$with_oracle_include])
+      fi
+
+      APR_ADDTO(CPPFLAGS, [$oracle_CPPFLAGS])
+
       AC_CHECK_HEADERS(oci.h, AC_CHECK_LIB(clntsh, OCIEnvCreate, [apu_have_oracle=1],[
         unset ac_cv_lib_clntsh_OCIEnvCreate
         AC_CHECK_LIB(clntsh, OCIEnvCreate, [
@@ -287,13 +298,20 @@ AC_DEFUN([APU_CHECK_DBD_ORACLE], [
           APR_ADDTO(APRUTIL_LIBS,[-lnnz10])
         ],,[-lnnz10])
       ]))
+
+      CPPFLAGS="$old_cppflags"
     elif test "$withval" = "no"; then
       apu_have_oracle=0
     else
       old_cppflags="$CPPFLAGS"
       old_ldflags="$LDFLAGS"
 
-      oracle_CPPFLAGS="-I$withval/rdbms/demo -I$withval/rdbms/public"
+      if test -n "$with_oracle_include"; then
+        oracle_CPPFLAGS="$CPPFLAGS -I$with_oracle_include"
+        APR_ADDTO(APRUTIL_INCLUDES, [-I$with_oracle_include])
+      else
+        oracle_CPPFLAGS="-I$withval/rdbms/demo -I$withval/rdbms/public"
+      fi
       oracle_LDFLAGS="-L$withval/lib "
 
       APR_ADDTO(CPPFLAGS, [$oracle_CPPFLAGS])
@@ -311,8 +329,10 @@ AC_DEFUN([APU_CHECK_DBD_ORACLE], [
       if test "$apu_have_oracle" != "0"; then
         APR_ADDTO(APRUTIL_LDFLAGS, [-L$withval/lib])
         APR_ADDTO(APRUTIL_LDFLAGS, [-R$withval/lib])
-        APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/rdbms/demo])
-        APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/rdbms/public])
+        if test -z "$with_oracle_include"; then
+          APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/rdbms/demo])
+          APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/rdbms/public])
+        fi
       fi
 
       CPPFLAGS="$old_cppflags"
@@ -320,6 +340,16 @@ AC_DEFUN([APU_CHECK_DBD_ORACLE], [
     fi
   ], [
     apu_have_oracle=0
+
+    old_cppflags="$CPPFLAGS"
+
+    if test -n "$with_oracle_include"; then
+      oracle_CPPFLAGS="$CPPFLAGS -I$with_oracle_include"
+      APR_ADDTO(APRUTIL_INCLUDES, [-I$with_oracle_include])
+    fi
+
+    APR_ADDTO(CPPFLAGS, [$oracle_CPPFLAGS])
+
     AC_CHECK_HEADERS(oci.h, AC_CHECK_LIB(clntsh, OCIEnvCreate, [apu_have_oracle=1],[
       unset ac_cv_lib_clntsh_OCIEnvCreate
       AC_CHECK_LIB(clntsh, OCIEnvCreate, [
@@ -328,6 +358,8 @@ AC_DEFUN([APU_CHECK_DBD_ORACLE], [
         APR_ADDTO(APRUTIL_LIBS,[-lnnz10])
       ],,[-lnnz10])
     ]))
+
+    CPPFLAGS="$old_cppflags"
   ])
 
   AC_SUBST(apu_have_oracle)
