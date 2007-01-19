@@ -70,12 +70,11 @@ Other features that need writing:
       Status: Greg +1 (volunteers)
 
     * unify parsing of prepared statements in DBD
-      Status: patches exist, except for Oracle driver
-              format of arguments (i.e. %s, %d etc.) needs to be finalised
+      Status: patches exist, awaiting review
+              format of arguments (i.e. %s, %d etc.) needs to be agreed upon
 
     * add binary argument functions to DBD
-      Status: patches exist, except for Oracle driver
-              types need to be expanded for Oracle (LOB, CLOB etc.)
+      Status: patches exist, awaiting review
               API needs to be agreed upon
 
 Documentation that needs writing:
