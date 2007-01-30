@@ -116,7 +116,7 @@ APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool)
     return ret;
 }
 
-#if defined(APR_DSO_BUILD) && APR_HAS_THREADS
+#if defined(APU_DSO_BUILD) && APR_HAS_THREADS
 #define dbd_drivers_lock(m) apr_thread_mutex_lock(m)
 #define dbd_drivers_unlock(m) apr_thread_mutex_unlock(m)
 #else
@@ -127,7 +127,7 @@ APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool)
 APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
                                              const apr_dbd_driver_t **driver)
 {
-#ifdef APR_DSO_BUILD
+#ifdef APU_DSO_BUILD
     char path[80];
     apr_dso_handle_t *dlhandle = NULL;
     apr_dso_handle_sym_t symbol;
@@ -145,7 +145,7 @@ APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
         return APR_SUCCESS;
     }
 
-#ifdef APR_DSO_BUILD
+#ifdef APU_DSO_BUILD
 
 #ifdef WIN32
     sprintf(path, "apr_dbd_%s.dll", name);
