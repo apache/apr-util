@@ -141,6 +141,8 @@ APU_CHECK_DBD_MYSQL
 APU_CHECK_DBD_SQLITE3
 APU_CHECK_DBD_SQLITE2
 APU_CHECK_DBD_ORACLE
+dnl Enable DSO build; must be last:
+APU_CHECK_DBD_DSO
 APU_FIND_EXPAT
 APU_FIND_ICONV
 
@@ -168,6 +170,23 @@ AC_SUBST(lib_target)
 
 APRUTIL_LIBNAME="aprutil${libsuffix}"
 AC_SUBST(APRUTIL_LIBNAME)
+
+# Set up destination directory for DSOs.
+APU_DSO_LIBDIR="\${libdir}/apr-util-${APRUTIL_MAJOR_VERSION}"
+# Set APU_HAVE_MODULES appropriately for the Makefile
+if test -n "$APU_MODULES"; then 
+   APU_HAVE_MODULES=yes
+else
+   APU_HAVE_MODULES=no
+fi
+# Define expanded libdir for apu_config.h
+APR_EXPAND_VAR(abs_dso_libdir, $APU_DSO_LIBDIR)
+AC_DEFINE_UNQUOTED([APU_DSO_LIBDIR], ["$abs_dso_libdir"],
+                   [Define to be absolute path to DSO directory])
+AC_SUBST(APU_HAVE_MODULES)
+AC_SUBST(APU_DSO_LIBDIR)
+AC_SUBST(APU_MODULES)
+AC_SUBST(EXTRA_OBJECTS)
 
 dnl
 dnl Prep all the flags and stuff for compilation and export to other builds

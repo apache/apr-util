@@ -69,9 +69,9 @@ AC_DEFUN([APU_CHECK_DBD], [
   dnl Since we have already done the AC_CHECK_LIB tests, if we have it, 
   dnl we know the library is there.
   if test "$apu_have_pgsql" = "1"; then
-    APR_ADDTO(APRUTIL_EXPORT_LIBS,[-lpq])
-    APR_ADDTO(APRUTIL_LIBS,[-lpq])
+    LDADD_dbd_pgsql=-lpq
   fi
+  AC_SUBST(LDADD_dbd_pgsql)
 ])
 dnl
 AC_DEFUN([APU_CHECK_DBD_MYSQL], [
@@ -100,7 +100,6 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
         else
           if test "x$MYSQL_CONFIG" != 'x'; then
             APR_ADDTO(APRUTIL_INCLUDES, [$mysql_CPPFLAGS])
-            APR_ADDTO(APRUTIL_LDFLAGS, [$mysql_LDFLAGS])
           fi
         fi
 
@@ -128,14 +127,12 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
         AC_CHECK_HEADERS(mysql.h, AC_CHECK_LIB(mysqlclient_r, mysql_init, [apu_have_mysql=1]))
         if test "$apu_have_mysql" != "0"; then
           APR_ADDTO(APRUTIL_INCLUDES, [$mysql_CPPFLAGS])
-          APR_ADDTO(APRUTIL_LDFLAGS, [$mysql_LDFLAGS])
         fi
 
         if test "$apu_have_mysql" != "1"; then
           AC_CHECK_HEADERS(mysql/mysql.h, AC_CHECK_LIB(mysqlclient_r, mysql_init, [apu_have_mysql=1]))
           if test "$apu_have_mysql" != "0"; then
             APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/include/mysql])
-            APR_ADDTO(APRUTIL_LDFLAGS, [-L$withval/lib])
           fi
         fi
 
@@ -162,7 +159,6 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
       if test "$apu_have_mysql" != "0"; then
         if test "x$MYSQL_CONFIG" != 'x'; then
           APR_ADDTO(APRUTIL_INCLUDES, [$mysql_CPPFLAGS])
-          APR_ADDTO(APRUTIL_LDFLAGS, [$mysql_LDFLAGS])
         fi
       fi
 
@@ -176,9 +172,9 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
   dnl Since we have already done the AC_CHECK_LIB tests, if we have it, 
   dnl we know the library is there.
   if test "$apu_have_mysql" = "1"; then
-    APR_ADDTO(APRUTIL_EXPORT_LIBS,[-lmysqlclient_r])
-    APR_ADDTO(APRUTIL_LIBS,[-lmysqlclient_r])
+    LDADD_dbd_mysql=$mysql_LDFLAGS
   fi
+  AC_SUBST(LDADD_dbd_mysql)
 ])
 dnl
 AC_DEFUN([APU_CHECK_DBD_SQLITE3], [
@@ -221,9 +217,9 @@ AC_DEFUN([APU_CHECK_DBD_SQLITE3], [
   dnl Since we have already done the AC_CHECK_LIB tests, if we have it, 
   dnl we know the library is there.
   if test "$apu_have_sqlite3" = "1"; then
-    APR_ADDTO(APRUTIL_EXPORT_LIBS,[-lsqlite3])
-    APR_ADDTO(APRUTIL_LIBS,[-lsqlite3])
+    LDADD_dbd_sqlite3="-lsqlite3"
   fi
+  AC_SUBST(LDADD_dbd_sqlite3)
 ])
 dnl
 AC_DEFUN([APU_CHECK_DBD_SQLITE2], [
@@ -266,9 +262,9 @@ AC_DEFUN([APU_CHECK_DBD_SQLITE2], [
   dnl Since we have already done the AC_CHECK_LIB tests, if we have it, 
   dnl we know the library is there.
   if test "$apu_have_sqlite2" = "1"; then
-    APR_ADDTO(APRUTIL_EXPORT_LIBS,[-lsqlite])
-    APR_ADDTO(APRUTIL_LIBS,[-lsqlite])
+    LDADD_dbd_sqlite2="-lsqlite"
   fi
+  AC_SUBST(LDADD_dbd_sqlite2)
 ])
 dnl
 AC_DEFUN([APU_CHECK_DBD_ORACLE], [
@@ -294,8 +290,7 @@ AC_DEFUN([APU_CHECK_DBD_ORACLE], [
         unset ac_cv_lib_clntsh_OCIEnvCreate
         AC_CHECK_LIB(clntsh, OCIEnvCreate, [
           apu_have_oracle=1
-          APR_ADDTO(APRUTIL_EXPORT_LIBS,[-lnnz10])
-          APR_ADDTO(APRUTIL_LIBS,[-lnnz10])
+          LDADD_dbd_oracle="-lnnz10"
         ],,[-lnnz10])
       ]))
 
@@ -322,8 +317,7 @@ AC_DEFUN([APU_CHECK_DBD_ORACLE], [
         unset ac_cv_lib_clntsh_OCIEnvCreate
         AC_CHECK_LIB(clntsh, OCIEnvCreate, [
           apu_have_oracle=1
-          APR_ADDTO(APRUTIL_EXPORT_LIBS,[-lnnz10])
-          APR_ADDTO(APRUTIL_LIBS,[-lnnz10])
+          LDADD_dbd_oracle="-lnnz10"
         ],,[-lnnz10])
       ]))
       if test "$apu_have_oracle" != "0"; then
@@ -354,8 +348,7 @@ AC_DEFUN([APU_CHECK_DBD_ORACLE], [
       unset ac_cv_lib_clntsh_OCIEnvCreate
       AC_CHECK_LIB(clntsh, OCIEnvCreate, [
         apu_have_oracle=1
-        APR_ADDTO(APRUTIL_EXPORT_LIBS,[-lnnz10])
-        APR_ADDTO(APRUTIL_LIBS,[-lnnz10])
+        LDADD_dbd_oracle=-lnnz10
       ],,[-lnnz10])
     ]))
 
@@ -367,8 +360,39 @@ AC_DEFUN([APU_CHECK_DBD_ORACLE], [
   dnl Since we have already done the AC_CHECK_LIB tests, if we have it, 
   dnl we know the library is there.
   if test "$apu_have_oracle" = "1"; then
-    APR_ADDTO(APRUTIL_EXPORT_LIBS,[-lclntsh])
-    APR_ADDTO(APRUTIL_LIBS,[-lclntsh])
+    LDADD_dbd_oracle="$LDADD_dbd_oracle -lclntsh"
+  fi
+  AC_SUBST(LDADD_dbd_oracle)
+])
+
+AC_DEFUN([APU_CHECK_DBD_DSO], [
+
+  AC_ARG_ENABLE([dbd-dso], 
+     APR_HELP_STRING([--enable-dbd-dso], [build DBD drivers as DSOs]))
+
+  if test $enable_dbd_dso = yes; then
+     AC_DEFINE([APU_DSO_BUILD], 1, [Define if DBD drivers are built as DSOs])
+     
+     dsos=
+     test $apu_have_oracle = 1 && dsos="$dsos dbd/apr_dbd_oracle.la"
+     test $apu_have_pgsql = 1 && dsos="$dsos dbd/apr_dbd_pgsql.la"
+     test $apu_have_mysql = 1 && dsos="$dsos dbd/apr_dbd_mysql.la"
+     test $apu_have_sqlite2 = 1 && dsos="$dsos dbd/apr_dbd_sqlite2.la"
+     test $apu_have_sqlite3 = 1 && dsos="$dsos dbd/apr_dbd_sqlite3.la"
+
+     APU_MODULES="$APU_MODULES $dsos"
+  else
+     # Statically link the DBD drivers:
+
+     objs=
+     test $apu_have_oracle = 1 && objs="$objs dbd/apr_dbd_oracle.lo"
+     test $apu_have_pgsql = 1 && objs="$objs dbd/apr_dbd_pgsql.lo"
+     test $apu_have_mysql = 1 && objs="$objs dbd/apr_dbd_mysql.lo"
+     test $apu_have_sqlite2 = 1 && objs="$objs dbd/apr_dbd_sqlite2.lo"
+     test $apu_have_sqlite3 = 1 && objs="$objs dbd/apr_dbd_sqlite3.lo"
+     EXTRA_OBJECTS="$EXTRA_OBJECTS $objs"
+
+     APRUTIL_LIBS="$APRUTIL_LIBS '$(LDADD_dbd_pgsql) $(LDADD_dbd_sqlite2) $(LDADD_dbd_sqlite3) $(LDADD_dbd_oracle) $(LDADD_dbd_mysql)'"
+     APRUTIL_EXPORT_LIBS="$APRUTIL_EXPORT_LIBS '$(LDADD_dbd_pgsql) $(LDADD_dbd_sqlite2) $(LDADD_dbd_sqlite3) $(LDADD_dbd_oracle) $(LDADD_dbd_mysql)'"
   fi
 ])
-dnl
