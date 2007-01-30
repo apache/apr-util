@@ -370,7 +370,7 @@ AC_DEFUN([APU_CHECK_DBD_DSO], [
   AC_ARG_ENABLE([dbd-dso], 
      APR_HELP_STRING([--enable-dbd-dso], [build DBD drivers as DSOs]))
 
-  if test $enable_dbd_dso = yes; then
+  if test "$enable_dbd_dso" = "yes"; then
      AC_DEFINE([APU_DSO_BUILD], 1, [Define if DBD drivers are built as DSOs])
      
      dsos=
@@ -392,7 +392,7 @@ AC_DEFUN([APU_CHECK_DBD_DSO], [
      test $apu_have_sqlite3 = 1 && objs="$objs dbd/apr_dbd_sqlite3.lo"
      EXTRA_OBJECTS="$EXTRA_OBJECTS $objs"
 
-     APRUTIL_LIBS="$APRUTIL_LIBS '$(LDADD_dbd_pgsql) $(LDADD_dbd_sqlite2) $(LDADD_dbd_sqlite3) $(LDADD_dbd_oracle) $(LDADD_dbd_mysql)'"
-     APRUTIL_EXPORT_LIBS="$APRUTIL_EXPORT_LIBS '$(LDADD_dbd_pgsql) $(LDADD_dbd_sqlite2) $(LDADD_dbd_sqlite3) $(LDADD_dbd_oracle) $(LDADD_dbd_mysql)'"
+     APRUTIL_LIBS="$APRUTIL_LIBS $LDADD_dbd_pgsql $LDADD_dbd_sqlite2 $LDADD_dbd_sqlite3 $LDADD_dbd_oracle $LDADD_dbd_mysql"
+     APRUTIL_EXPORT_LIBS="$APRUTIL_EXPORT_LIBS $LDADD_dbd_pgsql $LDADD_dbd_sqlite2 $LDADD_dbd_sqlite3 $LDADD_dbd_oracle $LDADD_dbd_mysql"
   fi
 ])
