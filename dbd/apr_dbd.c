@@ -16,22 +16,22 @@
 
 #include <stdio.h>
 
+#include "apu_config.h"
 #include "apu.h"
+
 #include "apr_pools.h"
-#include "apr_dbd_internal.h"
-#include "apr_dbd.h"
-#include "apr_hash.h"
-#include "apr_thread_mutex.h"
 #include "apr_dso.h"
 #include "apr_strings.h"
+#include "apr_hash.h"
+#include "apr_thread_mutex.h"
+
+#include "apr_dbd_internal.h"
+#include "apr_dbd.h"
+#include "apu_version.h"
 
 static apr_hash_t *drivers = NULL;
 
 #define CLEANUP_CAST (apr_status_t (*)(void*))
-
-/* Once the autofoo supports building it for dynamic load, we can use
- * #define APR_DSO_BUILD APR_HAS_DSO
- */
 
 #if APR_HAS_THREADS
 static apr_thread_mutex_t* mutex = NULL;
@@ -52,7 +52,7 @@ apr_status_t apr_dbd_mutex_unlock() {
 }
 #endif
 
-#ifndef APR_DSO_BUILD
+#ifndef APU_DSO_BUILD
 #define DRIVER_LOAD(name,driver,pool) \
     {   \
         extern const apr_dbd_driver_t driver; \
@@ -91,8 +91,8 @@ APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool)
     /* This already registers a pool cleanup */
 #endif
 
-#ifndef APR_DSO_BUILD
-
+#ifndef APU_DSO_BUILD
+    /* Load statically-linked drivers: */
 #if APU_HAVE_MYSQL
     DRIVER_LOAD("mysql", apr_dbd_mysql_driver, pool);
 #endif
@@ -111,62 +111,67 @@ APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool)
 #if APU_HAVE_SOME_OTHER_BACKEND
     DRIVER_LOAD("firebird", apr_dbd_other_driver, pool);
 #endif
-#endif /* APR_DSO_BUILD */
+#endif /* APU_DSO_BUILD */
+
     return ret;
 }
+
+#if defined(APR_DSO_BUILD) && APR_HAS_THREADS
+#define dbd_drivers_lock(m) apr_thread_mutex_lock(m)
+#define dbd_drivers_unlock(m) apr_thread_mutex_unlock(m)
+#else
+#define dbd_drivers_lock(m) APR_SUCCESS
+#define dbd_drivers_unlock(m) APR_SUCCESS
+#endif
+
 APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
                                              const apr_dbd_driver_t **driver)
 {
-#if APR_DSO_BUILD
+#ifdef APR_DSO_BUILD
     char path[80];
     apr_dso_handle_t *dlhandle = NULL;
+    apr_dso_handle_sym_t symbol;
 #endif
     apr_status_t rv;
 
-   *driver = apr_hash_get(drivers, name, APR_HASH_KEY_STRING);
-    if (*driver) {
+    rv = dbd_drivers_lock(mutex);
+    if (rv) {
         return APR_SUCCESS;
     }
 
-#if APR_DSO_BUILD
-
-#if APR_HAS_THREADS
-    rv = apr_thread_mutex_lock(mutex);
-    if (rv != APR_SUCCESS) {
-        goto unlock;
-    }
-    *driver = apr_hash_get(drivers, name, APR_HASH_KEY_STRING);
+   *driver = apr_hash_get(drivers, name, APR_HASH_KEY_STRING);
     if (*driver) {
-        goto unlock;
+        dbd_drivers_unlock(mutex);
+        return APR_SUCCESS;
     }
-#endif
+
+#ifdef APR_DSO_BUILD
 
 #ifdef WIN32
     sprintf(path, "apr_dbd_%s.dll", name);
 #else
-    sprintf(path, "apr_dbd_%s.so", name);
+    apr_snprintf(path, sizeof path, APU_DSO_LIBDIR "/apr_dbd_%s.so", name);
 #endif
     rv = apr_dso_load(&dlhandle, path, pool);
     if (rv != APR_SUCCESS) { /* APR_EDSOOPEN */
         goto unlock;
     }
     sprintf(path, "apr_dbd_%s_driver", name);
-    rv = apr_dso_sym((void*)driver, dlhandle, path);
+    rv = apr_dso_sym(&symbol, dlhandle, path);
     if (rv != APR_SUCCESS) { /* APR_ESYMNOTFOUND */
         apr_dso_unload(dlhandle);
         goto unlock;
     }
+    *driver = symbol;
     if ((*driver)->init) {
         (*driver)->init(pool);
     }
     apr_hash_set(drivers, name, APR_HASH_KEY_STRING, *driver);
 
 unlock:
-#if APR_HAS_THREADS
-    apr_thread_mutex_unlock(mutex);
-#endif
+    dbd_drivers_unlock(mutex);
 
-#else	/* APR_DSO_BUILD - so if it wasn't already loaded, it's NOTIMPL */
+#else /* not builtin and !APR_HAS_DSO => not implemented */
     rv = APR_ENOTIMPL;
 #endif
 
