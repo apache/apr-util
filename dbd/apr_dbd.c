@@ -121,7 +121,7 @@ APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool)
 #define dbd_drivers_unlock(m) apr_thread_mutex_unlock(m)
 #else
 #define dbd_drivers_lock(m) APR_SUCCESS
-#define dbd_drivers_unlock(m) APR_SUCCESS
+#define dbd_drivers_unlock(m)
 #endif
 
 APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
