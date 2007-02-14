@@ -200,14 +200,15 @@ apr_status_t apu_ssl_accept(apr_ssl_socket_t *newSock,
         return -1;
     SSL_set_fd(sslData->ssl, fd);
 
+    newSock->pool = pool;
+    newSock->sslData = sslData;
+    newSock->factory = oldSock->factory;
+
     if ((sslOp = SSL_accept(sslData->ssl)) != 1) {
         openssl_get_error(newSock, sslOp);
         return -1;
     }
 
-    newSock->pool = pool;
-    newSock->sslData = sslData;
-    newSock->factory = oldSock->factory;
     return APR_SUCCESS;
 }
 
