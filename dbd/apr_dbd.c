@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <ctype.h>
 #include <stdio.h>
 
 #include "apu_config.h"
@@ -303,21 +304,123 @@ APU_DECLARE(int) apr_dbd_prepare(const apr_dbd_driver_t *driver, apr_pool_t *poo
                                  const char *label,
                                  apr_dbd_prepared_t **statement)
 {
-    return driver->prepare(pool,handle,query,label,statement);
+    size_t qlen;
+    int i, nargs = 0, nvals = 0;
+    char *p, *pq;
+    const char *q;
+    apr_dbd_type_e *t;
+
+    if (!driver->pformat) {
+        return APR_ENOTIMPL;
+    }
+
+    /* find the number of parameters in the query */
+    for (q = query; *q; q++) {
+        if (q[0] == '%') {
+            if (isalpha(q[1])) {
+                nargs++;
+            } else if (q[1] == '%') {
+                q++;
+            }
+        }
+    }
+    nvals = nargs;
+
+    qlen = strlen(query) +
+           nargs * (strlen(driver->pformat) + sizeof(nargs) * 3 + 2) + 1;
+    pq = apr_palloc(pool, qlen);
+    t = apr_pcalloc(pool, sizeof(*t) * nargs);
+
+    for (p = pq, q = query, i = 0; *q; q++) {
+        if (q[0] == '%') {
+            if (isalpha(q[1])) {
+                switch (q[1]) {
+                case 'd': t[i] = APR_DBD_TYPE_INT;   break;
+                case 'u': t[i] = APR_DBD_TYPE_UINT;  break;
+                case 'f': t[i] = APR_DBD_TYPE_FLOAT; break;
+                case 'h':
+                    switch (q[2]) {
+                    case 'h':
+                        switch (q[3]){
+                        case 'd': t[i] = APR_DBD_TYPE_TINY;  q += 2; break;
+                        case 'u': t[i] = APR_DBD_TYPE_UTINY; q += 2; break;
+                        }
+                        break;
+                    case 'd': t[i] = APR_DBD_TYPE_SHORT;  q++; break;
+                    case 'u': t[i] = APR_DBD_TYPE_USHORT; q++; break;
+                    }
+                    break;
+                case 'l':
+                    switch (q[2]) {
+                    case 'l':
+                        switch (q[3]){
+                        case 'd': t[i] = APR_DBD_TYPE_LONGLONG;  q += 2; break;
+                        case 'u': t[i] = APR_DBD_TYPE_ULONGLONG; q += 2; break;
+                        }
+                        break;
+                    case 'd': t[i] = APR_DBD_TYPE_LONG;   q++; break;
+                    case 'u': t[i] = APR_DBD_TYPE_ULONG;  q++; break;
+                    case 'f': t[i] = APR_DBD_TYPE_DOUBLE; q++; break;
+                    }
+                    break;
+                case 'p':
+                    if (q[2] == 'D') {
+                        switch (q[3]) {
+                        case 't': t[i] = APR_DBD_TYPE_TEXT;       q += 2; break;
+                        case 'i': t[i] = APR_DBD_TYPE_TIME;       q += 2; break;
+                        case 'd': t[i] = APR_DBD_TYPE_DATE;       q += 2; break;
+                        case 'a': t[i] = APR_DBD_TYPE_DATETIME;   q += 2; break;
+                        case 's': t[i] = APR_DBD_TYPE_TIMESTAMP;  q += 2; break;
+                        case 'z': t[i] = APR_DBD_TYPE_ZTIMESTAMP; q += 2; break;
+                        case 'b': t[i] = APR_DBD_TYPE_BLOB;       q += 2; break;
+                        case 'c': t[i] = APR_DBD_TYPE_CLOB;       q += 2; break;
+                        case 'n': t[i] = APR_DBD_TYPE_NULL;       q += 2; break;
+                        }
+                    } 
+                    break;
+                }
+                q++;
+
+                switch (t[i]) {
+                case APR_DBD_TYPE_NONE: /* by default, we expect strings */
+                    t[i] = APR_DBD_TYPE_STRING;
+                    break;
+                case APR_DBD_TYPE_BLOB:
+                case APR_DBD_TYPE_CLOB: /* three (3) more values passed in */
+                    nvals += 3;
+                    break;
+                default:
+                    break;
+                }
+
+                /* insert database specific parameter reference */
+                p += apr_snprintf(p, qlen - (p - pq), driver->pformat, ++i);
+            } else if (q[1] == '%') { /* reduce %% to % */
+                *p++ = *q++;
+            } else {
+                *p++ = *q;
+            }
+        } else {
+            *p++ = *q;
+        }
+    }
+    *p = '\0';
+
+    return driver->prepare(pool,handle,pq,label,nargs,nvals,t,statement);
 }
 APU_DECLARE(int) apr_dbd_pquery(const apr_dbd_driver_t *driver, apr_pool_t *pool,
                                 apr_dbd_t *handle, int *nrows,
-                                apr_dbd_prepared_t *statement, int nargs,
-                                const char **args)
+                                apr_dbd_prepared_t *statement,
+                                int nargs, const char **args)
 {
-    return driver->pquery(pool,handle,nrows,statement,nargs,args);
+    return driver->pquery(pool,handle,nrows,statement,args);
 }
 APU_DECLARE(int) apr_dbd_pselect(const apr_dbd_driver_t *driver, apr_pool_t *pool,
                                  apr_dbd_t *handle, apr_dbd_results_t **res,
                                  apr_dbd_prepared_t *statement, int random,
                                  int nargs, const char **args)
 {
-    return driver->pselect(pool,handle,res,statement,random,nargs,args);
+    return driver->pselect(pool,handle,res,statement,random,args);
 }
 APU_DECLARE(int) apr_dbd_pvquery(const apr_dbd_driver_t *driver, apr_pool_t *pool,
                                  apr_dbd_t *handle, int *nrows,
@@ -340,4 +443,51 @@ APU_DECLARE(int) apr_dbd_pvselect(const apr_dbd_driver_t *driver, apr_pool_t *po
     ret = driver->pvselect(pool,handle,res,statement,random,args);
     va_end(args);
     return ret;
+}
+APU_DECLARE(int) apr_dbd_pbquery(const apr_dbd_driver_t *driver,
+                                 apr_pool_t *pool,
+                                 apr_dbd_t *handle, int *nrows,
+                                 apr_dbd_prepared_t *statement,
+                                 const void **args)
+{
+    return driver->pbquery(pool,handle,nrows,statement,args);
+}
+APU_DECLARE(int) apr_dbd_pbselect(const apr_dbd_driver_t *driver,
+                                  apr_pool_t *pool,
+                                  apr_dbd_t *handle, apr_dbd_results_t **res,
+                                  apr_dbd_prepared_t *statement, int random,
+                                  const void **args)
+{
+    return driver->pbselect(pool,handle,res,statement,random,args);
+}
+APU_DECLARE(int) apr_dbd_pvbquery(const apr_dbd_driver_t *driver,
+                                  apr_pool_t *pool,
+                                  apr_dbd_t *handle, int *nrows,
+                                  apr_dbd_prepared_t *statement,...)
+{
+    int ret;
+    va_list args;
+    va_start(args, statement);
+    ret = driver->pvbquery(pool,handle,nrows,statement,args);
+    va_end(args);
+    return ret;
+}
+APU_DECLARE(int) apr_dbd_pvbselect(const apr_dbd_driver_t *driver,
+                                   apr_pool_t *pool,
+                                   apr_dbd_t *handle, apr_dbd_results_t **res,
+                                   apr_dbd_prepared_t *statement,
+                                   int random,...)
+{
+    int ret;
+    va_list args;
+    va_start(args, random);
+    ret = driver->pvbselect(pool,handle,res,statement,random,args);
+    va_end(args);
+    return ret;
+}
+APU_DECLARE(apr_status_t) apr_dbd_datum_get(const apr_dbd_driver_t *driver,
+                                            apr_dbd_row_t *row, int col,
+                                            apr_dbd_type_e type, void *data)
+{
+    return driver->datum_get(row,col,type,data);
 }

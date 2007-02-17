@@ -25,6 +25,7 @@
 
 #include "apr_strings.h"
 #include "apr_time.h"
+#include "apr_buckets.h"
 
 #include "apr_dbd_internal.h"
 
@@ -47,6 +48,7 @@ struct apr_dbd_results_t {
     size_t ntuples;
     size_t sz;
     size_t index;
+    apr_pool_t *pool;
 };
 
 struct apr_dbd_row_t {
@@ -101,6 +103,7 @@ static int dbd_sqlite_select(apr_pool_t * pool, apr_dbd_t * sql,
         (*results)->ntuples = tuples;
         (*results)->sz = fields;
         (*results)->random = seek;
+        (*results)->pool = pool;
 
         if (tuples > 0)
             apr_pool_cleanup_register(pool, result, free_table,
@@ -187,6 +190,84 @@ static const char *dbd_sqlite_get_entry(const apr_dbd_row_t * row, int n)
     return row->data[n];
 }
 
+static apr_status_t dbd_sqlite_datum_get(const apr_dbd_row_t *row, int n,
+                                         apr_dbd_type_e type, void *data)
+{
+    if ((n < 0) || (n >= row->res->sz)) {
+      return APR_EGENERAL;
+    }
+
+    if (row->data[n] == NULL) {
+        return APR_ENOENT;
+    }
+
+    switch (type) {
+    case APR_DBD_TYPE_TINY:
+        *(char*)data = atoi(row->data[n]);
+        break;
+    case APR_DBD_TYPE_UTINY:
+        *(unsigned char*)data = atoi(row->data[n]);
+        break;
+    case APR_DBD_TYPE_SHORT:
+        *(short*)data = atoi(row->data[n]);
+        break;
+    case APR_DBD_TYPE_USHORT:
+        *(unsigned short*)data = atoi(row->data[n]);
+        break;
+    case APR_DBD_TYPE_INT:
+        *(int*)data = atoi(row->data[n]);
+        break;
+    case APR_DBD_TYPE_UINT:
+        *(unsigned int*)data = atoi(row->data[n]);
+        break;
+    case APR_DBD_TYPE_LONG:
+        *(long*)data = atol(row->data[n]);
+        break;
+    case APR_DBD_TYPE_ULONG:
+        *(unsigned long*)data = atol(row->data[n]);
+        break;
+    case APR_DBD_TYPE_LONGLONG:
+        *(apr_int64_t*)data = apr_atoi64(row->data[n]);
+        break;
+    case APR_DBD_TYPE_ULONGLONG:
+        *(apr_uint64_t*)data = apr_atoi64(row->data[n]);
+        break;
+    case APR_DBD_TYPE_FLOAT:
+        *(float*)data = atof(row->data[n]);
+        break;
+    case APR_DBD_TYPE_DOUBLE:
+        *(double*)data = atof(row->data[n]);
+        break;
+    case APR_DBD_TYPE_STRING:
+    case APR_DBD_TYPE_TEXT:
+    case APR_DBD_TYPE_TIME:
+    case APR_DBD_TYPE_DATE:
+    case APR_DBD_TYPE_DATETIME:
+    case APR_DBD_TYPE_TIMESTAMP:
+    case APR_DBD_TYPE_ZTIMESTAMP:
+        *(char**)data = row->data[n];
+        break;
+    case APR_DBD_TYPE_BLOB:
+    case APR_DBD_TYPE_CLOB:
+        {
+        apr_bucket *e;
+        apr_bucket_brigade *b = (apr_bucket_brigade*)data;
+
+        e = apr_bucket_pool_create(row->data[n],strlen(row->data[n]),
+                                   row->res->pool, b->bucket_alloc);
+        APR_BRIGADE_INSERT_TAIL(b, e);
+        }
+        break;
+    case APR_DBD_TYPE_NULL:
+        *(void**)data = NULL;
+        break;
+    default:
+        return APR_EGENERAL;
+    }
+
+    return APR_SUCCESS;
+}
+
 static const char *dbd_sqlite_error(apr_dbd_t * sql, int n)
 {
     return sql->errmsg;
@@ -240,6 +321,7 @@ static const char *dbd_sqlite_escape(apr_pool_t * pool, const char *arg,
 
 static int dbd_sqlite_prepare(apr_pool_t * pool, apr_dbd_t * sql,
                               const char *query, const char *label,
+                              int nargs, int nvals, apr_dbd_type_e *types,
                               apr_dbd_prepared_t ** statement)
 {
     return APR_ENOTIMPL;
@@ -247,7 +329,7 @@ static int dbd_sqlite_prepare(apr_pool_t * pool, apr_dbd_t * sql,
 
 static int dbd_sqlite_pquery(apr_pool_t * pool, apr_dbd_t * sql,
                              int *nrows, apr_dbd_prepared_t * statement,
-                             int nargs, const char **values)
+                             const char **values)
 {
     return APR_ENOTIMPL;
 }
@@ -262,7 +344,7 @@ static int dbd_sqlite_pvquery(apr_pool_t * pool, apr_dbd_t * sql,
 static int dbd_sqlite_pselect(apr_pool_t * pool, apr_dbd_t * sql,
                               apr_dbd_results_t ** results,
                               apr_dbd_prepared_t * statement,
-                              int seek, int nargs, const char **values)
+                              int seek, const char **values)
 {
     return APR_ENOTIMPL;
 }
@@ -271,6 +353,36 @@ static int dbd_sqlite_pvselect(apr_pool_t * pool, apr_dbd_t * sql,
                                apr_dbd_results_t ** results,
                                apr_dbd_prepared_t * statement, int seek,
                                va_list args)
+{
+    return APR_ENOTIMPL;
+}
+
+static int dbd_sqlite_pbquery(apr_pool_t * pool, apr_dbd_t * sql,
+                              int *nrows, apr_dbd_prepared_t * statement,
+                              const void **values)
+{
+    return APR_ENOTIMPL;
+}
+
+static int dbd_sqlite_pvbquery(apr_pool_t * pool, apr_dbd_t * sql,
+                               int *nrows, apr_dbd_prepared_t * statement,
+                               va_list args)
+{
+    return APR_ENOTIMPL;
+}
+
+static int dbd_sqlite_pbselect(apr_pool_t * pool, apr_dbd_t * sql,
+                               apr_dbd_results_t ** results,
+                               apr_dbd_prepared_t * statement,
+                               int seek, const void **values)
+{
+    return APR_ENOTIMPL;
+}
+
+static int dbd_sqlite_pvbselect(apr_pool_t * pool, apr_dbd_t * sql,
+                                apr_dbd_results_t ** results,
+                                apr_dbd_prepared_t * statement, int seek,
+                                va_list args)
 {
     return APR_ENOTIMPL;
 }
@@ -424,6 +536,12 @@ APU_DECLARE_DATA const apr_dbd_driver_t apr_dbd_sqlite2_driver = {
     dbd_sqlite_pselect,
     dbd_sqlite_get_name,
     dbd_sqlite_transaction_mode_get,
-    dbd_sqlite_transaction_mode_set
+    dbd_sqlite_transaction_mode_set,
+    NULL,
+    dbd_sqlite_pvbquery,
+    dbd_sqlite_pvbselect,
+    dbd_sqlite_pbquery,
+    dbd_sqlite_pbselect,
+    dbd_sqlite_datum_get
 };
 #endif
