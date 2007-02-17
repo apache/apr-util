@@ -1,5 +1,8 @@
 Changes with APR-util 1.3.0
 
+  *) Unify parsing of prepared statements and add binary argument functions
+     to DBD [Bojan Smojver with help from many on the APR list]
+
   *) Support building DBD drivers as DSOs; use --enable-dbd-dso flag
      to configure.  [Joe Orton, Bojan Smojver]
 

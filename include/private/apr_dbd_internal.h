@@ -196,11 +196,15 @@ struct apr_dbd_driver_t {
      *  @param label - A label for the prepared statement.
      *                 use NULL for temporary prepared statements
      *                 (eg within a Request in httpd)
+     *  @param nargs - number of parameters in the query
+     *  @param nvals - number of values passed in p[b]query/select
+     *  @param types - pointer to an array with types of parameters
      *  @param statement - statement to prepare.  May point to null on entry.
      *  @return 0 for success or error code
      */
     int (*prepare)(apr_pool_t *pool, apr_dbd_t *handle, const char *query,
-                   const char *label, apr_dbd_prepared_t **statement);
+                   const char *label, int nargs, int nvals,
+                   apr_dbd_type_e *types, apr_dbd_prepared_t **statement);
 
     /** pvquery: query using a prepared statement + args
      *
@@ -234,13 +238,11 @@ struct apr_dbd_driver_t {
      *  @param handle - the connection
      *  @param nrows - number of rows affected.
      *  @param statement - the prepared statement to execute
-     *  @param nargs - number of args to prepared statement
      *  @param args - args to prepared statement
      *  @return 0 for success or error code
      */
     int (*pquery)(apr_pool_t *pool, apr_dbd_t *handle, int *nrows,
-                  apr_dbd_prepared_t *statement, int nargs,
-                  const char **args);
+                  apr_dbd_prepared_t *statement, const char **args);
 
     /** pselect: select using a prepared statement + args
      *
@@ -249,13 +251,12 @@ struct apr_dbd_driver_t {
      *  @param res - pointer to query results.  May point to NULL on entry
      *  @param statement - the prepared statement to execute
      *  @param random - Whether to support random-access to results
-     *  @param nargs - number of args to prepared statement
      *  @param args - args to prepared statement
      *  @return 0 for success or error code
      */
     int (*pselect)(apr_pool_t *pool, apr_dbd_t *handle,
                    apr_dbd_results_t **res, apr_dbd_prepared_t *statement,
-                   int random, int nargs, const char **args);
+                   int random, const char **args);
 
   
     /** get_name: get a column title from a result set
@@ -280,6 +281,72 @@ struct apr_dbd_driver_t {
      *  @return the mode of transaction in force after the call
      */
     int (*transaction_mode_set)(apr_dbd_transaction_t *trans, int mode);
+
+    /** format of prepared statement parameters */
+    const char *pformat;
+
+    /** pvbquery: query using a prepared statement + binary args
+     *
+     *  @param pool - working pool
+     *  @param handle - the connection
+     *  @param nrows - number of rows affected.
+     *  @param statement - the prepared statement to execute
+     *  @param args - binary args to prepared statement
+     *  @return 0 for success or error code
+     */
+    int (*pvbquery)(apr_pool_t *pool, apr_dbd_t *handle, int *nrows,
+                    apr_dbd_prepared_t *statement, va_list args);
+
+    /** pvbselect: select using a prepared statement + binary args
+     *
+     *  @param pool - working pool
+     *  @param handle - the connection
+     *  @param res - pointer to query results.  May point to NULL on entry
+     *  @param statement - the prepared statement to execute
+     *  @param random - Whether to support random-access to results
+     *  @param args - binary args to prepared statement
+     *  @return 0 for success or error code
+     */
+    int (*pvbselect)(apr_pool_t *pool, apr_dbd_t *handle,
+                     apr_dbd_results_t **res,
+                     apr_dbd_prepared_t *statement, int random, va_list args);
+
+    /** pbquery: query using a prepared statement + binary args
+     *
+     *  @param pool - working pool
+     *  @param handle - the connection
+     *  @param nrows - number of rows affected.
+     *  @param statement - the prepared statement to execute
+     *  @param args - binary args to prepared statement
+     *  @return 0 for success or error code
+     */
+    int (*pbquery)(apr_pool_t *pool, apr_dbd_t *handle, int *nrows,
+                   apr_dbd_prepared_t *statement,const void **args);
+
+    /** pbselect: select using a prepared statement + binary args
+     *
+     *  @param pool - working pool
+     *  @param handle - the connection
+     *  @param res - pointer to query results.  May point to NULL on entry
+     *  @param statement - the prepared statement to execute
+     *  @param random - Whether to support random-access to results
+     *  @param args - binary args to prepared statement
+     *  @return 0 for success or error code
+     */
+    int (*pbselect)(apr_pool_t *pool, apr_dbd_t *handle,
+                    apr_dbd_results_t **res, apr_dbd_prepared_t *statement,
+                    int random, const void **args);
+  
+    /** datum_get: get a binary entry from a row
+     *
+     *  @param row - row pointer
+     *  @param col - entry number
+     *  @param type - type of data to get
+     *  @param data - pointer to data, allocated by the caller
+     *  @return APR_SUCCESS, an error code on error or if col is out of bounds
+     */
+    apr_status_t (*datum_get)(const apr_dbd_row_t *row, int col,
+                              apr_dbd_type_e type, void *data);
 };
 
 /* Export mutex lock/unlock for drivers that need it */

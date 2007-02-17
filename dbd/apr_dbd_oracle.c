@@ -78,6 +78,7 @@
 #include "apr_strings.h"
 #include "apr_time.h"
 #include "apr_hash.h"
+#include "apr_buckets.h"
 
 #define TRANS_TIMEOUT 30
 #define MAX_ARG_LEN 256 /* in line with other apr_dbd drivers.  We alloc this
@@ -87,17 +88,6 @@
 #define DEFAULT_LONG_SIZE 4096
 #define DBD_ORACLE_MAX_COLUMNS 256
 #define NUMERIC_FIELD_SIZE 32
-
-typedef enum {
-        APR_DBD_ORACLE_NULL,
-        APR_DBD_ORACLE_STRING,
-        APR_DBD_ORACLE_INT,
-        APR_DBD_ORACLE_FLOAT,
-        APR_DBD_ORACLE_LOB,
-        /* don't work */
-        APR_DBD_ORACLE_BLOB,
-        APR_DBD_ORACLE_CLOB,
-} dbd_field_type;
 
 #ifdef DEBUG
 #include <stdio.h>
@@ -109,15 +99,16 @@ typedef enum {
 static const char *dbd_oracle_error(apr_dbd_t *sql, int n);
 static int dbd_oracle_prepare(apr_pool_t *pool, apr_dbd_t *sql,
                               const char *query, const char *label,
+                              int nargs, int nvals, apr_dbd_type_e *types,
                               apr_dbd_prepared_t **statement);
 static int outputParams(apr_dbd_t*, apr_dbd_prepared_t*);
 static int dbd_oracle_pselect(apr_pool_t *pool, apr_dbd_t *sql,
                               apr_dbd_results_t **results,
                               apr_dbd_prepared_t *statement,
-                              int seek, int nargs, const char **values);
+                              int seek, const char **values);
 static int dbd_oracle_pquery(apr_pool_t *pool, apr_dbd_t *sql,
                              int *nrows, apr_dbd_prepared_t *statement,
-                             int nargs, const char **values);
+                             const char **values);
 static int dbd_oracle_start_transaction(apr_pool_t *pool, apr_dbd_t *sql,
                                         apr_dbd_transaction_t **trans);
 static int dbd_oracle_end_transaction(apr_dbd_transaction_t *trans);
@@ -132,6 +123,7 @@ struct apr_dbd_transaction_t {
 };
 
 struct apr_dbd_results_t {
+    apr_pool_t *pool;
     apr_dbd_t* handle;
     unsigned int rownum;
     int seek;
@@ -158,15 +150,16 @@ struct apr_dbd_row_t {
 };
 
 typedef struct {
-    dbd_field_type type;
+    apr_dbd_type_e type;
     sb2 ind;
     sb4 len;
     OCIBind *bind;
     union {
         void *raw;
-        char *stringval;
-        int *ival;
-        double *floatval;
+        char *sval;
+        int ival;
+        unsigned int uval;
+        double fval;
         OCILobLocator *lobval;
     } value;
 } bind_arg;
@@ -179,7 +172,7 @@ typedef struct {
     apr_size_t sz;   /* length of buf for output */
     union {
         void *raw;
-        char *stringval;
+        char *sval;
         OCILobLocator *lobval;
     } buf;
     const char *name;
@@ -188,6 +181,7 @@ typedef struct {
 struct apr_dbd_prepared_t {
     OCIStmt *stmt;
     int nargs;
+    int nvals;
     bind_arg *args;
     int nout;
     define_arg *out;
@@ -205,11 +199,155 @@ struct apr_dbd_prepared_t {
  * OK, forget about using APR pools here, until we figure out
  * the right way to do it (if such a thing exists).
  */
-static ub4 null = 0;
 static OCIEnv *dbd_oracle_env = NULL;
 #ifdef GLOBAL_PREPARED_STATEMENTS
 static apr_hash_t *oracle_statements = NULL;
 #endif
+
+/* Oracle specific bucket for BLOB/CLOB types */
+typedef struct apr_bucket_lob apr_bucket_lob;
+/**
+ * A bucket referring to a Oracle BLOB/CLOB
+ */
+struct apr_bucket_lob {
+    /** Number of buckets using this memory */
+    apr_bucket_refcount  refcount;
+    /** The row this bucket refers to */
+    const apr_dbd_row_t *row;
+    /** The column this bucket refers to */
+    int col;
+    /** The pool into which any needed structures should
+     *  be created while reading from this bucket */
+    apr_pool_t *readpool;
+};
+
+static void lob_bucket_destroy(void *data);
+static apr_status_t lob_bucket_read(apr_bucket *e, const char **str,
+                                    apr_size_t *len, apr_read_type_e block);
+static apr_bucket *apr_bucket_lob_make(apr_bucket *b,
+                                       const apr_dbd_row_t *row, int col,
+                                       apr_off_t offset, apr_size_t len,
+                                       apr_pool_t *p);
+static apr_bucket *apr_bucket_lob_create(const apr_dbd_row_t *row, int col,
+                                         apr_off_t offset,
+                                         apr_size_t len, apr_pool_t *p,
+                                         apr_bucket_alloc_t *list);
+
+static const apr_bucket_type_t apr_bucket_type_lob = {
+    "LOB", 5, APR_BUCKET_DATA,
+    lob_bucket_destroy,
+    lob_bucket_read,
+    apr_bucket_setaside_notimpl,
+    apr_bucket_shared_split,
+    apr_bucket_shared_copy
+};
+
+static void lob_bucket_destroy(void *data)
+{
+    apr_bucket_lob *f = data;
+
+    if (apr_bucket_shared_destroy(f)) {
+        /* no need to destroy database objects here; it will get
+         * done automatically when the pool gets cleaned up */
+        apr_bucket_free(f);
+    }
+}
+
+static apr_status_t lob_bucket_read(apr_bucket *e, const char **str,
+                                    apr_size_t *len, apr_read_type_e block)
+{
+    apr_bucket_lob *a = e->data;
+    const apr_dbd_row_t *row = a->row;
+    apr_dbd_results_t *res = row->res;
+    int col = a->col;
+    apr_bucket *b = NULL;
+    apr_size_t blength = e->length;  /* bytes remaining in file past offset */
+    apr_off_t boffset = e->start;
+    define_arg *val = &res->statement->out[col];
+    apr_dbd_t *sql = res->handle;
+/* Only with 10g, unfortunately
+    oraub8 length = APR_BUCKET_BUFF_SIZE;
+*/
+    ub4 length = APR_BUCKET_BUFF_SIZE;
+    char *buf = NULL;
+
+    *str = NULL;  /* in case we die prematurely */
+
+    /* fetch from offset if not at the beginning */
+    buf = apr_palloc(row->pool, APR_BUCKET_BUFF_SIZE);
+    sql->status = OCILobRead(sql->svc, sql->err, val->buf.lobval,
+                             &length, 1 + boffset,
+                             (dvoid*) buf, APR_BUCKET_BUFF_SIZE,
+                             NULL, NULL, 0, SQLCS_IMPLICIT);
+/* Only with 10g, unfortunately
+    sql->status = OCILobRead2(sql->svc, sql->err, val->buf.lobval,
+                              &length, NULL, 1 + boffset,
+                              (dvoid*) buf, APR_BUCKET_BUFF_SIZE,
+                              OCI_ONE_PIECE, NULL, NULL, 0, SQLCS_IMPLICIT);
+*/
+    if (sql->status != OCI_SUCCESS) {
+        return APR_EGENERAL;
+    }
+    blength -= length;
+    *len = length;
+    *str = buf;
+
+    /*
+     * Change the current bucket to refer to what we read,
+     * even if we read nothing because we hit EOF.
+     */
+    apr_bucket_pool_make(e, *str, *len, res->pool);
+
+    /* If we have more to read from the field, then create another bucket */
+    if (blength > 0) {
+        /* for efficiency, we can just build a new apr_bucket struct
+         * to wrap around the existing LOB bucket */
+        b = apr_bucket_alloc(sizeof(*b), e->list);
+        b->start  = boffset + *len;
+        b->length = blength;
+        b->data   = a;
+        b->type   = &apr_bucket_type_lob;
+        b->free   = apr_bucket_free;
+        b->list   = e->list;
+        APR_BUCKET_INSERT_AFTER(e, b);
+    }
+    else {
+        lob_bucket_destroy(a);
+    }
+
+    return APR_SUCCESS;
+}
+
+static apr_bucket *apr_bucket_lob_make(apr_bucket *b,
+                                       const apr_dbd_row_t *row, int col,
+                                       apr_off_t offset, apr_size_t len,
+                                       apr_pool_t *p)
+{
+    apr_bucket_lob *f;
+
+    f = apr_bucket_alloc(sizeof(*f), b->list);
+    f->row = row;
+    f->col = col;
+    f->readpool = p;
+
+    b = apr_bucket_shared_make(b, f, offset, len);
+    b->type = &apr_bucket_type_lob;
+
+    return b;
+}
+
+static apr_bucket *apr_bucket_lob_create(const apr_dbd_row_t *row, int col,
+                                         apr_off_t offset,
+                                         apr_size_t len, apr_pool_t *p,
+                                         apr_bucket_alloc_t *list)
+{
+    apr_bucket *b = apr_bucket_alloc(sizeof(*b), list);
+
+    APR_BUCKET_INIT(b);
+    b->free = apr_bucket_free;
+    b->list = list;
+    return apr_bucket_lob_make(b, row, col, offset, len, p);
+}
 
 static apr_status_t dbd_free_lobdesc(void *lob)
 {
@@ -278,8 +416,13 @@ static void dbd_oracle_init(apr_pool_t *pool)
          * various Oracle bugs.  See, for example, Oracle MetaLink bug 2972890
          * and PHP bug http://bugs.php.net/bug.php?id=23733
          */
-        OCIEnvCreate(&dbd_oracle_env, OCI_THREADED, NULL,
-                     NULL, NULL, NULL, 0, NULL);
+#ifdef OCI_NEW_LENGTH_SEMANTICS
+        OCIEnvCreate(&dbd_oracle_env, OCI_THREADED|OCI_NEW_LENGTH_SEMANTICS,
+                     NULL, NULL, NULL, NULL, 0, NULL);
+#else
+        OCIEnvCreate(&dbd_oracle_env, OCI_THREADED,
+                     NULL, NULL, NULL, NULL, 0, NULL);
+#endif
     }
 #ifdef GLOBAL_PREPARED_STATEMENTS
     if (oracle_statements == NULL) {
@@ -351,7 +494,7 @@ static apr_dbd_t *dbd_oracle_open(apr_pool_t *pool, const char *params)
     }
 
     ret->status = OCIHandleAlloc(dbd_oracle_env, (dvoid**)&ret->err,
-                            OCI_HTYPE_ERROR, 0, NULL);
+                                 OCI_HTYPE_ERROR, 0, NULL);
     switch (ret->status) {
     default:
 #ifdef DEBUG
@@ -365,7 +508,7 @@ static apr_dbd_t *dbd_oracle_open(apr_pool_t *pool, const char *params)
     }
 
     ret->status = OCIHandleAlloc(dbd_oracle_env, (dvoid**)&ret->svr,
-                            OCI_HTYPE_SERVER, 0, NULL);
+                                 OCI_HTYPE_SERVER, 0, NULL);
     switch (ret->status) {
     default:
 #ifdef DEBUG
@@ -381,7 +524,7 @@ static apr_dbd_t *dbd_oracle_open(apr_pool_t *pool, const char *params)
     }
 
     ret->status = OCIHandleAlloc(dbd_oracle_env, (dvoid**)&ret->svc,
-                            OCI_HTYPE_SVCCTX, 0, NULL);
+                                 OCI_HTYPE_SVCCTX, 0, NULL);
     switch (ret->status) {
     default:
 #ifdef DEBUG
@@ -416,7 +559,7 @@ static apr_dbd_t *dbd_oracle_open(apr_pool_t *pool, const char *params)
         break;
     }
 #else
-    ret->status = OCIServerAttach(ret->svr, ret->err, fields[3].value,
+    ret->status = OCIServerAttach(ret->svr, ret->err, (text*) fields[3].value,
                                   strlen(fields[3].value), OCI_DEFAULT);
     switch (ret->status) {
     default:
@@ -621,7 +764,7 @@ static const char *dbd_oracle_error(apr_dbd_t *sql, int n)
     }
 
     switch (OCIErrorGet(sql->err, 1, NULL, &errorcode,
-                        sql->buf, sizeof(sql->buf), OCI_HTYPE_ERROR)) {
+                        (text*) sql->buf, sizeof(sql->buf), OCI_HTYPE_ERROR)) {
     case OCI_SUCCESS:
         return sql->buf; 
     default:
@@ -663,12 +806,12 @@ static int dbd_oracle_select(apr_pool_t *pool, apr_dbd_t *sql,
     int ret = 0;
     apr_dbd_prepared_t *statement = NULL;
 
-    ret = dbd_oracle_prepare(pool, sql, query, NULL, &statement);
+    ret = dbd_oracle_prepare(pool, sql, query, NULL, 0, 0, NULL, &statement);
     if (ret != 0) {
         return ret;
     }
 
-    ret = dbd_oracle_pselect(pool, sql, results, statement, seek, 0, NULL);
+    ret = dbd_oracle_pselect(pool, sql, results, statement, seek, NULL);
     if (ret != 0) {
         return ret;
     }
@@ -681,7 +824,6 @@ static int dbd_oracle_query(apr_dbd_t *sql, int *nrows, const char *query)
     int ret = 0;
     apr_pool_t *pool;
     apr_dbd_prepared_t *statement = NULL;
-    sword status;
 
     if (sql->trans && sql->trans->status == TRANS_ERROR) {
         return 1;
@@ -689,13 +831,13 @@ static int dbd_oracle_query(apr_dbd_t *sql, int *nrows, const char *query)
 
     /* make our own pool so that APR allocations don't linger and so that
      * both Stmt and LOB handles are cleaned up (LOB handles may be
-     * allocated when preparing APR_DBD_ORACLE_CLOB/BLOBs)
+     * allocated when preparing APR_DBD_TYPE_CLOB/BLOBs)
      */
     apr_pool_create(&pool, sql->pool);
 
-    ret = dbd_oracle_prepare(pool, sql, query, NULL, &statement);
+    ret = dbd_oracle_prepare(pool, sql, query, NULL, 0, 0, NULL, &statement);
     if (ret == 0) {
-        ret = dbd_oracle_pquery(pool, sql, nrows, statement, 0, NULL);
+        ret = dbd_oracle_pquery(pool, sql, nrows, statement, NULL);
         if (ret == 0) {
             sql->status = OCIAttrGet(statement->stmt, OCI_HTYPE_STMT,
                                      nrows, 0, OCI_ATTR_ROW_COUNT,
@@ -716,15 +858,11 @@ static const char *dbd_oracle_escape(apr_pool_t *pool, const char *arg,
 
 static int dbd_oracle_prepare(apr_pool_t *pool, apr_dbd_t *sql,
                               const char *query, const char *label,
+                              int nargs, int nvals, apr_dbd_type_e *types,
                               apr_dbd_prepared_t **statement)
 {
     int ret = 0;
-    size_t length;
-    size_t bindlen = 0;
     int i;
-    char *sqlptr;
-    char *orastr;
-    char *oraptr;
     apr_dbd_prepared_t *stmt ;
 
 /* prepared statements in a global lookup table would be nice,
@@ -746,6 +884,8 @@ static int dbd_oracle_prepare(apr_pool_t *pool, apr_dbd_t *sql,
     stmt = *statement;
     stmt->handle = sql;
     stmt->pool = pool;
+    stmt->nargs = nargs;
+    stmt->nvals = nvals;
 
     /* If we have a label, we're going to cache it globally.
      * Check first if we already have it.  If not, prepare the
@@ -769,91 +909,25 @@ static int dbd_oracle_prepare(apr_pool_t *pool, apr_dbd_t *sql,
         }
     }
 #endif
-    /* translate from apr_dbd to native query format */
-    stmt->nargs = 0;
-    for (sqlptr = (char*)query; *sqlptr; ++sqlptr) {
-        if ((sqlptr[0] == '%') && isalnum(sqlptr[1])) {
-            ++stmt->nargs;
-        }
-        else if ((sqlptr[0] == '%') && (sqlptr[1] == '%')) {
-            /* ignore %% */
-            ++sqlptr;
-        }
-    }
-    length = strlen(query) + 1;
-    for (i = stmt->nargs; i > 0; i /= 10) {
-        ++bindlen;
-    }
-    length += (2 + bindlen) * stmt->nargs;      /* replace "%x" with ":aprN" */
 
-    oraptr = orastr = apr_palloc(pool, length);
-
-    if (stmt->nargs > 0) {
-        stmt->args = apr_pcalloc(pool, stmt->nargs*sizeof(bind_arg));
-        for (i=0; i<stmt->nargs; ++i) {
-            stmt->args[i].type = APR_DBD_ORACLE_STRING;
+    /* populate our own args, if any */
+    if (nargs > 0) {
+        stmt->args = apr_pcalloc(pool, nargs*sizeof(bind_arg));
+        for (i = 0; i < nargs; i++) {
+            stmt->args[i].type = types[i];
         }
     }
-
-    i = 0;
-    for (sqlptr = (char*)query; *sqlptr; ++sqlptr) {
-        if ((sqlptr[0] == '%') && isalnum(sqlptr[1])) {
-            while (isdigit(*++sqlptr)) {
-                stmt->args[i].len *= 10;
-                stmt->args[i].len += (*sqlptr - '0');
-            }
-            oraptr += apr_snprintf(oraptr, length - (oraptr - orastr),
-                                   ":apr%d", i + 1);
-            switch (*sqlptr) {
-            case 'd':
-                stmt->args[i].type = APR_DBD_ORACLE_INT;
-                break;
-            case 'f':
-                stmt->args[i].type = APR_DBD_ORACLE_FLOAT;
-                break;
-            case 'L':
-                stmt->args[i].type = APR_DBD_ORACLE_LOB;
-                break;
-            /* BLOB and CLOB won't work - use LOB instead */
-            case 'C':
-                stmt->args[i].type = APR_DBD_ORACLE_CLOB;
-                break;
-            case 'B':
-                stmt->args[i].type = APR_DBD_ORACLE_BLOB;
-                break;
-            /* default is STRING, but we already set that */
-            default:
-                stmt->args[i].type = APR_DBD_ORACLE_STRING;
-                break;
-            }
-            ++i;
-        }
-        else if ((sqlptr[0] == '%') && (sqlptr[1] == '%')) {
-            /* reduce %% to % */
-            *oraptr++ = *sqlptr++;
-        }
-        else {
-            *oraptr++ = *sqlptr;
-        }
-    }
-    *oraptr = '\0';
 
     sql->status = OCIHandleAlloc(dbd_oracle_env, (dvoid**) &stmt->stmt,
                                  OCI_HTYPE_STMT, 0, NULL);
-    switch (sql->status) {
-    case OCI_SUCCESS:
-        break;
-    default:
+    if (sql->status != OCI_SUCCESS) {
         apr_dbd_mutex_unlock();
         return 1;
     }
 
-    sql->status = OCIStmtPrepare(stmt->stmt, sql->err, orastr,
-                                 strlen(orastr), OCI_NTV_SYNTAX, OCI_DEFAULT);
-    switch (sql->status) {
-    case OCI_SUCCESS:
-        break;
-    default:
+    sql->status = OCIStmtPrepare(stmt->stmt, sql->err, (text*) query,
+                                 strlen(query), OCI_NTV_SYNTAX, OCI_DEFAULT);
+    if (sql->status != OCI_SUCCESS) {
         OCIHandleFree(stmt->stmt, OCI_HTYPE_STMT);
         apr_dbd_mutex_unlock();
         return 1;
@@ -865,10 +939,7 @@ static int dbd_oracle_prepare(apr_pool_t *pool, apr_dbd_t *sql,
     /* Perl gets statement type here */
     sql->status = OCIAttrGet(stmt->stmt, OCI_HTYPE_STMT, &stmt->type, 0,
                              OCI_ATTR_STMT_TYPE, sql->err);
-    switch (sql->status) {
-    case OCI_SUCCESS:
-        break;
-    default:
+    if (sql->status != OCI_SUCCESS) {
         apr_dbd_mutex_unlock();
         return 1;
     }
@@ -878,119 +949,14 @@ static int dbd_oracle_prepare(apr_pool_t *pool, apr_dbd_t *sql,
     sql->status = OCIAttrSet(stmt->stmt, OCI_HTYPE_STMT, &prefetch_size,
                              sizeof(prefetch_size), OCI_ATTR_PREFETCH_MEMORY,
                              sql->err);
-    switch (sql->status) {
-    case OCI_SUCCESS:
-        break;
-    default:
+    if (sql->status != OCI_SUCCESS) {
         apr_dbd_mutex_unlock();
         return 1;
     }
 #endif
 
-    sql->status = OCI_SUCCESS;
-    for (i = 0; i < stmt->nargs; ++i) {
-        switch (stmt->args[i].type) {
-        default:
-        case APR_DBD_ORACLE_STRING:
-            if (stmt->args[i].len == 0) {
-                stmt->args[i].len = MAX_ARG_LEN;
-            }
-            stmt->args[i].value.stringval = apr_palloc(pool, stmt->args[i].len);
-            sql->status = OCIBindByPos(stmt->stmt, &stmt->args[i].bind,
-                                       sql->err, i+1,
-                                       stmt->args[i].value.stringval,
-                                       stmt->args[i].len,
-                                       SQLT_STR,
-                                       &stmt->args[i].ind,
-                                       NULL,
-                                       (ub2) 0, (ub4) 0,
-                                       (ub4 *) 0, OCI_DEFAULT);
-            break;
-        case APR_DBD_ORACLE_FLOAT:
-            stmt->args[i].value.raw = apr_palloc(pool, NUMERIC_FIELD_SIZE);
-            sql->status = OCIBindByPos(stmt->stmt, &stmt->args[i].bind,
-                                       sql->err, i+1,
-                                       (void*)&stmt->args[i].value.floatval,
-                                       sizeof(stmt->args[i].value.floatval),
-                                       SQLT_FLT,
-                                       &stmt->args[i].ind,
-                                       NULL,
-                                       (ub2) 0, (ub4) 0,
-                                       (ub4 *) 0, OCI_DEFAULT);
-            break;
-        case APR_DBD_ORACLE_INT:
-            stmt->args[i].value.raw = apr_palloc(pool, NUMERIC_FIELD_SIZE);
-            sql->status = OCIBindByPos(stmt->stmt, &stmt->args[i].bind,
-                                       sql->err, i+1,
-                                       (void*)stmt->args[i].value.ival,
-                                       sizeof(*stmt->args[i].value.ival),
-                                       SQLT_INT,
-                                       &stmt->args[i].ind,
-                                       NULL,
-                                       (ub2) 0, (ub4) 0,
-                                       (ub4 *) 0, OCI_DEFAULT);
-            break;
-        /* lots of examples in the docs use this for LOB
-         * but it relies on knowing the size in advance and
-         * holding it in memory
-         */
-        case APR_DBD_ORACLE_LOB:
-            break;        /* bind LOBs at write-time */
-        /* This is also cited in the docs for LOB, if we don't
-         * want the whole thing in memory
-         */
-        case APR_DBD_ORACLE_BLOB:
-            sql->status = OCIDescriptorAlloc(dbd_oracle_env,
-                                             (dvoid**)&stmt->args[i].value.lobval,
-                                             OCI_DTYPE_LOB, 0, NULL);
-            apr_pool_cleanup_register(pool, stmt->args[i].value.lobval,
-                                      dbd_free_lobdesc,
-                                      apr_pool_cleanup_null);
-            sql->status = OCIBindByPos(stmt->stmt, &stmt->args[i].bind,
-                                       sql->err, i+1,
-                                       (void*) &stmt->args[i].value.lobval,
-                                       -1,
-                                       SQLT_BLOB,
-                                       &stmt->args[i].ind,
-                                       NULL,
-                                       (ub2) 0, (ub4) 0,
-                                       (ub4 *) 0, OCI_DEFAULT);
-            break;
-        /* This is also cited in the docs for LOB, if we don't
-         * want the whole thing in memory
-         */
-        case APR_DBD_ORACLE_CLOB:
-            sql->status = OCIDescriptorAlloc(dbd_oracle_env,
-                                             (dvoid**)&stmt->args[i].value.lobval,
-                                             OCI_DTYPE_LOB, 0, NULL);
-            apr_pool_cleanup_register(pool, stmt->args[i].value.lobval,
-                                      dbd_free_lobdesc,
-                                      apr_pool_cleanup_null);
-            sql->status = OCIBindByPos(stmt->stmt, &stmt->args[i].bind,
-                                       sql->err, i+1,
-                                       (dvoid*) &stmt->args[i].value.lobval,
-                                       -1,
-                                       SQLT_CLOB,
-                                       &stmt->args[i].ind,
-                                       NULL,
-                                       (ub2) 0, (ub4) 0,
-                                       (ub4 *) 0, OCI_DEFAULT);
-            break;
-        }
-        switch (sql->status) {
-        case OCI_SUCCESS:
-            break;
-        default:
-            apr_dbd_mutex_unlock();
-            return 1;
-        }
-    }
-    switch (stmt->type) {
-    case OCI_STMT_SELECT:
+    if (stmt->type == OCI_STMT_SELECT) {
         ret = outputParams(sql, stmt);
-        break;
-    default:
-        break;
     }
 #ifdef GLOBAL_PREPARED_STATEMENTS
     if (label != NULL) {
@@ -999,6 +965,80 @@ static int dbd_oracle_prepare(apr_pool_t *pool, apr_dbd_t *sql,
     }
 #endif
     return ret;
+}
+
+static void dbd_oracle_bind(apr_dbd_prepared_t *statement, const char **values)
+{
+    OCIStmt *stmt = statement->stmt;
+    apr_dbd_t *sql = statement->handle;
+    int i, j;
+    sb2 null_ind = -1;
+
+    for (i = 0, j = 0; i < statement->nargs; i++, j++) {
+        if (values[j] == NULL) {
+            sql->status = OCIBindByPos(stmt, &statement->args[i].bind,
+                                       sql->err, i + 1,
+                                       NULL, 0, SQLT_STR,
+                                       &null_ind, NULL,
+                                       (ub2) 0, (ub4) 0,
+                                       (ub4 *) 0, OCI_DEFAULT);
+        }
+        else {
+            switch (statement->args[i].type) {
+            case APR_DBD_TYPE_BLOB:
+                {
+                char *data = (char *)values[j];
+                int size = atoi((char*)values[++j]);
+
+                /* skip table and column for now */
+                j += 2;
+
+                sql->status = OCIBindByPos(stmt, &statement->args[i].bind,
+                                           sql->err, i + 1,
+                                           data, size, SQLT_LBI,
+                                           &statement->args[i].ind,
+                                           NULL,
+                                           (ub2) 0, (ub4) 0,
+                                           (ub4 *) 0, OCI_DEFAULT);
+                }
+                break;
+            case APR_DBD_TYPE_CLOB:
+                {
+                char *data = (char *)values[j];
+                int size = atoi((char*)values[++j]);
+
+                /* skip table and column for now */
+                j += 2;
+
+                sql->status = OCIBindByPos(stmt, &statement->args[i].bind,
+                                           sql->err, i + 1,
+                                           data, size, SQLT_LNG,
+                                           &statement->args[i].ind,
+                                           NULL,
+                                           (ub2) 0, (ub4) 0,
+                                           (ub4 *) 0, OCI_DEFAULT);
+                }
+                break;
+            default:
+                sql->status = OCIBindByPos(stmt, &statement->args[i].bind,
+                                           sql->err, i + 1,
+                                           (dvoid*) values[j],
+                                           strlen(values[j]) + 1,
+                                           SQLT_STR,
+                                           &statement->args[i].ind,
+                                           NULL,
+                                           (ub2) 0, (ub4) 0,
+                                           (ub4 *) 0, OCI_DEFAULT);
+                break;
+            }
+        }
+
+        if (sql->status != OCI_SUCCESS) {
+            return;
+        }
+    }
+
+    return;
 }
 
 static int outputParams(apr_dbd_t *sql, apr_dbd_prepared_t *stmt)
@@ -1097,7 +1137,7 @@ static int outputParams(apr_dbd_t *sql, apr_dbd_prepared_t *stmt)
             stmt->out[i].buf.raw = apr_palloc(stmt->pool, stmt->out[i].sz);
             sql->status = OCIDefineByPos(stmt->stmt, &stmt->out[i].defn,
                                          sql->err, i+1,
-                                         stmt->out[i].buf.stringval,
+                                         stmt->out[i].buf.sval,
                                          stmt->out[i].sz, SQLT_STR,
                                          &stmt->out[i].ind, &stmt->out[i].len,
                                          0, OCI_DEFAULT);
@@ -1149,17 +1189,15 @@ static int outputParams(apr_dbd_t *sql, apr_dbd_prepared_t *stmt)
     return 0;
 }
 
-static int dbd_oracle_pvquery(apr_pool_t *pool, apr_dbd_t *sql,
-                              int *nrows, apr_dbd_prepared_t *statement,
-                              va_list args)
+static int dbd_oracle_pquery(apr_pool_t *pool, apr_dbd_t *sql,
+                             int *nrows, apr_dbd_prepared_t *statement,
+                             const char **values)
 {
-    const char *arg = NULL;
+    int_errorcode;
     OCISnapshot *oldsnapshot = NULL;
     OCISnapshot *newsnapshot = NULL;
     apr_dbd_transaction_t* trans = sql->trans;
-    int i;
     int exec_mode;
-    int_errorcode;
 
     if (trans) {
         switch (trans->status) {
@@ -1185,51 +1223,7 @@ static int dbd_oracle_pvquery(apr_pool_t *pool, apr_dbd_t *sql,
         exec_mode = OCI_COMMIT_ON_SUCCESS;
     }
 
-    /* we've bound these vars, so now we just copy data in to them */
-    for (i=0; i<statement->nargs; ++i) {
-        switch (statement->args[i].type) {
-        case APR_DBD_ORACLE_INT:
-            arg = va_arg(args, char*);
-            sscanf(arg, "%d", statement->args[i].value.ival);
-            break;
-        case APR_DBD_ORACLE_FLOAT:
-            arg = va_arg(args, char*);
-            sscanf(arg, "%lf", statement->args[i].value.floatval);
-            break;
-        case APR_DBD_ORACLE_BLOB:
-        case APR_DBD_ORACLE_CLOB:
-            sql->status = OCIAttrSet(statement->args[i].value.lobval,
-                                     OCI_DTYPE_LOB, &null, 0,
-                                     OCI_ATTR_LOBEMPTY, sql->err);
-            break;
-        case APR_DBD_ORACLE_LOB:
-            /* requires strlen() over large data, which may fail for binary */
-            statement->args[i].value.raw = va_arg(args, char*);
-            statement->args[i].len =
-                strlen(statement->args[i].value.stringval);
-            sql->status = OCIBindByPos(statement->stmt,
-                                       &statement->args[i].bind,
-                                       sql->err, i+1,
-                                       (void*)statement->args[i].value.raw,
-                                       statement->args[i].len, SQLT_LNG,
-                                       &statement->args[i].ind,
-                                       NULL,
-                                       (ub2) 0, (ub4) 0,
-                                       (ub4 *) 0, OCI_DEFAULT);
-            break;
-        case APR_DBD_ORACLE_STRING:
-        default:
-            arg = va_arg(args, char*);
-            if (strlen(arg) >= statement->args[i].len) {
-                strncpy(statement->args[i].value.stringval, arg,
-                        statement->args[i].len-1);
-            }
-            else {
-                strcpy(statement->args[i].value.stringval, arg);
-            }
-            break;
-        }
-    }
+    dbd_oracle_bind(statement, values);
 
     sql->status = OCIStmtExecute(sql->svc, statement->stmt, sql->err, 1, 0,
                                  oldsnapshot, newsnapshot, exec_mode);
@@ -1255,21 +1249,40 @@ static int dbd_oracle_pvquery(apr_pool_t *pool, apr_dbd_t *sql,
     return 0;
 }
 
-static int dbd_oracle_pquery(apr_pool_t *pool, apr_dbd_t *sql,
-                             int *nrows, apr_dbd_prepared_t *statement,
-                             int nargs, const char **values)
+static int dbd_oracle_pvquery(apr_pool_t *pool, apr_dbd_t *sql,
+                              int *nrows, apr_dbd_prepared_t *statement,
+                              va_list args)
 {
-    int_errorcode;
+    const char **values;
+    int i;
+
+    if (sql->trans && sql->trans->status == TRANS_ERROR) {
+        return -1;
+    }
+
+    values = apr_palloc(pool, sizeof(*values) * statement->nvals);
+
+    for (i = 0; i < statement->nvals; i++) {
+        values[i] = va_arg(args, const char*);
+    }
+
+    return dbd_oracle_pquery(pool, sql, nrows, statement, values);
+}
+
+static int dbd_oracle_pselect(apr_pool_t *pool, apr_dbd_t *sql,
+                              apr_dbd_results_t **results,
+                              apr_dbd_prepared_t *statement,
+                              int seek, const char **values)
+{
+    int exec_mode = seek ? OCI_STMT_SCROLLABLE_READONLY : OCI_DEFAULT;
     OCISnapshot *oldsnapshot = NULL;
     OCISnapshot *newsnapshot = NULL;
     apr_dbd_transaction_t* trans = sql->trans;
-    int i;
-    int exec_mode;
 
     if (trans) {
         switch (trans->status) {
         case TRANS_ERROR:
-            return -1;
+            return 1;
         case TRANS_NONE:
             trans = NULL;
             break;
@@ -1284,68 +1297,21 @@ static int dbd_oracle_pquery(apr_pool_t *pool, apr_dbd_t *sql,
             trans->status = TRANS_1;
             break;
         }
-        exec_mode = OCI_DEFAULT;
-    }
-    else {
-        exec_mode = OCI_COMMIT_ON_SUCCESS;
     }
 
-    /* we've bound these vars, so now we just copy data in to them */
-    if (nargs > statement->nargs) {
-        nargs = statement->nargs;
-    }
-    for (i=0; i<nargs; ++i) {
-        switch (statement->args[i].type) {
-        case APR_DBD_ORACLE_INT:
-            sscanf(values[i], "%d", statement->args[i].value.ival);
-            break;
-        case APR_DBD_ORACLE_FLOAT:
-            sscanf(values[i], "%lf", statement->args[i].value.floatval);
-            break;
-        case APR_DBD_ORACLE_BLOB:
-        case APR_DBD_ORACLE_CLOB:
-            sql->status = OCIAttrSet(statement->args[i].value.lobval,
-                                     OCI_DTYPE_LOB, &null, 0,
-                                     OCI_ATTR_LOBEMPTY, sql->err);
-            break;
-        case APR_DBD_ORACLE_LOB:
-            /* requires strlen() over large data, which may fail for binary */
-            statement->args[i].value.raw = (char*)values[i];
-            statement->args[i].len =
-                strlen(statement->args[i].value.stringval);
-            sql->status = OCIBindByPos(statement->stmt,
-                                       &statement->args[i].bind,
-                                       sql->err, i+1,
-                                       (void*)statement->args[i].value.raw,
-                                       statement->args[i].len, SQLT_LNG,
-                                       &statement->args[i].ind,
-                                       NULL,
-                                       (ub2) 0, (ub4) 0,
-                                       (ub4 *) 0, OCI_DEFAULT);
-            break;
-        case APR_DBD_ORACLE_STRING:
-        default:
-            if (strlen(values[i]) >= statement->args[i].len) {
-                strncpy(statement->args[i].value.stringval, values[i],
-                        statement->args[i].len-1);
-            }
-            else {
-                strcpy(statement->args[i].value.stringval, values[i]);
-            }
-            break;
-        }
-    }
+    dbd_oracle_bind(statement, values);
 
-    sql->status = OCIStmtExecute(sql->svc, statement->stmt, sql->err, 1, 0,
+    sql->status = OCIStmtExecute(sql->svc, statement->stmt, sql->err, 0, 0,
                                  oldsnapshot, newsnapshot, exec_mode);
     switch (sql->status) {
+    int_errorcode;
     case OCI_SUCCESS:
         break;
     case OCI_ERROR:
 #ifdef DEBUG
         OCIErrorGet(sql->err, 1, NULL, &errorcode,
                     sql->buf, sizeof(sql->buf), OCI_HTYPE_ERROR);
-        printf("Execute error %d: %s\n", sql->status, sql->buf);
+        printf("Executing prepared statement: %s\n", sql->buf);
 #endif
         /* fallthrough */
     default:
@@ -1355,8 +1321,15 @@ static int dbd_oracle_pquery(apr_pool_t *pool, apr_dbd_t *sql,
         return 1;
     }
 
-    sql->status = OCIAttrGet(statement->stmt, OCI_HTYPE_STMT, nrows, 0,
-                             OCI_ATTR_ROW_COUNT, sql->err);
+    if (!*results) {
+        *results = apr_palloc(pool, sizeof(apr_dbd_results_t));
+    }
+    (*results)->handle = sql;
+    (*results)->statement = statement;
+    (*results)->seek = seek;
+    (*results)->rownum = seek ? 0 : -1;
+    (*results)->pool = pool;
+
     return 0;
 }
 
@@ -1365,13 +1338,333 @@ static int dbd_oracle_pvselect(apr_pool_t *pool, apr_dbd_t *sql,
                                apr_dbd_prepared_t *statement,
                                int seek, va_list args)
 {
+    const char **values;
     int i;
-    char *arg;
+
+    if (sql->trans && sql->trans->status == TRANS_ERROR) {
+        return -1;
+    }
+
+    values = apr_palloc(pool, sizeof(*values) * statement->nvals);
+
+    for (i = 0; i < statement->nvals; i++) {
+        values[i] = va_arg(args, const char*);
+    }
+
+    return dbd_oracle_pselect(pool, sql, results, statement, seek, values);
+}
+
+static void dbd_oracle_bbind(apr_dbd_prepared_t * statement,
+                             const void **values)
+{
+    OCIStmt *stmt = statement->stmt;
+    apr_dbd_t *sql = statement->handle;
+    int i, j;
+    sb2 null_ind = -1;
+    apr_dbd_type_e type;
+
+    for (i = 0, j = 0; i < statement->nargs; i++, j++) {
+        type = (values[j] == NULL ? APR_DBD_TYPE_NULL
+                                  : statement->args[i].type);
+
+        switch (type) {
+        case APR_DBD_TYPE_TINY:
+            statement->args[i].value.ival = *(char*)values[j];
+            sql->status = OCIBindByPos(stmt, &statement->args[i].bind,
+                                       sql->err, i + 1,
+                                       &statement->args[i].value.ival,
+                                       sizeof(statement->args[i].value.ival),
+                                       SQLT_INT,
+                                       &statement->args[i].ind, NULL,
+                                       (ub2) 0, (ub4) 0,
+                                       (ub4 *) 0, OCI_DEFAULT);
+            break;
+        case APR_DBD_TYPE_UTINY:
+            statement->args[i].value.uval = *(unsigned char*)values[j];
+            sql->status = OCIBindByPos(stmt, &statement->args[i].bind,
+                                       sql->err, i + 1,
+                                       &statement->args[i].value.uval,
+                                       sizeof(statement->args[i].value.uval),
+                                       SQLT_UIN,
+                                       &statement->args[i].ind, NULL,
+                                       (ub2) 0, (ub4) 0,
+                                       (ub4 *) 0, OCI_DEFAULT);
+            break;
+        case APR_DBD_TYPE_SHORT:
+            statement->args[i].value.ival = *(short*)values[j];
+            sql->status = OCIBindByPos(stmt, &statement->args[i].bind,
+                                       sql->err, i + 1,
+                                       &statement->args[i].value.ival,
+                                       sizeof(statement->args[i].value.ival),
+                                       SQLT_INT,
+                                       &statement->args[i].ind, NULL,
+                                       (ub2) 0, (ub4) 0,
+                                       (ub4 *) 0, OCI_DEFAULT);
+            break;
+        case APR_DBD_TYPE_USHORT:
+            statement->args[i].value.uval = *(unsigned short*)values[j];
+            sql->status = OCIBindByPos(stmt, &statement->args[i].bind,
+                                       sql->err, i + 1,
+                                       &statement->args[i].value.uval,
+                                       sizeof(statement->args[i].value.uval),
+                                       SQLT_UIN,
+                                       &statement->args[i].ind, NULL,
+                                       (ub2) 0, (ub4) 0,
+                                       (ub4 *) 0, OCI_DEFAULT);
+            break;
+        case APR_DBD_TYPE_INT:
+            statement->args[i].value.ival = *(int*)values[j];
+            sql->status = OCIBindByPos(stmt, &statement->args[i].bind,
+                                       sql->err, i + 1,
+                                       &statement->args[i].value.ival,
+                                       sizeof(statement->args[i].value.ival),
+                                       SQLT_INT,
+                                       &statement->args[i].ind, NULL,
+                                       (ub2) 0, (ub4) 0,
+                                       (ub4 *) 0, OCI_DEFAULT);
+            break;
+        case APR_DBD_TYPE_UINT:
+            statement->args[i].value.uval = *(unsigned int*)values[j];
+            sql->status = OCIBindByPos(stmt, &statement->args[i].bind,
+                                       sql->err, i + 1,
+                                       &statement->args[i].value.uval,
+                                       sizeof(statement->args[i].value.uval),
+                                       SQLT_UIN,
+                                       &statement->args[i].ind, NULL,
+                                       (ub2) 0, (ub4) 0,
+                                       (ub4 *) 0, OCI_DEFAULT);
+            break;
+        case APR_DBD_TYPE_LONG:
+            statement->args[i].value.sval =
+                apr_psprintf(statement->pool, "%ld", *(long*)values[j]);
+            sql->status = OCIBindByPos(stmt, &statement->args[i].bind,
+                                       sql->err, i + 1,
+                                       statement->args[i].value.sval,
+                                       strlen(statement->args[i].value.sval)+1,
+                                       SQLT_STR,
+                                       &statement->args[i].ind, NULL,
+                                       (ub2) 0, (ub4) 0,
+                                       (ub4 *) 0, OCI_DEFAULT);
+            break;
+        case APR_DBD_TYPE_ULONG:
+            statement->args[i].value.sval =
+                apr_psprintf(statement->pool, "%lu",
+                                              *(unsigned long*)values[j]);
+            sql->status = OCIBindByPos(stmt, &statement->args[i].bind,
+                                       sql->err, i + 1,
+                                       statement->args[i].value.sval,
+                                       strlen(statement->args[i].value.sval)+1,
+                                       SQLT_STR,
+                                       &statement->args[i].ind, NULL,
+                                       (ub2) 0, (ub4) 0,
+                                       (ub4 *) 0, OCI_DEFAULT);
+            break;
+        case APR_DBD_TYPE_LONGLONG:
+            statement->args[i].value.sval =
+                apr_psprintf(statement->pool, "%" APR_INT64_T_FMT,
+                                              *(apr_int64_t*)values[j]);
+            sql->status = OCIBindByPos(stmt, &statement->args[i].bind,
+                                       sql->err, i + 1,
+                                       statement->args[i].value.sval,
+                                       strlen(statement->args[i].value.sval)+1,
+                                       SQLT_STR,
+                                       &statement->args[i].ind, NULL,
+                                       (ub2) 0, (ub4) 0,
+                                       (ub4 *) 0, OCI_DEFAULT);
+            break;
+        case APR_DBD_TYPE_ULONGLONG:
+            statement->args[i].value.sval =
+                apr_psprintf(statement->pool, "%" APR_UINT64_T_FMT,
+                                              *(apr_uint64_t*)values[j]);
+            sql->status = OCIBindByPos(stmt, &statement->args[i].bind,
+                                       sql->err, i + 1,
+                                       statement->args[i].value.sval,
+                                       strlen(statement->args[i].value.sval)+1,
+                                       SQLT_UIN,
+                                       &statement->args[i].ind, NULL,
+                                       (ub2) 0, (ub4) 0,
+                                       (ub4 *) 0, OCI_DEFAULT);
+            break;
+        case APR_DBD_TYPE_FLOAT:
+            statement->args[i].value.fval = *(float*)values[j];
+            sql->status = OCIBindByPos(stmt, &statement->args[i].bind,
+                                       sql->err, i + 1,
+                                       &statement->args[i].value.fval,
+                                       sizeof(statement->args[i].value.fval),
+                                       SQLT_FLT,
+                                       &statement->args[i].ind, NULL,
+                                       (ub2) 0, (ub4) 0,
+                                       (ub4 *) 0, OCI_DEFAULT);
+            break;
+        case APR_DBD_TYPE_DOUBLE:
+            statement->args[i].value.fval = *(double*)values[j];
+            sql->status = OCIBindByPos(stmt, &statement->args[i].bind,
+                                       sql->err, i + 1,
+                                       &statement->args[i].value.fval,
+                                       sizeof(statement->args[i].value.fval),
+                                       SQLT_FLT,
+                                       &statement->args[i].ind, NULL,
+                                       (ub2) 0, (ub4) 0,
+                                       (ub4 *) 0, OCI_DEFAULT);
+            break;
+        case APR_DBD_TYPE_STRING:
+        case APR_DBD_TYPE_TEXT:
+        case APR_DBD_TYPE_TIME:
+        case APR_DBD_TYPE_DATE:
+        case APR_DBD_TYPE_DATETIME:
+        case APR_DBD_TYPE_TIMESTAMP:
+        case APR_DBD_TYPE_ZTIMESTAMP:
+            sql->status = OCIBindByPos(stmt, &statement->args[i].bind,
+                                       sql->err, i + 1,
+                                       (dvoid*) values[j],
+                                       strlen(values[j]) + 1,
+                                       SQLT_STR,
+                                       &statement->args[i].ind, NULL,
+                                       (ub2) 0, (ub4) 0,
+                                       (ub4 *) 0, OCI_DEFAULT);
+            break;
+        case APR_DBD_TYPE_BLOB:
+            {
+            char *data = (char *)values[j];
+            apr_size_t size = *(apr_size_t*)values[++j];
+
+            /* skip table and column for now */
+            j += 2;
+
+            sql->status = OCIBindByPos(stmt, &statement->args[i].bind,
+                                       sql->err, i + 1,
+                                       data, size, SQLT_LBI,
+                                       &statement->args[i].ind,
+                                       NULL,
+                                       (ub2) 0, (ub4) 0,
+                                       (ub4 *) 0, OCI_DEFAULT);
+            }
+            break;
+        case APR_DBD_TYPE_CLOB:
+            {
+            char *data = (char *)values[j];
+            apr_size_t size = *(apr_size_t*)values[++j];
+
+            /* skip table and column for now */
+            j += 2;
+
+            sql->status = OCIBindByPos(stmt, &statement->args[i].bind,
+                                       sql->err, i + 1,
+                                       data, size, SQLT_LNG,
+                                       &statement->args[i].ind,
+                                       NULL,
+                                       (ub2) 0, (ub4) 0,
+                                       (ub4 *) 0, OCI_DEFAULT);
+            }
+            break;
+        case APR_DBD_TYPE_NULL:
+        default:
+            sql->status = OCIBindByPos(stmt, &statement->args[i].bind,
+                                       sql->err, i + 1,
+                                       NULL, 0, SQLT_STR,
+                                       &null_ind, NULL,
+                                       (ub2) 0, (ub4) 0,
+                                       (ub4 *) 0, OCI_DEFAULT);
+            break;
+        }
+
+        if (sql->status != OCI_SUCCESS) {
+            return;
+        }
+    }
+
+    return;
+}
+
+static int dbd_oracle_pbquery(apr_pool_t * pool, apr_dbd_t * sql,
+                              int *nrows, apr_dbd_prepared_t * statement,
+                              const void **values)
+{
+    int_errorcode;
+    OCISnapshot *oldsnapshot = NULL;
+    OCISnapshot *newsnapshot = NULL;
+    apr_dbd_transaction_t* trans = sql->trans;
+    int exec_mode;
+
+    if (trans) {
+        switch (trans->status) {
+        case TRANS_ERROR:
+            return -1;
+        case TRANS_NONE:
+            trans = NULL;
+            break;
+        case TRANS_1:
+            oldsnapshot = trans->snapshot1;
+            newsnapshot = trans->snapshot2;
+            trans->status = TRANS_2;
+            break;
+        case TRANS_2:
+            oldsnapshot = trans->snapshot2;
+            newsnapshot = trans->snapshot1;
+            trans->status = TRANS_1;
+            break;
+        }
+        exec_mode = OCI_DEFAULT;
+    }
+    else {
+        exec_mode = OCI_COMMIT_ON_SUCCESS;
+    }
+
+    dbd_oracle_bbind(statement, values);
+
+    sql->status = OCIStmtExecute(sql->svc, statement->stmt, sql->err, 1, 0,
+                                 oldsnapshot, newsnapshot, exec_mode);
+    switch (sql->status) {
+    case OCI_SUCCESS:
+        break;
+    case OCI_ERROR:
+#ifdef DEBUG
+        OCIErrorGet(sql->err, 1, NULL, &errorcode,
+                    sql->buf, sizeof(sql->buf), OCI_HTYPE_ERROR);
+        printf("Execute error %d: %s\n", sql->status, sql->buf);
+#endif
+        /* fallthrough */
+    default:
+        if (TXN_NOTICE_ERRORS(trans)) {
+            trans->status = TRANS_ERROR;
+        }
+        return 1;
+    }
+
+    sql->status = OCIAttrGet(statement->stmt, OCI_HTYPE_STMT, nrows, 0,
+                             OCI_ATTR_ROW_COUNT, sql->err);
+    return 0;
+}
+
+static int dbd_oracle_pvbquery(apr_pool_t * pool, apr_dbd_t * sql,
+                               int *nrows, apr_dbd_prepared_t * statement,
+                               va_list args)
+{
+    const void **values;
+    int i;
+
+    if (sql->trans && sql->trans->status == TRANS_ERROR) {
+        return -1;
+    }
+
+    values = apr_palloc(pool, sizeof(*values) * statement->nvals);
+
+    for (i = 0; i < statement->nvals; i++) {
+        values[i] = va_arg(args, const void*);
+    }
+
+    return dbd_oracle_pbquery(pool, sql, nrows, statement, values);
+}
+
+static int dbd_oracle_pbselect(apr_pool_t * pool, apr_dbd_t * sql,
+                               apr_dbd_results_t ** results,
+                               apr_dbd_prepared_t * statement,
+                               int seek, const void **values)
+{
     int exec_mode = seek ? OCI_STMT_SCROLLABLE_READONLY : OCI_DEFAULT;
     OCISnapshot *oldsnapshot = NULL;
     OCISnapshot *newsnapshot = NULL;
     apr_dbd_transaction_t* trans = sql->trans;
-    int_errorcode;
 
     if (trans) {
         switch (trans->status) {
@@ -1393,47 +1686,12 @@ static int dbd_oracle_pvselect(apr_pool_t *pool, apr_dbd_t *sql,
         }
     }
 
-    /* we've bound these vars, so now we just copy data in to them */
-    for (i=0; i<statement->nargs; ++i) {
-        int len;
-        switch (statement->args[i].type) {
-        case APR_DBD_ORACLE_INT:
-            arg = va_arg(args, char*);
-            sscanf(arg, "%d", statement->args[i].value.ival);
-            break;
-        case APR_DBD_ORACLE_FLOAT:
-            arg = va_arg(args, char*);
-            sscanf(arg, "%lf", statement->args[i].value.floatval);
-            break;
-        case APR_DBD_ORACLE_BLOB:
-        case APR_DBD_ORACLE_CLOB:
-            sql->status = OCIAttrSet(statement->args[i].value.lobval,
-                                     OCI_DTYPE_LOB, &null, 0,
-                                     OCI_ATTR_LOBEMPTY, sql->err);
-            break;
-        case APR_DBD_ORACLE_STRING:
-        default:
-            arg = va_arg(args, char*);
-            len = strlen(arg);
-            if (len >= statement->args[i].len) {
-                len = statement->args[i].len - 1;
-                strncpy(statement->args[i].value.stringval, arg, len);
-                statement->args[i].value.stringval[len] = '\0';
-            }
-            else {
-                strcpy(statement->args[i].value.stringval, arg);
-            }
-            ++len;
-            sql->status = OCIAttrSet(statement->args[i].bind,
-                                     OCI_DTYPE_PARAM, &len, 0,
-                                     OCI_ATTR_DATA_SIZE, sql->err);
-            break;
-        }
-    }
+    dbd_oracle_bbind(statement, values);
 
     sql->status = OCIStmtExecute(sql->svc, statement->stmt, sql->err, 0, 0,
                                  oldsnapshot, newsnapshot, exec_mode);
     switch (sql->status) {
+    int_errorcode;
     case OCI_SUCCESS:
         break;
     case OCI_ERROR:
@@ -1457,101 +1715,30 @@ static int dbd_oracle_pvselect(apr_pool_t *pool, apr_dbd_t *sql,
     (*results)->statement = statement;
     (*results)->seek = seek;
     (*results)->rownum = seek ? 0 : -1;
+    (*results)->pool = pool;
 
     return 0;
 }
 
-static int dbd_oracle_pselect(apr_pool_t *pool, apr_dbd_t *sql,
-                              apr_dbd_results_t **results,
-                              apr_dbd_prepared_t *statement,
-                              int seek, int nargs, const char **values)
+static int dbd_oracle_pvbselect(apr_pool_t * pool, apr_dbd_t * sql,
+                                apr_dbd_results_t ** results,
+                                apr_dbd_prepared_t * statement, int seek,
+                                va_list args)
 {
+    const void **values;
     int i;
-    int exec_mode = seek ? OCI_STMT_SCROLLABLE_READONLY : OCI_DEFAULT;
-    OCISnapshot *oldsnapshot = NULL;
-    OCISnapshot *newsnapshot = NULL;
-    apr_dbd_transaction_t* trans = sql->trans;
 
-    if (trans) {
-        switch (trans->status) {
-        case TRANS_ERROR:
-            return 1;
-        case TRANS_NONE:
-            trans = NULL;
-            break;
-        case TRANS_1:
-            oldsnapshot = trans->snapshot1;
-            newsnapshot = trans->snapshot2;
-            trans->status = TRANS_2;
-            break;
-        case TRANS_2:
-            oldsnapshot = trans->snapshot2;
-            newsnapshot = trans->snapshot1;
-            trans->status = TRANS_1;
-            break;
-        }
+    if (sql->trans && sql->trans->status == TRANS_ERROR) {
+        return -1;
     }
 
-    /* we've bound these vars, so now we just copy data in to them */
-    if (nargs > statement->nargs) {
-        nargs = statement->nargs;
-    }
-    for (i=0; i<nargs; ++i) {
-        switch (statement->args[i].type) {
-        case APR_DBD_ORACLE_INT:
-            sscanf(values[i], "%d", statement->args[i].value.ival);
-            break;
-        case APR_DBD_ORACLE_FLOAT:
-            sscanf(values[i], "%lf", statement->args[i].value.floatval);
-            break;
-        case APR_DBD_ORACLE_BLOB:
-        case APR_DBD_ORACLE_CLOB:
-            sql->status = OCIAttrSet(statement->args[i].value.lobval,
-                                     OCI_DTYPE_LOB, &null, 0,
-                                     OCI_ATTR_LOBEMPTY, sql->err);
-            break;
-        case APR_DBD_ORACLE_STRING:
-        default:
-            if (strlen(values[i]) >= MAX_ARG_LEN) {
-                strncpy(statement->args[i].value.stringval, values[i],
-                        MAX_ARG_LEN-1);
-            }
-            else {
-                strcpy(statement->args[i].value.stringval, values[i]);
-            }
-            break;
-        }
+    values = apr_palloc(pool, sizeof(*values) * statement->nvals);
+
+    for (i = 0; i < statement->nvals; i++) {
+        values[i] = va_arg(args, const void*);
     }
 
-    sql->status = OCIStmtExecute(sql->svc, statement->stmt, sql->err, 0, 0,
-                                 oldsnapshot, newsnapshot, exec_mode);
-    switch (sql->status) {
-    int_errorcode;
-    case OCI_SUCCESS:
-        break;
-    case OCI_ERROR:
-#ifdef DEBUG
-        OCIErrorGet(sql->err, 1, NULL, &errorcode,
-                    sql->buf, sizeof(sql->buf), OCI_HTYPE_ERROR);
-        printf("Executing prepared statement: %s\n", sql->buf);
-#endif
-        /* fallthrough */
-    default:
-        if (TXN_NOTICE_ERRORS(trans)) {
-            trans->status = TRANS_ERROR;
-        }
-        return 1;
-    }
-
-    if (!*results) {
-        *results = apr_palloc(pool, sizeof(apr_dbd_results_t));
-    }
-    (*results)->handle = sql;
-    (*results)->statement = statement;
-    (*results)->seek = seek;
-    (*results)->rownum = seek ? 0 : -1;
-
-    return 0;
+    return dbd_oracle_pbselect(pool, sql, results, statement, seek, values);
 }
 
 static int dbd_oracle_start_transaction(apr_pool_t *pool, apr_dbd_t *sql,
@@ -1715,8 +1902,7 @@ static const char *dbd_oracle_get_entry(const apr_dbd_row_t *row, int n)
             break;
         }
 
-        if (val->type == APR_DBD_ORACLE_CLOB) {
-
+        if (val->type == APR_DBD_TYPE_CLOB) {
 #if 1
             /* Is this necessary, or can it be defaulted? */
             sql->status = OCILobCharSetForm(dbd_oracle_env, sql->err,
@@ -1783,13 +1969,176 @@ static const char *dbd_oracle_get_entry(const apr_dbd_row_t *row, int n)
     case SQLT_LBI:
         /* raw is struct { ub4 len; char *buf; } */
         len = *(ub4*) val->buf.raw;
-        buf = apr_pstrndup(row->pool, val->buf.stringval + sizeof(ub4), len);
+        buf = apr_pstrndup(row->pool, val->buf.sval + sizeof(ub4), len);
         break;
     default:
-        buf = apr_pstrndup(row->pool, val->buf.stringval, val->len);
+        buf = apr_pstrndup(row->pool, val->buf.sval, val->len);
         break;
     }
     return (const char*) buf;
+}
+
+/* XXX Should this use Oracle proper API instead of calling get_entry()? */
+static apr_status_t dbd_oracle_datum_get(const apr_dbd_row_t *row, int n,
+                                         apr_dbd_type_e type, void *data)
+{
+    define_arg *val = &row->res->statement->out[n];
+    const char *entry;
+
+    if ((n < 0) || (n >= row->res->statement->nout)) {
+        return APR_EGENERAL;
+    }
+
+    if(val->ind == -1) {
+        return APR_ENOENT;
+    }
+
+    switch (type) {
+    case APR_DBD_TYPE_TINY:
+        entry = dbd_oracle_get_entry(row, n);
+        if (entry == NULL) {
+            return APR_ENOENT;
+        }
+        *(char*)data = atoi(entry);
+        break;
+    case APR_DBD_TYPE_UTINY:
+        entry = dbd_oracle_get_entry(row, n);
+        if (entry == NULL) {
+            return APR_ENOENT;
+        }
+        *(unsigned char*)data = atoi(entry);
+        break;
+    case APR_DBD_TYPE_SHORT:
+        entry = dbd_oracle_get_entry(row, n);
+        if (entry == NULL) {
+            return APR_ENOENT;
+        }
+        *(short*)data = atoi(entry);
+        break;
+    case APR_DBD_TYPE_USHORT:
+        entry = dbd_oracle_get_entry(row, n);
+        if (entry == NULL) {
+            return APR_ENOENT;
+        }
+        *(unsigned short*)data = atoi(entry);
+        break;
+    case APR_DBD_TYPE_INT:
+        entry = dbd_oracle_get_entry(row, n);
+        if (entry == NULL) {
+            return APR_ENOENT;
+        }
+        *(int*)data = atoi(entry);
+        break;
+    case APR_DBD_TYPE_UINT:
+        entry = dbd_oracle_get_entry(row, n);
+        if (entry == NULL) {
+            return APR_ENOENT;
+        }
+        *(unsigned int*)data = atoi(entry);
+        break;
+    case APR_DBD_TYPE_LONG:
+        entry = dbd_oracle_get_entry(row, n);
+        if (entry == NULL) {
+            return APR_ENOENT;
+        }
+        *(long*)data = atol(entry);
+        break;
+    case APR_DBD_TYPE_ULONG:
+        entry = dbd_oracle_get_entry(row, n);
+        if (entry == NULL) {
+            return APR_ENOENT;
+        }
+        *(unsigned long*)data = atol(entry);
+        break;
+    case APR_DBD_TYPE_LONGLONG:
+        entry = dbd_oracle_get_entry(row, n);
+        if (entry == NULL) {
+            return APR_ENOENT;
+        }
+        *(apr_int64_t*)data = apr_atoi64(entry);
+        break;
+    case APR_DBD_TYPE_ULONGLONG:
+        entry = dbd_oracle_get_entry(row, n);
+        if (entry == NULL) {
+            return APR_ENOENT;
+        }
+        *(apr_uint64_t*)data = apr_atoi64(entry);
+        break;
+    case APR_DBD_TYPE_FLOAT:
+        entry = dbd_oracle_get_entry(row, n);
+        if (entry == NULL) {
+            return APR_ENOENT;
+        }
+        *(float*)data = atof(entry);
+        break;
+    case APR_DBD_TYPE_DOUBLE:
+        entry = dbd_oracle_get_entry(row, n);
+        if (entry == NULL) {
+            return APR_ENOENT;
+        }
+        *(double*)data = atof(entry);
+        break;
+    case APR_DBD_TYPE_STRING:
+    case APR_DBD_TYPE_TEXT:
+    case APR_DBD_TYPE_TIME:
+    case APR_DBD_TYPE_DATE:
+    case APR_DBD_TYPE_DATETIME:
+    case APR_DBD_TYPE_TIMESTAMP:
+    case APR_DBD_TYPE_ZTIMESTAMP:
+        entry = dbd_oracle_get_entry(row, n);
+        if (entry == NULL) {
+            return APR_ENOENT;
+        }
+        *(char**)data = (char*)entry;
+        break;
+    case APR_DBD_TYPE_BLOB:
+    case APR_DBD_TYPE_CLOB:
+        {
+        apr_bucket *e;
+        apr_bucket_brigade *b = (apr_bucket_brigade*)data;
+        apr_dbd_t *sql = row->res->handle;
+        ub4 len = 0;
+
+        switch (val->type) {
+        case SQLT_BLOB:
+        case SQLT_CLOB:
+            sql->status = OCILobGetLength(sql->svc, sql->err,
+                                          val->buf.lobval, &len);
+            switch(sql->status) {
+            case OCI_SUCCESS:
+            case OCI_SUCCESS_WITH_INFO:
+                if (len == 0) {
+                    e = apr_bucket_eos_create(b->bucket_alloc);
+                }
+                else {
+                    e = apr_bucket_lob_create(row, n, 0, len,
+                                              row->pool, b->bucket_alloc);
+                }
+                break;
+            default:
+                return APR_ENOENT;
+            }
+            break;
+        default:
+            entry = dbd_oracle_get_entry(row, n);
+            if (entry == NULL) {
+                return APR_ENOENT;
+            }
+            e = apr_bucket_pool_create(entry, strlen(entry),
+                                       row->pool, b->bucket_alloc);
+            break;
+        }
+        APR_BRIGADE_INSERT_TAIL(b, e);
+        }
+        break;
+    case APR_DBD_TYPE_NULL:
+        *(void**)data = NULL;
+        break;
+    default:
+        return APR_EGENERAL;
+    }
+
+    return APR_SUCCESS;
 }
 
 static apr_status_t dbd_oracle_close(apr_dbd_t *handle)
@@ -1897,6 +2246,12 @@ APU_DECLARE_DATA const apr_dbd_driver_t apr_dbd_oracle_driver = {
     dbd_oracle_pselect,
     dbd_oracle_get_name,
     dbd_oracle_transaction_mode_get,
-    dbd_oracle_transaction_mode_set
+    dbd_oracle_transaction_mode_set,
+    ":apr%d",
+    dbd_oracle_pvbquery,
+    dbd_oracle_pvbselect,
+    dbd_oracle_pbquery,
+    dbd_oracle_pbselect,
+    dbd_oracle_datum_get
 };
 #endif

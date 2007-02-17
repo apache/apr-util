@@ -38,6 +38,46 @@ extern "C" {
  * @{
  */
 
+/**
+ * Mapping of C to SQL types, used for prepared statements.
+ * @remarks
+ * For apr_dbd_p[v]query/select functions, in and out parameters are always
+ * const char * (i.e. regular nul terminated strings). LOB types are passed
+ * with four (4) arguments: payload, length, table and column, all as const
+ * char *, where table and column are reserved for future use by Oracle.
+ * @remarks
+ * For apr_dbd_p[v]bquery/select functions, in and out parameters are
+ * described next to each enumeration constant and are generally native binary
+ * types or some APR data type. LOB types are passed with four (4) arguments:
+ * payload (char*), length (apr_size_t*), table (char*) and column (char*).
+ * Table and column are reserved for future use by Oracle.
+ */
+typedef enum {
+    APR_DBD_TYPE_NONE,
+    APR_DBD_TYPE_TINY,       /**< \%hhd : in, out: char* */
+    APR_DBD_TYPE_UTINY,      /**< \%hhu : in, out: unsigned char* */
+    APR_DBD_TYPE_SHORT,      /**< \%hd  : in, out: short* */
+    APR_DBD_TYPE_USHORT,     /**< \%hu  : in, out: unsigned short* */
+    APR_DBD_TYPE_INT,        /**< \%d   : in, out: int* */
+    APR_DBD_TYPE_UINT,       /**< \%u   : in, out: unsigned int* */
+    APR_DBD_TYPE_LONG,       /**< \%ld  : in, out: long* */
+    APR_DBD_TYPE_ULONG,      /**< \%lu  : in, out: unsigned long* */
+    APR_DBD_TYPE_LONGLONG,   /**< \%lld : in, out: apr_int64_t* */
+    APR_DBD_TYPE_ULONGLONG,  /**< \%llu : in, out: apr_uint64_t* */
+    APR_DBD_TYPE_FLOAT,      /**< \%f   : in, out: float* */
+    APR_DBD_TYPE_DOUBLE,     /**< \%lf  : in, out: double* */
+    APR_DBD_TYPE_STRING,     /**< \%s   : in: char*, out: char** */
+    APR_DBD_TYPE_TEXT,       /**< \%pDt : in: char*, out: char** */
+    APR_DBD_TYPE_TIME,       /**< \%pDi : in: char*, out: char** */
+    APR_DBD_TYPE_DATE,       /**< \%pDd : in: char*, out: char** */
+    APR_DBD_TYPE_DATETIME,   /**< \%pDa : in: char*, out: char** */
+    APR_DBD_TYPE_TIMESTAMP,  /**< \%pDs : in: char*, out: char** */
+    APR_DBD_TYPE_ZTIMESTAMP, /**< \%pDz : in: char*, out: char** */
+    APR_DBD_TYPE_BLOB,       /**< \%pDb : in: char* apr_size_t* char* char*, out: apr_bucket_brigade* */
+    APR_DBD_TYPE_CLOB,       /**< \%pDc : in: char* apr_size_t* char* char*, out: apr_bucket_brigade* */
+    APR_DBD_TYPE_NULL        /**< \%pDn : in: void*, out: void** */
+} apr_dbd_type_e;
+
 /* These are opaque structs.  Instantiation is up to each backend */
 typedef struct apr_dbd_driver_t apr_dbd_driver_t;
 typedef struct apr_dbd_t apr_dbd_t;
@@ -316,12 +356,22 @@ APU_DECLARE(const char*) apr_dbd_escape(const apr_dbd_driver_t *driver,
  *                 (eg within a Request in httpd)
  *  @param statement - statement to prepare.  May point to null on entry.
  *  @return 0 for success or error code
- *  @remarks To specify parameters of the prepared query, use %s in place of
- *  database specific parameter syntax (e.g. for PostgreSQL, this would be $1,
- *  $2, for SQLite3 this would be ? etc.). For instance: "SELECT name FROM
- *  customers WHERE name=%s" would be a query that this function understands.
- *  Some drivers may support different data types using printf-like format:
- *  for example %d (e.g. PostgreSQL) or %f for numeric data.
+ *  @remarks To specify parameters of the prepared query, use \%s, \%d etc.
+ *  (see below for full list) in place of database specific parameter syntax
+ *  (e.g.  for PostgreSQL, this would be $1, $2, for SQLite3 this would be ?
+ *  etc.).  For instance: "SELECT name FROM customers WHERE name=%s" would be
+ *  a query that this function understands.
+ *  @remarks Here is the full list of format specifiers that this function
+ *  understands and what they map to in SQL: \%hhd (TINY INT), \%hhu (UNSIGNED
+ *  TINY INT), \%hd (SHORT), \%hu (UNSIGNED SHORT), \%d (INT), \%u (UNSIGNED
+ *  INT), \%ld (LONG), \%lu (UNSIGNED LONG), \%lld (LONG LONG), \%llu
+ *  (UNSIGNED LONG LONG), \%f (FLOAT, REAL), \%lf (DOUBLE PRECISION), \%s
+ *  (VARCHAR), \%pDt (TEXT), \%pDi (TIME), \%pDd (DATE), \%pDa (SQL:
+ *  DATETIME), \%pDs (TIMESTAMP), \%pDz (TIMESTAMP WITH TIME ZONE), \%pDb
+ *  (BLOB), \%pDc (CLOB) and \%pDn (NULL). Not all databases have support for
+ *  all these types, so the underlying driver will attempt the "best match"
+ *  where possible.  A \% followed by any letter not in the above list will be
+ *  interpreted as VARCHAR (i.e. \%s).
  */
 APU_DECLARE(int) apr_dbd_prepare(const apr_dbd_driver_t *driver, apr_pool_t *pool,
                                  apr_dbd_t *handle, const char *query,
@@ -336,7 +386,7 @@ APU_DECLARE(int) apr_dbd_prepare(const apr_dbd_driver_t *driver, apr_pool_t *poo
  *  @param handle - the connection
  *  @param nrows - number of rows affected.
  *  @param statement - the prepared statement to execute
- *  @param nargs - number of args to prepared statement
+ *  @param nargs - ignored (for backward compatibility only)
  *  @param args - args to prepared statement
  *  @return 0 for success or error code
  */
@@ -353,7 +403,7 @@ APU_DECLARE(int) apr_dbd_pquery(const apr_dbd_driver_t *driver, apr_pool_t *pool
  *  @param res - pointer to query results.  May point to NULL on entry
  *  @param statement - the prepared statement to execute
  *  @param random - Whether to support random-access to results
- *  @param nargs - number of args to prepared statement
+ *  @param nargs - ignored (for backward compatibility only)
  *  @param args - args to prepared statement
  *  @return 0 for success or error code
  */
@@ -391,6 +441,83 @@ APU_DECLARE(int) apr_dbd_pvselect(const apr_dbd_driver_t *driver, apr_pool_t *po
                                   apr_dbd_t *handle, apr_dbd_results_t **res,
                                   apr_dbd_prepared_t *statement, int random,
                                   ...);
+
+/** apr_dbd_pbquery: query using a prepared statement + binary args
+ *
+ *  @param driver - the driver
+ *  @param pool - working pool
+ *  @param handle - the connection
+ *  @param nrows - number of rows affected.
+ *  @param statement - the prepared statement to execute
+ *  @param args - binary args to prepared statement
+ *  @return 0 for success or error code
+ */
+APU_DECLARE(int) apr_dbd_pbquery(const apr_dbd_driver_t *driver,
+                                 apr_pool_t *pool, apr_dbd_t *handle,
+                                 int *nrows, apr_dbd_prepared_t *statement,
+                                 const void **args);
+
+/** apr_dbd_pbselect: select using a prepared statement + binary args
+ *
+ *  @param driver - the driver
+ *  @param pool - working pool
+ *  @param handle - the connection
+ *  @param res - pointer to query results.  May point to NULL on entry
+ *  @param statement - the prepared statement to execute
+ *  @param random - Whether to support random-access to results
+ *  @param args - binary args to prepared statement
+ *  @return 0 for success or error code
+ */
+APU_DECLARE(int) apr_dbd_pbselect(const apr_dbd_driver_t *driver,
+                                  apr_pool_t *pool,
+                                  apr_dbd_t *handle, apr_dbd_results_t **res,
+                                  apr_dbd_prepared_t *statement, int random,
+                                  const void **args);
+
+/** apr_dbd_pvbquery: query using a prepared statement + binary args
+ *
+ *  @param driver - the driver
+ *  @param pool - working pool
+ *  @param handle - the connection
+ *  @param nrows - number of rows affected.
+ *  @param statement - the prepared statement to execute
+ *  @param ... - varargs list of binary args
+ *  @return 0 for success or error code
+ */
+APU_DECLARE(int) apr_dbd_pvbquery(const apr_dbd_driver_t *driver,
+                                  apr_pool_t *pool,
+                                  apr_dbd_t *handle, int *nrows,
+                                  apr_dbd_prepared_t *statement, ...);
+
+/** apr_dbd_pvbselect: select using a prepared statement + binary args
+ *
+ *  @param driver - the driver
+ *  @param pool - working pool
+ *  @param handle - the connection
+ *  @param res - pointer to query results.  May point to NULL on entry
+ *  @param statement - the prepared statement to execute
+ *  @param random - Whether to support random-access to results
+ *  @param ... - varargs list of binary args
+ *  @return 0 for success or error code
+ */
+APU_DECLARE(int) apr_dbd_pvbselect(const apr_dbd_driver_t *driver,
+                                   apr_pool_t *pool,
+                                   apr_dbd_t *handle, apr_dbd_results_t **res,
+                                   apr_dbd_prepared_t *statement, int random,
+                                   ...);
+
+/** apr_dbd_datum_get: get a binary entry from a row
+ *
+ *  @param driver - the driver
+ *  @param row - row pointer
+ *  @param col - entry number
+ *  @param type - type of data to get
+ *  @param data - pointer to data, allocated by the caller
+ *  @return APR_SUCCESS on success, APR_ENOENT if data is NULL or APR_EGENERAL
+ */
+APU_DECLARE(apr_status_t) apr_dbd_datum_get(const apr_dbd_driver_t *driver,
+                                            apr_dbd_row_t *row, int col,
+                                            apr_dbd_type_e type, void *data);
 
 /** @} */
 

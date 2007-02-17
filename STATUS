@@ -69,14 +69,6 @@ Other features that need writing:
       Justin says: Do we still want to do this?  testdate is now in test.
       Status: Greg +1 (volunteers)
 
-    * unify parsing of prepared statements in DBD
-      Status: patches exist, awaiting review
-              format of arguments (i.e. %s, %d etc.) needs to be agreed upon
-
-    * add binary argument functions to DBD
-      Status: patches exist, awaiting review
-              API needs to be agreed upon
-
 Documentation that needs writing:
 
     * API documentation
@@ -90,3 +82,10 @@ Available Patches:
 
 Open Issues:
 
+    * unify parsing of prepared statements in DBD
+      Status: committed, awaiting review
+              format of arguments (i.e. %s, %d etc.) needs to be agreed upon
+
+    * add binary argument functions to DBD
+      Status: committed, awaiting review
+              API needs to be agreed upon
