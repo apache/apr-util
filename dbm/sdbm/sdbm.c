@@ -107,6 +107,7 @@ static apr_status_t prep(apr_sdbm_t **pdb, const char *dirname, const char *pagn
      */
     if (!(flags & APR_WRITE)) {
         db->flags |= SDBM_RDONLY;
+        flags &= APR_BUFFERED;
     }
 
     /*
@@ -120,7 +121,7 @@ static apr_status_t prep(apr_sdbm_t **pdb, const char *dirname, const char *pagn
         flags &= ~APR_SHARELOCK;
     }
 
-    flags |= APR_BINARY | APR_READ | APR_BUFFERED;
+    flags |= APR_BINARY | APR_READ;
 
     /*
      * open the files in sequence, and stat the dirfile.
