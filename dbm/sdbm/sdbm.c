@@ -50,10 +50,6 @@ static apr_status_t makroom(apr_sdbm_t *, long, int);
 #define bad(x)		((x).dptr == NULL || (x).dsize <= 0)
 #define exhash(item)	sdbm_hash((item).dptr, (item).dsize)
 
-/* ### Does anything need these externally? */
-#define sdbm_dirfno(db)	((db)->dirf)
-#define sdbm_pagfno(db)	((db)->pagf)
-
 #define OFF_PAG(off)	(apr_off_t) (off) * PBLKSIZ
 #define OFF_DIR(off)	(apr_off_t) (off) * DBLKSIZ
 
