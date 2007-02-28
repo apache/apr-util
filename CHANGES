@@ -1,5 +1,7 @@
 Changes with APR-util 1.3.0
 
+  *) Use buffered I/O with SDBM.  [Joe Schaefer]
+
   *) Unify parsing of prepared statements and add binary argument functions
      to DBD [Bojan Smojver with help from many on the APR list]
 

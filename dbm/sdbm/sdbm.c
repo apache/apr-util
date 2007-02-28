@@ -120,7 +120,7 @@ static apr_status_t prep(apr_sdbm_t **pdb, const char *dirname, const char *pagn
         flags &= ~APR_SHARELOCK;
     }
 
-    flags |= APR_BINARY | APR_READ;
+    flags |= APR_BINARY | APR_READ | APR_BUFFERED;
 
     /*
      * open the files in sequence, and stat the dirfile.
