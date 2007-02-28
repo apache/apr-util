@@ -54,7 +54,7 @@ typedef apr_sdbm_datum_t result_datum_t;
 #define APR_DBM_NEXTKEY(f, k, nk) apr_sdbm_nextkey(f, &(nk))
 #define APR_DBM_FREEDPTR(dptr)  NOOP_FUNCTION
 
-#define APR_DBM_DBMODE_RO       APR_READ
+#define APR_DBM_DBMODE_RO       (APR_READ | APR_BUFFERED)
 #define APR_DBM_DBMODE_RW       (APR_READ | APR_WRITE)
 #define APR_DBM_DBMODE_RWCREATE (APR_READ | APR_WRITE | APR_CREATE)
 #define APR_DBM_DBMODE_RWTRUNC  (APR_READ | APR_WRITE | APR_CREATE | \
