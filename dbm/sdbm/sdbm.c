@@ -57,7 +57,7 @@ static apr_status_t makroom(apr_sdbm_t *, long, int);
 #define OFF_PAG(off)	(apr_off_t) (off) * PBLKSIZ
 #define OFF_DIR(off)	(apr_off_t) (off) * DBLKSIZ
 
-static long masks[] = {
+static const long masks[] = {
         000000000000, 000000000001, 000000000003, 000000000007,
         000000000017, 000000000037, 000000000077, 000000000177,
         000000000377, 000000000777, 000000001777, 000000003777,
