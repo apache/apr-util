@@ -219,6 +219,7 @@ apu_has_ldap_novell="0"
 apu_has_ldap_microsoft="0"
 apu_has_ldap_netscape="0"
 apu_has_ldap_mozilla="0"
+apu_has_ldap_zos="0"
 apu_has_ldap_other="0"
 
 AC_ARG_WITH(ldap-include,[  --with-ldap-include=path  path to ldap include files with trailing slash])
@@ -320,6 +321,15 @@ dnl The iPlanet C SDK 5.0 is as yet untested...
                                            apr_cv_ldap_toolkit="Mozilla"])
         fi
         if test "x$apr_cv_ldap_toolkit" = "x"; then
+          case "$host" in
+          *‑ibm‑os390)
+            AC_EGREP_CPP([IBM], [$lber_h
+                                 $ldap_h], [apu_has_ldap_zos="1"
+                                            apr_cv_ldap_toolkit="zOS"])
+            ;;
+          esac
+        fi
+        if test "x$apr_cv_ldap_toolkit" = "x"; then
           apu_has_ldap_other="1"
           apr_cv_ldap_toolkit="unknown"
         fi
@@ -348,6 +358,7 @@ AC_SUBST(apu_has_ldap_novell)
 AC_SUBST(apu_has_ldap_microsoft)
 AC_SUBST(apu_has_ldap_netscape)
 AC_SUBST(apu_has_ldap_mozilla)
+AC_SUBST(apu_has_ldap_zos)
 AC_SUBST(apu_has_ldap_other)
 
 ])
