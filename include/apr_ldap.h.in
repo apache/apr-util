@@ -40,6 +40,7 @@
 #define APR_HAS_MOZILLA_LDAPSDK   @apu_has_ldap_mozilla@
 #define APR_HAS_OPENLDAP_LDAPSDK  @apu_has_ldap_openldap@
 #define APR_HAS_MICROSOFT_LDAPSDK @apu_has_ldap_microsoft@
+#define APR_HAS_ZOS_LDAPSDK       @apu_has_ldap_zos@
 #define APR_HAS_OTHER_LDAPSDK     @apu_has_ldap_other@
 
 
@@ -93,6 +94,29 @@
 #define LDAPS_PORT 636  /* ldaps:/// default LDAP over TLS port */
 #endif
 
+/*
+ * For ldap function calls that input a size limit on the number of returned elements
+ * Some SDKs do not have the define for LDAP_DEFAULT_LIMIT (‑1) or LDAP_NO_LIMIT (0)
+ */
+#if APR_HAS_ZOS_LDAPSDK
+#define APR_LDAP_SIZELIMIT LDAP_NO_LIMIT
+#else
+#ifdef LDAP_DEFAULT_LIMIT
+#define APR_LDAP_SIZELIMIT LDAP_DEFAULT_LIMIT
+#else
+#define APR_LDAP_SIZELIMIT -1 /* equivalent to LDAP_DEFAULT_LIMIT */
+#endif
+#endif
+
+/*
+ * z/OS is missing some defines
+ */
+#ifndef LDAP_VERSION_MAX
+#define LDAP_VERSION_MAX  LDAP_VERSION
+#endif
+#if APR_HAS_ZOS_LDAPSDK
+#define LDAP_VENDOR_NAME "IBM z/OS"
+#endif
 
 /* Note: Macros defining const casting has been removed in APR v1.0,
  * pending real support for LDAP v2.0 toolkits.
