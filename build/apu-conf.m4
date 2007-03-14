@@ -322,7 +322,7 @@ dnl The iPlanet C SDK 5.0 is as yet untested...
         fi
         if test "x$apr_cv_ldap_toolkit" = "x"; then
           case "$host" in
-          *‑ibm‑os390)
+          *-ibm-os390)
             AC_EGREP_CPP([IBM], [$lber_h
                                  $ldap_h], [apu_has_ldap_zos="1"
                                             apr_cv_ldap_toolkit="zOS"])
