@@ -147,6 +147,9 @@ APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
     }
 
 #ifdef APU_DSO_BUILD
+    /* The driver DSO must have exactly the same lifetime as the
+     * drivers hash table; ignore the passed-in pool */
+    pool = apr_hash_pool_get(drivers);
 
 #ifdef WIN32
     sprintf(path, "apr_dbd_%s.dll", name);
