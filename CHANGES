@@ -1,6 +1,7 @@
 Changes with APR-util 1.2.9
 
-
+  *) Fix handling of attribute namespaces in apr_xml_to_text() when
+     a namespace map is provided.  PR 41908.  [Joe Orton]
 
 Changes with APR-util 1.2.8
 
