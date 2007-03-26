@@ -670,7 +670,8 @@ static apr_size_t elem_size(const apr_xml_elem *elem, int style,
 	    }
 	    else {
 		/* compute size of: ' ns%d:%s="%s"' */
-		size += 3 + APR_XML_NS_LEN(attr->ns) + 1 + strlen(attr->name) + 2 + strlen(attr->value) + 1;
+                int ns = ns_map ? ns_map[attr->ns] : attr->ns;
+                size += 3 + APR_XML_NS_LEN(ns) + 1 + strlen(attr->name) + 2 + strlen(attr->value) + 1;
 	    }
 	}
 
@@ -740,8 +741,10 @@ static char *write_elem(char *s, const apr_xml_elem *elem, int style,
 	for (attr = elem->attr; attr; attr = attr->next) {
 	    if (attr->ns == APR_XML_NS_NONE)
 		len = sprintf(s, " %s=\"%s\"", attr->name, attr->value);
-	    else
-		len = sprintf(s, " ns%d:%s=\"%s\"", attr->ns, attr->name, attr->value);
+            else {
+                ns = ns_map ? ns_map[attr->ns] : attr->ns;
+                len = sprintf(s, " ns%d:%s=\"%s\"", ns, attr->name, attr->value);
+            }
 	    s += len;
 	}
 
