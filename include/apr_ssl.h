@@ -39,6 +39,14 @@ extern "C" {
  */
 
 /**
+ * Values that determine how a created factory will be used.
+ */
+typedef enum {
+    APR_SSL_FACTORY_SERVER,   /**< Factory is for server operations */
+    APR_SSL_FACTORY_CLIENT,   /**< Factory is for client operations */
+} apr_ssl_factory_type_e;
+
+/**
  * Structure for referencing an ssl "factory"
  */
 typedef struct apr_ssl_factory   apr_ssl_factory_t;
@@ -54,23 +62,23 @@ typedef struct apr_ssl_socket    apr_ssl_socket_t;
                                            const char *privateKeyFilename, 
                                            const char *certificateFilename, 
                                            const char *digestTypeToUse, 
+                                           apr_ssl_factory_type_e purpose,
                                            apr_pool_t *pool)
  * @brief Attempts to create an SSL "factory". The "factory" is then 
- *        used to create sockets. If a private key filename
- *        is passed then the created factory will assume it is to be used
- *        in a server context.
+ *        used to create sockets.
  * @param newFactory The newly created factory
- * @param privateKeyFilename
+ * @param privateKeyFilename Private key filename to use
  * @param certificateFilename X509 certificate file
  * @param digestTypeToUse A string identifying the type of digest scheme 
  *                        to use
+ * @param purpose Constant that determines how the created factory will be used
  * @param pool The pool to use for memory allocations
  * @return an APR_ status code
  */
 APU_DECLARE(apr_status_t) apr_ssl_factory_create(apr_ssl_factory_t **,
+                                                 const char *, const char *, 
                                                  const char *, 
-                                                 const char *, 
-                                                 const char *, 
+                                                 apr_ssl_factory_type_e,
                                                  apr_pool_t *);
 
 /**
