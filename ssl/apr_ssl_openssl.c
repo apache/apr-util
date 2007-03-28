@@ -68,7 +68,7 @@ apr_status_t apu_ssl_factory_create(apr_ssl_factory_t *asf,
 {
     apu_ssl_data_t *sslData = apr_pcalloc(asf->pool, sizeof(*sslData));
     if (!sslData) {
-        return -1;
+        return APR_ENOMEM;
     }
 
     if (asf->purpose == APR_SSL_FACTORY_SERVER) {
@@ -108,13 +108,17 @@ apr_status_t apu_ssl_socket_create(apr_ssl_socket_t *sslSock,
     apr_os_sock_t fd;
 
     if (!sslData || !asf->sslData)
-        return -1;
+        return APR_EINVAL;
     sslData->ssl = SSL_new(asf->sslData->ctx);
     if (!sslData->ssl)
-        return -1;
+        return APR_EINVALSOCK; /* Hmm, better error code? */
 
+    /* Joe Orton points out this is actually wrong and assumes that
+     * that we're on an "fd" system. We need some better way of handling
+     * this for systems that don't use fd's for sockets. Will?
+     */
     if (apr_os_sock_get(&fd, sslSock->plain) != APR_SUCCESS)
-        return -1;
+        return APR_EINVALSOCK;
 
     SSL_set_fd(sslData->ssl, fd);
     sslSock->sslData = sslData;
@@ -128,11 +132,12 @@ apr_status_t apu_ssl_socket_close(apr_ssl_socket_t *sock)
 
     if (!sock->sslData->ssl)
         return APR_SUCCESS;
+
     if (sock->connected) {
         if ((sslRv = SSL_shutdown(sock->sslData->ssl)) == 0)
             sslRv = SSL_shutdown(sock->sslData->ssl);
         if (sslRv == -1)
-            return -1;
+            return APR_EINVALSOCK; /* Better error code to return? */
     }
     SSL_free(sock->sslData->ssl);
     sock->sslData->ssl = NULL;
@@ -151,7 +156,7 @@ apr_status_t apu_ssl_connect(apr_ssl_socket_t *sock)
         return APR_SUCCESS;
     }
     openssl_get_error(sock, sslOp);
-    return -1;
+    return APR_EGENERAL;
 }
 
 apr_status_t apu_ssl_send(apr_ssl_socket_t *sock, const char *buf, 
@@ -165,7 +170,7 @@ apr_status_t apu_ssl_send(apr_ssl_socket_t *sock, const char *buf,
         return APR_SUCCESS;
     }
     openssl_get_error(sock, sslOp);
-    return -1;
+    return APR_EGENERAL; /* SSL error? */
 }
 
 apr_status_t apu_ssl_recv(apr_ssl_socket_t * sock,
@@ -182,7 +187,7 @@ apr_status_t apu_ssl_recv(apr_ssl_socket_t * sock,
         return APR_SUCCESS;
     }
     openssl_get_error(sock, sslOp);
-    return -1;
+    return APR_EGENERAL; /* SSL error ? */
 }
 
 apr_status_t apu_ssl_accept(apr_ssl_socket_t *newSock, 
@@ -197,10 +202,10 @@ apr_status_t apu_ssl_accept(apr_ssl_socket_t *newSock,
 
     sslData->ssl = SSL_new(oldSock->factory->sslData->ctx);
     if (!sslData->ssl)
-        return -1;
+        return APR_EINVAL;
 
     if (apr_os_sock_get(&fd, newSock->plain) != APR_SUCCESS)
-        return -1;
+        return APR_EINVALSOCK;
     SSL_set_fd(sslData->ssl, fd);
 
     newSock->pool = pool;
@@ -209,7 +214,7 @@ apr_status_t apu_ssl_accept(apr_ssl_socket_t *newSock,
 
     if ((sslOp = SSL_accept(sslData->ssl)) != 1) {
         openssl_get_error(newSock, sslOp);
-        return -1;
+        return APR_EGENERAL;
     }
 
     return APR_SUCCESS;
