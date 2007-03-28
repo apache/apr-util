@@ -154,7 +154,8 @@ int main(int argc, const char * const * argv)
     printf("\tPrivate key: %s\n", keyFn);
     printf("\tCertificate: %s\n", certFn);
 
-    rv = apr_ssl_factory_create(&asf, keyFn, certFn, NULL, pool);
+    rv = apr_ssl_factory_create(&asf, keyFn, certFn, NULL, 
+                                APR_SSL_FACTORY_SERVER, pool);
     if (rv != APR_SUCCESS) {
         reportError("Unable to create an SSL factory!", rv, pool);
         exit(1);
