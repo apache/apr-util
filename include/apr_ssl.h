@@ -214,12 +214,12 @@ APU_DECLARE(apr_status_t) apr_ssl_socket_raw_error(apr_ssl_socket_t *);
 
 
 /**
- * @fn apr_status_t apr_pollset_add_ssl_socket(apr_pollset_t *pollset
+ * @fn apr_status_t apr_pollset_add_ssl_socket(apr_pollset_t *pollset,
                                                apr_ssl_socket_t *sock)
  * @brief Add an ssl socket to a pollset.
  * @param pollset The pollset to add the socket to.
  * @param sock The ssl socket to add.
- * @note This fucntion adds the socket with APR_POLLIN and APR_POLLOUT
+ * @note This function adds the socket with APR_POLLIN and APR_POLLOUT
  *       set.
  */
 APU_DECLARE(apr_status_t) apr_pollset_add_ssl_socket(apr_pollset_t *,

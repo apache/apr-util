@@ -38,19 +38,23 @@ typedef struct apu_ssl_socket_data apu_ssl_socket_data_t;
  * SSL factory structure
  */
 struct apr_ssl_factory {
-    apr_pool_t     *pool;
-    apu_ssl_data_t *sslData;
+    apr_pool_t     *pool;      /**< pool to use for memory allocations */
+    apu_ssl_data_t *sslData;   /**< Pointer to implementation specific data */
 };
 
+/**
+ * The apr_ssl_socket is a structure that is used to represent an ssl enbaled socket
+ * that has been created by an apr_ssl_factory.
+ */
 struct apr_ssl_socket {
-    apr_pool_t        *pool;
-    apr_socket_t      *plain;
-    apr_ssl_factory_t *factory;
-    apr_pollset_t     *pollset;
-    apr_pollfd_t      *poll;
-    int                connected;
+    apr_pool_t        *pool;         /**< pool to use for memory allocations */
+    apr_socket_t      *plain;        /**< the apr_socket_t we're based on (if required) */
+    apr_ssl_factory_t *factory;      /**< pointer to the factory we were created from */
+    apr_pollset_t     *pollset;      /**< pollset */
+    apr_pollfd_t      *poll;         /**< poll fd */
+    int                connected;    /**< flag to determine if we're connected */
 
-    apu_ssl_socket_data_t *sslData;
+    apu_ssl_socket_data_t *sslData;  /**< pointer to implementation data */
 };
 
 /**
