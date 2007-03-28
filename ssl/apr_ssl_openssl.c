@@ -58,6 +58,9 @@ static void openssl_get_error(apr_ssl_socket_t *sock, int fncode)
     sock->sslData->sslErr = SSL_get_error(sock->sslData->ssl, fncode);
 }
 
+/* The apr_ssl_factory_t structure will have the pool and purpose
+ * fields set only.
+ */
 apr_status_t apu_ssl_factory_create(apr_ssl_factory_t *asf,
                                  const char *privateKeyFn,
                                  const char *certFn,
@@ -68,7 +71,7 @@ apr_status_t apu_ssl_factory_create(apr_ssl_factory_t *asf,
         return -1;
     }
 
-    if (privateKeyFn && certFn) {
+    if (asf->purpose == APR_SSL_FACTORY_SERVER) {
         sslData->ctx = SSL_CTX_new(SSLv23_server_method());
         if (sslData->ctx) {
             if (!SSL_CTX_use_PrivateKey_file(sslData->ctx, privateKeyFn,
@@ -82,7 +85,7 @@ apr_status_t apu_ssl_factory_create(apr_ssl_factory_t *asf,
         }
     } else {
         sslData->ctx = SSL_CTX_new(SSLv23_client_method());
-    }
+    }   
 
     if (digestType) {
         sslData->md = EVP_get_digestbyname(digestType);

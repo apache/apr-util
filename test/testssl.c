@@ -206,7 +206,8 @@ int main(int argc, const char * const * argv)
         exit(1);
     }
 
-    if (apr_ssl_factory_create(&asf, NULL, NULL, NULL, pool) != APR_SUCCESS) {
+    if (apr_ssl_factory_create(&asf, NULL, NULL, NULL, 
+                               APR_SSL_FACTORY_CLIENT, pool) != APR_SUCCESS) {
         fprintf(stderr, "Unable to create client factory\n");
     } else {
         int i;

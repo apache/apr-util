@@ -216,7 +216,8 @@ int main(int argc, char **argv)
 
     apr_pool_create(&pool, NULL);
 
-    rv = apr_ssl_factory_create(&asf, NULL, NULL, NULL, pool);
+    rv = apr_ssl_factory_create(&asf, NULL, NULL, NULL, 
+                                APR_SSL_FACTORY_CLIENT, pool);
 
     results = (struct testResult *)apr_pcalloc(pool, 
                                         sizeof(*results) * nTests);

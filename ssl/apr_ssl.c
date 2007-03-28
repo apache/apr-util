@@ -39,6 +39,7 @@ APU_DECLARE(apr_status_t) apr_ssl_factory_create(apr_ssl_factory_t **fact,
                                                  const char *privateKeyFn,
                                                  const char *certFn,
                                                  const char *digestType,
+                                                 apr_ssl_factory_type_e why,
                                                  apr_pool_t *p)
 
 {
@@ -60,6 +61,7 @@ APU_DECLARE(apr_status_t) apr_ssl_factory_create(apr_ssl_factory_t **fact,
 
     *fact = NULL;
     asf->pool = p;
+    asf->purpose = why;
     if ((rv = apu_ssl_factory_create(asf, privateKeyFn, certFn, 
                                      digestType)) != APR_SUCCESS)
         return rv;

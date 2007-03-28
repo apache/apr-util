@@ -38,8 +38,9 @@ typedef struct apu_ssl_socket_data apu_ssl_socket_data_t;
  * SSL factory structure
  */
 struct apr_ssl_factory {
-    apr_pool_t     *pool;      /**< pool to use for memory allocations */
-    apu_ssl_data_t *sslData;   /**< Pointer to implementation specific data */
+    apr_pool_t     *pool;           /**< pool to use for memory allocations */
+    apr_ssl_factory_type_e purpose; /**< Purpose of the factory */
+    apu_ssl_data_t *sslData;        /**< Pointer to implementation specific data */
 };
 
 /**
