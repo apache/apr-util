@@ -366,11 +366,11 @@ APU_DECLARE(const char*) apr_dbd_escape(const apr_dbd_driver_t *driver,
  *  TINY INT), \%hd (SHORT), \%hu (UNSIGNED SHORT), \%d (INT), \%u (UNSIGNED
  *  INT), \%ld (LONG), \%lu (UNSIGNED LONG), \%lld (LONG LONG), \%llu
  *  (UNSIGNED LONG LONG), \%f (FLOAT, REAL), \%lf (DOUBLE PRECISION), \%s
- *  (VARCHAR), \%pDt (TEXT), \%pDi (TIME), \%pDd (DATE), \%pDa (SQL:
- *  DATETIME), \%pDs (TIMESTAMP), \%pDz (TIMESTAMP WITH TIME ZONE), \%pDb
- *  (BLOB), \%pDc (CLOB) and \%pDn (NULL). Not all databases have support for
- *  all these types, so the underlying driver will attempt the "best match"
- *  where possible.  A \% followed by any letter not in the above list will be
+ *  (VARCHAR), \%pDt (TEXT), \%pDi (TIME), \%pDd (DATE), \%pDa (DATETIME),
+ *  \%pDs (TIMESTAMP), \%pDz (TIMESTAMP WITH TIME ZONE), \%pDb (BLOB), \%pDc
+ *  (CLOB) and \%pDn (NULL). Not all databases have support for all these
+ *  types, so the underlying driver will attempt the "best match" where
+ *  possible. A \% followed by any letter not in the above list will be
  *  interpreted as VARCHAR (i.e. \%s).
  */
 APU_DECLARE(int) apr_dbd_prepare(const apr_dbd_driver_t *driver, apr_pool_t *pool,
