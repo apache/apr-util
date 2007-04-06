@@ -177,7 +177,7 @@ TARGET_lib = \
 # Paths must all use the '/' character
 #
 FILES_nlm_objs = \
-	$(OBJDIR)/apr_dbd_pgsql.o \
+	$(OBJDIR)/apr_dbd_sqlite3.o \
 	$(EOLIST)
 
 #
