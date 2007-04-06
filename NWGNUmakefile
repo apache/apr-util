@@ -8,7 +8,7 @@ SUBDIRS = \
 	$(EOLIST) 
 
 ifdef WITH_APR_DBD
-SUBDIRS = \
+SUBDIRS += \
 	dbd \
 	$(EOLIST) 
 endif
