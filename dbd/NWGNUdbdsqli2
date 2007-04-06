@@ -33,7 +33,7 @@ XINCDIRS	+= \
 			$(APRUTIL)/include \
 			$(APRUTIL)/include/private \
 			$(APR) \
-			$(SQLITE3_INC) \
+			$(SQLITE2_INC) \
 			$(EOLIST)
 
 #
@@ -177,7 +177,7 @@ TARGET_lib = \
 # Paths must all use the '/' character
 #
 FILES_nlm_objs = \
-	$(OBJDIR)/apr_dbd_pgsql.o \
+	$(OBJDIR)/apr_dbd_sqlite2.o \
 	$(EOLIST)
 
 #
@@ -195,7 +195,7 @@ FILES_nlm_libs = \
 FILES_nlm_modules = \
 	aprlib \
 	libc \
-	$(SQLITE3_NLM) \
+	$(SQLITE2_NLM) \
 	$(EOLIST)
 
 #
@@ -219,14 +219,14 @@ FILE_nlm_copyright =
 FILES_nlm_Ximports = \
 	@$(APR)/aprlib.imp \
 	@libc.imp \
-	$(SQLITE3_IMP) \
+	$(SQLITE2_IMP) \
 	$(EOLIST)
 
 #
 # Any symbols exported to here
 #
 FILES_nlm_exports = \
-	apr_dbd_sqlite3_driver \
+	apr_dbd_sqlite2_driver \
 	$(EOLIST)
 
 #
