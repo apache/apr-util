@@ -22,6 +22,10 @@ endif
 #
 # Make sure all needed macro's are defined
 #
+SQLITE3_INC = $(SQLITE3SDK)/src
+SQLITE3_IMP = $(SQLITE3SDK)/lsqlite3.imp
+SQLITE3_LIB = $(SQLITE3SDK)/lsqlite3.lib
+SQLITE3_LIB = lsqlite3.nlm
 
 #
 # These directories will be at the beginning of the include list, followed by
@@ -219,7 +223,9 @@ FILE_nlm_copyright =
 FILES_nlm_Ximports = \
 	@$(APR)/aprlib.imp \
 	@libc.imp \
-	$(SQLITE3_IMP) \
+	@$(SQLITE3_IMP) \
+	apr_dbd_mutex_lock \
+	apr_dbd_mutex_unlock \
 	$(EOLIST)
 
 #
