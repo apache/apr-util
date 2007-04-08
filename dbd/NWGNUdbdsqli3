@@ -22,10 +22,14 @@ endif
 #
 # Make sure all needed macro's are defined
 #
+
+# LINK_STATIC = 1
+
+# for now defined here - should finally go into build/NWGNUenvironment.inc
 SQLITE3_INC = $(SQLITE3SDK)/src
 SQLITE3_IMP = $(SQLITE3SDK)/lsqlite3.imp
 SQLITE3_LIB = $(SQLITE3SDK)/lsqlite3.lib
-SQLITE3_LIB = lsqlite3.nlm
+SQLITE3_NLM = lsqlite3
 
 #
 # These directories will be at the beginning of the include list, followed by
@@ -58,6 +62,12 @@ XDEFINES	+= \
 #
 XLFLAGS		+= \
 			$(EOLIST)
+
+ifdef LINK_STATIC
+XLFLAGS		+= \
+			-l $(SQLITE3SDK) \
+			$(EOLIST)
+endif
 
 #
 # These values will be appended to the correct variables based on the value of
@@ -192,6 +202,12 @@ FILES_nlm_libs = \
 	libcpre.o \
 	$(EOLIST)
 
+ifeq ($(LINK_STATIC),1)
+FILES_nlm_libs += \
+	$(SQLITE3_LIB) \
+	$(EOLIST)
+endif
+
 #
 # These are the modules that the above NLM target depends on to load.
 # These will be added as a module command in the link.opt file.
@@ -199,8 +215,13 @@ FILES_nlm_libs = \
 FILES_nlm_modules = \
 	aprlib \
 	libc \
+	$(EOLIST)
+
+ifneq ($(LINK_STATIC),1)
+FILES_nlm_modules += \
 	$(SQLITE3_NLM) \
 	$(EOLIST)
+endif
 
 #
 # If the nlm has a msg file, put it's path here
@@ -223,10 +244,15 @@ FILE_nlm_copyright =
 FILES_nlm_Ximports = \
 	@$(APR)/aprlib.imp \
 	@libc.imp \
-	@$(SQLITE3_IMP) \
 	apr_dbd_mutex_lock \
 	apr_dbd_mutex_unlock \
 	$(EOLIST)
+
+ifneq ($(LINK_STATIC),1)
+FILES_nlm_Ximports += \
+	@$(SQLITE3_IMP) \
+	$(EOLIST)
+endif
 
 #
 # Any symbols exported to here

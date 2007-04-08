@@ -23,6 +23,14 @@ endif
 # Make sure all needed macro's are defined
 #
 
+# LINK_STATIC = 1
+
+# for now defined here - should finally go into build/NWGNUenvironment.inc
+SQLITE2_INC = $(SQLITE2SDK)/src
+SQLITE2_IMP = $(SQLITE2SDK)/lsqlite2.imp
+SQLITE2_LIB = $(SQLITE2SDK)/lsqlite2.lib
+SQLITE2_NLM = lsqlite2
+
 #
 # These directories will be at the beginning of the include list, followed by
 # INCDIRS
@@ -54,6 +62,12 @@ XDEFINES	+= \
 #
 XLFLAGS		+= \
 			$(EOLIST)
+
+ifdef LINK_STATIC
+XLFLAGS		+= \
+			-l $(SQLITE2SDK) \
+			$(EOLIST)
+endif
 
 #
 # These values will be appended to the correct variables based on the value of
@@ -188,6 +202,12 @@ FILES_nlm_libs = \
 	libcpre.o \
 	$(EOLIST)
 
+ifeq ($(LINK_STATIC),1)
+FILES_nlm_libs += \
+	$(SQLITE2_LIB) \
+	$(EOLIST)
+endif
+
 #
 # These are the modules that the above NLM target depends on to load.
 # These will be added as a module command in the link.opt file.
@@ -195,8 +215,13 @@ FILES_nlm_libs = \
 FILES_nlm_modules = \
 	aprlib \
 	libc \
+	$(EOLIST)
+
+ifneq ($(LINK_STATIC),1)
+FILES_nlm_modules += \
 	$(SQLITE2_NLM) \
 	$(EOLIST)
+endif
 
 #
 # If the nlm has a msg file, put it's path here
@@ -219,8 +244,13 @@ FILE_nlm_copyright =
 FILES_nlm_Ximports = \
 	@$(APR)/aprlib.imp \
 	@libc.imp \
-	$(SQLITE2_IMP) \
 	$(EOLIST)
+
+ifneq ($(LINK_STATIC),1)
+FILES_nlm_Ximports += \
+	@$(SQLITE2_IMP) \
+	$(EOLIST)
+endif
 
 #
 # Any symbols exported to here
