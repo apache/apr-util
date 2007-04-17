@@ -226,6 +226,15 @@ APR_DECLARE(apr_size_t) apr_thread_pool_threshold_set(apr_thread_pool_t * me,
  */
 APR_DECLARE(apr_size_t) apr_thread_pool_threshold_get(apr_thread_pool_t * me);
 
+/**
+ * Get owner of the task currently been executed by the thread. 
+ * @param thd The thread is executing a task 
+ * @param owner Pointer to receive owner of the task.
+ * @return APR_SUCCESS if the owner is retrieved successfully
+ */
+APR_DECLARE(apr_status_t) apr_thread_pool_task_owner_get(apr_thread_t * thd,
+                                                         void **owner);
+
 #ifdef __cplusplus
 #if 0
 {
