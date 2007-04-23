@@ -817,13 +817,15 @@ APR_DECLARE(apr_status_t) apr_thread_pool_task_owner_get(apr_thread_t * thd,
                                                          void **owner)
 {
     apr_status_t rv;
-    apr_thread_pool_task_t * task;
+    apr_thread_pool_task_t *task;
+    void *data;
     
-    rv = apr_thread_data_get((void**) &task, "apr_thread_pool_task", thd);
+    rv = apr_thread_data_get(&data, "apr_thread_pool_task", thd);
     if (rv != APR_SUCCESS) {
         return rv;
     }
 
+    task = data;
     if (!task) {
         *owner = NULL;
         return APR_BADARG;
