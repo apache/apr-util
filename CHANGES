@@ -1,5 +1,8 @@
 Changes with APR-util 1.2.9
 
+  *) APR_FIND_APU macro no longer checks /usr/local/apache2/.
+     PR 42089.  [Colm MacCarthaigh]
+
   *) Fix handling of attribute namespaces in apr_xml_to_text() when
      a namespace map is provided.  PR 41908.  [Joe Orton]
 
