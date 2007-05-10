@@ -458,14 +458,8 @@ static apr_dbd_t *dbd_oracle_open(apr_pool_t *pool, const char *params)
     size_t vlen;
     static const char *const delims = " \r\n\t;|,";
 
+    ret->pool = pool;
     ret->long_size = DEFAULT_LONG_SIZE;
-
-    /* Use our own pool, to avoid possible race conditions
-     * on pool ops
-     */
-    if (apr_pool_create(&ret->pool, pool) != APR_SUCCESS) {
-        return NULL;
-    }
 
     /* snitch parsing from the MySQL driver */
     for (ptr = strchr(params, '='); ptr; ptr = strchr(ptr, '=')) {
@@ -2176,7 +2170,6 @@ static apr_status_t dbd_oracle_close(apr_dbd_t *handle)
     default:
         break;
     }
-    apr_pool_destroy(handle->pool);
     return APR_SUCCESS;
 }
 
