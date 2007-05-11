@@ -595,6 +595,9 @@ static apr_status_t remove_tasks(apr_thread_pool_t * me, void *owner)
 
 static void wait_on_busy_threads(apr_thread_pool_t * me, void *owner)
 {
+#ifndef NDEBUG
+    apr_os_thread_t *os_thread;
+#endif
     struct apr_thread_list_elt *elt;
     apr_thread_mutex_lock(me->lock);
     elt = APR_RING_FIRST(me->busy_thds);
@@ -605,7 +608,6 @@ static void wait_on_busy_threads(apr_thread_pool_t * me, void *owner)
         }
 #ifndef NDEBUG
         /* make sure the thread is not the one calling tasks_cancel */
-        apr_os_thread_t *os_thread;
         apr_os_thread_get(&os_thread, elt->thd);
 #ifdef WIN32
         /* hack for apr win32 bug */
