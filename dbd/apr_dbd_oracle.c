@@ -89,6 +89,8 @@
 #define DBD_ORACLE_MAX_COLUMNS 256
 #define NUMERIC_FIELD_SIZE 32
 
+#define CHECK_CONN_QUERY "SELECT 1 FROM dual"
+
 #ifdef DEBUG
 #include <stdio.h>
 #endif
@@ -141,6 +143,7 @@ struct apr_dbd_t {
     apr_pool_t *pool;
     char buf[200];        /* for error messages */
     apr_size_t long_size;
+    apr_dbd_prepared_t *check_conn_stmt;
 };
 
 struct apr_dbd_row_t {
@@ -659,6 +662,12 @@ static apr_dbd_t *dbd_oracle_open(apr_pool_t *pool, const char *params)
         break;
     }
 #endif
+
+    if(dbd_oracle_prepare(pool, ret, CHECK_CONN_QUERY, NULL, 0, 0, NULL,
+                          &ret->check_conn_stmt) != 0) {
+        return NULL;
+    }
+
     return ret;
 }
 
@@ -2173,11 +2182,25 @@ static apr_status_t dbd_oracle_close(apr_dbd_t *handle)
     return APR_SUCCESS;
 }
 
-static apr_status_t dbd_oracle_check_conn(apr_pool_t *pool,
-                                          apr_dbd_t *handle)
+static apr_status_t dbd_oracle_check_conn(apr_pool_t *pool, apr_dbd_t *sql)
 {
-    /* FIXME: need to find this in the docs */
-    return APR_ENOTIMPL;
+    apr_dbd_results_t *res = NULL;
+    apr_dbd_row_t *row = NULL;
+    
+    if(dbd_oracle_pselect(pool, sql, &res, sql->check_conn_stmt,
+                          0, NULL) != 0) {
+        return APR_EGENERAL;
+    }
+    
+    if(dbd_oracle_get_row(pool, res, &row, -1) != 0) {
+        return APR_EGENERAL;
+    }
+    
+    if(dbd_oracle_get_row(pool, res, &row, -1) != -1) {
+        return APR_EGENERAL;
+    }
+
+    return APR_SUCCESS;
 }
 
 static int dbd_oracle_select_db(apr_pool_t *pool, apr_dbd_t *handle,
