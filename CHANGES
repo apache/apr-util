@@ -1,5 +1,8 @@
 Changes with APR-util 1.2.9
 
+  *) Portably implement testdate's long-time constants to solve
+     compilation faults where #LL isn't valid.  [Curt Arnold]
+
   *) APR_FIND_APU macro no longer checks /usr/local/apache2/.
      PR 42089.  [Colm MacCarthaigh]
 
