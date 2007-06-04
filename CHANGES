@@ -1,5 +1,8 @@
 Changes with APR-util 1.3.0
 
+  *) Portably implement testdate's long-time constants to solve
+     compilation faults where #LL isn't valid.  [Curt Arnold]
+
   *) Use buffered I/O with SDBM.  [Joe Schaefer]
 
   *) Unify parsing of prepared statements and add binary argument functions
