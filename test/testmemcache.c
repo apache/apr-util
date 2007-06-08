@@ -87,7 +87,7 @@ static void test_memcache_create(abts_case * tc, void *data)
     rv = apr_memcache_enable_server(memcache, s);
     ABTS_ASSERT(tc, "server enable failed", rv == APR_SUCCESS);
     
-    hash = apr_memcache_hash(prefix, strlen(prefix));
+    hash = apr_memcache_hash(memcache, prefix, strlen(prefix));
     ABTS_ASSERT(tc, "hash failed", hash > 0);
     
     s = apr_memcache_find_server_hash(memcache, hash);
