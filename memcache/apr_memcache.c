@@ -1388,6 +1388,9 @@ apr_memcache_multgetp(apr_memcache_t *mc,
 #define STAT_version MS_STAT " version "
 #define STAT_version_LEN (sizeof(STAT_version)-1)
 
+#define STAT_pointer_size MS_STAT " pointer_size "
+#define STAT_pointer_size_LEN (sizeof(STAT_pointer_size)-1)
+
 #define STAT_rusage_user MS_STAT " rusage_user "
 #define STAT_rusage_user_LEN (sizeof(STAT_rusage_user)-1)
 
@@ -1424,6 +1427,9 @@ apr_memcache_multgetp(apr_memcache_t *mc,
 #define STAT_get_misses MS_STAT " get_misses "
 #define STAT_get_misses_LEN (sizeof(STAT_get_misses)-1)
 
+#define STAT_evictions MS_STAT " evictions "
+#define STAT_evictions_LEN (sizeof(STAT_evictions)-1)
+
 #define STAT_bytes_read MS_STAT " bytes_read "
 #define STAT_bytes_read_LEN (sizeof(STAT_bytes_read)-1)
 
@@ -1433,6 +1439,8 @@ apr_memcache_multgetp(apr_memcache_t *mc,
 #define STAT_limit_maxbytes MS_STAT " limit_maxbytes "
 #define STAT_limit_maxbytes_LEN (sizeof(STAT_limit_maxbytes)-1)
 
+#define STAT_threads MS_STAT " threads "
+#define STAT_threads_LEN (sizeof(STAT_threads)-1)
 
 static const char *stat_read_string(apr_pool_t *p, char *buf, int len)
 {
@@ -1523,6 +1531,7 @@ static void update_stats(apr_pool_t *p, apr_memcache_conn_t *conn,
     mc_do_stat(version, str)
     else mc_do_stat(pid, uint32)
     else mc_do_stat(uptime, uint32)
+    else mc_do_stat(pointer_size, uint32)
     else mc_do_stat(time, time)
     else mc_do_stat(rusage_user, rtime)
     else mc_do_stat(rusage_system, rtime)
@@ -1536,9 +1545,11 @@ static void update_stats(apr_pool_t *p, apr_memcache_conn_t *conn,
     else mc_do_stat(cmd_set, uint32)
     else mc_do_stat(get_hits, uint32)
     else mc_do_stat(get_misses, uint32)
+    else mc_do_stat(evictions, uint64)
     else mc_do_stat(bytes_read, uint64)
     else mc_do_stat(bytes_written, uint64)
     else mc_do_stat(limit_maxbytes, uint32)
+    else mc_do_stat(threads, uint32)
 }
 
 APR_DECLARE(apr_status_t)

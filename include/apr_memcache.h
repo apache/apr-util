@@ -339,6 +339,8 @@ typedef struct
     apr_uint32_t uptime;
     /** current UNIX time according to the server */
     apr_time_t time;
+    /** The size of a pointer on the current machine */
+    apr_uint32_t pointer_size;
     /** Accumulated user time for this process */
     apr_time_t rusage_user;
     /** Accumulated system time for this process */
@@ -363,12 +365,17 @@ typedef struct
     apr_uint32_t get_hits;
     /** Number of items that have been requested and not found */
     apr_uint32_t get_misses;
+    /** Number of items removed from cache because they passed their
+        expiration time */
+    apr_uint64_t evictions;
     /** Total number of bytes read by this server */
     apr_uint64_t bytes_read;
     /** Total number of bytes sent by this server */
     apr_uint64_t bytes_written;
     /** Number of bytes this server is allowed to use for storage. */
     apr_uint32_t limit_maxbytes;
+    /** Number of threads the server is running (if built with threading) */
+    apr_uint32_t threads; 
 } apr_memcache_stats_t;
 
 /**
