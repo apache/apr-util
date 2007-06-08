@@ -161,7 +161,7 @@ apr_memcache_find_server_hash_default(void *baton, apr_memcache_t *mc,
                                       const apr_uint32_t hash)
 {
     apr_memcache_server_t *ms = NULL;
-    apr_uint32_t h = hash;
+    apr_uint32_t h = hash ? hash : 1;
     apr_uint32_t i = 0;
     apr_time_t curtime = 0;
    
