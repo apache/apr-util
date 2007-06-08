@@ -74,6 +74,15 @@ struct apr_memcache_server_t
     apr_time_t btime;
 };
 
+/* Custom hash callback function prototype, user for server selection.
+* @param baton user selected baton
+* @param data data to hash
+* @param data_len length of data
+*/
+typedef apr_uint32_t (*apr_memcahce_hash_func)(void *baton,
+                                               const char *data,
+                                               apr_size_t data_len);
+
 /** Container for a set of memcached servers */
 typedef struct
 {
@@ -82,6 +91,8 @@ typedef struct
     apr_uint16_t ntotal; /**< Number of Servers Added */
     apr_memcache_server_t **live_servers; /**< Array of Servers */
     apr_pool_t *p; /** Pool to use for allocations */
+    void *hash_baton;
+    apr_memcahce_hash_func hash_func;
 } apr_memcache_t;
 
 /** Returned Data from a multiple get */
@@ -101,7 +112,13 @@ typedef struct
  * @return crc32 hash of data
  * @remark The crc32 hash is not compatible with old memcached clients.
  */
-APR_DECLARE(apr_uint32_t) apr_memcache_hash(const char *data, apr_size_t data_len);
+APR_DECLARE(apr_uint32_t) apr_memcache_hash(apr_memcache_t *mc,
+                                            const char *data,
+                                            apr_size_t data_len);
+
+APR_DECLARE(apr_uint32_t) apr_memcache_hash_default(void *baton,
+                                                    const char *data,
+                                                    apr_size_t data_len);
 
 /**
  * Picks a server based on a hash
