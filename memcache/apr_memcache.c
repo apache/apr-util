@@ -148,6 +148,18 @@ static apr_status_t mc_version_ping(apr_memcache_server_t *ms);
 APR_DECLARE(apr_memcache_server_t *) 
 apr_memcache_find_server_hash(apr_memcache_t *mc, const apr_uint32_t hash)
 {
+    if (mc->server_func) {
+        return mc->server_func(mc->server_baton, mc, hash);
+    }
+    else {
+        return apr_memcache_find_server_hash_default(NULL, mc, hash);
+    }
+}   
+
+APR_DECLARE(apr_memcache_server_t *) 
+apr_memcache_find_server_hash_default(void *baton, apr_memcache_t *mc,
+                                      const apr_uint32_t hash)
+{
     apr_memcache_server_t *ms = NULL;
     apr_uint32_t h = hash;
     apr_uint32_t i = 0;
@@ -410,6 +422,8 @@ APR_DECLARE(apr_status_t) apr_memcache_create(apr_pool_t *p,
     mc->live_servers = apr_palloc(p, mc->nalloc * sizeof(struct apr_memcache_server_t *));
     mc->hash_func = NULL;
     mc->hash_baton = NULL;
+    mc->server_func = NULL;
+    mc->server_baton = NULL;
     *memcache = mc;
     return rv;
 }
