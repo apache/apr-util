@@ -116,6 +116,16 @@ APR_DECLARE(apr_uint32_t) apr_memcache_hash(apr_memcache_t *mc,
                                             const char *data,
                                             apr_size_t data_len);
 
+/**
+ * Pure CRC32 Hash. Used by some clients.
+ */
+APR_DECLARE(apr_uint32_t) apr_memcache_hash_crc32(void *baton,
+                                                    const char *data,
+                                                    apr_size_t data_len);
+
+/**
+ * hash compatible with the standard Perl Client.
+ */
 APR_DECLARE(apr_uint32_t) apr_memcache_hash_default(void *baton,
                                                     const char *data,
                                                     apr_size_t data_len);

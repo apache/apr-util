@@ -488,7 +488,7 @@ static const apr_uint32_t crc32tab[256] = {
   0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d,
 };
 
-APR_DECLARE(apr_uint32_t) apr_memcache_hash_default(void *baton, 
+APR_DECLARE(apr_uint32_t) apr_memcache_hash_crc32(void *baton, 
                                                     const char *data,
                                                     const apr_size_t data_len)
 {
@@ -499,7 +499,17 @@ APR_DECLARE(apr_uint32_t) apr_memcache_hash_default(void *baton,
     for (i = 0; i < data_len; i++)
         crc = (crc >> 8) ^ crc32tab[(crc ^ (data[i])) & 0xff];
     
-    return ((~crc >> 16) & 0x7fff);
+    return ~crc;
+}
+
+APR_DECLARE(apr_uint32_t) apr_memcache_hash_default(void *baton, 
+                                                    const char *data,
+                                                    const apr_size_t data_len)
+{
+    /* The default Perl Client doesn't actually use just crc32 -- it shifts it again
+     * like this....
+     */
+    return ((apr_memcache_hash_crc32(baton, data, data_len) >> 16) & 0x7fff);
 }
 
 APR_DECLARE(apr_uint32_t) apr_memcache_hash(apr_memcache_t *mc,
