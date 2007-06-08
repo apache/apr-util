@@ -486,16 +486,30 @@ static const apr_uint32_t crc32tab[256] = {
   0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d,
 };
 
-APR_DECLARE(apr_uint32_t) apr_memcache_hash(const char *data, const apr_size_t data_len)
+APR_DECLARE(apr_uint32_t) apr_memcache_hash_default(void *baton, 
+                                                    const char *data,
+                                                    const apr_size_t data_len)
 {
     apr_uint32_t i;
     apr_uint32_t crc;
     crc = ~0;
-
+    
     for (i = 0; i < data_len; i++)
         crc = (crc >> 8) ^ crc32tab[(crc ^ (data[i])) & 0xff];
-  
+    
     return ((~crc >> 16) & 0x7fff);
+}
+
+APR_DECLARE(apr_uint32_t) apr_memcache_hash(apr_memcache_t *mc,
+                                            const char *data,
+                                            const apr_size_t data_len)
+{
+    if (mc->hash_func) {
+        return mc->hash_func(mc->hash_baton, data, data_len);
+    }
+    else {
+        return apr_memcache_hash_default(NULL, data, data_len);
+    }
 }
 
 static apr_status_t get_server_line(apr_memcache_conn_t *conn)
@@ -540,7 +554,7 @@ static apr_status_t storage_cmd_write(apr_memcache_t *mc,
 
     apr_size_t key_size = strlen(key);
 
-    hash = apr_memcache_hash(key, key_size);
+    hash = apr_memcache_hash(mc, key, key_size);
 
     ms = apr_memcache_find_server_hash(mc, hash);
 
@@ -667,7 +681,7 @@ apr_memcache_getp(apr_memcache_t *mc,
     int klen = strlen(key);
     struct iovec vec[3];
 
-    hash = apr_memcache_hash(key, klen);
+    hash = apr_memcache_hash(mc, key, klen);
     ms = apr_memcache_find_server_hash(mc, hash);
     if (ms == NULL)
         return APR_NOTFOUND;
@@ -797,7 +811,7 @@ apr_memcache_delete(apr_memcache_t *mc,
     struct iovec vec[3];
     int klen = strlen(key);
 
-    hash = apr_memcache_hash(key, klen);
+    hash = apr_memcache_hash(mc, key, klen);
     ms = apr_memcache_find_server_hash(mc, hash);
     if (ms == NULL)
         return APR_NOTFOUND;
@@ -866,7 +880,7 @@ static apr_status_t num_cmd_write(apr_memcache_t *mc,
     struct iovec vec[3];
     int klen = strlen(key);
 
-    hash = apr_memcache_hash(key, klen);
+    hash = apr_memcache_hash(mc, key, klen);
     ms = apr_memcache_find_server_hash(mc, hash);
     if (ms == NULL)
         return APR_NOTFOUND;
@@ -1134,7 +1148,7 @@ apr_memcache_multgetp(apr_memcache_t *mc,
         value_hash_index = apr_hash_next(value_hash_index);
         klen = strlen(value->key);
 
-        hash = apr_memcache_hash(value->key, klen);
+        hash = apr_memcache_hash(mc, value->key, klen);
         ms = apr_memcache_find_server_hash(mc, hash);
         if (ms == NULL) {
             continue;
