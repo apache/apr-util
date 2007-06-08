@@ -83,8 +83,19 @@ typedef apr_uint32_t (*apr_memcahce_hash_func)(void *baton,
                                                const char *data,
                                                apr_size_t data_len);
 
+typedef struct apr_memcache_t apr_memcache_t;
+
+/* Custom Server Select callback function prototype.
+* @param baton user selected baton
+* @param mc memcache instance, use mc->live_servers to select a node
+* @param hash hash of the selected key.
+*/
+typedef apr_memcache_server_t* (*apr_memcahce_server_func)(void *baton,
+                                                 apr_memcache_t *mc,
+                                                 const apr_uint32_t hash);
+
 /** Container for a set of memcached servers */
-typedef struct
+struct apr_memcache_t
 {
     apr_uint32_t flags; /**< Flags, Not currently used */
     apr_uint16_t nalloc; /**< Number of Servers Allocated */
@@ -93,7 +104,9 @@ typedef struct
     apr_pool_t *p; /** Pool to use for allocations */
     void *hash_baton;
     apr_memcahce_hash_func hash_func;
-} apr_memcache_t;
+    void *server_baton;
+    apr_memcahce_server_func server_func;
+};
 
 /** Returned Data from a multiple get */
 typedef struct
@@ -139,6 +152,14 @@ APR_DECLARE(apr_uint32_t) apr_memcache_hash_default(void *baton,
  */
 APR_DECLARE(apr_memcache_server_t *) apr_memcache_find_server_hash(apr_memcache_t *mc, 
                                                                    const apr_uint32_t hash);
+
+/**
+ * server selection compatible with the standard Perl Client.
+ */
+APR_DECLARE(apr_memcache_server_t *)
+apr_memcache_find_server_hash_default(void *baton,
+                                      apr_memcache_t *mc, 
+                                      const apr_uint32_t hash);
 
 /**
  * Adds a server to a client object
