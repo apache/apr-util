@@ -408,6 +408,8 @@ APR_DECLARE(apr_status_t) apr_memcache_create(apr_pool_t *p,
     mc->nalloc = max_servers;
     mc->ntotal = 0;
     mc->live_servers = apr_palloc(p, mc->nalloc * sizeof(struct apr_memcache_server_t *));
+    mc->hash_func = NULL;
+    mc->hash_baton = NULL;
     *memcache = mc;
     return rv;
 }
