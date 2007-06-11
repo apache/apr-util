@@ -123,6 +123,12 @@
 #endif
 
 #if APR_HAS_OPENLDAP_LDAPSDK
+#if !defined(LDAP_DEPRECATED) 
+/* Ensure that the "deprecated" interfaces are still exposed
+ * with OpenLDAP >= 2.3; these were exposed by default in earlier
+ * releases. */
+#define LDAP_DEPRECATED 1
+#endif
 @lber_h@
 @ldap_h@
 #endif
