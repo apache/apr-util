@@ -79,7 +79,7 @@ struct apr_memcache_server_t
 * @param data data to hash
 * @param data_len length of data
 */
-typedef apr_uint32_t (*apr_memcahce_hash_func)(void *baton,
+typedef apr_uint32_t (*apr_memcache_hash_func)(void *baton,
                                                const char *data,
                                                apr_size_t data_len);
 
@@ -90,7 +90,7 @@ typedef struct apr_memcache_t apr_memcache_t;
 * @param mc memcache instance, use mc->live_servers to select a node
 * @param hash hash of the selected key.
 */
-typedef apr_memcache_server_t* (*apr_memcahce_server_func)(void *baton,
+typedef apr_memcache_server_t* (*apr_memcache_server_func)(void *baton,
                                                  apr_memcache_t *mc,
                                                  const apr_uint32_t hash);
 
@@ -103,9 +103,9 @@ struct apr_memcache_t
     apr_memcache_server_t **live_servers; /**< Array of Servers */
     apr_pool_t *p; /** Pool to use for allocations */
     void *hash_baton;
-    apr_memcahce_hash_func hash_func;
+    apr_memcache_hash_func hash_func;
     void *server_baton;
-    apr_memcahce_server_func server_func;
+    apr_memcache_server_func server_func;
 };
 
 /** Returned Data from a multiple get */
