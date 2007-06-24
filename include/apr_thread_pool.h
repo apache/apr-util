@@ -52,6 +52,12 @@ extern "C"
 #endif
 #endif /* __cplusplus */
 
+/**
+ * @defgroup APR_Util_TP Thread Pool routines
+ * @ingroup APR_Util
+ * @{
+ */
+
 /** Opaque Thread Pool structure. */
 typedef struct apr_thread_pool apr_thread_pool_t;
 
@@ -234,6 +240,8 @@ APR_DECLARE(apr_size_t) apr_thread_pool_threshold_get(apr_thread_pool_t * me);
  */
 APR_DECLARE(apr_status_t) apr_thread_pool_task_owner_get(apr_thread_t * thd,
                                                          void **owner);
+
+/** @} */
 
 #ifdef __cplusplus
 #if 0
