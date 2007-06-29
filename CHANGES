@@ -1,5 +1,9 @@
 Changes with APR-util 1.2.9
 
+  *) Fix Solaris 2.8+ fdatasync() detection. The fdatasync() function
+     is marked as part of the Realtime library functions.
+     PR 37343.  [Davi Arnaut]
+
   *) Change configure's expat detection to use standard linker-based
      tests, fixing build on e.g. biarch Linux systems.  PR 28205.
      [Joe Orton, Ruediger Pluem]     
