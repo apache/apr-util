@@ -126,6 +126,8 @@ APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
 
 #ifdef WIN32
     sprintf(path, "apr_dbd_%s.dll", name);
+#elif defined(NETWARE)
+    sprintf(path, "dbd%s.nlm", name);
 #else
     sprintf(path, "apr_dbd_%s.so", name);
 #endif
