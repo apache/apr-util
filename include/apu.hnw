@@ -82,5 +82,7 @@
 #define APU_HAVE_ICONV         1
 #define APR_HAS_XLATE          (APU_HAVE_APR_ICONV || APU_HAVE_ICONV)
 
+#define APU_DBD_DRIVER_FMT "dbd%s.nlm"
+
 #endif /* APU_H */
 /** @} */
