@@ -109,5 +109,7 @@
 #define APU_HAVE_SQLITE3    0
 #endif
 
+#define APU_DBD_DRIVER_FMT "apr_dbd_%s.dll"
+
 #endif /* APU_H */
 #endif /* WIN32 */
