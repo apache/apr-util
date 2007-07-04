@@ -85,5 +85,7 @@
  */
 #define APR_DSO_BUILD APR_HAS_DSO
 
+#define APU_DBD_DRIVER_FMT "dbd%s.nlm"
+
 #endif /* APU_H */
 /** @} */
