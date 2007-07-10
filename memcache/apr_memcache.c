@@ -39,9 +39,9 @@ enum mc_cmd_type {
     CMD_ADD = 2,
     CMD_REPLACE = 3,
     CMD_DELETE = 4,
-    CMD_INCR = 4,
-    CMD_DECR = 4,
-    CMD_QUIT = 99,
+    CMD_INCR = 5,
+    CMD_DECR = 6,
+    CMD_QUIT = 7,
 };
 
 #define MC_STATUS_SUCCESS (0)
