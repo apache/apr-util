@@ -249,7 +249,7 @@ APR_DECLARE(apr_status_t) apr_memcache_getp(apr_memcache_t *mc,
                                             const char* key,
                                             char **baton,
                                             apr_size_t *len,
-                                            apr_uint16_t *flags);
+                                            apr_uint32_t *flags);
 
 
 /**
