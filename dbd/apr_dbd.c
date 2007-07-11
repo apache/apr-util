@@ -124,8 +124,13 @@ APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
     }
 #endif
 
-    /* APU_DBD_DRIVER_FMT is defined in apu.h */
-    apr_snprintf(path, sizeof path, APU_DBD_DRIVER_FMT, name);
+#ifdef WIN32
+    apr_snprintf(path, sizeof path, "apr_dbd_%s.dll", name);
+#elif defined(NETWARE)
+    apr_snprintf(path, sizeof path, "dbd%s.nlm", name);
+#else
+    apr_snprintf(path, sizeof path, "apr_dbd_%s.so", name);
+#endif
     rv = apr_dso_load(&dlhandle, path, pool);
     if (rv != APR_SUCCESS) { /* APR_EDSOOPEN */
         goto unlock;
