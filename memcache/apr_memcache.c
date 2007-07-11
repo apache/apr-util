@@ -641,9 +641,11 @@ static apr_status_t storage_cmd_write(apr_memcache_t *mc,
     vec[1].iov_base = (void*)key;
     vec[1].iov_len  = key_size;
 
+    flags = htonl(flags);
     vec[2].iov_base = (void*)&flags;
     vec[2].iov_len  = sizeof(apr_uint32_t);
     
+    timeout = htonl(timeout);
     vec[2].iov_base = (void*)&timeout;
     vec[2].iov_len  = sizeof(apr_uint32_t);
 
@@ -810,6 +812,7 @@ apr_memcache_getp(apr_memcache_t *mc,
         
         *new_length = len - 1 - 4;
         memcpy(flags, *baton, 4);
+        *flags = ntohl(*flags);
         *baton =  *baton + 4;
         (*baton)[*new_length] = '\0';
     }
@@ -895,6 +898,7 @@ static apr_status_t num_cmd_write(apr_memcache_t *mc,
                                   const apr_int32_t inc,
                                   apr_uint32_t *new_value)
 {
+    apr_uint32_t tinc;
     apr_mc_hdr_t hdr;
     apr_status_t rv;
     apr_memcache_server_t *ms;
@@ -928,9 +932,11 @@ static apr_status_t num_cmd_write(apr_memcache_t *mc,
     
     vec[1].iov_base = (void*)key;
     vec[1].iov_len  = klen;
-
-    vec[2].iov_base = (void*)&inc;
-    vec[2].iov_len  = sizeof(inc);
+    
+    tinc = htonl(inc);
+    
+    vec[2].iov_base = (void*)&tinc;
+    vec[2].iov_len  = sizeof(apr_uint32_t);
 
     rv = apr_socket_sendv(conn->sock, vec, 3, &written);
 
@@ -973,7 +979,9 @@ static apr_status_t num_cmd_write(apr_memcache_t *mc,
                 apr_memcache_disable_server(mc, ms);
                 return rv;
             }
-
+            
+            *new_value = ntohl(*new_value);
+            
             apr_brigade_cleanup(conn->tb);
         }
     }
