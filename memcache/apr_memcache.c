@@ -609,7 +609,7 @@ static apr_status_t storage_cmd_write(apr_memcache_t *mc,
     apr_memcache_conn_t *conn;
     apr_status_t rv;
     apr_size_t written;
-    struct iovec vec[4];
+    struct iovec vec[5];
     int klen;
 
     apr_size_t key_size = strlen(key);
@@ -638,21 +638,21 @@ static apr_status_t storage_cmd_write(apr_memcache_t *mc,
     vec[0].iov_base = &hdr;
     vec[0].iov_len  = MC_HDR_LEN;
 
-    vec[1].iov_base = (void*)key;
-    vec[1].iov_len  = key_size;
-
     flags = htonl(flags);
-    vec[2].iov_base = (void*)&flags;
-    vec[2].iov_len  = sizeof(apr_uint32_t);
+    vec[1].iov_base = (void*)&flags;
+    vec[1].iov_len  = sizeof(apr_uint32_t);
     
     timeout = htonl(timeout);
     vec[2].iov_base = (void*)&timeout;
     vec[2].iov_len  = sizeof(apr_uint32_t);
 
-    vec[3].iov_base = data;
-    vec[3].iov_len  = data_size;
+    vec[3].iov_base = (void*)key;
+    vec[3].iov_len  = key_size;
+    
+    vec[4].iov_base = data;
+    vec[4].iov_len  = data_size;
 
-    rv = apr_socket_sendv(conn->sock, vec, 4, &written);
+    rv = apr_socket_sendv(conn->sock, vec, 5, &written);
 
     if (rv != APR_SUCCESS) {
         ms_bad_conn(ms, conn);
@@ -930,14 +930,14 @@ static apr_status_t num_cmd_write(apr_memcache_t *mc,
     vec[0].iov_base = &hdr;
     vec[0].iov_len  = MC_HDR_LEN;
     
-    vec[1].iov_base = (void*)key;
-    vec[1].iov_len  = klen;
-    
     tinc = htonl(inc);
     
-    vec[2].iov_base = (void*)&tinc;
-    vec[2].iov_len  = sizeof(apr_uint32_t);
+    vec[1].iov_base = (void*)&tinc;
+    vec[1].iov_len  = sizeof(apr_uint32_t);
 
+    vec[2].iov_base = (void*)key;
+    vec[2].iov_len  = klen;
+    
     rv = apr_socket_sendv(conn->sock, vec, 3, &written);
 
     if (rv != APR_SUCCESS) {
