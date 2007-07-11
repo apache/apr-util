@@ -162,7 +162,7 @@ APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
     if (rv != APR_SUCCESS) { /* APR_EDSOOPEN */
         goto unlock;
     }
-    sprintf(path, "apr_dbd_%s_driver", name);
+    apr_snprintf(path, sizeof path, "apr_dbd_%s_driver", name);
     rv = apr_dso_sym(&symbol, dlhandle, path);
     if (rv != APR_SUCCESS) { /* APR_ESYMNOTFOUND */
         apr_dso_unload(dlhandle);
