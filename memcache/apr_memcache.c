@@ -324,13 +324,15 @@ static void setup_req_hdr(apr_mc_hdr_t *hdr, apr_uint8_t cmd)
 
 static void finalize_req_hdr(apr_mc_hdr_t *hdr)
 {
-    /* XXXX: convert to network byte order */
-
+    /* this isn't strictly needed, but will be nicer for protocol analyzers */
+    hdr->opaque_id = htonl(hdr->opaque_id);
+    hdr->lenleft = htonl(hdr->lenleft);
 }
 
 static void repair_hdr_rep(apr_mc_hdr_t *hdr)
 {
-    /* XXXX: convert from network byte order */
+    hdr->opaque_id = ntohl(hdr->opaque_id);
+    hdr->lenleft = ntohl(hdr->lenleft);
 }
 
 static apr_status_t brigade_split_offset(apr_bucket_brigade *bbOut,
