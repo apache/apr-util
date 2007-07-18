@@ -82,5 +82,13 @@
 #define APU_HAVE_ICONV         1
 #define APR_HAS_XLATE          (APU_HAVE_APR_ICONV || APU_HAVE_ICONV)
 
+/*
+ * check for newer NDKs which use now correctly 'const char*' with iconv.
+ */
+#include <ndkvers.h>
+#if (CURRENT_NDK_THRESHOLD >= 705110000)
+#define APU_ICONV_INBUF_CONST
+#endif
+
 #endif /* APU_H */
 /** @} */
