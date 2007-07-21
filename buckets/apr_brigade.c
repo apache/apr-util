@@ -190,7 +190,7 @@ APU_DECLARE(apr_status_t) apr_brigade_length(apr_bucket_brigade *bb,
     }
 
     *length = total;
-    return APR_SUCCESS;
+    return status;
 }
 
 APU_DECLARE(apr_status_t) apr_brigade_flatten(apr_bucket_brigade *bb,
