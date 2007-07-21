@@ -15,14 +15,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "apr_date.h"
-
-#ifndef srand48
-#define srand48 srandom
-#endif
-
-#ifndef mrand48
-#define mrand48 random
-#endif
+#include "apr_general.h"
 
 void gm_timestr_822(char *ts, apr_time_t sec);
 void gm_timestr_850(char *ts, apr_time_t sec);
@@ -151,6 +144,15 @@ void gm_timestr_ccc(char *ts, apr_time_t sec)
             tms->tm_hour, tms->tm_min, tms->tm_sec, tms->tm_year + 1900);
 }
 
+/* Linear congruential generator */
+static apr_uint32_t lgc(apr_uint32_t a)
+{
+    apr_uint64_t z = a;
+    z *= 279470273;
+    z %= APR_UINT64_C(4294967291);
+    return z;
+}
+
 int main (void)
 {
     int year, i;
@@ -175,11 +177,11 @@ int main (void)
             printf("No* %4d %19" APR_TIME_T_FMT " %19" APR_TIME_T_FMT " %s\n",
                    year, secstodate, newsecs, datestr);
     }
-    
-    srand48(978245L);
+
+    apr_generate_random_bytes((unsigned char *)&guess, sizeof(guess));
 
     for (i = 0; i < 10000; ++i) {
-        guess = (time_t)mrand48();
+        guess = lgc(guess);
         if (guess < 0) guess *= -1;
         secstodate = guess + offset;
         gm_timestr_822(datestr, secstodate);
