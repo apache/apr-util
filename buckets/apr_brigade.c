@@ -165,6 +165,7 @@ APU_DECLARE(apr_status_t) apr_brigade_length(apr_bucket_brigade *bb,
 {
     apr_off_t total = 0;
     apr_bucket *bkt;
+    apr_status_t status = APR_SUCCESS;
 
     for (bkt = APR_BRIGADE_FIRST(bb);
          bkt != APR_BRIGADE_SENTINEL(bb);
@@ -173,16 +174,15 @@ APU_DECLARE(apr_status_t) apr_brigade_length(apr_bucket_brigade *bb,
         if (bkt->length == (apr_size_t)(-1)) {
             const char *ignore;
             apr_size_t len;
-            apr_status_t status;
 
             if (!read_all) {
-                *length = -1;
-                return APR_SUCCESS;
+                total = -1;
+                break;
             }
 
             if ((status = apr_bucket_read(bkt, &ignore, &len,
                                           APR_BLOCK_READ)) != APR_SUCCESS) {
-                return status;
+                break;
             }
         }
 

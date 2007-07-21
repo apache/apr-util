@@ -712,8 +712,9 @@ APU_DECLARE(apr_status_t) apr_brigade_partition(apr_bucket_brigade *b,
  * Return the total length of the brigade.
  * @param bb The brigade to compute the length of
  * @param read_all Read unknown-length buckets to force a size
- * @param length Returns the length of the brigade, or -1 if the brigade has
- *               buckets of indeterminate length and read_all is 0.
+ * @param length Returns the length of the brigade (up to the end, or up
+ *               to a bucket read error), or -1 if the brigade has buckets
+ *               of indeterminate length and read_all is 0.
  */
 APU_DECLARE(apr_status_t) apr_brigade_length(apr_bucket_brigade *bb,
                                              int read_all,
