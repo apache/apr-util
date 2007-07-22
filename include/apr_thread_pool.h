@@ -33,14 +33,14 @@
  * number of tasks in the queue is higher than the adjustable threshold, the
  * pool will try to create a new thread to serve the task if the maximum number
  * has not been reached. Otherwise, the task will be put into a queue based on
- * priority, which can be valued from 0 to 255, with higher value been served
- * first. In case there are tasks with the same priority, the new task is put at
- * the top or the bottom depeneds on which function is used to put the task.
+ * priority, which can be valued from 0 to 255, with higher values being served
+ * first. If there are tasks with the same priority, the new task might be put at
+ * the top or at the bottom - it depends on which function is used to put the task.
  *
- * @remarks There may be the case that a thread pool can use up the maximum
+ * @remarks There may be the case where the thread pool can use up to the maximum
  * number of threads at peak load, but having those threads idle afterwards. A
- * maximum number of idle threads can be set so that extra idling threads will
- * be terminated to save system resrouces.
+ * maximum number of idle threads can be set so that the extra idling threads will
+ * be terminated to save system resources.
  */
 #if APR_HAS_THREADS
 
@@ -65,11 +65,10 @@ typedef struct apr_thread_pool apr_thread_pool_t;
 
 /**
  * Create a thread pool
- * @param me A pointer points to the pointer receives the created
- * apr_thread_pool object. The returned value will be NULL if failed to create
- * the thread pool.
- * @param init_threads The number of threads to be created initially, the number
- * will also be used as the initial value for maximum number of idle threads.
+ * @param me The pointer in which to return the newly created apr_thread_pool
+ * object, or NULL if thread pool creation fails.
+ * @param init_threads The number of threads to be created initially, this number
+ * will also be used as the initial value for the maximum number of idle threads.
  * @param max_threads The maximum number of threads that can be created
  * @param pool The pool to use
  * @return APR_SUCCESS if the thread pool was created successfully. Otherwise,
@@ -131,8 +130,8 @@ APU_DECLARE(apr_status_t) apr_thread_pool_top(apr_thread_pool_t *me,
                                               void *owner);
 
 /**
- * Cancel tasks submitted by the owner. If there is any task from the owner is
- * currently under process, the function will spin until the task finished.
+ * Cancel tasks submitted by the owner. If there is any task from the owner that
+ * is currently running, the function will spin until the task finished.
  * @param me The thread pool
  * @param owner Owner of the task
  * @return APR_SUCCESS if the task has been cancelled successfully
@@ -143,61 +142,61 @@ APU_DECLARE(apr_status_t) apr_thread_pool_tasks_cancel(apr_thread_pool_t *me,
                                                        void *owner);
 
 /**
- * Get current number of tasks waiting in the queue
+ * Get the current number of tasks waiting in the queue
  * @param me The thread pool
  * @return Number of tasks in the queue
  */
 APU_DECLARE(apr_size_t) apr_thread_pool_tasks_count(apr_thread_pool_t *me);
 
 /**
- * Get current number of scheduled tasks waiting in the queue
+ * Get the current number of scheduled tasks waiting in the queue
  * @param me The thread pool
  * @return Number of scheduled tasks in the queue
  */
 APU_DECLARE(apr_size_t) apr_thread_pool_scheduled_tasks_count(apr_thread_pool_t *me);
 
 /**
- * Get current number of threads
+ * Get the current number of threads
  * @param me The thread pool
- * @return Number of total threads
+ * @return Total number of threads
  */
 APU_DECLARE(apr_size_t) apr_thread_pool_threads_count(apr_thread_pool_t *me);
 
 /**
- * Get current number of busy threads
+ * Get the current number of busy threads
  * @param me The thread pool
  * @return Number of busy threads
  */
 APU_DECLARE(apr_size_t) apr_thread_pool_busy_count(apr_thread_pool_t *me);
 
 /**
- * Get current number of idling thread
+ * Get the current number of idle threads
  * @param me The thread pool
- * @return Number of idling threads
+ * @return Number of idle threads
  */
 APU_DECLARE(apr_size_t) apr_thread_pool_idle_count(apr_thread_pool_t *me);
 
 /**
- * Access function for the maximum number of idling thread. Number of current
+ * Access function for the maximum number of idle threads. Number of current
  * idle threads will be reduced to the new limit.
  * @param me The thread pool
  * @param cnt The number
- * @return The number of threads were stopped.
+ * @return The number of threads that were stopped.
  */
 APU_DECLARE(apr_size_t) apr_thread_pool_idle_max_set(apr_thread_pool_t *me,
                                                      apr_size_t cnt);
 
 /**
- * Access function for the maximum number of idling thread
+ * Access function for the maximum number of idle threads
  * @param me The thread pool
  * @return The current maximum number
  */
 APU_DECLARE(apr_size_t) apr_thread_pool_idle_max_get(apr_thread_pool_t *me);
 
 /**
- * Access function for the maximum number of thread.
+ * Access function for the maximum number of threads.
  * @param me The thread pool
- * @param cnt The number
+ * @param cnt Number of threads
  * @return The original maximum number of threads
  */
 APU_DECLARE(apr_size_t) apr_thread_pool_thread_max_set(apr_thread_pool_t *me,
