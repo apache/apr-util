@@ -310,16 +310,16 @@ APU_DECLARE(apr_status_t) apr_xlate_conv_buffer(apr_xlate_t *convset,
          */
         switch (status) {
 
-            case E2BIG:  /* out of space on output */
+            case APR_BADARG:  /* out of space on output */
                 status = 0; /* change table lookup code below if you
                                make this an error */
                 break;
 
-            case EINVAL: /* input character not complete (yet) */
+            case APR_EINVAL: /* input character not complete (yet) */
                 status = APR_INCOMPLETE;
                 break;
 
-            case EILSEQ: /* bad input byte */
+            case APR_BADCH: /* bad input byte */
                 status = APR_EINVAL;
                 break;
 
