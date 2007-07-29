@@ -111,7 +111,8 @@ AC_DEFUN([APU_SYSTEM_EXPAT], [
  
     APU_TRY_EXPAT_LINK([Expat 1.95.x in /usr/local], 
        apu_cv_expat_usrlocal, [expat.h], [-lexpat],
-       [APR_ADDTO(APRUTIL_INCLUDES, [-I/usr/local/include])],[
+       [APR_ADDTO(APRUTIL_INCLUDES, [-I/usr/local/include])
+        APR_ADDTO(APRUTIL_LDFLAGS, [-L/usr/local/lib])],[
        APR_REMOVEFROM(LDFLAGS, [-L/usr/local/lib])
        APR_REMOVEFROM(CPPFLAGS, [-I/usr/local/include])
       ])
@@ -123,6 +124,9 @@ dnl
 dnl APU_FIND_EXPAT: figure out where EXPAT is located (or use bundled)
 dnl
 AC_DEFUN([APU_FIND_EXPAT], [
+
+save_cppflags="$CPPFLAGS"
+save_ldflags="$LDFLAGS"
 
 apu_has_expat=0
 
@@ -144,6 +148,7 @@ AC_ARG_WITH([expat],
       APR_ADDTO(LDFLAGS, [-L$withval/lib])
       APR_ADDTO(CPPFLAGS, [-I$withval/include])
       APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/include])
+      APR_ADDTO(APRUTIL_LDFLAGS, [-L$withval/lib])
     fi
     # ...and refuse to fall back on the builtin expat.
     apu_try_builtin_expat=0
@@ -169,6 +174,9 @@ APR_ADDTO(APRUTIL_LIBS, [$apu_expat_libs])
 
 APR_XML_DIR=$bundled_subdir
 AC_SUBST(APR_XML_DIR)
+
+CPPFLAGS=$save_cppflags
+LDFLAGS=$save_ldflags
 ])
 
 
