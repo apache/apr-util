@@ -179,9 +179,9 @@ APU_DECLARE(int) apr_ldap_set_option(apr_pool_t *pool,
 static void option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
                           apr_ldap_err_t *result)
 {
-    int tls = * (const int *)invalue;
-
 #if APR_HAS_LDAP_SSL /* compiled with ssl support */
+
+    int tls = * (const int *)invalue;
 
     /* Netscape/Mozilla/Solaris SDK */
 #if APR_HAS_NETSCAPE_LDAPSDK || APR_HAS_SOLARIS_LDAPSDK || APR_HAS_MOZILLA_LDAPSK
@@ -350,11 +350,10 @@ static void option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
 static void option_set_cert(apr_pool_t *pool, LDAP *ldap,
                            const void *invalue, apr_ldap_err_t *result)
 {
+#if APR_HAS_LDAP_SSL
     apr_array_header_t *certs = (apr_array_header_t *)invalue;
     struct apr_ldap_opt_tls_cert_t *ents = (struct apr_ldap_opt_tls_cert_t *)certs->elts;
     int i = 0;
-
-#if APR_HAS_LDAP_SSL
 
     /* Netscape/Mozilla/Solaris SDK */
 #if APR_HAS_NETSCAPE_LDAPSDK || APR_HAS_SOLARIS_LDAPSDK || APR_HAS_MOZILLA_LDAPSDK
