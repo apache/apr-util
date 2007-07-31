@@ -1,5 +1,7 @@
 Changes with APR-util 1.3.0
 
+  *) Support Tivoli ITDS LDAP client library.  [Paul Reder]
+
   *) Portably implement testdate's long-time constants to solve
      compilation faults where #LL isn't valid.  [Curt Arnold]
 

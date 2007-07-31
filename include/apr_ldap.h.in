@@ -40,6 +40,7 @@
 #define APR_HAS_MOZILLA_LDAPSDK   @apu_has_ldap_mozilla@
 #define APR_HAS_OPENLDAP_LDAPSDK  @apu_has_ldap_openldap@
 #define APR_HAS_MICROSOFT_LDAPSDK @apu_has_ldap_microsoft@
+#define APR_HAS_TIVOLI_LDAPSDK    @apu_has_ldap_tivoli@
 #define APR_HAS_ZOS_LDAPSDK       @apu_has_ldap_zos@
 #define APR_HAS_OTHER_LDAPSDK     @apu_has_ldap_other@
 
@@ -57,7 +58,11 @@
  * apr_ldap_url_parse*() functions have been rewritten specifically for
  * APR, so the APR_HAS_LDAP_URL_PARSE macro is forced to zero.
  */
+#if APR_HAS_TIVOLI_LDAPSDK
+#define APR_HAS_LDAP_SSL 0
+#else
 #define APR_HAS_LDAP_SSL 1
+#endif
 #define APR_HAS_LDAP_URL_PARSE      0
 
 #if APR_HAS_OPENLDAP_LDAPSDK && !defined(LDAP_DEPRECATED) 
