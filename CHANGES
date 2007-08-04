@@ -1,5 +1,8 @@
 Changes with APR-util 1.2.9
 
+  *) Fix improper datum copy for dbm fetch (apr_dbm_fetch) operations
+     on SDBM databases.  [Davi Arnaut]
+
   *) Fix Solaris 2.8+ fdatasync() detection. The fdatasync() function
      is marked as part of the Realtime library functions.
      PR 37343.  [Davi Arnaut]
