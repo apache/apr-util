@@ -202,18 +202,9 @@ static void vt_sdbm_freedatum(apr_dbm_t *dbm, apr_datum_t data)
 static void vt_sdbm_usednames(apr_pool_t *pool, const char *pathname,
                               const char **used1, const char **used2)
 {
-    char *work;
-
-    /* ### this could be optimized by computing strlen() once and using
-       ### memcpy and pmemdup instead. but why bother? */
-
     *used1 = apr_pstrcat(pool, pathname, APR_SDBM_DIRFEXT, NULL);
-    *used2 = work = apr_pstrdup(pool, *used1);
-
-    /* we know the extension is 4 characters */
-    memcpy(&work[strlen(work) - 4], APR_SDBM_PAGFEXT, 4);
+    *used2 = apr_pstrcat(pool, pathname, APR_SDBM_PAGFEXT, NULL);
 }
-
 
 APU_DECLARE_DATA const apr_dbm_type_t apr_dbm_type_sdbm = {
     "sdbm",
