@@ -140,7 +140,7 @@ static apr_status_t vt_sdbm_fetch(apr_dbm_t *dbm, apr_datum_t key,
     result_datum_t rd;
 
     CONVERT_DATUM(ckey, &key);
-    rv = APR_DBM_FETCH(dbm->file, ckey, rd);
+    rv = APR_DBM_FETCH(dbm->file, rd, ckey);
     RETURN_DATUM(pvalue, rd);
 
     REGISTER_CLEANUP(dbm, pvalue);
