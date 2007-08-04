@@ -282,7 +282,7 @@ static void doit(const cmd *act, const char*type, const char *file,
     case DTRUNC:
         break;
     case DNAME:
-        apr_dbm_get_usednames(pool, file, &use1, &use2);
+        apr_dbm_get_usednames_ex(pool, type, file, &use1, &use2);
         fprintf(stderr, "%s %s\n", use1, use2);
         break;
     case DAUTO:
