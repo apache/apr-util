@@ -32,7 +32,7 @@ const struct testlist {
     {testmd5},
     {testldap},
     {testdbd},
-    {testdaterfc},
+    {testdate},
     {testmemcache},
     {testreslist}
 };
