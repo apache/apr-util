@@ -33,7 +33,8 @@ const struct testlist {
     {testldap},
     {testdbd},
     {testdaterfc},
-    {testmemcache}
+    {testmemcache},
+    {testreslist}
 };
 
 #endif /* APR_TEST_INCLUDES */

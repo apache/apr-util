@@ -109,7 +109,6 @@ ALL_LDFLAGS  = $(INT_LDFLAGS) $(LDFLAGS)
 ##!		$(OUTPUT_DIR)\testmd4.exe \
 ##!		$(OUTPUT_DIR)\testmd5.exe \
 ##!		$(OUTPUT_DIR)\testqueue.exe \
-##!		$(OUTPUT_DIR)\testreslist.exe \
 ##!		$(OUTPUT_DIR)\testrmm.exe \
 ##!		$(OUTPUT_DIR)\teststrmatch.exe \
 ##!		$(OUTPUT_DIR)\testuri.exe \

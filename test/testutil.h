@@ -54,5 +54,6 @@ abts_suite *testldap(abts_suite *suite);
 abts_suite *testdbd(abts_suite *suite);
 abts_suite *testdaterfc(abts_suite *suite);
 abts_suite *testmemcache(abts_suite *suite);
+abts_suite *testreslist(abts_suite *suite);
 
 #endif /* APR_TEST_INCLUDES */
