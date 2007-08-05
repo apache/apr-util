@@ -113,16 +113,14 @@ ALL_LDFLAGS  = $(INT_LDFLAGS) $(LDFLAGS)
 ##!		$(OUTPUT_DIR)\teststrmatch.exe \
 ##!		$(OUTPUT_DIR)\testuri.exe \
 ##!		$(OUTPUT_DIR)\testuuid.exe \
-##!		$(OUTPUT_DIR)\testxlate.exe \
-##!		$(OUTPUT_DIR)\testxml.exe
+##!		$(OUTPUT_DIR)\testxlate.exe
 
 ALL_TARGETS = 	$(OUTPUT_DIR)\testxlate.exe \
 		$(OUTPUT_DIR)\testdbm.exe \
 		$(OUTPUT_DIR)\testqueue.exe \
 		$(OUTPUT_DIR)\testrmm.exe \
 		$(OUTPUT_DIR)\testmd4.exe \
-		$(OUTPUT_DIR)\testmd5.exe \
-		$(OUTPUT_DIR)\testxml.exe
+		$(OUTPUT_DIR)\testmd5.exe
                 
 all: $(ALL_TARGETS)
 

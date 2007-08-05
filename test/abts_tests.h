@@ -35,7 +35,8 @@ const struct testlist {
     {testdate},
     {testmemcache},
     {testreslist},
-    {testqueue}
+    {testqueue},
+    {testxml}
 };
 
 #endif /* APR_TEST_INCLUDES */
