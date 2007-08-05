@@ -17,10 +17,6 @@
 #include "apr_date.h"
 #include "apr_general.h"
 
-void gm_timestr_822(char *ts, apr_time_t sec);
-void gm_timestr_850(char *ts, apr_time_t sec);
-void gm_timestr_ccc(char *ts, apr_time_t sec);
-
 static const apr_time_t year2secs[] = {
              APR_INT64_C(0),    /* 1970 */
       APR_INT64_C(31536000),    /* 1971 */
@@ -97,7 +93,8 @@ const char month_snames[12][4] = {
     "Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"
 };
 
-void gm_timestr_822(char *ts, apr_time_t sec)
+/* XXX: non-portable */
+static void gm_timestr_822(char *ts, apr_time_t sec)
 {
     static const char *const days[7]=
         {"Sun","Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
@@ -105,43 +102,10 @@ void gm_timestr_822(char *ts, apr_time_t sec)
     time_t ls = (time_t)sec;
 
     tms = gmtime(&ls);
- 
+
     sprintf(ts, "%s, %.2d %s %d %.2d:%.2d:%.2d GMT", days[tms->tm_wday],
             tms->tm_mday, month_snames[tms->tm_mon], tms->tm_year + 1900,
             tms->tm_hour, tms->tm_min, tms->tm_sec);
-}
-
-void gm_timestr_850(char *ts, apr_time_t sec)
-{
-    static const char *const days[7]=
-           {"Sunday","Monday", "Tuesday", "Wednesday", "Thursday", "Friday", 
-            "Saturday"};
-    struct tm *tms;
-    int year;
-    time_t ls = (time_t)sec;
- 
-    tms = gmtime(&ls);
-
-    year = tms->tm_year;
-    if (year >= 100) year -= 100;
- 
-    sprintf(ts, "%s, %.2d-%s-%.2d %.2d:%.2d:%.2d GMT", days[tms->tm_wday],
-            tms->tm_mday, month_snames[tms->tm_mon], year,
-            tms->tm_hour, tms->tm_min, tms->tm_sec);
-}
-
-void gm_timestr_ccc(char *ts, apr_time_t sec)
-{
-    static const char *const days[7]=
-       {"Sun","Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
-    struct tm *tms;
-    time_t ls = (time_t)sec;
- 
-    tms = gmtime(&ls);
- 
-    sprintf(ts, "%s %s %2d %.2d:%.2d:%.2d %d", days[tms->tm_wday],
-            month_snames[tms->tm_mon], tms->tm_mday, 
-            tms->tm_hour, tms->tm_min, tms->tm_sec, tms->tm_year + 1900);
 }
 
 /* Linear congruential generator */
