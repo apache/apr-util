@@ -3,7 +3,7 @@ VPATH = @srcdir@
 INCLUDES = @APRUTIL_PRIV_INCLUDES@ @APR_INCLUDES@ @APRUTIL_INCLUDES@
 
 PROGRAMS = testall testdbm testxml testrmm \
-	   testqueue testxlate dbd testssl \
+	   testxlate dbd testssl \
            echod sockperf
 TARGETS = $(PROGRAMS)
 
@@ -56,11 +56,6 @@ testrmm_LDADD =  $(TARGET_LIB_PATH)
 testrmm: $(testrmm_OBJECTS) $(testrmm_LDADD)
 	$(LINK_PROG) $(APRUTIL_LDFLAGS) $(testrmm_OBJECTS) $(testrmm_LDADD) $(PROGRAM_DEPENDENCIES)
 
-testqueue_OBJECTS = testqueue.lo
-testqueue_LDADD =  $(TARGET_LIB_PATH)
-testqueue: $(testqueue_OBJECTS) $(testqueue_LDADD)
-	$(LINK_PROG) $(APRUTIL_LDFLAGS) $(testqueue_OBJECTS) $(testqueue_LDADD) $(PROGRAM_DEPENDENCIES)
-
 testxlate_OBJECTS = testxlate.lo
 testxlate_LDADD =  $(TARGET_LIB_PATH)
 testxlate: $(testxlate_OBJECTS) $(testxlate_LDADD)
@@ -85,7 +80,7 @@ sockperf: $(sockperf_OBJECTS) $(sockperf_LDADD)
 
 testall_OBJECTS = teststrmatch.lo testuri.lo testuuid.lo abts.lo testutil.lo \
 	testbuckets.lo testpass.lo testmd4.lo testmd5.lo testldap.lo \
-	testdate.lo testdbd.lo testmemcache.lo testreslist.lo
+	testdate.lo testdbd.lo testmemcache.lo testreslist.lo testqueue.lo
 testall_LDADD =  $(TARGET_LIB_PATH)
 testall: $(testall_OBJECTS) $(testall_LDADD)
 	$(LINK_PROG) $(APRUTIL_LDFLAGS) $(testall_OBJECTS) $(testall_LDADD) $(PROGRAM_DEPENDENCIES)
