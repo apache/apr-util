@@ -57,5 +57,6 @@ abts_suite *testmemcache(abts_suite *suite);
 abts_suite *testreslist(abts_suite *suite);
 abts_suite *testqueue(abts_suite *suite);
 abts_suite *testxml(abts_suite *suite);
+abts_suite *testxlate(abts_suite *suite);
 
 #endif /* APR_TEST_INCLUDES */
