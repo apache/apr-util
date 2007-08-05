@@ -1,21 +1,43 @@
-/* This program tests the date_parse_http routine in ../main/util_date.c.
+/* Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * It is only semiautomated in that I would run it, modify the code to
- * use a different algorithm or seed, recompile and run again, etc.
- * Obviously it should use an argument for that, but I never got around
- * to changing the implementation.
- * 
- *     gcc -g -O2 -I../main -o test_date ../main/util_date.o test_date.c
- *     test_date | egrep '^No '
- * 
- * Roy Fielding, 1996
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
+#include "abts.h"
+#include "testutil.h"
 #include "apr_date.h"
 #include "apr_general.h"
+
+#if APR_HAVE_TIME_H
+#include <time.h>
+#endif /* APR_HAVE_TIME_H */
+
+static struct datetest {
+  const char *input;
+  const char *output;
+} tests[] = {
+  { "Mon, 27 Feb 1995 20:49:44 -0800",  "Tue, 28 Feb 1995 04:49:44 GMT" },
+  { "Fri,  1 Jul 2005 11:34:25 -0400",  "Fri, 01 Jul 2005 15:34:25 GMT" },
+  { "Monday, 27-Feb-95 20:49:44 -0800", "Tue, 28 Feb 1995 04:49:44 GMT" },
+  { "Tue, 4 Mar 1997 12:43:52 +0200",   "Tue, 04 Mar 1997 10:43:52 GMT" },
+  { "Mon, 27 Feb 95 20:49:44 -0800",    "Tue, 28 Feb 1995 04:49:44 GMT" },
+  { "Tue,  4 Mar 97 12:43:52 +0200",    "Tue, 04 Mar 1997 10:43:52 GMT" },
+  { "Tue, 4 Mar 97 12:43:52 +0200",     "Tue, 04 Mar 1997 10:43:52 GMT" },
+  { "Mon, 27 Feb 95 20:49 GMT",         "Mon, 27 Feb 1995 20:49:00 GMT" },
+  { "Tue, 4 Mar 97 12:43 GMT",          "Tue, 04 Mar 1997 12:43:00 GMT" },
+  { NULL, NULL }
+};
 
 static const apr_time_t year2secs[] = {
              APR_INT64_C(0),    /* 1970 */
@@ -117,13 +139,11 @@ static apr_uint32_t lgc(apr_uint32_t a)
     return z;
 }
 
-int main (void)
+static void test_date_parse_http(abts_case *tc, void *data)
 {
     int year, i;
     apr_time_t guess;
     apr_time_t offset = 0;
- /* apr_time_t offset = 0; */
- /* apr_time_t offset = ((31 + 28) * 24 * 3600) - 1; */
     apr_time_t secstodate, newsecs;
     char datestr[50];
 
@@ -132,33 +152,47 @@ int main (void)
         gm_timestr_822(datestr, secstodate);
         secstodate *= APR_USEC_PER_SEC;
         newsecs = apr_date_parse_http(datestr);
-        if (secstodate == newsecs)
-            printf("Yes %4d %19" APR_TIME_T_FMT " %s\n", year, secstodate, datestr);
-        else if (newsecs == APR_DATE_BAD)
-            printf("No  %4d %19" APR_TIME_T_FMT " %19" APR_TIME_T_FMT " %s\n",
-                   year, secstodate, newsecs, datestr);
-        else
-            printf("No* %4d %19" APR_TIME_T_FMT " %19" APR_TIME_T_FMT " %s\n",
-                   year, secstodate, newsecs, datestr);
+        ABTS_TRUE(tc, secstodate == newsecs);
     }
 
     apr_generate_random_bytes((unsigned char *)&guess, sizeof(guess));
 
     for (i = 0; i < 10000; ++i) {
         guess = lgc(guess);
-        if (guess < 0) guess *= -1;
+        if (guess < 0)
+            guess *= -1;
         secstodate = guess + offset;
         gm_timestr_822(datestr, secstodate);
         secstodate *= APR_USEC_PER_SEC;
         newsecs = apr_date_parse_http(datestr);
-        if (secstodate == newsecs)
-            printf("Yes %" APR_TIME_T_FMT " %s\n", secstodate, datestr);
-        else if (newsecs == APR_DATE_BAD)
-            printf("No  %" APR_TIME_T_FMT " %" APR_TIME_T_FMT " %s\n", 
-                   secstodate, newsecs, datestr);
-        else
-            printf("No* %" APR_TIME_T_FMT " %" APR_TIME_T_FMT " %s\n", 
-                   secstodate, newsecs, datestr);
+        ABTS_TRUE(tc, secstodate == newsecs);
     }
-    exit(0);
+}
+
+static void test_date_rfc(abts_case *tc, void *data)
+{
+    apr_time_t date;
+    int i = 0;
+
+    while (tests[i].input) {
+        char str_date[APR_RFC822_DATE_LEN] = { 0 };
+
+        date = apr_date_parse_rfc(tests[i].input);
+
+        apr_rfc822_date(str_date, date);
+
+        ABTS_STR_EQUAL(tc, str_date, tests[i].output);
+
+        i++;
+    }
+}
+
+abts_suite *testdate(abts_suite *suite)
+{
+    suite = ADD_SUITE(suite);
+
+    abts_run_test(suite, test_date_parse_http, NULL);
+    abts_run_test(suite, test_date_rfc, NULL);
+
+    return suite;
 }
