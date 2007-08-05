@@ -18,7 +18,9 @@ CLEAN_TARGETS = manyfile.bin testfile.txt data/sqlite*.db
 PROGRAM_DEPENDENCIES = @APRUTIL_LIBS@
 APRUTIL_LDFLAGS = -no-install @APRUTIL_LDFLAGS@
 
-all: $(PROGRAMS)
+# link programs using -no-install to get real executables not
+# libtool wrapper scripts which link an executable when first run.
+LINK_PROG = $(LIBTOOL) $(LTFLAGS) --mode=link $(LT_LDFLAGS) $(COMPILE) @LT_NO_INSTALL@ $(ALL_LDFLAGS) -o $@
 
 check: $(PROGRAMS)
 	for prog in $(PROGRAMS); do \
@@ -32,63 +34,63 @@ check: $(PROGRAMS)
 testdbm_OBJECTS = testdbm.lo
 testdbm_LDADD =  $(TARGET_LIB_PATH)
 testdbm: $(testdbm_OBJECTS) $(testdbm_LDADD)
-	$(LINK) $(APRUTIL_LDFLAGS) $(testdbm_OBJECTS) $(testdbm_LDADD) $(PROGRAM_DEPENDENCIES)
+	$(LINK_PROG) $(APRUTIL_LDFLAGS) $(testdbm_OBJECTS) $(testdbm_LDADD) $(PROGRAM_DEPENDENCIES)
 
 dbd_OBJECTS = dbd.lo
 dbd_LDADD =  $(TARGET_LIB_PATH)
 dbd: $(dbd_OBJECTS) $(dbd_LDADD)
-	$(LINK) $(APRUTIL_LDFLAGS) $(dbd_OBJECTS) $(dbd_LDADD) $(PROGRAM_DEPENDENCIES)
+	$(LINK_PROG) $(APRUTIL_LDFLAGS) $(dbd_OBJECTS) $(dbd_LDADD) $(PROGRAM_DEPENDENCIES)
 
 testdbd_OBJECTS = testdbd.lo
 testdbd_LDADD =  $(TARGET_LIB_PATH)
 testdbd: $(testdbd_OBJECTS) $(testdbd_LDADD)
-	$(LINK) $(APRUTIL_LDFLAGS) $(testdbd_OBJECTS) $(testdbd_LDADD) $(PROGRAM_DEPENDENCIES)
+	$(LINK_PROG) $(APRUTIL_LDFLAGS) $(testdbd_OBJECTS) $(testdbd_LDADD) $(PROGRAM_DEPENDENCIES)
 
 testdate_OBJECTS = testdate.lo
 testdate_LDADD =  $(TARGET_LIB_PATH)
 testdate: $(testdate_OBJECTS) $(testdate_LDADD)
-	$(LINK) $(APRUTIL_LDFLAGS) $(testdate_OBJECTS) $(testdate_LDADD) $(PROGRAM_DEPENDENCIES)
+	$(LINK_PROG) $(APRUTIL_LDFLAGS) $(testdate_OBJECTS) $(testdate_LDADD) $(PROGRAM_DEPENDENCIES)
 
 testxml_OBJECTS = testxml.lo
 testxml_LDADD =  $(TARGET_LIB_PATH)
 testxml: $(testxml_OBJECTS) $(testxml_LDADD)
-	$(LINK) $(APRUTIL_LDFLAGS) $(testxml_OBJECTS) $(testxml_LDADD) $(PROGRAM_DEPENDENCIES)
+	$(LINK_PROG) $(APRUTIL_LDFLAGS) $(testxml_OBJECTS) $(testxml_LDADD) $(PROGRAM_DEPENDENCIES)
 
 testrmm_OBJECTS = testrmm.lo
 testrmm_LDADD =  $(TARGET_LIB_PATH)
 testrmm: $(testrmm_OBJECTS) $(testrmm_LDADD)
-	$(LINK) $(APRUTIL_LDFLAGS) $(testrmm_OBJECTS) $(testrmm_LDADD) $(PROGRAM_DEPENDENCIES)
+	$(LINK_PROG) $(APRUTIL_LDFLAGS) $(testrmm_OBJECTS) $(testrmm_LDADD) $(PROGRAM_DEPENDENCIES)
 
 testreslist_OBJECTS = testreslist.lo
 testreslist_LDADD =  $(TARGET_LIB_PATH)
 testreslist: $(testreslist_OBJECTS) $(testreslist_LDADD)
-	$(LINK) $(APRUTIL_LDFLAGS) $(testreslist_OBJECTS) $(testreslist_LDADD) $(PROGRAM_DEPENDENCIES)
+	$(LINK_PROG) $(APRUTIL_LDFLAGS) $(testreslist_OBJECTS) $(testreslist_LDADD) $(PROGRAM_DEPENDENCIES)
 
 testqueue_OBJECTS = testqueue.lo
 testqueue_LDADD =  $(TARGET_LIB_PATH)
 testqueue: $(testqueue_OBJECTS) $(testqueue_LDADD)
-	$(LINK) $(APRUTIL_LDFLAGS) $(testqueue_OBJECTS) $(testqueue_LDADD) $(PROGRAM_DEPENDENCIES)
+	$(LINK_PROG) $(APRUTIL_LDFLAGS) $(testqueue_OBJECTS) $(testqueue_LDADD) $(PROGRAM_DEPENDENCIES)
 
 testxlate_OBJECTS = testxlate.lo
 testxlate_LDADD =  $(TARGET_LIB_PATH)
 testxlate: $(testxlate_OBJECTS) $(testxlate_LDADD)
-	$(LINK) $(APRUTIL_LDFLAGS) $(testxlate_OBJECTS) $(testxlate_LDADD) $(PROGRAM_DEPENDENCIES)
+	$(LINK_PROG) $(APRUTIL_LDFLAGS) $(testxlate_OBJECTS) $(testxlate_LDADD) $(PROGRAM_DEPENDENCIES)
 
 testssl_OBJECTS = testssl.lo
 testssl_LDADD =  $(TARGET_LIB_PATH)
 testssl: $(testssl_OBJECTS) $(testssl_LDADD)
-	$(LINK) $(APRUTIL_LDFLAGS) $(testssl_OBJECTS) $(testssl_LDADD) $(PROGRAM_DEPENDENCIES)
+	$(LINK_PROG) $(APRUTIL_LDFLAGS) $(testssl_OBJECTS) $(testssl_LDADD) $(PROGRAM_DEPENDENCIES)
 
 echod_OBJECTS = echod.lo
 echod_LDADD =  $(TARGET_LIB_PATH)
 echod: $(echod_OBJECTS) $(echod_LDADD)
-	$(LINK) $(APRUTIL_LDFLAGS) $(echod_OBJECTS) $(echod_LDADD) \
+	$(LINK_PROG) $(APRUTIL_LDFLAGS) $(echod_OBJECTS) $(echod_LDADD) \
                 $(PROGRAM_DEPENDENCIES)
 
 sockperf_OBJECTS = sockperf.lo
 sockperf_LDADD =  $(TARGET_LIB_PATH)
 sockperf: $(sockperf_OBJECTS) $(sockperf_LDADD)
-	$(LINK) $(APRUTIL_LDFLAGS) $(sockperf_OBJECTS) $(sockperf_LDADD) \
+	$(LINK_PROG) $(APRUTIL_LDFLAGS) $(sockperf_OBJECTS) $(sockperf_LDADD) \
                 $(PROGRAM_DEPENDENCIES)
 
 testall_OBJECTS = teststrmatch.lo testuri.lo testuuid.lo abts.lo testutil.lo \
@@ -96,5 +98,5 @@ testall_OBJECTS = teststrmatch.lo testuri.lo testuuid.lo abts.lo testutil.lo \
 	testdaterfc.lo testdbd.lo testmemcache.lo
 testall_LDADD =  $(TARGET_LIB_PATH)
 testall: $(testall_OBJECTS) $(testall_LDADD)
-	$(LINK) $(APRUTIL_LDFLAGS) $(testall_OBJECTS) $(testall_LDADD) $(PROGRAM_DEPENDENCIES)
+	$(LINK_PROG) $(APRUTIL_LDFLAGS) $(testall_OBJECTS) $(testall_LDADD) $(PROGRAM_DEPENDENCIES)
 
