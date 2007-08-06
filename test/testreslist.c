@@ -74,6 +74,7 @@ static apr_status_t my_destructor(void *resource, void *params,
 {
     my_resource_t *res = resource;
     my_parameters_t *my_params = params;
+    res->id = my_params->d_count++;
 
     apr_sleep(my_params->sleep_upon_destruct);
 
@@ -152,6 +153,47 @@ static void test_timeout(abts_case *tc, apr_reslist_t *rl)
     }
 }
 
+static void test_shrinking(abts_case *tc, apr_reslist_t *rl)
+{
+    apr_status_t rv;
+    my_resource_t *resources[RESLIST_HMAX];
+    my_resource_t *res;
+    void *vp;
+    int i;
+    int sleep_time = RESLIST_TTL / RESLIST_HMAX;
+
+    /* deplete all possible resources from the resource list */
+    for (i = 0; i < RESLIST_HMAX; i++) {
+        rv = apr_reslist_acquire(rl, (void**)&resources[i]);
+        ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
+    }
+
+    /* Free all resources above RESLIST_SMAX - 1 */
+    for (i = RESLIST_SMAX - 1; i < RESLIST_HMAX; i++) {
+        rv = apr_reslist_release(rl, resources[i]);
+        ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
+    }
+
+    for (i = 0; i < RESLIST_HMAX; i++) {
+        rv = apr_reslist_acquire(rl, &vp);
+        ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
+        res = vp;
+        apr_sleep(sleep_time);
+        rv = apr_reslist_release(rl, res);
+        ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
+    }
+    apr_sleep(sleep_time);
+
+    /*
+     * Now free the remaining elements. This should trigger the shrinking of
+     * the list
+     */
+    for (i = 0; i < RESLIST_SMAX - 1; i++) {
+        rv = apr_reslist_release(rl, resources[i]);
+        ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
+    }
+}
+
 static void test_reslist(abts_case *tc, void *data)
 {
     int i;
@@ -193,6 +235,9 @@ static void test_reslist(abts_case *tc, void *data)
     ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
 
     test_timeout(tc, rl);
+
+    test_shrinking(tc, rl);
+    ABTS_INT_EQUAL(tc, RESLIST_SMAX, params->c_count - params->d_count);
 
     rv = apr_reslist_destroy(rl);
     ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
