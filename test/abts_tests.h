@@ -38,7 +38,8 @@ const struct testlist {
     {testqueue},
     {testxml},
     {testxlate},
-    {testrmm}
+    {testrmm},
+    {testdbm}
 };
 
 #endif /* APR_TEST_INCLUDES */
