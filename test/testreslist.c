@@ -147,7 +147,7 @@ static void test_timeout(abts_case *tc, apr_reslist_t *rl)
      * will blow
      */
     for (i = 0; i < RESLIST_HMAX; i++) {
-        rv = apr_reslist_release(rl, &resources[i]);
+        rv = apr_reslist_release(rl, resources[i]);
         ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
     }
 }
