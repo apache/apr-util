@@ -74,13 +74,13 @@ static apr_res_t *pop_resource(apr_reslist_t *reslist)
 }
 
 /**
- * Add a resource to the end of the list, set the time at which
+ * Add a resource to the beginning of the list, set the time at which
  * it was added to the list.
  * Assumes: that the reslist is locked.
  */
 static void push_resource(apr_reslist_t *reslist, apr_res_t *resource)
 {
-    APR_RING_INSERT_TAIL(&reslist->avail_list, resource, apr_res_t, link);
+    APR_RING_INSERT_HEAD(&reslist->avail_list, resource, apr_res_t, link);
     resource->freed = apr_time_now();
     reslist->nidle++;
 }
@@ -206,15 +206,16 @@ static apr_status_t reslist_maint(apr_reslist_t *reslist)
     /* Check if we need to expire old resources */
     now = apr_time_now();
     while (reslist->nidle > reslist->smax && reslist->nidle > 0) {
-        /* Peak at the first resource in the list */
-        res = APR_RING_FIRST(&reslist->avail_list);
+        /* Peak at the last resource in the list */
+        res = APR_RING_LAST(&reslist->avail_list);
         /* See if the oldest entry should be expired */
         if (now - res->freed < reslist->ttl) {
             /* If this entry is too young, none of the others
              * will be ready to be expired either, so we are done. */
             break;
         }
-        res = pop_resource(reslist);
+        APR_RING_REMOVE(res, link);
+        reslist->nidle--;
         reslist->ntotal--;
         rv = destroy_resource(reslist, res);
         free_container(reslist, res);
