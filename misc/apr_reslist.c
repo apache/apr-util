@@ -176,7 +176,7 @@ static apr_status_t reslist_maint(apr_reslist_t *reslist)
     apr_thread_mutex_lock(reslist->listlock);
 
     /* Check if we need to create more resources, and if we are allowed to. */
-    while (reslist->nidle < reslist->min && reslist->ntotal <= reslist->hmax) {
+    while (reslist->nidle < reslist->min && reslist->ntotal < reslist->hmax) {
         /* Create the resource */
         rv = create_resource(reslist, &res);
         if (rv != APR_SUCCESS) {
