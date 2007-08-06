@@ -86,10 +86,6 @@ void abts_assert(abts_case *tc, const char *message, int condition, int lineno);
 #define ABTS_NOT_IMPL(a, b)         abts_not_impl(a, b, __LINE__);
 #define ABTS_ASSERT(a, b, c)        abts_assert(a, b, c, __LINE__);
 
-abts_suite *run_tests(abts_suite *suite);
-abts_suite *run_tests1(abts_suite *suite);
-
-
 #endif
 
 #ifdef __cplusplus
