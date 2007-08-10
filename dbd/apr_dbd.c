@@ -188,7 +188,7 @@ APU_DECLARE(apr_status_t) apr_dbd_open(const apr_dbd_driver_t *driver,
                                        apr_dbd_t **handle)
 {
     apr_status_t rv;
-    *handle = driver->open(pool, params);
+    *handle = (driver->open)(pool, params);
     if (*handle == NULL) {
         return APR_EGENERAL;
     }
