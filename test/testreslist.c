@@ -185,6 +185,60 @@ static void test_timeout(apr_reslist_t *rl)
     }
 }
 
+static void test_shrinking(apr_reslist_t *rl)
+{
+    apr_status_t rv;
+    my_resource_t *resources[RESLIST_HMAX];
+    my_resource_t *res;
+    int i;
+    int sleep_time = RESLIST_TTL / RESLIST_HMAX;
+
+    /* deplete all possible resources from the resource list */
+    for (i = 0; i < RESLIST_HMAX; i++) {
+        rv = apr_reslist_acquire(rl, (void**)&resources[i]);
+        if (rv != APR_SUCCESS) {
+            fprintf(stderr, "couldn't acquire resource: %d\n", rv);
+            exit(1);
+        }
+    }
+
+    /* Free all resources above RESLIST_SMAX - 1 */
+    for (i = RESLIST_SMAX - 1; i < RESLIST_HMAX; i++) {
+        rv = apr_reslist_release(rl, resources[i]);
+        if (rv != APR_SUCCESS) {
+            fprintf(stderr, "couldn't release resource: %d\n", rv);
+            exit(1);
+        }
+    }
+
+    for (i = 0; i < RESLIST_HMAX; i++) {
+        rv = apr_reslist_acquire(rl, (void**)&res);
+        if (rv != APR_SUCCESS) {
+            fprintf(stderr, "couldn't acquire resource: %d\n", rv);
+            exit(1);
+        }
+        apr_sleep(sleep_time);
+        rv = apr_reslist_release(rl, res);
+        if (rv != APR_SUCCESS) {
+            fprintf(stderr, "couldn't release resource: %d\n", rv);
+            exit(1);
+        }
+    }
+    apr_sleep(sleep_time);
+
+    /*
+     * Now free the remaining elements. This should trigger the shrinking of
+     * the list
+     */
+    for (i = 0; i < RESLIST_SMAX - 1; i++) {
+        rv = apr_reslist_release(rl, resources[i]);
+        if (rv != APR_SUCCESS) {
+            fprintf(stderr, "couldn't release resource: %d\n", rv);
+            exit(1);
+        }
+    }
+}
+
 static apr_status_t test_reslist(apr_pool_t *parpool)
 {
     apr_status_t rv;
@@ -253,6 +307,15 @@ static apr_status_t test_reslist(apr_pool_t *parpool)
     printf("\nDone!\n");
 
     test_timeout(rl);
+
+    test_shrinking(rl);
+    if (params->c_count - params->d_count != RESLIST_SMAX) {
+        printf("FAILED: Resourcelist has not shrinked back to RESLIST_SMAX\n");
+        return APR_EGENERAL;
+    }
+    else {
+        printf("OK: Resource list shrinked back to RESLIST_SMAX\n");
+    }
 
     printf("Destroying resource list.................");
     rv = apr_reslist_destroy(rl);
