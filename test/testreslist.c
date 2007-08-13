@@ -177,7 +177,7 @@ static void test_timeout(apr_reslist_t *rl)
      * will blow
      */
     for (i = 0; i < RESLIST_HMAX; i++) {
-        rv = apr_reslist_release(rl, &resources[i]);
+        rv = apr_reslist_release(rl, resources[i]);
         if (rv != APR_SUCCESS) {
             fprintf(stderr, "couldn't release resource: %d\n", rv);
             exit(1);
