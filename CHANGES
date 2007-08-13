@@ -1,5 +1,9 @@
 Changes with APR-util 1.2.9
 
+  *) Ensure that an apr_reslist shrinks back to SMAX via the TTL by
+     reorganising the resource list from a queue to a stack.
+     PR 40348.  [Christian BOITEL <christian_boitel yahoo.fr>]
+
   *) Fix Solaris 2.8+ fdatasync() detection. The fdatasync() function
      is marked as part of the Realtime library functions.
      PR 37343.  [Davi Arnaut]
