@@ -1,3 +1,4 @@
+                                                     -*- coding: utf-8 -*-
 Changes with APR-util 1.3.0
 
   *) Support Tivoli ITDS LDAP client library.  [Paul Reder]
@@ -57,10 +58,10 @@ Changes with APR-util 1.3.0
      [Garrett Rooney]
 
   *) APR_FIND_APU macro now supports customisable detailed checks on
-     each installed apr-util. [Justin Erenkrantz, Colm MacCarthaigh]
+     each installed apr-util. [Justin Erenkrantz, Colm MacCárthaigh]
 
   *) APR_FIND_APU macro no longer checks /usr/local/apache2/
-     [Colm MacCarthaigh]
+     [Colm MacCárthaigh]
 
   *) Add apr_dbd_oracle driver [Nick Kew and Chris Darroch]
 
