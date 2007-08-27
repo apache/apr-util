@@ -1,3 +1,4 @@
+                                                     -*- coding: utf-8 -*-
 Changes with APR-util 0.9.14
 
   *) Fix handling of attribute namespaces in apr_xml_to_text() when
