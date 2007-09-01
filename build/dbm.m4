@@ -232,6 +232,7 @@ AC_DEFUN([APU_TRY_BERKELEY_DB],
     LIBS="$LIBS -l$apu_try_berkeley_db_libname"
     AC_TRY_RUN(
       [
+#include <stdlib.h>
 #include <stdio.h>
 #include <$apu_try_berkeley_db_header>
 main ()
