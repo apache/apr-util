@@ -21,10 +21,20 @@ all: $(PROGRAMS)
 
 check: $(PROGRAMS)
 	for prog in $(PROGRAMS); do \
-		./$$prog ;\
-		if test $$? = 255; then \
-			echo "$$prog failed"; \
-			break; \
+	        if test "$$prog" = 'dbd'; then \
+			for driver in sqlite2 sqlite3; do \
+				./$$prog $$driver; \
+				if test $$? = 255; then \
+					echo "$$prog $$driver failed"; \
+					break; \
+				fi; \
+			done; \
+	        else \
+			./$$prog; \
+			if test $$? = 255; then \
+				echo "$$prog failed"; \
+				break; \
+			fi; \
 		fi; \
 	done
 
