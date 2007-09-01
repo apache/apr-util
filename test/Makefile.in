@@ -19,10 +19,24 @@ all: $(PROGRAMS)
 
 check: $(PROGRAMS)
 	for prog in $(PROGRAMS); do \
-		./$$prog ;\
-		if test $$? = 255; then \
-			echo "$$prog failed"; \
-			break; \
+		if test "$$prog" = 'testmd4'; then \
+			./$$prog -ssomestringtohash; \
+			if test $$? = 255; then \
+				echo "$$prog failed"; \
+				break; \
+			fi; \
+		elif test "$$prog" = 'testdbm'; then \
+			./$$prog auto SDBM; \
+			if test $$? = 255; then \
+				echo "$$prog failed"; \
+				break; \
+			fi; \
+		else \
+			./$$prog ;\
+			if test $$? = 255; then \
+				echo "$$prog failed"; \
+				break; \
+			fi; \
 		fi; \
 	done
 
