@@ -3,6 +3,9 @@ Changes with APR-util 1.2.10
 
   *) Support BerkeleyDB 4.6.  [Arfrever Frehtes Taifersar Arahesis]
 
+  *) Test improvements to validate testmd4 and testdbm, unattended.
+     [Bojan Smojver]
+
 Changes with APR-util 1.2.9
 
   *) Ensure that an apr_reslist shrinks back to SMAX via the TTL by
