@@ -78,7 +78,7 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
   apu_have_mysql=0
 
   AC_CHECK_FILES([dbd/apr_dbd_mysql.c],[
-    AC_ARG_WITH([mysql], APR_HELP_STRING([--with-mysql=DIR], [**** SEE INSTALL.MySQL ****]),
+    AC_ARG_WITH([mysql], APR_HELP_STRING([--with-mysql=DIR], [specify MySQL location]),
     [
       apu_have_mysql=0
       if test "$withval" = "yes"; then
@@ -369,9 +369,9 @@ dnl
 AC_DEFUN([APU_CHECK_DBD_FREETDS], [
   apu_have_freetds=0
 
-  AC_ARG_WITH([freetds], [
-  --with-freetds=DIR         
-  ], [
+  AC_ARG_WITH([freetds], 
+    APR_HELP_STRING([--with-freetds=DIR], [specify FreeTDS location]),
+  [
     apu_have_freetds=0
     if test "$withval" = "yes"; then
       AC_CHECK_HEADERS(sybdb.h, AC_CHECK_LIB(sybdb, tdsdbopen, [apu_have_freetds=1]))
