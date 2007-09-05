@@ -1,7 +1,7 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.2.11
 
-
+  *) Add MySQL DBD driver [Nick Kew, Bojan Smojver]
 
 Changes with APR-util 1.2.10
 
