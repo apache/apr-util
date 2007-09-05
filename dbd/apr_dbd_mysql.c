@@ -43,17 +43,13 @@
 
 struct apr_dbd_prepared_t {
     MYSQL_STMT* stmt;
-#if APU_MAJOR_VERSION >= 2 || (APU_MAJOR_VERSION == 1 && APU_MINOR_VERSION >= 3)
     int nargs;
     int nvals;
     apr_dbd_type_e *types;
-#endif
 };
 
 struct apr_dbd_transaction_t {
-#if APU_MAJOR_VERSION >= 2 || (APU_MAJOR_VERSION == 1 && APU_MINOR_VERSION >= 3)
     int mode;
-#endif
     int errnum;
     apr_dbd_t *handle;
 };
@@ -69,19 +65,14 @@ struct apr_dbd_results_t {
     MYSQL_RES *res;
     MYSQL_STMT *statement;
     MYSQL_BIND *bind;
-#if APU_MAJOR_VERSION >= 2 || (APU_MAJOR_VERSION == 1 && APU_MINOR_VERSION >= 3)
     apr_pool_t *pool;
-#endif
 };
 struct apr_dbd_row_t {
     MYSQL_ROW row;
     apr_dbd_results_t *res;
-#if APU_MAJOR_VERSION >= 2 || (APU_MAJOR_VERSION == 1 && APU_MINOR_VERSION >= 3)
     unsigned long *len;
-#endif
 };
 
-#if APU_MAJOR_VERSION >= 2 || (APU_MAJOR_VERSION == 1 && APU_MINOR_VERSION >= 3)
 /* MySQL specific bucket for BLOB types */
 typedef struct apr_bucket_lob apr_bucket_lob;
 /**
@@ -217,8 +208,6 @@ static apr_bucket *apr_bucket_lob_create(const apr_dbd_row_t *row, int col,
     return apr_bucket_lob_make(b, row, col, offset, len, p);
 }
 
-#endif
-
 static apr_status_t free_result(void *data)
 {
     mysql_free_result(data);
@@ -242,9 +231,7 @@ static int dbd_mysql_select(apr_pool_t *pool, apr_dbd_t *sql,
             }
             (*results)->random = seek;
             (*results)->statement = NULL;
-#if APU_MAJOR_VERSION >= 2 || (APU_MAJOR_VERSION == 1 && APU_MINOR_VERSION >= 3)
             (*results)->pool = pool;
-#endif
             if (seek) {
                 (*results)->res = mysql_store_result(sql->conn);
             }
@@ -258,17 +245,12 @@ static int dbd_mysql_select(apr_pool_t *pool, apr_dbd_t *sql,
         ret = mysql_errno(sql->conn);
     }
     
-#if APU_MAJOR_VERSION >= 2 || (APU_MAJOR_VERSION == 1 && APU_MINOR_VERSION >= 3)
     if (TXN_NOTICE_ERRORS(sql->trans)) {
-#else
-    if (sql->trans) {
-#endif
         sql->trans->errnum = ret;
     }
     return ret;
 }
 
-#if APU_MAJOR_VERSION >= 2 || (APU_MAJOR_VERSION == 1 && APU_MINOR_VERSION >= 3)
 static const char *dbd_mysql_get_name(const apr_dbd_results_t *res, int n)
 {
     if ((n < 0) || (n >= mysql_num_fields(res->res))) {
@@ -277,7 +259,6 @@ static const char *dbd_mysql_get_name(const apr_dbd_results_t *res, int n)
 
     return mysql_fetch_fields(res->res)[n].name;
 }
-#endif
 
 static int dbd_mysql_get_row(apr_pool_t *pool, apr_dbd_results_t *res,
                              apr_dbd_row_t **row, int rownum)
@@ -321,9 +302,7 @@ static int dbd_mysql_get_row(apr_pool_t *pool, apr_dbd_results_t *res,
         }
         (*row)->row = r;
         (*row)->res = res;
-#if APU_MAJOR_VERSION >= 2 || (APU_MAJOR_VERSION == 1 && APU_MINOR_VERSION >= 3)
         (*row)->len = mysql_fetch_lengths(res->res);
-#endif
     }
     else {
         apr_pool_cleanup_run(pool, res->res, free_result);
@@ -381,7 +360,6 @@ static const char *dbd_mysql_get_entry(const apr_dbd_row_t *row, int n)
 }
 #endif
 
-#if APU_MAJOR_VERSION >= 2 || (APU_MAJOR_VERSION == 1 && APU_MINOR_VERSION >= 3)
 static apr_status_t dbd_mysql_datum_get(const apr_dbd_row_t *row, int n,
                                         apr_dbd_type_e type, void *data)
 {
@@ -533,7 +511,6 @@ static apr_status_t dbd_mysql_datum_get(const apr_dbd_row_t *row, int n,
     }
     return 0;
 }
-#endif
 
 static const char *dbd_mysql_error(apr_dbd_t *sql, int n)
 {
@@ -551,11 +528,7 @@ static int dbd_mysql_query(apr_dbd_t *sql, int *nrows, const char *query)
         ret = mysql_errno(sql->conn);
     }
     *nrows = mysql_affected_rows(sql->conn);
-#if APU_MAJOR_VERSION >= 2 || (APU_MAJOR_VERSION == 1 && APU_MINOR_VERSION >= 3)
     if (TXN_NOTICE_ERRORS(sql->trans)) {
-#else
-    if (sql->trans) {
-#endif
         sql->trans->errnum = ret;
     }
     return ret;
@@ -576,7 +549,6 @@ static apr_status_t stmt_close(void *data)
     return APR_SUCCESS;
 }
 
-#if APU_MAJOR_VERSION >= 2 || (APU_MAJOR_VERSION == 1 && APU_MINOR_VERSION >= 3)
 static int dbd_mysql_prepare(apr_pool_t *pool, apr_dbd_t *sql,
                              const char *query, const char *label,
                              int nargs, int nvals, apr_dbd_type_e *types,
@@ -1036,319 +1008,13 @@ static int dbd_mysql_pvbselect(apr_pool_t *pool, apr_dbd_t *sql,
 
     return dbd_mysql_pbselect(pool, sql, res, statement, random, values);
 }
-#else
-static int dbd_mysql_prepare(apr_pool_t *pool, apr_dbd_t *sql,
-                             const char *query, const char *label,
-                             apr_dbd_prepared_t **statement)
-{
-    /* Translate from apr_dbd to native query format */
-    char *myquery = apr_pstrdup(pool, query);
-    char *p = myquery;
-    const char *q;
-    int ret;
-    for (q = query; *q; ++q) {
-        if (q[0] == '%') {
-            if (isalpha(q[1])) {
-                *p++ = '?';
-                ++q;
-            }
-            else if (q[1] == '%') {
-                /* reduce %% to % */
-                *p++ = *q++;
-            }
-            else {
-                *p++ = *q;
-            }
-        }
-        else {
-            *p++ = *q;
-        }
-    } 
-    *p = 0;
-    if (!*statement) {
-        *statement = apr_palloc(pool, sizeof(apr_dbd_prepared_t));
-    }
-    (*statement)->stmt = mysql_stmt_init(sql->conn);
-
-    if ((*statement)->stmt) {
-        apr_pool_cleanup_register(pool, (*statement)->stmt,
-                                  stmt_close, apr_pool_cleanup_null);
-        ret = mysql_stmt_prepare((*statement)->stmt, myquery, strlen(myquery));
-
-        if (ret != 0) {
-            ret = mysql_stmt_errno((*statement)->stmt);
-        }
-
-        return ret;
-    }
-
-    return CR_OUT_OF_MEMORY;
-}
-
-static int dbd_mysql_pquery(apr_pool_t *pool, apr_dbd_t *sql,
-                            int *nrows, apr_dbd_prepared_t *statement,
-                            int nargs, const char **values)
-{
-    MYSQL_BIND *bind;
-    char *arg;
-    int ret;
-    int i;
-    my_bool is_null = FALSE;
-
-    if (sql->trans && sql->trans->errnum) {
-        return sql->trans->errnum;
-    }
-    nargs = mysql_stmt_param_count(statement->stmt);
-
-    bind = apr_palloc(pool, nargs*sizeof(MYSQL_BIND));
-    for (i=0; i < nargs; ++i) {
-        arg = (char*)values[i];
-        bind[i].buffer_type = MYSQL_TYPE_VAR_STRING;
-        bind[i].buffer = arg;
-        bind[i].buffer_length = strlen(arg);
-        bind[i].length = &bind[i].buffer_length;
-        bind[i].is_null = &is_null;
-        bind[i].is_unsigned = 0;
-    }
-
-    ret = mysql_stmt_bind_param(statement->stmt, bind);
-    if (ret != 0) {
-        *nrows = 0;
-        ret = mysql_stmt_errno(statement->stmt);
-    }
-    else {
-        ret = mysql_stmt_execute(statement->stmt);
-        if (ret != 0) {
-            ret = mysql_stmt_errno(statement->stmt);
-        }
-        *nrows = mysql_stmt_affected_rows(statement->stmt);
-    }
-    if (sql->trans) {
-        sql->trans->errnum = ret;
-    }
-    return ret;
-}
-
-static int dbd_mysql_pvquery(apr_pool_t *pool, apr_dbd_t *sql, int *nrows,
-                             apr_dbd_prepared_t *statement, va_list args)
-{
-    MYSQL_BIND *bind;
-    char *arg;
-    int ret;
-    int nargs = 0;
-    int i;
-    my_bool is_null = FALSE;
-
-    if (sql->trans && sql->trans->errnum) {
-        return sql->trans->errnum;
-    }
-    nargs = mysql_stmt_param_count(statement->stmt);
-
-    bind = apr_palloc(pool, nargs*sizeof(MYSQL_BIND));
-    for (i=0; i < nargs; ++i) {
-        arg = va_arg(args, char*);
-        bind[i].buffer_type = MYSQL_TYPE_VAR_STRING;
-        bind[i].buffer = arg;
-        bind[i].buffer_length = strlen(arg);
-        bind[i].length = &bind[i].buffer_length;
-        bind[i].is_null = &is_null;
-        bind[i].is_unsigned = 0;
-    }
-
-    ret = mysql_stmt_bind_param(statement->stmt, bind);
-    if (ret != 0) {
-        *nrows = 0;
-        ret = mysql_stmt_errno(statement->stmt);
-    }
-    else {
-        ret = mysql_stmt_execute(statement->stmt);
-        if (ret != 0) {
-            ret = mysql_stmt_errno(statement->stmt);
-        }
-        *nrows = mysql_stmt_affected_rows(statement->stmt);
-    }
-    if (sql->trans) {
-        sql->trans->errnum = ret;
-    }
-    return ret;
-}
-
-static int dbd_mysql_pselect(apr_pool_t *pool, apr_dbd_t *sql,
-                             apr_dbd_results_t **res,
-                             apr_dbd_prepared_t *statement, int random,
-                             int nargs, const char **args)
-{
-    int i;
-    int nfields;
-    char *arg;
-    my_bool is_null = FALSE;
-    my_bool *is_nullr;
-#if MYSQL_VERSION_ID >= 50000
-    my_bool *error;
-#endif
-    int ret;
-    unsigned long *length, maxlen;
-    MYSQL_BIND *bind;
-
-    if (sql->trans && sql->trans->errnum) {
-        return sql->trans->errnum;
-    }
-
-    nargs = mysql_stmt_param_count(statement->stmt);
-    bind = apr_palloc(pool, nargs*sizeof(MYSQL_BIND));
-
-    for (i=0; i < nargs; ++i) {
-        arg = (char*)args[i];
-        bind[i].buffer_type = MYSQL_TYPE_VAR_STRING;
-        bind[i].buffer = arg;
-        bind[i].buffer_length = strlen(arg);
-        bind[i].length = &bind[i].buffer_length;
-        bind[i].is_null = &is_null;
-        bind[i].is_unsigned = 0;
-    }
-
-    ret = mysql_stmt_bind_param(statement->stmt, bind);
-    if (ret == 0) {
-        ret = mysql_stmt_execute(statement->stmt);
-        if (!ret) {
-            if (!*res) {
-                *res = apr_pcalloc(pool, sizeof(apr_dbd_results_t));
-            }
-            (*res)->random = random;
-            (*res)->statement = statement->stmt;
-            (*res)->res = mysql_stmt_result_metadata(statement->stmt);
-            apr_pool_cleanup_register(pool, (*res)->res,
-                                      free_result, apr_pool_cleanup_null);
-            nfields = mysql_num_fields((*res)->res);
-            if (!(*res)->bind) {
-                (*res)->bind = apr_palloc(pool, nfields*sizeof(MYSQL_BIND));
-                length = apr_pcalloc(pool, nfields*sizeof(unsigned long));
-#if MYSQL_VERSION_ID >= 50000
-                error = apr_palloc(pool, nfields*sizeof(my_bool));
-#endif
-                is_nullr = apr_pcalloc(pool, nfields*sizeof(my_bool));
-                for ( i = 0; i < nfields; ++i ) {
-                    maxlen = ((*res)->res->fields[i].length < sql->fldsz ?
-                              (*res)->res->fields[i].length : sql->fldsz) + 1;
-                    (*res)->bind[i].buffer_type = MYSQL_TYPE_VAR_STRING;
-                    (*res)->bind[i].buffer_length = maxlen;
-                    (*res)->bind[i].length = &length[i];
-                    (*res)->bind[i].buffer = apr_palloc(pool, maxlen);
-                    (*res)->bind[i].is_null = is_nullr+i;
-#if MYSQL_VERSION_ID >= 50000
-                    (*res)->bind[i].error = error+i;
-#endif
-                }
-            }
-            ret = mysql_stmt_bind_result(statement->stmt, (*res)->bind);
-            if (!ret) {
-                ret = mysql_stmt_store_result(statement->stmt);
-            }
-        }
-    }
-    if (ret != 0) {
-        ret = mysql_stmt_errno(statement->stmt);
-    }
-    if (sql->trans) {
-        sql->trans->errnum = ret;
-    }
-    return ret;
-}
-
-static int dbd_mysql_pvselect(apr_pool_t *pool, apr_dbd_t *sql,
-                              apr_dbd_results_t **res,
-                              apr_dbd_prepared_t *statement, int random,
-                              va_list args)
-{
-    int i;
-    int nfields;
-    char *arg;
-    my_bool is_null = FALSE;
-    my_bool *is_nullr;
-#if MYSQL_VERSION_ID >= 50000
-    my_bool *error;
-#endif
-    int ret;
-    unsigned long *length, maxlen;
-    int nargs;
-    MYSQL_BIND *bind;
-
-    if (sql->trans && sql->trans->errnum) {
-        return sql->trans->errnum;
-    }
-
-    nargs = mysql_stmt_param_count(statement->stmt);
-    bind = apr_palloc(pool, nargs*sizeof(MYSQL_BIND));
-
-    for (i=0; i < nargs; ++i) {
-        arg = va_arg(args, char*);
-        bind[i].buffer_type = MYSQL_TYPE_VAR_STRING;
-        bind[i].buffer = arg;
-        bind[i].buffer_length = strlen(arg);
-        bind[i].length = &bind[i].buffer_length;
-        bind[i].is_null = &is_null;
-        bind[i].is_unsigned = 0;
-    }
-
-    ret = mysql_stmt_bind_param(statement->stmt, bind);
-    if (ret == 0) {
-        ret = mysql_stmt_execute(statement->stmt);
-        if (!ret) {
-            if (!*res) {
-                *res = apr_pcalloc(pool, sizeof(apr_dbd_results_t));
-            }
-            (*res)->random = random;
-            (*res)->statement = statement->stmt;
-            (*res)->res = mysql_stmt_result_metadata(statement->stmt);
-            apr_pool_cleanup_register(pool, (*res)->res,
-                                      free_result, apr_pool_cleanup_null);
-            nfields = mysql_num_fields((*res)->res);
-            if (!(*res)->bind) {
-                (*res)->bind = apr_palloc(pool, nfields*sizeof(MYSQL_BIND));
-                length = apr_pcalloc(pool, nfields*sizeof(unsigned long));
-#if MYSQL_VERSION_ID >= 50000
-                error = apr_palloc(pool, nfields*sizeof(my_bool));
-#endif
-                is_nullr = apr_pcalloc(pool, nfields*sizeof(my_bool));
-                for ( i = 0; i < nfields; ++i ) {
-                    maxlen = ((*res)->res->fields[i].length < sql->fldsz ?
-                              (*res)->res->fields[i].length : sql->fldsz) + 1;
-                    (*res)->bind[i].buffer_type = MYSQL_TYPE_VAR_STRING;
-                    (*res)->bind[i].buffer_length = maxlen;
-                    (*res)->bind[i].length = &length[i];
-                    (*res)->bind[i].buffer = apr_palloc(pool, maxlen);
-                    (*res)->bind[i].is_null = is_nullr+i;
-#if MYSQL_VERSION_ID >= 50000
-                    (*res)->bind[i].error = error+i;
-#endif
-                }
-            }
-            ret = mysql_stmt_bind_result(statement->stmt, (*res)->bind);
-            if (!ret) {
-                ret = mysql_stmt_store_result(statement->stmt);
-            }
-        }
-    }
-    if (ret != 0) {
-        ret = mysql_stmt_errno(statement->stmt);
-    }
-    if (sql->trans) {
-        sql->trans->errnum = ret;
-    }
-    return ret;
-}
-#endif
 
 static int dbd_mysql_end_transaction(apr_dbd_transaction_t *trans)
 {
     int ret = -1;
     if (trans) {
-#if APU_MAJOR_VERSION >= 2 || (APU_MAJOR_VERSION == 1 && APU_MINOR_VERSION >= 3)
         /* rollback on error or explicit rollback request */
         if (trans->errnum || TXN_DO_ROLLBACK(trans)) {
-#else
-        if (trans->errnum) {
-#endif
             trans->errnum = 0;
             ret = mysql_rollback(trans->handle->conn);
         }
@@ -1381,7 +1047,6 @@ static int dbd_mysql_transaction(apr_pool_t *pool, apr_dbd_t *handle,
     return (*trans)->errnum;
 }
 
-#if APU_MAJOR_VERSION >= 2 || (APU_MAJOR_VERSION == 1 && APU_MINOR_VERSION >= 3)
 static int dbd_mysql_transaction_mode_get(apr_dbd_transaction_t *trans)
 {
     if (!trans)
@@ -1398,7 +1063,6 @@ static int dbd_mysql_transaction_mode_set(apr_dbd_transaction_t *trans,
 
     return trans->mode = (mode & TXN_MODE_BITS);
 }
-#endif
 
 static apr_dbd_t *dbd_mysql_open(apr_pool_t *pool, const char *params)
 {
@@ -1576,9 +1240,7 @@ APU_DECLARE_DATA const apr_dbd_driver_t apr_dbd_mysql_driver = {
     dbd_mysql_pvquery,
     dbd_mysql_pvselect,
     dbd_mysql_pquery,
-    dbd_mysql_pselect
-#if APU_MAJOR_VERSION >= 2 || (APU_MAJOR_VERSION == 1 && APU_MINOR_VERSION >= 3)
-    ,
+    dbd_mysql_pselect,
     dbd_mysql_get_name,
     dbd_mysql_transaction_mode_get,
     dbd_mysql_transaction_mode_set,
@@ -1588,7 +1250,6 @@ APU_DECLARE_DATA const apr_dbd_driver_t apr_dbd_mysql_driver = {
     dbd_mysql_pbquery,
     dbd_mysql_pbselect,
     dbd_mysql_datum_get
-#endif
 };
 
 #endif
