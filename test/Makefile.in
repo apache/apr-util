@@ -21,26 +21,31 @@ APRUTIL_LDFLAGS = -no-install @APRUTIL_LDFLAGS@
 LINK_PROG = $(LIBTOOL) $(LTFLAGS) --mode=link $(LT_LDFLAGS) $(COMPILE) @LT_NO_INSTALL@ $(ALL_LDFLAGS) -o $@
 
 check: $(PROGRAMS)
+	teststatus=0; \
+	progfailed=""; \
 	for prog in $(PROGRAMS); do \
 	        if test "$$prog" = 'dbd'; then \
 			for driver in sqlite2 sqlite3; do \
 				./$$prog $$driver; \
 				status=$$?; \
 				if test $$status != 0; then \
-					echo "$$prog $$driver failed"; \
-					break; \
+					teststatus=$$status; \
+					progfailed="$$progfailed '$$prog $$driver'"; \
 				fi; \
 			done; \
 	        else \
 			./$$prog; \
 			status=$$?; \
 			if test $$status != 0; then \
-				echo "$$prog failed"; \
-				break; \
+				teststatus=$$status; \
+				progfailed="$$progfailed $$prog"; \
 			fi; \
 		fi; \
 	done; \
-	exit $$status
+	if test $$teststatus != 0; then \
+		echo "Programs failed:$$progfailed"; \
+	fi; \
+	exit $$teststatus
 
 dbd_OBJECTS = dbd.lo
 dbd_LDADD =  $(TARGET_LIB_PATH)
