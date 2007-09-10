@@ -25,19 +25,22 @@ check: $(PROGRAMS)
 	        if test "$$prog" = 'dbd'; then \
 			for driver in sqlite2 sqlite3; do \
 				./$$prog $$driver; \
-				if test $$? = 255; then \
+				status=$$?; \
+				if test $$status != 0; then \
 					echo "$$prog $$driver failed"; \
 					break; \
 				fi; \
 			done; \
 	        else \
 			./$$prog; \
-			if test $$? = 255; then \
+			status=$$?; \
+			if test $$status != 0; then \
 				echo "$$prog failed"; \
 				break; \
 			fi; \
 		fi; \
-	done
+	done; \
+	exit $$status
 
 dbd_OBJECTS = dbd.lo
 dbd_LDADD =  $(TARGET_LIB_PATH)
