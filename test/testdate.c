@@ -161,14 +161,7 @@ static void test_date_parse_http(abts_case *tc, void *data)
         guess = lgc(guess);
         if (guess < 0)
             guess *= -1;
-
-        /* make sure it fits into time_t */
-        secstodate = (time_t)(guess + offset);
-
-        /* and is positive, taking into account we could be at _MIN */
-        if (secstodate < 0)
-            secstodate = -(secstodate + 1);
-
+        secstodate = guess + offset;
         gm_timestr_822(datestr, secstodate);
         secstodate *= APR_USEC_PER_SEC;
         newsecs = apr_date_parse_http(datestr);
