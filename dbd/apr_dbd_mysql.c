@@ -1103,6 +1103,7 @@ static apr_dbd_t *dbd_mysql_open(apr_pool_t *pool, const char *params)
     for (ptr = strchr(params, '='); ptr; ptr = strchr(ptr, '=')) {
         /* don't dereference memory that may not belong to us */
         if (ptr == params) {
+            ++ptr;
             continue;
         }
         for (key = ptr-1; isspace(*key); --key);
