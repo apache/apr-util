@@ -134,6 +134,12 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
           APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/include/mysql])
         fi
       fi
+      if test -f "$withval/lib/mysql/libmysqlclient_r.la"; then
+        mysql_LDFLAGS=$withval/lib/mysql/libmysqlclient_r.la
+      fi
+      if test -f "$withval/lib/libmysqlclient_r.la"; then
+        mysql_LDFLAGS=$withval/lib/libmysqlclient_r.la
+      fi
 
       CPPFLAGS="$old_cppflags"
       LDFLAGS="$old_ldflags"
@@ -158,6 +164,12 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
     if test "$apu_have_mysql" != "0"; then
       if test "x$MYSQL_CONFIG" != 'x'; then
         APR_ADDTO(APRUTIL_INCLUDES, [$mysql_CPPFLAGS])
+        if test -f "$withval/lib/mysql/libmysqlclient_r.la"; then
+          mysql_LDFLAGS=$withval/lib/mysql/libmysqlclient_r.la
+        fi
+        if test -f "$withval/lib/libmysqlclient_r.la"; then
+          mysql_LDFLAGS=$withval/lib/libmysqlclient_r.la
+        fi
       fi
     fi
 
