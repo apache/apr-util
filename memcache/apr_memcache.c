@@ -761,7 +761,7 @@ apr_memcache_getp(apr_memcache_t *mc,
         }
 
         length = apr_strtok(NULL, " ", &last);
-        if (lenth) {
+        if (length) {
             len = atoi(length);
         }
 
@@ -1307,7 +1307,7 @@ apr_memcache_multgetp(apr_memcache_t *mc,
                char *start;
                char *last;
                char *data;
-               apr_size_t len;
+               apr_size_t len = 0;
 
                start = conn->buffer;
                key = apr_strtok(conn->buffer, " ", &last); /* just the VALUE, ignore */
@@ -1316,7 +1316,9 @@ apr_memcache_multgetp(apr_memcache_t *mc,
 
 
                length = apr_strtok(NULL, " ", &last);
-               len = atoi(length);
+               if (length) {
+                   len = atoi(length);
+               }
 
                value = apr_hash_get(values, key, strlen(key));
 
