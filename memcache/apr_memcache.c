@@ -752,16 +752,18 @@ apr_memcache_getp(apr_memcache_t *mc,
         apr_size_t len = 0;
 
         start = conn->buffer;
-        flags = apr_strtok(conn->buffer," ",&last);
-        flags = apr_strtok(NULL," ",&last);
-        flags = apr_strtok(NULL," ",&last);
+        flags = apr_strtok(conn->buffer, " ", &last);
+        flags = apr_strtok(NULL, " ", &last);
+        flags = apr_strtok(NULL, " ", &last);
 
-        if (flags_)
+        if (flags_) {
             *flags_ = atoi(flags);
+        }
 
-        length = apr_strtok(NULL," ",&last);
-        if (lenth)
+        length = apr_strtok(NULL, " ", &last);
+        if (lenth) {
             len = atoi(length);
+        }
 
         if (len < 0)  {
             *new_length = 0;
