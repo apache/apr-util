@@ -749,7 +749,7 @@ apr_memcache_getp(apr_memcache_t *mc,
         char *length;
         char *start;
         char *last;
-        apr_size_t len;
+        apr_size_t len = 0;
 
         start = conn->buffer;
         flags = apr_strtok(conn->buffer," ",&last);
@@ -760,7 +760,9 @@ apr_memcache_getp(apr_memcache_t *mc,
             *flags_ = atoi(flags);
 
         length = apr_strtok(NULL," ",&last);
-        len = atoi(length);
+        if (lenth)
+            len = atoi(length);
+
         if (len < 0)  {
             *new_length = 0;
             *baton = NULL;
