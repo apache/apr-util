@@ -445,12 +445,12 @@ AC_DEFUN([APU_CHECK_DBD_DSO], [
 
      # Use libtool *.la for mysql if available
      if test $apu_have_mysql = 1; then
-       for flag in $mysql_LDFLAGS
+       for flag in $LDADD_dbd_mysql
        do
          dir=`echo $flag | grep "^-L" | sed s:-L::`
          if test "x$dir" != 'x'; then
            if test -f "$dir/libmysqlclient_r.la"; then
-             mysql_LDFLAGS=$dir/libmysqlclient_r.la
+             LDADD_dbd_mysql=$dir/libmysqlclient_r.la
              break
            fi
          fi
