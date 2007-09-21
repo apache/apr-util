@@ -134,12 +134,6 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
           APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/include/mysql])
         fi
       fi
-      if test -f "$withval/lib/mysql/libmysqlclient_r.la"; then
-        mysql_LDFLAGS=$withval/lib/mysql/libmysqlclient_r.la
-      fi
-      if test -f "$withval/lib/libmysqlclient_r.la"; then
-        mysql_LDFLAGS=$withval/lib/libmysqlclient_r.la
-      fi
 
       CPPFLAGS="$old_cppflags"
       LDFLAGS="$old_ldflags"
@@ -164,12 +158,6 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
     if test "$apu_have_mysql" != "0"; then
       if test "x$MYSQL_CONFIG" != 'x'; then
         APR_ADDTO(APRUTIL_INCLUDES, [$mysql_CPPFLAGS])
-        if test -f "$withval/lib/mysql/libmysqlclient_r.la"; then
-          mysql_LDFLAGS=$withval/lib/mysql/libmysqlclient_r.la
-        fi
-        if test -f "$withval/lib/libmysqlclient_r.la"; then
-          mysql_LDFLAGS=$withval/lib/libmysqlclient_r.la
-        fi
       fi
     fi
 
@@ -454,6 +442,20 @@ AC_DEFUN([APU_CHECK_DBD_DSO], [
      test $apu_have_sqlite3 = 1 && objs="$objs dbd/apr_dbd_sqlite3.lo"
      test $apu_have_freetds = 1 && objs="$objs dbd/apr_dbd_freetds.lo"
      EXTRA_OBJECTS="$EXTRA_OBJECTS $objs"
+
+     # Use libtool *.la for mysql if available
+     if test $apu_have_mysql = 1; then
+       for flag in $mysql_LDFLAGS
+       do
+         dir=`echo $flag | grep "^-L" | sed s:-L::`
+         if test "x$dir" != 'x'; then
+           if test -f "$dir/libmysqlclient_r.la"; then
+             mysql_LDFLAGS=$dir/libmysqlclient_r.la
+             break
+           fi
+         fi
+       done
+     fi
 
      APRUTIL_LIBS="$APRUTIL_LIBS $LDADD_dbd_pgsql $LDADD_dbd_sqlite2 $LDADD_dbd_sqlite3 $LDADD_dbd_oracle $LDADD_dbd_mysql $LDADD_dbd_freetds"
      APRUTIL_EXPORT_LIBS="$APRUTIL_EXPORT_LIBS $LDADD_dbd_pgsql $LDADD_dbd_sqlite2 $LDADD_dbd_sqlite3 $LDADD_dbd_oracle $LDADD_dbd_mysql $LDADD_dbd_freetds"
