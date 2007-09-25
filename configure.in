@@ -69,8 +69,11 @@ version_hdr="$abs_srcdir/include/apu_version.h"
 APRUTIL_MAJOR_VERSION="`$get_version major $version_hdr APU`"
 APRUTIL_DOTTED_VERSION="`$get_version all $version_hdr APU`"
 
+APU_LTVERSION="-version-info `$get_version libtool $version_hdr APU`"
+
 AC_SUBST(APRUTIL_DOTTED_VERSION)
 AC_SUBST(APRUTIL_MAJOR_VERSION)
+AC_SUBST(APU_LTVERSION)
 
 echo "APR-util Version: ${APRUTIL_DOTTED_VERSION}"
 
