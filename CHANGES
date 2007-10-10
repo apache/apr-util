@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.2.11
 
+  *) Fix exported LDFLAGS with new expat detection.  PR 43337.
+     [Justin Erenkrantz]
+
   *) Add MySQL DBD driver [Nick Kew, Bojan Smojver]
 
 Changes with APR-util 1.2.10
