@@ -1,4 +1,11 @@
                                                      -*- coding: utf-8 -*-
+
+Changes with APR-util 1.2.12
+
+  *) Type mismatch between apr_datum_t and GDBM's datum type could
+     yield a corrupt apr_datum_t when reading from a GDBM database.
+     PR 43025.  [Björn Wiberg <Bjorn.Wiberg its.uu.se>, Davi Arnaut]
+
 Changes with APR-util 1.2.11
 
   *) Fix exported LDFLAGS with new expat detection.  PR 43337.
