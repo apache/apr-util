@@ -41,7 +41,7 @@ typedef datum *cvt_datum_t;
 #define CONVERT_DATUM(cvt, pinput) ((cvt) = (datum *)(pinput))
 
 typedef datum result_datum_t;
-#define RETURN_DATUM(poutput, rd) (*(poutput) = *(apr_datum_t *)&(rd))
+#define RETURN_DATUM(poutput, rd) ((poutput)->dptr = (rd).dptr, (poutput)->dsize = (apr_size_t) (rd).dsize)
 
 #define APR_DBM_CLOSE(f)        gdbm_close(f)
 #define APR_DBM_FETCH(f, k, v)  ((v) = gdbm_fetch(f, *(k)), APR_SUCCESS)
