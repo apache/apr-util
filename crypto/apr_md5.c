@@ -289,7 +289,7 @@ APU_DECLARE(apr_status_t) apr_md5_update(apr_md5_ctx_t *context,
                                          const void *_input,
                                          apr_size_t inputLen)
 {
-    md5_update_buffer( context, _input, inputLen, DO_XLATE);
+    return md5_update_buffer( context, _input, inputLen, DO_XLATE);
 }
 
 /* MD5 finalization. Ends an MD5 message-digest operation, writing the
