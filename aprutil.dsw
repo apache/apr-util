@@ -42,10 +42,10 @@ Package=<4>
     Project_Dep_Name apr
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name xml
+    Project_Dep_Name apriconv
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name apriconv
+    Project_Dep_Name xml
     End Project Dependency
 }}}
 
@@ -129,10 +129,10 @@ Package=<4>
     Project_Dep_Name libapr
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name xml
+    Project_Dep_Name libapriconv
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name libapriconv
+    Project_Dep_Name xml
     End Project Dependency
 }}}
 
