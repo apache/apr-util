@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "apr_memcache.h"
 #include "apr_poll.h"
 #include "apr_version.h"
+#include "apr_memcache.h"
 #include <stdlib.h>
 
 #define BUFFER_SIZE 512
@@ -503,8 +503,8 @@ static const apr_uint32_t crc32tab[256] = {
 };
 
 APU_DECLARE(apr_uint32_t) apr_memcache_hash_crc32(void *baton, 
-                                                    const char *data,
-                                                    const apr_size_t data_len)
+                                                  const char *data,
+                                                  apr_size_t data_len)
 {
     apr_uint32_t i;
     apr_uint32_t crc;
@@ -518,7 +518,7 @@ APU_DECLARE(apr_uint32_t) apr_memcache_hash_crc32(void *baton,
 
 APU_DECLARE(apr_uint32_t) apr_memcache_hash_default(void *baton, 
                                                     const char *data,
-                                                    const apr_size_t data_len)
+                                                    apr_size_t data_len)
 {
     /* The default Perl Client doesn't actually use just crc32 -- it shifts it again
      * like this....
@@ -528,7 +528,7 @@ APU_DECLARE(apr_uint32_t) apr_memcache_hash_default(void *baton,
 
 APU_DECLARE(apr_uint32_t) apr_memcache_hash(apr_memcache_t *mc,
                                             const char *data,
-                                            const apr_size_t data_len)
+                                            apr_size_t data_len)
 {
     if (mc->hash_func) {
         return mc->hash_func(mc->hash_baton, data, data_len);
@@ -1112,7 +1112,7 @@ static void mget_conn_result(int up,
                              apr_hash_t *values,
                              apr_hash_t *server_queries)
 {
-    int j;
+    unsigned int j;
     apr_memcache_value_t* value;
     
     if (!up) {
@@ -1158,7 +1158,7 @@ apr_memcache_multgetp(apr_memcache_t *mc,
     unsigned int veclen = 2 + 2 * apr_hash_count(values) - 1; /* get <key>[<space><key>...]\r\n */
     unsigned int i, j;
     unsigned int queries_sent;
-    apr_int32_t queries_recvd;
+    unsigned int queries_recvd;
 
     apr_hash_t * server_queries = apr_hash_make(temp_pool);
     struct cache_server_query_t* server_query;
