@@ -72,7 +72,7 @@ CFG=testutillib - Win32 Release
 # PROP Bsc_Name ""
 # PROP Target_Dir ""
 
-!IF  "$(CFG)" == "testutillib - Win32 Release9x"
+!ELSEIF  "$(CFG)" == "testutillib - Win32 Release9x"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -114,7 +114,7 @@ CFG=testutillib - Win32 Release
 # PROP Bsc_Name ""
 # PROP Target_Dir ""
 
-!IF  "$(CFG)" == "testutillib - x64 Release"
+!ELSEIF  "$(CFG)" == "testutillib - x64 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -187,7 +187,15 @@ SOURCE=.\testbuckets.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\testdate.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\testdbd.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\testdbm.c
 # End Source File
 # Begin Source File
 
@@ -203,7 +211,23 @@ SOURCE=.\testmd5.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\testmemcache.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\testpass.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\testqueue.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\testreslist.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\testrmm.c
 # End Source File
 # Begin Source File
 
@@ -221,6 +245,14 @@ SOURCE=.\testutil.c
 
 SOURCE=.\testuuid.c
 # End Source File
+# Begin Source File
+
+SOURCE=.\testxlate.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\testxml.c
+# End Source File
 # End Group
 # Begin Group "Other Source Files"
 
@@ -231,31 +263,15 @@ SOURCE=.\dbd.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\testdate.c
+SOURCE=.\echod.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\testdbm.c
+SOURCE=.\sockperf.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\testqueue.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\testreslist.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\testrmm.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\testxlate.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\testxml.c
+SOURCE=.\testssl.c
 # End Source File
 # End Group
 # Begin Source File
