@@ -29,8 +29,6 @@
 #include "apr_ssl.h"
 #include "apr_network_io.h"
 
-#include "apu_config.h"
-
 #if APR_HAVE_STDIO_H
 #include <stdio.h>
 #endif
@@ -99,8 +97,10 @@ static apr_status_t socketRead(apr_ssl_socket_t *sock,
 {
     int lrv;
     const apr_pollfd_t *descs = NULL;
+    apr_status_t rv;
+
     printf("::Reading from socket\n");
-    apr_status_t rv = apr_ssl_socket_set_poll_events(sock, APR_POLLIN);
+    rv = apr_ssl_socket_set_poll_events(sock, APR_POLLIN);
     if (rv != APR_SUCCESS) {
         printf("\tUnable to change socket poll events!\n");
         return rv;
@@ -139,8 +139,10 @@ static apr_status_t socketWrite(apr_ssl_socket_t *sock,
 {
     int lrv;
     const apr_pollfd_t *descs = NULL;
+    apr_status_t rv;
+
     printf("::Writing to socket\n");
-    apr_status_t rv = apr_ssl_socket_set_poll_events(sock, APR_POLLOUT);
+    rv = apr_ssl_socket_set_poll_events(sock, APR_POLLOUT);
     if (rv != APR_SUCCESS) {
         printf("\tUnable to change socket poll events!\n");
         return rv;
@@ -193,7 +195,6 @@ int main(int argc, const char * const * argv)
     apr_ssl_factory_t *asf = NULL;
     apr_status_t rv;
     apr_pollset_t *pollset;
-    struct sslTestCase *mytest;
 
     (void) apr_initialize();
     apr_pool_create(&pool, NULL);
