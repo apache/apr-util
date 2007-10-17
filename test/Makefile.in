@@ -2,8 +2,7 @@ VPATH = @srcdir@
 
 INCLUDES = @APRUTIL_PRIV_INCLUDES@ @APR_INCLUDES@ @APRUTIL_INCLUDES@
 
-PROGRAMS = testall testdbm testdate testxml testrmm \
-	   testreslist testqueue testxlate dbd
+PROGRAMS = testall dbd
 TARGETS = $(PROGRAMS)
 
 APRUTIL_DOTTED_VERSION=@APRUTIL_DOTTED_VERSION@
@@ -48,43 +47,10 @@ dbd_LDADD =  $(TARGET_LIB_PATH)
 dbd: $(dbd_OBJECTS) $(dbd_LDADD)
 	$(LINK) $(APRUTIL_LDFLAGS) $(dbd_OBJECTS) $(dbd_LDADD) $(PROGRAM_DEPENDENCIES)
 
-testdbd_OBJECTS = testdbd.lo
-testdbd_LDADD =  $(TARGET_LIB_PATH)
-testdbd: $(testdbd_OBJECTS) $(testdbd_LDADD)
-	$(LINK) $(APRUTIL_LDFLAGS) $(testdbd_OBJECTS) $(testdbd_LDADD) $(PROGRAM_DEPENDENCIES)
-
-testdate_OBJECTS = testdate.lo
-testdate_LDADD =  $(TARGET_LIB_PATH)
-testdate: $(testdate_OBJECTS) $(testdate_LDADD)
-	$(LINK) $(APRUTIL_LDFLAGS) $(testdate_OBJECTS) $(testdate_LDADD) $(PROGRAM_DEPENDENCIES)
-
-testxml_OBJECTS = testxml.lo
-testxml_LDADD =  $(TARGET_LIB_PATH)
-testxml: $(testxml_OBJECTS) $(testxml_LDADD)
-	$(LINK) $(APRUTIL_LDFLAGS) $(testxml_OBJECTS) $(testxml_LDADD) $(PROGRAM_DEPENDENCIES)
-
-testrmm_OBJECTS = testrmm.lo
-testrmm_LDADD =  $(TARGET_LIB_PATH)
-testrmm: $(testrmm_OBJECTS) $(testrmm_LDADD)
-	$(LINK) $(APRUTIL_LDFLAGS) $(testrmm_OBJECTS) $(testrmm_LDADD) $(PROGRAM_DEPENDENCIES)
-
-testreslist_OBJECTS = testreslist.lo
-testreslist_LDADD =  $(TARGET_LIB_PATH)
-testreslist: $(testreslist_OBJECTS) $(testreslist_LDADD)
-	$(LINK) $(APRUTIL_LDFLAGS) $(testreslist_OBJECTS) $(testreslist_LDADD) $(PROGRAM_DEPENDENCIES)
-
-testqueue_OBJECTS = testqueue.lo
-testqueue_LDADD =  $(TARGET_LIB_PATH)
-testqueue: $(testqueue_OBJECTS) $(testqueue_LDADD)
-	$(LINK) $(APRUTIL_LDFLAGS) $(testqueue_OBJECTS) $(testqueue_LDADD) $(PROGRAM_DEPENDENCIES)
-
-testxlate_OBJECTS = testxlate.lo
-testxlate_LDADD =  $(TARGET_LIB_PATH)
-testxlate: $(testxlate_OBJECTS) $(testxlate_LDADD)
-	$(LINK) $(APRUTIL_LDFLAGS) $(testxlate_OBJECTS) $(testxlate_LDADD) $(PROGRAM_DEPENDENCIES)
-
 testall_OBJECTS = teststrmatch.lo testuri.lo testuuid.lo abts.lo testutil.lo \
-	testbuckets.lo testpass.lo testmd4.lo testmd5.lo testldap.lo testdbd.lo
+	testbuckets.lo testpass.lo testmd4.lo testmd5.lo testldap.lo testdbd.lo \
+	testdbm.lo testdate.lo testxml.lo testrmm.lo testreslist.lo testqueue.lo \
+	testxlate.lo
 testall_LDADD =  $(TARGET_LIB_PATH)
 testall: $(testall_OBJECTS) $(testall_LDADD)
 	$(LINK) $(APRUTIL_LDFLAGS) $(testall_OBJECTS) $(testall_LDADD) $(PROGRAM_DEPENDENCIES)

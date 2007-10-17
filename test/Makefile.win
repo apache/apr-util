@@ -43,7 +43,11 @@ ALL_TESTS = $(INTDIR)\teststrmatch.obj $(INTDIR)\testuri.obj \
 	$(INTDIR)\testuuid.obj $(INTDIR)\testutil.obj \
 	$(INTDIR)\testbuckets.obj $(INTDIR)\testpass.obj \
 	$(INTDIR)\testmd4.obj $(INTDIR)\testmd5.obj \
-	$(INTDIR)\testldap.obj $(INTDIR)\testdbd.obj
+	$(INTDIR)\testldap.obj $(INTDIR)\testdbd.obj \
+	$(OUTDIR)\testdbm.obj $(OUTDIR)\testreslist.obj \
+	$(OUTDIR)\testxml.obj $(OUTDIR)\testqueue.obj \
+	$(OUTDIR)\testrmm.obj $(OUTDIR)\testxlate.obj \
+	$(OUTDIR)\testdate.obj
 
 CLEAN_DATA = manyfile.bin testfile.txt data\sqlite*.db
 
@@ -51,17 +55,9 @@ CLEAN_BUILDDIRS = Debug Release LibD LibR 9x x64
 
 TEST_SUBDIRS = internal
 
-PROGRAMS = $(OUTDIR)\testall.exe $(OUTDIR)\testdate.exe \
-	$(OUTDIR)\testrmm.exe $(OUTDIR)\testxlate.exe
+PROGRAMS = $(OUTDIR)\testall.exe \
 
-# testdbm needs args, belongs here
-# testreslist is broken
-# testxml is too damned noisy
-# testqueue is too damned noisy
-# dbd I just don't grok, probably belongs here though
-OTHER_PROGRAMS = $(OUTDIR)\testdbm.exe $(OUTDIR)\testreslist.exe \
-	$(OUTDIR)\testxml.exe $(OUTDIR)\testqueue.exe \
-	$(OUTDIR)\dbd.exe
+OTHER_PROGRAMS = $(OUTDIR)\dbd.exe
 
 # bring in rules.mk for standard functionality
 ALL: $(PROGRAMS)
