@@ -42,14 +42,15 @@ static void * APR_THREAD_FUNC consumer(apr_thread_t *thd, void *data)
     sleeprate = 1000000/CONSUMER_ACTIVITY;
     apr_sleep((rand() % 4) * 1000000); /* sleep random seconds */
 
-    while (1) {
+    while (1)
+    {
         rv = apr_queue_pop(queue, &v);
 
-        if (rv == APR_EINTR) {
+        if (rv == APR_EINTR)
             continue;
-        } else if (rv == APR_EOF) {
+
+        if (rv == APR_EOF)
             break;
-        }
 
         ABTS_TRUE(tc, v == NULL);
         ABTS_TRUE(tc, rv == APR_SUCCESS);
@@ -57,29 +58,39 @@ static void * APR_THREAD_FUNC consumer(apr_thread_t *thd, void *data)
         apr_sleep(sleeprate); /* sleep this long to acheive our rate */
     }
 
+    apr_thread_exit(thd, rv);
+
+    /* not reached */
     return NULL;
 }
 
 static void * APR_THREAD_FUNC producer(apr_thread_t *thd, void *data)
 {
     long sleeprate;
+    abts_case *tc = data;
     apr_status_t rv;
 
     sleeprate = 1000000/PRODUCER_ACTIVITY;
     apr_sleep((rand() % 4) * 1000000); /* sleep random seconds */
 
-    while (1) {
-        do {
-            rv = apr_queue_push(queue, NULL);
-        } while (rv == APR_EINTR);
+    while (1)
+    {
+        rv = apr_queue_push(queue, NULL);
 
-        if (rv == APR_EOF) {
+        if (rv == APR_EINTR)
+            continue;
+
+        if (rv == APR_EOF)
             break;
-        }
+
+        ABTS_TRUE(tc, rv == APR_SUCCESS);
 
         apr_sleep(sleeprate); /* sleep this long to acheive our rate */
     }
 
+    apr_thread_exit(thd, rv);
+
+    /* not reached */
     return NULL;
 }
 
