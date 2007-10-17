@@ -57,12 +57,8 @@ TEST_SUBDIRS = internal
 
 PROGRAMS = $(OUTDIR)\testall.exe
 
-# testdbm needs args, belongs here
-# testreslist is broken
-# testxml is too damned noisy
-# testqueue is too damned noisy
-# dbd I just don't grok, probably belongs here though
-OTHER_PROGRAMS = $(OUTDIR)\dbd.exe
+OTHER_PROGRAMS = $(OUTDIR)\dbd.exe $(OUTDIR)\testssl.exe \
+	$(OUTDIR)\echod.exe $(OUTDIR)\sockperf.exe
 
 # bring in rules.mk for standard functionality
 ALL: $(PROGRAMS)
@@ -115,7 +111,24 @@ $(OUTDIR)\testall.exe: $(ALL_TESTS) $(INTDIR)\abts.obj $(PROGRAM_DEPENDENCIES)
 	@if exist "$@.manifest" \
 	    mt.exe -manifest "$@.manifest" -outputresource:$@;1
 
+# OTHER_PROGRAMS;
+
 $(OUTDIR)\dbd.exe: $(INTDIR)\dbd.obj $(PROGRAM_DEPENDENCIES)
+	$(LD) $(LDFLAGS) /out:"$@" $** $(LD_LIBS)
+	@if exist "$@.manifest" \
+	    mt.exe -manifest "$@.manifest" -outputresource:$@;1
+
+$(OUTDIR)\testssl.exe: $(INTDIR)\testssl.obj $(PROGRAM_DEPENDENCIES)
+	$(LD) $(LDFLAGS) /out:"$@" $** $(LD_LIBS)
+	@if exist "$@.manifest" \
+	    mt.exe -manifest "$@.manifest" -outputresource:$@;1
+
+$(OUTDIR)\echod.exe: $(INTDIR)\echod.obj $(PROGRAM_DEPENDENCIES)
+	$(LD) $(LDFLAGS) /out:"$@" $** $(LD_LIBS)
+	@if exist "$@.manifest" \
+	    mt.exe -manifest "$@.manifest" -outputresource:$@;1
+
+$(OUTDIR)\sockperf.exe: $(INTDIR)\sockperf.obj $(PROGRAM_DEPENDENCIES)
 	$(LD) $(LDFLAGS) /out:"$@" $** $(LD_LIBS)
 	@if exist "$@.manifest" \
 	    mt.exe -manifest "$@.manifest" -outputresource:$@;1
@@ -140,7 +153,7 @@ cleanall:
 PATH=$(OUTDIR);..\$(OUTDIR);$(API_PATH)\$(OUTDIR);$(APR_PATH)\$(OUTDIR);$(PATH)
 APR_ICONV1_PATH=$(API_PATH)\$(OUTDIR)\iconv
 
-check: $(TESTALL_COMPONENTS) $(STDTEST_PORTABLE) $(STDTEST_NONPORTABLE)
+check: $(PROGRAMS)
 	@for %p in ($(PROGRAMS)) do @( \
 	    echo Testing %p && %p || echo %p failed \
 	)
