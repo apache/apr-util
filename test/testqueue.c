@@ -58,9 +58,6 @@ static void * APR_THREAD_FUNC consumer(apr_thread_t *thd, void *data)
         apr_sleep(sleeprate); /* sleep this long to acheive our rate */
     }
 
-    apr_thread_exit(thd, rv);
-
-    /* not reached */
     return NULL;
 }
 
@@ -88,9 +85,6 @@ static void * APR_THREAD_FUNC producer(apr_thread_t *thd, void *data)
         apr_sleep(sleeprate); /* sleep this long to acheive our rate */
     }
 
-    apr_thread_exit(thd, rv);
-
-    /* not reached */
     return NULL;
 }
 
