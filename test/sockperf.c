@@ -77,7 +77,7 @@ static void closeConnection(apr_ssl_socket_t *sock)
 }
 
 static apr_status_t sendRecvBuffer(apr_time_t *t, const char *buf, 
-                                   int size, apr_pool_t *pool)
+                                   apr_size_t size, apr_pool_t *pool)
 {
     apr_ssl_socket_t *sock;
     apr_status_t rv;
@@ -177,7 +177,8 @@ static apr_status_t runTest(struct testSet *ts, struct testResult *res,
 {
     char *buffer;
     apr_status_t rv;
-    int i, sz = ts->size * TEST_SIZE;
+    apr_size_t sz = ts->size * TEST_SIZE;
+    int i;
     
     buffer = apr_palloc(pool, sz);
     if (!buffer) {
