@@ -52,5 +52,13 @@ abts_suite *testmd4(abts_suite *suite);
 abts_suite *testmd5(abts_suite *suite);
 abts_suite *testldap(abts_suite *suite);
 abts_suite *testdbd(abts_suite *suite);
+abts_suite *testdate(abts_suite *suite);
+abts_suite *testmemcache(abts_suite *suite);
+abts_suite *testreslist(abts_suite *suite);
+abts_suite *testqueue(abts_suite *suite);
+abts_suite *testxml(abts_suite *suite);
+abts_suite *testxlate(abts_suite *suite);
+abts_suite *testrmm(abts_suite *suite);
+abts_suite *testdbm(abts_suite *suite);
 
 #endif /* APR_TEST_INCLUDES */

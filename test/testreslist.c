@@ -1,9 +1,9 @@
-/* Copyright 2000-2005 The Apache Software Foundation or its licensors, as
- * applicable.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+/* Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -16,27 +16,20 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "apr_general.h"
+#include "apu.h"
 #include "apr_reslist.h"
-#include "apr_thread_proc.h"
-#if APR_HAVE_LIMITS_H
-#include <limits.h>
-#elif APR_HAVE_SYS_SYSLIMITS_H
-#include <sys/syslimits.h>
-#endif
+#include "apr_thread_pool.h"
+
 #if APR_HAVE_TIME_H
 #include <time.h>
 #endif /* APR_HAVE_TIME_H */
 
-#if !APR_HAS_THREADS
+#include "abts.h"
+#include "testutil.h"
 
-int main(void)
-{
-    fprintf(stderr, "this program requires APR thread support\n");
-    return 0;
-}
-
-#else
+#if APR_HAS_THREADS
 
 #define RESLIST_MIN   3
 #define RESLIST_SMAX 10
@@ -78,9 +71,6 @@ static apr_status_t my_constructor(void **resource, void *params,
     res = apr_palloc(pool, sizeof(*res));
     res->id = my_params->c_count++;
 
-    printf("++ constructing new resource [id:%d, #%d/%d]\n", res->id,
-       my_params->c_count, my_params->d_count);
-
     /* Sleep for awhile, to simulate construction overhead. */
     apr_sleep(my_params->sleep_upon_construct);
 
@@ -94,9 +84,7 @@ static apr_status_t my_destructor(void *resource, void *params,
 {
     my_resource_t *res = resource;
     my_parameters_t *my_params = params;
-
-    printf("-- destructing old resource [id:%d, #%d/%d]\n", res->id,
-           my_params->c_count, ++my_params->d_count);
+    res->id = my_params->d_count++;
 
     apr_sleep(my_params->sleep_upon_destruct);
 
@@ -105,6 +93,7 @@ static apr_status_t my_destructor(void *resource, void *params,
 
 typedef struct {
     int tid;
+    abts_case *tc;
     apr_reslist_t *reslist;
     apr_interval_time_t work_delay_sleep;
 } my_thread_info_t;
@@ -114,51 +103,37 @@ typedef struct {
 static void * APR_THREAD_FUNC resource_consuming_thread(apr_thread_t *thd,
                                                         void *data)
 {
+    int i;
+    apr_uint32_t chance;
+    void *vp;
     apr_status_t rv;
+    my_resource_t *res;
     my_thread_info_t *thread_info = data;
     apr_reslist_t *rl = thread_info->reslist;
-    apr_uint32_t chance;
-    int i;
 
     apr_generate_random_bytes((void*)&chance, sizeof(chance));
 
     for (i = 0; i < CONSUMER_ITERATIONS; i++) {
-        my_resource_t *res;
-        void *vp;
         rv = apr_reslist_acquire(rl, &vp);
-        if (rv != APR_SUCCESS) {
-            fprintf(stderr, "Failed to retrieve resource from reslist\n");
-            apr_thread_exit(thd, rv);
-            return NULL;
-        }
+        ABTS_INT_EQUAL(thread_info->tc, rv, APR_SUCCESS);
         res = vp;
-        printf("  [tid:%d,iter:%d] using resource id:%d\n", thread_info->tid,
-               i, res->id);
         apr_sleep(thread_info->work_delay_sleep);
+
         /* simulate a 5% chance of the resource being bad */
         chance = lgc(chance);
         if ( chance < PERCENT95th ) {
             rv = apr_reslist_release(rl, res);
-            if (rv != APR_SUCCESS) {
-                fprintf(stderr, "Failed to return resource to reslist\n");
-                apr_thread_exit(thd, rv);
-                return NULL;
-            }
-       } else {
-            printf("invalidating resource id:%d\n", res->id) ;
+            ABTS_INT_EQUAL(thread_info->tc, rv, APR_SUCCESS);
+        } else {
             rv = apr_reslist_invalidate(rl, res);
-            if (rv != APR_SUCCESS) {
-                fprintf(stderr, "Failed to invalidate resource\n");
-                apr_thread_exit(thd, rv);
-                return NULL;
-            }
-       }
+            ABTS_INT_EQUAL(thread_info->tc, rv, APR_SUCCESS);
+        }
     }
 
     return APR_SUCCESS;
 }
 
-static void test_timeout(apr_reslist_t *rl)
+static void test_timeout(abts_case *tc, apr_reslist_t *rl)
 {
     apr_status_t rv;
     my_resource_t *resources[RESLIST_HMAX];
@@ -166,31 +141,23 @@ static void test_timeout(apr_reslist_t *rl)
     void *vp;
     int i;
 
-    printf("Setting timeout to 1000us: ");
     apr_reslist_timeout_set(rl, 1000);
-    fprintf(stdout, "OK\n");
 
-    /* deplete all possible resources from the resource list 
-     * so that the next call will block until timeout is reached 
-     * (since there are no other threads to make a resource 
+    /* deplete all possible resources from the resource list
+     * so that the next call will block until timeout is reached
+     * (since there are no other threads to make a resource
      * available)
      */
 
     for (i = 0; i < RESLIST_HMAX; i++) {
         rv = apr_reslist_acquire(rl, (void**)&resources[i]);
-        if (rv != APR_SUCCESS) {
-            fprintf(stderr, "couldn't acquire resource: %d\n", rv);
-            exit(1);
-        }
+        ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
     }
 
     /* next call will block until timeout is reached */
     rv = apr_reslist_acquire(rl, &vp);
-    if (!APR_STATUS_IS_TIMEUP(rv)) {
-        fprintf(stderr, "apr_reslist_acquire()->%d instead of TIMEUP\n", 
-                rv);
-        exit(1);
-    }
+    ABTS_TRUE(tc, APR_STATUS_IS_TIMEUP(rv));
+
     res = vp;
 
     /* release the resources; otherwise the destroy operation
@@ -198,51 +165,38 @@ static void test_timeout(apr_reslist_t *rl)
      */
     for (i = 0; i < RESLIST_HMAX; i++) {
         rv = apr_reslist_release(rl, resources[i]);
-        if (rv != APR_SUCCESS) {
-            fprintf(stderr, "couldn't release resource: %d\n", rv);
-            exit(1);
-        }
+        ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
     }
 }
 
-static void test_shrinking(apr_reslist_t *rl)
+static void test_shrinking(abts_case *tc, apr_reslist_t *rl)
 {
     apr_status_t rv;
     my_resource_t *resources[RESLIST_HMAX];
     my_resource_t *res;
+    void *vp;
     int i;
     int sleep_time = RESLIST_TTL / RESLIST_HMAX;
 
     /* deplete all possible resources from the resource list */
     for (i = 0; i < RESLIST_HMAX; i++) {
         rv = apr_reslist_acquire(rl, (void**)&resources[i]);
-        if (rv != APR_SUCCESS) {
-            fprintf(stderr, "couldn't acquire resource: %d\n", rv);
-            exit(1);
-        }
+        ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
     }
 
     /* Free all resources above RESLIST_SMAX - 1 */
     for (i = RESLIST_SMAX - 1; i < RESLIST_HMAX; i++) {
         rv = apr_reslist_release(rl, resources[i]);
-        if (rv != APR_SUCCESS) {
-            fprintf(stderr, "couldn't release resource: %d\n", rv);
-            exit(1);
-        }
+        ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
     }
 
     for (i = 0; i < RESLIST_HMAX; i++) {
-        rv = apr_reslist_acquire(rl, (void**)&res);
-        if (rv != APR_SUCCESS) {
-            fprintf(stderr, "couldn't acquire resource: %d\n", rv);
-            exit(1);
-        }
+        rv = apr_reslist_acquire(rl, &vp);
+        ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
+        res = vp;
         apr_sleep(sleep_time);
         rv = apr_reslist_release(rl, res);
-        if (rv != APR_SUCCESS) {
-            fprintf(stderr, "couldn't release resource: %d\n", rv);
-            exit(1);
-        }
+        ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
     }
     apr_sleep(sleep_time);
 
@@ -252,131 +206,65 @@ static void test_shrinking(apr_reslist_t *rl)
      */
     for (i = 0; i < RESLIST_SMAX - 1; i++) {
         rv = apr_reslist_release(rl, resources[i]);
-        if (rv != APR_SUCCESS) {
-            fprintf(stderr, "couldn't release resource: %d\n", rv);
-            exit(1);
-        }
+        ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
     }
 }
 
-static apr_status_t test_reslist(apr_pool_t *parpool)
+static void test_reslist(abts_case *tc, void *data)
 {
+    int i;
     apr_status_t rv;
-    apr_pool_t *pool;
     apr_reslist_t *rl;
     my_parameters_t *params;
-    int i;
-    apr_thread_t *my_threads[CONSUMER_THREADS];
-    my_thread_info_t my_thread_info[CONSUMER_THREADS];
+    apr_thread_pool_t *thrp;
+    my_thread_info_t thread_info[CONSUMER_THREADS];
 
-    printf("Creating child pool.......................");
-    rv = apr_pool_create(&pool, parpool);
-    if (rv != APR_SUCCESS) {
-        fprintf(stderr, "Error creating child pool\n");
-        return rv;
-    }
-    printf("OK\n");
+    rv = apr_thread_pool_create(&thrp, CONSUMER_THREADS/2, CONSUMER_THREADS, p);
+    ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
 
     /* Create some parameters that will be passed into each
      * constructor and destructor call. */
-    params = apr_pcalloc(pool, sizeof(*params));
+    params = apr_pcalloc(p, sizeof(*params));
     params->sleep_upon_construct = CONSTRUCT_SLEEP_TIME;
     params->sleep_upon_destruct = DESTRUCT_SLEEP_TIME;
 
     /* We're going to want 10 blocks of data from our target rmm. */
-    printf("Creating resource list:\n"
-           " min/smax/hmax: %d/%d/%d\n"
-           " ttl: %" APR_TIME_T_FMT "\n", RESLIST_MIN, RESLIST_SMAX,
-           RESLIST_HMAX, RESLIST_TTL);
     rv = apr_reslist_create(&rl, RESLIST_MIN, RESLIST_SMAX, RESLIST_HMAX,
                             RESLIST_TTL, my_constructor, my_destructor,
-                            params, pool);
-    if (rv != APR_SUCCESS) { 
-        fprintf(stderr, "Error allocating shared memory block\n");
-        return rv;
-    }
-    fprintf(stdout, "OK\n");
+                            params, p);
+    ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
 
-    printf("Creating %d threads", CONSUMER_THREADS);
     for (i = 0; i < CONSUMER_THREADS; i++) {
-        putchar('.');
-        my_thread_info[i].tid = i;
-        my_thread_info[i].reslist = rl;
-        my_thread_info[i].work_delay_sleep = WORK_DELAY_SLEEP_TIME;
-        rv = apr_thread_create(&my_threads[i], NULL,
-                               resource_consuming_thread, &my_thread_info[i],
-                               pool);
-        if (rv != APR_SUCCESS) {
-            fprintf(stderr, "Failed to create thread %d\n", i);
-            return rv;
-        }
-    }
-    printf("\nDone!\n");
-
-    printf("Waiting for threads to finish");
-    for (i = 0; i < CONSUMER_THREADS; i++) {
-        apr_status_t thread_rv;
-        putchar('.');
-        apr_thread_join(&thread_rv, my_threads[i]);
-        if (rv != APR_SUCCESS) {
-            fprintf(stderr, "Failed to join thread %d\n", i);
-            return rv;
-        }
-    }
-    printf("\nDone!\n");
-
-    test_timeout(rl);
-
-    test_shrinking(rl);
-    if (params->c_count - params->d_count != RESLIST_SMAX) {
-        printf("FAILED: Resourcelist has not shrinked back to RESLIST_SMAX\n");
-        return APR_EGENERAL;
-    }
-    else {
-        printf("OK: Resource list shrinked back to RESLIST_SMAX\n");
+        thread_info[i].tid = i;
+        thread_info[i].tc = tc;
+        thread_info[i].reslist = rl;
+        thread_info[i].work_delay_sleep = WORK_DELAY_SLEEP_TIME;
+        rv = apr_thread_pool_push(thrp, resource_consuming_thread,
+                                  &thread_info[i], 0, NULL);
+        ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
     }
 
-    printf("Destroying resource list.................");
+    rv = apr_thread_pool_destroy(thrp);
+    ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
+
+    test_timeout(tc, rl);
+
+    test_shrinking(tc, rl);
+    ABTS_INT_EQUAL(tc, RESLIST_SMAX, params->c_count - params->d_count);
+
     rv = apr_reslist_destroy(rl);
-    if (rv != APR_SUCCESS) {
-        printf("FAILED\n");
-        return rv;
-    }
-    printf("OK\n");
-
-    apr_pool_destroy(pool);
-
-    return APR_SUCCESS;
-}
-
-
-int main(void)
-{
-    apr_status_t rv;
-    apr_pool_t *pool;
-    char errmsg[200];
-
-    apr_initialize();
-    
-    printf("APR Resource List Test\n");
-    printf("======================\n\n");
-
-    printf("Initializing the pool............................"); 
-    if (apr_pool_create(&pool, NULL) != APR_SUCCESS) {
-        printf("could not initialize pool\n");
-        exit(-1);
-    }
-    printf("OK\n");
-
-    rv = test_reslist(pool);
-    if (rv != APR_SUCCESS) {
-        printf("Resource list test FAILED: [%d] %s\n",
-               rv, apr_strerror(rv, errmsg, sizeof(errmsg)));
-        exit(-2);
-    }
-    printf("Resource list test passed!\n");
-
-    return 0;
+    ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
 }
 
 #endif /* APR_HAS_THREADS */
+
+abts_suite *testreslist(abts_suite *suite)
+{
+    suite = ADD_SUITE(suite);
+
+#if APR_HAS_THREADS
+    abts_run_test(suite, test_reslist, NULL);
+#endif
+
+    return suite;
+}
