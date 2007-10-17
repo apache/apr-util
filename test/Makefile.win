@@ -1,10 +1,7 @@
-# PROGRAMS includes all test programs built on this platform.
-# STDTEST_PORTABLE
-#   test programs invoked via standard user interface, run on all platforms
-# STDTEST_NONPORTABLE
-#   test programs invoked via standard user interface, not portable
+# PROGRAMS includes typical test programs built on this platform.
+# ALL_TESTS includes every abts test to invoke with testall
 # OTHER_PROGRAMS
-#   programs such as sendfile, that have to be invoked in a special sequence
+#   programs such as dbd, that have to be invoked in a special sequence
 #   or with special parameters
 
 !IFNDEF MODEL
@@ -104,6 +101,10 @@ SHLDFLAGS = /nologo /dll /debug /subsystem:windows /incremental:no
 
 # PROGRAMS;
 
+abts.c: abts.h abts_tests.h testutil.h
+
+testutil.c: abts.h abts_tests.h testutil.h
+
 $(OUTDIR)\testall.exe: $(ALL_TESTS) $(INTDIR)\abts.obj $(PROGRAM_DEPENDENCIES)
 	$(LD) $(LDFLAGS) /out:"$@" $** $(LD_LIBS)
 	@if exist "$@.manifest" \
@@ -147,7 +148,7 @@ cleanall:
 PATH=$(OUTDIR);..\$(OUTDIR);$(API_PATH)\$(OUTDIR);$(APR_PATH)\$(OUTDIR);$(PATH)
 APR_ICONV1_PATH=$(API_PATH)\$(OUTDIR)\iconv
 
-check: $(PROGRAMS) $(OTHER_PROGAMS)
+check: $(PROGRAMS) $(OTHER_PROGRAMS)
 	@for %p in ($(PROGRAMS)) do @( \
 	    echo Testing %p && %p -v || echo %p failed \
 	)
