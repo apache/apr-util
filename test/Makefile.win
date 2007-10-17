@@ -59,7 +59,7 @@ OTHER_PROGRAMS = $(OUTDIR)\dbd.exe $(OUTDIR)\testssl.exe \
 	$(OUTDIR)\echod.exe $(OUTDIR)\sockperf.exe
 
 # bring in rules.mk for standard functionality
-ALL: $(PROGRAMS)
+ALL: $(PROGRAMS) $(OTHER_PROGRAMS)
 
 CL = cl.exe
 LD = link.exe 
@@ -149,7 +149,7 @@ APR_ICONV1_PATH=$(API_PATH)\$(OUTDIR)\iconv
 
 check: $(PROGRAMS)
 	@for %p in ($(PROGRAMS)) do @( \
-	    echo Testing %p && %p || echo %p failed \
+	    echo Testing %p && %p -v || echo %p failed \
 	)
 
 checkall: check
