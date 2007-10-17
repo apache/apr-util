@@ -125,21 +125,21 @@ typedef struct
  * @return crc32 hash of data
  * @remark The crc32 hash is not compatible with old memcached clients.
  */
-APR_DECLARE(apr_uint32_t) apr_memcache_hash(apr_memcache_t *mc,
+APU_DECLARE(apr_uint32_t) apr_memcache_hash(apr_memcache_t *mc,
                                             const char *data,
                                             apr_size_t data_len);
 
 /**
  * Pure CRC32 Hash. Used by some clients.
  */
-APR_DECLARE(apr_uint32_t) apr_memcache_hash_crc32(void *baton,
+APU_DECLARE(apr_uint32_t) apr_memcache_hash_crc32(void *baton,
                                                     const char *data,
                                                     apr_size_t data_len);
 
 /**
  * hash compatible with the standard Perl Client.
  */
-APR_DECLARE(apr_uint32_t) apr_memcache_hash_default(void *baton,
+APU_DECLARE(apr_uint32_t) apr_memcache_hash_default(void *baton,
                                                     const char *data,
                                                     apr_size_t data_len);
 
@@ -150,13 +150,13 @@ APR_DECLARE(apr_uint32_t) apr_memcache_hash_default(void *baton,
  * @return server that controls specified hash
  * @see apr_memcache_hash
  */
-APR_DECLARE(apr_memcache_server_t *) apr_memcache_find_server_hash(apr_memcache_t *mc, 
+APU_DECLARE(apr_memcache_server_t *) apr_memcache_find_server_hash(apr_memcache_t *mc, 
                                                                    const apr_uint32_t hash);
 
 /**
  * server selection compatible with the standard Perl Client.
  */
-APR_DECLARE(apr_memcache_server_t *)
+APU_DECLARE(apr_memcache_server_t *)
 apr_memcache_find_server_hash_default(void *baton,
                                       apr_memcache_t *mc, 
                                       const apr_uint32_t hash);
@@ -169,7 +169,7 @@ apr_memcache_find_server_hash_default(void *baton,
  * @warning Changing servers after startup may cause keys to go to
  * different servers.
  */
-APR_DECLARE(apr_status_t) apr_memcache_add_server(apr_memcache_t *mc,
+APU_DECLARE(apr_status_t) apr_memcache_add_server(apr_memcache_t *mc,
                                                   apr_memcache_server_t *server);
 
 
@@ -180,7 +180,7 @@ APR_DECLARE(apr_status_t) apr_memcache_add_server(apr_memcache_t *mc,
  * @param port Port of the server
  * @return Server with matching Hostname and Port, or NULL if none was found.
  */
-APR_DECLARE(apr_memcache_server_t *) apr_memcache_find_server(apr_memcache_t *mc,
+APU_DECLARE(apr_memcache_server_t *) apr_memcache_find_server(apr_memcache_t *mc,
                                                               const char *host,
                                                               apr_port_t port);
 
@@ -189,7 +189,7 @@ APR_DECLARE(apr_memcache_server_t *) apr_memcache_find_server(apr_memcache_t *mc
  * @param mc The memcache client object to use
  * @param ms Server to Activate
  */
-APR_DECLARE(apr_status_t) apr_memcache_enable_server(apr_memcache_t *mc,
+APU_DECLARE(apr_status_t) apr_memcache_enable_server(apr_memcache_t *mc,
                                                      apr_memcache_server_t *ms);
 
 
@@ -198,7 +198,7 @@ APR_DECLARE(apr_status_t) apr_memcache_enable_server(apr_memcache_t *mc,
  * @param mc The memcache client object to use
  * @param ms Server to Disable
  */
-APR_DECLARE(apr_status_t) apr_memcache_disable_server(apr_memcache_t *mc,
+APU_DECLARE(apr_status_t) apr_memcache_disable_server(apr_memcache_t *mc,
                                                       apr_memcache_server_t *ms);
 
 /**
@@ -214,7 +214,7 @@ APR_DECLARE(apr_status_t) apr_memcache_disable_server(apr_memcache_t *mc,
  * @see apr_reslist_create
  * @remark min, smax, and max are only used when APR_HAS_THREADS
  */
-APR_DECLARE(apr_status_t) apr_memcache_server_create(apr_pool_t *p,
+APU_DECLARE(apr_status_t) apr_memcache_server_create(apr_pool_t *p,
                                                      const char *host,
                                                      apr_port_t port,
                                                      apr_uint32_t min,
@@ -229,7 +229,7 @@ APR_DECLARE(apr_status_t) apr_memcache_server_create(apr_pool_t *p,
  * @param flags Not currently used
  * @param mc   location of the new memcache client object
  */
-APR_DECLARE(apr_status_t) apr_memcache_create(apr_pool_t *p,
+APU_DECLARE(apr_status_t) apr_memcache_create(apr_pool_t *p,
                                               apr_uint16_t max_servers,
                                               apr_uint32_t flags,
                                               apr_memcache_t **mc);
@@ -244,7 +244,7 @@ APR_DECLARE(apr_status_t) apr_memcache_create(apr_pool_t *p,
  * @param flags any flags set by the client for this key
  * @return 
  */
-APR_DECLARE(apr_status_t) apr_memcache_getp(apr_memcache_t *mc, 
+APU_DECLARE(apr_status_t) apr_memcache_getp(apr_memcache_t *mc, 
                                             apr_pool_t *p,
                                             const char* key,
                                             char **baton,
@@ -260,7 +260,7 @@ APR_DECLARE(apr_status_t) apr_memcache_getp(apr_memcache_t *mc,
  * @param values hash of keys and values that this key will be added to
  * @return
  */
-APR_DECLARE(void) 
+APU_DECLARE(void) 
 apr_memcache_add_multget_key(apr_pool_t *data_pool,
                              const char* key,
                              apr_hash_t **values);
@@ -275,7 +275,7 @@ apr_memcache_add_multget_key(apr_pool_t *data_pool,
  *        result of the multiget call.
  * @return
  */
-APR_DECLARE(apr_status_t)
+APU_DECLARE(apr_status_t)
 apr_memcache_multgetp(apr_memcache_t *mc,
                       apr_pool_t *temp_pool,
                       apr_pool_t *data_pool,
@@ -290,7 +290,7 @@ apr_memcache_multgetp(apr_memcache_t *mc,
  * @param timeout time in seconds for the data to live on the server
  * @param flags any flags set by the client for this key
  */
-APR_DECLARE(apr_status_t) apr_memcache_set(apr_memcache_t *mc,
+APU_DECLARE(apr_status_t) apr_memcache_set(apr_memcache_t *mc,
                                            const char *key,
                                            char *baton,
                                            const apr_size_t data_size,
@@ -308,7 +308,7 @@ APR_DECLARE(apr_status_t) apr_memcache_set(apr_memcache_t *mc,
  * @return APR_SUCCESS if the key was added, APR_EEXIST if the key 
  * already exists on the server.
  */
-APR_DECLARE(apr_status_t) apr_memcache_add(apr_memcache_t *mc,
+APU_DECLARE(apr_status_t) apr_memcache_add(apr_memcache_t *mc,
                                            const char *key,
                                            char *baton,
                                            const apr_size_t data_size,
@@ -326,7 +326,7 @@ APR_DECLARE(apr_status_t) apr_memcache_add(apr_memcache_t *mc,
  * @return APR_SUCCESS if the key was added, APR_EEXIST if the key 
  * did not exist on the server.
  */
-APR_DECLARE(apr_status_t) apr_memcache_replace(apr_memcache_t *mc,
+APU_DECLARE(apr_status_t) apr_memcache_replace(apr_memcache_t *mc,
                                                const char *key,
                                                char *data,
                                                const apr_size_t data_size,
@@ -338,7 +338,7 @@ APR_DECLARE(apr_status_t) apr_memcache_replace(apr_memcache_t *mc,
  * @param key   null terminated string containing the key
  * @param timeout time for the delete to stop other clients from adding
  */
-APR_DECLARE(apr_status_t) apr_memcache_delete(apr_memcache_t *mc,
+APU_DECLARE(apr_status_t) apr_memcache_delete(apr_memcache_t *mc,
                                               const char *key,
                                               apr_uint32_t timeout);
 
@@ -349,7 +349,7 @@ APR_DECLARE(apr_status_t) apr_memcache_delete(apr_memcache_t *mc,
  * @param n     number to increment by
  * @param nv    new value after incrmenting
  */
-APR_DECLARE(apr_status_t) apr_memcache_incr(apr_memcache_t *mc, 
+APU_DECLARE(apr_status_t) apr_memcache_incr(apr_memcache_t *mc, 
                                             const char *key,
                                             apr_int32_t n,
                                             apr_uint32_t *nv);
@@ -361,7 +361,7 @@ APR_DECLARE(apr_status_t) apr_memcache_incr(apr_memcache_t *mc,
  * @param n     number to decrement by
  * @param nv    new value after decrementing
  */
-APR_DECLARE(apr_status_t) apr_memcache_decr(apr_memcache_t *mc, 
+APU_DECLARE(apr_status_t) apr_memcache_decr(apr_memcache_t *mc, 
                                             const char *key,
                                             apr_int32_t n,
                                             apr_uint32_t *new_value);
@@ -373,7 +373,7 @@ APR_DECLARE(apr_status_t) apr_memcache_decr(apr_memcache_t *mc,
  * @param baton location to store server version string
  * @param len   length of the server version string
  */
-APR_DECLARE(apr_status_t) apr_memcache_version(apr_memcache_server_t *ms,
+APU_DECLARE(apr_status_t) apr_memcache_version(apr_memcache_server_t *ms,
                                                apr_pool_t *p,
                                                char **baton);
 
@@ -432,7 +432,7 @@ typedef struct
  * @param p     Pool to allocate answer from
  * @param stats location of the new statistics structure
  */
-APR_DECLARE(apr_status_t) apr_memcache_stats(apr_memcache_server_t *ms, 
+APU_DECLARE(apr_status_t) apr_memcache_stats(apr_memcache_server_t *ms, 
                                              apr_pool_t *p,
                                              apr_memcache_stats_t **stats);
 
