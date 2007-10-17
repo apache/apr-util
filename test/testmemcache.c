@@ -105,6 +105,23 @@ apr_memcache_server_t *my_server_func(void *baton,
   return ms;
 }
 
+apr_uint16_t firsttime = 0;
+int randval(apr_uint32_t high)
+{
+    apr_uint32_t i = 0;
+    double d = 0;
+
+    if (firsttime == 0) {
+	srand((unsigned) (getpid()));
+	firsttime = 1;
+    }
+
+    d = (double) rand() / ((double) RAND_MAX + 1);
+    i = (int) (d * (high - 0 + 1));
+
+    return i > 0 ? i : 1;
+}
+
 /*
  * general test to make sure we can create the memcache struct and add
  * some servers, but not more than we tell it we can add
@@ -160,15 +177,30 @@ static void test_memcache_create(abts_case * tc, void *data)
 
 /* install our own custom hashing and server selection routines. */
 
+int create_test_hash(apr_pool_t *p, apr_hash_t *h)
+{
+  int i;
+  
+  for (i = 0; i < TDATA_SIZE; i++) {
+    char *k, *v;
+    
+    k = apr_pstrcat(p, prefix, apr_itoa(p, i), NULL);
+    v = apr_pstrndup(p, txt, randval(strlen(txt)));
+    
+    apr_hash_set(h, k, APR_HASH_KEY_STRING, v);
+  }
+
+  return i;
+}
+
 static void test_memcache_user_funcs(abts_case * tc, void *data)
 {
   apr_pool_t *pool = p;
   apr_status_t rv;
   apr_memcache_t *memcache;
-  apr_memcache_server_t *found, *server1, *server2;
+  apr_memcache_server_t *found;
   apr_uint32_t max_servers = 10;
   apr_uint32_t hres;
-  apr_port_t port;
   apr_uint32_t i;
   my_hash_server_baton *baton = 
     apr_pcalloc(pool, sizeof(my_hash_server_baton));
@@ -273,7 +305,6 @@ static void test_memcache_meta(abts_case * tc, void *data)
 static void test_memcache_addreplace(abts_case * tc, void *data)
 {
  apr_pool_t *pool = p;
- apr_pool_t *tmppool;
  apr_status_t rv;
  apr_memcache_t *memcache;
  apr_memcache_server_t *server;
@@ -281,7 +312,6 @@ static void test_memcache_addreplace(abts_case * tc, void *data)
  apr_hash_index_t *hi;
  char *result;
  apr_size_t len;
- apr_uint32_t i;
 
   rv = apr_memcache_create(pool, 1, 0, &memcache);
   ABTS_ASSERT(tc, "memcache create failed", rv == APR_SUCCESS);
@@ -438,7 +468,6 @@ static void test_memcache_multiget(abts_case * tc, void *data)
   
   for (hi = apr_hash_first(p, tdata); hi; hi = apr_hash_next(hi)) {
     const void *k;
-    void *v;
     const char *key;
     
     apr_hash_this(hi, &k, NULL, NULL);
@@ -460,10 +489,8 @@ static void test_memcache_setget(abts_case * tc, void *data)
     apr_memcache_server_t *server;
     apr_hash_t *tdata, *values;
     apr_hash_index_t *hi;
-    char *result, *k;
+    char *result;
     apr_size_t len;
-    apr_uint16_t flags;
-    apr_uint32_t i;
 
     rv = apr_memcache_create(pool, 1, 0, &memcache);
     ABTS_ASSERT(tc, "memcache create failed", rv == APR_SUCCESS);
@@ -499,7 +526,6 @@ static void test_memcache_setget(abts_case * tc, void *data)
 
     for (hi = apr_hash_first(p, tdata); hi; hi = apr_hash_next(hi)) {
 	const void *k;
-	void *v;
 	const char *key;
 
 	apr_hash_this(hi, &k, NULL, NULL);
@@ -508,40 +534,6 @@ static void test_memcache_setget(abts_case * tc, void *data)
 	rv = apr_memcache_delete(memcache, key, 0);
 	ABTS_ASSERT(tc, "delete failed", rv == APR_SUCCESS);
     }
-}
-
-int create_test_hash(apr_pool_t *p, apr_hash_t *h)
-{
-  apr_status_t rv;
-  int i;
-  
-  for (i = 0; i < TDATA_SIZE; i++) {
-    char *k, *v;
-    
-    k = apr_pstrcat(p, prefix, apr_itoa(p, i), NULL);
-    v = apr_pstrndup(p, txt, randval(strlen(txt)));
-    
-    apr_hash_set(h, k, APR_HASH_KEY_STRING, v);
-  }
-
-  return i;
-}
-
-apr_uint16_t firsttime = 0;
-int randval(apr_uint32_t high)
-{
-    apr_uint32_t i = 0;
-    double d = 0;
-
-    if (firsttime == 0) {
-	srand((unsigned) (getpid()));
-	firsttime = 1;
-    }
-
-    d = (double) rand() / ((double) RAND_MAX + 1);
-    i = (int) (d * (high - 0 + 1));
-
-    return i > 0 ? i : 1;
 }
 
 /* use apr_socket stuff to see if there is in fact a memcached server 
