@@ -235,13 +235,15 @@ SOURCE=.\ldap\apr_ldap_url.c
 SOURCE=.\ldap\apr_ldap_option.c
 # End Source File
 # End Group
+# Begin Group "memcache"
+# Begin Source File
+
+SOURCE=.\memcache\apr_memcache.c
+# End Source File
+# End Group
 # Begin Group "misc"
 
 # PROP Default_Filter ""
-# Begin Source File
-
-SOURCE=.\misc\apr_thread_pool.c
-# End Source File
 # Begin Source File
 
 SOURCE=.\misc\apr_date.c
@@ -257,6 +259,10 @@ SOURCE=.\misc\apr_reslist.c
 # Begin Source File
 
 SOURCE=.\misc\apr_rmm.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\misc\apr_thread_pool.c
 # End Source File
 # Begin Source File
 
@@ -544,6 +550,10 @@ SOURCE=.\include\apr_md5.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\apr_memcache.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\apr_optional.h
 # End Source File
 # Begin Source File
@@ -573,6 +583,10 @@ SOURCE=.\include\apr_sha1.h
 # Begin Source File
 
 SOURCE=.\include\apr_strmatch.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\misc\apr_thread_pool.h
 # End Source File
 # Begin Source File
 
