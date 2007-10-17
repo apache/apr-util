@@ -142,8 +142,6 @@ clean: cleandata
 cleanall: 
 	@for %d in ($(CLEAN_BUILDDIRS) $(INTDIR) $(OUTDIR)) do \
 	    @if EXIST %d\. rmdir /s /q %d
-	@for %d in ($(TEST_SUBDIRS)) do \
-	    %COMSPEC% /c "cd %%d & $(MAKE) -f Makefile.win cleanall" \
 
 
 PATH=$(OUTDIR);..\$(OUTDIR);$(API_PATH)\$(OUTDIR);$(APR_PATH)\$(OUTDIR);$(PATH)
