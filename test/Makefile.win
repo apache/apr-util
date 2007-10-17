@@ -1,10 +1,7 @@
-# PROGRAMS includes all test programs built on this platform.
-# STDTEST_PORTABLE
-#   test programs invoked via standard user interface, run on all platforms
-# STDTEST_NONPORTABLE
-#   test programs invoked via standard user interface, not portable
+# PROGRAMS includes typical test programs built on this platform.
+# ALL_TESTS includes every abts test to invoke with testall
 # OTHER_PROGRAMS
-#   programs such as sendfile, that have to be invoked in a special sequence
+#   programs such as dbd, that have to be invoked in a special sequence
 #   or with special parameters
 
 !IFNDEF MODEL
@@ -58,7 +55,7 @@ PROGRAMS = $(OUTDIR)\testall.exe
 OTHER_PROGRAMS = $(OUTDIR)\dbd.exe
 
 # bring in rules.mk for standard functionality
-ALL: $(PROGRAMS)
+ALL: $(PROGRAMS) $(OTHER_PROGRAMS)
 
 CL = cl.exe
 LD = link.exe 
@@ -103,10 +100,16 @@ SHLDFLAGS = /nologo /dll /debug /subsystem:windows /incremental:no
 
 # PROGRAMS;
 
+abts.c: abts.h abts_tests.h testutil.h
+
+testutil.c: abts.h abts_tests.h testutil.h
+
 $(OUTDIR)\testall.exe: $(ALL_TESTS) $(INTDIR)\abts.obj $(PROGRAM_DEPENDENCIES)
 	$(LD) $(LDFLAGS) /out:"$@" $** $(LD_LIBS)
 	@if exist "$@.manifest" \
 	    mt.exe -manifest "$@.manifest" -outputresource:$@;1
+
+# OTHER_PROGRAMS;
 
 $(OUTDIR)\dbd.exe: $(INTDIR)\dbd.obj $(PROGRAM_DEPENDENCIES)
 	$(LD) $(LDFLAGS) /out:"$@" $** $(LD_LIBS)
