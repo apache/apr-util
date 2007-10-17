@@ -53,8 +53,6 @@ CLEAN_DATA = manyfile.bin testfile.txt data\sqlite*.db
 
 CLEAN_BUILDDIRS = Debug Release LibD LibR 9x x64
 
-TEST_SUBDIRS = internal
-
 PROGRAMS = $(OUTDIR)\testall.exe
 
 OTHER_PROGRAMS = $(OUTDIR)\dbd.exe $(OUTDIR)\testssl.exe \
@@ -140,8 +138,6 @@ cleandata:
 clean: cleandata
 	@if EXIST $(INTDIR)\. rmdir /s /q $(INTDIR)
 	@if EXIST $(OUTDIR)\. rmdir /s /q $(OUTDIR)
-	@for %d in ($(TEST_SUBDIRS)) do \
-	    %COMSPEC% /c "cd %%d && $(MAKE) -f Makefile.win clean" \
 
 cleanall: 
 	@for %d in ($(CLEAN_BUILDDIRS) $(INTDIR) $(OUTDIR)) do \
@@ -159,7 +155,5 @@ check: $(PROGRAMS)
 	)
 
 checkall: check
-	@for %d in ($(TEST_SUBDIRS)) do \
-	    %COMSPEC% /c "cd %%d && $(MAKE) -f Makefile.win check" \
 
 # DO NOT REMOVE
