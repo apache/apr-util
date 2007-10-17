@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "apr_general.h"
 #include "apu.h"
 #include "apr_reslist.h"
 #include "apr_thread_pool.h"
@@ -50,6 +51,15 @@ typedef struct {
 typedef struct {
     int id;
 } my_resource_t;
+
+/* Linear congruential generator */
+static apr_uint32_t lgc(apr_uint32_t a)
+{
+    apr_uint64_t z = a;
+    z *= 279470273;
+    z %= APR_UINT64_C(4294967291);
+    return (apr_uint32_t)z;
+}
 
 static apr_status_t my_constructor(void **resource, void *params,
                                    apr_pool_t *pool)
@@ -88,15 +98,20 @@ typedef struct {
     apr_interval_time_t work_delay_sleep;
 } my_thread_info_t;
 
+#define PERCENT95th ( ( 2u^31 / 10u ) * 19u )
+
 static void * APR_THREAD_FUNC resource_consuming_thread(apr_thread_t *thd,
                                                         void *data)
 {
     int i;
+    apr_uint32_t chance;
     void *vp;
     apr_status_t rv;
     my_resource_t *res;
     my_thread_info_t *thread_info = data;
     apr_reslist_t *rl = thread_info->reslist;
+
+    apr_generate_random_bytes((void*)&chance, sizeof(chance));
 
     for (i = 0; i < CONSUMER_ITERATIONS; i++) {
         rv = apr_reslist_acquire(rl, &vp);
@@ -105,13 +120,14 @@ static void * APR_THREAD_FUNC resource_consuming_thread(apr_thread_t *thd,
         apr_sleep(thread_info->work_delay_sleep);
 
         /* simulate a 5% chance of the resource being bad */
-        if (drand48() < 0.95) {
-           rv = apr_reslist_release(rl, res);
-           ABTS_INT_EQUAL(thread_info->tc, rv, APR_SUCCESS);
-       } else {
-           rv = apr_reslist_invalidate(rl, res);
-           ABTS_INT_EQUAL(thread_info->tc, rv, APR_SUCCESS);
-       }
+        chance = lgc(chance);
+        if ( chance < PERCENT95th ) {
+            rv = apr_reslist_release(rl, res);
+            ABTS_INT_EQUAL(thread_info->tc, rv, APR_SUCCESS);
+        } else {
+            rv = apr_reslist_invalidate(rl, res);
+            ABTS_INT_EQUAL(thread_info->tc, rv, APR_SUCCESS);
+        }
     }
 
     return APR_SUCCESS;
@@ -202,9 +218,6 @@ static void test_reslist(abts_case *tc, void *data)
     my_parameters_t *params;
     apr_thread_pool_t *thrp;
     my_thread_info_t thread_info[CONSUMER_THREADS];
-
-    /* XXX: non-portable */
-    srand48(time(0));
 
     rv = apr_thread_pool_create(&thrp, CONSUMER_THREADS/2, CONSUMER_THREADS, p);
     ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
