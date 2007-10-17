@@ -130,6 +130,8 @@ LIB32=link.exe -lib
 
 # Name "xml - Win32 Release"
 # Name "xml - Win32 Debug"
+# Name "xml - x64 Release"
+# Name "xml - x64 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
