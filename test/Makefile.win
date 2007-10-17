@@ -53,7 +53,7 @@ CLEAN_DATA = manyfile.bin testfile.txt data\sqlite*.db
 
 CLEAN_BUILDDIRS = Debug Release LibD LibR 9x x64
 
-PROGRAMS = $(OUTDIR)\testall.exe \
+PROGRAMS = $(OUTDIR)\testall.exe
 
 OTHER_PROGRAMS = $(OUTDIR)\dbd.exe
 
@@ -129,11 +129,13 @@ cleanall:
 PATH=$(OUTDIR);..\$(OUTDIR);$(API_PATH)\$(OUTDIR);$(APR_PATH)\$(OUTDIR);$(PATH)
 APR_ICONV1_PATH=$(API_PATH)\$(OUTDIR)\iconv
 
-check: $(PROGRAMS)
+check: $(PROGRAMS) $(OTHER_PROGRAMS)
 	@for %p in ($(PROGRAMS)) do @( \
-	    echo Testing %p && %p || echo %p failed \
+	    echo Testing %p && %p -v || echo %p failed \
 	)
-
+	echo Testing dbd sqlite2 && $(OUTDIR)\dbd.exe sqlite2 || echo Failed
+	echo Testing dbd sqlite3 && $(OUTDIR)\dbd.exe sqlite3 || echo Failed
+	
 checkall: check
 
 # DO NOT REMOVE
