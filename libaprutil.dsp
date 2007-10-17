@@ -258,6 +258,10 @@ SOURCE=.\dbd\apr_dbd.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\dbd\apr_dbd_mysql.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\dbd\apr_dbd_pgsql.c
 # End Source File
 # Begin Source File
