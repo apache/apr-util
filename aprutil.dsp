@@ -287,6 +287,8 @@ SOURCE=.\ldap\apr_ldap_option.c
 # End Source File
 # End Group
 # Begin Group "memcache"
+
+# PROP Default_Filter ""
 # Begin Source File
 
 SOURCE=.\memcache\apr_memcache.c
@@ -670,10 +672,6 @@ SOURCE=.\include\apr_base64.h
 # Begin Source File
 
 SOURCE=.\include\apr_buckets.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\apr_thread_pool.h
 # End Source File
 # Begin Source File
 
