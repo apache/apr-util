@@ -389,6 +389,26 @@ SOURCE=.\dbm\sdbm\sdbm_private.h
 SOURCE=.\dbm\sdbm\sdbm_tune.h
 # End Source File
 # End Group
+# Begin Group "ssl"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\ssl\apr_ssl.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssl\apr_ssl_openssl.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssl\apr_ssl_socket.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\ssl\apr_ssl_winsock.c
+# End Source File
+# End Group
 # Begin Group "strmatch"
 
 # PROP Default_Filter ""
@@ -763,6 +783,10 @@ SOURCE=.\include\apr_sdbm.h
 # Begin Source File
 
 SOURCE=.\include\apr_sha1.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\apr_ssl.h
 # End Source File
 # Begin Source File
 
