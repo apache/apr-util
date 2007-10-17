@@ -136,7 +136,7 @@ static apr_uint32_t lgc(apr_uint32_t a)
     apr_uint64_t z = a;
     z *= 279470273;
     z %= APR_UINT64_C(4294967291);
-    return z;
+    return (apr_uint32_t)z;
 }
 
 static void test_date_parse_http(abts_case *tc, void *data)
@@ -158,7 +158,7 @@ static void test_date_parse_http(abts_case *tc, void *data)
     apr_generate_random_bytes((unsigned char *)&guess, sizeof(guess));
 
     for (i = 0; i < 10000; ++i) {
-        guess = lgc(guess);
+        guess = (time_t)lgc((apr_uint32_t)guess);
         if (guess < 0)
             guess *= -1;
         secstodate = guess + offset;
