@@ -129,7 +129,7 @@ static apr_status_t make_server_live(apr_memcache_t *mc, apr_memcache_server_t *
 }
 
 
-APR_DECLARE(apr_status_t) apr_memcache_add_server(apr_memcache_t *mc, apr_memcache_server_t *ms)
+APU_DECLARE(apr_status_t) apr_memcache_add_server(apr_memcache_t *mc, apr_memcache_server_t *ms)
 {
     apr_status_t rv = APR_SUCCESS;
 
@@ -145,7 +145,7 @@ APR_DECLARE(apr_status_t) apr_memcache_add_server(apr_memcache_t *mc, apr_memcac
 
 static apr_status_t mc_version_ping(apr_memcache_server_t *ms);
 
-APR_DECLARE(apr_memcache_server_t *) 
+APU_DECLARE(apr_memcache_server_t *) 
 apr_memcache_find_server_hash(apr_memcache_t *mc, const apr_uint32_t hash)
 {
     if (mc->server_func) {
@@ -156,7 +156,7 @@ apr_memcache_find_server_hash(apr_memcache_t *mc, const apr_uint32_t hash)
     }
 }   
 
-APR_DECLARE(apr_memcache_server_t *) 
+APU_DECLARE(apr_memcache_server_t *) 
 apr_memcache_find_server_hash_default(void *baton, apr_memcache_t *mc,
                                       const apr_uint32_t hash)
 {
@@ -207,7 +207,7 @@ apr_memcache_find_server_hash_default(void *baton, apr_memcache_t *mc,
     return ms;
 }
 
-APR_DECLARE(apr_memcache_server_t *) apr_memcache_find_server(apr_memcache_t *mc, const char *host, apr_port_t port)
+APU_DECLARE(apr_memcache_server_t *) apr_memcache_find_server(apr_memcache_t *mc, const char *host, apr_port_t port)
 {
     int i;
 
@@ -250,7 +250,7 @@ static apr_status_t ms_release_conn(apr_memcache_server_t *ms, apr_memcache_conn
 #endif
 }
 
-APR_DECLARE(apr_status_t) apr_memcache_enable_server(apr_memcache_t *mc, apr_memcache_server_t *ms)
+APU_DECLARE(apr_status_t) apr_memcache_enable_server(apr_memcache_t *mc, apr_memcache_server_t *ms)
 {
     apr_status_t rv = APR_SUCCESS;
 
@@ -262,7 +262,7 @@ APR_DECLARE(apr_status_t) apr_memcache_enable_server(apr_memcache_t *mc, apr_mem
     return rv;
 }
 
-APR_DECLARE(apr_status_t) apr_memcache_disable_server(apr_memcache_t *mc, apr_memcache_server_t *ms)
+APU_DECLARE(apr_status_t) apr_memcache_disable_server(apr_memcache_t *mc, apr_memcache_server_t *ms)
 {
     return make_server_dead(mc, ms);
 }
@@ -363,7 +363,7 @@ mc_conn_destruct(void *conn_, void *params, apr_pool_t *pool)
     return APR_SUCCESS;
 }
 
-APR_DECLARE(apr_status_t) apr_memcache_server_create(apr_pool_t *p, 
+APU_DECLARE(apr_status_t) apr_memcache_server_create(apr_pool_t *p, 
                                                      const char *host, apr_port_t port, 
                                                      apr_uint32_t min, apr_uint32_t smax,
                                                      apr_uint32_t max, apr_uint32_t ttl,
@@ -408,7 +408,7 @@ APR_DECLARE(apr_status_t) apr_memcache_server_create(apr_pool_t *p,
     return rv;
 }
 
-APR_DECLARE(apr_status_t) apr_memcache_create(apr_pool_t *p,
+APU_DECLARE(apr_status_t) apr_memcache_create(apr_pool_t *p,
                                               apr_uint16_t max_servers, apr_uint32_t flags,
                                               apr_memcache_t **memcache) 
 {
@@ -502,7 +502,7 @@ static const apr_uint32_t crc32tab[256] = {
   0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d,
 };
 
-APR_DECLARE(apr_uint32_t) apr_memcache_hash_crc32(void *baton, 
+APU_DECLARE(apr_uint32_t) apr_memcache_hash_crc32(void *baton, 
                                                     const char *data,
                                                     const apr_size_t data_len)
 {
@@ -516,7 +516,7 @@ APR_DECLARE(apr_uint32_t) apr_memcache_hash_crc32(void *baton,
     return ~crc;
 }
 
-APR_DECLARE(apr_uint32_t) apr_memcache_hash_default(void *baton, 
+APU_DECLARE(apr_uint32_t) apr_memcache_hash_default(void *baton, 
                                                     const char *data,
                                                     const apr_size_t data_len)
 {
@@ -526,7 +526,7 @@ APR_DECLARE(apr_uint32_t) apr_memcache_hash_default(void *baton,
     return ((apr_memcache_hash_crc32(baton, data, data_len) >> 16) & 0x7fff);
 }
 
-APR_DECLARE(apr_uint32_t) apr_memcache_hash(apr_memcache_t *mc,
+APU_DECLARE(apr_uint32_t) apr_memcache_hash(apr_memcache_t *mc,
                                             const char *data,
                                             const apr_size_t data_len)
 {
@@ -645,7 +645,7 @@ static apr_status_t storage_cmd_write(apr_memcache_t *mc,
     return rv;
 }
 
-APR_DECLARE(apr_status_t)
+APU_DECLARE(apr_status_t)
 apr_memcache_set(apr_memcache_t *mc,
                  const char *key,
                  char *data,
@@ -660,7 +660,7 @@ apr_memcache_set(apr_memcache_t *mc,
                            timeout, flags);
 }
 
-APR_DECLARE(apr_status_t)
+APU_DECLARE(apr_status_t)
 apr_memcache_add(apr_memcache_t *mc,
                  const char *key,
                  char *data,
@@ -675,7 +675,7 @@ apr_memcache_add(apr_memcache_t *mc,
                            timeout, flags);
 }
 
-APR_DECLARE(apr_status_t)
+APU_DECLARE(apr_status_t)
 apr_memcache_replace(apr_memcache_t *mc,
                  const char *key,
                  char *data,
@@ -691,7 +691,7 @@ apr_memcache_replace(apr_memcache_t *mc,
 
 }
 
-APR_DECLARE(apr_status_t)
+APU_DECLARE(apr_status_t)
 apr_memcache_getp(apr_memcache_t *mc,
                   apr_pool_t *p,
                   const char *key,
@@ -828,7 +828,7 @@ apr_memcache_getp(apr_memcache_t *mc,
     return rv;
 }
 
-APR_DECLARE(apr_status_t)
+APU_DECLARE(apr_status_t)
 apr_memcache_delete(apr_memcache_t *mc,
                     const char *key,
                     apr_uint32_t timeout)
@@ -967,7 +967,7 @@ static apr_status_t num_cmd_write(apr_memcache_t *mc,
     return rv;
 }
 
-APR_DECLARE(apr_status_t)
+APU_DECLARE(apr_status_t)
 apr_memcache_incr(apr_memcache_t *mc,
                     const char *key,
                     apr_int32_t inc,
@@ -982,7 +982,7 @@ apr_memcache_incr(apr_memcache_t *mc,
 }
 
 
-APR_DECLARE(apr_status_t)
+APU_DECLARE(apr_status_t)
 apr_memcache_decr(apr_memcache_t *mc,
                     const char *key,
                     apr_int32_t inc,
@@ -998,7 +998,7 @@ apr_memcache_decr(apr_memcache_t *mc,
 
 
 
-APR_DECLARE(apr_status_t)
+APU_DECLARE(apr_status_t)
 apr_memcache_version(apr_memcache_server_t *ms,
                   apr_pool_t *p,
                   char **baton)
@@ -1081,7 +1081,7 @@ apr_status_t mc_version_ping(apr_memcache_server_t *ms)
 }
 
 
-APR_DECLARE(void) 
+APU_DECLARE(void) 
 apr_memcache_add_multget_key(apr_pool_t *data_pool,
                              const char* key,
                              apr_hash_t **values)
@@ -1136,7 +1136,7 @@ static void mget_conn_result(int up,
     apr_hash_set(server_queries, &ms, sizeof(ms), NULL);
 }
 
-APR_DECLARE(apr_status_t)
+APU_DECLARE(apr_status_t)
 apr_memcache_multgetp(apr_memcache_t *mc,
                       apr_pool_t *temp_pool,
                       apr_pool_t *data_pool,
@@ -1598,7 +1598,7 @@ static void update_stats(apr_pool_t *p, apr_memcache_conn_t *conn,
     else mc_do_stat(threads, uint32)
 }
 
-APR_DECLARE(apr_status_t)
+APU_DECLARE(apr_status_t)
 apr_memcache_stats(apr_memcache_server_t *ms,
                   apr_pool_t *p,
                   apr_memcache_stats_t **stats) 
