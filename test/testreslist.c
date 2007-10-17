@@ -16,9 +16,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "apr_general.h"
 #include "apr_reslist.h"
 #include "apr_thread_proc.h"
-
+#if APR_HAVE_LIMITS_H
+#include <limits.h>
+#elif APR_HAVE_SYS_SYSLIMITS_H
+#include <sys/syslimits.h>
+#endif
 #if APR_HAVE_TIME_H
 #include <time.h>
 #endif /* APR_HAVE_TIME_H */
@@ -53,6 +58,15 @@ typedef struct {
 typedef struct {
     int id;
 } my_resource_t;
+
+/* Linear congruential generator */
+static apr_uint32_t lgc(apr_uint32_t a)
+{
+    apr_uint64_t z = a;
+    z *= 279470273;
+    z %= APR_UINT64_C(4294967291);
+    return (apr_uint32_t)z;
+}
 
 static apr_status_t my_constructor(void **resource, void *params,
                                    apr_pool_t *pool)
@@ -95,13 +109,18 @@ typedef struct {
     apr_interval_time_t work_delay_sleep;
 } my_thread_info_t;
 
+#define PERCENT95th ( ( 2u^31 / 10u ) * 19u )
+
 static void * APR_THREAD_FUNC resource_consuming_thread(apr_thread_t *thd,
                                                         void *data)
 {
     apr_status_t rv;
     my_thread_info_t *thread_info = data;
     apr_reslist_t *rl = thread_info->reslist;
+    apr_uint32_t chance;
     int i;
+
+    apr_generate_random_bytes((void*)&chance, sizeof(chance));
 
     for (i = 0; i < CONSUMER_ITERATIONS; i++) {
         my_resource_t *res;
@@ -116,17 +135,18 @@ static void * APR_THREAD_FUNC resource_consuming_thread(apr_thread_t *thd,
         printf("  [tid:%d,iter:%d] using resource id:%d\n", thread_info->tid,
                i, res->id);
         apr_sleep(thread_info->work_delay_sleep);
-/* simulate a 5% chance of the resource being bad */
-        if ( drand48() < 0.95 ) {
-           rv = apr_reslist_release(rl, res);
+        /* simulate a 5% chance of the resource being bad */
+        chance = lgc(chance);
+        if ( chance < PERCENT95th ) {
+            rv = apr_reslist_release(rl, res);
             if (rv != APR_SUCCESS) {
                 fprintf(stderr, "Failed to return resource to reslist\n");
                 apr_thread_exit(thd, rv);
                 return NULL;
             }
        } else {
-           printf("invalidating resource id:%d\n", res->id) ;
-           rv = apr_reslist_invalidate(rl, res);
+            printf("invalidating resource id:%d\n", res->id) ;
+            rv = apr_reslist_invalidate(rl, res);
             if (rv != APR_SUCCESS) {
                 fprintf(stderr, "Failed to invalidate resource\n");
                 apr_thread_exit(thd, rv);
@@ -248,7 +268,6 @@ static apr_status_t test_reslist(apr_pool_t *parpool)
     int i;
     apr_thread_t *my_threads[CONSUMER_THREADS];
     my_thread_info_t my_thread_info[CONSUMER_THREADS];
-    srand48(time(0)) ;
 
     printf("Creating child pool.......................");
     rv = apr_pool_create(&pool, parpool);
