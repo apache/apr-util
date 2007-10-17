@@ -77,7 +77,7 @@ LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo /out:"LibD\xml.lib"
 
-!IF  "$(CFG)" == "xml - x64 Release"
+!ELSEIF  "$(CFG)" == "xml - x64 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
