@@ -322,6 +322,8 @@ SOURCE=.\ldap\apr_ldap_option.c
 # End Source File 
 # End Group
 # Begin Group "memcache"
+
+# PROP Default_Filter ""
 # Begin Source File
 
 SOURCE=.\memcache\apr_memcache.c
@@ -795,6 +797,5 @@ SOURCE=.\include\apu_version.h
 
 SOURCE=.\libaprutil.rc
 # End Source File
-
 # End Target
 # End Project
