@@ -726,15 +726,15 @@ SOURCE=.\include\apr_ldap_url.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\apr_memcache.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\include\apr_md4.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\include\apr_md5.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\apr_memcache.h
 # End Source File
 # Begin Source File
 
@@ -770,7 +770,7 @@ SOURCE=.\include\apr_strmatch.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\misc\apr_thread_pool.h
+SOURCE=.\include\apr_thread_pool.h
 # End Source File
 # Begin Source File
 

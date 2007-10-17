@@ -191,11 +191,11 @@ SOURCE=.\testdate.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\testdbm.c
+SOURCE=.\testdbd.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\testdbd.c
+SOURCE=.\testdbm.c
 # End Source File
 # Begin Source File
 

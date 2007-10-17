@@ -735,7 +735,7 @@ SOURCE=.\include\apr_strmatch.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\misc\apr_thread_pool.h
+SOURCE=.\include\apr_thread_pool.h
 # End Source File
 # Begin Source File
 
@@ -752,6 +752,10 @@ SOURCE=.\include\apr_xlate.h
 # Begin Source File
 
 SOURCE=.\include\apr_xml.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\apu_version.h
 # End Source File
 # End Group
 # End Target
