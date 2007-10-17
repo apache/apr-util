@@ -110,47 +110,7 @@ $(OUTDIR)\testall.exe: $(ALL_TESTS) $(INTDIR)\abts.obj $(PROGRAM_DEPENDENCIES)
 	@if exist "$@.manifest" \
 	    mt.exe -manifest "$@.manifest" -outputresource:$@;1
 
-$(OUTDIR)\testdbm.exe: $(INTDIR)\testdbm.obj $(PROGRAM_DEPENDENCIES)
-	$(LD) $(LDFLAGS) /out:"$@" $** $(LD_LIBS)
-	@if exist "$@.manifest" \
-	    mt.exe -manifest "$@.manifest" -outputresource:$@;1
-
 $(OUTDIR)\dbd.exe: $(INTDIR)\dbd.obj $(PROGRAM_DEPENDENCIES)
-	$(LD) $(LDFLAGS) /out:"$@" $** $(LD_LIBS)
-	@if exist "$@.manifest" \
-	    mt.exe -manifest "$@.manifest" -outputresource:$@;1
-
-$(OUTDIR)\testdbd.exe: $(INTDIR)\testdbd.obj $(PROGRAM_DEPENDENCIES)
-	$(LD) $(LDFLAGS) /out:"$@" $** $(LD_LIBS)
-	@if exist "$@.manifest" \
-	    mt.exe -manifest "$@.manifest" -outputresource:$@;1
-
-$(OUTDIR)\testdate.exe: $(INTDIR)\testdate.obj $(PROGRAM_DEPENDENCIES)
-	$(LD) $(LDFLAGS) /out:"$@" $** $(LD_LIBS)
-	@if exist "$@.manifest" \
-	    mt.exe -manifest "$@.manifest" -outputresource:$@;1
-
-$(OUTDIR)\testxml.exe: $(INTDIR)\testxml.obj $(PROGRAM_DEPENDENCIES)
-	$(LD) $(LDFLAGS) /out:"$@" $** $(LD_LIBS)
-	@if exist "$@.manifest" \
-	    mt.exe -manifest "$@.manifest" -outputresource:$@;1
-
-$(OUTDIR)\testrmm.exe: $(INTDIR)\testrmm.obj $(PROGRAM_DEPENDENCIES)
-	$(LD) $(LDFLAGS) /out:"$@" $** $(LD_LIBS)
-	@if exist "$@.manifest" \
-	    mt.exe -manifest "$@.manifest" -outputresource:$@;1
-
-$(OUTDIR)\testreslist.exe: $(INTDIR)\testreslist.obj $(PROGRAM_DEPENDENCIES)
-	$(LD) $(LDFLAGS) /out:"$@" $** $(LD_LIBS)
-	@if exist "$@.manifest" \
-	    mt.exe -manifest "$@.manifest" -outputresource:$@;1
-
-$(OUTDIR)\testqueue.exe: $(INTDIR)\testqueue.obj $(PROGRAM_DEPENDENCIES)
-	$(LD) $(LDFLAGS) /out:"$@" $** $(LD_LIBS)
-	@if exist "$@.manifest" \
-	    mt.exe -manifest "$@.manifest" -outputresource:$@;1
-
-$(OUTDIR)\testxlate.exe: $(INTDIR)\testxlate.obj $(PROGRAM_DEPENDENCIES)
 	$(LD) $(LDFLAGS) /out:"$@" $** $(LD_LIBS)
 	@if exist "$@.manifest" \
 	    mt.exe -manifest "$@.manifest" -outputresource:$@;1
@@ -175,7 +135,7 @@ cleanall:
 PATH=$(OUTDIR);..\$(OUTDIR);$(API_PATH)\$(OUTDIR);$(APR_PATH)\$(OUTDIR);$(PATH)
 APR_ICONV1_PATH=$(API_PATH)\$(OUTDIR)\iconv
 
-check: $(TESTALL_COMPONENTS) $(STDTEST_PORTABLE) $(STDTEST_NONPORTABLE)
+check: $(PROGRAMS)
 	@for %p in ($(PROGRAMS)) do @( \
 	    echo Testing %p && %p || echo %p failed \
 	)
