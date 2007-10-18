@@ -87,6 +87,13 @@
 #endif
 
 
+/*
+ * For ldap function calls that input a size limit on the number of returned elements
+ * Some SDKs do not have the define for LDAP_DEFAULT_LIMIT (-1) or LDAP_NO_LIMIT (0)
+ */
+#define APR_LDAP_SIZELIMIT LDAP_NO_LIMIT
+
+
 /* Note: Macros defining const casting has been removed in APR v1.0,
  * pending real support for LDAP v2.0 toolkits.
  *
