@@ -33,12 +33,12 @@ const struct testlist {
     {testldap},
     {testdbd},
     {testdate},
-    {testreslist},
-    {testqueue},
     {testxml},
     {testxlate},
     {testrmm},
-    {testdbm}
+    {testdbm},
+    {testqueue},
+    {testreslist}
 };
 
 #endif /* APR_TEST_INCLUDES */
