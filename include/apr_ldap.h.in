@@ -101,7 +101,7 @@
 
 /*
  * For ldap function calls that input a size limit on the number of returned elements
- * Some SDKs do not have the define for LDAP_DEFAULT_LIMIT (‑1) or LDAP_NO_LIMIT (0)
+ * Some SDKs do not have the define for LDAP_DEFAULT_LIMIT (-1) or LDAP_NO_LIMIT (0)
  */
 #if APR_HAS_ZOS_LDAPSDK
 #define APR_LDAP_SIZELIMIT LDAP_NO_LIMIT
