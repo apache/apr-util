@@ -43,14 +43,18 @@ AC_ARG_WITH(iconv,[  --with-iconv[=DIR]        path to iconv installation],
       have_iconv="0"
       want_iconv="0"
     elif test "$apu_iconv_dir" != "yes"; then
-      APR_ADDTO(CPPFLAGS,[-I$apu_iconv_dir/include])
-      APR_ADDTO(LDFLAGS,[-L$apu_iconv_dir/lib])
-    fi
-    if test -f "$apu_iconv_dir/include/api_version.h"; then
-      have_apr_iconv="1"
-      have_iconv="0"
-      APR_REMOVEFROM(LIBS,[-lapriconv])
-      AC_MSG_RESULT("Using apr-iconv")
+      if test -f "$apu_iconv_dir/include/apr-1/api_version.h"; then
+        have_apr_iconv="1"
+        have_iconv="0"
+        APR_ADDTO(APRUTIL_INCLUDES,[-I$apu_iconv_dir/include/apr-1])
+        APR_ADDTO(APRUTIL_LIBS,[$apu_iconv_dir/lib/libapriconv-1.la])
+        AC_MSG_RESULT(using apr-iconv)
+      elif test -f "$apu_iconv_dir/include/iconv.h"; then
+        have_apr_iconv="0"
+        have_iconv="1"
+        APR_ADDTO(CPPFLAGS,[-I$apu_iconv_dir/include])
+        APR_ADDTO(LDFLAGS,[-L$apu_iconv_dir/lib])
+      fi
     fi
   ])
 
