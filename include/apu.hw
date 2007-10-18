@@ -87,27 +87,23 @@
  * we always have SDBM (it's in our codebase)
  */
 #define APU_HAVE_SDBM   1
+#define APU_HAVE_NDBM   0
 #define APU_HAVE_GDBM   0
-
-/* Allow external override */
-#if !defined(APU_HAVE_DB)
 #define APU_HAVE_DB     0
+
+#if APU_HAVE_DB
+#define APU_HAVE_DB_VERSION    UNKNOWN
 #endif
 
+#define APU_HAVE_PGSQL         0
+#define APU_HAVE_MYSQL         0
+#define APU_HAVE_SQLITE2       0
+#define APU_HAVE_SQLITE3       0
+#define APU_HAVE_ORACLE        0
 
 #define APU_HAVE_APR_ICONV     1
 #define APU_HAVE_ICONV         0
 #define APR_HAS_XLATE          (APU_HAVE_APR_ICONV || APU_HAVE_ICONV)
-
-#if !defined(APU_HAVE_PGSQL)
-#define APU_HAVE_PGSQL      0
-#endif
-#if !defined(APU_HAVE_SQLITE2)
-#define APU_HAVE_SQLITE2    0
-#endif
-#if !defined(APU_HAVE_SQLITE3)
-#define APU_HAVE_SQLITE3    0
-#endif
 
 #endif /* APU_H */
 #endif /* WIN32 */
