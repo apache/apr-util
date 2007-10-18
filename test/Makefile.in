@@ -52,11 +52,6 @@ dbd_LDADD =  $(TARGET_LIB_PATH)
 dbd: $(dbd_OBJECTS) $(dbd_LDADD)
 	$(LINK_PROG) $(APRUTIL_LDFLAGS) $(dbd_OBJECTS) $(dbd_LDADD) $(PROGRAM_DEPENDENCIES)
 
-testdbd_OBJECTS = testdbd.lo
-testdbd_LDADD =  $(TARGET_LIB_PATH)
-testdbd: $(testdbd_OBJECTS) $(testdbd_LDADD)
-	$(LINK_PROG) $(APRUTIL_LDFLAGS) $(testdbd_OBJECTS) $(testdbd_LDADD) $(PROGRAM_DEPENDENCIES)
-
 testssl_OBJECTS = testssl.lo
 testssl_LDADD =  $(TARGET_LIB_PATH)
 testssl: $(testssl_OBJECTS) $(testssl_LDADD)
