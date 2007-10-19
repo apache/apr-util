@@ -122,9 +122,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name libapriconv
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libapriconv_ces_modules
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -288,6 +285,9 @@ Package=<4>
     Project_Dep_Name libapr
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name libaprapp
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name libapriconv
     End Project Dependency
     Begin Project Dependency
@@ -307,6 +307,9 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name apr
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name aprapp
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name apriconv
