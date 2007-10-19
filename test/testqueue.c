@@ -112,7 +112,7 @@ static void test_queue_producer_consumer(abts_case *tc, void *data)
         ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
     }
 
-    apr_sleep(10000000); /* sleep 10 seconds */
+    apr_sleep(5000000); /* sleep 5 seconds */
 
     rv = apr_queue_term(queue);
     ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
