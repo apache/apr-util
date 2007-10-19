@@ -207,7 +207,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "preaprutil"="..\preaprutil.dsp" - Package Owner=<4>
+Project: "preaprutil"="..\build\preaprutil.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
