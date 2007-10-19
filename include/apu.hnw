@@ -48,47 +48,46 @@
  * use the most appropriate calling convention.  Public APR functions with 
  * variable arguments must use APU_DECLARE_NONSTD().
  *
- * @deffunc APU_DECLARE(rettype) apr_func(args);
+ * @fn APU_DECLARE(rettype) apr_func(args);
  */
 #define APU_DECLARE(type)            type
 /**
  * The public APR-UTIL functions using variable arguments are declared with 
  * APU_DECLARE_NONSTD(), as they must use the C language calling convention.
  *
- * @deffunc APU_DECLARE_NONSTD(rettype) apr_func(args, ...);
+ * @fn APU_DECLARE_NONSTD(rettype) apr_func(args, ...);
  */
 #define APU_DECLARE_NONSTD(type)     type
 /**
  * The public APR-UTIL variables are declared with APU_DECLARE_DATA.
  * This assures the appropriate indirection is invoked at compile time.
  *
- * @deffunc APU_DECLARE_DATA type apr_variable;
- * @tip APU_DECLARE_DATA extern type apr_variable; syntax is required for
+ * @fn APU_DECLARE_DATA type apr_variable;
+ * @note APU_DECLARE_DATA extern type apr_variable; syntax is required for
  * declarations within headers to properly import the variable.
  */
 #define APU_DECLARE_DATA
 /*
  * we always have SDBM (it's in our codebase)
  */
-#define APU_HAVE_SDBM   	1
-#define APU_HAVE_GDBM   	0
-#define APU_HAVE_DB     	0
-#define APU_HAVE_SSL		1
-#define APU_HAVE_WINSOCKSSL	1
+#define APU_HAVE_SDBM   1
+#define APU_HAVE_GDBM   0
+#define APU_HAVE_NDBM   0
+#define APU_HAVE_DB     0
 
-
-#define HAVE_ICONV_H           1
-#define APU_HAVE_APR_ICONV     0
-#define APU_HAVE_ICONV         1
-#define APR_HAS_XLATE          (APU_HAVE_APR_ICONV || APU_HAVE_ICONV)
-
-/*
- * check for newer NDKs which use now correctly 'const char*' with iconv.
- */
-#include <ndkvers.h>
-#if (CURRENT_NDK_THRESHOLD >= 705110000)
-#define APU_ICONV_INBUF_CONST
+#if APU_HAVE_DB
+#define APU_HAVE_DB_VERSION     0
 #endif
+
+#define APU_HAVE_PGSQL          0
+#define APU_HAVE_MYSQL          0
+#define APU_HAVE_SQLITE3        0
+#define APU_HAVE_SQLITE2        0
+#define APU_HAVE_ORACLE         0
+
+#define APU_HAVE_APR_ICONV      0
+#define APU_HAVE_ICONV          1
+#define APR_HAS_XLATE           (APU_HAVE_APR_ICONV || APU_HAVE_ICONV)
 
 #endif /* APU_H */
 /** @} */
