@@ -131,7 +131,7 @@ APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
  *  recognise CLIENT_FOUND_ROWS (check MySQL manual for details). The value
  *  associated with "fldsz" determines maximum amount of memory (in bytes) for
  *  each of the fields in the result set of prepared statements. By default,
- *  this value is 1 MB. The value associated with "group" determines the which
+ *  this value is 1 MB. The value associated with "group" determines which
  *  group from configuration file to use (see MYSQL_READ_DEFAULT_GROUP option
  *  of mysql_options() in MySQL manual).
  */
