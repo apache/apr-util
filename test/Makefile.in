@@ -1,13 +1,22 @@
+srcdir = @srcdir@
 VPATH = @srcdir@
 
 INCLUDES = @APRUTIL_PRIV_INCLUDES@ @APR_INCLUDES@ @APRUTIL_INCLUDES@
 
-PROGRAMS = testall dbd testssl echod sockperf
+STDTEST_PORTABLE = testall dbd testssl
+
+TESTS = teststrmatch.lo testuri.lo testuuid.lo testbuckets.lo testpass.lo \
+	testmd4.lo testmd5.lo testldap.lo testdate.lo testdbd.lo \
+	testmemcache.lo testreslist.lo testqueue.lo testxml.lo testxlate.lo \
+	testrmm.lo testdbm.lo
+
+OTHER_PROGRAMS = echod sockperf
+
+PROGRAMS = $(STDTEST_PORTABLE) $(OTHER_PROGRAMS)
+
 TARGETS = $(PROGRAMS)
 
-APRUTIL_DOTTED_VERSION=@APRUTIL_DOTTED_VERSION@
-APRUTIL_MAJOR_VERSION=@APRUTIL_MAJOR_VERSION@
-TARGET_LIB_PATH = ../lib@APRUTIL_LIBNAME@.la
+LOCAL_LIBS = ../lib@APRUTIL_LIBNAME@@APRUTIL_MAJOR_VERSION@.la
 
 CLEAN_TARGETS = manyfile.bin testfile.txt data/sqlite*.db
 
@@ -18,12 +27,41 @@ APRUTIL_LDFLAGS = -no-install @APRUTIL_LDFLAGS@
 
 # link programs using -no-install to get real executables not
 # libtool wrapper scripts which link an executable when first run.
-LINK_PROG = $(LIBTOOL) $(LTFLAGS) --mode=link $(LT_LDFLAGS) $(COMPILE) @LT_NO_INSTALL@ $(ALL_LDFLAGS) -o $@
+LINK_PROG = $(LIBTOOL) $(LTFLAGS) --mode=link $(LT_LDFLAGS) $(COMPILE) \
+	    @LT_NO_INSTALL@ $(ALL_LDFLAGS) -o $@
 
-check: $(PROGRAMS)
+# STDTEST_PORTABLE;
+
+abts.lo: $(srcdir)/abts.c $(srcdir)/abts.h $(srcdir)/abts_tests.h \
+	 $(srcdir)/testutil.h
+
+testutil.lo: $(srcdir)/abts.c $(srcdir)/abts.h $(srcdir)/abts_tests.h \
+	     $(srcdir)/testutil.h
+
+testall: $(TESTS) abts.lo testutil.lo $(LOCAL_LIBS)
+	$(LINK_PROG) $(APRUTIL_LDFLAGS) $+ $(PROGRAM_DEPENDENCIES)
+# For VPATH builds; where we have no ./data, copy us some data
+# if we wait until 'make check', then 'make; ./testall' fails;
+	if test ! -d "./data"; then cp -r $(srcdir)/data data; fi
+
+dbd: dbd.lo $(LOCAL_LIBS)
+	$(LINK_PROG) $(APRUTIL_LDFLAGS) $+ $(PROGRAM_DEPENDENCIES)
+
+testssl: testssl.lo $(LOCAL_LIBS)
+	$(LINK_PROG) $(APRUTIL_LDFLAGS) $+ $(PROGRAM_DEPENDENCIES)
+
+# OTHER_PROGRAMS;
+
+echod: echod.lo $(LOCAL_LIBS)
+	$(LINK_PROG) $(APRUTIL_LDFLAGS) $+ $(PROGRAM_DEPENDENCIES)
+
+sockperf: sockperf.lo $(LOCAL_LIBS)
+	$(LINK_PROG) $(APRUTIL_LDFLAGS) $+ $(PROGRAM_DEPENDENCIES)
+
+check: $(TESTALL_COMPONENTS) $(STDTEST_PORTABLE) $(STDTEST_NONPORTABLE)
 	teststatus=0; \
 	progfailed=""; \
-	for prog in $(PROGRAMS); do \
+	for prog in $(STDTEST_PORTABLE) $(STDTEST_NONPORTABLE); do \
 	        if test "$$prog" = 'dbd'; then \
 			for driver in sqlite2 sqlite3; do \
 				./$$prog $$driver; \
@@ -47,33 +85,4 @@ check: $(PROGRAMS)
 	fi; \
 	exit $$teststatus
 
-dbd_OBJECTS = dbd.lo
-dbd_LDADD =  $(TARGET_LIB_PATH)
-dbd: $(dbd_OBJECTS) $(dbd_LDADD)
-	$(LINK_PROG) $(APRUTIL_LDFLAGS) $(dbd_OBJECTS) $(dbd_LDADD) $(PROGRAM_DEPENDENCIES)
-
-testssl_OBJECTS = testssl.lo
-testssl_LDADD =  $(TARGET_LIB_PATH)
-testssl: $(testssl_OBJECTS) $(testssl_LDADD)
-	$(LINK_PROG) $(APRUTIL_LDFLAGS) $(testssl_OBJECTS) $(testssl_LDADD) $(PROGRAM_DEPENDENCIES)
-
-echod_OBJECTS = echod.lo
-echod_LDADD =  $(TARGET_LIB_PATH)
-echod: $(echod_OBJECTS) $(echod_LDADD)
-	$(LINK_PROG) $(APRUTIL_LDFLAGS) $(echod_OBJECTS) $(echod_LDADD) \
-                $(PROGRAM_DEPENDENCIES)
-
-sockperf_OBJECTS = sockperf.lo
-sockperf_LDADD =  $(TARGET_LIB_PATH)
-sockperf: $(sockperf_OBJECTS) $(sockperf_LDADD)
-	$(LINK_PROG) $(APRUTIL_LDFLAGS) $(sockperf_OBJECTS) $(sockperf_LDADD) \
-                $(PROGRAM_DEPENDENCIES)
-
-testall_OBJECTS = teststrmatch.lo testuri.lo testuuid.lo abts.lo testutil.lo \
-	testbuckets.lo testpass.lo testmd4.lo testmd5.lo testldap.lo \
-	testdate.lo testdbd.lo testmemcache.lo testreslist.lo testqueue.lo \
-	testxml.lo testxlate.lo testrmm.lo testdbm.lo
-testall_LDADD =  $(TARGET_LIB_PATH)
-testall: $(testall_OBJECTS) $(testall_LDADD)
-	$(LINK_PROG) $(APRUTIL_LDFLAGS) $(testall_OBJECTS) $(testall_LDADD) $(PROGRAM_DEPENDENCIES)
-
+# DO NOT REMOVE
