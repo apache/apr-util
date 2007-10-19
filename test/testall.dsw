@@ -240,7 +240,43 @@ Package=<4>
 
 ###############################################################################
 
-Project: "testutildll"=".\testutildll.dsp" - Package Owner=<4>
+Project: "testdll"=".\testdll.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libapr
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libaprapp
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "testlib"="..\..\apr\test\testlib.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name apr
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name aprapp
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "testutildll"="..\..\apr\test\testutildll.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
