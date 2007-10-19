@@ -76,7 +76,7 @@
 
 #if APU_HAVE_DB
 #define APU_HAVE_DB_VERSION    @apu_db_version@
-#endif /* APU_HAVE_DB */
+#endif
 
 #define APU_HAVE_PGSQL         @apu_have_pgsql@
 #define APU_HAVE_MYSQL         @apu_have_mysql@
