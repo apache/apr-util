@@ -144,7 +144,7 @@ cleanall:
 
 
 PATH=$(OUTDIR);..\$(OUTDIR);$(API_PATH)\$(OUTDIR);$(APR_PATH)\$(OUTDIR);$(PATH)
-set APR_ICONV1_PATH=$(API_PATH)\$(OUTDIR)\iconv
+APR_ICONV1_PATH=$(API_PATH)\$(OUTDIR)\iconv
 
 check: $(PROGRAMS) $(OTHER_PROGRAMS)
 	@for %p in ($(PROGRAMS)) do @( \
