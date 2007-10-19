@@ -610,6 +610,7 @@ static apr_dbd_t *dbd_mysql_open(apr_pool_t *pool, const char *params)
         {"sock", NULL},
         {"flags", NULL},
         {"fldsz", NULL},
+        {"group", NULL},
         {NULL, NULL}
     };
     unsigned int port = 0;
@@ -652,6 +653,9 @@ static apr_dbd_t *dbd_mysql_open(apr_pool_t *pool, const char *params)
     }
     if (fields[7].value != NULL) {
         sql->fldsz = atol(fields[7].value);
+    }
+    if (fields[8].value != NULL) {
+         mysql_options(sql->conn, MYSQL_READ_DEFAULT_GROUP, fields[8].value);
     }
 
 #if MYSQL_VERSION_ID >= 50013
@@ -734,6 +738,8 @@ static apr_status_t thread_end(void *data)
 static void dbd_mysql_init(apr_pool_t *pool)
 {
     my_init();
+    mysql_thread_init();
+
     /* FIXME: this is a guess; find out what it really does */ 
     apr_pool_cleanup_register(pool, NULL, thread_end, apr_pool_cleanup_null);
 }
