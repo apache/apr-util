@@ -240,7 +240,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "testdll"=".\testdll.dsp" - Package Owner=<4>
+Project: "testdll"="..\..\apr\test\testdll.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -276,7 +276,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "testutildll"="..\..\apr\test\testutildll.dsp" - Package Owner=<4>
+Project: "testutildll"=".\testutildll.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
