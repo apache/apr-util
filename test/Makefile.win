@@ -50,9 +50,9 @@ CLEAN_DATA = manyfile.bin testfile.txt data\sqlite*.db
 
 CLEAN_BUILDDIRS = Debug Release LibD LibR 9x x64
 
-PROGRAMS = $(OUTDIR)\testall.exe
+PROGRAMS = $(OUTDIR)\testall.exe $(OUTDIR)\testssl.exe
 
-OTHER_PROGRAMS = $(OUTDIR)\dbd.exe $(OUTDIR)\testssl.exe \
+OTHER_PROGRAMS = $(OUTDIR)\dbd.exe \
 	$(OUTDIR)\echod.exe $(OUTDIR)\sockperf.exe
 
 # bring in rules.mk for standard functionality
@@ -67,13 +67,11 @@ API_PATH = ..\..\apr-iconv
 !IF "$(MODEL)" == "static"
 PROGRAM_DEPENDENCIES = \
 	$(APR_PATH)\$(OUTDIR)\apr-1.lib \
-	$(API_PATH)\$(OUTDIR)\apriconv-1.lib \
 	..\$(OUTDIR)\aprutil-1.lib 
 STATIC_CFLAGS = /D APR_DECLARE_STATIC /D APU_DECLARE_STATIC
 !ELSE
 PROGRAM_DEPENDENCIES = \
 	$(APR_PATH)\$(OUTDIR)\libapr-1.lib \
-	$(API_PATH)\$(OUTDIR)\libapriconv-1.lib \
 	..\$(OUTDIR)\libaprutil-1.lib 
 STATIC_CFLAGS = 
 !ENDIF
@@ -146,7 +144,7 @@ cleanall:
 
 
 PATH=$(OUTDIR);..\$(OUTDIR);$(API_PATH)\$(OUTDIR);$(APR_PATH)\$(OUTDIR);$(PATH)
-APR_ICONV1_PATH=$(API_PATH)\$(OUTDIR)\iconv
+set APR_ICONV1_PATH=$(API_PATH)\$(OUTDIR)\iconv
 
 check: $(PROGRAMS) $(OTHER_PROGRAMS)
 	@for %p in ($(PROGRAMS)) do @( \
