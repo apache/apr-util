@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+#include "apr_memcache.h"
 #include "apr_poll.h"
 #include "apr_version.h"
-#include "apr_memcache.h"
 #include <stdlib.h>
 
 #define BUFFER_SIZE 512
@@ -104,7 +104,7 @@ struct cache_server_query_t {
     apr_memcache_server_t* ms;
     apr_memcache_conn_t* conn;
     struct iovec* query_vec;
-    unsigned int query_vec_count;
+    apr_int32_t query_vec_count;
 };
 
 #define MULT_GET_TIMEOUT 50000
@@ -504,7 +504,7 @@ static const apr_uint32_t crc32tab[256] = {
 
 APU_DECLARE(apr_uint32_t) apr_memcache_hash_crc32(void *baton, 
                                                   const char *data,
-                                                  apr_size_t data_len)
+                                                  const apr_size_t data_len)
 {
     apr_uint32_t i;
     apr_uint32_t crc;
@@ -518,7 +518,7 @@ APU_DECLARE(apr_uint32_t) apr_memcache_hash_crc32(void *baton,
 
 APU_DECLARE(apr_uint32_t) apr_memcache_hash_default(void *baton, 
                                                     const char *data,
-                                                    apr_size_t data_len)
+                                                    const apr_size_t data_len)
 {
     /* The default Perl Client doesn't actually use just crc32 -- it shifts it again
      * like this....
@@ -528,7 +528,7 @@ APU_DECLARE(apr_uint32_t) apr_memcache_hash_default(void *baton,
 
 APU_DECLARE(apr_uint32_t) apr_memcache_hash(apr_memcache_t *mc,
                                             const char *data,
-                                            apr_size_t data_len)
+                                            const apr_size_t data_len)
 {
     if (mc->hash_func) {
         return mc->hash_func(mc->hash_baton, data, data_len);
@@ -576,7 +576,7 @@ static apr_status_t storage_cmd_write(apr_memcache_t *mc,
     apr_status_t rv;
     apr_size_t written;
     struct iovec vec[5];
-    int klen;
+    apr_size_t klen;
 
     apr_size_t key_size = strlen(key);
 
@@ -704,7 +704,7 @@ apr_memcache_getp(apr_memcache_t *mc,
     apr_memcache_conn_t *conn;
     apr_uint32_t hash;
     apr_size_t written;
-    int klen = strlen(key);
+    apr_size_t klen = strlen(key);
     struct iovec vec[3];
 
     hash = apr_memcache_hash(mc, key, klen);
@@ -839,7 +839,7 @@ apr_memcache_delete(apr_memcache_t *mc,
     apr_uint32_t hash;
     apr_size_t written;
     struct iovec vec[3];
-    int klen = strlen(key);
+    apr_size_t klen = strlen(key);
 
     hash = apr_memcache_hash(mc, key, klen);
     ms = apr_memcache_find_server_hash(mc, hash);
@@ -908,7 +908,7 @@ static apr_status_t num_cmd_write(apr_memcache_t *mc,
     apr_uint32_t hash;
     apr_size_t written;
     struct iovec vec[3];
-    int klen = strlen(key);
+    apr_size_t klen = strlen(key);
 
     hash = apr_memcache_hash(mc, key, klen);
     ms = apr_memcache_find_server_hash(mc, hash);
@@ -1087,7 +1087,7 @@ apr_memcache_add_multget_key(apr_pool_t *data_pool,
                              apr_hash_t **values)
 {
     apr_memcache_value_t* value;
-    int klen = strlen(key);
+    apr_size_t klen = strlen(key);
 
     /* create the value hash if need be */
     if (!*values) {
@@ -1112,7 +1112,7 @@ static void mget_conn_result(int up,
                              apr_hash_t *values,
                              apr_hash_t *server_queries)
 {
-    unsigned int j;
+    apr_int32_t j;
     apr_memcache_value_t* value;
     
     if (!up) {
@@ -1147,7 +1147,7 @@ apr_memcache_multgetp(apr_memcache_t *mc,
     apr_memcache_conn_t* conn;
     apr_uint32_t hash;
     apr_size_t written;
-    int klen;
+    apr_size_t klen;
 
     apr_memcache_value_t* value;
     apr_hash_index_t* value_hash_index;
@@ -1155,10 +1155,10 @@ apr_memcache_multgetp(apr_memcache_t *mc,
     /* this is a little over aggresive, but beats multiple loops
      * to figure out how long each vector needs to be per-server.
      */
-    unsigned int veclen = 2 + 2 * apr_hash_count(values) - 1; /* get <key>[<space><key>...]\r\n */
-    unsigned int i, j;
-    unsigned int queries_sent;
-    unsigned int queries_recvd;
+    apr_int32_t veclen = 2 + 2 * apr_hash_count(values) - 1; /* get <key>[<space><key>...]\r\n */
+    apr_int32_t i, j;
+    apr_int32_t queries_sent;
+    apr_int32_t queries_recvd;
 
     apr_hash_t * server_queries = apr_hash_make(temp_pool);
     struct cache_server_query_t* server_query;
@@ -1488,31 +1488,31 @@ apr_memcache_multgetp(apr_memcache_t *mc,
 #define STAT_threads MS_STAT " threads "
 #define STAT_threads_LEN (sizeof(STAT_threads)-1)
 
-static const char *stat_read_string(apr_pool_t *p, char *buf, int len)
+static const char *stat_read_string(apr_pool_t *p, char *buf, apr_size_t len)
 {
     /* remove trailing \r\n and null char */
     return apr_pstrmemdup(p, buf, len-2);
 }
 
-static apr_uint32_t stat_read_uint32(apr_pool_t *p, char *buf, int len)
+static apr_uint32_t stat_read_uint32(apr_pool_t *p, char *buf, apr_size_t  len)
 {
     buf[len-2] = '\0';
     return atoi(buf);
 }
 
-static apr_uint64_t stat_read_uint64(apr_pool_t *p, char *buf, int len)
+static apr_uint64_t stat_read_uint64(apr_pool_t *p, char *buf, apr_size_t  len)
 {
     buf[len-2] = '\0';
     return apr_atoi64(buf);
 }
 
-static apr_time_t stat_read_time(apr_pool_t *p, char *buf, int len)
+static apr_time_t stat_read_time(apr_pool_t *p, char *buf, apr_size_t  len)
 {
     buf[len-2] = '\0';
     return apr_time_from_sec(atoi(buf));
 }
 
-static apr_time_t stat_read_rtime(apr_pool_t *p, char *buf, int len)
+static apr_time_t stat_read_rtime(apr_pool_t *p, char *buf, apr_size_t  len)
 {
     char *tok;
     char *secs;

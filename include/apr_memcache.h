@@ -81,7 +81,7 @@ struct apr_memcache_server_t
 */
 typedef apr_uint32_t (*apr_memcache_hash_func)(void *baton,
                                                const char *data,
-                                               apr_size_t data_len);
+                                               const apr_size_t data_len);
 
 typedef struct apr_memcache_t apr_memcache_t;
 
@@ -127,21 +127,21 @@ typedef struct
  */
 APU_DECLARE(apr_uint32_t) apr_memcache_hash(apr_memcache_t *mc,
                                             const char *data,
-                                            apr_size_t data_len);
+                                            const apr_size_t data_len);
 
 /**
  * Pure CRC32 Hash. Used by some clients.
  */
 APU_DECLARE(apr_uint32_t) apr_memcache_hash_crc32(void *baton,
-                                                    const char *data,
-                                                    apr_size_t data_len);
+                                                  const char *data,
+                                                  const apr_size_t data_len);
 
 /**
  * hash compatible with the standard Perl Client.
  */
 APU_DECLARE(apr_uint32_t) apr_memcache_hash_default(void *baton,
                                                     const char *data,
-                                                    apr_size_t data_len);
+                                                    const apr_size_t data_len);
 
 /**
  * Picks a server based on a hash
