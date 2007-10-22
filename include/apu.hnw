@@ -79,11 +79,21 @@
 #define APU_HAVE_DB_VERSION     0
 #endif
 
+#ifndef APU_HAVE_PGSQL
 #define APU_HAVE_PGSQL          0
+#endif
+#ifndef APU_HAVE_MYSQL
 #define APU_HAVE_MYSQL          0
+#endif
+#ifndef APU_HAVE_SQLITE3
 #define APU_HAVE_SQLITE3        0
+#endif
+#ifndef APU_HAVE_SQLITE2
 #define APU_HAVE_SQLITE2        0
+#endif
+#ifndef APU_HAVE_ORACLE
 #define APU_HAVE_ORACLE         0
+#endif
 
 #define APU_HAVE_APR_ICONV      0
 #define APU_HAVE_ICONV          1
