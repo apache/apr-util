@@ -185,7 +185,7 @@ int create_test_hash(apr_pool_t *p, apr_hash_t *h)
     char *k, *v;
     
     k = apr_pstrcat(p, prefix, apr_itoa(p, i), NULL);
-    v = apr_pstrndup(p, txt, randval(strlen(txt)));
+    v = apr_pstrndup(p, txt, randval((apr_uint32_t)strlen(txt)));
     
     apr_hash_set(h, k, APR_HASH_KEY_STRING, v);
   }
