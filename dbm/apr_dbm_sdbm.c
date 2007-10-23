@@ -41,10 +41,12 @@
 typedef apr_sdbm_t *real_file_t;
 
 typedef apr_sdbm_datum_t cvt_datum_t;
-#define CONVERT_DATUM(cvt, pinput) ((cvt).dptr = (pinput)->dptr, (cvt).dsize = (pinput)->dsize)
+#define CONVERT_DATUM(cvt, pinput) \
+        ((cvt).dptr = (pinput)->dptr, (cvt).dsize = (int)(pinput)->dsize)
 
 typedef apr_sdbm_datum_t result_datum_t;
-#define RETURN_DATUM(poutput, rd) ((poutput)->dptr = (rd).dptr, (poutput)->dsize = (rd).dsize)
+#define RETURN_DATUM(poutput, rd) \
+        ((poutput)->dptr = (rd).dptr, (poutput)->dsize = (rd).dsize)
 
 #define APR_DBM_CLOSE(f)        apr_sdbm_close(f)
 #define APR_DBM_FETCH(f, k, v)  apr_sdbm_fetch(f, &(v), (k))
