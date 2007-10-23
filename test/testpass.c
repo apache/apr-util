@@ -108,7 +108,7 @@ static void test_shapass(abts_case *tc, void *data)
     const char *pass = "hellojed";
     char hash[100];
 
-    apr_sha1_base64(pass, strlen(pass), hash);
+    apr_sha1_base64(pass, (int)strlen(pass), hash);
 
     apr_assert_success(tc, "SHA1 password validated",
                        apr_password_validate(pass, hash));

@@ -55,7 +55,7 @@ static void test_md5sum(abts_case *tc, void *data)
         unsigned char digest[APR_MD5_DIGESTSIZE];
         const void *string = md5sums[count].string;
         const void *sum = md5sums[count].digest;
-        unsigned int len = strlen(string);
+        apr_size_t len = strlen(string);
 
         ABTS_ASSERT(tc, "apr_md5_init", (apr_md5_init(&context) == 0));
         ABTS_ASSERT(tc, "apr_md5_update", 
