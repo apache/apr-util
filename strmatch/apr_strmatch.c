@@ -36,7 +36,7 @@ static const char *match_boyer_moore_horspool(
                                const char *s, apr_size_t slen)
 {
     const char *s_end = s + slen;
-    int *shift = (int *)(this_pattern->context);
+    apr_size_t *shift = (apr_size_t *)(this_pattern->context);
     const char *s_next = s + this_pattern->length - 1;
     const char *p_start = this_pattern->pattern;
     const char *p_end = p_start + this_pattern->length - 1;
@@ -60,7 +60,7 @@ static const char *match_boyer_moore_horspool_nocase(
                                const char *s, apr_size_t slen)
 {
     const char *s_end = s + slen;
-    int *shift = (int *)(this_pattern->context);
+    apr_size_t *shift = (apr_size_t *)(this_pattern->context);
     const char *s_next = s + this_pattern->length - 1;
     const char *p_start = this_pattern->pattern;
     const char *p_end = p_start + this_pattern->length - 1;
@@ -85,7 +85,7 @@ APU_DECLARE(const apr_strmatch_pattern *) apr_strmatch_precompile(
 {
     apr_strmatch_pattern *pattern;
     apr_size_t i;
-    int *shift;
+    apr_size_t *shift;
 
     pattern = apr_palloc(p, sizeof(*pattern));
     pattern->pattern = s;
@@ -96,7 +96,7 @@ APU_DECLARE(const apr_strmatch_pattern *) apr_strmatch_precompile(
         return pattern;
     }
 
-    shift = (int *)apr_palloc(p, sizeof(int) * NUM_CHARS);
+    shift = (apr_size_t *)apr_palloc(p, sizeof(apr_size_t) * NUM_CHARS);
     for (i = 0; i < NUM_CHARS; i++) {
         shift[i] = pattern->length;
     }
