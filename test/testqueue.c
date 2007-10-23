@@ -28,7 +28,6 @@
 #define NUMBER_PRODUCERS    4
 #define PRODUCER_ACTIVITY   5
 #define QUEUE_SIZE          100
-#define SLEEP_TIME          30
 
 static apr_queue_t *queue;
 
@@ -117,7 +116,7 @@ static void test_queue_producer_consumer(abts_case *tc, void *data)
         ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
     }
 
-    apr_sleep(SLEEP_TIME * 1000000); /* sleep 10 seconds */
+    apr_sleep(5000000); /* sleep 5 seconds */
 
     rv = apr_queue_term(queue);
     ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
