@@ -387,8 +387,8 @@ APU_DECLARE(apr_status_t) apr_xlate_conv_buffer(apr_xlate_t *convset,
 #endif
 
     if (inbuf) {
-        int to_convert = min(*inbytes_left, *outbytes_left);
-        int converted = to_convert;
+        apr_size_t to_convert = min(*inbytes_left, *outbytes_left);
+        apr_size_t converted = to_convert;
         char *table = convset->sbcs_table;
 
         while (to_convert) {
