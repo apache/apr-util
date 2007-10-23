@@ -111,13 +111,13 @@ APU_DECLARE(int) apr_base64_decode_len(const char *bufcoded)
 {
     int nbytesdecoded;
     register const unsigned char *bufin;
-    register int nprbytes;
+    register apr_size_t nprbytes;
 
     bufin = (const unsigned char *) bufcoded;
     while (pr2six[*(bufin++)] <= 63);
 
     nprbytes = (bufin - (const unsigned char *) bufcoded) - 1;
-    nbytesdecoded = ((nprbytes + 3) / 4) * 3;
+    nbytesdecoded = (((int)nprbytes + 3) / 4) * 3;
 
     return nbytesdecoded + 1;
 }
@@ -148,12 +148,12 @@ APU_DECLARE(int) apr_base64_decode_binary(unsigned char *bufplain,
     int nbytesdecoded;
     register const unsigned char *bufin;
     register unsigned char *bufout;
-    register int nprbytes;
+    register apr_size_t nprbytes;
 
     bufin = (const unsigned char *) bufcoded;
     while (pr2six[*(bufin++)] <= 63);
     nprbytes = (bufin - (const unsigned char *) bufcoded) - 1;
-    nbytesdecoded = ((nprbytes + 3) / 4) * 3;
+    nbytesdecoded = (((int)nprbytes + 3) / 4) * 3;
 
     bufout = (unsigned char *) bufplain;
     bufin = (const unsigned char *) bufcoded;
@@ -183,7 +183,7 @@ APU_DECLARE(int) apr_base64_decode_binary(unsigned char *bufplain,
 	    (unsigned char) (pr2six[bufin[2]] << 6 | pr2six[bufin[3]]);
     }
 
-    nbytesdecoded -= (4 - nprbytes) & 3;
+    nbytesdecoded -= (4 - (int)nprbytes) & 3;
     return nbytesdecoded;
 }
 
@@ -264,5 +264,5 @@ APU_DECLARE(int) apr_base64_encode_binary(char *encoded,
     }
 
     *p++ = '\0';
-    return p - encoded;
+    return (int)(p - encoded);
 }
