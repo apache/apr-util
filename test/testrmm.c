@@ -37,7 +37,7 @@ static void test_rmm(abts_case *tc, void *data)
     apr_shm_t *shm;
     apr_rmm_t *rmm;
     apr_size_t size, fragsize;
-    apr_rmm_off_t *off;
+    apr_rmm_off_t *off, off2;
     int i;
     void *entity;
 
@@ -66,15 +66,15 @@ static void test_rmm(abts_case *tc, void *data)
     }
 
     /* Checking for out of memory allocation */
-    i = apr_rmm_malloc(rmm, FRAG_SIZE * FRAG_COUNT);
-    ABTS_INT_EQUAL(tc, i, 0);
+    off2 = apr_rmm_malloc(rmm, FRAG_SIZE * FRAG_COUNT);
+    ABTS_TRUE(tc, !off2);
 
     /* Checking each fragment for address alignment */
     for (i = 0; i < FRAG_COUNT; i++) {
         char *c = apr_rmm_addr_get(rmm, off[i]);
         apr_size_t sc = (apr_size_t)c;
 
-        ABTS_TRUE(tc, off[i]);
+        ABTS_TRUE(tc, !!off[i]);
         ABTS_TRUE(tc, !(sc & 7));
     }
 
@@ -137,8 +137,8 @@ static void test_rmm(abts_case *tc, void *data)
     /* Checking realloc */
     off[0] = apr_rmm_calloc(rmm, SHARED_SIZE - 100);
     off[1] = apr_rmm_calloc(rmm, 100);
-    ABTS_TRUE(tc, off[0]);
-    ABTS_TRUE(tc, off[1]);
+    ABTS_TRUE(tc, !!off[0]);
+    ABTS_TRUE(tc, !!off[1]);
 
     entity = apr_rmm_addr_get(rmm, off[1]);
     rv = apr_rmm_free(rmm, off[0]);
@@ -157,7 +157,7 @@ static void test_rmm(abts_case *tc, void *data)
 
     /* now we can realloc off[1] and get many more bytes */
     off[0] = apr_rmm_realloc(rmm, entity, SHARED_SIZE - 100);
-    ABTS_TRUE(tc, off[0]);
+    ABTS_TRUE(tc, !!off[0]);
 
     {
         unsigned char *c = apr_rmm_addr_get(rmm, off[0]);
