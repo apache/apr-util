@@ -107,7 +107,7 @@ static apr_status_t vt_sdbm_fetch(apr_dbm_t *dbm, apr_datum_t key,
     apr_sdbm_datum_t kd, rd;
 
     kd.dptr = key.dptr;
-    kd.dsize = key.dsize;
+    kd.dsize = (int)key.dsize;
 
     rv = apr_sdbm_fetch(dbm->file, &rd, kd);
 
@@ -126,10 +126,10 @@ static apr_status_t vt_sdbm_store(apr_dbm_t *dbm, apr_datum_t key,
     apr_sdbm_datum_t kd, vd;
 
     kd.dptr = key.dptr;
-    kd.dsize = key.dsize;
+    kd.dsize = (int)key.dsize;
 
     vd.dptr = value.dptr;
-    vd.dsize = value.dsize;
+    vd.dsize = (int)value.dsize;
 
     rv = apr_sdbm_store(dbm->file, kd, vd, APR_SDBM_REPLACE);
 
@@ -143,7 +143,7 @@ static apr_status_t vt_sdbm_del(apr_dbm_t *dbm, apr_datum_t key)
     apr_sdbm_datum_t kd;
 
     kd.dptr = key.dptr;
-    kd.dsize = key.dsize;
+    kd.dsize = (int)key.dsize;
 
     rv = apr_sdbm_delete(dbm->file, kd);
 
@@ -157,7 +157,7 @@ static int vt_sdbm_exists(apr_dbm_t *dbm, apr_datum_t key)
     apr_sdbm_datum_t vd, kd;
 
     kd.dptr = key.dptr;
-    kd.dsize = key.dsize;
+    kd.dsize = (int)key.dsize;
 
     if (apr_sdbm_fetch(dbm->file, &vd, kd) != APR_SUCCESS)
         exists = 0;

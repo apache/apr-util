@@ -183,7 +183,7 @@ apr_sdbm_datum_t key;
 		register int m;
 		register char *dst = pag + (i == 1 ? PBLKSIZ : ino[i - 1]);
 		register char *src = pag + ino[i + 1];
-		register int   zoo = dst - src;
+		register short zoo = (short) (dst - src);
 
 		debug(("free-up %d ", zoo));
 /*
