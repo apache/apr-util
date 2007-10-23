@@ -32,12 +32,12 @@
 #define RESLIST_MIN   3
 #define RESLIST_SMAX 10
 #define RESLIST_HMAX 20
-#define RESLIST_TTL  APR_TIME_C(350000) /* 35 ms */
+#define RESLIST_TTL  APR_TIME_C(35000) /* 35 ms */
 #define CONSUMER_THREADS 25
 #define CONSUMER_ITERATIONS 250
-#define CONSTRUCT_SLEEP_TIME  APR_TIME_C(250000) /* 25 ms */
-#define DESTRUCT_SLEEP_TIME   APR_TIME_C(100000) /* 10 ms */
-#define WORK_DELAY_SLEEP_TIME APR_TIME_C(150000) /* 15 ms */
+#define CONSTRUCT_SLEEP_TIME  APR_TIME_C(25000) /* 25 ms */
+#define DESTRUCT_SLEEP_TIME   APR_TIME_C(10000) /* 10 ms */
+#define WORK_DELAY_SLEEP_TIME APR_TIME_C(15000) /* 15 ms */
 
 typedef struct {
     apr_interval_time_t sleep_upon_construct;
@@ -96,7 +96,7 @@ typedef struct {
     apr_interval_time_t work_delay_sleep;
 } my_thread_info_t;
 
-#define PERCENT95th ( ( 2u^31 / 10u ) * 19u )
+#define PERCENT95th ( ( 2u^30 / 5u ) * 19u )
 
 static void * APR_THREAD_FUNC resource_consuming_thread(apr_thread_t *thd,
                                                         void *data)
