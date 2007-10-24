@@ -29,12 +29,6 @@
 #include <sys/uio.h>
 #endif
 
-/* TODO: ~((apr_size_t)0) appears to be the best way to quickly 
- * represent  MAX_APR_SIZE_T for any CPU we support.  Move this
- * out as APR_MAX_SIZE_T to our public headers...
- */
-#define MAX_APR_SIZE_T (~((apr_size_t)0))
-
 static apr_status_t brigade_cleanup(void *data) 
 {
     return apr_brigade_cleanup(data);
@@ -123,7 +117,7 @@ APU_DECLARE(apr_status_t) apr_brigade_partition(apr_bucket_brigade *b,
         /* For an unknown length bucket, while 'point' is beyond the possible
          * size contained in apr_size_t, read and continue...
          */
-        if ((e->length == (apr_size_t)(-1)) && (point > MAX_APR_SIZE_T)) {
+        if ((e->length == (apr_size_t)(-1)) && (point > APR_SIZE_MAX)) {
             /* point is too far out to simply split this bucket,
              * we must fix this bucket's size and keep going... */
             rv = apr_bucket_read(e, &s, &len, APR_BLOCK_READ);
