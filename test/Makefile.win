@@ -3,7 +3,7 @@
 # ALL_TESTS
 #   test modules invoked through the abts suite (./testall)
 # OTHER_PROGRAMS
-#   programs such as sendfile, that have to be invoked in a special sequence
+#   programs such as sockperf, that have to be invoked in a special sequence
 #   or with special parameters
 
 # Windows Specific;
