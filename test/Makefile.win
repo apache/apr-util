@@ -1,8 +1,22 @@
-# PROGRAMS includes typical test programs built on this platform.
-# ALL_TESTS includes every abts test to invoke with testall
+# PROGRAMS
+#   test programs invoked via standard user interface, run on all platforms
+# ALL_TESTS
+#   test modules invoked through the abts suite (./testall)
 # OTHER_PROGRAMS
-#   programs such as dbd, that have to be invoked in a special sequence
+#   programs such as sendfile, that have to be invoked in a special sequence
 #   or with special parameters
+
+# Windows Specific;
+# MODEL
+#   dynamic or static - refers to which set of bindings are desired
+#   and controls which libraries (apr-1 or libapr-1) will be linked.
+# OUTDIR
+#   the library path of the libraries, and also the path within test/
+#   where all of the tests for that library will be built
+# APR_PATH
+#   relative or absolute path to locate apr libs and includes
+# API_PATH
+#   relative or absolute path to locate apr-iconv libs and includes
 
 !IFNDEF MODEL
 MODEL=dynamic
@@ -41,19 +55,23 @@ ALL_TESTS = $(INTDIR)\teststrmatch.obj $(INTDIR)\testuri.obj \
 	$(INTDIR)\testbuckets.obj $(INTDIR)\testpass.obj \
 	$(INTDIR)\testmd4.obj $(INTDIR)\testmd5.obj \
 	$(INTDIR)\testldap.obj $(INTDIR)\testdbd.obj \
-	$(OUTDIR)\testdbm.obj $(OUTDIR)\testreslist.obj \
-	$(OUTDIR)\testxml.obj $(OUTDIR)\testqueue.obj \
-	$(OUTDIR)\testrmm.obj $(OUTDIR)\testxlate.obj \
-	$(OUTDIR)\testdate.obj $(OUTDIR)\testmemcache.obj
+	$(INTDIR)\testdbm.obj $(INTDIR)\testreslist.obj \
+	$(INTDIR)\testxml.obj $(INTDIR)\testqueue.obj \
+	$(INTDIR)\testrmm.obj $(INTDIR)\testxlate.obj \
+	$(INTDIR)\testdate.obj $(INTDIR)\testmemcache.obj
 
 CLEAN_DATA = manyfile.bin testfile.txt data\sqlite*.db
 
 CLEAN_BUILDDIRS = Debug Release LibD LibR 9x x64
 
-PROGRAMS = $(OUTDIR)\testall.exe $(OUTDIR)\testssl.exe
+PROGRAMS = \
+	$(OUTDIR)\testall.exe \
+	$(OUTDIR)\testssl.exe
 
-OTHER_PROGRAMS = $(OUTDIR)\dbd.exe \
-	$(OUTDIR)\echod.exe $(OUTDIR)\sockperf.exe
+OTHER_PROGRAMS = \
+	$(OUTDIR)\dbd.exe \
+	$(OUTDIR)\echod.exe \
+	$(OUTDIR)\sockperf.exe
 
 # bring in rules.mk for standard functionality
 ALL: $(PROGRAMS) $(OTHER_PROGRAMS)
@@ -143,8 +161,10 @@ cleanall:
 	    @if EXIST %d\. rmdir /s /q %d
 
 
+!IF "$(MODEL)" == "static"
 PATH=$(OUTDIR);..\$(OUTDIR);$(API_PATH)\$(OUTDIR);$(APR_PATH)\$(OUTDIR);$(PATH)
 APR_ICONV1_PATH=$(API_PATH)\$(OUTDIR)\iconv
+!ENDIF
 
 check: $(PROGRAMS) $(OTHER_PROGRAMS)
 	@for %p in ($(PROGRAMS)) do @( \
