@@ -80,9 +80,10 @@ APU_DECLARE(int) apr_base64_encode_binary(char * coded_dst,
                                         int len_plain_src);
 
 /**
- * Determine the length of a plain text string given the encoded version
+ * Determine the maximum buffer length required to decode the plain text
+ * string given the encoded string.
  * @param coded_src The encoded string
- * @return the length of the plain text string
+ * @return the maximum required buffer length for the plain text string
  */ 
 APU_DECLARE(int) apr_base64_decode_len(const char * coded_src);
 
