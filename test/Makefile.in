@@ -15,9 +15,9 @@ INCLUDES = @APRUTIL_PRIV_INCLUDES@ @APR_INCLUDES@ @APRUTIL_INCLUDES@
 STDTEST_PORTABLE = testall dbd testssl
 
 TESTS = teststrmatch.lo testuri.lo testuuid.lo testbuckets.lo testpass.lo \
-	testmd4.lo testmd5.lo testldap.lo testdate.lo testdbd.lo \
-	testmemcache.lo testreslist.lo testqueue.lo testxml.lo testxlate.lo \
-	testrmm.lo testdbm.lo
+	testmd4.lo testmd5.lo testldap.lo testdate.lo testdbm.lo testdbd.lo \
+	testxml.lo testrmm.lo testreslist.lo testqueue.lo testxlate.lo \
+	testmemcache.lo 
 
 OTHER_PROGRAMS = echod sockperf
 
