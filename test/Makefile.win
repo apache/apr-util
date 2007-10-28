@@ -1,8 +1,22 @@
-# PROGRAMS includes typical test programs built on this platform.
-# ALL_TESTS includes every abts test to invoke with testall
+# PROGRAMS
+#   test programs invoked via standard user interface, run on all platforms
+# ALL_TESTS
+#   test modules invoked through the abts suite (./testall)
 # OTHER_PROGRAMS
-#   programs such as dbd, that have to be invoked in a special sequence
+#   programs such as sendfile, that have to be invoked in a special sequence
 #   or with special parameters
+
+# Windows Specific;
+# MODEL
+#   dynamic or static - refers to which set of bindings are desired
+#   and controls which libraries (apr-1 or libapr-1) will be linked.
+# OUTDIR
+#   the library path of the libraries, and also the path within test/
+#   where all of the tests for that library will be built
+# APR_PATH
+#   relative or absolute path to locate apr libs and includes
+# API_PATH
+#   relative or absolute path to locate apr-iconv libs and includes
 
 !IFNDEF MODEL
 MODEL=dynamic
