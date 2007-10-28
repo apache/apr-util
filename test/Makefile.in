@@ -1,7 +1,8 @@
 srcdir = @srcdir@
 VPATH = @srcdir@
 
-# PROGRAMS
+# PROGRAMS includes all test programs built on this platform.
+# STDTEST_PORTABLE
 #   test programs invoked via standard user interface, run on all platforms
 # ALL_TESTS
 #   test modules invoked through the abts suite (./testall)
@@ -30,13 +31,13 @@ CLEAN_TARGETS = manyfile.bin testfile.txt data/sqlite*.db
 
 # bring in rules.mk for standard functionality
 @INCLUDE_RULES@
-PROGRAM_DEPENDENCIES = @APRUTIL_LIBS@
-APRUTIL_LDFLAGS = -no-install @APRUTIL_LDFLAGS@
+APRUTIL_LIBS = @APRUTIL_LIBS@
+APRUTIL_LDFLAGS = $(ALL_LDFLAGS) @LT_NO_INSTALL@ @APRUTIL_LDFLAGS@
 
 # link programs using -no-install to get real executables not
 # libtool wrapper scripts which link an executable when first run.
 LINK_PROG = $(LIBTOOL) $(LTFLAGS) --mode=link $(LT_LDFLAGS) $(COMPILE) \
-	    @LT_NO_INSTALL@ $(ALL_LDFLAGS) -o $@
+	    $(APRUTIL_LDFLAGS) -o $@
 
 # STDTEST_PORTABLE;
 
@@ -47,24 +48,24 @@ testutil.lo: $(srcdir)/abts.c $(srcdir)/abts.h $(srcdir)/abts_tests.h \
 	     $(srcdir)/testutil.h
 
 testall: $(TESTS) abts.lo testutil.lo $(LOCAL_LIBS)
-	$(LINK_PROG) $(APRUTIL_LDFLAGS) $+ $(PROGRAM_DEPENDENCIES)
+	$(LINK_PROG) $+ $(APRUTIL_LIBS)
 # For VPATH builds; where we have no ./data, copy us some data
 # if we wait until 'make check', then 'make; ./testall' fails;
 	if test ! -d "./data"; then cp -r $(srcdir)/data data; fi
 
 dbd: dbd.lo $(LOCAL_LIBS)
-	$(LINK_PROG) $(APRUTIL_LDFLAGS) $+ $(PROGRAM_DEPENDENCIES)
+	$(LINK_PROG) $+ $(APRUTIL_LIBS)
 
 testssl: testssl.lo $(LOCAL_LIBS)
-	$(LINK_PROG) $(APRUTIL_LDFLAGS) $+ $(PROGRAM_DEPENDENCIES)
+	$(LINK_PROG) $+ $(APRUTIL_LIBS)
 
 # OTHER_PROGRAMS;
 
 echod: echod.lo $(LOCAL_LIBS)
-	$(LINK_PROG) $(APRUTIL_LDFLAGS) $+ $(PROGRAM_DEPENDENCIES)
+	$(LINK_PROG) $+ $(APRUTIL_LIBS)
 
 sockperf: sockperf.lo $(LOCAL_LIBS)
-	$(LINK_PROG) $(APRUTIL_LDFLAGS) $+ $(PROGRAM_DEPENDENCIES)
+	$(LINK_PROG) $+ $(APRUTIL_LIBS)
 
 check: $(TESTALL_COMPONENTS) $(STDTEST_PORTABLE) $(STDTEST_NONPORTABLE)
 	teststatus=0; \
