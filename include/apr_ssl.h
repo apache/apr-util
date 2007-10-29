@@ -43,7 +43,7 @@ extern "C" {
  */
 typedef enum {
     APR_SSL_FACTORY_SERVER,   /**< Factory is for server operations */
-    APR_SSL_FACTORY_CLIENT,   /**< Factory is for client operations */
+    APR_SSL_FACTORY_CLIENT    /**< Factory is for client operations */
 } apr_ssl_factory_type_e;
 
 /**
