@@ -111,7 +111,11 @@ static void * APR_THREAD_FUNC resource_consuming_thread(apr_thread_t *thd,
     my_thread_info_t *thread_info = data;
     apr_reslist_t *rl = thread_info->reslist;
 
+#if APR_HAS_RANDOM
     apr_generate_random_bytes((void*)&chance, sizeof(chance));
+#else
+    chance = (apr_uint32_t)(apr_time_now() % APR_USEC_PER_SEC);
+#endif
 
     for (i = 0; i < CONSUMER_ITERATIONS; i++) {
         rv = apr_reslist_acquire(rl, &vp);
