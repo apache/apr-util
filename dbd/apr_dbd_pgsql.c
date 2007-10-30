@@ -1176,7 +1176,8 @@ static int dbd_pgsql_transaction_mode_set(apr_dbd_transaction_t *trans,
     return trans->mode = (mode & TXN_MODE_BITS);
 }
 
-static apr_dbd_t *dbd_pgsql_open(apr_pool_t *pool, const char *params)
+static apr_dbd_t *dbd_pgsql_open(apr_pool_t *pool, const char *params,
+                                 const char **error)
 {
     apr_dbd_t *sql;
     
@@ -1187,6 +1188,9 @@ static apr_dbd_t *dbd_pgsql_open(apr_pool_t *pool, const char *params)
      * liable to segfault, so just close it out now.  it would be nice
      * if we could give an indication of why we failed to connect... */
     if (PQstatus(conn) != CONNECTION_OK) {
+        if (error) {
+            *error = apr_pstrdup(pool, PQerrorMessage(conn));
+        }
         PQfinish(conn);
         return NULL;
     }

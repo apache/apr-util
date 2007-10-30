@@ -105,12 +105,13 @@ APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool);
 APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
                                              const apr_dbd_driver_t **driver);
 
-/** apr_dbd_open: open a connection to a backend
+/** apr_dbd_open_ex: open a connection to a backend
  *
  *  @param pool - working pool
  *  @param params - arguments to driver (implementation-dependent)
  *  @param handle - pointer to handle to return
  *  @param driver - driver struct.
+ *  @param error - descriptive error.
  *  @return APR_SUCCESS for success
  *  @return APR_EGENERAL if driver exists but connection failed
  *  @remarks PostgreSQL: the params is passed directly to the PQconnectdb()
@@ -134,6 +135,21 @@ APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
  *  this value is 1 MB. The value associated with "group" determines which
  *  group from configuration file to use (see MYSQL_READ_DEFAULT_GROUP option
  *  of mysql_options() in MySQL manual).
+ */
+APU_DECLARE(apr_status_t) apr_dbd_open_ex(const apr_dbd_driver_t *driver,
+                                          apr_pool_t *pool, const char *params,
+                                          apr_dbd_t **handle,
+                                          const char **error);
+
+/** apr_dbd_open: open a connection to a backend
+ *
+ *  @param pool - working pool
+ *  @param params - arguments to driver (implementation-dependent)
+ *  @param handle - pointer to handle to return
+ *  @param driver - driver struct.
+ *  @return APR_SUCCESS for success
+ *  @return APR_EGENERAL if driver exists but connection failed
+ *  @see apr_dbd_open_ex
  */
 APU_DECLARE(apr_status_t) apr_dbd_open(const apr_dbd_driver_t *driver,
                                        apr_pool_t *pool, const char *params,
