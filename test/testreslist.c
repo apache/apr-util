@@ -114,7 +114,7 @@ static void * APR_THREAD_FUNC resource_consuming_thread(apr_thread_t *thd,
 #if APR_HAS_RANDOM
     apr_generate_random_bytes((void*)&chance, sizeof(chance));
 #else
-    chance = (apr_uint32_t)(apr_time_now() % APR_USEC_PER_SEC);
+    chance = (apr_uint32_t)(apr_time_now() % APR_TIME_C(4294967291));
 #endif
 
     for (i = 0; i < CONSUMER_ITERATIONS; i++) {
