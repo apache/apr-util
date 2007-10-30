@@ -155,7 +155,11 @@ static void test_date_parse_http(abts_case *tc, void *data)
         ABTS_TRUE(tc, secstodate == newsecs);
     }
 
+#if APR_HAS_RANDOM
     apr_generate_random_bytes((unsigned char *)&guess, sizeof(guess));
+#else
+    guess = apr_time_now() % APR_TIME_C(4294967291);
+#endif
 
     for (i = 0; i < 10000; ++i) {
         guess = (time_t)lgc((apr_uint32_t)guess);
