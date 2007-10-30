@@ -158,7 +158,7 @@ static void test_date_parse_http(abts_case *tc, void *data)
 #if APR_HAS_RANDOM
     apr_generate_random_bytes((unsigned char *)&guess, sizeof(guess));
 #else
-    guess = apr_time_now() % APR_USEC_PER_SEC;
+    guess = apr_time_now() % APR_TIME_C(4294967291);
 #endif
 
     for (i = 0; i < 10000; ++i) {
