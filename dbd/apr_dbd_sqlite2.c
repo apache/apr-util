@@ -446,7 +446,14 @@ static int dbd_sqlite_transaction_mode_set(apr_dbd_transaction_t *trans,
     return trans->mode = (mode & TXN_MODE_BITS);
 }
 
-static apr_dbd_t *dbd_sqlite_open(apr_pool_t * pool, const char *params_)
+static apr_status_t error_free(void *data)
+{
+    free(data);
+    return APR_SUCCESS;
+}
+
+static apr_dbd_t *dbd_sqlite_open(apr_pool_t * pool, const char *params_,
+                                  const char **error)
 {
     apr_dbd_t *sql;
     sqlite *conn = NULL;
@@ -465,7 +472,19 @@ static apr_dbd_t *dbd_sqlite_open(apr_pool_t * pool, const char *params_)
             iperms = atoi(perm);
     }
 
-    conn = sqlite_open(params, iperms, NULL);
+    if (error) {
+        *error = NULL;
+
+        conn = sqlite_open(params, iperms, (char **)error);
+
+        if (*error) {
+            apr_pool_cleanup_register(pool, *error, error_free,
+                                      apr_pool_cleanup_null);
+        }
+    }
+    else {
+        conn = sqlite_open(params, iperms, NULL);
+    }
 
     sql = apr_pcalloc(pool, sizeof(*sql));
     sql->conn = conn;

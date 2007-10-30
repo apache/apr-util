@@ -814,7 +814,8 @@ static int dbd_sqlite3_transaction_mode_set(apr_dbd_transaction_t *trans,
     return trans->mode = (mode & TXN_MODE_BITS);
 }
 
-static apr_dbd_t *dbd_sqlite3_open(apr_pool_t *pool, const char *params)
+static apr_dbd_t *dbd_sqlite3_open(apr_pool_t *pool, const char *params,
+                                   const char **error)
 {
     apr_dbd_t *sql = NULL;
     sqlite3 *conn = NULL;
@@ -823,6 +824,9 @@ static apr_dbd_t *dbd_sqlite3_open(apr_pool_t *pool, const char *params)
         return NULL;
     sqlres = sqlite3_open(params, &conn);
     if (sqlres != SQLITE_OK) {
+        if (error) {
+            *error = apr_pstrdup(pool, sqlite3_errmsg(conn));
+        }
         sqlite3_close(conn);
         return NULL;
     }
