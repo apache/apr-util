@@ -1064,7 +1064,8 @@ static int dbd_mysql_transaction_mode_set(apr_dbd_transaction_t *trans,
     return trans->mode = (mode & TXN_MODE_BITS);
 }
 
-static apr_dbd_t *dbd_mysql_open(apr_pool_t *pool, const char *params)
+static apr_dbd_t *dbd_mysql_open(apr_pool_t *pool, const char *params,
+                                 const char **error)
 {
     static const char *const delims = " \r\n\t;|,";
     const char *ptr;
@@ -1155,6 +1156,9 @@ static apr_dbd_t *dbd_mysql_open(apr_pool_t *pool, const char *params)
                                    fields[5].value, flags);
 
     if(real_conn == NULL) {
+        if (error) {
+            *error = apr_pstrdup(pool, mysql_error(sql->conn));
+        }
         mysql_close(sql->conn);
         return NULL;
     }

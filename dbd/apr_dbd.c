@@ -183,21 +183,32 @@ unlock:
 
     return rv;
 }
-APU_DECLARE(apr_status_t) apr_dbd_open(const apr_dbd_driver_t *driver,
-                                       apr_pool_t *pool, const char *params,
-                                       apr_dbd_t **handle)
+APU_DECLARE(apr_status_t) apr_dbd_open_ex(const apr_dbd_driver_t *driver,
+                                          apr_pool_t *pool, const char *params,
+                                          apr_dbd_t **handle,
+                                          const char **error)
 {
     apr_status_t rv;
-    *handle = (driver->open)(pool, params);
+    *handle = (driver->open)(pool, params, error);
     if (*handle == NULL) {
         return APR_EGENERAL;
     }
     rv = apr_dbd_check_conn(driver, pool, *handle);
     if ((rv != APR_SUCCESS) && (rv != APR_ENOTIMPL)) {
+        /* XXX: rv is APR error code, but apr_dbd_error() takes int! */
+        if (error) {
+            *error = apr_dbd_error(driver, *handle, rv);
+        }
         apr_dbd_close(driver, *handle);
         return APR_EGENERAL;
     }
     return APR_SUCCESS;
+}
+APU_DECLARE(apr_status_t) apr_dbd_open(const apr_dbd_driver_t *driver,
+                                       apr_pool_t *pool, const char *params,
+                                       apr_dbd_t **handle)
+{
+    return apr_dbd_open_ex(driver,pool,params,handle,NULL);
 }
 APU_DECLARE(int) apr_dbd_transaction_start(const apr_dbd_driver_t *driver,
                                            apr_pool_t *pool, apr_dbd_t *handle,
