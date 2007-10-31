@@ -522,9 +522,11 @@ static apr_dbd_t *dbd_oracle_open(apr_pool_t *pool, const char *params,
         printf("OPEN ERROR %d (alloc svr): %s\n", ret->status, ret->buf);
         break;
 #else
-        *error = apr_pcalloc(pool, ERR_BUF_SIZE);
-        OCIErrorGet(ret->err, 1, NULL, &errorcode, (unsigned char*)(*error),
-                    ERR_BUF_SIZE, OCI_HTYPE_ERROR);
+        if (error) {
+            *error = apr_pcalloc(pool, ERR_BUF_SIZE);
+            OCIErrorGet(ret->err, 1, NULL, &errorcode, (unsigned char*)(*error),
+                        ERR_BUF_SIZE, OCI_HTYPE_ERROR);
+        }
         return NULL;
 #endif
     case OCI_SUCCESS:
@@ -541,9 +543,11 @@ static apr_dbd_t *dbd_oracle_open(apr_pool_t *pool, const char *params,
         printf("OPEN ERROR %d (alloc svc): %s\n", ret->status, ret->buf);
         break;
 #else
-        *error = apr_pcalloc(pool, ERR_BUF_SIZE);
-        OCIErrorGet(ret->err, 1, NULL, &errorcode, (unsigned char*)(*error),
-                    ERR_BUF_SIZE, OCI_HTYPE_ERROR);
+        if (error) {
+            *error = apr_pcalloc(pool, ERR_BUF_SIZE);
+            OCIErrorGet(ret->err, 1, NULL, &errorcode, (unsigned char*)(*error),
+                        ERR_BUF_SIZE, OCI_HTYPE_ERROR);
+        }
         return NULL;
 #endif
     case OCI_SUCCESS:
@@ -564,9 +568,11 @@ static apr_dbd_t *dbd_oracle_open(apr_pool_t *pool, const char *params,
         printf("OPEN ERROR: %s\n", ret->buf);
         break;
 #else
-        *error = apr_pcalloc(pool, ERR_BUF_SIZE);
-        OCIErrorGet(ret->err, 1, NULL, &errorcode, (unsigned char*)(*error),
-                    ERR_BUF_SIZE, OCI_HTYPE_ERROR);
+        if (error) {
+            *error = apr_pcalloc(pool, ERR_BUF_SIZE);
+            OCIErrorGet(ret->err, 1, NULL, &errorcode, (unsigned char*)(*error),
+                        ERR_BUF_SIZE, OCI_HTYPE_ERROR);
+        }
         return NULL;
 #endif
     case OCI_SUCCESS:
@@ -583,9 +589,11 @@ static apr_dbd_t *dbd_oracle_open(apr_pool_t *pool, const char *params,
         printf("OPEN ERROR %d (server attach): %s\n", ret->status, ret->buf);
         break;
 #else
-        *error = apr_pcalloc(pool, ERR_BUF_SIZE);
-        OCIErrorGet(ret->err, 1, NULL, &errorcode, (unsigned char*)(*error),
-                    ERR_BUF_SIZE, OCI_HTYPE_ERROR);
+        if (error) {
+            *error = apr_pcalloc(pool, ERR_BUF_SIZE);
+            OCIErrorGet(ret->err, 1, NULL, &errorcode, (unsigned char*)(*error),
+                        ERR_BUF_SIZE, OCI_HTYPE_ERROR);
+        }
         return NULL;
 #endif
     case OCI_SUCCESS:
@@ -601,9 +609,11 @@ static apr_dbd_t *dbd_oracle_open(apr_pool_t *pool, const char *params,
         printf("OPEN ERROR %d (attr set): %s\n", ret->status, ret->buf);
         break;
 #else
-        *error = apr_pcalloc(pool, ERR_BUF_SIZE);
-        OCIErrorGet(ret->err, 1, NULL, &errorcode, (unsigned char*)(*error),
-                    ERR_BUF_SIZE, OCI_HTYPE_ERROR);
+        if (error) {
+            *error = apr_pcalloc(pool, ERR_BUF_SIZE);
+            OCIErrorGet(ret->err, 1, NULL, &errorcode, (unsigned char*)(*error),
+                        ERR_BUF_SIZE, OCI_HTYPE_ERROR);
+        }
         return NULL;
 #endif
     case OCI_SUCCESS:
@@ -619,9 +629,11 @@ static apr_dbd_t *dbd_oracle_open(apr_pool_t *pool, const char *params,
         printf("OPEN ERROR %d (alloc auth): %s\n", ret->status, ret->buf);
         break;
 #else
-        *error = apr_pcalloc(pool, ERR_BUF_SIZE);
-        OCIErrorGet(ret->err, 1, NULL, &errorcode, (unsigned char*)(*error),
-                    ERR_BUF_SIZE, OCI_HTYPE_ERROR);
+        if (error) {
+            *error = apr_pcalloc(pool, ERR_BUF_SIZE);
+            OCIErrorGet(ret->err, 1, NULL, &errorcode, (unsigned char*)(*error),
+                        ERR_BUF_SIZE, OCI_HTYPE_ERROR);
+        }
         return NULL;
 #endif
     case OCI_SUCCESS:
@@ -637,9 +649,11 @@ static apr_dbd_t *dbd_oracle_open(apr_pool_t *pool, const char *params,
         printf("OPEN ERROR %d (attr username): %s\n", ret->status, ret->buf);
         break;
 #else
-        *error = apr_pcalloc(pool, ERR_BUF_SIZE);
-        OCIErrorGet(ret->err, 1, NULL, &errorcode, (unsigned char*)(*error),
-                    ERR_BUF_SIZE, OCI_HTYPE_ERROR);
+        if (error) {
+            *error = apr_pcalloc(pool, ERR_BUF_SIZE);
+            OCIErrorGet(ret->err, 1, NULL, &errorcode, (unsigned char*)(*error),
+                        ERR_BUF_SIZE, OCI_HTYPE_ERROR);
+        }
         return NULL;
 #endif
     case OCI_SUCCESS:
@@ -655,9 +669,11 @@ static apr_dbd_t *dbd_oracle_open(apr_pool_t *pool, const char *params,
         printf("OPEN ERROR %d (attr password): %s\n", ret->status, ret->buf);
         break;
 #else
-        *error = apr_pcalloc(pool, ERR_BUF_SIZE);
-        OCIErrorGet(ret->err, 1, NULL, &errorcode, (unsigned char*)(*error),
-                    ERR_BUF_SIZE, OCI_HTYPE_ERROR);
+        if (error) {
+            *error = apr_pcalloc(pool, ERR_BUF_SIZE);
+            OCIErrorGet(ret->err, 1, NULL, &errorcode, (unsigned char*)(*error),
+                        ERR_BUF_SIZE, OCI_HTYPE_ERROR);
+        }
         return NULL;
 #endif
     case OCI_SUCCESS:
@@ -673,9 +689,11 @@ static apr_dbd_t *dbd_oracle_open(apr_pool_t *pool, const char *params,
         printf("OPEN ERROR %d (session begin): %s\n", ret->status, ret->buf);
         break;
 #else
-        *error = apr_pcalloc(pool, ERR_BUF_SIZE);
-        OCIErrorGet(ret->err, 1, NULL, &errorcode, (unsigned char*)(*error),
-                    ERR_BUF_SIZE, OCI_HTYPE_ERROR);
+        if (error) {
+            *error = apr_pcalloc(pool, ERR_BUF_SIZE);
+            OCIErrorGet(ret->err, 1, NULL, &errorcode, (unsigned char*)(*error),
+                        ERR_BUF_SIZE, OCI_HTYPE_ERROR);
+        }
         return NULL;
 #endif
     case OCI_SUCCESS:
@@ -690,9 +708,11 @@ static apr_dbd_t *dbd_oracle_open(apr_pool_t *pool, const char *params,
                     sizeof(ret->buf), OCI_HTYPE_ERROR);
         printf("OPEN ERROR %d (attr session): %s\n", ret->status, ret->buf);
 #else
-        *error = apr_pcalloc(pool, ERR_BUF_SIZE);
-        OCIErrorGet(ret->err, 1, NULL, &errorcode, (unsigned char*)(*error),
-                    ERR_BUF_SIZE, OCI_HTYPE_ERROR);
+        if (error) {
+            *error = apr_pcalloc(pool, ERR_BUF_SIZE);
+            OCIErrorGet(ret->err, 1, NULL, &errorcode, (unsigned char*)(*error),
+                        ERR_BUF_SIZE, OCI_HTYPE_ERROR);
+        }
         return NULL;
 #endif
         break;
