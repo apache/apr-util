@@ -21,14 +21,15 @@
 /* @file apu.h
  * @brief APR-Utility main file
  */
+
+#ifdef NETWARE
+#ifndef APU_H
+#define APU_H
 /**
  * @defgroup APR_Util APR Utility Functions
  * @{
  */
 
-
-#ifndef APU_H
-#define APU_H
 
 /**
  * APU_DECLARE_EXPORT is defined when building the APR-UTIL dynamic library,
@@ -79,15 +80,24 @@
 #define APU_HAVE_DB_VERSION     0
 #endif
 
+/* 
+ * we allways enable dynamic driver loads within apr_dbd
+ */
+#define APU_DSO_BUILD           1
+
+#if !APU_DSO_BUILD
 #define APU_HAVE_PGSQL          0
 #define APU_HAVE_MYSQL          0
 #define APU_HAVE_SQLITE3        0
 #define APU_HAVE_SQLITE2        0
 #define APU_HAVE_ORACLE         0
+#define APU_HAVE_FREETDS        0
+#endif
 
 #define APU_HAVE_APR_ICONV      0
 #define APU_HAVE_ICONV          1
 #define APR_HAS_XLATE           (APU_HAVE_APR_ICONV || APU_HAVE_ICONV)
 
 #endif /* APU_H */
-/** @} */
+#endif /* NETWARE */
+
