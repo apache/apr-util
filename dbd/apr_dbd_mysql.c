@@ -15,6 +15,7 @@
  */
 
 #include "apu.h"
+#define HAVE_MYSQL_MYSQL_H
 
 #if APU_HAVE_MYSQL
 
