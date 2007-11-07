@@ -102,7 +102,7 @@ static void get_random_info(unsigned char node[NODE_LENGTH])
 static void get_pseudo_node_identifier(unsigned char *node)
 {
     get_random_info(node);
-    node[0] |= 0x01;                    /* this designates a random node ID */
+    node[0] |= 0x01;                    /* this designates a random multicast node ID */
 }
 
 static void get_system_time(apr_uint64_t *uuid_time)
