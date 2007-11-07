@@ -131,7 +131,7 @@ static int true_random(void)
 
     /* crap. this isn't crypto quality, but it will be Good Enough */
 
-    get_system_time(&time_now);
+    time_now = apr_time_now();
     srand((unsigned int)(((time_now >> 32) ^ time_now) & 0xffffffff));
 
     return rand() & 0x0FFFF;
