@@ -144,6 +144,12 @@ MAKEOPT=-s -N
 
 all: buildall checkall
 
+# To help win32 pick up the locations where they don't fall in the usual
+# path locations.  This may not be completely effective for USESLN/USEDSP
+# oriented builds, just yet
+#
+LIB=$(APR_PATH)\$(ARCHOSPATH);$(APR_PATH)\$(LIBSOSPATH);$(API_PATH)\$(ARCHPATH);$(API_PATH)\$(LIBSPATH);$(APU_PATH)\$(ARCHPATH);$(APU_PATH)\$(LIBSPATH);$(LIB)
+INCLUDE=$(APR_PATH)\include;$(API_PATH)\include;$(INCLUDE)
 
 !IF $(USEMAK) == 1
 
@@ -183,8 +189,8 @@ buildall:
 !ELSEIF $(USESLN) == 1
 
 clean:
-	-devenv aprutil.sln /useenv /clean "$(SLNARCH)" /project aprutil
 	-devenv aprutil.sln /useenv /clean "$(SLNARCH)" /project libaprutil
+	-devenv aprutil.sln /useenv /clean "$(SLNARCH)" /project aprutil
 	cd $(API_PATH)
 	 $(MAKE) $(MAKEOPT) -f build\modules.mk.win clean \
 		BUILD_MODE="$(ARCH)" BIND_MODE=shared API_SOURCE=.
@@ -206,8 +212,8 @@ clean:
 	cd $(APU_PATH)
 
 buildall:
-	@msdev aprutil.dsw /USEENV /MAKE "libaprutil - $(ARCH)"
 	@msdev aprutil.dsw /USEENV /MAKE "aprutil - $(ARCH)"
+	@msdev aprutil.dsw /USEENV /MAKE "libaprutil - $(ARCH)"
 
 !ENDIF
 
@@ -222,12 +228,17 @@ checkapr:
 	cd $(APU_PATH)
 
 checkapu:
-	cd $(APU_PATH)\test
+        for /f %p in ('cd $(APR_PATH) && pwd') do set FOUND_APR=%p
+        for /f %p in ('cd $(API_PATH) && pwd') do set FOUND_API=%p
+	cd $(APU_PATH)
+        cd test
 	 $(MAKE) $(MAKEOPT) -f Makefile.win MODEL=static \
-		OUTDIR=$(LIBSPATH) check
+		OUTDIR=$(LIBSPATH) APROUTDIR=$(LIBSOSPATH) \
+		APR_PATH=%FOUND_APR% API_PATH=%FOUND_APR% check
 	 $(MAKE) $(MAKEOPT) -f Makefile.win MODEL=dynamic \
-		OUTDIR=$(ARCHPATH) check
-	 cd ..
+		OUTDIR=$(LIBSPATH) APROUTDIR=$(ARCHOSPATH) \
+		APR_PATH=%FOUND_APR% API_PATH=%FOUND_APR% check
+	cd ..
 
 checkall: checkapr checkapu
 
