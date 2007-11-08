@@ -22,6 +22,8 @@
 MODEL=dynamic
 !ENDIF
 
+APROUTDIR=OUTDIR
+
 !IFNDEF OUTDIR
 !IF "$(MODEL)" == "static"
 OUTDIR=LibR
@@ -77,15 +79,17 @@ LD = link.exe
 APR_PATH = ..\..\apr
 API_PATH = ..\..\apr-iconv
 
+APROUTDIR=$(OUTDIR)
+
 !IF "$(MODEL)" == "static"
 PROGRAM_DEPENDENCIES = \
-	$(APR_PATH)\$(OUTDIR)\apr-1.lib \
+	$(APR_PATH)\$(APROUTDIR)\apr-1.lib \
 	$(API_PATH)\$(OUTDIR)\apriconv-1.lib \
 	..\$(OUTDIR)\aprutil-1.lib 
 STATIC_CFLAGS = /D APR_DECLARE_STATIC /D APU_DECLARE_STATIC
 !ELSE
 PROGRAM_DEPENDENCIES = \
-	$(APR_PATH)\$(OUTDIR)\libapr-1.lib \
+	$(APR_PATH)\$(APROUTDIR)\libapr-1.lib \
 	$(API_PATH)\$(OUTDIR)\libapriconv-1.lib \
 	..\$(OUTDIR)\libaprutil-1.lib 
 STATIC_CFLAGS = 
@@ -143,7 +147,7 @@ cleanall:
 	    @if EXIST %d\. rmdir /s /q %d
 
 
-PATH=$(OUTDIR);..\$(OUTDIR);$(API_PATH)\$(OUTDIR);$(APR_PATH)\$(OUTDIR);$(PATH)
+PATH=$(OUTDIR);..\$(OUTDIR);$(API_PATH)\$(OUTDIR);$(APR_PATH)\$(APROUTDIR);$(PATH)
 APR_ICONV1_PATH=$(API_PATH)\$(OUTDIR)\iconv
 
 check: $(PROGRAMS) $(OTHER_PROGRAMS)
