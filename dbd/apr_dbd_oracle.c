@@ -1106,11 +1106,12 @@ static int outputParams(apr_dbd_t *sql, apr_dbd_prepared_t *stmt)
 {
     OCIParam *parms;
     int i;
-    int_errorcode;
     ub2 paramtype[DBD_ORACLE_MAX_COLUMNS];
     ub2 paramsize[DBD_ORACLE_MAX_COLUMNS];
     const char *paramname[DBD_ORACLE_MAX_COLUMNS];
     ub4 paramnamelen[DBD_ORACLE_MAX_COLUMNS];
+    int_errorcode;
+
     /* Perl uses 0 where we used 1 */
     sql->status = OCIStmtExecute(sql->svc, stmt->stmt, sql->err, 0, 0,
                                  NULL, NULL, OCI_DESCRIBE_ONLY);
@@ -1254,11 +1255,11 @@ static int dbd_oracle_pquery(apr_pool_t *pool, apr_dbd_t *sql,
                              int *nrows, apr_dbd_prepared_t *statement,
                              const char **values)
 {
-    int_errorcode;
     OCISnapshot *oldsnapshot = NULL;
     OCISnapshot *newsnapshot = NULL;
     apr_dbd_transaction_t* trans = sql->trans;
     int exec_mode;
+    int_errorcode;
 
     if (trans) {
         switch (trans->status) {
@@ -1339,6 +1340,7 @@ static int dbd_oracle_pselect(apr_pool_t *pool, apr_dbd_t *sql,
     OCISnapshot *oldsnapshot = NULL;
     OCISnapshot *newsnapshot = NULL;
     apr_dbd_transaction_t* trans = sql->trans;
+    int_errorcode;
 
     if (trans) {
         switch (trans->status) {
@@ -1365,7 +1367,6 @@ static int dbd_oracle_pselect(apr_pool_t *pool, apr_dbd_t *sql,
     sql->status = OCIStmtExecute(sql->svc, statement->stmt, sql->err, 0, 0,
                                  oldsnapshot, newsnapshot, exec_mode);
     switch (sql->status) {
-    int_errorcode;
     case OCI_SUCCESS:
         break;
     case OCI_ERROR:
@@ -1641,11 +1642,11 @@ static int dbd_oracle_pbquery(apr_pool_t * pool, apr_dbd_t * sql,
                               int *nrows, apr_dbd_prepared_t * statement,
                               const void **values)
 {
-    int_errorcode;
     OCISnapshot *oldsnapshot = NULL;
     OCISnapshot *newsnapshot = NULL;
     apr_dbd_transaction_t* trans = sql->trans;
     int exec_mode;
+    int_errorcode;
 
     if (trans) {
         switch (trans->status) {
@@ -1726,6 +1727,7 @@ static int dbd_oracle_pbselect(apr_pool_t * pool, apr_dbd_t * sql,
     OCISnapshot *oldsnapshot = NULL;
     OCISnapshot *newsnapshot = NULL;
     apr_dbd_transaction_t* trans = sql->trans;
+    int_errorcode;
 
     if (trans) {
         switch (trans->status) {
@@ -1752,7 +1754,6 @@ static int dbd_oracle_pbselect(apr_pool_t * pool, apr_dbd_t * sql,
     sql->status = OCIStmtExecute(sql->svc, statement->stmt, sql->err, 0, 0,
                                  oldsnapshot, newsnapshot, exec_mode);
     switch (sql->status) {
-    int_errorcode;
     case OCI_SUCCESS:
         break;
     case OCI_ERROR:
@@ -1923,7 +1924,6 @@ static int dbd_oracle_transaction_mode_set(apr_dbd_transaction_t *trans,
  */
 static const char *dbd_oracle_get_entry(const apr_dbd_row_t *row, int n)
 {
-    int_errorcode;
     ub4 len = 0;
     ub1 csform = 0;
     ub2 csid = 0;
@@ -1931,6 +1931,7 @@ static const char *dbd_oracle_get_entry(const apr_dbd_row_t *row, int n)
     char *buf = NULL;
     define_arg *val = &row->res->statement->out[n];
     apr_dbd_t *sql = row->res->handle;
+    int_errorcode;
 
     if ((n < 0) || (n >= row->res->statement->nout) || (val->ind == -1)) {
         return NULL;
