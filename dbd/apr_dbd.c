@@ -36,11 +36,11 @@ static apr_hash_t *drivers = NULL;
 
 #if APR_HAS_THREADS
 static apr_thread_mutex_t* mutex = NULL;
-apr_status_t apr_dbd_mutex_lock()
+APU_DECLARE(apr_status_t) apr_dbd_mutex_lock()
 {
     return apr_thread_mutex_lock(mutex);
 }
-apr_status_t apr_dbd_mutex_unlock()
+APU_DECLARE(apr_status_t) apr_dbd_mutex_unlock()
 {
     return apr_thread_mutex_unlock(mutex);
 }
