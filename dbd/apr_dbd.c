@@ -45,10 +45,10 @@ APU_DECLARE(apr_status_t) apr_dbd_mutex_unlock()
     return apr_thread_mutex_unlock(mutex);
 }
 #else
-apr_status_t apr_dbd_mutex_lock() {
+APU_DECLARE(apr_status_t) apr_dbd_mutex_lock() {
     return APR_SUCCESS;
 }
-apr_status_t apr_dbd_mutex_unlock() {
+APU_DECLARE(apr_status_t) apr_dbd_mutex_unlock() {
     return APR_SUCCESS;
 }
 #endif
