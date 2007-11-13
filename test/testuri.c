@@ -95,6 +95,30 @@ struct aup_test aup_tests[] =
         "//www.apache.org/",
         0, NULL, "www.apache.org", NULL, NULL, "www.apache.org", NULL, "/", NULL, NULL, 0
     },
+    {
+        "file:image.jpg",
+        0, "file", NULL, NULL, NULL, NULL, NULL, "image.jpg", NULL, NULL, 0
+    },
+    {
+        "file:/image.jpg",
+        0, "file", NULL, NULL, NULL, NULL, NULL, "/image.jpg", NULL, NULL, 0
+    },
+    {
+        "file:///image.jpg",
+        0, "file", "", NULL, NULL, "", NULL, "/image.jpg", NULL, NULL, 0
+    },
+    {
+        "file:///tmp/photos/image.jpg",
+        0, "file", "", NULL, NULL, "", NULL, "/tmp/photos/image.jpg", NULL, NULL, 0
+    },
+    {
+        "file:./image.jpg",
+        0, "file", NULL, NULL, NULL, NULL, NULL, "./image.jpg", NULL, NULL, 0
+    },
+    {
+        "file:../photos/image.jpg",
+        0, "file", NULL, NULL, NULL, NULL, NULL, "../photos/image.jpg", NULL, NULL, 0
+    },
 };
 
 struct uph_test {
