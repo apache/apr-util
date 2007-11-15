@@ -2,6 +2,13 @@
 
 Changes with APR-util 1.2.12
 
+  *) Numerous fixes to the test/ framework, including better handling of
+     long size_t comparisons and more consistent Makefile.(in|win) setup
+     for authoring new tests.  [William Rowe]
+
+  *) Win32 build fixes including a Makefile.win scheme, fixes for 64P
+     model x86_64 compiles and VC8 builds.  [William Rowe]
+
   *) Type mismatch between apr_datum_t and GDBM's datum type could
      yield a corrupt apr_datum_t when reading from a GDBM database.
      PR 43025.  [Björn Wiberg <Bjorn.Wiberg its.uu.se>, Davi Arnaut]
