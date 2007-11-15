@@ -198,11 +198,11 @@ APU_DECLARE(apr_status_t) apr_md5_set_xlate(apr_md5_ctx_t *context,
  * context.
  */
 static apr_status_t md5_update_buffer(apr_md5_ctx_t *context,
-                               const void *_input,
-                               apr_size_t inputLen,
-                               int xlate_buffer)
+                                      const void *vinput,
+                                      apr_size_t inputLen,
+                                      int xlate_buffer)
 {
-    const unsigned char *input = _input;
+    const unsigned char *input = vinput;
     unsigned int i, idx, partLen;
 #if APR_HAS_XLATE
     apr_size_t inbytes_left, outbytes_left;
@@ -286,10 +286,10 @@ static apr_status_t md5_update_buffer(apr_md5_ctx_t *context,
  * for EBCDIC translations
  */  
 APU_DECLARE(apr_status_t) apr_md5_update(apr_md5_ctx_t *context,
-                                         const void *_input,
+                                         const void *input,
                                          apr_size_t inputLen)
 {
-    return md5_update_buffer( context, _input, inputLen, DO_XLATE);
+    return md5_update_buffer(context, input, inputLen, DO_XLATE);
 }
 
 /* MD5 finalization. Ends an MD5 message-digest operation, writing the
