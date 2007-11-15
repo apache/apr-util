@@ -6,6 +6,11 @@ Changes with APR-util 1.2.12
      yield a corrupt apr_datum_t when reading from a GDBM database.
      PR 43025.  [Björn Wiberg <Bjorn.Wiberg its.uu.se>, Davi Arnaut]
 
+  *) Add the #define APR_LDAP_SIZELIMIT that is set appropriately
+     for the LDAP SDK that is being used. Also include ZOS as an
+     LDAP Platform.
+     PR 37814.  [David Jones <oscaremma gmail com>, Davi Arnaut]
+
 Changes with APR-util 1.2.11
 
   *) Fix exported LDFLAGS with new expat detection.  PR 43337.
