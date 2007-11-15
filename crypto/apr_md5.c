@@ -102,7 +102,7 @@ static void Encode(unsigned char *output, const apr_uint32_t *input,
 static void Decode(apr_uint32_t *output, const unsigned char *input,
                    unsigned int len);
 
-static unsigned char PADDING[64] =
+static const unsigned char PADDING[64] =
 {
     0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
