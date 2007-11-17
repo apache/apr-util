@@ -80,7 +80,7 @@ apr_status_t apu_ssl_factory_create(apr_ssl_factory_t *asf,
                                               SSL_FILETYPE_PEM) ||
                 !SSL_CTX_check_private_key(sslData->ctx)) {
                 SSL_CTX_free(sslData->ctx);
-                return APR_ENOENT; /* what code shoudl we return? */
+                return APR_ENOENT; /* what code should we return? */
             }
         }
     } else {
