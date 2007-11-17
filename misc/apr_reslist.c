@@ -381,6 +381,7 @@ APU_DECLARE(apr_status_t) apr_reslist_invalidate(apr_reslist_t *reslist,
     apr_thread_mutex_lock(reslist->listlock);
     ret = reslist->destructor(resource, reslist->params, reslist->pool);
     reslist->ntotal--;
+    apr_thread_cond_signal(reslist->avail);
     apr_thread_mutex_unlock(reslist->listlock);
     return ret;
 }
