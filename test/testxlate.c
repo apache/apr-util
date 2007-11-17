@@ -49,7 +49,7 @@ static void test_conversion(abts_case *tc, apr_xlate_t *convset,
 
     buf[sizeof(buf) - outbytes_left - 1] = '\0';
 
-    ABTS_STR_EQUAL(tc, expected, buf);
+    ABTS_STR_EQUAL(tc, buf, expected);
 }
 
 static void one_test(abts_case *tc, const char *cs1, const char *cs2,
