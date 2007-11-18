@@ -119,7 +119,7 @@ static void * APR_THREAD_FUNC resource_consuming_thread(apr_thread_t *thd,
 
     for (i = 0; i < CONSUMER_ITERATIONS; i++) {
         rv = apr_reslist_acquire(rl, &vp);
-        ABTS_INT_EQUAL(thread_info->tc, rv, APR_SUCCESS);
+        ABTS_INT_EQUAL(thread_info->tc, APR_SUCCESS, rv);
         res = vp;
         apr_sleep(thread_info->work_delay_sleep);
 
@@ -127,10 +127,10 @@ static void * APR_THREAD_FUNC resource_consuming_thread(apr_thread_t *thd,
         chance = lgc(chance);
         if ( chance < PERCENT95th ) {
             rv = apr_reslist_release(rl, res);
-            ABTS_INT_EQUAL(thread_info->tc, rv, APR_SUCCESS);
+            ABTS_INT_EQUAL(thread_info->tc, APR_SUCCESS, rv);
         } else {
             rv = apr_reslist_invalidate(rl, res);
-            ABTS_INT_EQUAL(thread_info->tc, rv, APR_SUCCESS);
+            ABTS_INT_EQUAL(thread_info->tc, APR_SUCCESS, rv);
         }
     }
 
@@ -155,7 +155,7 @@ static void test_timeout(abts_case *tc, apr_reslist_t *rl)
 
     for (i = 0; i < RESLIST_HMAX; i++) {
         rv = apr_reslist_acquire(rl, (void**)&resources[i]);
-        ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
+        ABTS_INT_EQUAL(tc, APR_SUCCESS, rv);
     }
 
     /* next call will block until timeout is reached */
@@ -169,7 +169,7 @@ static void test_timeout(abts_case *tc, apr_reslist_t *rl)
      */
     for (i = 0; i < RESLIST_HMAX; i++) {
         rv = apr_reslist_release(rl, resources[i]);
-        ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
+        ABTS_INT_EQUAL(tc, APR_SUCCESS, rv);
     }
 }
 
@@ -185,22 +185,22 @@ static void test_shrinking(abts_case *tc, apr_reslist_t *rl)
     /* deplete all possible resources from the resource list */
     for (i = 0; i < RESLIST_HMAX; i++) {
         rv = apr_reslist_acquire(rl, (void**)&resources[i]);
-        ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
+        ABTS_INT_EQUAL(tc, APR_SUCCESS, rv);
     }
 
     /* Free all resources above RESLIST_SMAX - 1 */
     for (i = RESLIST_SMAX - 1; i < RESLIST_HMAX; i++) {
         rv = apr_reslist_release(rl, resources[i]);
-        ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
+        ABTS_INT_EQUAL(tc, APR_SUCCESS, rv);
     }
 
     for (i = 0; i < RESLIST_HMAX; i++) {
         rv = apr_reslist_acquire(rl, &vp);
-        ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
+        ABTS_INT_EQUAL(tc, APR_SUCCESS, rv);
         res = vp;
         apr_sleep(sleep_time);
         rv = apr_reslist_release(rl, res);
-        ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
+        ABTS_INT_EQUAL(tc, APR_SUCCESS, rv);
     }
     apr_sleep(sleep_time);
 
@@ -210,7 +210,7 @@ static void test_shrinking(abts_case *tc, apr_reslist_t *rl)
      */
     for (i = 0; i < RESLIST_SMAX - 1; i++) {
         rv = apr_reslist_release(rl, resources[i]);
-        ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
+        ABTS_INT_EQUAL(tc, APR_SUCCESS, rv);
     }
 }
 
@@ -224,7 +224,7 @@ static void test_reslist(abts_case *tc, void *data)
     my_thread_info_t thread_info[CONSUMER_THREADS];
 
     rv = apr_thread_pool_create(&thrp, CONSUMER_THREADS/2, CONSUMER_THREADS, p);
-    ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
+    ABTS_INT_EQUAL(tc, APR_SUCCESS, rv);
 
     /* Create some parameters that will be passed into each
      * constructor and destructor call. */
@@ -236,7 +236,7 @@ static void test_reslist(abts_case *tc, void *data)
     rv = apr_reslist_create(&rl, RESLIST_MIN, RESLIST_SMAX, RESLIST_HMAX,
                             RESLIST_TTL, my_constructor, my_destructor,
                             params, p);
-    ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
+    ABTS_INT_EQUAL(tc, APR_SUCCESS, rv);
 
     for (i = 0; i < CONSUMER_THREADS; i++) {
         thread_info[i].tid = i;
@@ -245,11 +245,11 @@ static void test_reslist(abts_case *tc, void *data)
         thread_info[i].work_delay_sleep = WORK_DELAY_SLEEP_TIME;
         rv = apr_thread_pool_push(thrp, resource_consuming_thread,
                                   &thread_info[i], 0, NULL);
-        ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
+        ABTS_INT_EQUAL(tc, APR_SUCCESS, rv);
     }
 
     rv = apr_thread_pool_destroy(thrp);
-    ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
+    ABTS_INT_EQUAL(tc, APR_SUCCESS, rv);
 
     test_timeout(tc, rl);
 
@@ -257,7 +257,7 @@ static void test_reslist(abts_case *tc, void *data)
     ABTS_INT_EQUAL(tc, RESLIST_SMAX, params->c_count - params->d_count);
 
     rv = apr_reslist_destroy(rl);
-    ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
+    ABTS_INT_EQUAL(tc, APR_SUCCESS, rv);
 }
 
 #endif /* APR_HAS_THREADS */

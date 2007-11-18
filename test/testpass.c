@@ -93,11 +93,11 @@ static void test_threadsafe(abts_case *tc, void *data)
     apr_thread_pool_t *thrp;
 
     rv = apr_thread_pool_create(&thrp, NUM_THR/2, NUM_THR, p);
-    ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
+    ABTS_INT_EQUAL(tc, APR_SUCCESS, rv);
 
     for (i = 0; i < NUM_THR; i++) {
         rv = apr_thread_pool_push(thrp, testing_thread, tc, 0, NULL);
-        ABTS_INT_EQUAL(tc, rv, APR_SUCCESS);
+        ABTS_INT_EQUAL(tc, APR_SUCCESS, rv);
     }
 
     apr_thread_pool_destroy(thrp);
