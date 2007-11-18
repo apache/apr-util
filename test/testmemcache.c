@@ -152,7 +152,7 @@ static void test_memcache_create(abts_case * tc, void *data)
     ABTS_ASSERT(tc, "server add failed", rv == APR_SUCCESS);
     
     s = apr_memcache_find_server(memcache, HOST, port);
-    ABTS_PTR_EQUAL(tc, s, server);
+    ABTS_PTR_EQUAL(tc, server, s);
     
     rv = apr_memcache_disable_server(memcache, s);
     ABTS_ASSERT(tc, "server disable failed", rv == APR_SUCCESS);
@@ -215,7 +215,7 @@ static void test_memcache_user_funcs(abts_case * tc, void *data)
   memcache->hash_func = my_hash_func;
 
   hres = apr_memcache_hash(memcache, "whatever", sizeof("whatever") - 1);
-  ABTS_INT_EQUAL(tc, hres, HASH_FUNC_RESULT);
+  ABTS_INT_EQUAL(tc, HASH_FUNC_RESULT, hres);
   
   /* add some servers */
   for(i = 1; i <= 10; i++) {
@@ -406,7 +406,7 @@ static void test_memcache_incrdecr(abts_case * tc, void *data)
   rv = apr_memcache_getp(memcache, pool, prefix, &result, &len, NULL);
   ABTS_ASSERT(tc, "get failed", rv == APR_SUCCESS);
 
-  ABTS_INT_EQUAL(tc, atoi(result), 271);
+  ABTS_INT_EQUAL(tc, 271, atoi(result));
 
   rv = apr_memcache_delete(memcache, prefix, 0);
   ABTS_ASSERT(tc, "delete failed", rv == APR_SUCCESS);
