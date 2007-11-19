@@ -2,6 +2,9 @@
 
 Changes with APR-util 1.2.12
 
+  *) Wakeup threads waiting for a reslist resource after a resource was
+     invalidated. [Ruediger Pluem]
+
   *) Fix GMT offset for several date formats and add a new format.
      [Maxime Petazzoni <maxime.petazzoni bulix.org>]
 
