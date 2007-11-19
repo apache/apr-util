@@ -1,9 +1,5 @@
                                                      -*- coding: utf-8 -*-
 
-Changes with APR-util 1.2.13
-
-
-
 Changes with APR-util 1.2.12
 
   *) Fix GMT offset for several date formats and add a new format.
@@ -24,8 +20,6 @@ Changes with APR-util 1.2.12
      for the LDAP SDK that is being used. Also include ZOS as an
      LDAP Platform.
      PR 37814.  [David Jones <oscaremma gmail com>, Davi Arnaut]
-
-Changes with APR-util 1.2.11
 
   *) Fix exported LDFLAGS with new expat detection.  PR 43337.
      [Justin Erenkrantz]
