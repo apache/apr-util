@@ -6,6 +6,9 @@ Changes with APR-util 1.2.13
 
 Changes with APR-util 1.2.12
 
+  *) Fix GMT offset for several date formats and add a new format.
+     [Maxime Petazzoni <maxime.petazzoni bulix.org>]
+
   *) Numerous fixes to the test/ framework, including better handling of
      long size_t comparisons and more consistent Makefile.(in|win) setup
      for authoring new tests.  [William Rowe]
