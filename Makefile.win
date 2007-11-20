@@ -23,8 +23,10 @@
 #     ARCH="x64 Release"
 #     ARCH="x64 Debug"
 #
-# Provide the APR_PATH, API_PATH and APU_PATH all as absolute paths, 
-# or all as paths RELATIVE TO ONE ANOTHER!
+# Provide the APR_PATH, API_PATH and APU_PATH entirely relative 
+# to one another!  At this time, building the libraries themselves
+# is only expected to work if the defaults (../apr, ../apr-iconv 
+# and ../apr-util) are used, or if they are built with USEMAK=1.
 #
 #     APR_PATH=..\apr-1.3.0
 #     API_PATH=..\apr-iconv-1.3.0
@@ -228,16 +230,14 @@ checkapr:
 	cd $(APU_PATH)
 
 checkapu:
-        for /f %p in ('cd $(APR_PATH) && pwd') do set FOUND_APR=%p
-        for /f %p in ('cd $(API_PATH) && pwd') do set FOUND_API=%p
 	cd $(APU_PATH)
-        cd test
+	cd test
 	 $(MAKE) $(MAKEOPT) -f Makefile.win MODEL=static \
 		OUTDIR=$(LIBSPATH) APROUTDIR=$(LIBSOSPATH) \
-		APR_PATH=%FOUND_APR% API_PATH=%FOUND_APR% check
+		APR_PATH=..\$(APR_PATH) API_PATH=..\$(API_PATH) check
 	 $(MAKE) $(MAKEOPT) -f Makefile.win MODEL=dynamic \
 		OUTDIR=$(LIBSPATH) APROUTDIR=$(ARCHOSPATH) \
-		APR_PATH=%FOUND_APR% API_PATH=%FOUND_APR% check
+		APR_PATH=..\$(APR_PATH) API_PATH=..\$(API_PATH) check
 	cd ..
 
 checkall: checkapr checkapu
