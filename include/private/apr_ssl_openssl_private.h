@@ -32,6 +32,47 @@ struct apu_ssl_socket_data {
     int      sslErr; /** SSL_get_error() code */ 
 };
 
+typedef struct apu_evp_data        apu_evp_data_t;
+
+/**
+ * EVP factory structure
+ */
+struct apu_evp_factory {
+    apr_pool_t     *pool;           /**< pool to use for memory allocations */
+    apr_evp_factory_type_e purpose; /**< Purpose of the factory */
+    apu_evp_data_t *evpData;        /**< Pointer to implementation specific data */
+};
+
+/**
+ * Define the cipher context structure used as a handle by
+ * the generic apu_evp_* functions.
+ */
+struct apu_evp_data {
+    const EVP_CIPHER *cipher;
+    const EVP_MD *md;
+    unsigned char salt[8];
+    unsigned char key[EVP_MAX_KEY_LENGTH];
+    unsigned char iv[EVP_MAX_IV_LENGTH];
+    const char *privateKeyFilename;
+    const char *certificateFilename;
+#if HAVE_DECL_EVP_PKEY_CTX_NEW
+    SSL_CTX *sslCtx;
+    SSL *ssl;
+    EVP_PKEY *pubkey;
+    EVP_PKEY *privkey;
+#endif
+};
+
+struct apu_evp_crypt {
+    apr_pool_t *pool;
+    EVP_CIPHER_CTX *cipherCtx;
+#if HAVE_DECL_EVP_PKEY_CTX_NEW
+    EVP_PKEY_CTX *pkeyCtx;
+#endif
+    apr_evp_factory_type_e purpose;
+    apr_evp_crypt_type_e type;
+    apr_evp_crypt_key_e key;
+};
 
 #endif /* APU_HAVE_OPENSSL */
 

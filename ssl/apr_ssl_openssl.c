@@ -231,4 +231,298 @@ apr_status_t apu_ssl_raw_error(apr_ssl_socket_t *sock)
     return APR_SUCCESS;
 }
 
+apr_status_t apr_evp_crypt_cleanup(apr_evp_crypt_t *e)
+{
+
+#if HAVE_DECL_EVP_PKEY_CTX_NEW
+    if (e->pkeyCtx) {
+        EVP_PKEY_CTX_free(e->pkeyCtx);
+        e->pkeyCtx = NULL;
+    }
 #endif
+    if (e->cipherCtx) {
+        EVP_CIPHER_CTX_cleanup(e->cipherCtx);
+        e->cipherCtx = NULL;
+    }
+
+    return APR_SUCCESS;
+
+}
+
+apr_status_t apr_evp_crypt_cleanup_helper(void *data)
+{
+    apr_evp_crypt_t *f = (apr_evp_crypt_t *)data;
+    return apr_evp_crypt_cleanup(f);
+}
+
+apr_status_t apr_evp_factory_cleanup(apr_evp_factory_t *f)
+{
+    apu_evp_data_t *evpData = f->evpData;
+    int i;
+
+    for (i = 0; i < EVP_MAX_KEY_LENGTH; evpData->key[i++] = 0);
+    for (i = 0; i < EVP_MAX_IV_LENGTH; evpData->iv[i++] = 0);
+#if HAVE_DECL_EVP_PKEY_CTX_NEW
+    if (evpData->ssl) {
+        SSL_free(evpData->ssl);
+        evpData->ssl = NULL;
+    }
+    if (evpData->sslCtx) {
+        SSL_CTX_free(evpData->sslCtx);
+        evpData->sslCtx = NULL;
+    }
+#endif
+
+    return APR_SUCCESS;
+
+}
+
+apr_status_t apr_evp_factory_cleanup_helper(void *data)
+{
+    apr_evp_factory_t *f = (apr_evp_factory_t *)data;
+    return apr_evp_factory_cleanup(f);
+}
+
+apr_status_t apr_evp_factory_create(apr_evp_factory_t **newFactory,
+                                    const char *privateKeyFn, 
+                                    const char *certFn, 
+                                    const char *cipherName,
+                                    const char *passphrase,
+                                    const char *engine,
+                                    const char *digest,
+                                    apr_evp_factory_type_e purpose,
+                                    apr_pool_t *pool)
+{
+    apr_evp_factory_t *f = (apr_evp_factory_t *)apr_pcalloc(pool, sizeof(apr_evp_factory_t));
+    if (!f) {
+        return APR_ENOMEM;
+    }
+    *newFactory = f;
+    f->pool = pool;
+    f->purpose = purpose;
+
+    apu_evp_data_t *data = (apu_evp_data_t *)apr_pcalloc(pool, sizeof(apu_evp_data_t));
+    if (!data) {
+        return APR_ENOMEM;
+    }
+    f->evpData = data;
+    apr_pool_cleanup_register(pool, f,
+                              apr_evp_factory_cleanup_helper,
+                              apr_pool_cleanup_null);
+
+    switch (purpose) {
+        case APR_EVP_FACTORY_ASYM: {
+#if HAVE_DECL_EVP_PKEY_CTX_NEW
+            /* load certs */
+            data->sslCtx = SSL_CTX_new(SSLv23_server_method());
+            if (data->sslCtx) {
+                if (!SSL_CTX_use_PrivateKey_file(data->sslCtx, privateKeyFn,
+                                                 SSL_FILETYPE_PEM) ||
+                    !SSL_CTX_use_certificate_file(data->sslCtx, certFn, 
+                                                  SSL_FILETYPE_PEM) ||
+                    !SSL_CTX_check_private_key(data->sslCtx)) {
+                    SSL_CTX_free(data->sslCtx);
+                    return APR_ENOCERT;
+                }
+                data->ssl = SSL_new(data->sslCtx);
+                if (data->ssl) {
+                    data->privkey = SSL_get_privatekey(data->ssl);
+                    X509 *cert = SSL_get_certificate(data->ssl);
+                    if (cert) {
+                        data->pubkey = X509_get_pubkey(cert);
+                    }
+                }
+            }
+#else
+            return APR_ENOTIMPL;
+#endif
+        }
+        case APR_EVP_FACTORY_SYM: {
+            data->cipher = EVP_get_cipherbyname(cipherName);
+            if (!data->cipher) {
+                return APR_ENOCIPHER;
+            }
+            OpenSSL_add_all_digests();
+            data->md = EVP_get_digestbyname(digest);
+            if (!data->md) {
+                return APR_ENODIGEST;
+            }
+            EVP_BytesToKey(data->cipher, data->md,
+                           data->salt,
+                           (const unsigned char *)passphrase, strlen(passphrase), 1,
+                           data->key, data->iv);
+        }
+    }
+
+    return APR_SUCCESS;
+
+}
+
+apr_status_t apr_evp_crypt_init(apr_evp_factory_t *f,
+                                apr_evp_crypt_t **e,
+                                apr_evp_crypt_type_e type,
+                                apr_evp_crypt_key_e key,
+                                apr_pool_t *p)
+{
+    apu_evp_data_t *data = f->evpData;
+
+    if (!*e) {
+        *e = (apr_evp_crypt_t *)apr_pcalloc(p, sizeof(apr_evp_crypt_t));
+    }
+    (*e)->pool = p;
+    (*e)->purpose = f->purpose;
+    (*e)->type = type;
+    (*e)->key = key;
+
+    switch (f->purpose) {
+        case APR_EVP_FACTORY_ASYM: {
+#if HAVE_DECL_EVP_PKEY_CTX_NEW
+
+            /* todo: add ENGINE support */
+            if (APR_EVP_KEY_PUBLIC == type) {
+                (*e)->pkeyCtx = EVP_PKEY_CTX_new(data->pubkey, NULL);
+            }
+            else if (APR_EVP_KEY_PRIVATE == type) {
+                (*e)->pkeyCtx = EVP_PKEY_CTX_new(data->privkey, NULL);
+            }
+            apr_pool_cleanup_register(p, *e, apr_evp_crypt_cleanup_helper,
+                                      apr_pool_cleanup_null);
+
+            if (APR_EVP_ENCRYPT == type) {
+                if (EVP_PKEY_encrypt_init((*e)->pkeyCtx) <= 0) {
+                    return APR_EINIT;
+                }
+            }
+            else if (APR_EVP_DECRYPT == type) {
+                if (EVP_PKEY_decrypt_init((*e)->pkeyCtx) <= 0) {
+                    return APR_EINIT;
+                }
+            }
+
+            return APR_SUCCESS;
+
+#else
+            return APR_ENOTIMPL;
+#endif
+        }
+        case APR_EVP_FACTORY_SYM: {
+            if (!(*e)->cipherCtx) {
+                (*e)->cipherCtx = (EVP_CIPHER_CTX *)apr_pcalloc(p, sizeof(EVP_CIPHER_CTX));
+                if (!(*e)->cipherCtx) {
+                    return APR_ENOMEM;
+                }
+            }
+            EVP_CIPHER_CTX_init((*e)->cipherCtx);
+            EVP_CipherInit_ex((*e)->cipherCtx, data->cipher, NULL, data->key, data->iv, type);
+            return APR_SUCCESS;
+        }
+    }
+
+    return APR_EINIT;
+
+}
+
+apr_status_t apr_evp_crypt(apr_evp_crypt_t *e,
+                           unsigned char **out,
+                           apr_size_t *outlen,
+                           const unsigned char *in,
+                           apr_size_t inlen)
+{
+    unsigned char *buffer;
+
+    switch (e->purpose) {
+        case APR_EVP_FACTORY_ASYM: {
+#if HAVE_DECL_EVP_PKEY_CTX_NEW
+            if (!out || !*out) {
+                if (APR_EVP_ENCRYPT == e->type &&
+                    EVP_PKEY_encrypt(e->pkeyCtx, NULL, outlen,
+                                     in, inlen) <= 0) {
+                    return APR_EGENERAL;
+                }
+                if (APR_EVP_DECRYPT == e->type &&
+                    EVP_PKEY_decrypt(e->pkeyCtx, NULL, outlen,
+                                     in, inlen) <= 0) {
+                    return APR_EGENERAL;
+                }
+                if (!out) {
+                    return APR_SUCCESS;
+                }
+                buffer = apr_palloc(e->pool, *outlen + 1);
+                if (!buffer) {
+                    return APR_ENOMEM;
+                }
+                *out = buffer;
+                buffer[*outlen] = 0;
+            }
+            if (APR_EVP_ENCRYPT == e->type &&
+                EVP_PKEY_encrypt(e->pkeyCtx, *out, outlen,
+                                 in, inlen) <= 0) {
+                return APR_EGENERAL;
+            }
+            if (APR_EVP_DECRYPT == e->type &&
+                EVP_PKEY_decrypt(e->pkeyCtx, *out, outlen,
+                                 in, inlen) <= 0) {
+                return APR_EGENERAL;
+            }
+
+            return APR_SUCCESS;
+
+#else
+            return APR_ENOTIMPL;
+#endif
+        }
+        case APR_EVP_FACTORY_SYM: {
+            int len = (int)*outlen;
+            if (!out) {
+                *outlen = inlen + EVP_MAX_BLOCK_LENGTH;
+                return APR_SUCCESS;
+            }
+            if (!*out) {
+                buffer = apr_palloc(e->pool, inlen + EVP_MAX_BLOCK_LENGTH);
+                if (!buffer) {
+                    return APR_ENOMEM;
+                }
+                *out = buffer;
+            }
+            if(!EVP_CipherUpdate(e->cipherCtx, *out, &len, in, inlen)) {
+                return APR_EGENERAL;
+            }
+            *outlen = (apr_size_t)len;
+            return APR_SUCCESS;
+        }
+    }
+
+    return APR_EGENERAL;
+
+}
+
+apr_status_t apr_evp_crypt_finish(apr_evp_crypt_t *e,
+                                  unsigned char *out,
+                                  apr_size_t *outlen)
+{
+
+    switch (e->purpose) {
+        case APR_EVP_FACTORY_ASYM: {
+#if HAVE_DECL_EVP_PKEY_CTX_NEW
+            break;
+#else
+            return APR_ENOTIMPL;
+#endif
+        }
+        case APR_EVP_FACTORY_SYM: {
+            int tlen;
+            if(!EVP_CipherFinal_ex(e->cipherCtx, out, &tlen)) {
+                return APR_EGENERAL;
+            }
+            *outlen = tlen;
+            break;
+        }
+    }
+    apr_evp_crypt_cleanup(e);
+
+    return APR_SUCCESS;
+
+}
+
+#endif
+
