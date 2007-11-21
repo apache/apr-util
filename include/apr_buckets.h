@@ -971,7 +971,16 @@ APU_DECLARE_NONSTD(void) apr_bucket_free(void *block);
     } while (0)
 
 /**
- * read the data from the bucket
+ * Read the data from the bucket.
+ * 
+ * If it is not practical to return all
+ * the data in the bucket, the current bucket is split and replaced by
+ * two buckets, the first representing the data returned in this call,
+ * and the second representing the rest of the data as yet unread. The
+ * original bucket will become the first bucket after this call.
+ * 
+ * (It is assumed that the bucket is a member of a brigade when this
+ * function is called).
  * @param e The bucket to read from
  * @param str The location to store the data in
  * @param len The amount of data read
@@ -988,7 +997,12 @@ APU_DECLARE_NONSTD(void) apr_bucket_free(void *block);
 #define apr_bucket_setaside(e,p) (e)->type->setaside(e,p)
 
 /**
- * Split one bucket in two.
+ * Split one bucket in two at the point provided.
+ * 
+ * Once split, the original bucket becomes the first of the two new buckets.
+ * 
+ * (It is assumed that the bucket is a member of a brigade when this
+ * function is called).
  * @param e The bucket to split
  * @param point The offset to split the bucket at
  */

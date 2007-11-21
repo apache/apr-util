@@ -254,6 +254,163 @@ APU_DECLARE(apr_status_t) apr_pollset_remove_ssl_socket(apr_ssl_socket_t *);
 APU_DECLARE(apr_status_t) apr_ssl_socket_set_poll_events(apr_ssl_socket_t *,
                                                          apr_int16_t);
 
+
+
+/**
+ * Values that determine how a created factory will be used.
+ */
+typedef enum {
+    APR_EVP_FACTORY_SYM,   /**< Factory is for symmetrical operations */
+    APR_EVP_FACTORY_ASYM    /**< Factory is for asymmetrical operations */
+} apr_evp_factory_type_e;
+
+/**
+ * Values that determine whether we need to encrypt or decrypt.
+ */
+typedef enum {
+    APR_EVP_DECRYPT=0,
+    APR_EVP_ENCRYPT=1
+} apr_evp_crypt_type_e;
+
+/**
+ * Values that determine which key to use during encrypt or decrypt.
+ */
+typedef enum {
+    APR_EVP_KEY_SYM=0,     /* Use a passphrase / symmetrical */
+    APR_EVP_KEY_PUBLIC=1,  /* Use the public key / asymmetrical */
+    APR_EVP_KEY_PRIVATE=2  /* Use the private key / asymetrical */
+} apr_evp_crypt_key_e;
+
+/**
+ * Structure for referencing an evp "factory"
+ */
+typedef struct apu_evp_factory   apr_evp_factory_t;
+
+/**
+ * Structure for referencing an EVP PKEY context.
+ */
+typedef struct apu_evp_crypt     apr_evp_crypt_t;
+
+/**
+ * @fn apr_status_t apr_evp_factory_create(apr_evp_factory_t **newFactory,
+                                           const char *privateKeyFilename, 
+                                           const char *certificateFilename, 
+                                           const char *cipherName,
+                                           const char *passphrase,
+                                           const char *engine,
+                                           const char *digest,
+                                           apr_evp_factory_type_e purpose,
+                                           apr_pool_t *pool)
+ * @brief Attempts to create an EVP "factory". The "factory" is then 
+ *        used to create contexts to keep track of encryption.
+ * @param newFactory The newly created factory
+ * @param privateKeyFilename Private key filename to use for assetrical encryption
+ * @param certificateFilename X509 certificate file to use for assymetrical encryption
+ * @param cipherName Name of cipher to use for symmetrical encryption
+ * @param passphrase Passphrase to use for assymetrical encryption
+ * @param purpose Constant that determines how the created factory will be used
+ * @param pool The pool to use for memory allocations
+ * @return an APR_ status code. APR_ENOCERT will be returned if the certificates
+ *         cannot be loaded, APR_ENOCIPHER if the cipher cannot be found.
+ *         APR_ENODIGEST if the digest cannot be found. APR_ENOTIMPL will
+ *         be returned if not supported.
+ */
+APU_DECLARE(apr_status_t) apr_evp_factory_create(apr_evp_factory_t **newFactory,
+                                                 const char *privateKeyFn,
+                                                 const char *certFn,
+                                                 const char *cipherName,
+                                                 const char *passphrase,
+                                                 const char *engine,
+                                                 const char *digest,
+                                                 apr_evp_factory_type_e purpose,
+                                                 apr_pool_t *pool);
+
+/**
+ * @fn apr_status_t apr_evp_crypt_init(apr_evp_factory_t *, 
+ *                                     apr_evp_crypt_t **e,
+ *                                     apr_evp_crypt_type_e type,
+ *                                     apr_evp_crypt_key_e key,
+ *                                     apr_pool_t *p)
+ * @brief Initialise a context for encrypting arbitrary data.
+ * @note If *e is NULL, a apr_evp_crypt_t will be created from a pool. If
+ *       *e is not NULL, *e must point at a previously created structure.
+ * @param factory The EVP factory containing keys to use.
+ * @param evp The evp context returned, see note.
+ * @param type Whether to encrypt or decrypt.
+ * @param key Which key to use.
+ * @param p The pool to use.
+ * @return APR_EINIT if initialisation unsuccessful. Returns
+ *         APR_ENOTIMPL if not supported.
+ */
+APR_DECLARE(apr_status_t) apr_evp_crypt_init(apr_evp_factory_t *,
+                                             apr_evp_crypt_t **e,
+                                             apr_evp_crypt_type_e type,
+                                             apr_evp_crypt_key_e key,
+                                             apr_pool_t *p);
+
+/**
+ * @fn apr_status_t apr_evp_crypt(apr_evp_crypt_t *evp,
+ *                                unsigned char *out,
+ *                                apr_size_t *outlen,
+ *                                const unsigned char *in,
+ *                                apr_size_t inlen)
+ * @brief Encrypt/decrypt data provided by in, write it to out.
+ * @note The number of bytes written will be written to outlen. If
+ *       out is NULL, outlen will contain the maximum size of the
+ *       buffer needed to hold the data.
+ * @param evp The evp context to use.
+ * @param out Address of a buffer to which data will be written,
+ *        see note.
+ * @param outlen Length of the output will be written here.
+ * @param in Address of the buffer to read.
+ * @param inlen Length of the buffer to read.
+ * @return APR_EGENERAL if an error occurred. Returns APR_ENOTIMPL if
+ *         not supported.
+ */
+APR_DECLARE(apr_status_t) apr_evp_crypt(apr_evp_crypt_t *,
+                                        unsigned char **out,
+                                        apr_size_t *outlen,
+                                        const unsigned char *in,
+                                        apr_size_t inlen);
+
+/**
+ * @fn apr_status_t apr_evp_crypt_finish(apr_evp_crypt_t *,
+ *                                       unsigned char *out,
+ *                                       apr_size_t *outlen)
+ * @brief Encrypt final data block, write it to out.
+ * @note If necessary the final block will be written out after being
+ *       padded. After this call, the context is cleaned and can be
+ *       reused by apr_env_encrypt_init() or apr_env_decrypt_init().
+ * @param evp The evp context to use.
+ * @param out Address of a buffer to which data will be written.
+ * @param outlen Length of the output will be written here.
+ * @return APR_EGENERAL if an error occurred. Returns APR_ENOTIMPL if
+ *         not supported.
+ */
+APR_DECLARE(apr_status_t) apr_evp_crypt_finish(apr_evp_crypt_t *e,
+                                               unsigned char *out,
+                                               apr_size_t *outlen);
+
+
+/**
+ * @fn apr_status_t apr_evp_crypt_cleanup(apr_evp_crypt_t *e)
+ * @brief Clean encryption / decryption context.
+ * @note After cleanup, a context is free to be reused if necessary.
+ * @param evp The evp context to use.
+ * @return Returns APR_ENOTIMPL if not supported.
+ */
+APR_DECLARE(apr_status_t) apr_evp_crypt_cleanup(apr_evp_crypt_t *e);
+
+/**
+ * @fn apr_status_t apr_evp_factory_cleanup(apr_evp_factory_t *f)
+ * @brief Clean encryption / decryption factory.
+ * @note After cleanup, a factory is free to be reused if necessary.
+ * @param f The factory to use.
+ * @return Returns APR_ENOTIMPL if not supported.
+ */
+APR_DECLARE(apr_status_t) apr_evp_factory_cleanup(apr_evp_factory_t *f);
+
+
 /** @} */
 #ifdef __cplusplus
 }
