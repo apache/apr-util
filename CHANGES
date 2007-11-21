@@ -2,7 +2,7 @@
 
 Changes with APR-util 1.2.13
 
-
+  *) Fix the make test target in the spec file. [Graham Leggett]
 
 Changes with APR-util 1.2.12
 
