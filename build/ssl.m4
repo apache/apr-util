@@ -86,6 +86,9 @@ AC_DEFUN([APU_CHECK_OPENSSL], [
         fi
       fi
 
+      AC_CHECK_DECLS([EVP_PKEY_CTX_new], [], [],
+                     [#include <openssl/evp.h>])
+
       CPPFLAGS="$old_cppflags"
       LDFLAGS="$old_ldflags"
     fi
@@ -96,7 +99,6 @@ AC_DEFUN([APU_CHECK_OPENSSL], [
       apu_have_openssl=1
     fi
   ])
-
 
   AC_SUBST(apu_have_openssl)
 
