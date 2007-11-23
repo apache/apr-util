@@ -128,7 +128,6 @@ apr_status_t apu_ssl_socket_create(apr_ssl_socket_t *sslSock,
 apr_status_t apu_ssl_socket_close(apr_ssl_socket_t *sock)
 {
     int sslRv;
-    apr_status_t rv;
 
     if (!sock->sslData->ssl)
         return APR_SUCCESS;
@@ -294,6 +293,7 @@ apr_status_t apr_evp_factory_create(apr_evp_factory_t **newFactory,
                                     apr_pool_t *pool)
 {
     apr_evp_factory_t *f = (apr_evp_factory_t *)apr_pcalloc(pool, sizeof(apr_evp_factory_t));
+    apu_evp_data_t *data;
     if (!f) {
         return APR_ENOMEM;
     }
@@ -301,7 +301,7 @@ apr_status_t apr_evp_factory_create(apr_evp_factory_t **newFactory,
     f->pool = pool;
     f->purpose = purpose;
 
-    apu_evp_data_t *data = (apu_evp_data_t *)apr_pcalloc(pool, sizeof(apu_evp_data_t));
+    data = (apu_evp_data_t *)apr_pcalloc(pool, sizeof(apu_evp_data_t));
     if (!data) {
         return APR_ENOMEM;
     }
@@ -326,8 +326,9 @@ apr_status_t apr_evp_factory_create(apr_evp_factory_t **newFactory,
                 }
                 data->ssl = SSL_new(data->sslCtx);
                 if (data->ssl) {
+                    X509 *cert;
                     data->privkey = SSL_get_privatekey(data->ssl);
-                    X509 *cert = SSL_get_certificate(data->ssl);
+                    cert = SSL_get_certificate(data->ssl);
                     if (cert) {
                         data->pubkey = X509_get_pubkey(cert);
                     }
