@@ -70,6 +70,7 @@ apr_status_t apu_ssl_socket_create(apr_ssl_socket_t *sslSock, apr_ssl_factory_t 
 apr_status_t apu_ssl_socket_close(apr_ssl_socket_t *);
 apr_status_t apu_ssl_connect(apr_ssl_socket_t *);
 apr_status_t apu_ssl_send(apr_ssl_socket_t *, const char *, apr_size_t *);
+apr_status_t apu_ssl_recv(apr_ssl_socket_t *, char *, apr_size_t *);
 apr_status_t apu_ssl_socket_recv(apr_ssl_socket_t *, char *, apr_size_t *);
 apr_status_t apu_ssl_accept(apr_ssl_socket_t *, apr_ssl_socket_t *, apr_pool_t *);
 apr_status_t apu_ssl_raw_error(apr_ssl_socket_t *);
