@@ -86,7 +86,6 @@ APU_DECLARE(apr_status_t) apr_ssl_socket_connect(apr_ssl_socket_t *sock,
                                                  apr_sockaddr_t *sa)
 {
     apr_status_t rv;
-    int sslErr;
 
     if (!sock || !sock->sslData || !sock->plain)
         return APR_EINVAL;
