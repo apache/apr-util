@@ -35,7 +35,7 @@
 #include "apr_ssl_private.h"
 #include "apr_ssl_winsock_private.h"
 
-APU_DECLARE(apr_status_t) apr_ssl_init(void)
+APU_DECLARE(apr_status_t) apu_ssl_init(void)
 {
     return APR_SUCCESS;
 }
