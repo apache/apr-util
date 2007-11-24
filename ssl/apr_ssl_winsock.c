@@ -48,56 +48,55 @@ APU_DECLARE(apr_status_t) apr_ssl_init(void)
  * TODO - this should be expanded to generate the correct APR_ errors
  *        when we have created the mappings :-)
  */
-//static void openssl_get_error(apr_ssl_socket_t *sock, int fncode)
+//static void openssl_get_error(apr_ssl_socket_t * sock, int fncode)
 //{
-//    sock->sslData->err = fncode;
-//    sock->sslData->sslErr = SSL_get_error(sock->sslData->ssl, fncode);
+    //sock->sslData->err = fncode;
+    //sock->sslData->sslErr = SSL_get_error(sock->sslData->ssl, fncode);
 //}
 
-APU_DECLARE(apr_status_t) apu_ssl_factory_create(apr_ssl_factory_t *asf,
-                                 const char *privateKeyFn,
-                                 const char *certFn,
-                                 const char *digestType)
+APU_DECLARE(apr_status_t) apu_ssl_factory_create(apr_ssl_factory_t * asf,
+                                                 const char *privateKeyFn,
+                                                 const char *certFn,
+                                                 const char *digestType)
 {
     apu_ssl_data_t *sslData = apr_pcalloc(asf->pool, sizeof(*sslData));
     if (!sslData) {
         return -1;
     }
 
-//    if (privateKeyFn && certFn) {
-//        sslData->ctx = SSL_CTX_new(SSLv23_server_method());
-//        if (sslData->ctx) {
-//            if (!SSL_CTX_use_PrivateKey_file(sslData->ctx, privateKeyFn,
-//                                             SSL_FILETYPE_PEM) ||
-//                !SSL_CTX_use_certificate_file(sslData->ctx, certFn, 
-//                                              SSL_FILETYPE_PEM) ||
-//                !SSL_CTX_check_private_key(sslData->ctx)) {
-//                SSL_CTX_free(sslData->ctx);
-//                return APR_ENOENT; /* what code shoudl we return? */
-//            }
-//        }
-//    } else {
-//        sslData->ctx = SSL_CTX_new(SSLv23_client_method());
-//    }
-//
-//    if (digestType) {
-//        sslData->md = EVP_get_digestbyname(digestType);
-//        /* we don't care if this fails... */
-//    }
-//
-//    if (!sslData->ctx)
-//        return APR_EGENERAL; /* what error code? */
+    //if (privateKeyFn && certFn) {
+    //sslData->ctx = SSL_CTX_new(SSLv23_server_method());
+    //if (sslData->ctx) {
+        //if (!SSL_CTX_use_PrivateKey_file(sslData->ctx, privateKeyFn,
+                                           //SSL_FILETYPE_PEM) ||
+              //!SSL_CTX_use_certificate_file(sslData->ctx, certFn,
+                                              //SSL_FILETYPE_PEM) ||
+              //!SSL_CTX_check_private_key(sslData->ctx)) {
+            //SSL_CTX_free(sslData->ctx);
+            //return APR_ENOENT;        /* what code shoudl we return? */
+            // }
+        // }
+    // } else {
+        //sslData->ctx = SSL_CTX_new(SSLv23_client_method());
+    // }
 
+    //if (digestType) {
+        //sslData->md = EVP_get_digestbyname(digestType);
+        //                        /* we don't care if this fails... */
+    // }
+    //
+    //if (!sslData->ctx)
+        //return APR_EGENERAL;        /* what error code? */
 
     asf->sslData = sslData;
 
     return APR_SUCCESS;
 }
 
-APU_DECLARE(apr_status_t) apu_ssl_socket_create(apr_ssl_socket_t *sslSock, 
-                                                apr_ssl_factory_t *asf)
+APU_DECLARE(apr_status_t) apu_ssl_socket_create(apr_ssl_socket_t * sslSock,
+                                                apr_ssl_factory_t * asf)
 {
-    apu_ssl_socket_data_t *sslData = apr_pcalloc(sslSock->pool, 
+    apu_ssl_socket_data_t *sslData = apr_pcalloc(sslSock->pool,
                                                  sizeof(*sslData));
     apr_os_sock_t fd;
     struct tlsclientopts sWS2Opts;
@@ -109,53 +108,55 @@ APU_DECLARE(apr_status_t) apu_ssl_socket_create(apr_ssl_socket_t *sslSock,
 
     if (!sslData || !asf->sslData)
         return -1;
-//    sslData->ssl = SSL_new(asf->sslData->ctx);
-//    if (!sslData->ssl)
-//        return -1;
-//
-//    if (apr_os_sock_get(&fd, sslSock->plain) != APR_SUCCESS)
-//        return -1;
-//
-//    SSL_set_fd(sslData->ssl, fd);
- 
+    //sslData->ssl = SSL_new(asf->sslData->ctx);
+    //if (!sslData->ssl)
+        //return -1;
+
+    //if (apr_os_sock_get(&fd, sslSock->plain) != APR_SUCCESS)
+        //return -1;
+
+    //SSL_set_fd(sslData->ssl, fd);
+
     apr_os_sock_get(&fd, sslSock->plain);
 
     /* zero out buffers */
-    memset((char *)&sWS2Opts, 0, sizeof(struct tlsclientopts));
-    memset((char *)&sNWTLSOpts, 0, sizeof(struct nwtlsopts));
+    memset((char *) &sWS2Opts, 0, sizeof(struct tlsclientopts));
+    memset((char *) &sNWTLSOpts, 0, sizeof(struct nwtlsopts));
 
     /* turn on ssl for the socket */
-//    ulFlags = (numcerts ? SO_TLS_ENABLE : SO_TLS_ENABLE | SO_TLS_BLIND_ACCEPT);
+    //ulFlags = (numcerts ? SO_TLS_ENABLE : SO_TLS_ENABLE | SO_TLS_BLIND_ACCEPT);
     ulFlags = SO_TLS_ENABLE | SO_TLS_BLIND_ACCEPT;
     rcode = WSAIoctl(fd, SO_TLS_SET_FLAGS, &ulFlags, sizeof(unsigned long),
-                 NULL, 0, NULL, NULL, NULL);
-    if (SOCKET_ERROR == rcode)
-    {
+                     NULL, 0, NULL, NULL, NULL);
+    if (SOCKET_ERROR == rcode) {
         return rcode;
     }
 
     ulFlags = SO_TLS_UNCLEAN_SHUTDOWN;
     WSAIoctl(fd, SO_TLS_SET_FLAGS, &ulFlags, sizeof(unsigned long),
-                 NULL, 0, NULL, NULL, NULL);
+             NULL, 0, NULL, NULL, NULL);
 
     /* setup the socket for SSL */
-    memset (&sWS2Opts, 0, sizeof(sWS2Opts));
-    memset (&sNWTLSOpts, 0, sizeof(sNWTLSOpts));
+    memset(&sWS2Opts, 0, sizeof(sWS2Opts));
+    memset(&sNWTLSOpts, 0, sizeof(sNWTLSOpts));
     sWS2Opts.options = &sNWTLSOpts;
 
-//    if (numcerts) {
-//        sNWTLSOpts.walletProvider = WAL_PROV_DER;   //the wallet provider defined in wdefs.h
-//        sNWTLSOpts.TrustedRootList = certarray;     //array of certs in UNICODE format
-//        sNWTLSOpts.numElementsInTRList = numcerts;  //number of certs in TRList
-//    }
-//    else {
+    //if (numcerts) {
+        //sNWTLSOpts.walletProvider = WAL_PROV_DER;
+        //the wallet provider defined in wdefs.h
+        // sNWTLSOpts.TrustedRootList = certarray;
+        //array of certs in UNICODE format
+        // sNWTLSOpts.numElementsInTRList = numcerts;
+        //number of certs in TRList
+    // } else {
         /* setup the socket for SSL */
-        unicpy(keyFileName, L"SSL CertificateIP");
-        sWS2Opts.wallet = keyFileName;    /* no client certificate */
+        unicpy(keyFileName, L "SSL CertificateIP");
+        sWS2Opts.wallet = keyFileName;        /* no client certificate */
         sWS2Opts.walletlen = unilen(keyFileName);
 
-        sNWTLSOpts.walletProvider = WAL_PROV_KMO;  //the wallet provider defined in wdefs.h
-//    }
+        sNWTLSOpts.walletProvider = WAL_PROV_KMO;
+        //the wallet provider defined in wdefs.h
+    // }
 
     /* make the IOCTL call */
     rcode = WSAIoctl(fd, SO_TLS_SET_CLIENT, &sWS2Opts,
@@ -163,64 +164,63 @@ APU_DECLARE(apr_status_t) apu_ssl_socket_create(apr_ssl_socket_t *sslSock,
                      NULL, NULL);
 
     /* make sure that it was successfull */
-    if(SOCKET_ERROR == rcode ) {
+    if (SOCKET_ERROR == rcode) {
         return rcode;
     }
- 
+
     sslSock->sslData = sslData;
 
     return APR_SUCCESS;
 }
 
-APU_DECLARE(apr_status_t) apu_ssl_socket_close(apr_ssl_socket_t *sock)
+APU_DECLARE(apr_status_t) apu_ssl_socket_close(apr_ssl_socket_t * sock)
 {
-//    int sslRv;
-//    apr_status_t rv;
-//
-//    if (!sock->sslData->ssl)
-//        return APR_SUCCESS;
-//    if (sock->connected) {
-//        if ((sslRv = SSL_shutdown(sock->sslData->ssl)) == 0)
-//            sslRv = SSL_shutdown(sock->sslData->ssl);
-//        if (sslRv == -1)
-//            return -1;
-//    }
-//    SSL_free(sock->sslData->ssl);
-//    sock->sslData->ssl = NULL;
+    //int sslRv;
+    //apr_status_t rv;
+
+    //if (!sock->sslData->ssl)
+        //return APR_SUCCESS;
+    //if (sock->connected) {
+        //if ((sslRv = SSL_shutdown(sock->sslData->ssl)) == 0)
+            //sslRv = SSL_shutdown(sock->sslData->ssl);
+        //if (sslRv == -1)
+            //return -1;
+    // }
+    //SSL_free(sock->sslData->ssl);
+    //sock->sslData->ssl = NULL;
     return APR_SUCCESS;
 }
 
-APU_DECLARE(apr_status_t) apu_ssl_connect(apr_ssl_socket_t *sock)
+APU_DECLARE(apr_status_t) apu_ssl_connect(apr_ssl_socket_t * sock)
 {
-//    int sslOp;
-//
-//    if (!sock->sslData->ssl)
-//        return APR_EINVAL;
-//
-//    if ((sslOp = SSL_connect(sock->sslData->ssl)) == 1) {
-//        sock->connected = 1;
-//        return APR_SUCCESS;
-//    }
-//    openssl_get_error(sock, sslOp);
+    //int sslOp;
+
+    //if (!sock->sslData->ssl)
+        //return APR_EINVAL;
+    //if ((sslOp = SSL_connect(sock->sslData->ssl)) == 1) {
+        //sock->connected = 1;
+        //return APR_SUCCESS;
+    // }
+    //openssl_get_error(sock, sslOp);
     return -1;
 }
 
-APU_DECLARE(apr_status_t) apu_ssl_send(apr_ssl_socket_t *sock,
-                                       const char *buf, 
-                                       apr_size_t *len)
+APU_DECLARE(apr_status_t) apu_ssl_send(apr_ssl_socket_t * sock,
+                                       const char *buf,
+                                       apr_size_t * len)
 {
     return apr_socket_send(sock->plain, buf, len);
 }
 
-APU_DECLARE(apr_status_t) apu_ssl_recv(apr_ssl_socket_t *sock,
-                                       char *buf, apr_size_t *len)
+APU_DECLARE(apr_status_t) apu_ssl_recv(apr_ssl_socket_t * sock,
+                                       char *buf, apr_size_t * len)
 {
     return apr_socket_recv(sock->plain, buf, len);
 }
 
-APU_DECLARE(apr_status_t) apu_ssl_accept(apr_ssl_socket_t *newSock, 
-                                         apr_ssl_socket_t *oldSock,
-                                         apr_pool_t *pool)
+APU_DECLARE(apr_status_t) apu_ssl_accept(apr_ssl_socket_t * newSock,
+                                         apr_ssl_socket_t * oldSock,
+                                         apr_pool_t * pool)
 {
     apu_ssl_socket_data_t *sslData = apr_pcalloc(pool, sizeof(*sslData));
     apr_status_t ret;
@@ -236,7 +236,7 @@ APU_DECLARE(apr_status_t) apu_ssl_accept(apr_ssl_socket_t *newSock,
     return ret;
 }
 
-APU_DECLARE(apr_status_t) apu_ssl_raw_error(apr_ssl_socket_t *sock)
+APU_DECLARE(apr_status_t) apu_ssl_raw_error(apr_ssl_socket_t * sock)
 {
     if (!sock->sslData)
         return APR_EINVAL;
@@ -247,12 +247,12 @@ APU_DECLARE(apr_status_t) apu_ssl_raw_error(apr_ssl_socket_t *sock)
     return APR_SUCCESS;
 }
 
-APU_DECLARE(apr_status_t) apr_evp_crypt_cleanup(apr_evp_crypt_t *e)
+APU_DECLARE(apr_status_t) apr_evp_crypt_cleanup(apr_evp_crypt_t * e)
 {
     return APR_ENOTIMPL;
 }
 
-APU_DECLARE(apr_status_t) apr_evp_factory_cleanup(apr_evp_factory_t *f)
+APU_DECLARE(apr_status_t) apr_evp_factory_cleanup(apr_evp_factory_t * f)
 {
     return APR_ENOTIMPL;
 }
@@ -262,43 +262,43 @@ APU_DECLARE(apr_status_t) apr_evp_init(void)
     return APR_ENOTIMPL;
 }
 
-APU_DECLARE(apr_status_t) apr_evp_factory_create(apr_evp_factory_t **newFactory,
-                                                 const char *privateKeyFn, 
-                                                 const char *certFn, 
+APU_DECLARE(apr_status_t) apr_evp_factory_create(apr_evp_factory_t ** newFactory,
+                                                 const char *privateKeyFn,
+                                                 const char *certFn,
                                                  const char *cipherName,
                                                  const char *passphrase,
                                                  const char *engine,
                                                  const char *digest,
                                                  apr_evp_factory_type_e purpose,
-                                                 apr_pool_t *pool)
+                                                 apr_pool_t * pool)
 {
     return APR_ENOTIMPL;
 }
 
-APU_DECLARE(apr_status_t) apr_status_t apr_evp_crypt_init(apr_evp_factory_t *f,
-                                                          apr_evp_crypt_t **e,
-                                                          apr_evp_crypt_type_e type,
-                                                          apr_evp_crypt_key_e key,
-                                                          apr_pool_t *p)
+APU_DECLARE(apr_status_t)
+    apr_status_t apr_evp_crypt_init(apr_evp_factory_t * f,
+                                                 apr_evp_crypt_t ** e,
+                                                 apr_evp_crypt_type_e type,
+                                                 apr_evp_crypt_key_e key,
+                                                 apr_pool_t * p)
 {
     return APR_ENOTIMPL;
 }
 
 APU_DECLARE(apr_status_t) apr_evp_crypt(apr_evp_crypt_t *,
                                         unsigned char **out,
-                                        apr_size_t *outlen,
+                                        apr_size_t * outlen,
                                         const unsigned char *in,
                                         apr_size_t inlen)
 {
     return APR_ENOTIMPL;
 }
 
-APU_DECLARE(apr_status_t) apr_evp_crypt_finish(apr_evp_crypt_t *e,
+APU_DECLARE(apr_status_t) apr_evp_crypt_finish(apr_evp_crypt_t * e,
                                                unsigned char *out,
-                                               apr_size_t *outlen);
+                                               apr_size_t * outlen);
 {
     return APR_ENOTIMPL;
 }
 
 #endif
-
