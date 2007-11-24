@@ -35,6 +35,19 @@
 
 static int sslInit = 0;
 
+APU_DECLARE(apr_status_t) apr_ssl_init(void)
+{
+    if (!sslInit) {
+        apr_status_t rv = apu_ssl_init();
+        if (APR_SUCCESS == rv) {
+            sslInit = 1;
+        }
+        return rv;
+    }
+
+    return APR_SUCCESS;
+}
+
 APU_DECLARE(apr_status_t) apr_ssl_factory_create(apr_ssl_factory_t ** fact,
                                                  const char *privateKeyFn,
                                                  const char *certFn,
@@ -53,9 +66,10 @@ APU_DECLARE(apr_status_t) apr_ssl_factory_create(apr_ssl_factory_t ** fact,
         return ENOMEM;
 
     if (!sslInit) {
-        if (apu_ssl_init() != APR_SUCCESS)
-            return APR_EGENERAL;/* ?? error code ?? */
-        sslInit = 1;
+        rv = apr_ssl_init();
+        if (APR_SUCCESS != rv) {
+            return rv;
+        }
     }
 
     *fact = NULL;
@@ -76,6 +90,11 @@ APU_DECLARE(const char *) apr_ssl_library_name(void)
 }
 
 #else                                /* ! APU_HAVE_SSL */
+
+APU_DECLARE(apr_status_t) apr_ssl_init(void)
+{
+    return APR_ENOTIMPL;
+}
 
 APU_DECLARE(apr_status_t) apr_ssl_factory_create(apr_ssl_factory_t ** fact,
                                                  const char *privateKeyFn,
