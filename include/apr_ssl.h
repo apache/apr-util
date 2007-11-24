@@ -58,6 +58,12 @@ typedef struct apr_ssl_factory   apr_ssl_factory_t;
 typedef struct apr_ssl_socket    apr_ssl_socket_t;
 
 /**
+ * @brief Initialise the underlying SSL implementation in use.
+ * @return APR_NOTIMPL in case of no crypto support.
+ */
+APU_DECLARE(apr_status_t) apr_ssl_init(void);
+
+/**
  * @brief Attempts to create an SSL "factory". The "factory" is then 
  *        used to create sockets.
  * @param newFactory The newly created factory
@@ -258,6 +264,12 @@ typedef struct apu_evp_factory   apr_evp_factory_t;
  * Structure for referencing an EVP PKEY context.
  */
 typedef struct apu_evp_crypt     apr_evp_crypt_t;
+
+/**
+ * @brief Initialise the underlying crypto implementation in use.
+ * @return APR_NOTIMPL in case of no crypto support.
+ */
+APU_DECLARE(apr_status_t) apr_evp_init(void);
 
 /**
  * @brief Attempts to create an EVP "factory". The "factory" is then 
