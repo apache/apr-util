@@ -303,7 +303,7 @@ APU_DECLARE(apr_status_t) apr_evp_factory_create(apr_evp_factory_t **newFactory,
                                                  apr_evp_factory_type_e purpose,
                                                  apr_pool_t *pool)
 {
-    apr_evp_factory_t *f = (apr_evp_factory_t *)apr_pcalloc(pool, sizeof(apr_evp_factory_t));
+    apr_evp_factory_t *f = apr_pcalloc(pool, sizeof(apr_evp_factory_t));
     apu_evp_data_t *data;
     if (!f) {
         return APR_ENOMEM;
@@ -312,7 +312,7 @@ APU_DECLARE(apr_status_t) apr_evp_factory_create(apr_evp_factory_t **newFactory,
     f->pool = pool;
     f->purpose = purpose;
 
-    data = (apu_evp_data_t *)apr_pcalloc(pool, sizeof(apu_evp_data_t));
+    data = apr_pcalloc(pool, sizeof(apu_evp_data_t));
     if (!data) {
         return APR_ENOMEM;
     }
@@ -379,7 +379,7 @@ APU_DECLARE(apr_status_t) apr_evp_crypt_init(apr_evp_factory_t *f,
     apu_evp_data_t *data = f->evpData;
 
     if (!*e) {
-        *e = (apr_evp_crypt_t *)apr_pcalloc(p, sizeof(apr_evp_crypt_t));
+        *e = apr_pcalloc(p, sizeof(apr_evp_crypt_t));
     }
     if (!*e) {
         return APR_ENOMEM;
@@ -422,7 +422,7 @@ APU_DECLARE(apr_status_t) apr_evp_crypt_init(apr_evp_factory_t *f,
         }
         case APR_EVP_FACTORY_SYM: {
             if (!(*e)->cipherCtx) {
-                (*e)->cipherCtx = (EVP_CIPHER_CTX *)apr_pcalloc(p, sizeof(EVP_CIPHER_CTX));
+                (*e)->cipherCtx = apr_pcalloc(p, sizeof(EVP_CIPHER_CTX));
                 if (!(*e)->cipherCtx) {
                     return APR_ENOMEM;
                 }
