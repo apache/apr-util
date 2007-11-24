@@ -35,13 +35,12 @@
 
 static int sslInit = 0;
 
-APU_DECLARE(apr_status_t) apr_ssl_factory_create(apr_ssl_factory_t **fact,
+APU_DECLARE(apr_status_t) apr_ssl_factory_create(apr_ssl_factory_t ** fact,
                                                  const char *privateKeyFn,
                                                  const char *certFn,
                                                  const char *digestType,
                                                  apr_ssl_factory_type_e why,
-                                                 apr_pool_t *p)
-
+                                                 apr_pool_t * p)
 {
     apr_ssl_factory_t *asf;
     apr_status_t rv;
@@ -53,16 +52,16 @@ APU_DECLARE(apr_status_t) apr_ssl_factory_create(apr_ssl_factory_t **fact,
     if (!asf)
         return ENOMEM;
 
-    if (! sslInit) {
+    if (!sslInit) {
         if (apu_ssl_init() != APR_SUCCESS)
-            return APR_EGENERAL; /* ?? error code ?? */
+            return APR_EGENERAL;/* ?? error code ?? */
         sslInit = 1;
     }
 
     *fact = NULL;
     asf->pool = p;
     asf->purpose = why;
-    if ((rv = apu_ssl_factory_create(asf, privateKeyFn, certFn, 
+    if ((rv = apu_ssl_factory_create(asf, privateKeyFn, certFn,
                                      digestType)) != APR_SUCCESS)
         return rv;
 
@@ -76,15 +75,14 @@ APU_DECLARE(const char *) apr_ssl_library_name(void)
     return APU_SSL_LIBRARY;
 }
 
-#else /* ! APU_HAVE_SSL */
+#else                                /* ! APU_HAVE_SSL */
 
-APU_DECLARE(apr_status_t) apr_ssl_factory_create(apr_ssl_factory_t **fact,
+APU_DECLARE(apr_status_t) apr_ssl_factory_create(apr_ssl_factory_t ** fact,
                                                  const char *privateKeyFn,
                                                  const char *certFn,
                                                  const char *digestType,
                                                  apr_ssl_factory_type_e why,
-                                                 apr_pool_t *p)
-
+                                                 apr_pool_t * p)
 {
     return APR_ENOTIMPL;
 }
@@ -94,4 +92,4 @@ APU_DECLARE(const char *) apr_ssl_library_name(void)
     return NULL;
 }
 
-#endif /* APU_HAVE_SSL */
+#endif                                /* APU_HAVE_SSL */
