@@ -35,7 +35,7 @@
 #include "apr_ssl_private.h"
 #include "apr_ssl_winsock_private.h"
 
-APU_DECLARE(apr_status_t) apu_ssl_init(void)
+APU_DECLARE(apr_status_t) apr_ssl_init(void)
 {
     return APR_SUCCESS;
 }
@@ -253,6 +253,11 @@ APU_DECLARE(apr_status_t) apr_evp_crypt_cleanup(apr_evp_crypt_t *e)
 }
 
 APU_DECLARE(apr_status_t) apr_evp_factory_cleanup(apr_evp_factory_t *f)
+{
+    return APR_ENOTIMPL;
+}
+
+APU_DECLARE(apr_status_t) apr_evp_init(void)
 {
     return APR_ENOTIMPL;
 }

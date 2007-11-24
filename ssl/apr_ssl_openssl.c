@@ -35,7 +35,7 @@
 #include "apr_ssl_private.h"
 #include "apr_ssl_openssl_private.h"
 
-apr_status_t apu_ssl_init(void)
+APU_DECLARE(apr_status_t) apr_ssl_init(void)
 {
     CRYPTO_malloc_init();
     SSL_load_error_strings();
@@ -293,6 +293,11 @@ apr_status_t apr_evp_factory_cleanup_helper(void *data)
     return apr_evp_factory_cleanup(f);
 }
 
+APU_DECLARE(apr_status_t) apr_evp_init(void)
+{
+    return apr_ssl_init();
+}
+
 APU_DECLARE(apr_status_t) apr_evp_factory_create(apr_evp_factory_t **newFactory,
                                                  const char *privateKeyFn, 
                                                  const char *certFn, 
@@ -354,7 +359,6 @@ APU_DECLARE(apr_status_t) apr_evp_factory_create(apr_evp_factory_t **newFactory,
             if (!data->cipher) {
                 return APR_ENOCIPHER;
             }
-            OpenSSL_add_all_digests();
             data->md = EVP_get_digestbyname(digest);
             if (!data->md) {
                 return APR_ENODIGEST;
