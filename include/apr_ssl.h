@@ -275,8 +275,10 @@ APU_DECLARE(apr_status_t) apr_evp_init(void);
  * @brief Attempts to create an EVP "factory". The "factory" is then 
  *        used to create contexts to keep track of encryption.
  * @param newFactory The newly created factory
- * @param privateKeyFilename Private key filename to use for assetrical encryption
- * @param certificateFilename X509 certificate file to use for assymetrical encryption
+ * @param privateKeyFilename Private key filename to use for assymetrical
+ *                           encryption
+ * @param certificateFilename X509 certificate file to use for assymetrical
+ *                            encryption
  * @param cipherName Name of cipher to use for symmetrical encryption
  * @param passphrase Passphrase to use for assymetrical encryption
  * @param purpose Constant that determines how the created factory will be used
