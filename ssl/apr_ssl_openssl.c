@@ -107,11 +107,16 @@ APU_DECLARE(apr_status_t) apu_ssl_socket_create(apr_ssl_socket_t *sslSock,
                                                  sizeof(*sslData));
     apr_os_sock_t fd;
 
-    if (!sslData || !asf->sslData)
+    if (!sslData) {
+        return APR_ENOMEM;
+    }
+    if (!sslData || !asf->sslData) {
         return APR_EINVAL;
+    }
     sslData->ssl = SSL_new(asf->sslData->ctx);
-    if (!sslData->ssl)
+    if (!sslData->ssl) {
         return APR_EINVALSOCK; /* Hmm, better error code? */
+    }
 
     /* Joe Orton points out this is actually wrong and assumes that
      * that we're on an "fd" system. We need some better way of handling
@@ -196,15 +201,21 @@ APU_DECLARE(apr_status_t) apu_ssl_accept(apr_ssl_socket_t *newSock,
     apr_os_sock_t fd;
     int sslOp;
 
-    if (!sslData || !oldSock->factory)
+    if (!sslData) {
+        return APR_ENOMEM;
+    }
+    if (!oldSock->factory) {
         return APR_EINVAL;
+    }
 
     sslData->ssl = SSL_new(oldSock->factory->sslData->ctx);
-    if (!sslData->ssl)
+    if (!sslData->ssl) {
         return APR_EINVAL;
+    }
 
-    if (apr_os_sock_get(&fd, newSock->plain) != APR_SUCCESS)
+    if (apr_os_sock_get(&fd, newSock->plain) != APR_SUCCESS) {
         return APR_EINVALSOCK;
+    }
     SSL_set_fd(sslData->ssl, fd);
 
     newSock->pool = pool;
@@ -369,6 +380,9 @@ APU_DECLARE(apr_status_t) apr_evp_crypt_init(apr_evp_factory_t *f,
 
     if (!*e) {
         *e = (apr_evp_crypt_t *)apr_pcalloc(p, sizeof(apr_evp_crypt_t));
+    }
+    if (!*e) {
+        return APR_ENOMEM;
     }
     (*e)->pool = p;
     (*e)->purpose = f->purpose;
