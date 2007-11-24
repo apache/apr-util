@@ -61,7 +61,7 @@ static void openssl_get_error(apr_ssl_socket_t *sock, int fncode)
 /* The apr_ssl_factory_t structure will have the pool and purpose
  * fields set only.
  */
-apr_status_t apu_ssl_factory_create(apr_ssl_factory_t *asf,
+APU_DECLARE(apr_status_t) apu_ssl_factory_create(apr_ssl_factory_t *asf,
                                  const char *privateKeyFn,
                                  const char *certFn,
                                  const char *digestType)
@@ -100,7 +100,7 @@ apr_status_t apu_ssl_factory_create(apr_ssl_factory_t *asf,
     return APR_SUCCESS;
 }
 
-apr_status_t apu_ssl_socket_create(apr_ssl_socket_t *sslSock, 
+APU_DECLARE(apr_status_t) apu_ssl_socket_create(apr_ssl_socket_t *sslSock, 
                                    apr_ssl_factory_t *asf)
 {
     apu_ssl_socket_data_t *sslData = apr_pcalloc(sslSock->pool, 
@@ -125,7 +125,7 @@ apr_status_t apu_ssl_socket_create(apr_ssl_socket_t *sslSock,
     return APR_SUCCESS;
 }
 
-apr_status_t apu_ssl_socket_close(apr_ssl_socket_t *sock)
+APU_DECLARE(apr_status_t) apu_ssl_socket_close(apr_ssl_socket_t *sock)
 {
     int sslRv;
 
@@ -143,7 +143,7 @@ apr_status_t apu_ssl_socket_close(apr_ssl_socket_t *sock)
     return APR_SUCCESS;
 }
 
-apr_status_t apu_ssl_connect(apr_ssl_socket_t *sock)
+APU_DECLARE(apr_status_t) apu_ssl_connect(apr_ssl_socket_t *sock)
 {
     int sslOp;
 
@@ -158,8 +158,8 @@ apr_status_t apu_ssl_connect(apr_ssl_socket_t *sock)
     return APR_EGENERAL;
 }
 
-apr_status_t apu_ssl_send(apr_ssl_socket_t *sock, const char *buf, 
-                          apr_size_t *len)
+APU_DECLARE(apr_status_t) apu_ssl_send(apr_ssl_socket_t *sock, const char *buf, 
+                                       apr_size_t *len)
 {
     int sslOp;
 
@@ -172,8 +172,8 @@ apr_status_t apu_ssl_send(apr_ssl_socket_t *sock, const char *buf,
     return APR_EGENERAL; /* SSL error? */
 }
 
-apr_status_t apu_ssl_recv(apr_ssl_socket_t * sock,
-                              char *buf, apr_size_t *len)
+APU_DECLARE(apr_status_t) apu_ssl_recv(apr_ssl_socket_t * sock,
+                                       char *buf, apr_size_t *len)
 {
     int sslOp;
 
@@ -189,8 +189,8 @@ apr_status_t apu_ssl_recv(apr_ssl_socket_t * sock,
     return APR_EGENERAL; /* SSL error ? */
 }
 
-apr_status_t apu_ssl_accept(apr_ssl_socket_t *newSock, 
-                            apr_ssl_socket_t *oldSock, apr_pool_t *pool)
+APU_DECLARE(apr_status_t) apu_ssl_accept(apr_ssl_socket_t *newSock, 
+                                         apr_ssl_socket_t *oldSock, apr_pool_t *pool)
 {
     apu_ssl_socket_data_t *sslData = apr_pcalloc(pool, sizeof(*sslData));
     apr_os_sock_t fd;
@@ -219,7 +219,7 @@ apr_status_t apu_ssl_accept(apr_ssl_socket_t *newSock,
     return APR_SUCCESS;
 }
 
-apr_status_t apu_ssl_raw_error(apr_ssl_socket_t *sock)
+APU_DECLARE(apr_status_t) apu_ssl_raw_error(apr_ssl_socket_t *sock)
 {
     if (!sock->sslData)
         return APR_EINVAL;
@@ -230,7 +230,7 @@ apr_status_t apu_ssl_raw_error(apr_ssl_socket_t *sock)
     return APR_SUCCESS;
 }
 
-apr_status_t apr_evp_crypt_cleanup(apr_evp_crypt_t *e)
+APU_DECLARE(apr_status_t) apr_evp_crypt_cleanup(apr_evp_crypt_t *e)
 {
 
 #if HAVE_DECL_EVP_PKEY_CTX_NEW
@@ -254,7 +254,7 @@ apr_status_t apr_evp_crypt_cleanup_helper(void *data)
     return apr_evp_crypt_cleanup(f);
 }
 
-apr_status_t apr_evp_factory_cleanup(apr_evp_factory_t *f)
+APU_DECLARE(apr_status_t) apr_evp_factory_cleanup(apr_evp_factory_t *f)
 {
     apu_evp_data_t *evpData = f->evpData;
     int i;
@@ -282,15 +282,15 @@ apr_status_t apr_evp_factory_cleanup_helper(void *data)
     return apr_evp_factory_cleanup(f);
 }
 
-apr_status_t apr_evp_factory_create(apr_evp_factory_t **newFactory,
-                                    const char *privateKeyFn, 
-                                    const char *certFn, 
-                                    const char *cipherName,
-                                    const char *passphrase,
-                                    const char *engine,
-                                    const char *digest,
-                                    apr_evp_factory_type_e purpose,
-                                    apr_pool_t *pool)
+APU_DECLARE(apr_status_t) apr_evp_factory_create(apr_evp_factory_t **newFactory,
+                                                 const char *privateKeyFn, 
+                                                 const char *certFn, 
+                                                 const char *cipherName,
+                                                 const char *passphrase,
+                                                 const char *engine,
+                                                 const char *digest,
+                                                 apr_evp_factory_type_e purpose,
+                                                 apr_pool_t *pool)
 {
     apr_evp_factory_t *f = (apr_evp_factory_t *)apr_pcalloc(pool, sizeof(apr_evp_factory_t));
     apu_evp_data_t *data;
@@ -359,11 +359,11 @@ apr_status_t apr_evp_factory_create(apr_evp_factory_t **newFactory,
 
 }
 
-apr_status_t apr_evp_crypt_init(apr_evp_factory_t *f,
-                                apr_evp_crypt_t **e,
-                                apr_evp_crypt_type_e type,
-                                apr_evp_crypt_key_e key,
-                                apr_pool_t *p)
+APU_DECLARE(apr_status_t) apr_evp_crypt_init(apr_evp_factory_t *f,
+                                             apr_evp_crypt_t **e,
+                                             apr_evp_crypt_type_e type,
+                                             apr_evp_crypt_key_e key,
+                                             apr_pool_t *p)
 {
     apu_evp_data_t *data = f->evpData;
 
@@ -423,11 +423,11 @@ apr_status_t apr_evp_crypt_init(apr_evp_factory_t *f,
 
 }
 
-apr_status_t apr_evp_crypt(apr_evp_crypt_t *e,
-                           unsigned char **out,
-                           apr_size_t *outlen,
-                           const unsigned char *in,
-                           apr_size_t inlen)
+APU_DECLARE(apr_status_t) apr_evp_crypt(apr_evp_crypt_t *e,
+                                        unsigned char **out,
+                                        apr_size_t *outlen,
+                                        const unsigned char *in,
+                                        apr_size_t inlen)
 {
     unsigned char *buffer;
 
@@ -497,9 +497,9 @@ apr_status_t apr_evp_crypt(apr_evp_crypt_t *e,
 
 }
 
-apr_status_t apr_evp_crypt_finish(apr_evp_crypt_t *e,
-                                  unsigned char *out,
-                                  apr_size_t *outlen)
+APU_DECLARE(apr_status_t) apr_evp_crypt_finish(apr_evp_crypt_t *e,
+                                               unsigned char *out,
+                                               apr_size_t *outlen)
 {
 
     switch (e->purpose) {
