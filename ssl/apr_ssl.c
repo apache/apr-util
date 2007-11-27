@@ -111,4 +111,65 @@ APU_DECLARE(const char *) apr_ssl_library_name(void)
     return NULL;
 }
 
+#if !APU_HAVE_OPENSSL && !APU_HAVE_WINSOCKSSL
+
+/* default not implemented stubs when neither openssl nor winsock
+ * are present.
+ */
+
+APU_DECLARE(apr_status_t) apr_evp_init(void)
+{
+    return APR_ENOTIMPL;
+}
+
+APU_DECLARE(apr_status_t) apr_evp_factory_create(apr_evp_factory_t **newFactory,
+                                                 const char *privateKeyFn,
+                                                 const char *certFn,
+                                                 const char *cipherName,
+                                                 const char *passphrase,
+                                                 const char *engine,
+                                                 const char *digest,
+                                                 apr_evp_factory_type_e purpose,
+                                                 apr_pool_t *pool)
+{
+    return APR_ENOTIMPL;
+}
+
+APR_DECLARE(apr_status_t) apr_evp_crypt_init(apr_evp_factory_t *f,
+                                             apr_evp_crypt_t **e,
+                                             apr_evp_crypt_type_e type,
+                                             apr_evp_crypt_key_e key,
+                                             apr_pool_t *p)
+{
+    return APR_ENOTIMPL;
+}
+
+APR_DECLARE(apr_status_t) apr_evp_crypt(apr_evp_crypt_t *evp,
+                                        unsigned char **out,
+                                        apr_size_t *outlen,
+                                        const unsigned char *in,
+                                        apr_size_t inlen)
+{
+    return APR_ENOTIMPL;
+}
+
+APR_DECLARE(apr_status_t) apr_evp_crypt_finish(apr_evp_crypt_t *evp,
+                                               unsigned char *out,
+                                               apr_size_t *outlen)
+{
+    return APR_ENOTIMPL;
+}
+
+APR_DECLARE(apr_status_t) apr_evp_crypt_cleanup(apr_evp_crypt_t *e)
+{
+    return APR_ENOTIMPL;
+}
+
+APR_DECLARE(apr_status_t) apr_evp_factory_cleanup(apr_evp_factory_t *f)
+{
+    return APR_ENOTIMPL;
+}
+
+#endif                                /* !OPENSSL && !WINSOCK */
+
 #endif                                /* APU_HAVE_SSL */
