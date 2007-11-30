@@ -135,6 +135,9 @@ APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
  *  this value is 1 MB. The value associated with "group" determines which
  *  group from configuration file to use (see MYSQL_READ_DEFAULT_GROUP option
  *  of mysql_options() in MySQL manual).
+ *  @remarks FreeTDS: the params can have "username", "password", "appname",
+ *  "dbname", "host", "charset", "lang" and "server" keys, each followed by an
+ *  equal sign and a value.
  */
 APU_DECLARE(apr_status_t) apr_dbd_open_ex(const apr_dbd_driver_t *driver,
                                           apr_pool_t *pool, const char *params,
