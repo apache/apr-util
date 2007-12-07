@@ -30,6 +30,8 @@
 
 #include "stdio.h"
 
+#if APR_HAS_LDAP
+
 #if APR_HAS_THREADS
 static apr_thread_mutex_t *apr_ldap_xref_lock = NULL;
 #endif
@@ -264,3 +266,4 @@ static int apr_ldap_rebind_set_callback(LDAP *ld)
 
 #endif
 
+#endif       /* APR_HAS_LDAP */
