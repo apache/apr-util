@@ -28,6 +28,11 @@
 #ifndef APU_LDAP_REBIND_H
 #define APU_LDAP_REBIND_H
 
+/*
+ * Handle the case when LDAP is enabled
+ */
+#if APR_HAS_LDAP
+
 /**
  * APR LDAP initialize rebind lock
  *
@@ -75,6 +80,8 @@ APU_DECLARE(apr_status_t) apr_ldap_rebind_add(apr_pool_t *pool,
  * @param ld The LDAP connectionhandle
  */
 APU_DECLARE(apr_status_t) apr_ldap_rebind_remove(LDAP *ld);
+
+#endif /* APR_HAS_LDAP */
 
 #endif /* APU_LDAP_REBIND_H */
 
