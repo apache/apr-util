@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.3.0
 
+  *) Add an LDAP rebind implementation so that authentication can be
+     carried through referrals. [Paul J. Reder]
+
   *) Fix the make test target in the spec file. [Graham Leggett]
 
   *) Expose the SSL EVP interface to encrypt and decrypt arbitrary
