@@ -1,6 +1,10 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.3.0
 
+  *) Ensure that apr_uri_unparse does not add scheme to URI if
+     APR_URI_UNP_OMITSITEPART flag is set. PR 44044
+     [Michael Clark <michael metaparadigm.com>]
+
   *) Add an LDAP rebind implementation so that authentication can be
      carried through referrals. [Paul J. Reder]
 
