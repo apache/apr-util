@@ -92,12 +92,6 @@ APU_DECLARE(char *) apr_uri_unparse(apr_pool_t *p,
                                     unsigned flags)
 {
     char *ret = "";
-    char *scheme = NULL;
-
-    if (uptr->scheme) {
-        scheme = apr_pstrcat(p, uptr->scheme, ":", NULL);
-    }
-
 
     /* If suppressing the site part, omit both user name & scheme://hostname */
     if (!(flags & APR_URI_UNP_OMITSITEPART)) {
@@ -140,9 +134,10 @@ APU_DECLARE(char *) apr_uri_unparse(apr_pool_t *p,
                         is_default_port ? "" : uptr->port_str,
                         NULL);
         }
+	if (uptr->scheme) {
+	    ret = apr_pstrcat(p, uptr->scheme, ":", ret, NULL);
+	}
     }
-
-    ret = apr_pstrcat(p, scheme ? scheme : "", ret, NULL);
     
     /* Should we suppress all path info? */
     if (!(flags & APR_URI_UNP_OMITPATHINFO)) {
