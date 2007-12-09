@@ -2,6 +2,10 @@
 
 Changes with APR-util 1.2.13
 
+  *) Ensure that apr_uri_unparse does not add scheme to URI if
+     APR_URI_UNP_OMITSITEPART flag is set. PR 44044.
+     [Michael Clark <michael metaparadigm.com>]
+
   *) Add better scheme/host parsing to apr_uri.
      [Henry Jen <henryjen ztune.net>]
 
