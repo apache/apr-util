@@ -2,6 +2,9 @@
 
 Changes with APR-util 1.2.13
 
+  *) Add better scheme/host parsing to apr_uri.
+     [Henry Jen <henryjen ztune.net>]
+
   *) Fix the make test target in the spec file. [Graham Leggett]
 
 Changes with APR-util 1.2.12
