@@ -218,6 +218,19 @@ static void test_aup(abts_case *tc, void *data)
 
             s = apr_uri_unparse(p, &info, APR_URI_UNP_REVEALPASSWORD);
             ABTS_STR_EQUAL(tc, s, t->uri);
+
+            s = apr_uri_unparse(p, &info, APR_URI_UNP_OMITSITEPART);
+            rv = apr_uri_parse(p, s, &info);
+            ABTS_STR_EQUAL(tc, info.scheme, NULL);
+            ABTS_STR_EQUAL(tc, info.hostinfo, NULL);
+            ABTS_STR_EQUAL(tc, info.user, NULL);
+            ABTS_STR_EQUAL(tc, info.password, NULL);
+            ABTS_STR_EQUAL(tc, info.hostname, NULL);
+            ABTS_STR_EQUAL(tc, info.port_str, NULL);
+            ABTS_STR_EQUAL(tc, info.path, t->path);
+            ABTS_STR_EQUAL(tc, info.query, t->query);
+            ABTS_STR_EQUAL(tc, info.user, NULL);
+            ABTS_INT_EQUAL(tc, info.port, 0);
         }
     }
 }
