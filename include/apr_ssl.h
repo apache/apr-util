@@ -310,7 +310,7 @@ APU_DECLARE(apr_status_t) apr_evp_factory_create(apr_evp_factory_t **newFactory,
  * @return APR_EINIT if initialisation unsuccessful. Returns
  *         APR_ENOTIMPL if not supported.
  */
-APR_DECLARE(apr_status_t) apr_evp_crypt_init(apr_evp_factory_t *f,
+APU_DECLARE(apr_status_t) apr_evp_crypt_init(apr_evp_factory_t *f,
                                              apr_evp_crypt_t **e,
                                              apr_evp_crypt_type_e type,
                                              apr_evp_crypt_key_e key,
@@ -334,7 +334,7 @@ APR_DECLARE(apr_status_t) apr_evp_crypt_init(apr_evp_factory_t *f,
  * @return APR_EGENERAL if an error occurred. Returns APR_ENOTIMPL if
  *         not supported.
  */
-APR_DECLARE(apr_status_t) apr_evp_crypt(apr_evp_crypt_t *evp,
+APU_DECLARE(apr_status_t) apr_evp_crypt(apr_evp_crypt_t *evp,
                                         unsigned char **out,
                                         apr_size_t *outlen,
                                         const unsigned char *in,
@@ -356,7 +356,7 @@ APR_DECLARE(apr_status_t) apr_evp_crypt(apr_evp_crypt_t *evp,
  * @return APR_EGENERAL if an error occurred. Returns APR_ENOTIMPL if
  *         not supported.
  */
-APR_DECLARE(apr_status_t) apr_evp_crypt_finish(apr_evp_crypt_t *evp,
+APU_DECLARE(apr_status_t) apr_evp_crypt_finish(apr_evp_crypt_t *evp,
                                                unsigned char *out,
                                                apr_size_t *outlen);
 
@@ -367,7 +367,7 @@ APR_DECLARE(apr_status_t) apr_evp_crypt_finish(apr_evp_crypt_t *evp,
  * @param evp The evp context to use.
  * @return Returns APR_ENOTIMPL if not supported.
  */
-APR_DECLARE(apr_status_t) apr_evp_crypt_cleanup(apr_evp_crypt_t *e);
+APU_DECLARE(apr_status_t) apr_evp_crypt_cleanup(apr_evp_crypt_t *e);
 
 /**
  * @brief Clean encryption / decryption factory.
@@ -375,7 +375,7 @@ APR_DECLARE(apr_status_t) apr_evp_crypt_cleanup(apr_evp_crypt_t *e);
  * @param f The factory to use.
  * @return Returns APR_ENOTIMPL if not supported.
  */
-APR_DECLARE(apr_status_t) apr_evp_factory_cleanup(apr_evp_factory_t *f);
+APU_DECLARE(apr_status_t) apr_evp_factory_cleanup(apr_evp_factory_t *f);
 
 
 /** @} */
