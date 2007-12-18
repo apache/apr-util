@@ -135,7 +135,7 @@ APU_DECLARE(apr_status_t) apr_evp_factory_create(apr_evp_factory_t **newFactory,
     return APR_ENOTIMPL;
 }
 
-APR_DECLARE(apr_status_t) apr_evp_crypt_init(apr_evp_factory_t *f,
+APU_DECLARE(apr_status_t) apr_evp_crypt_init(apr_evp_factory_t *f,
                                              apr_evp_crypt_t **e,
                                              apr_evp_crypt_type_e type,
                                              apr_evp_crypt_key_e key,
@@ -144,7 +144,7 @@ APR_DECLARE(apr_status_t) apr_evp_crypt_init(apr_evp_factory_t *f,
     return APR_ENOTIMPL;
 }
 
-APR_DECLARE(apr_status_t) apr_evp_crypt(apr_evp_crypt_t *evp,
+APU_DECLARE(apr_status_t) apr_evp_crypt(apr_evp_crypt_t *evp,
                                         unsigned char **out,
                                         apr_size_t *outlen,
                                         const unsigned char *in,
@@ -153,19 +153,19 @@ APR_DECLARE(apr_status_t) apr_evp_crypt(apr_evp_crypt_t *evp,
     return APR_ENOTIMPL;
 }
 
-APR_DECLARE(apr_status_t) apr_evp_crypt_finish(apr_evp_crypt_t *evp,
+APU_DECLARE(apr_status_t) apr_evp_crypt_finish(apr_evp_crypt_t *evp,
                                                unsigned char *out,
                                                apr_size_t *outlen)
 {
     return APR_ENOTIMPL;
 }
 
-APR_DECLARE(apr_status_t) apr_evp_crypt_cleanup(apr_evp_crypt_t *e)
+APU_DECLARE(apr_status_t) apr_evp_crypt_cleanup(apr_evp_crypt_t *e)
 {
     return APR_ENOTIMPL;
 }
 
-APR_DECLARE(apr_status_t) apr_evp_factory_cleanup(apr_evp_factory_t *f)
+APU_DECLARE(apr_status_t) apr_evp_factory_cleanup(apr_evp_factory_t *f)
 {
     return APR_ENOTIMPL;
 }
