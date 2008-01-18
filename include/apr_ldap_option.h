@@ -56,6 +56,16 @@ extern "C" {
  * all servers are considered trusted.
  */
 #define APR_LDAP_OPT_VERIFY_CERT 0x6ffd
+/**
+ * Set the LDAP library to indicate if referrals should be chased during
+ * LDAP searches.
+ */
+#define APR_LDAP_OPT_REFERRALS 0x6ffc
+/**
+ * Set the LDAP library to indicate a maximum number of referral hops to
+ * chase before giving up on the search.
+ */
+#define APR_LDAP_OPT_REFHOPLIMIT 0x6ffb
 
 /**
  * Structures for the apr_set_option() cases
