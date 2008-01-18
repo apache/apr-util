@@ -144,6 +144,42 @@ APU_DECLARE(int) apr_ldap_set_option(apr_pool_t *pool,
             result->reason = "LDAP: Could not set verify mode";
         }
         break;
+
+    case APR_LDAP_OPT_REFERRALS:
+        /* Setting this option is supported on at least TIVOLI_SDK and OpenLDAP. Folks
+         * who know the NOVELL, NETSCAPE, MOZILLA, and SOLARIS SDKs should note here if
+         * the SDK at least tolerates this option being set, or add an elif to handle
+         * special cases (i.e. different LDAP_OPT_X value).
+         */
+        result->rc = ldap_set_option(ldap, LDAP_OPT_REFERRALS, (void *)invalue);
+
+        if (result->rc != LDAP_SUCCESS) {
+            result->reason = "Unable to set LDAP_OPT_REFERRALS.";
+          return(result->rc);
+        }
+        break;
+
+    case APR_LDAP_OPT_REFHOPLIMIT:
+#if APR_HAS_OPENLDAP_LDAPSDK
+        /* Setting this option is not supported by current versions of OpenLDAP,
+         * OpenLDAP does support the concept though and defaults to 5.
+         */
+        result->rc = LDAP_SUCCESS;
+#else
+        /* Setting this option is supported on at least TIVOLI_SDK. Folks who know
+         * the NOVELL, NETSCAPE, MOZILLA, and SOLARIS SDKs should note here if
+         * the SDK at least tolerates this option being set, or add an elif to handle
+         * special cases so an error isn't returned if there is a perfectly good
+         * default value that just can't be changed (like openLDAP).
+         */
+        result->rc = ldap_set_option(ldap, LDAP_OPT_REFHOPLIMIT, (void *)invalue);
+#endif
+
+        if (result->rc != LDAP_SUCCESS) {
+            result->reason = "Unable to set LDAP_OPT_REFHOPLIMIT.";
+          return(result->rc);
+        }
+        break;
         
     default:
         /* set the option specified using the native LDAP function */
