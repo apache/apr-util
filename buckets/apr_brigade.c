@@ -653,7 +653,7 @@ APU_DECLARE(apr_status_t) apr_brigade_vprintf(apr_bucket_brigade *b,
     /* the cast, in order of appearance */
     struct brigade_vprintf_data_t vd;
     char buf[APR_BUCKET_BUFF_SIZE];
-    apr_size_t written;
+    int written;
 
     vd.vbuff.curpos = buf;
     vd.vbuff.endpos = buf + APR_BUCKET_BUFF_SIZE;
