@@ -138,8 +138,8 @@ APU_DECLARE(apr_status_t) apr_brigade_partition(apr_bucket_brigade *b,
         else if ((point64 < (apr_uint64_t)e->length)
                  || (e->length == (apr_size_t)(-1))) {
             /* We already consumed buckets where point64 is beyond
-             * our interest ( point64 > MAX_APR_SIZE_T ), above.
-             * Here point falls between 0 and MAX_APR_SIZE_T
+             * our interest ( point64 > APR_SIZE_MAX ), above.
+             * Here point falls between 0 and APR_SIZE_MAX
              * and is within this bucket, or this bucket's len
              * is undefined, so now we are ready to split it.
              * First try to split the bucket natively... */
