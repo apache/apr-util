@@ -161,7 +161,7 @@ APU_DECLARE(apr_status_t) apr_brigade_partition(apr_bucket_brigade *b,
              * might have been morphed by the apr_bucket_read() above, but
              * if it was, the length would have been adjusted appropriately */
             if (point64 < (apr_uint64_t)e->length) {
-                rv = apr_bucket_split(e, (apr_size_t)point);
+                rv = apr_bucket_split(e, (apr_size_t)point64);
                 *after_point = APR_BUCKET_NEXT(e);
                 return rv;
             }
