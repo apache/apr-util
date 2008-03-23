@@ -325,7 +325,8 @@ static void option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
     /* Microsoft SDK */
 #if APR_HAS_MICROSOFT_LDAPSDK
     if (tls == APR_LDAP_NONE) {
-        result->rc = ldap_set_option(ldap, LDAP_OPT_SSL, LDAP_OPT_OFF);
+        ULONG ul = (ULONG) LDAP_OPT_OFF;
+        result->rc = ldap_set_option(ldap, LDAP_OPT_SSL, &ul);
         if (result->rc != LDAP_SUCCESS) {
             result->reason = "LDAP: an attempt to set LDAP_OPT_SSL off "
                              "failed.";
@@ -333,7 +334,8 @@ static void option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
         }
     }
     else if (tls == APR_LDAP_SSL) {
-        result->rc = ldap_set_option(ldap, LDAP_OPT_SSL, LDAP_OPT_ON);
+        ULONG ul = (ULONG) LDAP_OPT_ON;
+        result->rc = ldap_set_option(ldap, LDAP_OPT_SSL, &ul);
         if (result->rc != LDAP_SUCCESS) {
             result->reason = "LDAP: an attempt to set LDAP_OPT_SSL on "
                              "failed.";
