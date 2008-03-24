@@ -160,9 +160,11 @@ APU_DECLARE(int) apr_ldap_set_option(apr_pool_t *pool,
         break;
 
     case APR_LDAP_OPT_REFHOPLIMIT:
-#if APR_HAS_OPENLDAP_LDAPSDK
-        /* Setting this option is not supported by current versions of OpenLDAP,
-         * OpenLDAP does support the concept though and defaults to 5.
+#ifndef LDAP_OPT_REFHOPLIMIT
+        /* If the LDAP_OPT_REFHOPLIMIT symbol is missing, assume that the
+         * particular LDAP library has a reasonable default. So far certain
+         * versions of the OpenLDAP SDK miss this symbol (but default to 5),
+         * and the Microsoft SDK misses the symbol (the default is not known).
          */
         result->rc = LDAP_SUCCESS;
 #else
