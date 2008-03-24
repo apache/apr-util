@@ -1,6 +1,10 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.3.0
 
+  *) Ensure that the LDAP code can compile cleanly on platforms that do
+     not define the LDAP_OPT_REFHOPLIMIT symbol, most specifically Windows.
+     [Victor <victorjss@gmail.com>, Graham Leggett]
+
   *) Fix the setting of LDAP_OPT_SSL on Win2k, which expects a pointer to
      the value LDAP_OPT_ON, and not the value itself. XP works with both.
      [Victor <victorjss@gmail.com>]
