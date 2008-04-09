@@ -32,10 +32,6 @@
 
 #if APR_HAS_LDAP
 
-#if APR_HAS_THREADS
-static apr_thread_mutex_t *apr_ldap_xref_lock = NULL;
-#endif
-
 /* Used to store information about connections for use in the referral rebind callback. */
 struct apr_ldap_rebind_entry {
     apr_pool_t *pool;
@@ -46,7 +42,18 @@ struct apr_ldap_rebind_entry {
 };
 typedef struct apr_ldap_rebind_entry apr_ldap_rebind_entry_t;
 
+
+#ifdef NETWARE
+#include "apr_private.h"
+#define get_apd                 APP_DATA* apd = (APP_DATA*)get_app_data(gLibId);
+#define apr_ldap_xref_lock      ((apr_thread_mutex_t *)(apd->gs_ldap_xref_lock))
+#define xref_head               ((apr_ldap_rebind_entry_t *)(apd->gs_xref_head))
+#else
+#if APR_HAS_THREADS
+static apr_thread_mutex_t *apr_ldap_xref_lock = NULL;
+#endif
 static apr_ldap_rebind_entry_t *xref_head = NULL;
+#endif
 
 static int apr_ldap_rebind_set_callback(LDAP *ld);
 static apr_status_t apr_ldap_rebind_remove_helper(void *data);
@@ -55,6 +62,10 @@ static apr_status_t apr_ldap_rebind_remove_helper(void *data);
 APU_DECLARE(apr_status_t) apr_ldap_rebind_init(apr_pool_t *pool)
 {
     apr_status_t retcode = APR_SUCCESS;
+
+#ifdef NETWARE
+    get_apd
+#endif
 
 #if APR_HAS_THREADS
     if (apr_ldap_xref_lock == NULL) {
@@ -71,6 +82,10 @@ APU_DECLARE(apr_status_t) apr_ldap_rebind_add(apr_pool_t *pool, LDAP *ld, const 
 {
     apr_status_t retcode = APR_SUCCESS;
     apr_ldap_rebind_entry_t *new_xref;
+
+#ifdef NETWARE
+    get_apd
+#endif
 
     new_xref = (apr_ldap_rebind_entry_t *)apr_pcalloc(pool, sizeof(apr_ldap_rebind_entry_t));
     if (new_xref) {
@@ -116,6 +131,10 @@ APU_DECLARE(apr_status_t) apr_ldap_rebind_remove(LDAP *ld)
 {
     apr_ldap_rebind_entry_t *tmp_xref, *prev = NULL;
 
+#ifdef NETWARE
+    get_apd
+#endif
+
 #if APR_HAS_THREADS
     apr_thread_mutex_lock(apr_ldap_xref_lock);
 #endif
@@ -158,6 +177,10 @@ static apr_status_t apr_ldap_rebind_remove_helper(void *data)
 static apr_ldap_rebind_entry_t *apr_ldap_rebind_lookup(LDAP *ld)
 {
     apr_ldap_rebind_entry_t *tmp_xref, *match = NULL;
+
+#ifdef NETWARE
+    get_apd
+#endif
 
 #if APR_HAS_THREADS
     apr_thread_mutex_lock(apr_ldap_xref_lock);
@@ -254,6 +277,38 @@ static int LDAP_rebindproc(LDAP *ld, LDAP_CONST char *url, ber_tag_t request, be
 static int apr_ldap_rebind_set_callback(LDAP *ld)
 {
     ldap_set_rebind_proc(ld, LDAP_rebindproc, NULL);
+    return APR_SUCCESS;
+}
+
+#elif APR_HAS_NOVELL_LDAPSDK
+
+/* LDAP_rebindproc() openLDAP V3 style
+ * ON ENTRY:
+ *     ld       Pointer to an LDAP control structure. (input only)
+ *     url      Unused in this routine
+ *     request  Unused in this routine
+ *     msgid    Unused in this routine
+ */
+static int LDAP_rebindproc(LDAP *ld, LDAP_CONST char *url, int request, ber_int_t msgid)
+{
+
+    apr_ldap_rebind_entry_t *my_conn;
+    const char *bindDN = NULL;
+    const char *bindPW = NULL;
+
+    my_conn = apr_ldap_rebind_lookup(ld);
+
+    if ((my_conn) && (my_conn->bindDN != NULL)) {
+        bindDN = my_conn->bindDN;
+        bindPW = my_conn->bindPW;
+    }
+
+    return (ldap_bind_s(ld, bindDN, bindPW, LDAP_AUTH_SIMPLE));
+}
+
+static int apr_ldap_rebind_set_callback(LDAP *ld)
+{
+    ldap_set_rebind_proc(ld, LDAP_rebindproc);
     return APR_SUCCESS;
 }
 
