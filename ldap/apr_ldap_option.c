@@ -160,7 +160,7 @@ APU_DECLARE(int) apr_ldap_set_option(apr_pool_t *pool,
         break;
 
     case APR_LDAP_OPT_REFHOPLIMIT:
-#ifndef LDAP_OPT_REFHOPLIMIT
+#if !defined(LDAP_OPT_REFHOPLIMIT) || defined(APR_HAS_NOVELL_LDAPSDK)
         /* If the LDAP_OPT_REFHOPLIMIT symbol is missing, assume that the
          * particular LDAP library has a reasonable default. So far certain
          * versions of the OpenLDAP SDK miss this symbol (but default to 5),
