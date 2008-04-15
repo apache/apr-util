@@ -31,7 +31,6 @@
 #include "apr_rmm.h"
 #include "apr_sdbm.h"
 #include "apr_sha1.h"
-#include "apr_ssl.h"
 #include "apr_strmatch.h"
 #include "apr_uri.h"
 #include "apr_uuid.h"
