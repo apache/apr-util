@@ -12,16 +12,14 @@ VPATH = @srcdir@
 
 INCLUDES = @APRUTIL_PRIV_INCLUDES@ @APR_INCLUDES@ @APRUTIL_INCLUDES@
 
-STDTEST_PORTABLE = testall dbd testssl
+STDTEST_PORTABLE = testall dbd
 
 TESTS = teststrmatch.lo testuri.lo testuuid.lo testbuckets.lo testpass.lo \
 	testmd4.lo testmd5.lo testldap.lo testdate.lo testdbm.lo testdbd.lo \
 	testxml.lo testrmm.lo testreslist.lo testqueue.lo testxlate.lo \
 	testmemcache.lo 
 
-OTHER_PROGRAMS = echod sockperf
-
-PROGRAMS = $(STDTEST_PORTABLE) $(OTHER_PROGRAMS)
+PROGRAMS = $(STDTEST_PORTABLE)
 
 TARGETS = $(PROGRAMS)
 
@@ -57,20 +55,6 @@ testall: $(OBJECTS_testall)
 OBJECTS_dbd = dbd.lo $(LOCAL_LIBS)
 dbd: $(OBJECTS_dbd)
 	$(LINK_PROG) $(OBJECTS_dbd) $(APRUTIL_LIBS)
-
-OBJECTS_testssl = testssl.lo $(LOCAL_LIBS)
-testssl: $(OBJECTS_testssl)
-	$(LINK_PROG) $(OBJECTS_testssl) $(APRUTIL_LIBS)
-
-# OTHER_PROGRAMS;
-
-OBJECTS_echod = echod.lo $(LOCAL_LIBS)
-echod: $(OBJECTS_echod)
-	$(LINK_PROG) $(OBJECTS_echod) $(APRUTIL_LIBS)
-
-OBJECTS_sockperf = sockperf.lo $(LOCAL_LIBS)
-sockperf: $(OBJECTS_sockperf)
-	$(LINK_PROG) $(OBJECTS_sockperf) $(APRUTIL_LIBS)
 
 check: $(TESTALL_COMPONENTS) $(STDTEST_PORTABLE) $(STDTEST_NONPORTABLE)
 	teststatus=0; \
