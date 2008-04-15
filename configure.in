@@ -15,7 +15,6 @@ sinclude(build/apr_common.m4)
 sinclude(build/find_apr.m4)
 sinclude(build/dbm.m4)
 sinclude(build/dbd.m4)
-sinclude(build/ssl.m4)
 
 dnl Generate ./config.nice for reproducing runs of configure
 dnl 
@@ -174,8 +173,6 @@ AC_CHECK_FUNCS(crypt_r, [ crypt_r="1" ], [ crypt_r="0" ])
 if test "$crypt_r" = "1"; then
   APU_CHECK_CRYPT_R_STYLE
 fi
-
-APU_FIND_SSL
 
 so_ext=$APR_SO_EXT
 lib_target=$APR_LIB_TARGET

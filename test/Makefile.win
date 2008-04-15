@@ -68,8 +68,7 @@ CLEAN_DATA = manyfile.bin testfile.txt data\sqlite*.db
 CLEAN_BUILDDIRS = Debug Release LibD LibR 9x x64
 
 PROGRAMS = \
-	$(OUTDIR)\testall.exe \
-	$(OUTDIR)\testssl.exe
+	$(OUTDIR)\testall.exe
 
 OTHER_PROGRAMS = \
 	$(OUTDIR)\dbd.exe \
@@ -134,11 +133,6 @@ $(OUTDIR)\testall.exe: $(ALL_TESTS) $(INTDIR)\abts.obj $(PROGRAM_DEPENDENCIES)
 # OTHER_PROGRAMS;
 
 $(OUTDIR)\dbd.exe: $(INTDIR)\dbd.obj $(PROGRAM_DEPENDENCIES)
-	$(LD) $(LDFLAGS) /out:"$@" $** $(LD_LIBS)
-	@if exist "$@.manifest" \
-	    mt.exe -manifest "$@.manifest" -outputresource:$@;1
-
-$(OUTDIR)\testssl.exe: $(INTDIR)\testssl.obj $(PROGRAM_DEPENDENCIES)
 	$(LD) $(LDFLAGS) /out:"$@" $** $(LD_LIBS)
 	@if exist "$@.manifest" \
 	    mt.exe -manifest "$@.manifest" -outputresource:$@;1
