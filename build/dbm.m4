@@ -672,8 +672,10 @@ AC_DEFUN([APU_CHECK_DBM], [
     elif test "$withval" = "no"; then
       apu_have_gdbm=0
     else
-      CPPFLAGS="-I$withval/include"
-      LIBS="-L$withval/lib "
+      saved_cppflags="$CPPFLAGS"
+      saved_ldflags="$LDFLAGS"
+      CPPFLAGS="$CPPFLAGS -I$withval/include"
+      LDFLAGS="$LDFLAGS -L$withval/lib "
 
       AC_MSG_CHECKING(checking for gdbm in $withval)
       AC_CHECK_HEADER(gdbm.h, AC_CHECK_LIB(gdbm, gdbm_open, [apu_have_gdbm=1]))
@@ -681,6 +683,8 @@ AC_DEFUN([APU_CHECK_DBM], [
         APR_ADDTO(APRUTIL_LDFLAGS, [-L$withval/lib])
         APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/include])
       fi
+      CPPFLAGS="$saved_cppflags"
+      LDFLAGS="$saved_ldflags"
     fi
   ])
 
