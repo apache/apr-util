@@ -1,6 +1,8 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 0.9.16
 
+  *) Better error detection for bucket allocation failures. 
+     [Jim Jagielski]
 
 
 Changes with APR-util 0.9.15
