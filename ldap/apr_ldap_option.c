@@ -590,6 +590,13 @@ static void option_set_cert(apr_pool_t *pool, LDAP *ldap,
                                          (void *)ents[i].path);
             result->msg = ldap_err2string(result->rc);
             break;
+#ifdef LDAP_OPT_X_TLS_CACERTDIR
+        case APR_LDAP_CA_TYPE_CACERTDIR_BASE64:
+            result->rc = ldap_set_option(ldap, LDAP_OPT_X_TLS_CACERTDIR,
+                                         (void *)ents[i].path);
+            result->msg = ldap_err2string(result->rc);
+            break;
+#endif
         default:
             result->rc = -1;
             result->reason = "LDAP: The OpenLDAP SDK only understands the "

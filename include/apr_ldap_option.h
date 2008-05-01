@@ -147,6 +147,11 @@ extern "C" {
 #define APR_LDAP_CERT_TYPE_PFX      13
 /** PKCS#12 encoded private key */
 #define APR_LDAP_KEY_TYPE_PFX       14
+/** Openldap directory full of base64-encoded cert 
+ * authorities with hashes in corresponding .0 directory
+ */
+#define APR_LDAP_CA_TYPE_CACERTDIR_BASE64 15
+
 
 /**
  * Certificate structure.
