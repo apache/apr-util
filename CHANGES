@@ -2,6 +2,9 @@
 
 Changes with APR-util 1.2.13
 
+  *) Better error detection for bucket allocation failures. 
+     [Jim Jagielski]
+
   *) Fix a regression in apr_brigade_partition that causes integer overflows
      on systems where apr_off_t > apr_size_t.  [Ruediger Pluem]
 
