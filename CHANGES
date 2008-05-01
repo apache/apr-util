@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.3.0
 
+  *) Better error detection for bucket allocation failures.
+     [Jim Jagielski]
+
   *) Ensure that the LDAP code can compile cleanly on platforms that do
      not define the LDAP_OPT_REFHOPLIMIT symbol, most specifically Windows.
      [Victor <victorjss@gmail.com>, Graham Leggett]
