@@ -122,6 +122,18 @@ typedef struct apr_ldap_err_t {
 }
 #endif
 
+/* The MS SDK returns LDAP_UNAVAILABLE when the backend has closed the connection
+ * between LDAP calls. Protect with APR_HAS_MICROSOFT_LDAPSDK in case someone 
+ * manually chooses another SDK on Windows 
+ */
+
+#if APR_HAS_MICROSOFT_LDAPSDK
+#define APR_LDAP_IS_SERVER_DOWN(s)                ((s) == LDAP_SERVER_DOWN \
+                ||(s) == LDAP_UNAVAILABLE)
+#else
+#define APR_LDAP_IS_SERVER_DOWN(s) ((s) == LDAP_SERVER_DOWN)
+#endif
+
 #include "apr_ldap_url.h"
 #include "apr_ldap_init.h"
 #include "apr_ldap_option.h"
