@@ -151,6 +151,8 @@ typedef struct apr_ldap_err_t {
 }
 #endif
 
+#define APR_LDAP_IS_SERVER_DOWN(s)                ((s) == LDAP_SERVER_DOWN)
+
 #include "apr_ldap_url.h"
 #include "apr_ldap_init.h"
 #include "apr_ldap_option.h"
