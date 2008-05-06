@@ -21,6 +21,23 @@
 /* For apr_array_header_t */
 #include "apr_tables.h"
 
+#ifdef APR_DTRACE_PROVIDER
+#include <sys/sdt.h>
+#ifndef OLD_DTRACE_PROBE
+#define OLD_DTRACE_PROBE(name) __dtrace_ap___##name()
+#endif
+#ifndef OLD_DTRACE_PROBE1
+#define OLD_DTRACE_PROBE1(name,a) __dtrace_ap___##name(a)
+#endif
+#ifndef OLD_DTRACE_PROBE2
+#define OLD_DTRACE_PROBE2(name,a,b) __dtrace_ap___##name(a,b)
+#endif
+#else
+#define OLD_DTRACE_PROBE(a)
+#define OLD_DTRACE_PROBE1(a,b)
+#define OLD_DTRACE_PROBE2(a,b,c)
+#endif
+
 /**
  * @file apr_hooks.h
  * @brief Apache hook functions
@@ -107,12 +124,21 @@ link##_DECLARE(void) ns##_run_##name args_decl \
     ns##_LINK_##name##_t *pHook; \
     int n; \
 \
-    if(!_hooks.link_##name) \
-	return; \
+    OLD_DTRACE_PROBE(name##__entry); \
 \
-    pHook=(ns##_LINK_##name##_t *)_hooks.link_##name->elts; \
-    for(n=0 ; n < _hooks.link_##name->nelts ; ++n) \
-	pHook[n].pFunc args_use; \
+    if(_hooks.link_##name) \
+        { \
+        pHook=(ns##_LINK_##name##_t *)_hooks.link_##name->elts; \
+        for(n=0 ; n < _hooks.link_##name->nelts ; ++n) \
+            { \
+            OLD_DTRACE_PROBE1(name##__dispatch__invoke, (char *)pHook[n].szName); \
+	    pHook[n].pFunc args_use; \
+            OLD_DTRACE_PROBE2(name##__dispatch__complete, (char *)pHook[n].szName, 0); \
+            } \
+        } \
+\
+    OLD_DTRACE_PROBE1(name##__return, 0); \
+\
     }
 
 /* FIXME: note that this returns ok when nothing is run. I suspect it should
@@ -139,20 +165,27 @@ link##_DECLARE(ret) ns##_run_##name args_decl \
     { \
     ns##_LINK_##name##_t *pHook; \
     int n; \
-    ret rv; \
+    ret rv = ok; \
 \
-    if(!_hooks.link_##name) \
-	return ok; \
+    OLD_DTRACE_PROBE(name##__entry); \
 \
-    pHook=(ns##_LINK_##name##_t *)_hooks.link_##name->elts; \
-    for(n=0 ; n < _hooks.link_##name->nelts ; ++n) \
-	{ \
-	rv=pHook[n].pFunc args_use; \
+    if(_hooks.link_##name) \
+        { \
+        pHook=(ns##_LINK_##name##_t *)_hooks.link_##name->elts; \
+        for(n=0 ; n < _hooks.link_##name->nelts ; ++n) \
+            { \
+            OLD_DTRACE_PROBE1(name##__dispatch__invoke, (char *)pHook[n].szName); \
+            rv=pHook[n].pFunc args_use; \
+            OLD_DTRACE_PROBE2(name##__dispatch__complete, (char *)pHook[n].szName, rv); \
+            if(rv != ok && rv != decline) \
+                break; \
+            rv = ok; \
+            } \
+        } \
 \
-	if(rv != ok && rv != decline) \
-	    return rv; \
-	} \
-    return ok; \
+    OLD_DTRACE_PROBE1(name##__return, rv); \
+\
+    return rv; \
     }
 
 
@@ -176,20 +209,27 @@ link##_DECLARE(ret) ns##_run_##name args_decl \
     { \
     ns##_LINK_##name##_t *pHook; \
     int n; \
-    ret rv; \
+    ret rv = decline; \
 \
-    if(!_hooks.link_##name) \
-	return decline; \
+    OLD_DTRACE_PROBE(name##__entry); \
 \
-    pHook=(ns##_LINK_##name##_t *)_hooks.link_##name->elts; \
-    for(n=0 ; n < _hooks.link_##name->nelts ; ++n) \
-	{ \
-	rv=pHook[n].pFunc args_use; \
+    if(_hooks.link_##name) \
+        { \
+        pHook=(ns##_LINK_##name##_t *)_hooks.link_##name->elts; \
+        for(n=0 ; n < _hooks.link_##name->nelts ; ++n) \
+            { \
+            OLD_DTRACE_PROBE1(name##__dispatch__invoke, (char *)pHook[n].szName); \
+            rv=pHook[n].pFunc args_use; \
+            OLD_DTRACE_PROBE2(name##__dispatch__complete, (char *)pHook[n].szName, rv); \
 \
-	if(rv != decline) \
-	    return rv; \
-	} \
-    return decline; \
+            if(rv != decline) \
+                break; \
+            } \
+        } \
+\
+    OLD_DTRACE_PROBE1(name##__return, rv); \
+\
+    return rv; \
     }
 
     /* Hook orderings */
