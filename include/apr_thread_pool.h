@@ -187,6 +187,38 @@ APU_DECLARE(apr_size_t) apr_thread_pool_idle_max_set(apr_thread_pool_t *me,
                                                      apr_size_t cnt);
 
 /**
+ * Get number of tasks that have run
+ * @param me The thread pool
+ * @return Number of tasks that have run
+ */
+APU_DECLARE(apr_size_t)
+    apr_thread_pool_tasks_run_count(apr_thread_pool_t * me);
+
+/**
+ * Get high water mark of the number of tasks waiting to run
+ * @param me The thread pool
+ * @return High water mark of tasks waiting to run
+ */
+APU_DECLARE(apr_size_t)
+    apr_thread_pool_tasks_high_count(apr_thread_pool_t * me);
+
+/**
+ * Get high water mark of the number of threads
+ * @param me The thread pool
+ * @return High water mark of threads in thread pool
+ */
+APU_DECLARE(apr_size_t)
+    apr_thread_pool_threads_high_count(apr_thread_pool_t * me);
+
+/**
+ * Get the number of idle threads that were destroyed after timing out
+ * @param me The thread pool
+ * @return Number of idle threads that timed out
+ */
+APU_DECLARE(apr_size_t)
+    apr_thread_pool_threads_idle_timeout_count(apr_thread_pool_t * me);
+
+/**
  * Access function for the maximum number of idle threads
  * @param me The thread pool
  * @return The current maximum number
@@ -201,6 +233,29 @@ APU_DECLARE(apr_size_t) apr_thread_pool_idle_max_get(apr_thread_pool_t *me);
  */
 APU_DECLARE(apr_size_t) apr_thread_pool_thread_max_set(apr_thread_pool_t *me,
                                                        apr_size_t cnt);
+
+/**
+ * Access function for the maximum wait time (in microseconds) of an
+ * idling thread that exceeds the maximum number of idling threads.
+ * A non-zero value allows for the reaping of idling threads to shrink
+ * over time.  Which helps reduce thrashing.
+ * @param me The thread pool
+ * @param timeout The number of microseconds an idle thread should wait
+ * till it reaps itself
+ * @return The original maximum wait time
+ */
+APU_DECLARE(apr_interval_time_t)
+    apr_thread_pool_idle_wait_set(apr_thread_pool_t * me,
+                                  apr_interval_time_t timeout);
+
+/**
+ * Access function for the maximum wait time (in microseconds) of an
+ * idling thread that exceeds the maximum number of idling threads
+ * @param me The thread pool
+ * @return The current maximum wait time
+ */
+APU_DECLARE(apr_interval_time_t)
+    apr_thread_pool_idle_wait_get(apr_thread_pool_t * me);
 
 /**
  * Access function for the maximum number of threads
