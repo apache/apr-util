@@ -77,7 +77,7 @@ dnl
 AC_DEFUN([APU_CHECK_DBD_MYSQL], [
   apu_have_mysql=0
 
-  AC_ARG_WITH([mysql], APR_HELP_STRING([--with-mysql=DIR], [specify MySQL location]),
+  AC_ARG_WITH([mysql], APR_HELP_STRING([--with-mysql=DIR], [enable MySQL DBD driver]),
   [
     apu_have_mysql=0
     if test "$withval" = "yes"; then
@@ -138,31 +138,6 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
       CPPFLAGS="$old_cppflags"
       LDFLAGS="$old_ldflags"
     fi
-  ], [
-    apu_have_mysql=0
-
-    old_cppflags="$CPPFLAGS"
-    old_ldflags="$LDFLAGS"
-
-    AC_PATH_PROG([MYSQL_CONFIG],[mysql_config])
-    if test "x$MYSQL_CONFIG" != 'x'; then
-      mysql_CPPFLAGS="`$MYSQL_CONFIG --include`"
-      mysql_LDFLAGS="`$MYSQL_CONFIG --libs_r`"
-
-      APR_ADDTO(CPPFLAGS, [$mysql_CPPFLAGS])
-      APR_ADDTO(LDFLAGS, [$mysql_LDFLAGS])
-    fi
-
-    AC_CHECK_HEADERS(mysql.h, AC_CHECK_LIB(mysqlclient_r, mysql_init, [apu_have_mysql=1]))
-
-    if test "$apu_have_mysql" != "0"; then
-      if test "x$MYSQL_CONFIG" != 'x'; then
-        APR_ADDTO(APRUTIL_INCLUDES, [$mysql_CPPFLAGS])
-      fi
-    fi
-
-    CPPFLAGS="$old_cppflags"
-    LDFLAGS="$old_ldflags"
   ])
 
   AC_SUBST(apu_have_mysql)
