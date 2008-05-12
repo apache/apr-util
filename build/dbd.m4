@@ -305,27 +305,6 @@ AC_DEFUN([APU_CHECK_DBD_ORACLE], [
       CPPFLAGS="$old_cppflags"
       LDFLAGS="$old_ldflags"
     fi
-  ], [
-    apu_have_oracle=0
-
-    old_cppflags="$CPPFLAGS"
-
-    if test -n "$with_oracle_include"; then
-      oracle_CPPFLAGS="$CPPFLAGS -I$with_oracle_include"
-      APR_ADDTO(APRUTIL_INCLUDES, [-I$with_oracle_include])
-    fi
-
-    APR_ADDTO(CPPFLAGS, [$oracle_CPPFLAGS])
-
-    AC_CHECK_HEADERS(oci.h, AC_CHECK_LIB(clntsh, OCIEnvCreate, [apu_have_oracle=1],[
-      unset ac_cv_lib_clntsh_OCIEnvCreate
-      AC_CHECK_LIB(clntsh, OCIEnvCreate, [
-        apu_have_oracle=1
-        LDADD_dbd_oracle=-lnnz10
-      ],,[-lnnz10])
-    ]))
-
-    CPPFLAGS="$old_cppflags"
   ])
 
   AC_SUBST(apu_have_oracle)
@@ -392,21 +371,9 @@ dnl
 AC_DEFUN([APU_CHECK_DBD_DSO], [
 
   AC_ARG_ENABLE([dbd-dso], 
-     APR_HELP_STRING([--enable-dbd-dso], [build DBD drivers as DSOs]))
+     APR_HELP_STRING([--disable-dbd-dso], [disable DSO build of DBD drivers]))
 
-  if test "$enable_dbd_dso" = "yes"; then
-     AC_DEFINE([APU_DSO_BUILD], 1, [Define if DBD drivers are built as DSOs])
-     
-     dsos=
-     test $apu_have_oracle = 1 && dsos="$dsos dbd/apr_dbd_oracle.la"
-     test $apu_have_pgsql = 1 && dsos="$dsos dbd/apr_dbd_pgsql.la"
-     test $apu_have_mysql = 1 && dsos="$dsos dbd/apr_dbd_mysql.la"
-     test $apu_have_sqlite2 = 1 && dsos="$dsos dbd/apr_dbd_sqlite2.la"
-     test $apu_have_sqlite3 = 1 && dsos="$dsos dbd/apr_dbd_sqlite3.la"
-     test $apu_have_freetds = 1 && dsos="$dsos dbd/apr_dbd_freetds.la"
-
-     APU_MODULES="$APU_MODULES $dsos"
-  else
+  if test "$enable_dbd_dso" = "no"; then
      # Statically link the DBD drivers:
 
      objs=
@@ -434,5 +401,17 @@ AC_DEFUN([APU_CHECK_DBD_DSO], [
 
      APRUTIL_LIBS="$APRUTIL_LIBS $LDADD_dbd_pgsql $LDADD_dbd_sqlite2 $LDADD_dbd_sqlite3 $LDADD_dbd_oracle $LDADD_dbd_mysql $LDADD_dbd_freetds"
      APRUTIL_EXPORT_LIBS="$APRUTIL_EXPORT_LIBS $LDADD_dbd_pgsql $LDADD_dbd_sqlite2 $LDADD_dbd_sqlite3 $LDADD_dbd_oracle $LDADD_dbd_mysql $LDADD_dbd_freetds"
+  else
+     AC_DEFINE([APU_DSO_BUILD], 1, [Define if DBD drivers are built as DSOs])
+     
+     dsos=
+     test $apu_have_oracle = 1 && dsos="$dsos dbd/apr_dbd_oracle.la"
+     test $apu_have_pgsql = 1 && dsos="$dsos dbd/apr_dbd_pgsql.la"
+     test $apu_have_mysql = 1 && dsos="$dsos dbd/apr_dbd_mysql.la"
+     test $apu_have_sqlite2 = 1 && dsos="$dsos dbd/apr_dbd_sqlite2.la"
+     test $apu_have_sqlite3 = 1 && dsos="$dsos dbd/apr_dbd_sqlite3.la"
+     test $apu_have_freetds = 1 && dsos="$dsos dbd/apr_dbd_freetds.la"
+
+     APU_MODULES="$APU_MODULES $dsos"
   fi
 ])
