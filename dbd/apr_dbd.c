@@ -129,7 +129,7 @@ APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
                                              const apr_dbd_driver_t **driver)
 {
 #ifdef APU_DSO_BUILD
-    char path[80];
+    char path[APR_PATH_MAX + 1];
     apr_dso_handle_t *dlhandle = NULL;
     apr_dso_handle_sym_t symbol;
 #endif
