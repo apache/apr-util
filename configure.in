@@ -122,19 +122,6 @@ else
 fi
 AC_SUBST(APR_ICONV_DIR)
 
-dnl Find LDAP library
-dnl Determine what DBM backend type to use.
-dnl Find Expat
-dnl Find an iconv library
-APU_FIND_LDAP
-APU_CHECK_DBM
-APU_CHECK_DBD
-APU_CHECK_DBD_MYSQL
-APU_CHECK_DBD_SQLITE3
-APU_CHECK_DBD_SQLITE2
-APU_FIND_EXPAT
-APU_FIND_ICONV
-
 AC_SEARCH_LIBS(crypt, crypt ufc)
 AC_MSG_CHECKING(if system crypt() function is threadsafe)
 if test "x$apu_crypt_threadsafe" = "x1"; then
@@ -149,6 +136,19 @@ AC_CHECK_FUNCS(crypt_r, [ crypt_r="1" ], [ crypt_r="0" ])
 if test "$crypt_r" = "1"; then
   APU_CHECK_CRYPT_R_STYLE
 fi
+
+dnl Find LDAP library
+dnl Determine what DBM backend type to use.
+dnl Find Expat
+dnl Find an iconv library
+APU_FIND_LDAP
+APU_CHECK_DBM
+APU_CHECK_DBD
+APU_CHECK_DBD_MYSQL
+APU_CHECK_DBD_SQLITE3
+APU_CHECK_DBD_SQLITE2
+APU_FIND_EXPAT
+APU_FIND_ICONV
 
 so_ext=$APR_SO_EXT
 lib_target=$APR_LIB_TARGET
