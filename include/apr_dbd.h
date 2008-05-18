@@ -314,8 +314,8 @@ APU_DECLARE(int) apr_dbd_num_tuples(const apr_dbd_driver_t *driver,
  *  @param pool - pool to allocate the row
  *  @param res - result set pointer
  *  @param row - pointer to row pointer.  May point to NULL on entry
- *  @param rownum - row number, or -1 for "next row".  Ignored if random
- *                  access is not supported.
+ *  @param rownum - row number (counting from 1), or -1 for "next row".
+ *                  Ignored if random access is not supported.
  *  @return 0 for success, -1 for rownum out of range or data finished
  */
 APU_DECLARE(int) apr_dbd_get_row(const apr_dbd_driver_t *driver, apr_pool_t *pool,
