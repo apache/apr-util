@@ -24,6 +24,10 @@ dnl
 AC_DEFUN([APU_CHECK_DBD], [
   apu_have_pgsql=0
 
+  old_libs="$LIBS"
+  old_cppflags="$CPPFLAGS"
+  old_ldflags="$LDFLAGS"
+
   AC_ARG_WITH([pgsql],
     APR_HELP_STRING([--with-pgsql=DIR], [specify PostgreSQL location]),
   [
@@ -36,9 +40,6 @@ AC_DEFUN([APU_CHECK_DBD], [
     elif test "$withval" = "no"; then
       apu_have_pgsql=0
     else
-      old_cppflags="$CPPFLAGS"
-      old_ldflags="$LDFLAGS"
-
       pgsql_CPPFLAGS="-I$withval/include"
       pgsql_LDFLAGS="-L$withval/lib "
 
@@ -58,9 +59,6 @@ AC_DEFUN([APU_CHECK_DBD], [
           APR_ADDTO(APRUTIL_LDFLAGS, [-L$withval/lib])
         fi
       fi
-
-      CPPFLAGS="$old_cppflags"
-      LDFLAGS="$old_ldflags"
     fi
   ], [
     apu_have_pgsql=0
@@ -73,19 +71,24 @@ AC_DEFUN([APU_CHECK_DBD], [
     APR_ADDTO(APRUTIL_EXPORT_LIBS,[-lpq])
     APR_ADDTO(APRUTIL_LIBS,[-lpq])
   fi
+
+  LIBS="$old_libs"
+  CPPFLAGS="$old_cppflags"
+  LDFLAGS="$old_ldflags"
 ])
 dnl
 AC_DEFUN([APU_CHECK_DBD_MYSQL], [
   apu_have_mysql=0
+
+  old_libs="$LIBS"
+  old_cppflags="$CPPFLAGS"
+  old_ldflags="$LDFLAGS"
 
   AC_ARG_WITH([mysql],
     APR_HELP_STRING([--with-mysql=DIR], [specify MySQL location (disabled by default)]),
   [
     apu_have_mysql=0
     if test "$withval" = "yes"; then
-      old_cppflags="$CPPFLAGS"
-      old_ldflags="$LDFLAGS"
-
       AC_PATH_PROG([MYSQL_CONFIG],[mysql_config])
       if test "x$MYSQL_CONFIG" != 'x'; then
         mysql_CPPFLAGS="`$MYSQL_CONFIG --include`"
@@ -104,15 +107,9 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
           APR_ADDTO(APRUTIL_LDFLAGS, [$mysql_LDFLAGS])
         fi
       fi
-
-      CPPFLAGS="$old_cppflags"
-      LDFLAGS="$old_ldflags"
     elif test "$withval" = "no"; then
       apu_have_mysql=0
     else
-      old_cppflags="$CPPFLAGS"
-      old_ldflags="$LDFLAGS"
-
       AC_PATH_PROG([MYSQL_CONFIG],[mysql_config],,[$withval/bin])
       if test "x$MYSQL_CONFIG" != 'x'; then
         mysql_CPPFLAGS="`$MYSQL_CONFIG --include`"
@@ -139,9 +136,6 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
           APR_ADDTO(APRUTIL_LDFLAGS, [-L$withval/lib])
         fi
       fi
-
-      CPPFLAGS="$old_cppflags"
-      LDFLAGS="$old_ldflags"
     fi
   ])
 
@@ -153,10 +147,18 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
     APR_ADDTO(APRUTIL_EXPORT_LIBS,[-lmysqlclient_r])
     APR_ADDTO(APRUTIL_LIBS,[-lmysqlclient_r])
   fi
+
+  LIBS="$old_libs"
+  CPPFLAGS="$old_cppflags"
+  LDFLAGS="$old_ldflags"
 ])
 dnl
 AC_DEFUN([APU_CHECK_DBD_SQLITE3], [
   apu_have_sqlite3=0
+
+  old_libs="$LIBS"
+  old_cppflags="$CPPFLAGS"
+  old_ldflags="$LDFLAGS"
 
   AC_ARG_WITH([sqlite3],
     APR_HELP_STRING([--with-sqlite3=DIR], [enable sqlite3 DBD driver]),
@@ -167,9 +169,6 @@ AC_DEFUN([APU_CHECK_DBD_SQLITE3], [
     elif test "$withval" = "no"; then
       apu_have_sqlite3=0
     else
-      old_cppflags="$CPPFLAGS"
-      old_ldflags="$LDFLAGS"
-
       sqlite3_CPPFLAGS="-I$withval/include"
       sqlite3_LDFLAGS="-L$withval/lib "
 
@@ -182,9 +181,6 @@ AC_DEFUN([APU_CHECK_DBD_SQLITE3], [
         APR_ADDTO(APRUTIL_LDFLAGS, [-L$withval/lib])
         APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/include])
       fi
-
-      CPPFLAGS="$old_cppflags"
-      LDFLAGS="$old_ldflags"
     fi
   ], [
     apu_have_sqlite3=0
@@ -199,10 +195,18 @@ AC_DEFUN([APU_CHECK_DBD_SQLITE3], [
     APR_ADDTO(APRUTIL_EXPORT_LIBS,[-lsqlite3])
     APR_ADDTO(APRUTIL_LIBS,[-lsqlite3])
   fi
+
+  LIBS="$old_libs"
+  CPPFLAGS="$old_cppflags"
+  LDFLAGS="$old_ldflags"
 ])
 dnl
 AC_DEFUN([APU_CHECK_DBD_SQLITE2], [
   apu_have_sqlite2=0
+
+  old_libs="$LIBS"
+  old_cppflags="$CPPFLAGS"
+  old_ldflags="$LDFLAGS"
 
   AC_ARG_WITH([sqlite2],
     APR_HELP_STRING([--with-sqlite2=DIR], [enable sqlite2 DBD driver]),        
@@ -213,9 +217,6 @@ AC_DEFUN([APU_CHECK_DBD_SQLITE2], [
     elif test "$withval" = "no"; then
       apu_have_sqlite2=0
     else
-      old_cppflags="$CPPFLAGS"
-      old_ldflags="$LDFLAGS"
-
       sqlite2_CPPFLAGS="-I$withval/include"
       sqlite2_LDFLAGS="-L$withval/lib "
 
@@ -228,9 +229,6 @@ AC_DEFUN([APU_CHECK_DBD_SQLITE2], [
         APR_ADDTO(APRUTIL_LDFLAGS, [-L$withval/lib])
         APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/include])
       fi
-
-      CPPFLAGS="$old_cppflags"
-      LDFLAGS="$old_ldflags"
     fi
   ], [
     apu_have_sqlite2=0
@@ -245,6 +243,10 @@ AC_DEFUN([APU_CHECK_DBD_SQLITE2], [
     APR_ADDTO(APRUTIL_EXPORT_LIBS,[-lsqlite])
     APR_ADDTO(APRUTIL_LIBS,[-lsqlite])
   fi
+
+  LIBS="$old_libs"
+  CPPFLAGS="$old_cppflags"
+  LDFLAGS="$old_ldflags"
 ])
 dnl
 
