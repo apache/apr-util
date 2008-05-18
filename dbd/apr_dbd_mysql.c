@@ -269,7 +269,7 @@ static int dbd_mysql_get_row(apr_pool_t *pool, apr_dbd_results_t *res,
     if (res->statement) {
         if (res->random) {
             if (rownum >= 0) {
-                mysql_stmt_data_seek(res->statement, (my_ulonglong)rownum);
+                mysql_stmt_data_seek(res->statement, (my_ulonglong) --rownum);
             }
         }
         ret = mysql_stmt_fetch(res->statement);
@@ -288,7 +288,7 @@ static int dbd_mysql_get_row(apr_pool_t *pool, apr_dbd_results_t *res,
     else {
         if (res->random) {
             if (rownum >= 0) {
-                mysql_data_seek(res->res, (my_ulonglong) rownum);
+                mysql_data_seek(res->res, (my_ulonglong) --rownum);
             }
         }
         r = mysql_fetch_row(res->res);
