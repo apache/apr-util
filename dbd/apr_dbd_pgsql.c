@@ -231,14 +231,14 @@ static int dbd_pgsql_get_row(apr_pool_t *pool, apr_dbd_results_t *res,
         row = apr_palloc(pool, sizeof(apr_dbd_row_t));
         *rowp = row;
         row->res = res;
-        row->n = sequential ? 0 : --rownum;
+        row->n = sequential ? 0 : (rownum > 0 ? --rownum : row->n);
     }
     else {
         if ( sequential ) {
             ++row->n;
         }
         else {
-            row->n = --rownum;
+            row->n = (rownum > 0 ? --rownum : row->n);
         }
     }
 
