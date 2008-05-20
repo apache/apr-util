@@ -31,45 +31,71 @@ AC_DEFUN([APU_CHECK_DBD], [
   AC_ARG_WITH([pgsql],
     APR_HELP_STRING([--with-pgsql=DIR], [specify PostgreSQL location]),
   [
-    apu_have_pgsql=0
     if test "$withval" = "yes"; then
+      AC_PATH_PROG([PGSQL_CONFIG],[pg_config])
+      if test "x$PGSQL_CONFIG" != 'x'; then
+        pgsql_CPPFLAGS="-I`$PGSQL_CONFIG --includedir`"
+        pgsql_LDFLAGS="-L`$PGSQL_CONFIG --libdir` `$PGSQL_CONFIG --libs`"
+
+        APR_ADDTO(CPPFLAGS, [$pgsql_CPPFLAGS])
+        APR_ADDTO(LDFLAGS, [$pgsql_LDFLAGS])
+      fi
+
       AC_CHECK_HEADERS(libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
       if test "$apu_have_pgsql" = "0"; then
         AC_CHECK_HEADERS(postgresql/libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
       fi
+      if test "$apu_have_pgsql" != "0" && test "x$PGSQL_CONFIG" != 'x'; then
+        APR_ADDTO(APRUTIL_INCLUDES, [$pgsql_CPPFLAGS])
+      fi
     elif test "$withval" = "no"; then
-      apu_have_pgsql=0
+      :
     else
-      pgsql_CPPFLAGS="-I$withval/include"
-      pgsql_LDFLAGS="-L$withval/lib "
+      AC_PATH_PROG([PGSQL_CONFIG],[pg_config],,[$withval/bin])
+      if test "x$PGSQL_CONFIG" != 'x'; then
+        pgsql_CPPFLAGS="-I`$PGSQL_CONFIG --includedir`"
+        pgsql_LDFLAGS="-L`$PGSQL_CONFIG --libdir` `$PGSQL_CONFIG --libs`"
+      else
+        pgsql_CPPFLAGS="-I$withval/include"
+        pgsql_LDFLAGS="-L$withval/lib "
+      fi
 
       APR_ADDTO(CPPFLAGS, [$pgsql_CPPFLAGS])
       APR_ADDTO(LDFLAGS, [$pgsql_LDFLAGS])
 
       AC_MSG_NOTICE(checking for pgsql in $withval)
       AC_CHECK_HEADERS(libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
-      if test "$apu_have_pgsql" != "0"; then
-        APR_ADDTO(APRUTIL_LDFLAGS, [-L$withval/lib])
-        APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/include])
-      fi
       if test "$apu_have_pgsql" != "1"; then
         AC_CHECK_HEADERS(postgresql/libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
-        if test "$apu_have_pgsql" != "0"; then
-          APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/include/postgresql])
-          APR_ADDTO(APRUTIL_LDFLAGS, [-L$withval/lib])
-        fi
+      fi
+      if test "$apu_have_pgsql" != "0"; then
+        APR_ADDTO(APRUTIL_INCLUDES, [$pgsql_CPPFLAGS])
       fi
     fi
   ], [
-    apu_have_pgsql=0
+    AC_PATH_PROG([PGSQL_CONFIG],[pg_config])
+    if test "x$PGSQL_CONFIG" != 'x'; then
+      pgsql_CPPFLAGS="-I`$PGSQL_CONFIG --includedir`"
+      pgsql_LDFLAGS="-L`$PGSQL_CONFIG --libdir` `$PGSQL_CONFIG --libs`"
+
+      APR_ADDTO(CPPFLAGS, [$pgsql_CPPFLAGS])
+      APR_ADDTO(LDFLAGS, [$pgsql_LDFLAGS])
+    fi
+
     AC_CHECK_HEADERS(libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
+    if test "$apu_have_pgsql" = "0"; then
+      AC_CHECK_HEADERS(postgresql/libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
+    fi
+    if test "$apu_have_pgsql" != "0" && test "x$PGSQL_CONFIG" != 'x'; then
+      APR_ADDTO(APRUTIL_INCLUDES, [$pgsql_CPPFLAGS])
+    fi
   ])
   AC_SUBST(apu_have_pgsql)
   dnl Since we have already done the AC_CHECK_LIB tests, if we have it, 
   dnl we know the library is there.
   if test "$apu_have_pgsql" = "1"; then
-    APR_ADDTO(APRUTIL_EXPORT_LIBS,[-lpq])
-    APR_ADDTO(APRUTIL_LIBS,[-lpq])
+    APR_ADDTO(APRUTIL_EXPORT_LIBS,[$pgsql_LDFLAGS -lpq])
+    APR_ADDTO(APRUTIL_LIBS,[$pgsql_LDFLAGS -lpq])
   fi
 
   LIBS="$old_libs"
@@ -87,7 +113,6 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
   AC_ARG_WITH([mysql],
     APR_HELP_STRING([--with-mysql=DIR], [specify MySQL location (disabled by default)]),
   [
-    apu_have_mysql=0
     if test "$withval" = "yes"; then
       AC_PATH_PROG([MYSQL_CONFIG],[mysql_config])
       if test "x$MYSQL_CONFIG" != 'x'; then
@@ -101,14 +126,12 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
       AC_CHECK_HEADERS(mysql.h, AC_CHECK_LIB(mysqlclient_r, mysql_init, [apu_have_mysql=1]))
       if test "$apu_have_mysql" = "0"; then
         AC_CHECK_HEADERS(mysql/mysql.h, AC_CHECK_LIB(mysqlclient_r, mysql_init, [apu_have_mysql=1]))
-      else
-        if test "x$MYSQL_CONFIG" != 'x'; then
-          APR_ADDTO(APRUTIL_INCLUDES, [$mysql_CPPFLAGS])
-          APR_ADDTO(APRUTIL_LDFLAGS, [$mysql_LDFLAGS])
-        fi
+      fi
+      if test "$apu_have_mysql" != "0" && test "x$MYSQL_CONFIG" != 'x'; then
+        APR_ADDTO(APRUTIL_INCLUDES, [$mysql_CPPFLAGS])
       fi
     elif test "$withval" = "no"; then
-      apu_have_mysql=0
+      :
     else
       AC_PATH_PROG([MYSQL_CONFIG],[mysql_config],,[$withval/bin])
       if test "x$MYSQL_CONFIG" != 'x'; then
@@ -124,17 +147,12 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
 
       AC_MSG_NOTICE(checking for mysql in $withval)
       AC_CHECK_HEADERS(mysql.h, AC_CHECK_LIB(mysqlclient_r, mysql_init, [apu_have_mysql=1]))
-      if test "$apu_have_mysql" != "0"; then
-        APR_ADDTO(APRUTIL_INCLUDES, [$mysql_CPPFLAGS])
-        APR_ADDTO(APRUTIL_LDFLAGS, [$mysql_LDFLAGS])
-      fi
 
       if test "$apu_have_mysql" != "1"; then
         AC_CHECK_HEADERS(mysql/mysql.h, AC_CHECK_LIB(mysqlclient_r, mysql_init, [apu_have_mysql=1]))
-        if test "$apu_have_mysql" != "0"; then
-          APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/include/mysql])
-          APR_ADDTO(APRUTIL_LDFLAGS, [-L$withval/lib])
-        fi
+      fi
+      if test "$apu_have_mysql" != "0"; then
+        APR_ADDTO(APRUTIL_INCLUDES, [$mysql_CPPFLAGS])
       fi
     fi
   ])
@@ -144,8 +162,8 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
   dnl Since we have already done the AC_CHECK_LIB tests, if we have it, 
   dnl we know the library is there.
   if test "$apu_have_mysql" = "1"; then
-    APR_ADDTO(APRUTIL_EXPORT_LIBS,[-lmysqlclient_r])
-    APR_ADDTO(APRUTIL_LIBS,[-lmysqlclient_r])
+    APR_ADDTO(APRUTIL_EXPORT_LIBS,[$mysql_LDFLAGS -lmysqlclient_r])
+    APR_ADDTO(APRUTIL_LIBS,[$mysql_LDFLAGS -lmysqlclient_r])
   fi
 
   LIBS="$old_libs"
@@ -163,11 +181,10 @@ AC_DEFUN([APU_CHECK_DBD_SQLITE3], [
   AC_ARG_WITH([sqlite3],
     APR_HELP_STRING([--with-sqlite3=DIR], [enable sqlite3 DBD driver]),
   [
-    apu_have_sqlite3=0
     if test "$withval" = "yes"; then
       AC_CHECK_HEADERS(sqlite3.h, AC_CHECK_LIB(sqlite3, sqlite3_open, [apu_have_sqlite3=1]))
     elif test "$withval" = "no"; then
-      apu_have_sqlite3=0
+      :
     else
       sqlite3_CPPFLAGS="-I$withval/include"
       sqlite3_LDFLAGS="-L$withval/lib "
@@ -178,12 +195,10 @@ AC_DEFUN([APU_CHECK_DBD_SQLITE3], [
       AC_MSG_NOTICE(checking for sqlite3 in $withval)
       AC_CHECK_HEADERS(sqlite3.h, AC_CHECK_LIB(sqlite3, sqlite3_open, [apu_have_sqlite3=1]))
       if test "$apu_have_sqlite3" != "0"; then
-        APR_ADDTO(APRUTIL_LDFLAGS, [-L$withval/lib])
         APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/include])
       fi
     fi
   ], [
-    apu_have_sqlite3=0
     AC_CHECK_HEADERS(sqlite3.h, AC_CHECK_LIB(sqlite3, sqlite3_open, [apu_have_sqlite3=1]))
   ])
 
@@ -192,8 +207,8 @@ AC_DEFUN([APU_CHECK_DBD_SQLITE3], [
   dnl Since we have already done the AC_CHECK_LIB tests, if we have it, 
   dnl we know the library is there.
   if test "$apu_have_sqlite3" = "1"; then
-    APR_ADDTO(APRUTIL_EXPORT_LIBS,[-lsqlite3])
-    APR_ADDTO(APRUTIL_LIBS,[-lsqlite3])
+    APR_ADDTO(APRUTIL_EXPORT_LIBS,[$sqlite3_LDFLAGS -lsqlite3])
+    APR_ADDTO(APRUTIL_LIBS,[$sqlite3_LDFLAGS -lsqlite3])
   fi
 
   LIBS="$old_libs"
@@ -211,11 +226,10 @@ AC_DEFUN([APU_CHECK_DBD_SQLITE2], [
   AC_ARG_WITH([sqlite2],
     APR_HELP_STRING([--with-sqlite2=DIR], [enable sqlite2 DBD driver]),        
   [
-    apu_have_sqlite2=0
     if test "$withval" = "yes"; then
       AC_CHECK_HEADERS(sqlite.h, AC_CHECK_LIB(sqlite, sqlite_open, [apu_have_sqlite2=1]))
     elif test "$withval" = "no"; then
-      apu_have_sqlite2=0
+      :
     else
       sqlite2_CPPFLAGS="-I$withval/include"
       sqlite2_LDFLAGS="-L$withval/lib "
@@ -226,12 +240,10 @@ AC_DEFUN([APU_CHECK_DBD_SQLITE2], [
       AC_MSG_NOTICE(checking for sqlite2 in $withval)
       AC_CHECK_HEADERS(sqlite.h, AC_CHECK_LIB(sqlite, sqlite_open, [apu_have_sqlite2=1]))
       if test "$apu_have_sqlite2" != "0"; then
-        APR_ADDTO(APRUTIL_LDFLAGS, [-L$withval/lib])
         APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/include])
       fi
     fi
   ], [
-    apu_have_sqlite2=0
     AC_CHECK_HEADERS(sqlite.h, AC_CHECK_LIB(sqlite, sqlite_open, [apu_have_sqlite2=1]))
   ])
 
@@ -240,8 +252,8 @@ AC_DEFUN([APU_CHECK_DBD_SQLITE2], [
   dnl Since we have already done the AC_CHECK_LIB tests, if we have it, 
   dnl we know the library is there.
   if test "$apu_have_sqlite2" = "1"; then
-    APR_ADDTO(APRUTIL_EXPORT_LIBS,[-lsqlite])
-    APR_ADDTO(APRUTIL_LIBS,[-lsqlite])
+    APR_ADDTO(APRUTIL_EXPORT_LIBS,[$sqlite2_LDFLAGS -lsqlite])
+    APR_ADDTO(APRUTIL_LIBS,[$sqlite2_LDFLAGS -lsqlite])
   fi
 
   LIBS="$old_libs"
