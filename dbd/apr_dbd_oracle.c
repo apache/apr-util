@@ -982,7 +982,9 @@ static int dbd_oracle_prepare(apr_pool_t *pool, apr_dbd_t *sql,
     sql->status = OCIHandleAlloc(dbd_oracle_env, (dvoid**) &stmt->stmt,
                                  OCI_HTYPE_STMT, 0, NULL);
     if (sql->status != OCI_SUCCESS) {
+#ifdef GLOBAL_PREPARED_STATEMENTS
         apr_dbd_mutex_unlock();
+#endif
         return 1;
     }
 
@@ -990,7 +992,9 @@ static int dbd_oracle_prepare(apr_pool_t *pool, apr_dbd_t *sql,
                                  strlen(query), OCI_NTV_SYNTAX, OCI_DEFAULT);
     if (sql->status != OCI_SUCCESS) {
         OCIHandleFree(stmt->stmt, OCI_HTYPE_STMT);
+#ifdef GLOBAL_PREPARED_STATEMENTS
         apr_dbd_mutex_unlock();
+#endif
         return 1;
     }
 
@@ -1001,7 +1005,9 @@ static int dbd_oracle_prepare(apr_pool_t *pool, apr_dbd_t *sql,
     sql->status = OCIAttrGet(stmt->stmt, OCI_HTYPE_STMT, &stmt->type, 0,
                              OCI_ATTR_STMT_TYPE, sql->err);
     if (sql->status != OCI_SUCCESS) {
+#ifdef GLOBAL_PREPARED_STATEMENTS
         apr_dbd_mutex_unlock();
+#endif
         return 1;
     }
 
@@ -1011,7 +1017,9 @@ static int dbd_oracle_prepare(apr_pool_t *pool, apr_dbd_t *sql,
                              sizeof(prefetch_size), OCI_ATTR_PREFETCH_MEMORY,
                              sql->err);
     if (sql->status != OCI_SUCCESS) {
+#ifdef GLOBAL_PREPARED_STATEMENTS
         apr_dbd_mutex_unlock();
+#endif
         return 1;
     }
 #endif
