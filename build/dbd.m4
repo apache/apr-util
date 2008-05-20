@@ -34,7 +34,7 @@ AC_DEFUN([APU_CHECK_DBD], [
       AC_PATH_PROG([PGSQL_CONFIG],[pg_config])
       if test "x$PGSQL_CONFIG" != 'x'; then
         pgsql_CPPFLAGS="-I`$PGSQL_CONFIG --includedir`"
-        pgsql_LDFLAGS="`$PGSQL_CONFIG --libs`"
+        pgsql_LDFLAGS="-L`$PGSQL_CONFIG --libdir`"
 
         APR_ADDTO(CPPFLAGS, [$pgsql_CPPFLAGS])
         APR_ADDTO(LDFLAGS, [$pgsql_LDFLAGS])
@@ -50,7 +50,7 @@ AC_DEFUN([APU_CHECK_DBD], [
       AC_PATH_PROG([PGSQL_CONFIG],[pg_config],,[$withval/bin])
       if test "x$PGSQL_CONFIG" != 'x'; then
         pgsql_CPPFLAGS="-I`$PGSQL_CONFIG --includedir`"
-        pgsql_LDFLAGS="`$PGSQL_CONFIG --libs`"
+        pgsql_LDFLAGS="-L`$PGSQL_CONFIG --libdir`"
       else
         pgsql_CPPFLAGS="-I$withval/include"
         pgsql_LDFLAGS="-L$withval/lib "
@@ -77,7 +77,7 @@ AC_DEFUN([APU_CHECK_DBD], [
     AC_PATH_PROG([PGSQL_CONFIG],[pg_config])
     if test "x$PGSQL_CONFIG" != 'x'; then
       pgsql_CPPFLAGS="-I`$PGSQL_CONFIG --includedir`"
-      pgsql_LDFLAGS="`$PGSQL_CONFIG --libs`"
+      pgsql_LDFLAGS="-L`$PGSQL_CONFIG --libdir`"
 
       APR_ADDTO(CPPFLAGS, [$pgsql_CPPFLAGS])
       APR_ADDTO(LDFLAGS, [$pgsql_LDFLAGS])
