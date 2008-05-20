@@ -42,22 +42,6 @@
  * as a sysop using oracle would be a good start.
  */
 
-/*******************************************************************/
-
-/* GLOBAL_PREPARED_STATEMENTS
- *
- * This probably needs bindings taken away from prepare and into
- * execute, or else we'll get race conditions on the parameters
- * Might be able to do it with some pool refactoring.
- *
- * In fact, though the documentation says statements can run with
- * different interps and threads (IIRC), it doesn't say anything
- * about race conditions between bind and execute. So we'd better
- * not even try until and unless someone who knows oracle from the
- * inside fixes it.
-#define GLOBAL_PREPARED_STATEMENTS
- */
-
 /* shut compiler up */
 #ifdef DEBUG
 #define int_errorcode int errorcode
@@ -205,9 +189,6 @@ struct apr_dbd_prepared_t {
  * the right way to do it (if such a thing exists).
  */
 static OCIEnv *dbd_oracle_env = NULL;
-#ifdef GLOBAL_PREPARED_STATEMENTS
-static apr_hash_t *oracle_statements = NULL;
-#endif
 
 /* Oracle specific bucket for BLOB/CLOB types */
 typedef struct apr_bucket_lob apr_bucket_lob;
@@ -374,46 +355,6 @@ static apr_status_t dbd_free_snapshot(void *snap)
     }
 }
 
-#ifdef GLOBAL_PREPARED_STATEMENTS
-static apr_status_t freeStatements(void *ptr)
-{
-    apr_status_t rv = APR_SUCCESS;
-    OCIStmt *stmt;
-    apr_hash_index_t *index;
-    apr_pool_t *cachepool = apr_hash_pool_get(oracle_statements);
-
-#ifdef PREPARE2
-    OCIError *err;
-
-    if (OCIHandleAlloc(dbd_oracle_env, (dvoid**)&err, OCI_HTYPE_ERROR, 0, NULL)
-       != OCI_SUCCESS) {
-        return APR_EGENERAL;
-    }
-#endif
-
-    for (index = apr_hash_first(cachepool, oracle_statements);
-         index != NULL;
-         index = apr_hash_next(index)) {
-        apr_hash_this(index, NULL, NULL, (void**)&stmt);
-#ifdef PREPARE2
-        if (OCIStmtRelease(stmt, err, NULL, 0, OCI_DEFAULT) != OCI_SUCCESS) {
-            rv = APR_EGENERAL;
-        }
-#else
-        if (OCIHandleFree(stmt, OCI_HTYPE_STMT) != OCI_SUCCESS) {
-            rv = APR_EGENERAL;
-        }
-#endif
-    }
-#ifdef PREPARE2
-    if (OCIHandleFree(err, OCI_HTYPE_ERROR) != OCI_SUCCESS) {
-        rv = APR_EGENERAL;
-    }
-#endif
-    return rv;
-}
-#endif
-
 static void dbd_oracle_init(apr_pool_t *pool)
 {
     if (dbd_oracle_env == NULL) {
@@ -429,14 +370,6 @@ static void dbd_oracle_init(apr_pool_t *pool)
                      NULL, NULL, NULL, NULL, 0, NULL);
 #endif
     }
-#ifdef GLOBAL_PREPARED_STATEMENTS
-    if (oracle_statements == NULL) {
-        
-        oracle_statements = apr_hash_make(pool);
-        apr_pool_cleanup_register(pool, oracle_statements,
-                                  freeStatements, apr_pool_cleanup_null);
-    }
-#endif
 }
 
 static apr_dbd_t *dbd_oracle_open(apr_pool_t *pool, const char *params,
@@ -926,19 +859,6 @@ static int dbd_oracle_prepare(apr_pool_t *pool, apr_dbd_t *sql,
     int i;
     apr_dbd_prepared_t *stmt ;
 
-/* prepared statements in a global lookup table would be nice,
- * but we can't do that here because our pool may die leaving
- * the cached statement orphaned.
- * OTOH we can do that with Oracle statements, which aren't on
- * the pool,  so long as we don't register a cleanup on our pool!
- *
- * FIXME:
- * There's a race condition between cache-lookup and cache-set
- * But the worst outcome is a statement prepared more than once
- * and leaked.  Is that worth mutexing for?
- * Hmmm, yes it probably is ...  OK, done
- */
-
     if (*statement == NULL) {
         *statement = apr_pcalloc(pool, sizeof(apr_dbd_prepared_t));
     }
@@ -947,29 +867,6 @@ static int dbd_oracle_prepare(apr_pool_t *pool, apr_dbd_t *sql,
     stmt->pool = pool;
     stmt->nargs = nargs;
     stmt->nvals = nvals;
-
-    /* If we have a label, we're going to cache it globally.
-     * Check first if we already have it.  If not, prepare the
-     * statement under mutex, so we don't end up leaking
-     * concurrent statements
-     *
-     * FIXME: Oracle docs say a statement can be used even across
-     * multiple servers, so I assume this is safe .....
-     */
-#ifdef GLOBAL_PREPARED_STATEMENTS
-    if (label != NULL) {
-        stmt->stmt = apr_hash_get(oracle_statements, label, APR_HASH_KEY_STRING);
-        if (stmt->stmt != NULL) {
-            return ret;
-        }
-        apr_dbd_mutex_lock();
-        stmt->stmt = apr_hash_get(oracle_statements, label, APR_HASH_KEY_STRING);
-        if (stmt->stmt != NULL) {
-            apr_dbd_mutex_unlock();
-            return ret;
-        }
-    }
-#endif
 
     /* populate our own args, if any */
     if (nargs > 0) {
@@ -982,9 +879,6 @@ static int dbd_oracle_prepare(apr_pool_t *pool, apr_dbd_t *sql,
     sql->status = OCIHandleAlloc(dbd_oracle_env, (dvoid**) &stmt->stmt,
                                  OCI_HTYPE_STMT, 0, NULL);
     if (sql->status != OCI_SUCCESS) {
-#ifdef GLOBAL_PREPARED_STATEMENTS
-        apr_dbd_mutex_unlock();
-#endif
         return 1;
     }
 
@@ -992,9 +886,6 @@ static int dbd_oracle_prepare(apr_pool_t *pool, apr_dbd_t *sql,
                                  strlen(query), OCI_NTV_SYNTAX, OCI_DEFAULT);
     if (sql->status != OCI_SUCCESS) {
         OCIHandleFree(stmt->stmt, OCI_HTYPE_STMT);
-#ifdef GLOBAL_PREPARED_STATEMENTS
-        apr_dbd_mutex_unlock();
-#endif
         return 1;
     }
 
@@ -1005,9 +896,6 @@ static int dbd_oracle_prepare(apr_pool_t *pool, apr_dbd_t *sql,
     sql->status = OCIAttrGet(stmt->stmt, OCI_HTYPE_STMT, &stmt->type, 0,
                              OCI_ATTR_STMT_TYPE, sql->err);
     if (sql->status != OCI_SUCCESS) {
-#ifdef GLOBAL_PREPARED_STATEMENTS
-        apr_dbd_mutex_unlock();
-#endif
         return 1;
     }
 
@@ -1017,9 +905,6 @@ static int dbd_oracle_prepare(apr_pool_t *pool, apr_dbd_t *sql,
                              sizeof(prefetch_size), OCI_ATTR_PREFETCH_MEMORY,
                              sql->err);
     if (sql->status != OCI_SUCCESS) {
-#ifdef GLOBAL_PREPARED_STATEMENTS
-        apr_dbd_mutex_unlock();
-#endif
         return 1;
     }
 #endif
@@ -1027,12 +912,6 @@ static int dbd_oracle_prepare(apr_pool_t *pool, apr_dbd_t *sql,
     if (stmt->type == OCI_STMT_SELECT) {
         ret = outputParams(sql, stmt);
     }
-#ifdef GLOBAL_PREPARED_STATEMENTS
-    if (label != NULL) {
-        apr_hash_set(oracle_statements, label, APR_HASH_KEY_STRING, stmt->stmt);
-        apr_dbd_mutex_unlock();
-    }
-#endif
     return ret;
 }
 
