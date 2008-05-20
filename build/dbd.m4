@@ -160,7 +160,7 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
   dnl Since we have already done the AC_CHECK_LIB tests, if we have it, 
   dnl we know the library is there.
   if test "$apu_have_mysql" = "1"; then
-    LDADD_dbd_mysql=$mysql_LDFLAGS
+    LDADD_dbd_mysql="$mysql_LDFLAGS -lmysqlclient_r"
   fi
   AC_SUBST(LDADD_dbd_mysql)
 
