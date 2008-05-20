@@ -30,17 +30,31 @@ AC_DEFUN([APU_CHECK_DBD], [
 
   AC_ARG_WITH([pgsql], APR_HELP_STRING([--with-pgsql=DIR], [specify PostgreSQL location]),
   [
-    apu_have_pgsql=0
     if test "$withval" = "yes"; then
+      AC_PATH_PROG([PGSQL_CONFIG],[pg_config])
+      if test "x$PGSQL_CONFIG" != 'x'; then
+        pgsql_CPPFLAGS="-I`$PGSQL_CONFIG --includedir`"
+        pgsql_LDFLAGS="`$PGSQL_CONFIG --libs`"
+
+        APR_ADDTO(CPPFLAGS, [$pgsql_CPPFLAGS])
+        APR_ADDTO(LDFLAGS, [$pgsql_LDFLAGS])
+      fi
+
       AC_CHECK_HEADERS(libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
       if test "$apu_have_pgsql" = "0"; then
         AC_CHECK_HEADERS(postgresql/libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
       fi
     elif test "$withval" = "no"; then
-      apu_have_pgsql=0
+      :
     else
-      pgsql_CPPFLAGS="-I$withval/include"
-      pgsql_LDFLAGS="-L$withval/lib "
+      AC_PATH_PROG([PGSQL_CONFIG],[pg_config],,[$withval/bin])
+      if test "x$PGSQL_CONFIG" != 'x'; then
+        pgsql_CPPFLAGS="-I`$PGSQL_CONFIG --includedir`"
+        pgsql_LDFLAGS="`$PGSQL_CONFIG --libs`"
+      else
+        pgsql_CPPFLAGS="-I$withval/include"
+        pgsql_LDFLAGS="-L$withval/lib "
+      fi
 
       APR_ADDTO(CPPFLAGS, [$pgsql_CPPFLAGS])
       APR_ADDTO(LDFLAGS, [$pgsql_LDFLAGS])
@@ -60,8 +74,19 @@ AC_DEFUN([APU_CHECK_DBD], [
       fi
     fi
   ], [
-    apu_have_pgsql=0
+    AC_PATH_PROG([PGSQL_CONFIG],[pg_config])
+    if test "x$PGSQL_CONFIG" != 'x'; then
+      pgsql_CPPFLAGS="-I`$PGSQL_CONFIG --includedir`"
+      pgsql_LDFLAGS="`$PGSQL_CONFIG --libs`"
+
+      APR_ADDTO(CPPFLAGS, [$pgsql_CPPFLAGS])
+      APR_ADDTO(LDFLAGS, [$pgsql_LDFLAGS])
+    fi
+
     AC_CHECK_HEADERS(libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
+    if test "$apu_have_pgsql" = "0"; then
+      AC_CHECK_HEADERS(postgresql/libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
+    fi
   ])
   AC_SUBST(apu_have_pgsql)
   dnl Since we have already done the AC_CHECK_LIB tests, if we have it, 
@@ -85,7 +110,6 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
 
   AC_ARG_WITH([mysql], APR_HELP_STRING([--with-mysql=DIR], [enable MySQL DBD driver]),
   [
-    apu_have_mysql=0
     if test "$withval" = "yes"; then
       AC_PATH_PROG([MYSQL_CONFIG],[mysql_config])
       if test "x$MYSQL_CONFIG" != 'x'; then
@@ -105,7 +129,7 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
         fi
       fi
     elif test "$withval" = "no"; then
-      apu_have_mysql=0
+      :
     else
       AC_PATH_PROG([MYSQL_CONFIG],[mysql_config],,[$withval/bin])
       if test "x$MYSQL_CONFIG" != 'x'; then
@@ -157,11 +181,10 @@ AC_DEFUN([APU_CHECK_DBD_SQLITE3], [
 
   AC_ARG_WITH([sqlite3], APR_HELP_STRING([--with-sqlite3=DIR], [enable sqlite3 DBD driver]),
   [
-    apu_have_sqlite3=0
     if test "$withval" = "yes"; then
       AC_CHECK_HEADERS(sqlite3.h, AC_CHECK_LIB(sqlite3, sqlite3_open, [apu_have_sqlite3=1]))
     elif test "$withval" = "no"; then
-      apu_have_sqlite3=0
+      :
     else
       sqlite3_CPPFLAGS="-I$withval/include"
       sqlite3_LDFLAGS="-L$withval/lib "
@@ -177,7 +200,6 @@ AC_DEFUN([APU_CHECK_DBD_SQLITE3], [
       fi
     fi
   ], [
-    apu_have_sqlite3=0
     AC_CHECK_HEADERS(sqlite3.h, AC_CHECK_LIB(sqlite3, sqlite3_open, [apu_have_sqlite3=1]))
   ])
 
@@ -204,11 +226,10 @@ AC_DEFUN([APU_CHECK_DBD_SQLITE2], [
 
   AC_ARG_WITH([sqlite2], APR_HELP_STRING([--with-sqlite2=DIR], [enable sqlite2 DBD driver]),
   [
-    apu_have_sqlite2=0
     if test "$withval" = "yes"; then
       AC_CHECK_HEADERS(sqlite.h, AC_CHECK_LIB(sqlite, sqlite_open, [apu_have_sqlite2=1]))
     elif test "$withval" = "no"; then
-      apu_have_sqlite2=0
+      :
     else
       sqlite2_CPPFLAGS="-I$withval/include"
       sqlite2_LDFLAGS="-L$withval/lib "
@@ -224,7 +245,6 @@ AC_DEFUN([APU_CHECK_DBD_SQLITE2], [
       fi
     fi
   ], [
-    apu_have_sqlite2=0
     AC_CHECK_HEADERS(sqlite.h, AC_CHECK_LIB(sqlite, sqlite_open, [apu_have_sqlite2=1]))
   ])
 
@@ -254,7 +274,6 @@ AC_DEFUN([APU_CHECK_DBD_ORACLE], [
   AC_ARG_WITH([oracle], 
     APR_HELP_STRING([--with-oracle=DIR], [enable Oracle DBD driver; giving ORACLE_HOME as DIR]),
   [
-    apu_have_oracle=0
     if test "$withval" = "yes"; then
       if test -n "$with_oracle_include"; then
         oracle_CPPFLAGS="$CPPFLAGS -I$with_oracle_include"
@@ -271,7 +290,7 @@ AC_DEFUN([APU_CHECK_DBD_ORACLE], [
         ],,[-lnnz10])
       ]))
     elif test "$withval" = "no"; then
-      apu_have_oracle=0
+      :
     else
       if test -n "$with_oracle_include"; then
         oracle_CPPFLAGS="$CPPFLAGS -I$with_oracle_include"
@@ -328,11 +347,10 @@ AC_DEFUN([APU_CHECK_DBD_FREETDS], [
   AC_ARG_WITH([freetds], 
     APR_HELP_STRING([--with-freetds=DIR], [specify FreeTDS location]),
   [
-    apu_have_freetds=0
     if test "$withval" = "yes"; then
       AC_CHECK_HEADERS(sybdb.h, AC_CHECK_LIB(sybdb, tdsdbopen, [apu_have_freetds=1]))
     elif test "$withval" = "no"; then
-      apu_have_freetds=0
+      :
     else
       sybdb_CPPFLAGS="-I$withval/include"
       sybdb_LDFLAGS="-L$withval/lib "
@@ -348,7 +366,6 @@ AC_DEFUN([APU_CHECK_DBD_FREETDS], [
       fi
     fi
   ], [
-    apu_have_freetds=0
     AC_CHECK_HEADERS(sybdb.h, AC_CHECK_LIB(sybdb, tdsdbopen, [apu_have_freetds=1]))
   ])
 
