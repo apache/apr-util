@@ -443,9 +443,10 @@ APU_DECLARE(int) apr_dbd_pselect(const apr_dbd_driver_t *driver, apr_pool_t *poo
  *  @param ... - varargs list
  *  @return 0 for success or error code
  */
-APU_DECLARE(int) apr_dbd_pvquery(const apr_dbd_driver_t *driver, apr_pool_t *pool,
-                                 apr_dbd_t *handle, int *nrows,
-                                 apr_dbd_prepared_t *statement, ...);
+APU_DECLARE_NONSTD(int) apr_dbd_pvquery(const apr_dbd_driver_t *driver, 
+                                        apr_pool_t *pool,
+                                        apr_dbd_t *handle, int *nrows,
+                                        apr_dbd_prepared_t *statement, ...);
 
 /** apr_dbd_pvselect: select using a prepared statement + args
  *
@@ -458,10 +459,11 @@ APU_DECLARE(int) apr_dbd_pvquery(const apr_dbd_driver_t *driver, apr_pool_t *poo
  *  @param ... - varargs list
  *  @return 0 for success or error code
  */
-APU_DECLARE(int) apr_dbd_pvselect(const apr_dbd_driver_t *driver, apr_pool_t *pool,
-                                  apr_dbd_t *handle, apr_dbd_results_t **res,
-                                  apr_dbd_prepared_t *statement, int random,
-                                  ...);
+APU_DECLARE_NONSTD(int) apr_dbd_pvselect(const apr_dbd_driver_t *driver,
+                                         apr_pool_t *pool, apr_dbd_t *handle,
+                                         apr_dbd_results_t **res,
+                                         apr_dbd_prepared_t *statement,
+                                         int random, ...);
 
 /** apr_dbd_pbquery: query using a prepared statement + binary args
  *
@@ -505,10 +507,10 @@ APU_DECLARE(int) apr_dbd_pbselect(const apr_dbd_driver_t *driver,
  *  @param ... - varargs list of binary args
  *  @return 0 for success or error code
  */
-APU_DECLARE(int) apr_dbd_pvbquery(const apr_dbd_driver_t *driver,
-                                  apr_pool_t *pool,
-                                  apr_dbd_t *handle, int *nrows,
-                                  apr_dbd_prepared_t *statement, ...);
+APU_DECLARE_NONSTD(int) apr_dbd_pvbquery(const apr_dbd_driver_t *driver,
+                                         apr_pool_t *pool,
+                                         apr_dbd_t *handle, int *nrows,
+                                         apr_dbd_prepared_t *statement, ...);
 
 /** apr_dbd_pvbselect: select using a prepared statement + binary args
  *
@@ -521,11 +523,11 @@ APU_DECLARE(int) apr_dbd_pvbquery(const apr_dbd_driver_t *driver,
  *  @param ... - varargs list of binary args
  *  @return 0 for success or error code
  */
-APU_DECLARE(int) apr_dbd_pvbselect(const apr_dbd_driver_t *driver,
-                                   apr_pool_t *pool,
-                                   apr_dbd_t *handle, apr_dbd_results_t **res,
-                                   apr_dbd_prepared_t *statement, int random,
-                                   ...);
+APU_DECLARE_NONSTD(int) apr_dbd_pvbselect(const apr_dbd_driver_t *driver,
+                                          apr_pool_t *pool, apr_dbd_t *handle,
+                                          apr_dbd_results_t **res,
+                                          apr_dbd_prepared_t *statement,
+                                          int random, ...);
 
 /** apr_dbd_datum_get: get a binary entry from a row
  *
