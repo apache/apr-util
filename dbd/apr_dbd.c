@@ -35,6 +35,12 @@ static apr_hash_t *drivers = NULL;
 #define CLEANUP_CAST (apr_status_t (*)(void*))
 
 #if APR_HAS_THREADS
+/* deprecated, but required for existing providers.  Existing and new
+ * providers should be refactored to use a provider-specific mutex so
+ * that different providers do not block one another. 
+ * In APR 2.0 this should become entirely local to libaprutil-2.so and
+ * no longer be exported.
+ */
 static apr_thread_mutex_t* mutex = NULL;
 APU_DECLARE(apr_status_t) apr_dbd_mutex_lock()
 {
@@ -183,6 +189,7 @@ unlock:
 
     return rv;
 }
+
 APU_DECLARE(apr_status_t) apr_dbd_open_ex(const apr_dbd_driver_t *driver,
                                           apr_pool_t *pool, const char *params,
                                           apr_dbd_t **handle,
@@ -204,12 +211,14 @@ APU_DECLARE(apr_status_t) apr_dbd_open_ex(const apr_dbd_driver_t *driver,
     }
     return APR_SUCCESS;
 }
+
 APU_DECLARE(apr_status_t) apr_dbd_open(const apr_dbd_driver_t *driver,
                                        apr_pool_t *pool, const char *params,
                                        apr_dbd_t **handle)
 {
     return apr_dbd_open_ex(driver,pool,params,handle,NULL);
 }
+
 APU_DECLARE(int) apr_dbd_transaction_start(const apr_dbd_driver_t *driver,
                                            apr_pool_t *pool, apr_dbd_t *handle,
                                            apr_dbd_transaction_t **trans)
@@ -222,6 +231,7 @@ APU_DECLARE(int) apr_dbd_transaction_start(const apr_dbd_driver_t *driver,
     }
     return ret;
 }
+
 APU_DECLARE(int) apr_dbd_transaction_end(const apr_dbd_driver_t *driver,
                                          apr_pool_t *pool,
                                          apr_dbd_transaction_t *trans)
@@ -248,74 +258,94 @@ APU_DECLARE(apr_status_t) apr_dbd_close(const apr_dbd_driver_t *driver,
 {
     return driver->close(handle);
 }
+
 APU_DECLARE(const char*) apr_dbd_name(const apr_dbd_driver_t *driver)
 {
     return driver->name;
 }
+
 APU_DECLARE(void*) apr_dbd_native_handle(const apr_dbd_driver_t *driver,
                                          apr_dbd_t *handle)
 {
     return driver->native_handle(handle);
 }
-APU_DECLARE(int) apr_dbd_check_conn(const apr_dbd_driver_t *driver, apr_pool_t *pool,
+
+APU_DECLARE(int) apr_dbd_check_conn(const apr_dbd_driver_t *driver,
+                                    apr_pool_t *pool,
                                     apr_dbd_t *handle)
 {
     return driver->check_conn(pool, handle);
 }
-APU_DECLARE(int) apr_dbd_set_dbname(const apr_dbd_driver_t *driver, apr_pool_t *pool,
-                                   apr_dbd_t *handle, const char *name)
+
+APU_DECLARE(int) apr_dbd_set_dbname(const apr_dbd_driver_t *driver,
+                                    apr_pool_t *pool,
+                                    apr_dbd_t *handle, const char *name)
 {
     return driver->set_dbname(pool,handle,name);
 }
-APU_DECLARE(int) apr_dbd_query(const apr_dbd_driver_t *driver, apr_dbd_t *handle,
+
+APU_DECLARE(int) apr_dbd_query(const apr_dbd_driver_t *driver,
+                               apr_dbd_t *handle,
                                int *nrows, const char *statement)
 {
     return driver->query(handle,nrows,statement);
 }
-APU_DECLARE(int) apr_dbd_select(const apr_dbd_driver_t *driver, apr_pool_t *pool,
+
+APU_DECLARE(int) apr_dbd_select(const apr_dbd_driver_t *driver,
+                                apr_pool_t *pool,
                                 apr_dbd_t *handle, apr_dbd_results_t **res,
                                 const char *statement, int random)
 {
     return driver->select(pool,handle,res,statement,random);
 }
+
 APU_DECLARE(int) apr_dbd_num_cols(const apr_dbd_driver_t *driver,
                                   apr_dbd_results_t *res)
 {
     return driver->num_cols(res);
 }
+
 APU_DECLARE(int) apr_dbd_num_tuples(const apr_dbd_driver_t *driver,
                                     apr_dbd_results_t *res)
 {
     return driver->num_tuples(res);
 }
-APU_DECLARE(int) apr_dbd_get_row(const apr_dbd_driver_t *driver, apr_pool_t *pool,
+
+APU_DECLARE(int) apr_dbd_get_row(const apr_dbd_driver_t *driver,
+                                 apr_pool_t *pool,
                                  apr_dbd_results_t *res, apr_dbd_row_t **row,
                                  int rownum)
 {
     return driver->get_row(pool,res,row,rownum);
 }
+
 APU_DECLARE(const char*) apr_dbd_get_entry(const apr_dbd_driver_t *driver,
                                            apr_dbd_row_t *row, int col)
 {
     return driver->get_entry(row,col);
 }
+
 APU_DECLARE(const char*) apr_dbd_get_name(const apr_dbd_driver_t *driver,
                                           apr_dbd_results_t *res, int col)
 {
     return driver->get_name(res,col);
 }
+
 APU_DECLARE(const char*) apr_dbd_error(const apr_dbd_driver_t *driver,
                                        apr_dbd_t *handle, int errnum)
 {
     return driver->error(handle,errnum);
 }
+
 APU_DECLARE(const char*) apr_dbd_escape(const apr_dbd_driver_t *driver,
                                         apr_pool_t *pool, const char *string,
                                         apr_dbd_t *handle)
 {
     return driver->escape(pool,string,handle);
 }
-APU_DECLARE(int) apr_dbd_prepare(const apr_dbd_driver_t *driver, apr_pool_t *pool,
+
+APU_DECLARE(int) apr_dbd_prepare(const apr_dbd_driver_t *driver,
+                                 apr_pool_t *pool,
                                  apr_dbd_t *handle, const char *query,
                                  const char *label,
                                  apr_dbd_prepared_t **statement)
@@ -424,23 +454,29 @@ APU_DECLARE(int) apr_dbd_prepare(const apr_dbd_driver_t *driver, apr_pool_t *poo
 
     return driver->prepare(pool,handle,pq,label,nargs,nvals,t,statement);
 }
-APU_DECLARE(int) apr_dbd_pquery(const apr_dbd_driver_t *driver, apr_pool_t *pool,
+
+APU_DECLARE(int) apr_dbd_pquery(const apr_dbd_driver_t *driver,
+                                apr_pool_t *pool,
                                 apr_dbd_t *handle, int *nrows,
                                 apr_dbd_prepared_t *statement,
                                 int nargs, const char **args)
 {
     return driver->pquery(pool,handle,nrows,statement,args);
 }
-APU_DECLARE(int) apr_dbd_pselect(const apr_dbd_driver_t *driver, apr_pool_t *pool,
+
+APU_DECLARE(int) apr_dbd_pselect(const apr_dbd_driver_t *driver,
+                                 apr_pool_t *pool,
                                  apr_dbd_t *handle, apr_dbd_results_t **res,
                                  apr_dbd_prepared_t *statement, int random,
                                  int nargs, const char **args)
 {
     return driver->pselect(pool,handle,res,statement,random,args);
 }
-APU_DECLARE(int) apr_dbd_pvquery(const apr_dbd_driver_t *driver, apr_pool_t *pool,
-                                 apr_dbd_t *handle, int *nrows,
-                                 apr_dbd_prepared_t *statement,...)
+
+APU_DECLARE_NONSTD(int) apr_dbd_pvquery(const apr_dbd_driver_t *driver,
+                                        apr_pool_t *pool,
+                                        apr_dbd_t *handle, int *nrows,
+                                        apr_dbd_prepared_t *statement, ...)
 {
     int ret;
     va_list args;
@@ -449,9 +485,12 @@ APU_DECLARE(int) apr_dbd_pvquery(const apr_dbd_driver_t *driver, apr_pool_t *poo
     va_end(args);
     return ret;
 }
-APU_DECLARE(int) apr_dbd_pvselect(const apr_dbd_driver_t *driver, apr_pool_t *pool,
-                                  apr_dbd_t *handle, apr_dbd_results_t **res,
-                                  apr_dbd_prepared_t *statement, int random,...)
+
+APU_DECLARE_NONSTD(int) apr_dbd_pvselect(const apr_dbd_driver_t *driver,
+                                         apr_pool_t *pool, apr_dbd_t *handle,
+                                         apr_dbd_results_t **res,
+                                         apr_dbd_prepared_t *statement,
+                                         int random, ...)
 {
     int ret;
     va_list args;
@@ -460,6 +499,7 @@ APU_DECLARE(int) apr_dbd_pvselect(const apr_dbd_driver_t *driver, apr_pool_t *po
     va_end(args);
     return ret;
 }
+
 APU_DECLARE(int) apr_dbd_pbquery(const apr_dbd_driver_t *driver,
                                  apr_pool_t *pool,
                                  apr_dbd_t *handle, int *nrows,
@@ -468,6 +508,7 @@ APU_DECLARE(int) apr_dbd_pbquery(const apr_dbd_driver_t *driver,
 {
     return driver->pbquery(pool,handle,nrows,statement,args);
 }
+
 APU_DECLARE(int) apr_dbd_pbselect(const apr_dbd_driver_t *driver,
                                   apr_pool_t *pool,
                                   apr_dbd_t *handle, apr_dbd_results_t **res,
@@ -476,10 +517,11 @@ APU_DECLARE(int) apr_dbd_pbselect(const apr_dbd_driver_t *driver,
 {
     return driver->pbselect(pool,handle,res,statement,random,args);
 }
-APU_DECLARE(int) apr_dbd_pvbquery(const apr_dbd_driver_t *driver,
-                                  apr_pool_t *pool,
-                                  apr_dbd_t *handle, int *nrows,
-                                  apr_dbd_prepared_t *statement,...)
+
+APU_DECLARE_NONSTD(int) apr_dbd_pvbquery(const apr_dbd_driver_t *driver,
+                                         apr_pool_t *pool,
+                                         apr_dbd_t *handle, int *nrows,
+                                         apr_dbd_prepared_t *statement, ...)
 {
     int ret;
     va_list args;
@@ -488,11 +530,12 @@ APU_DECLARE(int) apr_dbd_pvbquery(const apr_dbd_driver_t *driver,
     va_end(args);
     return ret;
 }
-APU_DECLARE(int) apr_dbd_pvbselect(const apr_dbd_driver_t *driver,
-                                   apr_pool_t *pool,
-                                   apr_dbd_t *handle, apr_dbd_results_t **res,
-                                   apr_dbd_prepared_t *statement,
-                                   int random,...)
+
+APU_DECLARE_NONSTD(int) apr_dbd_pvbselect(const apr_dbd_driver_t *driver,
+                                          apr_pool_t *pool, apr_dbd_t *handle,
+                                          apr_dbd_results_t **res,
+                                          apr_dbd_prepared_t *statement,
+                                          int random, ...)
 {
     int ret;
     va_list args;
@@ -501,6 +544,7 @@ APU_DECLARE(int) apr_dbd_pvbselect(const apr_dbd_driver_t *driver,
     va_end(args);
     return ret;
 }
+
 APU_DECLARE(apr_status_t) apr_dbd_datum_get(const apr_dbd_driver_t *driver,
                                             apr_dbd_row_t *row, int col,
                                             apr_dbd_type_e type, void *data)
