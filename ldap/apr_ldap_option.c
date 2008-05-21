@@ -23,6 +23,12 @@
 
 #include "apr.h"
 #include "apu.h"
+#include "apu_config.h"
+
+#ifdef APU_DSO_BUILD
+#define APU_DSO_LDAP_BUILD
+#endif
+
 #include "apr_ldap.h"
 #include "apr_errno.h"
 #include "apr_pools.h"
@@ -42,11 +48,11 @@ static void option_set_tls(apr_pool_t *pool, LDAP *ldap, const void *invalue,
  * This function gets option values from a given LDAP session if
  * one was specified.
  */
-APU_DECLARE(int) apr_ldap_get_option(apr_pool_t *pool,
-                                     LDAP *ldap,
-                                     int option,
-                                     void *outvalue,
-                                     apr_ldap_err_t **result_err)
+APU_DECLARE_LDAP(int) apr_ldap_get_option(apr_pool_t *pool,
+                                          LDAP *ldap,
+                                          int option,
+                                          void *outvalue,
+                                          apr_ldap_err_t **result_err)
 {
     apr_ldap_err_t *result;
 

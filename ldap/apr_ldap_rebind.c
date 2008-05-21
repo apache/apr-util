@@ -23,6 +23,12 @@
 
 #include "apr.h"
 #include "apu.h"
+#include "apu_config.h"
+
+#ifdef APU_DSO_BUILD
+#define APU_DSO_LDAP_BUILD
+#endif
+
 #include "apr_ldap.h"
 #include "apr_errno.h"
 #include "apr_strings.h"
@@ -59,7 +65,7 @@ static int apr_ldap_rebind_set_callback(LDAP *ld);
 static apr_status_t apr_ldap_rebind_remove_helper(void *data);
 
 /* APR utility routine used to create the xref_lock. */
-APU_DECLARE(apr_status_t) apr_ldap_rebind_init(apr_pool_t *pool)
+APU_DECLARE_LDAP(apr_status_t) apr_ldap_rebind_init(apr_pool_t *pool)
 {
     apr_status_t retcode = APR_SUCCESS;
 
@@ -77,8 +83,10 @@ APU_DECLARE(apr_status_t) apr_ldap_rebind_init(apr_pool_t *pool)
 }
 
 
-/*************************************************************************************/
-APU_DECLARE(apr_status_t) apr_ldap_rebind_add(apr_pool_t *pool, LDAP *ld, const char *bindDN, const char *bindPW)
+APU_DECLARE_LDAP(apr_status_t) apr_ldap_rebind_add(apr_pool_t *pool,
+                                                   LDAP *ld, 
+                                                   const char *bindDN, 
+                                                   const char *bindPW)
 {
     apr_status_t retcode = APR_SUCCESS;
     apr_ldap_rebind_entry_t *new_xref;
@@ -126,8 +134,8 @@ APU_DECLARE(apr_status_t) apr_ldap_rebind_add(apr_pool_t *pool, LDAP *ld, const 
     return(APR_SUCCESS);
 }
 
-/*************************************************************************************/
-APU_DECLARE(apr_status_t) apr_ldap_rebind_remove(LDAP *ld)
+
+APU_DECLARE_LDAP(apr_status_t) apr_ldap_rebind_remove(LDAP *ld)
 {
     apr_ldap_rebind_entry_t *tmp_xref, *prev = NULL;
 
@@ -166,6 +174,7 @@ APU_DECLARE(apr_status_t) apr_ldap_rebind_remove(LDAP *ld)
     return APR_SUCCESS;
 }
 
+
 static apr_status_t apr_ldap_rebind_remove_helper(void *data)
 {
     LDAP *ld = (LDAP *)data;
@@ -173,7 +182,7 @@ static apr_status_t apr_ldap_rebind_remove_helper(void *data)
     return APR_SUCCESS;
 }
 
-/*************************************************************************************/
+
 static apr_ldap_rebind_entry_t *apr_ldap_rebind_lookup(LDAP *ld)
 {
     apr_ldap_rebind_entry_t *tmp_xref, *match = NULL;
