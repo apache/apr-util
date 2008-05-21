@@ -35,10 +35,11 @@ AC_DEFUN([APU_CHECK_DBD], [
       if test "x$PGSQL_CONFIG" != 'x'; then
         pgsql_CPPFLAGS="-I`$PGSQL_CONFIG --includedir`"
         pgsql_LDFLAGS="-L`$PGSQL_CONFIG --libdir`"
-        pgsql_LDFLAGS="$pgsql_LDFLAGS `$PGSQL_CONFIG --libs`"
+        pgsql_LIBS="`$PGSQL_CONFIG --libs`"
 
         APR_ADDTO(CPPFLAGS, [$pgsql_CPPFLAGS])
         APR_ADDTO(LDFLAGS, [$pgsql_LDFLAGS])
+        APR_ADDTO(LIBS, [$pgsql_LIBS])
       fi
 
       AC_CHECK_HEADERS(libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
@@ -55,7 +56,7 @@ AC_DEFUN([APU_CHECK_DBD], [
       if test "x$PGSQL_CONFIG" != 'x'; then
         pgsql_CPPFLAGS="-I`$PGSQL_CONFIG --includedir`"
         pgsql_LDFLAGS="-L`$PGSQL_CONFIG --libdir`"
-        pgsql_LDFLAGS="$pgsql_LDFLAGS `$PGSQL_CONFIG --libs`"
+        pgsql_LIBS="`$PGSQL_CONFIG --libs`"
       else
         pgsql_CPPFLAGS="-I$withval/include"
         pgsql_LDFLAGS="-L$withval/lib "
@@ -63,6 +64,7 @@ AC_DEFUN([APU_CHECK_DBD], [
 
       APR_ADDTO(CPPFLAGS, [$pgsql_CPPFLAGS])
       APR_ADDTO(LDFLAGS, [$pgsql_LDFLAGS])
+      APR_ADDTO(LIBS, [$pgsql_LIBS])
 
       AC_MSG_NOTICE(checking for pgsql in $withval)
       AC_CHECK_HEADERS(libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
@@ -78,10 +80,11 @@ AC_DEFUN([APU_CHECK_DBD], [
     if test "x$PGSQL_CONFIG" != 'x'; then
       pgsql_CPPFLAGS="-I`$PGSQL_CONFIG --includedir`"
       pgsql_LDFLAGS="-L`$PGSQL_CONFIG --libdir`"
-      pgsql_LDFLAGS="$pgsql_LDFLAGS `$PGSQL_CONFIG --libs`"
+      pgsql_LIBS="`$PGSQL_CONFIG --libs`"
 
       APR_ADDTO(CPPFLAGS, [$pgsql_CPPFLAGS])
       APR_ADDTO(LDFLAGS, [$pgsql_LDFLAGS])
+      APR_ADDTO(LIBS, [$pgsql_LIBS])
     fi
 
     AC_CHECK_HEADERS(libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
@@ -96,7 +99,7 @@ AC_DEFUN([APU_CHECK_DBD], [
   dnl Since we have already done the AC_CHECK_LIB tests, if we have it, 
   dnl we know the library is there.
   if test "$apu_have_pgsql" = "1"; then
-    LDADD_dbd_pgsql="$pgsql_LDFLAGS -lpq"
+    LDADD_dbd_pgsql="$pgsql_LDFLAGS -lpq $pgsql_LIBS"
   fi
   AC_SUBST(LDADD_dbd_pgsql)
 
@@ -118,10 +121,11 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
       AC_PATH_PROG([MYSQL_CONFIG],[mysql_config])
       if test "x$MYSQL_CONFIG" != 'x'; then
         mysql_CPPFLAGS="`$MYSQL_CONFIG --include`"
-        mysql_LDFLAGS="`$MYSQL_CONFIG --libs_r`"
+        mysql_LDFLAGS="`$MYSQL_CONFIG --libs_r | sed -e 's/-l[[^ ]]\+//g'`"
+        mysql_LIBS="`$MYSQL_CONFIG --libs_r`"
 
         APR_ADDTO(CPPFLAGS, [$mysql_CPPFLAGS])
-        APR_ADDTO(LDFLAGS, [$mysql_LDFLAGS])
+        APR_ADDTO(LIBS, [$mysql_LIBS])
       fi
 
       AC_CHECK_HEADERS(mysql.h, AC_CHECK_LIB(mysqlclient_r, mysql_init, [apu_have_mysql=1]))
@@ -137,7 +141,8 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
       AC_PATH_PROG([MYSQL_CONFIG],[mysql_config],,[$withval/bin])
       if test "x$MYSQL_CONFIG" != 'x'; then
         mysql_CPPFLAGS="`$MYSQL_CONFIG --include`"
-        mysql_LDFLAGS="`$MYSQL_CONFIG --libs_r`"
+        mysql_LDFLAGS="`$MYSQL_CONFIG --libs_r | sed -e 's/-l[[^ ]]\+//g'`"
+        mysql_LIBS="`$MYSQL_CONFIG --libs_r`"
       else
         mysql_CPPFLAGS="-I$withval/include"
         mysql_LDFLAGS="-L$withval/lib "
@@ -145,6 +150,7 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
 
       APR_ADDTO(CPPFLAGS, [$mysql_CPPFLAGS])
       APR_ADDTO(LDFLAGS, [$mysql_LDFLAGS])
+      APR_ADDTO(LIBS, [$mysql_LIBS])
 
       AC_MSG_NOTICE(checking for mysql in $withval)
       AC_CHECK_HEADERS(mysql.h, AC_CHECK_LIB(mysqlclient_r, mysql_init, [apu_have_mysql=1]))
@@ -163,7 +169,7 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
   dnl Since we have already done the AC_CHECK_LIB tests, if we have it, 
   dnl we know the library is there.
   if test "$apu_have_mysql" = "1"; then
-    LDADD_dbd_mysql="$mysql_LDFLAGS -lmysqlclient_r"
+    LDADD_dbd_mysql="$mysql_LDFLAGS -lmysqlclient_r $mysql_LIBS"
   fi
   AC_SUBST(LDADD_dbd_mysql)
 
@@ -282,10 +288,9 @@ AC_DEFUN([APU_CHECK_DBD_ORACLE], [
 
       AC_CHECK_HEADERS(oci.h, AC_CHECK_LIB(clntsh, OCIEnvCreate, [apu_have_oracle=1],[
         unset ac_cv_lib_clntsh_OCIEnvCreate
-        AC_CHECK_LIB(clntsh, OCIEnvCreate, [
-          apu_have_oracle=1
-          LDADD_dbd_oracle="-lnnz10"
-        ],,[-lnnz10])
+        oracle_LIBS="-lnnz10"
+        APR_ADDTO(LIBS, [$oracle_LIBS])
+        AC_CHECK_LIB(clntsh, OCIEnvCreate, [apu_have_oracle=1])
       ]))
     elif test "$withval" = "no"; then
       :
@@ -304,13 +309,12 @@ AC_DEFUN([APU_CHECK_DBD_ORACLE], [
       AC_MSG_NOTICE(checking for oracle in $withval)
       AC_CHECK_HEADERS(oci.h, AC_CHECK_LIB(clntsh, OCIEnvCreate, [apu_have_oracle=1],[
         unset ac_cv_lib_clntsh_OCIEnvCreate
-        AC_CHECK_LIB(clntsh, OCIEnvCreate, [
-          apu_have_oracle=1
-          LDADD_dbd_oracle="-lnnz10"
-        ],,[-lnnz10])
+        oracle_LIBS="-lnnz10"
+        APR_ADDTO(LIBS, [$oracle_LIBS])
+        AC_CHECK_LIB(clntsh, OCIEnvCreate, [apu_have_oracle=1])
       ]))
       if test "$apu_have_oracle" != "0"; then
-        LDADD_dbd_oracle="-R$withval/lib"
+        oracle_LDFLAGS="$oracle_LDFLAGS -R$withval/lib"
         if test -z "$with_oracle_include"; then
           APR_ADDTO(APRUTIL_PRIV_INCLUDES, [-I$withval/rdbms/demo])
           APR_ADDTO(APRUTIL_PRIV_INCLUDES, [-I$withval/rdbms/public])
@@ -324,7 +328,7 @@ AC_DEFUN([APU_CHECK_DBD_ORACLE], [
   dnl Since we have already done the AC_CHECK_LIB tests, if we have it, 
   dnl we know the library is there.
   if test "$apu_have_oracle" = "1"; then
-    LDADD_dbd_oracle="$oracle_LDFLAGS $LDADD_dbd_oracle -lclntsh"
+    LDADD_dbd_oracle="$oracle_LDFLAGS -lclntsh $oracle_LIBS"
   fi
   AC_SUBST(LDADD_dbd_oracle)
 
