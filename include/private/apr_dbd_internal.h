@@ -351,7 +351,10 @@ struct apr_dbd_driver_t {
                               apr_dbd_type_e type, void *data);
 };
 
-/* Export mutex lock/unlock for drivers that need it */
+/* Export mutex lock/unlock for drivers that need it 
+ * deprecated; create a per-dbd mutex within the (*init) function
+ * to avoid blocking other providers running on other threads
+ */
 APU_DECLARE(apr_status_t) apr_dbd_mutex_lock(void);
 APU_DECLARE(apr_status_t) apr_dbd_mutex_unlock(void);
 
