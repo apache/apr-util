@@ -36,10 +36,11 @@ AC_DEFUN([APU_CHECK_DBD], [
       if test "x$PGSQL_CONFIG" != 'x'; then
         pgsql_CPPFLAGS="-I`$PGSQL_CONFIG --includedir`"
         pgsql_LDFLAGS="-L`$PGSQL_CONFIG --libdir`"
-        pgsql_LDFLAGS="$pgsql_LDFLAGS `$PGSQL_CONFIG --libs`"
+        pgsql_LIBS="`$PGSQL_CONFIG --libs`"
 
         APR_ADDTO(CPPFLAGS, [$pgsql_CPPFLAGS])
         APR_ADDTO(LDFLAGS, [$pgsql_LDFLAGS])
+        APR_ADDTO(LIBS, [$pgsql_LIBS])
       fi
 
       AC_CHECK_HEADERS(libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
@@ -56,7 +57,7 @@ AC_DEFUN([APU_CHECK_DBD], [
       if test "x$PGSQL_CONFIG" != 'x'; then
         pgsql_CPPFLAGS="-I`$PGSQL_CONFIG --includedir`"
         pgsql_LDFLAGS="-L`$PGSQL_CONFIG --libdir`"
-        pgsql_LDFLAGS="$pgsql_LDFLAGS `$PGSQL_CONFIG --libs`"
+        pgsql_LIBS="`$PGSQL_CONFIG --libs`"
       else
         pgsql_CPPFLAGS="-I$withval/include"
         pgsql_LDFLAGS="-L$withval/lib "
@@ -64,6 +65,7 @@ AC_DEFUN([APU_CHECK_DBD], [
 
       APR_ADDTO(CPPFLAGS, [$pgsql_CPPFLAGS])
       APR_ADDTO(LDFLAGS, [$pgsql_LDFLAGS])
+      APR_ADDTO(LIBS, [$pgsql_LIBS])
 
       AC_MSG_NOTICE(checking for pgsql in $withval)
       AC_CHECK_HEADERS(libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
@@ -79,10 +81,11 @@ AC_DEFUN([APU_CHECK_DBD], [
     if test "x$PGSQL_CONFIG" != 'x'; then
       pgsql_CPPFLAGS="-I`$PGSQL_CONFIG --includedir`"
       pgsql_LDFLAGS="-L`$PGSQL_CONFIG --libdir`"
-      pgsql_LDFLAGS="$pgsql_LDFLAGS `$PGSQL_CONFIG --libs`"
+      pgsql_LIBS="`$PGSQL_CONFIG --libs`"
 
       APR_ADDTO(CPPFLAGS, [$pgsql_CPPFLAGS])
       APR_ADDTO(LDFLAGS, [$pgsql_LDFLAGS])
+      APR_ADDTO(LIBS, [$pgsql_LIBS])
     fi
 
     AC_CHECK_HEADERS(libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
@@ -97,8 +100,8 @@ AC_DEFUN([APU_CHECK_DBD], [
   dnl Since we have already done the AC_CHECK_LIB tests, if we have it, 
   dnl we know the library is there.
   if test "$apu_have_pgsql" = "1"; then
-    APR_ADDTO(APRUTIL_EXPORT_LIBS,[$pgsql_LDFLAGS -lpq])
-    APR_ADDTO(APRUTIL_LIBS,[$pgsql_LDFLAGS -lpq])
+    APR_ADDTO(APRUTIL_EXPORT_LIBS,[$pgsql_LDFLAGS -lpq $pgsql_LIBS])
+    APR_ADDTO(APRUTIL_LIBS,[$pgsql_LDFLAGS -lpq $pgsql_LIBS])
   fi
 
   LIBS="$old_libs"
@@ -120,10 +123,11 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
       AC_PATH_PROG([MYSQL_CONFIG],[mysql_config])
       if test "x$MYSQL_CONFIG" != 'x'; then
         mysql_CPPFLAGS="`$MYSQL_CONFIG --include`"
-        mysql_LDFLAGS="`$MYSQL_CONFIG --libs_r`"
+        mysql_LDFLAGS="`$MYSQL_CONFIG --libs_r | sed -e 's/-l[[^ ]]\+//g'`"
+        mysql_LIBS="`$MYSQL_CONFIG --libs_r`"
 
         APR_ADDTO(CPPFLAGS, [$mysql_CPPFLAGS])
-        APR_ADDTO(LDFLAGS, [$mysql_LDFLAGS])
+        APR_ADDTO(LIBS, [$mysql_LIBS])
       fi
 
       AC_CHECK_HEADERS(mysql.h, AC_CHECK_LIB(mysqlclient_r, mysql_init, [apu_have_mysql=1]))
@@ -139,7 +143,8 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
       AC_PATH_PROG([MYSQL_CONFIG],[mysql_config],,[$withval/bin])
       if test "x$MYSQL_CONFIG" != 'x'; then
         mysql_CPPFLAGS="`$MYSQL_CONFIG --include`"
-        mysql_LDFLAGS="`$MYSQL_CONFIG --libs_r`"
+        mysql_LDFLAGS="`$MYSQL_CONFIG --libs_r | sed -e 's/-l[[^ ]]\+//g'`"
+        mysql_LIBS="`$MYSQL_CONFIG --libs_r`"
       else
         mysql_CPPFLAGS="-I$withval/include"
         mysql_LDFLAGS="-L$withval/lib "
@@ -147,6 +152,7 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
 
       APR_ADDTO(CPPFLAGS, [$mysql_CPPFLAGS])
       APR_ADDTO(LDFLAGS, [$mysql_LDFLAGS])
+      APR_ADDTO(LIBS, [$mysql_LIBS])
 
       AC_MSG_NOTICE(checking for mysql in $withval)
       AC_CHECK_HEADERS(mysql.h, AC_CHECK_LIB(mysqlclient_r, mysql_init, [apu_have_mysql=1]))
@@ -165,8 +171,8 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
   dnl Since we have already done the AC_CHECK_LIB tests, if we have it, 
   dnl we know the library is there.
   if test "$apu_have_mysql" = "1"; then
-    APR_ADDTO(APRUTIL_EXPORT_LIBS,[$mysql_LDFLAGS -lmysqlclient_r])
-    APR_ADDTO(APRUTIL_LIBS,[$mysql_LDFLAGS -lmysqlclient_r])
+    APR_ADDTO(APRUTIL_EXPORT_LIBS,[$mysql_LDFLAGS -lmysqlclient_r $mysql_LIBS])
+    APR_ADDTO(APRUTIL_LIBS,[$mysql_LDFLAGS -lmysqlclient_r $mysql_LIBS])
   fi
 
   LIBS="$old_libs"
