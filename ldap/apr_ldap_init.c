@@ -24,6 +24,12 @@
 
 #include "apr.h"
 #include "apu.h"
+#include "apu_config.h"
+
+#ifdef APU_DSO_BUILD
+#define APU_DSO_LDAP_BUILD
+#endif
+
 #include "apr_ldap.h"
 #include "apr_errno.h"
 #include "apr_pools.h"
@@ -49,10 +55,11 @@
  * will return APR_EGENERAL. Further LDAP specific error information
  * can be found in result_err.
  */
-APU_DECLARE(int) apr_ldap_ssl_init(apr_pool_t *pool,
-                                   const char *cert_auth_file,
-                                   int cert_file_type,
-                                   apr_ldap_err_t **result_err) {
+APU_DECLARE_LDAP(int) apr_ldap_ssl_init(apr_pool_t *pool,
+                                        const char *cert_auth_file,
+                                        int cert_file_type,
+                                        apr_ldap_err_t **result_err)
+{
 
     apr_ldap_err_t *result = (apr_ldap_err_t *)apr_pcalloc(pool, sizeof(apr_ldap_err_t));
     *result_err = result;
@@ -105,7 +112,8 @@ APU_DECLARE(int) apr_ldap_ssl_init(apr_pool_t *pool,
  * @todo currently we do not check whether apr_ldap_ssl_init()
  * has been called first - should we?
  */
-APU_DECLARE(int) apr_ldap_ssl_deinit(void) {
+APU_DECLARE_LDAP(int) apr_ldap_ssl_deinit(void)
+{
 
 #if APR_HAS_LDAP_SSL && APR_HAS_LDAPSSL_CLIENT_DEINIT
     ldapssl_client_deinit();
@@ -135,12 +143,13 @@ APU_DECLARE(int) apr_ldap_ssl_deinit(void) {
  * APR_LDAP_SSL: SSL encryption (ldaps://)
  * APR_LDAP_STARTTLS: Force STARTTLS on ldap://
  */
-APU_DECLARE(int) apr_ldap_init(apr_pool_t *pool,
-                               LDAP **ldap,
-                               const char *hostname,
-                               int portno,
-                               int secure,
-                               apr_ldap_err_t **result_err) {
+APU_DECLARE_LDAP(int) apr_ldap_init(apr_pool_t *pool,
+                                    LDAP **ldap,
+                                    const char *hostname,
+                                    int portno,
+                                    int secure,
+                                    apr_ldap_err_t **result_err)
+{
 
     apr_ldap_err_t *result = (apr_ldap_err_t *)apr_pcalloc(pool, sizeof(apr_ldap_err_t));
     *result_err = result;
@@ -174,7 +183,8 @@ APU_DECLARE(int) apr_ldap_init(apr_pool_t *pool,
  * This function returns a string describing the LDAP toolkit
  * currently in use. The string is placed inside result_err->reason.
  */
-APU_DECLARE(int) apr_ldap_info(apr_pool_t *pool, apr_ldap_err_t **result_err)
+APU_DECLARE_LDAP(int) apr_ldap_info(apr_pool_t *pool,
+                                    apr_ldap_err_t **result_err)
 {
     apr_ldap_err_t *result = (apr_ldap_err_t *)apr_pcalloc(pool, sizeof(apr_ldap_err_t));
     *result_err = result;
