@@ -238,6 +238,9 @@ static int dbd_pgsql_get_row(apr_pool_t *pool, apr_dbd_results_t *res,
             if (rownum > 0) {
                 row->n = --rownum;
             }
+            else {
+                return -1; /* invalid row */
+            }
         }
     }
     else {
@@ -247,6 +250,9 @@ static int dbd_pgsql_get_row(apr_pool_t *pool, apr_dbd_results_t *res,
         else {
             if (rownum > 0) {
                 row->n = --rownum;
+            }
+            else {
+                return -1; /* invalid row */
             }
         }
     }
