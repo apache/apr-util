@@ -271,6 +271,9 @@ static int dbd_mysql_get_row(apr_pool_t *pool, apr_dbd_results_t *res,
             if (rownum > 0) {
                 mysql_stmt_data_seek(res->statement, (my_ulonglong) --rownum);
             }
+            else {
+                return -1; /* invalid row */
+            }
         }
         ret = mysql_stmt_fetch(res->statement);
         switch (ret) {
@@ -289,6 +292,9 @@ static int dbd_mysql_get_row(apr_pool_t *pool, apr_dbd_results_t *res,
         if (res->random) {
             if (rownum > 0) {
                 mysql_data_seek(res->res, (my_ulonglong) --rownum);
+            }
+            else {
+                return -1; /* invalid row */
             }
         }
         r = mysql_fetch_row(res->res);
