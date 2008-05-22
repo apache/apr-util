@@ -109,6 +109,8 @@ APR_SETIFNULL(CC, `$apr_config --cc`)
 APR_SETIFNULL(CPP, `$apr_config --cpp`)
 APR_ADDTO(CFLAGS, `$apr_config --cflags`)
 APR_ADDTO(CPPFLAGS, `$apr_config --cppflags`)
+apr_shlibpath_var=`$apr_config --shlib-path-var`
+AC_SUBST(apr_shlibpath_var)
 
 dnl
 dnl  Find the APR-ICONV directory.
@@ -154,10 +156,11 @@ APU_CHECK_DBD_SQLITE3
 APU_CHECK_DBD_SQLITE2
 APU_CHECK_DBD_ORACLE
 APU_CHECK_DBD_FREETDS
-dnl Enable DSO build; must be last:
-APU_CHECK_DBD_DSO
 APU_FIND_EXPAT
 APU_FIND_ICONV
+
+dnl Enable DSO build; must be last:
+APU_CHECK_DBD_DSO
 
 AC_SEARCH_LIBS(crypt, crypt ufc)
 AC_MSG_CHECKING(if system crypt() function is threadsafe)
