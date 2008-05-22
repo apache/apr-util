@@ -367,7 +367,7 @@ static void test_memcache_incrdecr(abts_case * tc, void *data)
  apr_status_t rv;
  apr_memcache_t *memcache;
  apr_memcache_server_t *server;
- apr_uint32_t new, next = 2;
+ apr_uint32_t new;
  char *result;
  apr_size_t len;
  apr_uint32_t i;
