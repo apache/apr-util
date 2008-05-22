@@ -35,6 +35,7 @@ LDADD_dbd_oracle = @LDADD_dbd_oracle@
 LDADD_dbd_sqlite2 = @LDADD_dbd_sqlite2@
 LDADD_dbd_sqlite3 = @LDADD_dbd_sqlite3@
 LDADD_dbd_mysql = @LDADD_dbd_mysql@
+LDADD_ldap = @LDADD_ldap@
 
 TARGETS = $(TARGET_LIB) aprutil.exp apu-config.out $(APU_MODULES)
 

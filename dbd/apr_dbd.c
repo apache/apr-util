@@ -38,6 +38,8 @@ static apr_hash_t *drivers = NULL;
 /* deprecated, but required for existing providers.  Existing and new
  * providers should be refactored to use a provider-specific mutex so
  * that different providers do not block one another. 
+ * In APR 1.3 this is no longer used for dso module loading, and
+ * apu_dso_mutex_[un]lock is used instead.
  * In APR 2.0 this should become entirely local to libaprutil-2.so and
  * no longer be exported.
  */
@@ -84,14 +86,20 @@ static apr_status_t apr_dbd_term(void *ptr)
 APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool)
 {
     apr_status_t ret = APR_SUCCESS;
+    apr_pool_t *parent;
 
     if (drivers != NULL) {
         return APR_SUCCESS;
     }
-    drivers = apr_hash_make(pool);
-    apr_pool_cleanup_register(pool, NULL, apr_dbd_term,
-                              apr_pool_cleanup_null);
 
+    /* Top level pool scope, need process-scope lifetime */
+    for ( ; parent = apr_pool_parent_get(pool); parent)
+         pool = parent;
+
+    /* deprecate in 2.0 - permit implicit initialization */
+    apu_dso_init(pool);
+
+    drivers = apr_hash_make(pool);
 
 #if APR_HAS_THREADS
     ret = apr_thread_mutex_create(&mutex, APR_THREAD_MUTEX_DEFAULT, pool);
@@ -120,35 +128,30 @@ APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool)
 #endif
 #endif /* APU_DSO_BUILD */
 
+    apr_pool_cleanup_register(pool, NULL, apr_dbd_term,
+                              apr_pool_cleanup_null);
+
     return ret;
 }
-
-#if defined(APU_DSO_BUILD) && APR_HAS_THREADS
-#define dbd_drivers_lock(m) apr_thread_mutex_lock(m)
-#define dbd_drivers_unlock(m) apr_thread_mutex_unlock(m)
-#else
-#define dbd_drivers_lock(m) APR_SUCCESS
-#define dbd_drivers_unlock(m)
-#endif
 
 APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
                                              const apr_dbd_driver_t **driver)
 {
 #ifdef APU_DSO_BUILD
-    char path[APR_PATH_MAX + 1];
-    apr_dso_handle_t *dlhandle = NULL;
+    char modname[32];
+    char symname[34];
     apr_dso_handle_sym_t symbol;
 #endif
     apr_status_t rv;
 
-    rv = dbd_drivers_lock(mutex);
+    rv = apu_dso_mutex_lock();
     if (rv) {
-        return APR_SUCCESS;
+        return rv;
     }
 
-   *driver = apr_hash_get(drivers, name, APR_HASH_KEY_STRING);
+    *driver = apr_hash_get(drivers, name, APR_HASH_KEY_STRING);
     if (*driver) {
-        dbd_drivers_unlock(mutex);
+        apu_dso_mutex_unlock();
         return APR_SUCCESS;
     }
 
@@ -157,31 +160,33 @@ APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
      * drivers hash table; ignore the passed-in pool */
     pool = apr_hash_pool_get(drivers);
 
-#ifdef WIN32
-    apr_snprintf(path, sizeof path, "apr_dbd_%s.dll", name);
-#elif defined(NETWARE)
-    apr_snprintf(path, sizeof path, "dbd%s.nlm", name);
+#if defined(NETWARE)
+    apr_snprintf(modname, sizeof(modname), "dbd%s.nlm", name);
+#elif defined(WIN32)
+    apr_snprintf(modname, sizeof(modname), 
+                 "apr_dbd_%s-" APU_STRINGIFY(APU_MAJOR_VERSION) ".dll", name);
 #else
-    apr_snprintf(path, sizeof path, "%s/apr_dbd_%s.so", APU_DSO_LIBDIR, name);
+    apr_snprintf(modname, sizeof(modname), 
+                 "apr_dbd_%s-" APU_STRINGIFY(APU_MAJOR_VERSION) ".so", name);
 #endif
-    rv = apr_dso_load(&dlhandle, path, pool);
-    if (rv != APR_SUCCESS) { /* APR_EDSOOPEN */
-        goto unlock;
-    }
-    apr_snprintf(path, sizeof path, "apr_dbd_%s_driver", name);
-    rv = apr_dso_sym(&symbol, dlhandle, path);
-    if (rv != APR_SUCCESS) { /* APR_ESYMNOTFOUND */
-        apr_dso_unload(dlhandle);
+    apr_snprintf(symname, sizeof(symname), "apr_dbd_%s_driver", name);
+    rv = apu_dso_load(&symbol, modname, symname, pool);
+    if (rv != APR_SUCCESS) { /* APR_EDSOOPEN or APR_ESYMNOTFOUND? */
+        if (rv == APR_EINIT) { /* previously loaded?!? */
+            apr_hash_set(drivers, name, APR_HASH_KEY_STRING, *driver);
+            rv = APR_SUCCESS;
+        }
         goto unlock;
     }
     *driver = symbol;
     if ((*driver)->init) {
         (*driver)->init(pool);
     }
+    name = apr_pstrdup(pool, name);
     apr_hash_set(drivers, name, APR_HASH_KEY_STRING, *driver);
 
 unlock:
-    dbd_drivers_unlock(mutex);
+    apu_dso_mutex_unlock();
 
 #else /* not builtin and !APR_HAS_DSO => not implemented */
     rv = APR_ENOTIMPL;

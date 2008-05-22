@@ -47,7 +47,7 @@ testutil.lo: $(srcdir)/abts.c $(srcdir)/abts.h $(srcdir)/abts_tests.h \
 
 OBJECTS_testall = abts.lo testutil.lo $(TESTS) $(LOCAL_LIBS)
 testall: $(OBJECTS_testall)
-	$(LINK_PROG) $(OBJECTS_testall) $(APRUTIL_LIBS)
+	$(LINK_PROG) $(OBJECTS_testall) $(APRUTIL_LIBS) @LDADD_ldap@
 # For VPATH builds; where we have no ./data, copy us some data
 # if we wait until 'make check', then 'make; ./testall' fails;
 	if test ! -d "./data"; then cp -r $(srcdir)/data data; fi
@@ -62,6 +62,7 @@ check: $(TESTALL_COMPONENTS) $(STDTEST_PORTABLE) $(STDTEST_NONPORTABLE)
 	for prog in $(STDTEST_PORTABLE) $(STDTEST_NONPORTABLE); do \
 	        if test "$$prog" = 'dbd'; then \
 			for driver in sqlite2 sqlite3; do \
+				@apr_shlibpath_var@="`echo "../dbd/.libs:../ldap/.libs:$$@apr_shlibpath_var@" | sed -e 's/::*$$//'`" \
 				./$$prog $$driver; \
 				status=$$?; \
 				if test $$status != 0; then \
@@ -70,6 +71,7 @@ check: $(TESTALL_COMPONENTS) $(STDTEST_PORTABLE) $(STDTEST_NONPORTABLE)
 				fi; \
 			done; \
 	        else \
+			@apr_shlibpath_var@="`echo "../dbd/.libs:../ldap/.libs:$$@apr_shlibpath_var@" | sed -e 's/::*$$//'`" \
 			./$$prog; \
 			status=$$?; \
 			if test $$status != 0; then \

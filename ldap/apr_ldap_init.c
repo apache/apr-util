@@ -31,6 +31,7 @@
 #endif
 
 #include "apr_ldap.h"
+#include "apu_internal.h"
 #include "apr_errno.h"
 #include "apr_pools.h"
 #include "apr_strings.h"
@@ -195,5 +196,24 @@ APU_DECLARE_LDAP(int) apr_ldap_info(apr_pool_t *pool,
     return APR_SUCCESS;
     
 }
+
+#if APU_DSO_BUILD
+
+/* For DSO builds, export the table of entry points into the apr_ldap DSO
+ * See include/private/apu_internal.h for the corresponding declarations
+ */
+APU_DECLARE_DATA struct apr__ldap_dso_fntable apr__ldap_fns = {
+    apr_ldap_info,
+    apr_ldap_init,
+    apr_ldap_ssl_init,
+    apr_ldap_ssl_deinit,
+    apr_ldap_get_option,
+    apr_ldap_set_option,
+    apr_ldap_rebind_init,
+    apr_ldap_rebind_add,
+    apr_ldap_rebind_remove
+};
+
+#endif /* APU_DSO_BUILD */
 
 #endif /* APR_HAS_LDAP */

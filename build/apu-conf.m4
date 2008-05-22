@@ -191,8 +191,7 @@ AC_DEFUN([APU_FIND_LDAPLIB], [
     unset ac_cv_lib_${ldaplib}___ldap_init
     AC_CHECK_LIB(${ldaplib}, ldap_init, 
       [
-        APR_ADDTO(APRUTIL_EXPORT_LIBS,[-l${ldaplib} ${extralib}])
-        APR_ADDTO(APRUTIL_LIBS,[-l${ldaplib} ${extralib}])
+        LDADD_ldap="-l${ldaplib} ${extralib}"
         AC_CHECK_LIB(${ldaplib}, ldapssl_client_init, apu_has_ldapssl_client_init="1", , ${extralib})
         AC_CHECK_LIB(${ldaplib}, ldapssl_client_deinit, apu_has_ldapssl_client_deinit="1", , ${extralib})
         AC_CHECK_LIB(${ldaplib}, ldapssl_add_trusted_cert, apu_has_ldapssl_add_trusted_cert="1", , ${extralib})
@@ -230,6 +229,7 @@ apu_has_ldap_mozilla="0"
 apu_has_ldap_tivoli="0"
 apu_has_ldap_zos="0"
 apu_has_ldap_other="0"
+LDADD_ldap=""
 
 AC_ARG_WITH(ldap-include,[  --with-ldap-include=path  path to ldap include files with trailing slash])
 AC_ARG_WITH(ldap-lib,[  --with-ldap-lib=path    path to ldap lib file])
@@ -376,6 +376,7 @@ AC_SUBST(apu_has_ldap_mozilla)
 AC_SUBST(apu_has_ldap_tivoli)
 AC_SUBST(apu_has_ldap_zos)
 AC_SUBST(apu_has_ldap_other)
+AC_SUBST(LDADD_ldap)
 
 ])
 
