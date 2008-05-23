@@ -62,7 +62,7 @@ APU_DECLARE(apr_status_t) apr_dbd_mutex_unlock() {
 }
 #endif
 
-#ifndef APU_DSO_BUILD
+#if !APU_DSO_BUILD
 #define DRIVER_LOAD(name,driver,pool) \
     {   \
         extern const apr_dbd_driver_t driver; \
@@ -107,7 +107,7 @@ APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool)
     /* This already registers a pool cleanup */
 #endif
 
-#ifndef APU_DSO_BUILD
+#if !APU_DSO_BUILD
     /* Load statically-linked drivers: */
 #if APU_HAVE_MYSQL
     DRIVER_LOAD("mysql", apr_dbd_mysql_driver, pool);
@@ -138,7 +138,7 @@ APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool)
 APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
                                              const apr_dbd_driver_t **driver)
 {
-#ifdef APU_DSO_BUILD
+#if APU_DSO_BUILD
     char modname[32];
     char symname[34];
     apr_dso_handle_sym_t symbol;
@@ -156,7 +156,7 @@ APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
         return APR_SUCCESS;
     }
 
-#ifdef APU_DSO_BUILD
+#if APU_DSO_BUILD
     /* The driver DSO must have exactly the same lifetime as the
      * drivers hash table; ignore the passed-in pool */
     pool = apr_hash_pool_get(drivers);
