@@ -25,10 +25,10 @@
 #include "apr_dso.h"
 #include "apr_strings.h"
 #include "apr_hash.h"
-#include "apr_thread_mutex.h"
+#include "apr_file_io.h"
+#include "apr_env.h"
 
-#include "apr_dbd_internal.h"
-#include "apr_dbd.h"
+#include "apu_internal.h"
 #include "apu_version.h"
 
 
@@ -73,7 +73,7 @@ static apr_status_t apu_dso_term(void *ptr)
     return APR_SUCCESS;
 }
 
-APU_DECLARE(apr_status_t) apu_dso_init(apr_pool_t *pool)
+apr_status_t apu_dso_init(apr_pool_t *pool)
 {
     apr_status_t ret = APR_SUCCESS;
     apr_pool_t *global;
@@ -81,7 +81,7 @@ APU_DECLARE(apr_status_t) apu_dso_init(apr_pool_t *pool)
 
 #ifdef APU_DSO_BUILD
     /* Top level pool scope, need process-scope lifetime */
-    for (global = pool; parent = apr_pool_parent_get(global); parent)
+    for (parent = global = pool; parent; parent = apr_pool_parent_get(global))
          global = parent;
 
     if (dsos != NULL) {
@@ -112,7 +112,7 @@ apr_status_t apu_dso_load(apr_dso_handle_sym_t *dsoptr, const char *module,
     char path[APR_PATH_MAX + 1];
     apr_array_header_t *paths;
     apr_pool_t *global;
-    apr_status_t rv;
+    apr_status_t rv = APR_EDSOOPEN;
     char *eos = NULL;
     int i;
 
