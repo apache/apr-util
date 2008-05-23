@@ -12,6 +12,9 @@ Changes with APR-util 1.3.0
      (in addition to the usual linker queries for compiling and linking).
      [William Rowe]
 
+  *) Support building DBD drivers as DSOs by default; use --disable-util-dso
+     flag to configure to use static link.  [Joe Orton, Bojan Smojver]
+
   *) All DBD drivers now count rows from 1, which affects PostgreSQL and MySQL
      drivers in particular. Using row number zero is an error.
      [Bojan Smojver]
@@ -64,9 +67,6 @@ Changes with APR-util 1.3.0
 
   *) Unify parsing of prepared statements and add binary argument functions
      to DBD [Bojan Smojver with help from many on the APR list]
-
-  *) Support building DBD drivers as DSOs by default; use --disable-dbd-dso
-     flag to configure to use static link.  [Joe Orton, Bojan Smojver]
 
   *) Rewrite detection of expat in configure to fix build on e.g. biarch
      Linux platforms.  PR 28205.  [Joe Orton]
