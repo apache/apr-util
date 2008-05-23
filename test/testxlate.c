@@ -22,7 +22,7 @@
 #include "abts.h"
 #include "testutil.h"
 
-#ifdef APR_HAS_XLATE
+#if APR_HAS_XLATE
 
 static const char test_utf8[] = "Edelwei\xc3\x9f";
 static const char test_utf7[] = "Edelwei+AN8-";
@@ -95,7 +95,7 @@ abts_suite *testxlate(abts_suite *suite)
 {
     suite = ADD_SUITE(suite);
 
-#ifdef APR_HAS_XLATE
+#if APR_HAS_XLATE
     abts_run_test(suite, test_transformation, NULL);
 #endif
 
