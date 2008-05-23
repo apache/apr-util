@@ -36,7 +36,6 @@ static apr_status_t load_ldap(apr_pool_t *pool)
     char *modname;
     apr_dso_handle_sym_t symbol;
     apr_status_t rv;
-    apr_pool_t *parent;
 
     /* deprecate in 2.0 - permit implicit initialization */
     apu_dso_init(pool);

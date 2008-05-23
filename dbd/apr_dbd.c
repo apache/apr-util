@@ -26,6 +26,7 @@
 #include "apr_hash.h"
 #include "apr_thread_mutex.h"
 
+#include "apu_internal.h"
 #include "apr_dbd_internal.h"
 #include "apr_dbd.h"
 #include "apu_version.h"
@@ -93,7 +94,7 @@ APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool)
     }
 
     /* Top level pool scope, need process-scope lifetime */
-    for ( ; parent = apr_pool_parent_get(pool); parent)
+    for (parent = pool;  parent; parent = apr_pool_parent_get(pool))
          pool = parent;
 
     /* deprecate in 2.0 - permit implicit initialization */
