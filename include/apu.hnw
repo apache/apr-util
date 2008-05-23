@@ -83,7 +83,7 @@
 /* 
  * we allways enable dynamic driver loads within apr_dbd
  */
-#define APU_DSO_BUILD           1
+#define APU_DSO_BUILD           0
 
 #if !APU_DSO_BUILD
 #define APU_HAVE_PGSQL          0
