@@ -248,6 +248,7 @@ FILES_lib_objs = \
 	$(OBJDIR)/apr_dbd.o \
 	$(OBJDIR)/apr_dbm_berkeleydb.o \
 	$(OBJDIR)/apr_dbm_sdbm.o \
+	$(OBJDIR)/apu_dso.o \
 	$(OBJDIR)/apr_hooks.o \
 	$(OBJDIR)/apr_md4.o \
 	$(OBJDIR)/apr_md5.o \
