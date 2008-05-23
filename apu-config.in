@@ -54,6 +54,7 @@ Known values for OPTION are:
   --includedir      print location where headers are installed
   --ldflags         print linker flags
   --libs            print library information
+  --avoid-ldap      do not include ldap library information with --libs
   --ldap-libs       print additional library information to link with ldap
   --srcdir          print APR-util source directory
   --link-ld         print link switch(es) for linking to APR-util
@@ -111,8 +112,11 @@ while test $# -gt 0; do
     echo $bindir
     exit 0
     ;;
+    --avoid-ldap)
+    LDAP_LIBS=""
+    ;;
     --libs)
-    flags="$flags $LIBS"
+    flags="$flags $LDAP_LIBS $LIBS"
     ;;
     --ldap-libs)
     flags="$flags $LDAP_LIBS"
