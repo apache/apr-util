@@ -25,7 +25,7 @@
 #include "apu.h"
 #include "apu_config.h"
 
-#ifdef APU_DSO_BUILD
+#if APU_DSO_BUILD
 #define APU_DSO_LDAP_BUILD
 #endif
 
@@ -166,7 +166,7 @@ APU_DECLARE(int) apr_ldap_set_option(apr_pool_t *pool,
         break;
 
     case APR_LDAP_OPT_REFHOPLIMIT:
-#if !defined(LDAP_OPT_REFHOPLIMIT) || defined(APR_HAS_NOVELL_LDAPSDK)
+#if !defined(LDAP_OPT_REFHOPLIMIT) || APR_HAS_NOVELL_LDAPSDK
         /* If the LDAP_OPT_REFHOPLIMIT symbol is missing, assume that the
          * particular LDAP library has a reasonable default. So far certain
          * versions of the OpenLDAP SDK miss this symbol (but default to 5),

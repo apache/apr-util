@@ -26,7 +26,7 @@
 #include "apu.h"
 #include "apu_config.h"
 
-#ifdef APU_DSO_BUILD
+#if APU_DSO_BUILD
 #define APU_DSO_LDAP_BUILD
 #endif
 
