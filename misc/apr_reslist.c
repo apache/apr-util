@@ -292,13 +292,24 @@ APU_DECLARE(apr_status_t) apr_reslist_acquire(apr_reslist_t *reslist,
 {
     apr_status_t rv;
     apr_res_t *res;
+    apr_time_t now;
 
     apr_thread_mutex_lock(reslist->listlock);
     /* If there are idle resources on the available list, use
      * them right away. */
-    if (reslist->nidle > 0) {
+    now = apr_time_now();
+    while (reslist->nidle > 0) {
         /* Pop off the first resource */
         res = pop_resource(reslist);
+        if (reslist->ttl && (now - res->freed >= reslist->ttl)) {
+            /* this res is expired - kill it */
+            rv = destroy_resource(reslist, res);
+            if (rv != APR_SUCCESS) {
+                apr_thread_mutex_unlock(reslist->listlock);
+                return rv;  /* FIXME: this might cause unnecessary fails */
+            }
+            continue;
+        }
         *resource = res->opaque;
         free_container(reslist, res);
         apr_thread_mutex_unlock(reslist->listlock);
@@ -306,8 +317,7 @@ APU_DECLARE(apr_status_t) apr_reslist_acquire(apr_reslist_t *reslist,
     }
     /* If we've hit our max, block until we're allowed to create
      * a new one, or something becomes free. */
-    else while (reslist->ntotal >= reslist->hmax
-                && reslist->nidle <= 0) {
+    while (reslist->ntotal >= reslist->hmax && reslist->nidle <= 0) {
         if (reslist->timeout) {
             if ((rv = apr_thread_cond_timedwait(reslist->avail, 
                 reslist->listlock, reslist->timeout)) != APR_SUCCESS) {
@@ -315,8 +325,9 @@ APU_DECLARE(apr_status_t) apr_reslist_acquire(apr_reslist_t *reslist,
                 return rv;
             }
         }
-        else
+        else {
             apr_thread_cond_wait(reslist->avail, reslist->listlock);
+        }
     }
     /* If we popped out of the loop, first try to see if there
      * are new resources available for immediate use. */
