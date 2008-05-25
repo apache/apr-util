@@ -2,7 +2,7 @@
 Changes with APR-util 1.4.0
 
   *) Amend apr_reslist to expire resources whose idle time exceeds ttl.
-     PR 42841 [Tom Donovan, Nick Kew]
+     PR 42841 [Tom Donovan, Nick Kew, Ruediger Pluem]
 
   *) Add DTrace Probes to Hooks, making it easier to inspect APR Hook based
      applications with DTrace. [Theo Schlossnagle <jesus omniti.com>]
