@@ -303,7 +303,9 @@ APU_DECLARE(apr_status_t) apr_reslist_acquire(apr_reslist_t *reslist,
         res = pop_resource(reslist);
         if (reslist->ttl && (now - res->freed >= reslist->ttl)) {
             /* this res is expired - kill it */
+            reslist->ntotal--;
             rv = destroy_resource(reslist, res);
+            free_container(reslist, res);
             if (rv != APR_SUCCESS) {
                 apr_thread_mutex_unlock(reslist->listlock);
                 return rv;  /* FIXME: this might cause unnecessary fails */
