@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.3.0
 
+  *) Amend apr_reslist to expire resources whose idle time exceeds ttl.
+     PR 42841 [Tom Donovan, Nick Kew, Ruediger Pluem]
+
   *) Modularize ldap's stub with the dbd dso modular structure, and teach
      the apu dso's to respect the system specific shared lib path var.
      To link to an application without ldap libs, query 
