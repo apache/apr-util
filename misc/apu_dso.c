@@ -80,13 +80,14 @@ apr_status_t apu_dso_init(apr_pool_t *pool)
     apr_pool_t *parent;
 
 #if APU_DSO_BUILD
+    if (dsos != NULL) {
+        return APR_SUCCESS;
+    }
+
     /* Top level pool scope, need process-scope lifetime */
     for (parent = global = pool; parent; parent = apr_pool_parent_get(global))
          global = parent;
 
-    if (dsos != NULL) {
-        return APR_SUCCESS;
-    }
     dsos = apr_hash_make(global);
 
 #if APR_HAS_THREADS
