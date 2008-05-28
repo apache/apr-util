@@ -1,6 +1,10 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.3.0
 
+  *) Add apr_brigade_split_ex for reusing existing brigades in situation where
+     brigades need to be split often during the lifetime of a pool.
+     [Ruediger Pluem]
+
   *) Amend apr_reslist to expire resources whose idle time exceeds ttl.
      PR 42841 [Tom Donovan, Nick Kew, Ruediger Pluem]
 
