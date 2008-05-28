@@ -261,18 +261,6 @@ SOURCE=.\testxml.c
 
 SOURCE=.\dbd.c
 # End Source File
-# Begin Source File
-
-SOURCE=.\echod.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\sockperf.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\testssl.c
-# End Source File
 # End Group
 # Begin Source File
 
