@@ -68,13 +68,18 @@ APU_DECLARE(apr_bucket_brigade *) apr_brigade_create(apr_pool_t *p,
     return b;
 }
 
-APU_DECLARE(apr_bucket_brigade *) apr_brigade_split(apr_bucket_brigade *b,
-                                                    apr_bucket *e)
+APU_DECLARE(apr_bucket_brigade *) apr_brigade_split_ex(apr_bucket_brigade *b,
+                                                       apr_bucket *e,
+                                                       apr_bucket_brigade *a)
 {
-    apr_bucket_brigade *a;
     apr_bucket *f;
 
-    a = apr_brigade_create(b->p, b->bucket_alloc);
+    if (!a) {
+        a = apr_brigade_create(b->p, b->bucket_alloc);
+    }
+    else if (!APR_BRIGADE_EMPTY(a)) {
+        apr_brigade_cleanup(a);
+    }
     /* Return an empty brigade if there is nothing left in 
      * the first brigade to split off 
      */
@@ -88,6 +93,12 @@ APU_DECLARE(apr_bucket_brigade *) apr_brigade_split(apr_bucket_brigade *b,
     APR_BRIGADE_CHECK_CONSISTENCY(b);
 
     return a;
+}
+
+APU_DECLARE(apr_bucket_brigade *) apr_brigade_split(apr_bucket_brigade *b,
+                                                    apr_bucket *e)
+{
+    return apr_brigade_split_ex(b, e, NULL);
 }
 
 APU_DECLARE(apr_status_t) apr_brigade_partition(apr_bucket_brigade *b,
