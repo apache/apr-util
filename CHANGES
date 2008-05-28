@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.3.0
 
+  *) apr_reslist: destroy all resources in apr_cleanup (don't give up on error).
+     PR 45086 [Nick Kew]
+
   *) Add apr_brigade_split_ex for reusing existing brigades in situation where
      brigades need to be split often during the lifetime of a pool.
      [Ruediger Pluem]
