@@ -22,6 +22,8 @@ code and source code.
 The following provides more details on the included cryptographic
 software:
 
-  APR-Util provides an abstract interface for SSL encrypted network
-  sockets, which can be powered by either OpenSSL or platform specific
-  SSL facilities.
+  APR-Util provides an abstract interface for SSL encrypted LDAP (ldaps
+  and STARTTLS style) connections, which can be powered by OpenLDAP,
+  Netscape LDAP SDK, Mozilla LDAP SDK, or other platform specific ldap
+  interfaces.
+
