@@ -1,10 +1,6 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
-  *) Add apr_brigade_split_ex for reusing existing brigades in situation where
-     brigades need to be split often during the lifetime of a pool.i
-     [Ruediger Pluem]
-
   *) apr_reslist: destroy all resources in apr_cleanup.
       PR 45086 [Nick Kew]
 
@@ -12,6 +8,10 @@ Changes with APR-util 1.4.0
      applications with DTrace. [Theo Schlossnagle <jesus omniti.com>]
 
 Changes with APR-util 1.3.0
+
+  *) Add apr_brigade_split_ex for reusing existing brigades in situation where
+     brigades need to be split often during the lifetime of a pool.
+     [Ruediger Pluem]
 
   *) Amend apr_reslist to expire resources whose idle time exceeds ttl.
      PR 42841 [Tom Donovan, Nick Kew, Ruediger Pluem]
