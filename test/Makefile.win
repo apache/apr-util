@@ -148,10 +148,10 @@ cleanall:
 	    @if EXIST %d\. rmdir /s /q %d
 
 
-!IF "$(MODEL)" == "static"
+!IF "$(MODEL)" != "static"
 PATH=$(OUTDIR);..\$(OUTDIR);$(API_PATH)\$(OUTDIR);$(APR_PATH)\$(APROUTDIR);$(PATH)
-APR_ICONV1_PATH=$(API_PATH)\$(OUTDIR)\iconv
 !ENDIF
+APR_ICONV1_PATH=$(API_PATH)\$(OUTDIR)\iconv
 
 check: $(PROGRAMS) $(OTHER_PROGRAMS)
 	@for %p in ($(PROGRAMS)) do @( \
