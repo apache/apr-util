@@ -15,7 +15,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "aprapp"="..\..\apr\build\aprapp.dsp" - Package Owner=<4>
+Project: "apr_app"="..\..\apr\build\apr_app.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -24,7 +24,7 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name preaprapp
+    Project_Dep_Name apr
     End Project Dependency
 }}}
 
@@ -39,7 +39,7 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name preapriconv
+    Project_Dep_Name apr
     End Project Dependency
 }}}
 
@@ -53,9 +53,6 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name preaprutil
-    End Project Dependency
     Begin Project Dependency
     Project_Dep_Name apriconv
     End Project Dependency
@@ -78,7 +75,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "libaprapp"="..\..\apr\build\libaprapp.dsp" - Package Owner=<4>
+Project: "libapr_app"="..\..\apr\build\libapr_app.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -87,7 +84,7 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name prelibaprapp
+    Project_Dep_Name libapr
     End Project Dependency
 }}}
 
@@ -156,9 +153,6 @@ Package=<4>
     Project_Dep_Name libapr
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name libaprapp
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name libapriconv
     End Project Dependency
     Begin Project Dependency
@@ -169,69 +163,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name xml
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "preaprapp"="..\..\apr\build\preaprapp.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name apr
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "preapriconv"="..\..\apr-iconv\build\preapriconv.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name apr
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "preaprutil"="..\build\preaprutil.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name apr
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name aprapp
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "prelibaprapp"="..\..\apr\build\prelibaprapp.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name libapr
     End Project Dependency
 }}}
 
@@ -249,7 +180,7 @@ Package=<4>
     Project_Dep_Name libapr
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name libaprapp
+    Project_Dep_Name libapr_app
     End Project Dependency
 }}}
 
@@ -267,7 +198,7 @@ Package=<4>
     Project_Dep_Name apr
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name aprapp
+    Project_Dep_Name apr_app
     End Project Dependency
 }}}
 
@@ -285,13 +216,13 @@ Package=<4>
     Project_Dep_Name libapr
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name libaprapp
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name libapriconv
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libaprutil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libapr_app
     End Project Dependency
 }}}
 
@@ -309,13 +240,13 @@ Package=<4>
     Project_Dep_Name apr
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name aprapp
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name apriconv
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name aprutil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name apr_app
     End Project Dependency
 }}}
 
