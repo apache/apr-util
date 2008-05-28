@@ -98,7 +98,8 @@ typedef struct {
     apr_interval_time_t work_delay_sleep;
 } my_thread_info_t;
 
-#define PERCENT95th ( ( 2u^30 / 5u ) * 19u )
+/* MAX_UINT * .95 = 2**32 * .95 = 4080218931u */
+#define PERCENT95th 4080218931u
 
 static void * APR_THREAD_FUNC resource_consuming_thread(apr_thread_t *thd,
                                                         void *data)
