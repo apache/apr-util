@@ -71,9 +71,7 @@ PROGRAMS = \
 	$(OUTDIR)\testall.exe
 
 OTHER_PROGRAMS = \
-	$(OUTDIR)\dbd.exe \
-	$(OUTDIR)\echod.exe \
-	$(OUTDIR)\sockperf.exe
+	$(OUTDIR)\dbd.exe
 
 # bring in rules.mk for standard functionality
 ALL: $(PROGRAMS) $(OTHER_PROGRAMS)
@@ -133,16 +131,6 @@ $(OUTDIR)\testall.exe: $(ALL_TESTS) $(INTDIR)\abts.obj $(PROGRAM_DEPENDENCIES)
 # OTHER_PROGRAMS;
 
 $(OUTDIR)\dbd.exe: $(INTDIR)\dbd.obj $(PROGRAM_DEPENDENCIES)
-	$(LD) $(LDFLAGS) /out:"$@" $** $(LD_LIBS)
-	@if exist "$@.manifest" \
-	    mt.exe -manifest "$@.manifest" -outputresource:$@;1
-
-$(OUTDIR)\echod.exe: $(INTDIR)\echod.obj $(PROGRAM_DEPENDENCIES)
-	$(LD) $(LDFLAGS) /out:"$@" $** $(LD_LIBS)
-	@if exist "$@.manifest" \
-	    mt.exe -manifest "$@.manifest" -outputresource:$@;1
-
-$(OUTDIR)\sockperf.exe: $(INTDIR)\sockperf.obj $(PROGRAM_DEPENDENCIES)
 	$(LD) $(LDFLAGS) /out:"$@" $** $(LD_LIBS)
 	@if exist "$@.manifest" \
 	    mt.exe -manifest "$@.manifest" -outputresource:$@;1
