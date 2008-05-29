@@ -15,13 +15,11 @@
  */
 
 /* 
- * Note: This is a Windows specific version of apu.h. It is renamed to
- * apu.h at the start of a Windows build.
+ * apu.h is duplicated from apu.hw at build time -- do not edit apu.h
  */
 /* @file apu.h
  * @brief APR-Utility main file
  */
-
 /**
  * @defgroup APR_Util APR Utility Functions
  * @{
