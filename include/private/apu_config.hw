@@ -24,6 +24,9 @@
 #ifndef APU_CONFIG_H
 #define APU_CONFIG_H
 
+/* Always compile win32 with DSO support */
+#define APU_DSO_BUILD           1
+
 /*
  * Windows does not have GDBM, and we always use the bundled (new) Expat
  */
