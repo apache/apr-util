@@ -40,6 +40,8 @@
 #define APR_HAS_MOZILLA_LDAPSDK     0
 #define APR_HAS_OPENLDAP_LDAPSDK    0
 #define APR_HAS_MICROSOFT_LDAPSDK   1
+#define APR_HAS_TIVOLI_LDAPSDK      0
+#define APR_HAS_ZOS_LDAPSDK         0
 #define APR_HAS_OTHER_LDAPSDK       0
 
 
@@ -56,9 +58,19 @@
  * apr_ldap_url_parse*() functions have been rewritten specifically for
  * APR, so the APR_HAS_LDAP_URL_PARSE macro is forced to zero.
  */
+#if APR_HAS_TIVOLI_LDAPSDK
+#define APR_HAS_LDAP_SSL 0
+#else
 #define APR_HAS_LDAP_SSL 1
+#endif
 #define APR_HAS_LDAP_URL_PARSE 0
 
+#if APR_HAS_OPENLDAP_LDAPSDK && !defined(LDAP_DEPRECATED) 
+/* Ensure that the "deprecated" interfaces are still exposed
+ * with OpenLDAP >= 2.3; these were exposed by default in earlier
+ * releases. */
+#define LDAP_DEPRECATED 1
+#endif
 
 /*
  * Include the standard LDAP header files.
@@ -91,8 +103,25 @@
  * For ldap function calls that input a size limit on the number of returned elements
  * Some SDKs do not have the define for LDAP_DEFAULT_LIMIT (-1) or LDAP_NO_LIMIT (0)
  */
+#if APR_HAS_ZOS_LDAPSDK || APR_HAS_MICROSOFT_LDAPSDK 
 #define APR_LDAP_SIZELIMIT LDAP_NO_LIMIT
+#else
+#ifdef LDAP_DEFAULT_LIMIT
+#define APR_LDAP_SIZELIMIT LDAP_DEFAULT_LIMIT
+#else
+#define APR_LDAP_SIZELIMIT -1 /* equivalent to LDAP_DEFAULT_LIMIT */
+#endif
+#endif
 
+/*
+ * z/OS is missing some defines
+ */
+#ifndef LDAP_VERSION_MAX
+#define LDAP_VERSION_MAX  LDAP_VERSION
+#endif
+#if APR_HAS_ZOS_LDAPSDK
+#define LDAP_VENDOR_NAME "IBM z/OS"
+#endif
 
 /* Note: Macros defining const casting has been removed in APR v1.0,
  * pending real support for LDAP v2.0 toolkits.
@@ -126,12 +155,11 @@ typedef struct apr_ldap_err_t {
  * between LDAP calls. Protect with APR_HAS_MICROSOFT_LDAPSDK in case someone 
  * manually chooses another SDK on Windows 
  */
-
 #if APR_HAS_MICROSOFT_LDAPSDK
-#define APR_LDAP_IS_SERVER_DOWN(s)                ((s) == LDAP_SERVER_DOWN \
-                ||(s) == LDAP_UNAVAILABLE)
+#define APR_LDAP_IS_SERVER_DOWN(s)    ((s) == LDAP_SERVER_DOWN \
+                                    || (s) == LDAP_UNAVAILABLE)
 #else
-#define APR_LDAP_IS_SERVER_DOWN(s) ((s) == LDAP_SERVER_DOWN)
+#define APR_LDAP_IS_SERVER_DOWN(s)    ((s) == LDAP_SERVER_DOWN)
 #endif
 
 /* These symbols are not actually exported in a DSO build, but mapped into
