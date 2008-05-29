@@ -165,8 +165,8 @@ buildall:
 	 $(MAKE) $(MAKEOPT) -f apr.mak         CFG="apr - $(ARCH)" RECURSE=0 $(CTARGET)
 	 $(MAKE) $(MAKEOPT) -f libapr.mak      CFG="libapr - $(ARCH)" RECURSE=0 $(CTARGET)
 	 cd build
-	  $(MAKE) $(MAKEOPT) -f aprapp.mak     CFG="aprapp - $(ARCH)" RECURSE=0 $(CTARGET)
-	  $(MAKE) $(MAKEOPT) -f libaprapp.mak  CFG="libaprapp - $(ARCH)" RECURSE=0 $(CTARGET)
+	  $(MAKE) $(MAKEOPT) -f apr_app.mak    CFG="apr_app - $(ARCH)" RECURSE=0 $(CTARGET)
+	  $(MAKE) $(MAKEOPT) -f libapr_app.mak CFG="libapr_app - $(ARCH)" RECURSE=0 $(CTARGET)
 	 cd ..
 	cd $(API_PATH)
 	 $(MAKE) $(MAKEOPT) -f apriconv.mak    CFG="apriconv - $(ARCH)" RECURSE=0 $(CTARGET)
@@ -198,8 +198,16 @@ clean:
 	 $(MAKE) $(MAKEOPT) -f build\modules.mk.win clean \
 		BUILD_MODE="$(ARCH)" BIND_MODE=shared API_SOURCE=.
 	cd $(APU_PATH)
+	-devenv aprutil.sln /useenv /clean "$(SLNARCH)" /project libapriconv
+	-devenv aprutil.sln /useenv /clean "$(SLNARCH)" /project apriconv
+	-devenv aprutil.sln /useenv /clean "$(SLNARCH)" /project libapr_app
+	-devenv aprutil.sln /useenv /clean "$(SLNARCH)" /project apr_app
+	-devenv aprutil.sln /useenv /clean "$(SLNARCH)" /project libapr
+	-devenv aprutil.sln /useenv /clean "$(SLNARCH)" /project apr
 
 buildall:
+	devenv aprutil.sln /useenv /build "$(SLNARCH)" /project apr_app
+	devenv aprutil.sln /useenv /build "$(SLNARCH)" /project libapr_app
 	devenv aprutil.sln /useenv /build "$(SLNARCH)" /project aprutil
 	devenv aprutil.sln /useenv /build "$(SLNARCH)" /project libaprutil
 
@@ -213,9 +221,17 @@ clean:
 	 $(MAKE) $(MAKEOPT) -f build\modules.mk.win clean \
 		BUILD_MODE="$(ARCH)" BIND_MODE=shared API_SOURCE=.
 	cd $(APU_PATH)
+	-msdev aprutil.dsw /USEENV /MAKE "libapriconv - $(ARCH)" /CLEAN
+	-msdev aprutil.dsw /USEENV /MAKE "apriconv - $(ARCH)" /CLEAN
+	-msdev aprutil.dsw /USEENV /MAKE "libapr_app - $(ARCH)" /CLEAN
+	-msdev aprutil.dsw /USEENV /MAKE "apr_app - $(ARCH)" /CLEAN
+	-msdev aprutil.dsw /USEENV /MAKE "libapr - $(ARCH)" /CLEAN
+	-msdev aprutil.dsw /USEENV /MAKE "apr - $(ARCH)" /CLEAN
 
 buildall:
+	@msdev aprutil.dsw /USEENV /MAKE "apr_app - $(ARCH)"
 	@msdev aprutil.dsw /USEENV /MAKE "aprutil - $(ARCH)"
+	@msdev aprutil.dsw /USEENV /MAKE "libapr_app - $(ARCH)"
 	@msdev aprutil.dsw /USEENV /MAKE "libaprutil - $(ARCH)"
 
 !ENDIF
