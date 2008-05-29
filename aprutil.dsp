@@ -291,11 +291,15 @@ SOURCE=.\ldap\apr_ldap_init.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\ldap\apr_ldap_url.c
+SOURCE=.\ldap\apr_ldap_option.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\ldap\apr_ldap_option.c
+SOURCE=.\ldap\apr_ldap_rebind.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\ldap\apr_ldap_url.c
 # End Source File
 # End Group
 # Begin Group "memcache"
@@ -312,6 +316,10 @@ SOURCE=.\memcache\apr_memcache.c
 # Begin Source File
 
 SOURCE=.\misc\apr_date.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\misc\apu_dso.c
 # End Source File
 # Begin Source File
 
