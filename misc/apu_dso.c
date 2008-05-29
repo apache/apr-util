@@ -76,10 +76,10 @@ static apr_status_t apu_dso_term(void *ptr)
 apr_status_t apu_dso_init(apr_pool_t *pool)
 {
     apr_status_t ret = APR_SUCCESS;
+#if APU_DSO_BUILD
     apr_pool_t *global;
     apr_pool_t *parent;
 
-#if APU_DSO_BUILD
     if (dsos != NULL) {
         return APR_SUCCESS;
     }
@@ -131,8 +131,12 @@ apr_status_t apu_dso_load(apr_dso_handle_sym_t *dsoptr, const char *module,
           || (apr_filepath_list_split(&paths, pathlist, pool) != APR_SUCCESS))
         paths = apr_array_make(pool, 1, sizeof(char*));
 
-    /* Always search our prefix path */
+#if defined(APU_DSO_LIBDIR)
+    /* Always search our prefix path, but on some platforms such as
+     * win32 this may be left undefined
+     */
     (*((char **)apr_array_push(paths))) = APU_DSO_LIBDIR;
+#endif
 
     for (i = 0; i < paths->nelts; ++i)
     {
