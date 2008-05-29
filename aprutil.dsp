@@ -299,6 +299,10 @@ SOURCE=.\ldap\apr_ldap_rebind.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\ldap\apr_ldap_stub.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\ldap\apr_ldap_url.c
 # End Source File
 # End Group
