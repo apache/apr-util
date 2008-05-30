@@ -149,7 +149,7 @@ cleanall:
 
 
 !IF "$(MODEL)" != "static"
-PATH=$(OUTDIR);..\$(OUTDIR);$(API_PATH)\$(OUTDIR);$(APR_PATH)\$(APROUTDIR);$(PATH)
+PATH=$(OUTDIR);..\$(OUTDIR);..\ldap\$(OUTDIR);..\dbd\$(OUTDIR);$(API_PATH)\$(OUTDIR);$(APR_PATH)\$(APROUTDIR);$(PATH)
 !ENDIF
 APR_ICONV1_PATH=$(API_PATH)\$(OUTDIR)\iconv
 
