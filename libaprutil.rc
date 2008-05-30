@@ -17,8 +17,13 @@
   "See the License for the specific language governing permissions and " \
   "limitations under the License."
 
+#ifdef DLL_NAME
+#define APU_DLL_BASENAME APU_STRINGIFY(DLL_NAME) "-" APU_STRINGIFY(APU_MAJOR_VERSION)
+#define APU_DLL_DESCRIPTION "Apache Portable Runtime " APU_STRINGIFY(DLL_NAME) " Module"
+#else
 #define APU_DLL_BASENAME "libaprutil-" APU_STRINGIFY(APU_MAJOR_VERSION)
-
+#define APU_DLL_DESCRIPTION "Apache Portable Runtime Utility Library"
+#endif
 
 1 VERSIONINFO
  FILEVERSION APU_VERSION_STRING_CSV,0
@@ -51,7 +56,7 @@ BEGIN
     BEGIN
     VALUE "Comments", APU_LICENSE "\0"
       VALUE "CompanyName", "Apache Software Foundation\0"
-      VALUE "FileDescription", "Apache Portable Runtime Library\0"
+      VALUE "FileDescription", APU_DLL_DESCRIPTION "\0"
       VALUE "FileVersion", APU_VERSION_STRING "\0"
       VALUE "InternalName", APU_DLL_BASENAME "\0"
       VALUE "LegalCopyright", APU_COPYRIGHT "\0"
