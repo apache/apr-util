@@ -68,6 +68,18 @@
  * declarations within headers to properly import the variable.
  */
 #define APU_DECLARE_DATA
+
+/**
+ * Declare a dso module's exported module structure as APU_MODULE_DECLARE_DATA.
+ *
+ * Unless APU_MODULE_DECLARE_STATIC is defined at compile time, symbols 
+ * declared with APU_MODULE_DECLARE_DATA are always exported.
+ * @code
+ * module APU_MODULE_DECLARE_DATA mod_tag
+ * @endcode
+ */
+#define APU_MODULE_DECLARE_DATA
+
 /*
  * we always have SDBM (it's in our codebase)
  */
