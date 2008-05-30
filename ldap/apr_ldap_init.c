@@ -202,7 +202,7 @@ APU_DECLARE_LDAP(int) apr_ldap_info(apr_pool_t *pool,
 /* For DSO builds, export the table of entry points into the apr_ldap DSO
  * See include/private/apu_internal.h for the corresponding declarations
  */
-APU_DECLARE_DATA struct apr__ldap_dso_fntable apr__ldap_fns = {
+APU_MODULE_DECLARE_DATA struct apr__ldap_dso_fntable apr__ldap_fns = {
     apr_ldap_info,
     apr_ldap_init,
     apr_ldap_ssl_init,
