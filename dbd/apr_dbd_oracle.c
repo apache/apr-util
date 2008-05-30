@@ -2183,7 +2183,7 @@ static int dbd_oracle_num_tuples(apr_dbd_results_t* res)
     return res->nrows;
 }
 
-APU_DECLARE_DATA const apr_dbd_driver_t apr_dbd_oracle_driver = {
+APU_MODULE_DECLARE_DATA const apr_dbd_driver_t apr_dbd_oracle_driver = {
     "oracle",
     dbd_oracle_init,
     dbd_oracle_native,
