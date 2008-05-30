@@ -880,7 +880,7 @@ static int dbd_sqlite3_num_tuples(apr_dbd_results_t *res)
     return res->tuples;
 }
 
-APU_DECLARE_DATA const apr_dbd_driver_t apr_dbd_sqlite3_driver = {
+APU_MODULE_DECLARE_DATA const apr_dbd_driver_t apr_dbd_sqlite3_driver = {
     "sqlite3",
     NULL,
     dbd_sqlite3_native,
