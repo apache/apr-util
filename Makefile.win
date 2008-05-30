@@ -32,6 +32,12 @@
 #     API_PATH=..\apr-iconv-1.3.0
 #     APU_PATH=..\apr-util-1.3.0
 #
+# Provide a DBD_LIST argument after configuring LIB and INCLUDE with
+# the SDK paths of the corresponding client support libraries.
+# Note that at this time, none of these are supported on win32, per say.
+#
+#     DBD_LIST="sqlite3 pgsql oracle mysql freetds"
+#
 # For example;
 #
 #   nmake -f Makefile.win PREFIX=C:\APR buildall checkall installall clean
@@ -70,7 +76,7 @@ APU_PATH=..\apr-util
 !MESSAGE API_PATH    = $(API_PATH)  (apr-iconv)
 !MESSAGE APU_PATH    = $(APU_PATH)  (apr-util)
 !MESSAGE PREFIX      = $(PREFIX)  (install path)
-
+!MESSAGE DBD_LIST    = $(DBD_LIST)
 
 # Utility and Translation things, nothing here for the user
 #
@@ -213,6 +219,8 @@ buildall:
 #	$(USEDSP) == 1
 
 clean:
+	for %d in ($(DBD_LIST)) do \
+	  -msdev aprutil.dsw /USEENV /MAKE "apr_dbd_%d - $(ARCH)" /CLEAN
 	-msdev aprutil.dsw /USEENV /MAKE "apr_ldap - $(ARCH)" /CLEAN
 	-msdev aprutil.dsw /USEENV /MAKE "libaprutil - $(ARCH)" /CLEAN
 	-msdev aprutil.dsw /USEENV /MAKE "aprutil - $(ARCH)" /CLEAN
@@ -233,6 +241,8 @@ buildall:
 	@msdev aprutil.dsw /USEENV /MAKE "libaprapp - $(ARCH)"
 	@msdev aprutil.dsw /USEENV /MAKE "libaprutil - $(ARCH)"
 	@msdev aprutil.dsw /USEENV /MAKE "apr_ldap - $(ARCH)"
+	for %d in ($(DBD_LIST)) do \
+	  @msdev aprutil.dsw /USEENV /MAKE "apr_dbd_%d - $(ARCH)"
 
 !ENDIF
 

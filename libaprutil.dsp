@@ -259,26 +259,32 @@ SOURCE=.\dbd\apr_dbd.c
 # Begin Source File
 
 SOURCE=.\dbd\apr_dbd_freetds.c
+# PROP Exclude_From_Build 1
 # End Source File
 # Begin Source File
 
 SOURCE=.\dbd\apr_dbd_mysql.c
+# PROP Exclude_From_Build 1
 # End Source File
 # Begin Source File
 
 SOURCE=.\dbd\apr_dbd_oracle.c
+# PROP Exclude_From_Build 1
 # End Source File
 # Begin Source File
 
 SOURCE=.\dbd\apr_dbd_pgsql.c
+# PROP Exclude_From_Build 1
 # End Source File
 # Begin Source File
 
 SOURCE=.\dbd\apr_dbd_sqlite2.c
+# PROP Exclude_From_Build 1
 # End Source File
 # Begin Source File
 
 SOURCE=.\dbd\apr_dbd_sqlite3.c
+# PROP Exclude_From_Build 1
 # End Source File
 # End Group
 # Begin Group "dbm"
