@@ -190,16 +190,20 @@ buildall:
         cd ldap
 	 $(MAKE) $(MAKEOPT) -f apr_ldap.mak    CFG="apr_ldap - $(ARCH)" RECURSE=0 $(CTARGET)
         cd ..
+!IFDEF DBD_LIST
         cd dbd
 	  for %d in ($(DBD_LIST)) do \
 	    $(MAKE) $(MAKEOPT) -f apr_dbd_%d.mak CFG="apr_dbd_%d - $(ARCH)" RECURSE=0 $(CTARGET)
         cd ..
+!ENDIF
 
 !ELSEIF $(USESLN) == 1
 
 clean:
+!IFDEF DBD_LIST
 	-for %d in ($(DBD_LIST)) do \
 	  devenv aprutil.sln /useenv /clean "$(SLNARCH)" /project apr_dbd_%d
+!ENDIF
 	-devenv aprutil.sln /useenv /clean "$(SLNARCH)" /project apr_ldap
 	-devenv aprutil.sln /useenv /clean "$(SLNARCH)" /project libaprutil
 	-devenv aprutil.sln /useenv /clean "$(SLNARCH)" /project aprutil
@@ -220,15 +224,19 @@ buildall:
 	devenv aprutil.sln /useenv /build "$(SLNARCH)" /project aprutil
 	devenv aprutil.sln /useenv /build "$(SLNARCH)" /project libaprutil
 	devenv aprutil.sln /useenv /build "$(SLNARCH)" /project apr_ldap
+!IFDEF DBD_LIST
 	for %d in ($(DBD_LIST)) do \
 	  devenv aprutil.sln /useenv /build "$(SLNARCH)" /project apr_dbd_%d
+!ENDIF
 
 !ELSE
 #	$(USEDSP) == 1
 
 clean:
+!IFDEF DBD_LIST
 	-for %d in ($(DBD_LIST)) do \
 	  msdev aprutil.dsw /USEENV /MAKE "apr_dbd_%d - $(ARCH)" /CLEAN
+!ENDIF
 	-msdev aprutil.dsw /USEENV /MAKE "apr_ldap - $(ARCH)" /CLEAN
 	-msdev aprutil.dsw /USEENV /MAKE "libaprutil - $(ARCH)" /CLEAN
 	-msdev aprutil.dsw /USEENV /MAKE "aprutil - $(ARCH)" /CLEAN
@@ -249,8 +257,10 @@ buildall:
 	@msdev aprutil.dsw /USEENV /MAKE "libapr_app - $(ARCH)"
 	@msdev aprutil.dsw /USEENV /MAKE "libaprutil - $(ARCH)"
 	@msdev aprutil.dsw /USEENV /MAKE "apr_ldap - $(ARCH)"
+!IFDEF DBD_LIST
 	@for %d in ($(DBD_LIST)) do \
 	  msdev aprutil.dsw /USEENV /MAKE "apr_dbd_%d - $(ARCH)"
+!ENDIF
 
 !ENDIF
 
@@ -307,10 +317,12 @@ install:
 	copy $(APU_PATH)\$(ARCHPATH)\libaprutil-1.pdb	"$(PREFIX)\bin\" <.y
 	copy $(APU_PATH)\ldap\$(ARCHPATH)\apr_ldap-1.dll "$(PREFIX)\bin\" <.y
 	copy $(APU_PATH)\ldap\$(ARCHPATH)\apr_ldap-1.pdb "$(PREFIX)\bin\" <.y
+!IFDEF DBD_LIST
 	for %d in ($(DBD_LIST)) do ( \
 	  copy $(APU_PATH)\dbd\$(ARCHPATH)\apr_dbd_%d-1.dll "$(PREFIX)\bin\" <.y && \
 	  copy $(APU_PATH)\dbd\$(ARCHPATH)\apr_dbd_%d-1.pdb "$(PREFIX)\bin\" <.y \
 	)
+!ENDIF
 	xcopy $(API_PATH)\$(ARCHPATH)\iconv\*.so  "$(PREFIX)\bin\iconv\" /d < .a
 	xcopy $(API_PATH)\$(ARCHPATH)\iconv\*.pdb "$(PREFIX)\bin\iconv\" /d < .a
 	del .y
