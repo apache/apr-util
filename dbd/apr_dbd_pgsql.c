@@ -1191,6 +1191,16 @@ static int dbd_pgsql_transaction_mode_set(apr_dbd_transaction_t *trans,
     return trans->mode = (mode & TXN_MODE_BITS);
 }
 
+static void null_notice_receiver(void *arg, const PGresult *res)
+{
+    /* nothing */
+}
+
+static void null_notice_processor(void *arg, const char *message)
+{
+    /* nothing */
+}
+
 static apr_dbd_t *dbd_pgsql_open(apr_pool_t *pool, const char *params,
                                  const char **error)
 {
@@ -1209,6 +1219,9 @@ static apr_dbd_t *dbd_pgsql_open(apr_pool_t *pool, const char *params,
         PQfinish(conn);
         return NULL;
     }
+
+    PQsetNoticeReceiver(conn, null_notice_receiver, NULL);
+    PQsetNoticeProcessor(conn, null_notice_processor, NULL);
 
     sql = apr_pcalloc (pool, sizeof (*sql));
 
