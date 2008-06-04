@@ -182,7 +182,7 @@ static apr_status_t apr_ldap_rebind_remove_helper(void *data)
     return APR_SUCCESS;
 }
 
-
+#if APR_HAS_TIVOLI_LDAPSDK || APR_HAS_OPENLDAP_LDAPSDK || APR_HAS_NOVELL_LDAPSDK
 static apr_ldap_rebind_entry_t *apr_ldap_rebind_lookup(LDAP *ld)
 {
     apr_ldap_rebind_entry_t *tmp_xref, *match = NULL;
@@ -212,6 +212,7 @@ static apr_ldap_rebind_entry_t *apr_ldap_rebind_lookup(LDAP *ld)
 
     return (match);
 }
+#endif
 
 #if APR_HAS_TIVOLI_LDAPSDK
 
