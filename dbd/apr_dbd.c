@@ -25,6 +25,7 @@
 #include "apr_strings.h"
 #include "apr_hash.h"
 #include "apr_thread_mutex.h"
+#include "apr_lib.h"
 
 #include "apu_internal.h"
 #include "apr_dbd_internal.h"
@@ -369,7 +370,7 @@ APU_DECLARE(int) apr_dbd_prepare(const apr_dbd_driver_t *driver,
     /* find the number of parameters in the query */
     for (q = query; *q; q++) {
         if (q[0] == '%') {
-            if (isalpha(q[1])) {
+            if (apr_isalpha(q[1])) {
                 nargs++;
             } else if (q[1] == '%') {
                 q++;
@@ -385,7 +386,7 @@ APU_DECLARE(int) apr_dbd_prepare(const apr_dbd_driver_t *driver,
 
     for (p = pq, q = query, i = 0; *q; q++) {
         if (q[0] == '%') {
-            if (isalpha(q[1])) {
+            if (apr_isalpha(q[1])) {
                 switch (q[1]) {
                 case 'd': t[i] = APR_DBD_TYPE_INT;   break;
                 case 'u': t[i] = APR_DBD_TYPE_UINT;  break;
