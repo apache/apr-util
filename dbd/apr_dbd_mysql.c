@@ -139,7 +139,8 @@ static apr_status_t lob_bucket_read(apr_bucket *e, const char **str,
 
     /* fetch from offset if not at the beginning */
     if (boffset > 0) {
-        rv = mysql_stmt_fetch_column(res->statement, bind, col, boffset);
+        rv = mysql_stmt_fetch_column(res->statement, bind, col,
+                                     (unsigned long) boffset);
         if (rv != 0) {
             return APR_EGENERAL;
         }
@@ -253,7 +254,7 @@ static int dbd_mysql_select(apr_pool_t *pool, apr_dbd_t *sql,
 
 static const char *dbd_mysql_get_name(const apr_dbd_results_t *res, int n)
 {
-    if ((n < 0) || (n >= mysql_num_fields(res->res))) {
+    if ((n < 0) || (n >= (int) mysql_num_fields(res->res))) {
         return NULL;
     }
 
@@ -413,7 +414,7 @@ static apr_status_t dbd_mysql_datum_get(const apr_dbd_row_t *row, int n,
             *(apr_uint64_t*)data = apr_atoi64(bind->buffer);
             break;
         case APR_DBD_TYPE_FLOAT:
-            *(float*)data = atof(bind->buffer);
+            *(float*)data = (float) atof(bind->buffer);
             break;
         case APR_DBD_TYPE_DOUBLE:
             *(double*)data = atof(bind->buffer);
@@ -483,7 +484,7 @@ static apr_status_t dbd_mysql_datum_get(const apr_dbd_row_t *row, int n,
             *(apr_uint64_t*)data = apr_atoi64(row->row[n]);
             break;
         case APR_DBD_TYPE_FLOAT:
-            *(float*)data = atof(row->row[n]);
+            *(float*)data = (float) atof(row->row[n]);
             break;
         case APR_DBD_TYPE_DOUBLE:
             *(double*)data = atof(row->row[n]);
@@ -533,7 +534,7 @@ static int dbd_mysql_query(apr_dbd_t *sql, int *nrows, const char *query)
     if (ret != 0) {
         ret = mysql_errno(sql->conn);
     }
-    *nrows = mysql_affected_rows(sql->conn);
+    *nrows = (int) mysql_affected_rows(sql->conn);
     if (TXN_NOTICE_ERRORS(sql->trans)) {
         sql->trans->errnum = ret;
     }
@@ -639,7 +640,7 @@ static int dbd_mysql_pquery_internal(apr_pool_t *pool, apr_dbd_t *sql,
         if (ret != 0) {
             ret = mysql_stmt_errno(statement->stmt);
         }
-        *nrows = mysql_stmt_affected_rows(statement->stmt);
+        *nrows = (int) mysql_stmt_affected_rows(statement->stmt);
     }
 
     return ret;
@@ -865,25 +866,28 @@ static void dbd_mysql_bbind(apr_pool_t *pool, apr_dbd_prepared_t *statement,
             bind[i].is_unsigned = 1;
             break;
         case APR_DBD_TYPE_LONGLONG:
-            if (sizeof(long long) == sizeof(apr_int64_t)) {
+            if (sizeof(my_ulonglong) == sizeof(apr_int64_t)) {
                 bind[i].buffer = arg;
+                bind[i].buffer_type = MYSQL_TYPE_LONGLONG;
             }
-            else {
-                bind[i].buffer = apr_palloc(pool, sizeof(long long));
-                *(long long*)bind[i].buffer = *(apr_int64_t*)arg;
+            else { /* have to downsize, long long is not portable */
+                bind[i].buffer = apr_palloc(pool, sizeof(long));
+                *(long*)bind[i].buffer = (long) *(apr_int64_t*)arg;
+                bind[i].buffer_type = MYSQL_TYPE_LONG;
             }
-            bind[i].buffer_type = MYSQL_TYPE_LONGLONG;
             bind[i].is_unsigned = 0;
             break;
         case APR_DBD_TYPE_ULONGLONG:
-            if (sizeof(unsigned long long) == sizeof(apr_uint64_t)) {
+            if (sizeof(my_ulonglong) == sizeof(apr_uint64_t)) {
                 bind[i].buffer = arg;
+                bind[i].buffer_type = MYSQL_TYPE_LONGLONG;
             }
-            else {
-                bind[i].buffer = apr_palloc(pool, sizeof(unsigned long long));
-                *(unsigned long long*)bind[i].buffer = *(apr_uint64_t*)arg;
+            else { /* have to downsize, long long is not portable */
+                bind[i].buffer = apr_palloc(pool, sizeof(long));
+                *(unsigned long*)bind[i].buffer =
+                    (unsigned long) *(apr_uint64_t*)arg;
+                bind[i].buffer_type = MYSQL_TYPE_LONG;
             }
-            bind[i].buffer_type = MYSQL_TYPE_LONGLONG;
             bind[i].is_unsigned = 1;
             break;
         case APR_DBD_TYPE_FLOAT:
