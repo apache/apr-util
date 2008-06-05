@@ -69,6 +69,8 @@ AC_DEFUN([APU_CHECK_UTIL_DSO], [
      test $apu_have_freetds = 1 && dsos="$dsos dbd/apr_dbd_freetds.la"
      test $apu_has_ldap = 1 && dsos="$dsos ldap/apr_ldap.la"
 
-     APU_MODULES="$APU_MODULES $dsos"
+     if test -n "$dsos"; then
+        APU_MODULES="$APU_MODULES $dsos"
+     fi
   fi
 ])
