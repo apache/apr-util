@@ -187,14 +187,14 @@ buildall:
 	cd ..\..\..
 	 $(MAKE) $(MAKEOPT) -f aprutil.mak     CFG="aprutil - $(ARCH)" RECURSE=0 $(CTARGET)
 	 $(MAKE) $(MAKEOPT) -f libaprutil.mak  CFG="libaprutil - $(ARCH)" RECURSE=0 $(CTARGET)
-        cd ldap
+	cd ldap
 	 $(MAKE) $(MAKEOPT) -f apr_ldap.mak    CFG="apr_ldap - $(ARCH)" RECURSE=0 $(CTARGET)
-        cd ..
+	cd ..
 !IFDEF DBD_LIST
-        cd dbd
+	cd dbd
 	  for %d in ($(DBD_LIST)) do \
 	    $(MAKE) $(MAKEOPT) -f apr_dbd_%d.mak CFG="apr_dbd_%d - $(ARCH)" RECURSE=0 $(CTARGET)
-        cd ..
+	cd ..
 !ENDIF
 
 !ELSEIF $(USESLN) == 1
