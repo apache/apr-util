@@ -15,21 +15,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "aprapp"="..\apr\build\aprapp.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name preaprapp
-    End Project Dependency
-}}}
-
-###############################################################################
-
 Project: "apr_dbd_freetds"=".\dbd\apr_dbd_freetds.dsp" - Package Owner=<4>
 
 Package=<5>
@@ -61,6 +46,24 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libaprutil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "apr_dbd_odbc"=".\dbd\apr_dbd_odbc.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libaprutil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libapr
     End Project Dependency
 }}}
 
@@ -151,6 +154,21 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name libaprutil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "aprapp"="..\apr\build\aprapp.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name preaprapp
     End Project Dependency
 }}}
 

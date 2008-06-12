@@ -190,16 +190,18 @@ buildall:
 	cd ldap
 	 $(MAKE) $(MAKEOPT) -f apr_ldap.mak    CFG="apr_ldap - $(ARCH)" RECURSE=0 $(CTARGET)
 	cd ..
-!IFDEF DBD_LIST
 	cd dbd
+	$(MAKE) $(MAKEOPT) -f apr_dbd_%d.mak CFG="apr_dbd_odbc - $(ARCH)" RECURSE=0 $(CTARGET)
+!IFDEF DBD_LIST
 	  for %d in ($(DBD_LIST)) do \
 	    $(MAKE) $(MAKEOPT) -f apr_dbd_%d.mak CFG="apr_dbd_%d - $(ARCH)" RECURSE=0 $(CTARGET)
-	cd ..
 !ENDIF
+	cd ..
 
 !ELSEIF $(USESLN) == 1
 
 clean:
+	devenv aprutil.sln /useenv /clean "$(SLNARCH)" /project apr_dbd_odbc
 !IFDEF DBD_LIST
 	-for %d in ($(DBD_LIST)) do \
 	  devenv aprutil.sln /useenv /clean "$(SLNARCH)" /project apr_dbd_%d
@@ -224,6 +226,7 @@ buildall:
 	devenv aprutil.sln /useenv /build "$(SLNARCH)" /project aprutil
 	devenv aprutil.sln /useenv /build "$(SLNARCH)" /project libaprutil
 	devenv aprutil.sln /useenv /build "$(SLNARCH)" /project apr_ldap
+	devenv aprutil.sln /useenv /build "$(SLNARCH)" /project apr_dbd_odbc
 !IFDEF DBD_LIST
 	for %d in ($(DBD_LIST)) do \
 	  devenv aprutil.sln /useenv /build "$(SLNARCH)" /project apr_dbd_%d
@@ -233,6 +236,7 @@ buildall:
 #	$(USEDSP) == 1
 
 clean:
+	  msdev aprutil.dsw /USEENV /MAKE "apr_dbd_odbc - $(ARCH)" /CLEAN
 !IFDEF DBD_LIST
 	-for %d in ($(DBD_LIST)) do \
 	  msdev aprutil.dsw /USEENV /MAKE "apr_dbd_%d - $(ARCH)" /CLEAN
@@ -257,6 +261,7 @@ buildall:
 	@msdev aprutil.dsw /USEENV /MAKE "libaprapp - $(ARCH)"
 	@msdev aprutil.dsw /USEENV /MAKE "libaprutil - $(ARCH)"
 	@msdev aprutil.dsw /USEENV /MAKE "apr_ldap - $(ARCH)"
+	msdev aprutil.dsw /USEENV /MAKE "apr_dbd_odbc - $(ARCH)"
 !IFDEF DBD_LIST
 	@for %d in ($(DBD_LIST)) do \
 	  msdev aprutil.dsw /USEENV /MAKE "apr_dbd_%d - $(ARCH)"
@@ -317,6 +322,8 @@ install:
 	copy $(APU_PATH)\$(ARCHPATH)\libaprutil-1.pdb	"$(PREFIX)\bin\" <.y
 	copy $(APU_PATH)\ldap\$(ARCHPATH)\apr_ldap-1.dll "$(PREFIX)\bin\" <.y
 	copy $(APU_PATH)\ldap\$(ARCHPATH)\apr_ldap-1.pdb "$(PREFIX)\bin\" <.y
+	copy $(APU_PATH)\dbd\$(ARCHPATH)\apr_dbd_odbc-1.dll "$(PREFIX)\bin\" <.y && \
+	copy $(APU_PATH)\dbd\$(ARCHPATH)\apr_dbd_odbc-1.pdb "$(PREFIX)\bin\" <.y \
 !IFDEF DBD_LIST
 	for %d in ($(DBD_LIST)) do ( \
 	  copy $(APU_PATH)\dbd\$(ARCHPATH)\apr_dbd_%d-1.dll "$(PREFIX)\bin\" <.y && \
