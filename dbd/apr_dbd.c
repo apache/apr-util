@@ -97,10 +97,10 @@ APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool)
     /* Top level pool scope, need process-scope lifetime */
     for (parent = pool;  parent; parent = apr_pool_parent_get(pool))
          pool = parent;
-
+#if APU_DSO_BUILD
     /* deprecate in 2.0 - permit implicit initialization */
     apu_dso_init(pool);
-
+#endif
     drivers = apr_hash_make(pool);
 
 #if APR_HAS_THREADS
@@ -146,14 +146,17 @@ APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
 #endif
     apr_status_t rv;
 
+#if APU_DSO_BUILD
     rv = apu_dso_mutex_lock();
     if (rv) {
         return rv;
     }
-
+#endif
     *driver = apr_hash_get(drivers, name, APR_HASH_KEY_STRING);
     if (*driver) {
+#if APU_DSO_BUILD
         apu_dso_mutex_unlock();
+#endif
         return APR_SUCCESS;
     }
 
