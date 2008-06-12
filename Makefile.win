@@ -34,6 +34,7 @@
 #
 # Provide a DBD_LIST argument after configuring LIB and INCLUDE with
 # the SDK paths of the corresponding client support libraries.
+# ODBC is always built on Windows, so it does not get included in DBD_LIST
 # Note that at this time, none of these are supported on win32, per say.
 #
 #     DBD_LIST="sqlite3 pgsql oracle mysql freetds"
@@ -191,7 +192,7 @@ buildall:
 	 $(MAKE) $(MAKEOPT) -f apr_ldap.mak    CFG="apr_ldap - $(ARCH)" RECURSE=0 $(CTARGET)
 	cd ..
 	cd dbd
-	$(MAKE) $(MAKEOPT) -f apr_dbd_%d.mak CFG="apr_dbd_odbc - $(ARCH)" RECURSE=0 $(CTARGET)
+	$(MAKE) $(MAKEOPT) -f apr_dbd_odbc.mak CFG="apr_dbd_odbc - $(ARCH)" RECURSE=0 $(CTARGET)
 !IFDEF DBD_LIST
 	  for %d in ($(DBD_LIST)) do \
 	    $(MAKE) $(MAKEOPT) -f apr_dbd_%d.mak CFG="apr_dbd_%d - $(ARCH)" RECURSE=0 $(CTARGET)
