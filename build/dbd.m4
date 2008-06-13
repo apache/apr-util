@@ -465,7 +465,7 @@ AC_DEFUN([APU_CHECK_DBD_ODBC], [
   dnl Since we have already done the AC_CHECK_LIB tests, if we have it, 
   dnl we know the library is there.
   if test "$apu_have_odbc" = "1"; then
-    LDADD_dbd_odbc="$odbc_LDFLAGS -lpq $odbc_LIBS"
+    LDADD_dbd_odbc="$odbc_LDFLAGS -lodbc $odbc_LIBS"
   fi
   AC_SUBST(LDADD_dbd_odbc)
 
