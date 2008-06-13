@@ -258,7 +258,7 @@ static int dbd_pgsql_get_row(apr_pool_t *pool, apr_dbd_results_t *res,
     }
 
     if (res->random) {
-        if (row->n >= res->ntuples) {
+        if ((row->n > 0) && (size_t)row->n >= res->ntuples) {
             *rowp = NULL;
             apr_pool_cleanup_run(pool, res->res, clear_result);
             res->res = NULL;
@@ -266,7 +266,7 @@ static int dbd_pgsql_get_row(apr_pool_t *pool, apr_dbd_results_t *res,
         }
     }
     else {
-        if (row->n >= res->ntuples) {
+        if ((row->n > 0) && (size_t)row->n >= res->ntuples) {
             /* no data; we have to fetch some */
             row->n -= res->ntuples;
             if (res->res != NULL) {
@@ -344,7 +344,7 @@ static apr_status_t dbd_pgsql_datum_get(const apr_dbd_row_t *row, int n,
         *(apr_uint64_t*)data = apr_atoi64(PQgetvalue(row->res->res, row->n, n));
         break;
     case APR_DBD_TYPE_FLOAT:
-        *(float*)data = atof(PQgetvalue(row->res->res, row->n, n));
+        *(float*)data = (float)atof(PQgetvalue(row->res->res, row->n, n));
         break;
     case APR_DBD_TYPE_DOUBLE:
         *(double*)data = atof(PQgetvalue(row->res->res, row->n, n));
@@ -477,7 +477,7 @@ static int dbd_pgsql_prepare(apr_pool_t *pool, apr_dbd_t *sql,
     char *sqlcmd;
     char *sqlptr;
     size_t length, qlen;
-    size_t i = 0;
+    int i = 0;
     const char **args;
     size_t alen;
     int ret;
