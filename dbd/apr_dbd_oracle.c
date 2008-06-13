@@ -262,7 +262,7 @@ static apr_status_t lob_bucket_read(apr_bucket *e, const char **str,
     /* fetch from offset if not at the beginning */
     buf = apr_palloc(row->pool, APR_BUCKET_BUFF_SIZE);
     sql->status = OCILobRead(sql->svc, sql->err, val->buf.lobval,
-                             &length, 1 + boffset,
+                             &length, 1 + (size_t)boffset,
                              (dvoid*) buf, APR_BUCKET_BUFF_SIZE,
                              NULL, NULL, 0, SQLCS_IMPLICIT);
 /* Only with 10g, unfortunately
@@ -995,7 +995,7 @@ static int outputParams(apr_dbd_t *sql, apr_dbd_prepared_t *stmt)
     int i;
     ub2 paramtype[DBD_ORACLE_MAX_COLUMNS];
     ub2 paramsize[DBD_ORACLE_MAX_COLUMNS];
-    const char *paramname[DBD_ORACLE_MAX_COLUMNS];
+    char *paramname[DBD_ORACLE_MAX_COLUMNS];
     ub4 paramnamelen[DBD_ORACLE_MAX_COLUMNS];
     int_errorcode;
 
@@ -2018,7 +2018,7 @@ static apr_status_t dbd_oracle_datum_get(const apr_dbd_row_t *row, int n,
         if (entry == NULL) {
             return APR_ENOENT;
         }
-        *(float*)data = atof(entry);
+        *(float*)data = (float)atof(entry);
         break;
     case APR_DBD_TYPE_DOUBLE:
         entry = dbd_oracle_get_entry(row, n);
