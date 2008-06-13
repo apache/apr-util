@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "APR_DBD_ODBC_EXPORTS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /Gm- /GX- /Zi /O2 /I "../include" /I "../../apr/include" /I "../include/private" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DBD_DSO_BUILD" /D APU_HAVE_ODBC=1 /FD /c
+# ADD CPP /nologo /MD /W3 /Zi /O2 /I "../include" /I "../../apr/include" /I "../include/private" /D "NDEBUG" /D "HAVE_SQL_H" /D "WIN32" /D "_WINDOWS" /D "APU_DBD_DSO_BUILD" /D APU_HAVE_ODBC=1 /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
@@ -55,7 +55,6 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /out:"Release/apr_dbd_odbc-1.dll"
-# SUBTRACT LINK32 /pdbtype:<none>
 # Begin Special Build Tool
 TargetPath=.\Release\apr_dbd_odbc-1.dll
 SOURCE="$(InputPath)"
@@ -77,7 +76,7 @@ PostBuild_Cmds=if exist $(TargetPath).manifest mt.exe -manifest $(TargetPath).ma
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "APR_DBD_ODBC_EXPORTS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm- /GX- /Zi /Od /I "../include" /I "../../apr/include" /I "../include/private" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DBD_DSO_BUILD" /D APU_HAVE_ODBC=1 /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Zi /Od /I "../include" /I "../../apr/include" /I "../include/private" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DBD_DSO_BUILD" /D APU_HAVE_ODBC=1 /D "HAVE_SQL_H" /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
@@ -89,7 +88,6 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /incremental:no /debug /machine:I386 /out:"Debug/apr_dbd_odbc-1.dll"
-# SUBTRACT LINK32 /pdbtype:<none>
 # Begin Special Build Tool
 TargetPath=.\Debug\apr_dbd_odbc-1.dll
 SOURCE="$(InputPath)"
