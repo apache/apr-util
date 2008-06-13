@@ -36,8 +36,13 @@
 #endif
 
 /* standard ODBC include files */
+#ifdef HAVE_SQL_H
 #include <sql.h>
 #include <sqlext.h>
+#elif defined(HAVE_ODBC_SQL_H)
+#include <odbc/sql.h>
+#include <odbc/sqlext.h>
+#endif
 
  /* Driver name is "odbc" and the entry point is 'apr_dbd_odbc_driver' 
  * unless ODBC_DRIVER_NAME is defined and it is linked with another db library which
@@ -212,11 +217,11 @@ static SQLSMALLINT const sqlCtype[] = {
     SQL_C_DOUBLE,                   /* APR_DBD_TYPE_DOUBLE,     \%lf  */
     SQL_C_CHAR,                     /* APR_DBD_TYPE_STRING,     \%s   */
     SQL_C_CHAR,                     /* APR_DBD_TYPE_TEXT,       \%pDt */
-    SQL_C_CHAR, /*SQL_C_TYPE_TIME,      /* APR_DBD_TYPE_TIME,       \%pDi */
-    SQL_C_CHAR, /*SQL_C_TYPE_DATE,      /* APR_DBD_TYPE_DATE,       \%pDd */
-    SQL_C_CHAR, /*SQL_C_TYPE_TIMESTAMP, /* APR_DBD_TYPE_DATETIME,   \%pDa */
-    SQL_C_CHAR, /*SQL_C_TYPE_TIMESTAMP, /* APR_DBD_TYPE_TIMESTAMP,  \%pDs */
-    SQL_C_CHAR, /*SQL_C_TYPE_TIMESTAMP, /* APR_DBD_TYPE_ZTIMESTAMP, \%pDz */
+    SQL_C_CHAR, /*SQL_C_TYPE_TIME,      APR_DBD_TYPE_TIME,       \%pDi */
+    SQL_C_CHAR, /*SQL_C_TYPE_DATE,      APR_DBD_TYPE_DATE,       \%pDd */
+    SQL_C_CHAR, /*SQL_C_TYPE_TIMESTAMP, APR_DBD_TYPE_DATETIME,   \%pDa */
+    SQL_C_CHAR, /*SQL_C_TYPE_TIMESTAMP, APR_DBD_TYPE_TIMESTAMP,  \%pDs */
+    SQL_C_CHAR, /*SQL_C_TYPE_TIMESTAMP, APR_DBD_TYPE_ZTIMESTAMP, \%pDz */
     SQL_LONGVARBINARY,              /* APR_DBD_TYPE_BLOB,       \%pDb */
     SQL_LONGVARCHAR,                /* APR_DBD_TYPE_CLOB,       \%pDc */
     SQL_TYPE_NULL                   /* APR_DBD_TYPE_NULL        \%pDn */
@@ -239,11 +244,11 @@ static SQLSMALLINT const sqlBaseType[] = {
     SQL_DOUBLE,                 /* APR_DBD_TYPE_DOUBLE,     \%lf  */
     SQL_CHAR,                   /* APR_DBD_TYPE_STRING,     \%s   */
     SQL_CHAR,                   /* APR_DBD_TYPE_TEXT,       \%pDt */
-    SQL_CHAR, /*SQL_TIME,       /* APR_DBD_TYPE_TIME,       \%pDi */
-    SQL_CHAR, /*SQL_DATE,       /* APR_DBD_TYPE_DATE,       \%pDd */
-    SQL_CHAR, /*SQL_TIMESTAMP,  /* APR_DBD_TYPE_DATETIME,   \%pDa */
-    SQL_CHAR, /*SQL_TIMESTAMP,  /* APR_DBD_TYPE_TIMESTAMP,  \%pDs */
-    SQL_CHAR, /*SQL_TIMESTAMP,  /* APR_DBD_TYPE_ZTIMESTAMP, \%pDz */
+    SQL_CHAR, /*SQL_TIME,          APR_DBD_TYPE_TIME,       \%pDi */
+    SQL_CHAR, /*SQL_DATE,          APR_DBD_TYPE_DATE,       \%pDd */
+    SQL_CHAR, /*SQL_TIMESTAMP,     APR_DBD_TYPE_DATETIME,   \%pDa */
+    SQL_CHAR, /*SQL_TIMESTAMP,     APR_DBD_TYPE_TIMESTAMP,  \%pDs */
+    SQL_CHAR, /*SQL_TIMESTAMP,     APR_DBD_TYPE_ZTIMESTAMP, \%pDz */
     SQL_LONGVARBINARY,          /* APR_DBD_TYPE_BLOB,       \%pDb */
     SQL_LONGVARCHAR,            /* APR_DBD_TYPE_CLOB,       \%pDc */
     SQL_TYPE_NULL               /* APR_DBD_TYPE_NULL        \%pDn */
