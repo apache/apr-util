@@ -4,6 +4,8 @@ Changes with APR-util 1.4.0
   *) Add DTrace Probes to Hooks, making it easier to inspect APR Hook based
      applications with DTrace. [Theo Schlossnagle <jesus omniti.com>]
 
+  *) Add ODBC DBD driver [Tom Donovan]
+
 Changes with APR-util 1.3.0
 
   *) apr_reslist: destroy all resources in apr_cleanup.
