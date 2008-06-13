@@ -125,6 +125,9 @@ APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool)
 #if APU_HAVE_ORACLE
     DRIVER_LOAD("oracle", apr_dbd_oracle_driver, pool);
 #endif
+#if APU_HAVE_FREETDS
+    DRIVER_LOAD("freetds", apr_dbd_freetds_driver, pool);
+#endif
 #if APU_HAVE_SOME_OTHER_BACKEND
     DRIVER_LOAD("firebird", apr_dbd_other_driver, pool);
 #endif
