@@ -26,6 +26,9 @@
 #include "apr_dbd_internal.h"
 #include "apr_thread_proc.h"
 #include "apu_version.h"
+#include "apu_config.h"
+
+#include <stdlib.h>
 
 /* If library is ODBC-V2, use macros for limited ODBC-V2 support 
  * No random access in V2.
@@ -646,7 +649,7 @@ static apr_status_t odbc_lob_bucket_read(apr_bucket *e, const char **str,
 
     if (SQL_SUCCEEDED(rc) || rc == SQL_NO_DATA) {
 
-        if (rc = SQL_SUCCESS_WITH_INFO
+        if (rc == SQL_SUCCESS_WITH_INFO
             && ( len_indicator == SQL_NO_TOTAL || len_indicator >= bufsize) ) {
             /* not the last read = a full buffer. CLOBs have a null terminator */
             *len = bufsize - (IS_CLOB(bd->type) ? 1 : 0 );
@@ -814,17 +817,17 @@ static apr_status_t odbc_parse_params(apr_pool_t *pool, const char *params,
 
     for(j=i=0 ; i< nparams ; i++)
     {   if      (!apr_strnatcasecmp(name[i], "CONNECT"))
-        {   *datasource = apr_pstrdup(pool, val[i]);
+        {   *datasource = (SQLCHAR *)apr_pstrdup(pool, val[i]);
             *connect=1;
         }
         else if (!apr_strnatcasecmp(name[i], "DATASOURCE"))
-        {   *datasource = apr_pstrdup(pool, val[i]);
+        {   *datasource = (SQLCHAR *)apr_pstrdup(pool, val[i]);
             *connect=0;
         }
         else if (!apr_strnatcasecmp(name[i], "USER"))
-            *user = apr_pstrdup(pool, val[i]);
+            *user = (SQLCHAR *)apr_pstrdup(pool, val[i]);
         else if (!apr_strnatcasecmp(name[i], "PASSWORD"))
-            *password = apr_pstrdup(pool, val[i]);
+            *password = (SQLCHAR *)apr_pstrdup(pool, val[i]);
         else if (!apr_strnatcasecmp(name[i], "BUFSIZE"))
             *defaultBufferSize = atoi(val[i]);
         else if (!apr_strnatcasecmp(name[i], "ACCESS"))
@@ -984,7 +987,8 @@ static apr_dbd_t* odbc_open(apr_pool_t *pool, const char *params, const char **e
     int err_htype, i;
     int defaultBufferSize=DEFAULT_BUFFER_SIZE;
     SQLHANDLE err_h = NULL;
-    SQLCHAR  *datasource="", *user="", *password="";
+    SQLCHAR  *datasource=(SQLCHAR *)"", *user=(SQLCHAR *)"",
+             *password=(SQLCHAR *)"";
     int nattrs=0, *attrs=NULL, *attrvals=NULL, connect=0;
 
     err_step="SQLAllocHandle (SQL_HANDLE_DBC)";
@@ -1015,21 +1019,22 @@ static apr_dbd_t* odbc_open(apr_pool_t *pool, const char *params, const char **e
             err_htype = SQL_HANDLE_DBC;
             err_h = hdbc;
             rc = SQLDriverConnect(hdbc, NULL, datasource,
-                        (SQLSMALLINT) strlen(datasource),
+                        (SQLSMALLINT) strlen((char *)datasource),
                         out, sizeof(out), &outlen, SQL_DRIVER_NOPROMPT);
         }
         else {
             err_step="SQLConnect";
             err_htype = SQL_HANDLE_DBC;
             err_h = hdbc;
-            rc = SQLConnect(hdbc, datasource, (SQLSMALLINT) strlen(datasource),
-                        user, (SQLSMALLINT) strlen(user),
-                        password, (SQLSMALLINT) strlen(password));
+            rc = SQLConnect(hdbc, datasource,
+                        (SQLSMALLINT) strlen((char *)datasource),
+                        user, (SQLSMALLINT) strlen((char *)user),
+                        password, (SQLSMALLINT) strlen((char *)password));
         }
     }
     if (SQL_SUCCEEDED(rc)) {
         handle = apr_pcalloc(pool, sizeof(apr_dbd_t));
-        handle->dbname = apr_pstrdup(pool, datasource);
+        handle->dbname = apr_pstrdup(pool, (char *)datasource);
         handle->dbc = hdbc;
         handle->pool = pool;
         handle->defaultBufferSize = defaultBufferSize;
@@ -1119,7 +1124,6 @@ static int odbc_start_transaction(apr_pool_t *pool, apr_dbd_t *handle,
 static int odbc_end_transaction(apr_dbd_transaction_t *trans)
 {
     SQLRETURN rc;
-    int action = trans->apr_dbd->can_commit ? SQL_COMMIT : SQL_ROLLBACK;
 
     rc = SQLEndTran(SQL_HANDLE_DBC, trans->dbc, SQL_COMMIT);
     CHECK_ERROR(trans->apr_dbd, "SQLEndTran", rc, SQL_HANDLE_DBC, trans->dbc);
@@ -1327,7 +1331,7 @@ static const char* odbc_escape(apr_pool_t *pool, const char *s,
     if (!(sq = strchr(s, '\''))) 
         return (char *) s;
     /* count the single-quotes and allocate a new buffer */
-    for (qcount = 1; sq = strchr(sq + 1, '\''); )
+    for (qcount = 1; (sq = strchr(sq + 1, '\'')); )
         qcount++;
     newstr = apr_palloc(pool, strlen(s) + qcount + 1);
 
@@ -1463,7 +1467,7 @@ static const char *odbc_get_name(const apr_dbd_results_t * res, int col)
     if (res->colnames[col] != NULL)
         return res->colnames[col];      /* we already retrieved it */
     rc = SQLDescribeCol(res->stmt, col + 1,
-                        buffer, sizeof(buffer), &colnamelength,
+                        (SQLCHAR *)buffer, sizeof(buffer), &colnamelength,
                         &coltype, &colsize, &coldecimal, &colnullable);
     CHECK_ERROR(res->apr_dbd, "SQLDescribeCol", rc,
                 SQL_HANDLE_STMT, res->stmt);
