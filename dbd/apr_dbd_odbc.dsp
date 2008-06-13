@@ -55,7 +55,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib odbc32.lib odbccp32.lib /nologo /base:"0x6EF00000" /subsystem:windows /dll /incremental:no /debug 
-# ADD LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib odbc32.lib odbccp32.lib /nologo /base:"0x6EF00000" /subsystem:windows /dll /incremental:no /debug /out:"Debug/apr_dbd_odbc-1.dll" /implib:"Release\apr_dbd_odbc-1.lib" /MACHINE:X86 /opt:ref
+# ADD LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib odbc32.lib odbccp32.lib /nologo /base:"0x6EF00000" /subsystem:windows /dll /incremental:no /debug /out:"Release\apr_dbd_odbc-1.dll" /implib:"Release\apr_dbd_odbc-1.lib" /MACHINE:X86 /opt:ref
 # Begin Special Build Tool
 TargetPath=Release\apr_dbd_odbc-1.dll
 SOURCE="$(InputPath)"
@@ -87,7 +87,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib odbc32.lib odbccp32.lib /nologo /base:"0x6EF00000" /subsystem:windows /dll /incremental:no /debug 
-# ADD LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib odbc32.lib odbccp32.lib /nologo /base:"0x6EF00000" /subsystem:windows /dll /incremental:no /debug /out:"Debug/apr_dbd_odbc-1.dll" /implib:"Debug\apr_dbd_odbc-1.lib" /MACHINE:X86
+# ADD LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib odbc32.lib odbccp32.lib /nologo /base:"0x6EF00000" /subsystem:windows /dll /incremental:no /debug /out:"Debug\apr_dbd_odbc-1.dll" /implib:"Debug\apr_dbd_odbc-1.lib" /MACHINE:X86
 # Begin Special Build Tool
 TargetPath=Debug\apr_dbd_odbc-1.dll
 SOURCE="$(InputPath)"
@@ -119,7 +119,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib odbc32.lib odbccp32.lib /nologo /base:"0x6EF00000" /subsystem:windows /dll /incremental:no /debug 
-# ADD LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib odbc32.lib odbccp32.lib /nologo /base:"0x6EF00000" /subsystem:windows /dll /incremental:no /debug /out:"Debug/apr_dbd_odbc-1.dll" /implib:"x64\Release\apr_dbd_odbc-1.lib" /MACHINE:X64 /opt:ref
+# ADD LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib odbc32.lib odbccp32.lib /nologo /base:"0x6EF00000" /subsystem:windows /dll /incremental:no /debug /out:"x64\Release\apr_dbd_odbc-1.dll" /implib:"x64\Release\apr_dbd_odbc-1.lib" /MACHINE:X64 /opt:ref
 # Begin Special Build Tool
 TargetPath=x64\Release\apr_dbd_odbc-1.dll
 SOURCE="$(InputPath)"
@@ -151,7 +151,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib odbc32.lib odbccp32.lib /nologo /base:"0x6EF00000" /subsystem:windows /dll /incremental:no /debug 
-# ADD LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib odbc32.lib odbccp32.lib /nologo /base:"0x6EF00000" /subsystem:windows /dll /incremental:no /debug /out:"x64/Debug/apr_dbd_odbc-1.dll" /implib:"x64\Debug\apr_dbd_odbc-1.lib" /MACHINE:X64
+# ADD LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib odbc32.lib odbccp32.lib /nologo /base:"0x6EF00000" /subsystem:windows /dll /incremental:no /debug /out:"x64\Debug\apr_dbd_odbc-1.dll" /implib:"x64\Debug\apr_dbd_odbc-1.lib" /MACHINE:X64
 # Begin Special Build Tool
 TargetPath=x64\Debug\apr_dbd_odbc-1.dll
 SOURCE="$(InputPath)"
