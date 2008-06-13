@@ -44,13 +44,12 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "APR_DBD_ODBC_EXPORTS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /Zi /O2 /I "../include" /I "../../apr/include" /I "../include/private" /D "NDEBUG" /D "HAVE_SQL_H" /D "WIN32" /D "_WINDOWS" /D "APU_DBD_DSO_BUILD" /D APU_HAVE_ODBC=1 /FD /c
-# SUBTRACT CPP /YX
-# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
-# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD BASE CPP /nologo /MD /W3 /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FD /c
+# ADD CPP /nologo /MD /W3 /Zi /O2 /Oy- /I "../include" /I "../../apr/include" /I "../include/private" /D "NDEBUG" /D "HAVE_SQL_H" /D "WIN32" /D "_WINDOWS" /D "APU_DBD_DSO_BUILD" /D APU_HAVE_ODBC=1 /Fo"$(INTDIR)\" /Fd"$(INTDIR)\apr_dbd_odbc_src" /FD /c
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o /win32 "NUL"
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
-# ADD RSC /l 0x409 /i "../include" /i "../../apr/include" /d "NDEBUG" /d DLL_NAME="apr_dbd_odbc" /d "APU_VERSION_ONLY"
+# ADD RSC /l 0x409 /fo"Release/apr_dbd_odbc-1.res" /d DLL_NAME="apr_dbd_odbc" /d "NDEBUG" /d "APU_VERSION_ONLY" /I "../include" /I "../../apr/include"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -58,9 +57,9 @@ LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /incremental:no /out:"Release/apr_dbd_odbc-1.dll" /MACHINE:X86 /opt:ref
 # Begin Special Build Tool
-TargetPath=.\Release\apr_dbd_odbc-1.dll
+TargetPath=Release\apr_dbd_odbc-1.dll
 SOURCE="$(InputPath)"
-PostBuild_Desc=embed.manifest
+PostBuild_Desc=Embed .manifest
 PostBuild_Cmds=if exist $(TargetPath).manifest mt.exe -manifest $(TargetPath).manifest -outputresource:$(TargetPath);2
 # End Special Build Tool
 
@@ -77,13 +76,12 @@ PostBuild_Cmds=if exist $(TargetPath).manifest mt.exe -manifest $(TargetPath).ma
 # PROP Intermediate_Dir "Debug"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "APR_DBD_ODBC_EXPORTS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Zi /Od /I "../include" /I "../../apr/include" /I "../include/private" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DBD_DSO_BUILD" /D APU_HAVE_ODBC=1 /D "HAVE_SQL_H" /FD /GZ /c
-# SUBTRACT CPP /YX
-# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
-# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
+# ADD BASE CPP /nologo /MDd /W3 /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FD /EHsc /c
+# ADD CPP /nologo /MDd /W3 /Zi /Od /I "../include" /I "../../apr/include" /I "../include/private" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DBD_DSO_BUILD" /D APU_HAVE_ODBC=1 /D "HAVE_SQL_H" /Fo"$(INTDIR)\" /Fd"$(INTDIR)\apr_dbd_odbc_src" /FD /EHsc /c
+# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o /win32 "NUL"
+# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
-# ADD RSC /l 0x409 /i "../include" /i "../../apr/include" /d "_DEBUG" /d DLL_NAME="apr_dbd_odbc" /d "APU_VERSION_ONLY"
+# ADD RSC /l 0x409 /fo"Release/apr_dbd_odbc-1.res" /d DLL_NAME="apr_dbd_odbc" /d "_DEBUG" /d "APU_VERSION_ONLY" /I "../include" /I "../../apr/include"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -91,9 +89,9 @@ LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /pdbtype:sept
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /incremental:no /debug /out:"Debug/apr_dbd_odbc-1.dll" /MACHINE:X86
 # Begin Special Build Tool
-TargetPath=.\Debug\apr_dbd_odbc-1.dll
+TargetPath=Debug\apr_dbd_odbc-1.dll
 SOURCE="$(InputPath)"
-PostBuild_Desc=embed.manifest
+PostBuild_Desc=Embed .manifest
 PostBuild_Cmds=if exist $(TargetPath).manifest mt.exe -manifest $(TargetPath).manifest -outputresource:$(TargetPath);2
 # End Special Build Tool
 
@@ -110,13 +108,12 @@ PostBuild_Cmds=if exist $(TargetPath).manifest mt.exe -manifest $(TargetPath).ma
 # PROP Intermediate_Dir "x64\Release"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "APR_DBD_ODBC_EXPORTS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /Zi /O2 /I "../include" /I "../../apr/include" /I "../include/private" /D "NDEBUG" /D "HAVE_SQL_H" /D "WIN32" /D "_WINDOWS" /D "APU_DBD_DSO_BUILD" /D APU_HAVE_ODBC=1 /FD /c
-# SUBTRACT CPP /YX
-# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
-# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD BASE CPP /nologo /MD /W3 /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FD /c
+# ADD CPP /nologo /MD /W3 /Zi /O2 /Oy- /I "../include" /I "../../apr/include" /I "../include/private" /D "NDEBUG" /D "HAVE_SQL_H" /D "WIN32" /D "_WINDOWS" /D "APU_DBD_DSO_BUILD" /D APU_HAVE_ODBC=1 /Fo"$(INTDIR)\" /Fd"$(INTDIR)\apr_dbd_odbc_src" /FD /c
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o /win32 "NUL"
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
-# ADD RSC /l 0x409 /i "../include" /i "../../apr/include" /d "NDEBUG" /d DLL_NAME="apr_dbd_odbc" /d "APU_VERSION_ONLY"
+# ADD RSC /l 0x409 /fo"Release/apr_dbd_odbc-1.res" /d DLL_NAME="apr_dbd_odbc" /d "NDEBUG" /d "APU_VERSION_ONLY" /I "../include" /I "../../apr/include"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -124,9 +121,9 @@ LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /incremental:no /out:"x64/Release/apr_dbd_odbc-1.dll" /MACHINE:X64 /opt:ref
 # Begin Special Build Tool
-TargetPath=.\x64\Release\apr_dbd_odbc-1.dll
+TargetPath=x64\Release\apr_dbd_odbc-1.dll
 SOURCE="$(InputPath)"
-PostBuild_Desc=embed.manifest
+PostBuild_Desc=Embed .manifest
 PostBuild_Cmds=if exist $(TargetPath).manifest mt.exe -manifest $(TargetPath).manifest -outputresource:$(TargetPath);2
 # End Special Build Tool
 
@@ -143,13 +140,12 @@ PostBuild_Cmds=if exist $(TargetPath).manifest mt.exe -manifest $(TargetPath).ma
 # PROP Intermediate_Dir "x64\Debug"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "APR_DBD_ODBC_EXPORTS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Zi /Od /I "../include" /I "../../apr/include" /I "../include/private" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DBD_DSO_BUILD" /D APU_HAVE_ODBC=1 /D "HAVE_SQL_H" /FD /GZ /c
-# SUBTRACT CPP /YX
-# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
-# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
+# ADD BASE CPP /nologo /MDd /W3 /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FD /EHsc /c
+# ADD CPP /nologo /MDd /W3 /Zi /Od /I "../include" /I "../../apr/include" /I "../include/private" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DBD_DSO_BUILD" /D APU_HAVE_ODBC=1 /D "HAVE_SQL_H" /Fo"$(INTDIR)\" /Fd"$(INTDIR)\apr_dbd_odbc_src" /FD /EHsc /c
+# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o /win32 "NUL"
+# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
-# ADD RSC /l 0x409 /i "../include" /i "../../apr/include" /d "_DEBUG" /d DLL_NAME="apr_dbd_odbc" /d "APU_VERSION_ONLY"
+# ADD RSC /l 0x409 /fo"Release/apr_dbd_odbc-1.res" /d DLL_NAME="apr_dbd_odbc" /d "_DEBUG" /d "APU_VERSION_ONLY" /I "../include" /I "../../apr/include"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -157,9 +153,9 @@ LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /pdbtype:sept
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /incremental:no /debug /out:"x64/Debug/apr_dbd_odbc-1.dll" /MACHINE:X64
 # Begin Special Build Tool
-TargetPath=.\x64\Debug\apr_dbd_odbc-1.dll
+TargetPath=x64\Debug\apr_dbd_odbc-1.dll
 SOURCE="$(InputPath)"
-PostBuild_Desc=embed.manifest
+PostBuild_Desc=Embed .manifest
 PostBuild_Cmds=if exist $(TargetPath).manifest mt.exe -manifest $(TargetPath).manifest -outputresource:$(TargetPath);2
 # End Special Build Tool
 
