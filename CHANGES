@@ -1,7 +1,13 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.3.1
 
-  *) Add ODBC DBD Driver [Tom Donovan]
+  *) Add ODBC DBD Driver.  [Tom Donovan]
+
+  *) Fix build of the FreeTDS and MySQL drivers.  [Bojan Smojver]
+
+  *) Fix build failure for no modules (--disable-dso).  [Jean-Frederic Clere]
+
+  *) Fix win32 build failure for no modules (empty DBD_LIST).  [William Rowe]
 
 Changes with APR-util 1.3.0
 
