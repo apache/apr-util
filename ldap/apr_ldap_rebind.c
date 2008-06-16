@@ -267,8 +267,21 @@ static int apr_ldap_rebind_set_callback(LDAP *ld)
  *     request  Unused in this routine
  *     msgid    Unused in this routine
  *     params   Unused in this routine
+ *
+ *     or
+ *
+ *     ld       Pointer to an LDAP control structure. (input only)
+ *     url      Unused in this routine
+ *     request  Unused in this routine
+ *     msgid    Unused in this routine
  */
-static int LDAP_rebindproc(LDAP *ld, LDAP_CONST char *url, ber_tag_t request, ber_int_t msgid, void *params)
+#if defined(LDAP_SET_REBIND_PROC_THREE)
+static int LDAP_rebindproc(LDAP *ld, LDAP_CONST char *url, ber_tag_t request,
+                           ber_int_t msgid, void *params)
+#else
+static int LDAP_rebindproc(LDAP *ld, LDAP_CONST char *url, int request,
+                           ber_int_t msgid)
+#endif
 {
     apr_ldap_rebind_entry_t *my_conn;
     const char *bindDN = NULL;
@@ -286,7 +299,11 @@ static int LDAP_rebindproc(LDAP *ld, LDAP_CONST char *url, ber_tag_t request, be
 
 static int apr_ldap_rebind_set_callback(LDAP *ld)
 {
+#if defined(LDAP_SET_REBIND_PROC_THREE)
     ldap_set_rebind_proc(ld, LDAP_rebindproc, NULL);
+#else
+    ldap_set_rebind_proc(ld, LDAP_rebindproc);
+#endif
     return APR_SUCCESS;
 }
 
