@@ -356,6 +356,26 @@ dnl The iPlanet C SDK 5.0 is as yet untested...
     LIBS=$save_libs
   ])
 
+if test "$apu_has_ldap_openldap" = "1"; then
+    AC_CACHE_CHECK([style of ldap_set_rebind_proc routine], ac_cv_ldap_set_rebind_proc_style,
+    APR_TRY_COMPILE_NO_WARNING([
+    #ifdef HAVE_LBER_H
+    #include <lber.h>
+    #endif
+    #ifdef HAVE_LDAP_H
+    #include <ldap.h>
+    #endif
+    ], [
+    int tmp = ldap_set_rebind_proc((LDAP *)0, (LDAP_REBIND_PROC *)0, (void *)0);
+    /* use tmp to suppress the warning */
+    tmp=0;
+    ], ac_cv_ldap_set_rebind_proc_style=three, ac_cv_ldap_set_rebind_proc_style=two))
+
+    if test "$ac_cv_ldap_set_rebind_proc_style" = "three"; then
+        AC_DEFINE(LDAP_SET_REBIND_PROC_THREE, 1, [Define if ldap_set_rebind_proc takes three arguments])
+    fi
+fi
+
 AC_SUBST(ldap_h)
 AC_SUBST(lber_h)
 AC_SUBST(ldap_ssl_h)
