@@ -184,6 +184,7 @@ APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
     rv = apu_dso_load(&symbol, modname, symname, pool);
     if (rv != APR_SUCCESS) { /* APR_EDSOOPEN or APR_ESYMNOTFOUND? */
         if (rv == APR_EINIT) { /* previously loaded?!? */
+            name = apr_pstrdup(pool, name);
             apr_hash_set(drivers, name, APR_HASH_KEY_STRING, *driver);
             rv = APR_SUCCESS;
         }
