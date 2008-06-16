@@ -812,8 +812,7 @@ static apr_status_t odbc_parse_params(apr_pool_t *pool, const char *params,
         val[nparams] = apr_strtok(NULL, seps, &last);
         seps = DEFAULTSEPS;
         name[++nparams] = apr_strtok(NULL, seps, &last);
-    } while ( nparams <= MAX_PARAMS && name[nparams] != NULL
-              && val[nparams] != NULL);
+    } while ( nparams <= MAX_PARAMS && name[nparams] != NULL);
 
     for(j=i=0 ; i< nparams ; i++)
     {   if      (!apr_strnatcasecmp(name[i], "CONNECT"))
