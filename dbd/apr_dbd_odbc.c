@@ -293,10 +293,11 @@ static apr_status_t odbc_close_results(void *d)
 {   apr_dbd_results_t *dbr = (apr_dbd_results_t *) d;
     SQLRETURN rc = SQL_SUCCESS;
     
-    if (dbr && !dbr->isclosed) {
-        rc = SQLCloseCursor(dbr->stmt);
+    if (dbr && dbr->apr_dbd && dbr->apr_dbd->dbc) {
+    	if (!dbr->isclosed) 
+        	rc = SQLCloseCursor(dbr->stmt);
+    	dbr->isclosed = 1;
     }
-    dbr->isclosed = 1;
     return APR_FROM_SQL_RESULT(rc);
 }
 
@@ -305,12 +306,15 @@ static apr_status_t odbc_close_pstmt(void *s)
 {   
     SQLRETURN rc = APR_SUCCESS;
     apr_dbd_prepared_t *statement = s;
-    SQLHANDLE hstmt = statement->stmt;
     /* stmt is closed if connection has already been closed */
-    if (hstmt && statement->apr_dbd && statement->apr_dbd->dbc) {
-        rc = SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
+    if (statement) {
+        SQLHANDLE hstmt = statement->stmt;
+
+        if (hstmt && statement->apr_dbd && statement->apr_dbd->dbc) {
+            rc = SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
         }
-    statement->stmt = NULL;
+        statement->stmt = NULL;
+    }
     return APR_FROM_SQL_RESULT(rc);
 }
 
