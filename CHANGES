@@ -1,7 +1,14 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.3.2
 
+  *) Fix parameter parsing error on ODBC DBD driver.  [Tom Donovan]
 
+  *) Older OpenLDAP implementations may have ldap_set_rebind_proc() with two
+     args. Provide detection code and alternative implementation.
+     [Ruediger Pluem]
+
+  *) Use pool memory when setting DBD driver name into the hash.
+     [Bojan Smojver]
 
 Changes with APR-util 1.3.1
 
