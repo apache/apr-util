@@ -1311,10 +1311,11 @@ static const char *odbc_get_entry(const apr_dbd_row_t * row, int col)
 
     p = odbc_get(row, col, SQL_C_CHAR);
 
-    if ((signed int) p > 0)
-        return apr_pstrdup(row->pool, p);   /* row pool lifetime */
+    /* NULL or invalid (-1) */
+    if (p == NULL || p == (void *) -1)
+        return p;     
     else
-        return p;     /* NULL or invalid (-1) */
+        return apr_pstrdup(row->pool, p);   
 }
 
 /** error: get current error message (if any) **/
