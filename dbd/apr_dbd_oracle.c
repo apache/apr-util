@@ -60,6 +60,7 @@
 #include <oci.h>
 
 #include "apr_strings.h"
+#include "apr_lib.h"
 #include "apr_time.h"
 #include "apr_hash.h"
 #include "apr_buckets.h"
