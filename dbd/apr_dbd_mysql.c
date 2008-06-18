@@ -34,6 +34,7 @@
 #endif
 
 #include "apr_strings.h"
+#include "apr_lib.h"
 #include "apr_buckets.h"
 
 #include "apr_dbd_internal.h"
