@@ -556,14 +556,14 @@ static DBPROCESS *freetds_open(apr_pool_t *pool, const char *params,
             ++ptr;
             continue;
         }
-        for (key = ptr-1; isspace(*key); --key);
+        for (key = ptr-1; apr_isspace(*key); --key);
         klen = 0;
-        while (isalpha(*key)) {
+        while (apr_isalpha(*key)) {
             --key;
             ++klen;
         }
         ++key;
-        for (value = ptr+1; isspace(*value); ++value);
+        for (value = ptr+1; apr_isspace(*value); ++value);
 
         vlen = strcspn(value, delims);
         buf = apr_pstrndup(pool, value, vlen);        /* NULL-terminated copy */

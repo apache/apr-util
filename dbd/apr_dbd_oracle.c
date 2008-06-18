@@ -407,9 +407,9 @@ static apr_dbd_t *dbd_oracle_open(apr_pool_t *pool, const char *params,
             ++ptr;
             continue;
         }
-        for (key = ptr-1; isspace(*key); --key);
+        for (key = ptr-1; apr_isspace(*key); --key);
         klen = 0;
-        while (isalpha(*key)) {
+        while (apr_isalpha(*key)) {
             if (key == params) {
                 /* Don't parse off the front of the params */
                 --key;
@@ -420,7 +420,7 @@ static apr_dbd_t *dbd_oracle_open(apr_pool_t *pool, const char *params,
             ++klen;
         }
         ++key;
-        for (value = ptr+1; isspace(*value); ++value);
+        for (value = ptr+1; apr_isspace(*value); ++value);
         vlen = strcspn(value, delims);
         for (i=0; fields[i].field != NULL; ++i) {
             if (!strncasecmp(fields[i].field, key, klen)) {
