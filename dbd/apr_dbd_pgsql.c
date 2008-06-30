@@ -258,7 +258,7 @@ static int dbd_pgsql_get_row(apr_pool_t *pool, apr_dbd_results_t *res,
     }
 
     if (res->random) {
-        if ((row->n > 0) && (size_t)row->n >= res->ntuples) {
+        if ((row->n >= 0) && (size_t)row->n >= res->ntuples) {
             *rowp = NULL;
             apr_pool_cleanup_run(pool, res->res, clear_result);
             res->res = NULL;
@@ -266,7 +266,7 @@ static int dbd_pgsql_get_row(apr_pool_t *pool, apr_dbd_results_t *res,
         }
     }
     else {
-        if ((row->n > 0) && (size_t)row->n >= res->ntuples) {
+        if ((row->n >= 0) && (size_t)row->n >= res->ntuples) {
             /* no data; we have to fetch some */
             row->n -= res->ntuples;
             if (res->res != NULL) {
