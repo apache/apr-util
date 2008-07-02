@@ -16,6 +16,9 @@ Changes with APR-util 1.4.0
   *) PostgreSQL rows (internally) start from zero, not one. Account for it in
      row fetching function. [Bojan Smojver]
 
+  *) Detection of PostgreSQL may fail if LIBS contains all libs returned by
+     pg_config. Use it only as the last resort. [Bojan Smojver]
+
 Changes with APR-util 1.3.0
 
   *) apr_reslist: destroy all resources in apr_cleanup.

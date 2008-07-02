@@ -35,16 +35,32 @@ AC_DEFUN([APU_CHECK_DBD], [
       if test "x$PGSQL_CONFIG" != 'x'; then
         pgsql_CPPFLAGS="-I`$PGSQL_CONFIG --includedir`"
         pgsql_LDFLAGS="-L`$PGSQL_CONFIG --libdir`"
-        pgsql_LIBS="`$PGSQL_CONFIG --libs`"
 
         APR_ADDTO(CPPFLAGS, [$pgsql_CPPFLAGS])
         APR_ADDTO(LDFLAGS, [$pgsql_LDFLAGS])
-        APR_ADDTO(LIBS, [$pgsql_LIBS])
       fi
 
-      AC_CHECK_HEADERS(libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
+      AC_CHECK_HEADERS(libpq-fe.h, [
+        AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1],[
+        if test "x$PGSQL_CONFIG" != 'x'; then
+          unset ac_cv_lib_pq_PQsendQueryPrepared
+          pgsql_LIBS="`$PGSQL_CONFIG --libs`"
+          APR_ADDTO(LIBS, [$pgsql_LIBS])
+          AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1])
+        fi
+        ])
+      ])
       if test "$apu_have_pgsql" = "0"; then
-        AC_CHECK_HEADERS(postgresql/libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
+        AC_CHECK_HEADERS(postgresql/libpq-fe.h, [
+          AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1],[
+          if test "x$PGSQL_CONFIG" != 'x'; then
+            unset ac_cv_lib_pq_PQsendQueryPrepared
+            pgsql_LIBS="`$PGSQL_CONFIG --libs`"
+            APR_ADDTO(LIBS, [$pgsql_LIBS])
+            AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1])
+          fi
+          ])
+        ])
       fi
       if test "$apu_have_pgsql" != "0" && test "x$PGSQL_CONFIG" != 'x'; then
         APR_ADDTO(APRUTIL_PRIV_INCLUDES, [$pgsql_CPPFLAGS])
@@ -56,7 +72,6 @@ AC_DEFUN([APU_CHECK_DBD], [
       if test "x$PGSQL_CONFIG" != 'x'; then
         pgsql_CPPFLAGS="-I`$PGSQL_CONFIG --includedir`"
         pgsql_LDFLAGS="-L`$PGSQL_CONFIG --libdir`"
-        pgsql_LIBS="`$PGSQL_CONFIG --libs`"
       else
         pgsql_CPPFLAGS="-I$withval/include"
         pgsql_LDFLAGS="-L$withval/lib "
@@ -64,12 +79,29 @@ AC_DEFUN([APU_CHECK_DBD], [
 
       APR_ADDTO(CPPFLAGS, [$pgsql_CPPFLAGS])
       APR_ADDTO(LDFLAGS, [$pgsql_LDFLAGS])
-      APR_ADDTO(LIBS, [$pgsql_LIBS])
 
       AC_MSG_NOTICE(checking for pgsql in $withval)
-      AC_CHECK_HEADERS(libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
+      AC_CHECK_HEADERS(libpq-fe.h, [
+        AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1],[
+        if test "x$PGSQL_CONFIG" != 'x'; then
+          unset ac_cv_lib_pq_PQsendQueryPrepared
+          pgsql_LIBS="`$PGSQL_CONFIG --libs`"
+          APR_ADDTO(LIBS, [$pgsql_LIBS])
+          AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1])
+        fi
+        ])
+      ])
       if test "$apu_have_pgsql" != "1"; then
-        AC_CHECK_HEADERS(postgresql/libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
+        AC_CHECK_HEADERS(postgresql/libpq-fe.h, [
+          AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1],[
+          if test "x$PGSQL_CONFIG" != 'x'; then
+            unset ac_cv_lib_pq_PQsendQueryPrepared
+            pgsql_LIBS="`$PGSQL_CONFIG --libs`"
+            APR_ADDTO(LIBS, [$pgsql_LIBS])
+            AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1])
+          fi
+          ])
+        ])
       fi
       if test "$apu_have_pgsql" != "0"; then
         APR_ADDTO(APRUTIL_PRIV_INCLUDES, [$pgsql_CPPFLAGS])
@@ -80,16 +112,32 @@ AC_DEFUN([APU_CHECK_DBD], [
     if test "x$PGSQL_CONFIG" != 'x'; then
       pgsql_CPPFLAGS="-I`$PGSQL_CONFIG --includedir`"
       pgsql_LDFLAGS="-L`$PGSQL_CONFIG --libdir`"
-      pgsql_LIBS="`$PGSQL_CONFIG --libs`"
 
       APR_ADDTO(CPPFLAGS, [$pgsql_CPPFLAGS])
       APR_ADDTO(LDFLAGS, [$pgsql_LDFLAGS])
-      APR_ADDTO(LIBS, [$pgsql_LIBS])
     fi
 
-    AC_CHECK_HEADERS(libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
+    AC_CHECK_HEADERS(libpq-fe.h, [
+      AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1],[
+      if test "x$PGSQL_CONFIG" != 'x'; then
+        unset ac_cv_lib_pq_PQsendQueryPrepared
+        pgsql_LIBS="`$PGSQL_CONFIG --libs`"
+        APR_ADDTO(LIBS, [$pgsql_LIBS])
+        AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1])
+      fi
+      ])
+    ])
     if test "$apu_have_pgsql" = "0"; then
-      AC_CHECK_HEADERS(postgresql/libpq-fe.h, AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1]))
+      AC_CHECK_HEADERS(postgresql/libpq-fe.h, [
+        AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1],[
+        if test "x$PGSQL_CONFIG" != 'x'; then
+          unset ac_cv_lib_pq_PQsendQueryPrepared
+          pgsql_LIBS="`$PGSQL_CONFIG --libs`"
+          APR_ADDTO(LIBS, [$pgsql_LIBS])
+          AC_CHECK_LIB(pq, PQsendQueryPrepared, [apu_have_pgsql=1])
+        fi
+        ])
+      ])
     fi
     if test "$apu_have_pgsql" != "0" && test "x$PGSQL_CONFIG" != 'x'; then
       APR_ADDTO(APRUTIL_PRIV_INCLUDES, [$pgsql_CPPFLAGS])
