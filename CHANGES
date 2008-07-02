@@ -7,6 +7,9 @@ Changes with APR-util 1.3.3
   *) PostgreSQL rows (internally) start from zero, not one. Account for it in
      row fetching function. [Bojan Smojver]
 
+  *) Detection of PostgreSQL may fail if LIBS contains all libs returned by
+     pg_config. Use it only as the last resort. [Bojan Smojver]
+
 Changes with APR-util 1.3.2
 
   *) Fix parameter parsing error in ODBC DBD driver.  [Tom Donovan]
