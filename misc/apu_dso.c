@@ -102,6 +102,7 @@ apr_status_t apu_dso_init(apr_pool_t *pool)
     return ret;
 }
 
+#if APR_HAS_DSO
 apr_status_t apu_dso_load(apr_dso_handle_sym_t *dsoptr, const char *module,
                           const char *modsym, apr_pool_t *pool)
 {
@@ -177,4 +178,5 @@ apr_status_t apu_dso_load(apr_dso_handle_sym_t *dsoptr, const char *module,
     return rv;
 #endif /* APU_DSO_BUILD */
 }
+#endif /* APR_HAS_DSO */
 
