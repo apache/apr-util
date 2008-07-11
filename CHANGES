@@ -10,6 +10,10 @@ Changes with APR-util 1.3.3
   *) Detection of PostgreSQL may fail if LIBS contains all libs returned by
      pg_config. Use it only as the last resort. [Bojan Smojver]
 
+  *) When searching for DSOs, look in apr-util-APU_MAJOR_VERSION subdirectory
+     of each component of APR_DSOPATH. PR 45327
+     [Joe Orton, William Rowe, Bojan Smojver]
+
 Changes with APR-util 1.3.2
 
   *) Fix parameter parsing error in ODBC DBD driver.  [Tom Donovan]
