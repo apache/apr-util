@@ -162,6 +162,19 @@ apr_status_t apu_dso_load(apr_dso_handle_sym_t *dsoptr, const char *module,
         if (rv == APR_SUCCESS) { /* APR_EDSOOPEN */
             break;
         }
+        else if (i < paths->nelts - 1) {
+             /* try with apr-util-APU_MAJOR_VERSION appended */
+            eos = apr_cpystrn(eos,
+                              "apr-util-" APU_STRINGIFY(APU_MAJOR_VERSION) "/",
+                              sizeof(path) - (eos - path));
+
+            apr_cpystrn(eos, module, sizeof(path) - (eos - path));
+
+            rv = apr_dso_load(&dlhandle, path, global);
+            if (rv == APR_SUCCESS) { /* APR_EDSOOPEN */
+                break;
+            }
+        }
     }
 
     if (rv != APR_SUCCESS) /* APR_ESYMNOTFOUND */
