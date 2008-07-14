@@ -65,7 +65,6 @@ typedef apr_status_t (*apr_reslist_destructor)(void *resource, void *params,
  * Create a new resource list with the following parameters:
  * @param reslist An address where the pointer to the new resource
  *                list will be stored.
- * @param pool The pool to use for local storage and management
  * @param min Allowed minimum number of available resources. Zero
  *            creates new resources only when needed.
  * @param smax Resources will be destroyed to meet this maximum
