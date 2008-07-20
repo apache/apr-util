@@ -359,6 +359,8 @@ mc_conn_destruct(void *conn_, void *params, apr_pool_t *pool)
     /* Return values not checked, since we just want to make it go away. */
     apr_socket_sendv(conn->sock, vec, 2, &written);
     apr_socket_close(conn->sock);
+
+    apr_pool_destroy(conn->p);
     
     return APR_SUCCESS;
 }
