@@ -1104,6 +1104,7 @@ static apr_dbd_t *dbd_mysql_open(apr_pool_t *pool, const char *params,
         {"flags", NULL},
         {"fldsz", NULL},
         {"group", NULL},
+        {"reconnect", NULL},
         {NULL, NULL}
     };
     unsigned int port = 0;
@@ -1155,6 +1156,11 @@ static apr_dbd_t *dbd_mysql_open(apr_pool_t *pool, const char *params,
     if (fields[8].value != NULL) {
          mysql_options(sql->conn, MYSQL_READ_DEFAULT_GROUP, fields[8].value);
     }
+#if MYSQL_VERSION_ID >= 50013
+    if (fields[9].value != NULL) {
+         do_reconnect = atoi(fields[9].value) ? 1 : 0;
+    }
+#endif
 
 #if MYSQL_VERSION_ID >= 50013
     /* the MySQL manual says this should be BEFORE mysql_real_connect */
