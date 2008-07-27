@@ -342,6 +342,7 @@ mc_conn_construct(void **conn_, void *params, apr_pool_t *pool)
     return rv;
 }
 
+#if APR_HAS_THREADS
 static apr_status_t
 mc_conn_destruct(void *conn_, void *params, apr_pool_t *pool)
 {
@@ -364,6 +365,7 @@ mc_conn_destruct(void *conn_, void *params, apr_pool_t *pool)
     
     return APR_SUCCESS;
 }
+#endif
 
 APU_DECLARE(apr_status_t) apr_memcache_server_create(apr_pool_t *p, 
                                                      const char *host, apr_port_t port, 
