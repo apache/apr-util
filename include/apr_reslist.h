@@ -28,8 +28,6 @@
 #include "apr_errno.h"
 #include "apr_time.h"
 
-#if APR_HAS_THREADS
-
 /**
  * @defgroup APR_Util_RL Resource List Routines
  * @ingroup APR_Util
@@ -78,6 +76,9 @@ typedef apr_status_t (*apr_reslist_destructor)(void *resource, void *params,
  * @param pool The pool from which to create this resoure list. Also the
  *             same pool that is passed to the constructor and destructor
  *             routines.
+ * @remark If APR has been compiled without thread support, hmax will be
+ *         automatically set to 1 and values of min and smax will be forced to
+ *         1 for any non-zero value.
  */
 APU_DECLARE(apr_status_t) apr_reslist_create(apr_reslist_t **reslist,
                                              int min, int smax, int hmax,
@@ -143,7 +144,5 @@ APU_DECLARE(apr_status_t) apr_reslist_invalidate(apr_reslist_t *reslist,
 #endif
 
 /** @} */
-
-#endif  /* APR_HAS_THREADS */
 
 #endif  /* ! APR_RESLIST_H */

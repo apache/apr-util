@@ -26,6 +26,9 @@ Changes with APR-util 1.4.0
   *) Give MySQL DBD driver reconnect option. PR 45407
      [Bojan Smojver]
 
+  *) Implement resource list when threads are unavailable.
+     [Bojan Smojver]
+
 Changes with APR-util 1.3.0
 
   *) apr_reslist: destroy all resources in apr_cleanup.
