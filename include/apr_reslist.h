@@ -34,6 +34,9 @@
  * @defgroup APR_Util_RL Resource List Routines
  * @ingroup APR_Util
  * @{
+ * @warning
+ * <strong><em>Resource list data types and routines are only available when
+ * threads are enabled (i.e. APR_HAS_THREADS is not zero).</em></strong>
  */
 
 #ifdef __cplusplus
