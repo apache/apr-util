@@ -173,7 +173,7 @@ static apr_status_t reslist_cleanup(void *data_)
  * Perform routine maintenance on the resource list. This call
  * may instantiate new resources or expire old resources.
  */
-static apr_status_t reslist_maint(apr_reslist_t *reslist)
+APU_DECLARE(apr_status_t) apr_reslist_maintain(apr_reslist_t *reslist)
 {
     apr_time_t now;
     apr_status_t rv;
@@ -302,7 +302,7 @@ APU_DECLARE(apr_status_t) apr_reslist_create(apr_reslist_t **reslist,
     }
 #endif
 
-    rv = reslist_maint(rl);
+    rv = apr_reslist_maintain(rl);
     if (rv != APR_SUCCESS) {
         /* Destroy what we've created so far.
          */
@@ -427,7 +427,7 @@ APU_DECLARE(apr_status_t) apr_reslist_release(apr_reslist_t *reslist,
     apr_thread_mutex_unlock(reslist->listlock);
 #endif
 
-    return reslist_maint(reslist);
+    return apr_reslist_maintain(reslist);
 }
 
 APU_DECLARE(void) apr_reslist_timeout_set(apr_reslist_t *reslist,
