@@ -138,6 +138,12 @@ APU_DECLARE(apr_uint32_t) apr_reslist_acquired_count(apr_reslist_t *reslist);
 APU_DECLARE(apr_status_t) apr_reslist_invalidate(apr_reslist_t *reslist,
                                                  void *resource);
 
+/**
+ * Perform routine maintenance on the resource list. This call
+ * may instantiate new resources or expire old resources.
+ * @param reslist The resource list.
+ */
+APU_DECLARE(apr_status_t) apr_reslist_maintain(apr_reslist_t *reslist);
 
 #ifdef __cplusplus
 }
