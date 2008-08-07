@@ -460,3 +460,14 @@ APU_DECLARE(apr_status_t) apr_reslist_invalidate(apr_reslist_t *reslist,
 #endif
     return ret;
 }
+
+APU_DECLARE(void) apr_reslist_cleanup_order_set(apr_reslist_t *rl,
+                                                apr_uint32_t mode)
+{
+    apr_pool_cleanup_kill(rl->pool, rl, reslist_cleanup);
+    if (mode == APR_RESLIST_CLEANUP_FIRST)
+        apr_pool_pre_cleanup_register(rl->pool, rl, reslist_cleanup);
+    else
+        apr_pool_cleanup_register(rl->pool, rl, reslist_cleanup,
+                                  apr_pool_cleanup_null);
+}

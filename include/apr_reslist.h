@@ -59,6 +59,10 @@ typedef apr_status_t (*apr_reslist_constructor)(void **resource, void *params,
 typedef apr_status_t (*apr_reslist_destructor)(void *resource, void *params,
                                                apr_pool_t *pool);
 
+/* Cleanup order modes */
+#define APR_RESLIST_CLEANUP_DEFAULT  0       /**< default pool cleanup */
+#define APR_RESLIST_CLEANUP_FIRST    1       /**< use pool pre cleanup */
+
 /**
  * Create a new resource list with the following parameters:
  * @param reslist An address where the pointer to the new resource
@@ -144,6 +148,22 @@ APU_DECLARE(apr_status_t) apr_reslist_invalidate(apr_reslist_t *reslist,
  * @param reslist The resource list.
  */
 APU_DECLARE(apr_status_t) apr_reslist_maintain(apr_reslist_t *reslist);
+
+/**
+ * Set reslist cleanup order.
+ * @param reslist The resource list.
+ * @param mode Cleanup order mode
+ * <PRE>
+ *           APR_RESLIST_CLEANUP_DEFAULT  default pool cleanup order
+ *           APR_RESLIST_CLEANUP_FIRST    use pool pre cleanup
+ * </PRE>
+ * @remark If APR_RESLIST_CLEANUP_FIRST is used the destructors will
+ * be called before child pools of the pool used to create the reslist
+ * are destroyed. This allows to explicitly destroy the child pools
+ * inside reslist destructors.
+ */
+APU_DECLARE(void) apr_reslist_cleanup_order_set(apr_reslist_t *reslist,
+                                                apr_uint32_t mode);
 
 #ifdef __cplusplus
 }
