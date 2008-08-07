@@ -310,14 +310,8 @@ APU_DECLARE(apr_status_t) apr_reslist_create(apr_reslist_t **reslist,
         return rv;
     }
 
-    /* Register a pool pre_cleanup.
-     * This will ensure that reslist_cleanup is run BEFORE
-     * any of the eventual child pools of this pool.
-     * If an child pool was created inside apr_reslist_destructor,
-     * this child pool can safely call apr_pool_destroy inside
-     * apr_reslist_destructor thus safely detaching himself.
-     */
-    apr_pool_pre_cleanup_register(rl->pool, rl, reslist_cleanup);
+    apr_pool_cleanup_register(rl->pool, rl, reslist_cleanup,
+                              apr_pool_cleanup_null);
 
     *reslist = rl;
 
