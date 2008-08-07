@@ -306,7 +306,7 @@ APU_DECLARE(apr_status_t) apr_reslist_create(apr_reslist_t **reslist,
     if (rv != APR_SUCCESS) {
         /* Destroy what we've created so far.
          */
-        reslist_cleaup(rl);
+        reslist_cleanup(rl);
         return rv;
     }
 
