@@ -452,11 +452,10 @@ APU_DECLARE(apr_status_t) apr_reslist_invalidate(apr_reslist_t *reslist,
                                                  void *resource)
 {
     apr_status_t ret;
-
-    ret = reslist->destructor(resource, reslist->params, reslist->pool);
 #if APR_HAS_THREADS
     apr_thread_mutex_lock(reslist->listlock);
 #endif
+    ret = reslist->destructor(resource, reslist->params, reslist->pool);
     reslist->ntotal--;
 #if APR_HAS_THREADS
     apr_thread_cond_signal(reslist->avail);
