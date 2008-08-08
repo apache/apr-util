@@ -81,6 +81,15 @@ typedef apr_status_t (*apr_reslist_destructor)(void *resource, void *params,
  * @param pool The pool from which to create this resoure list. Also the
  *             same pool that is passed to the constructor and destructor
  *             routines.
+ * @warning If you're creating a sub-pool of the pool passed into this
+ *          function in your constructor, you will need to follow some rules
+ *          when it comes to destruction of that sub-pool, as calling
+ *          apr_pool_destroy() outright on it in your destructor may create
+ *          double free situations. That is because by the time destructor is
+ *          called, the sub-pool may have already been destroyed.  This also
+ *          means that in the destructor, memory from the sub-pool should be
+ *          treated as invalid. For examples of how to do this correctly, see
+ *          mod_dbd of Apache 2.2 and memcache support in APR Util 1.3.
  */
 APU_DECLARE(apr_status_t) apr_reslist_create(apr_reslist_t **reslist,
                                              int min, int smax, int hmax,
