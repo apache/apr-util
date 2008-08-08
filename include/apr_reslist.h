@@ -86,7 +86,7 @@ typedef apr_status_t (*apr_reslist_destructor)(void *resource, void *params,
  *          when it comes to destruction of that sub-pool, as calling
  *          apr_pool_destroy() outright on it in your destructor may create
  *          double free situations. That is because by the time destructor is
- *          called, the sub-pool may have already been destroyed.  This also
+ *          called, the sub-pool may have already been destroyed. This also
  *          means that in the destructor, memory from the sub-pool should be
  *          treated as invalid. For examples of how to do this correctly, see
  *          mod_dbd of Apache 2.2 and memcache support in APR Util 1.3.
