@@ -343,6 +343,9 @@ mc_conn_construct(void **conn_, void *params, apr_pool_t *pool)
 
     if (rv != APR_SUCCESS) {
         apr_pool_destroy(np);
+#if APR_HAS_THREADS
+        free(conn);
+#endif
         return rv;
     }
 
@@ -359,7 +362,9 @@ mc_conn_construct(void **conn_, void *params, apr_pool_t *pool)
     rv = conn_connect(conn);
     if (rv != APR_SUCCESS) {
         apr_pool_destroy(np);
+#if APR_HAS_THREADS
         free(conn);
+#endif
     }
     else {
         apr_pool_cleanup_register(np, conn, conn_clean, apr_pool_cleanup_null);
