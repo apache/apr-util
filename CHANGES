@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
+  *) Fix a segfault in the DBD testcase when the DBD modules were not present.
+     [Graham Leggett]
+
   *) Add DTrace Probes to Hooks, making it easier to inspect APR Hook based
      applications with DTrace. [Theo Schlossnagle <jesus omniti.com>]
 
