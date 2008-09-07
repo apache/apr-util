@@ -103,7 +103,7 @@ apr_status_t apu_dso_init(apr_pool_t *pool)
 }
 
 #if APR_HAS_DSO
-apr_status_t apu_dso_load(apr_dso_handle_sym_t *dsoptr, const char *module,
+apr_status_t apu_dso_load(apr_dso_handle_t **dlhandleptr, apr_dso_handle_sym_t *dsoptr, const char *module,
                           const char *modsym, apr_pool_t *pool)
 {
 #if !APU_DSO_BUILD
@@ -159,6 +159,9 @@ apr_status_t apu_dso_load(apr_dso_handle_sym_t *dsoptr, const char *module,
         apr_cpystrn(eos, module, sizeof(path) - (eos - path));
 
         rv = apr_dso_load(&dlhandle, path, global);
+        if (dlhandleptr) {
+            *dlhandleptr = dlhandle;
+        }
         if (rv == APR_SUCCESS) { /* APR_EDSOOPEN */
             break;
         }
@@ -175,6 +178,9 @@ apr_status_t apu_dso_load(apr_dso_handle_sym_t *dsoptr, const char *module,
             apr_cpystrn(eos, module, sizeof(path) - (eos - path));
 
             rv = apr_dso_load(&dlhandle, path, global);
+            if (dlhandleptr) {
+                *dlhandleptr = dlhandle;
+            }
             if (rv == APR_SUCCESS) { /* APR_EDSOOPEN */
                 break;
             }
