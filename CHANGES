@@ -1,6 +1,11 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
+  *) Expose the apr_dso_handle_t when calling apu_dso_load, so that the
+     crypto code can call apr_dso_error and find out why the dso load
+     failed. The existing LDAP and DBD code ignores this, as their APIs
+     do not yet allow for errors to be returned. [Graham Leggett]
+
   *) Fix a segfault in the DBD testcase when the DBD modules were not present.
      [Graham Leggett]
 
