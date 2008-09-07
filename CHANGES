@@ -1,6 +1,13 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
+  *) Add the apr_crypto interface, a rewrite of the earlier apr_ssl code,
+     based on the modular dso interface used for dbd and ldap. Initially,
+     the interface supports symmetrical encryption and decryption. The
+     purpose of the interface is to offer portable and interoperable
+     access to basic crypto using the native crypto libraries present on
+     each platform. [Graham Leggett]
+
   *) Expose the apr_dso_handle_t when calling apu_dso_load, so that the
      crypto code can call apr_dso_error and find out why the dso load
      failed. The existing LDAP and DBD code ignores this, as their APIs
