@@ -1,6 +1,11 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
+  *) Add apr_crypto implementations for OpenSSL and Mozilla NSS. Add a unit
+     test to verify the interoperability of the two modules. Builds default
+     to disabled unless explicitly enabled.
+     [Graham Leggett]
+
   *) Add the apr_crypto interface, a rewrite of the earlier apr_ssl code,
      based on the modular dso interface used for dbd and ldap. Initially,
      the interface supports symmetrical encryption and decryption. The
