@@ -38,6 +38,8 @@ LDADD_dbd_mysql = @LDADD_dbd_mysql@
 LDADD_dbd_freetds = @LDADD_dbd_freetds@
 LDADD_dbd_odbc = @LDADD_dbd_odbc@
 LDADD_ldap = @LDADD_ldap@
+LDADD_crypto_openssl = @LDADD_crypto_openssl@
+LDADD_crypto_nss = @LDADD_crypto_nss@
 
 TARGETS = $(TARGET_LIB) aprutil.exp apu-config.out $(APU_MODULES)
 
