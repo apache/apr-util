@@ -39,9 +39,7 @@ AC_DEFUN([APU_CHECK_CRYPTO], [
       apu_have_crypto=0
   ])
 
-  if test "$apu_have_crypto" = "1"; then
-    AC_DEFINE([APU_HAVE_CRYPTO], 1, [Define that we have crypto capability])
-  fi
+  AC_SUBST(apu_have_crypto)
 
 ])
 dnl
@@ -108,7 +106,6 @@ AC_DEFUN([APU_CHECK_CRYPTO_OPENSSL], [
   if test "$apu_have_openssl" = "1"; then
     LDADD_crypto_openssl="$openssl_LDFLAGS -lssl -lcrypto"
     apu_have_crypto=1
-    AC_DEFINE([APU_HAVE_CRYPTO], 1, [Define that we have crypto capability])
 
     AC_MSG_CHECKING([for const input buffers in OpenSSL])
     AC_TRY_COMPILE([#include <openssl/rsa.h>],
@@ -129,6 +126,7 @@ AC_DEFUN([APU_CHECK_CRYPTO_OPENSSL], [
 
   fi  
   AC_SUBST(LDADD_crypto_openssl)
+  AC_SUBST(apu_have_crypto)
 
   LIBS="$old_libs"
   CPPFLAGS="$old_cppflags"
@@ -194,9 +192,9 @@ AC_DEFUN([APU_CHECK_CRYPTO_NSS], [
   if test "$apu_have_nss" = "1"; then
     LDADD_crypto_nss="$nss_LDFLAGS -lnspr4 -lnss3"
     apu_have_crypto=1
-    AC_DEFINE([APU_HAVE_CRYPTO], 1, [Define that we have crypto capability])
   fi
   AC_SUBST(LDADD_crypto_nss)
+  AC_SUBST(apu_have_crypto)
 
   LIBS="$old_libs"
   CPPFLAGS="$old_cppflags"
