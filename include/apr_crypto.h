@@ -20,7 +20,6 @@
 #include "apu.h"
 #include "apr_pools.h"
 #include "apr_tables.h"
-#include "apu_config.h"
 #include "apu_errno.h"
 
 #ifdef __cplusplus
