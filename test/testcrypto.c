@@ -176,7 +176,7 @@ static unsigned char *encrypt_block(abts_case *tc, apr_pool_t *pool,
     }
 
     /* encrypt the block */
-    rv = apr_crypto_block_encrypt(driver, block, cipherText + len,
+    rv = apr_crypto_block_encrypt(driver, block, cipherText,
             cipherTextLen, in, inlen);
     if (APR_SUCCESS != rv) {
         fprintf(stderr, "encrypt: %s %s native error %d: %s (%s)\n",
