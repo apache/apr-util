@@ -218,7 +218,12 @@ static int dbd_pgsql_select(apr_pool_t *pool, apr_dbd_t *sql,
 
 static const char *dbd_pgsql_get_name(const apr_dbd_results_t *res, int n)
 {
-    return (res->res ? PQfname(res->res, n) : NULL);
+    if (res->res) {
+        if ((n>=0) && (PQnfields(res->res) > n)) {
+            return PQfname(res->res,n);
+        }
+    }
+    return NULL;
 }
 
 static int dbd_pgsql_get_row(apr_pool_t *pool, apr_dbd_results_t *res,
