@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
+  *) Suppress pgsql column-out-of-range warning.
+     PR 46012 [Michiel van Loon <michiel van-loon.xs4all.nl>]
+
   *) Move APU_HAVE_CRYPTO from private apu_config.h to public apu.h.
      [Ruediger Pluem, Graham Leggett]
 
