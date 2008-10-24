@@ -808,6 +808,11 @@ static apr_status_t odbc_parse_params(apr_pool_t *pool, const char *params,
     *nattrs = 0;
     seps = DEFAULTSEPS;
     name[nparams] = apr_strtok(apr_pstrdup(pool, params), seps, &last);
+
+    /* no params is OK here - let connect return a more useful error msg */
+    if (!name[nparams])
+        return SQL_SUCCESS;
+
     do {
         if (last[strspn(last, seps)] == CSINGLEQUOTE) {
             last += strspn(last, seps);
@@ -899,8 +904,11 @@ static void check_error(apr_dbd_t *dbc, const char *step, SQLRETURN rc,
         default                     : { res = "unrecognized SQL return code"; }
     }
     /* these two returns are expected during normal execution */
-    if (rc != SQL_SUCCESS_WITH_INFO && rc != SQL_NO_DATA)
-        dbc->can_commit = 0;
+    if (rc != SQL_SUCCESS_WITH_INFO && rc != SQL_NO_DATA 
+        && dbc->can_commit != APR_DBD_TRANSACTION_IGNORE_ERRORS)
+    {
+        dbc->can_commit = APR_DBD_TRANSACTION_ROLLBACK;
+    }
     p = dbc->lastError;
     end = p + sizeof(dbc->lastError);
     dbc->lasterrorcode = rc;
@@ -923,6 +931,15 @@ static void check_error(apr_dbd_t *dbc, const char *step, SQLRETURN rc,
     }
 }
 
+static APR_INLINE int odbc_check_rollback(apr_dbd_t *handle)
+{
+    if (handle->can_commit == APR_DBD_TRANSACTION_ROLLBACK) {
+        handle->lasterrorcode = SQL_ERROR;
+        strcpy(handle->lastError, "[dbd_odbc] Rollback pending ");
+        return 1;
+    }
+    return 0;
+}
 /*
 *   public functions per DBD driver API
 */
@@ -1043,6 +1060,7 @@ static apr_dbd_t* odbc_open(apr_pool_t *pool, const char *params, const char **e
         handle->defaultBufferSize = defaultBufferSize;
         CHECK_ERROR(handle, "SQLConnect", rc, SQL_HANDLE_DBC, handle->dbc);
         handle->default_transaction_mode = 0;
+        handle->can_commit = APR_DBD_TRANSACTION_IGNORE_ERRORS;
         SQLGetInfo(hdbc, SQL_DEFAULT_TXN_ISOLATION,
                    &(handle->default_transaction_mode), sizeof(int), NULL);
         handle->transaction_mode = handle->default_transaction_mode;
@@ -1117,8 +1135,8 @@ static int odbc_start_transaction(apr_pool_t *pool, apr_dbd_t *handle,
         *trans = apr_palloc(pool, sizeof(apr_dbd_transaction_t));
         (*trans)->dbc = handle->dbc;
         (*trans)->apr_dbd = handle;
-        handle->can_commit = 1;
     }
+    handle->can_commit = APR_DBD_TRANSACTION_COMMIT;
     return APR_FROM_SQL_RESULT(rc);
 };
 
@@ -1127,8 +1145,10 @@ static int odbc_start_transaction(apr_pool_t *pool, apr_dbd_t *handle,
 static int odbc_end_transaction(apr_dbd_transaction_t *trans)
 {
     SQLRETURN rc;
+    int action = (trans->apr_dbd->can_commit != APR_DBD_TRANSACTION_ROLLBACK) 
+        ? SQL_COMMIT : SQL_ROLLBACK;
 
-    rc = SQLEndTran(SQL_HANDLE_DBC, trans->dbc, SQL_COMMIT);
+    rc = SQLEndTran(SQL_HANDLE_DBC, trans->dbc, action);
     CHECK_ERROR(trans->apr_dbd, "SQLEndTran", rc, SQL_HANDLE_DBC, trans->dbc);
     if SQL_SUCCEEDED(rc) {
         rc = SQLSetConnectAttr(trans->dbc, SQL_ATTR_AUTOCOMMIT,
@@ -1136,6 +1156,7 @@ static int odbc_end_transaction(apr_dbd_transaction_t *trans)
         CHECK_ERROR(trans->apr_dbd, "SQLSetConnectAttr (SQL_ATTR_AUTOCOMMIT)",
                     rc, SQL_HANDLE_DBC, trans->dbc);
     }
+    trans->apr_dbd->can_commit = APR_DBD_TRANSACTION_IGNORE_ERRORS;
     return APR_FROM_SQL_RESULT(rc);
 }
 
@@ -1145,6 +1166,9 @@ static int odbc_query(apr_dbd_t *handle, int *nrows, const char *statement)
     SQLRETURN rc;
     SQLHANDLE hstmt = NULL;
     size_t len = strlen(statement);
+
+    if (odbc_check_rollback(handle))
+        return APR_EGENERAL;
 
     rc = SQLAllocHandle(SQL_HANDLE_STMT, handle->dbc, &hstmt);
     CHECK_ERROR(handle, "SQLAllocHandle (STMT)", rc, SQL_HANDLE_DBC,
@@ -1173,6 +1197,9 @@ static int odbc_select(apr_pool_t *pool, apr_dbd_t *handle,
     SQLHANDLE hstmt;
     apr_dbd_prepared_t *stmt;
     size_t len = strlen(statement);
+
+    if (odbc_check_rollback(handle))
+        return APR_EGENERAL;
 
     rc = SQLAllocHandle(SQL_HANDLE_STMT, handle->dbc, &hstmt);
     CHECK_ERROR(handle, "SQLAllocHandle (STMT)", rc, SQL_HANDLE_DBC,
@@ -1357,6 +1384,9 @@ static int odbc_prepare(apr_pool_t * pool, apr_dbd_t * handle,
     SQLRETURN rc;
     size_t len = strlen(query);
 
+    if (odbc_check_rollback(handle))
+        return APR_EGENERAL;
+
     *statement = apr_pcalloc(pool, sizeof(apr_dbd_prepared_t));
     (*statement)->dbc = handle->dbc;
     (*statement)->apr_dbd = handle;
@@ -1381,6 +1411,9 @@ static int odbc_pquery(apr_pool_t * pool, apr_dbd_t * handle, int *nrows,
 {
     SQLRETURN rc = SQL_SUCCESS;
     int i, argp;
+
+    if (odbc_check_rollback(handle))
+        return APR_EGENERAL;
 
     for (i = argp = 0; i < statement->nargs && SQL_SUCCEEDED(rc); i++) {
         rc = odbc_bind_param(pool, statement, i + 1, statement->types[i],
@@ -1418,6 +1451,9 @@ int odbc_pselect(apr_pool_t * pool, apr_dbd_t * handle,
 {
     SQLRETURN rc = SQL_SUCCESS;
     int i, argp;
+
+    if (odbc_check_rollback(handle))
+        return APR_EGENERAL;
 
     if (random) {
         rc = SQLSetStmtAttr(statement->stmt, SQL_ATTR_CURSOR_SCROLLABLE,
@@ -1482,26 +1518,21 @@ static const char *odbc_get_name(const apr_dbd_results_t * res, int col)
 /** transaction_mode_get: get the mode of transaction **/
 static int odbc_transaction_mode_get(apr_dbd_transaction_t * trans)
 {
-    return (int) trans->apr_dbd->transaction_mode;
+    return (int) trans->apr_dbd->can_commit;
 }
 
 /** transaction_mode_set: set the mode of transaction **/
 static int odbc_transaction_mode_set(apr_dbd_transaction_t * trans, int mode)
 {
-    SQLRETURN rc;
-
-    int legal = (SQL_TXN_READ_UNCOMMITTED | SQL_TXN_READ_COMMITTED
-                 | SQL_TXN_REPEATABLE_READ | SQL_TXN_SERIALIZABLE);
+    int legal = (  APR_DBD_TRANSACTION_IGNORE_ERRORS
+                 | APR_DBD_TRANSACTION_COMMIT
+                 | APR_DBD_TRANSACTION_ROLLBACK);
 
     if ((mode & legal) != mode)
         return APR_EGENERAL;
 
-    trans->apr_dbd->transaction_mode = mode;
-    rc = SQLSetConnectAttr(trans->dbc, SQL_ATTR_TXN_ISOLATION, 
-                           (void *) mode, 0);
-    CHECK_ERROR(trans->apr_dbd, "SQLSetConnectAttr (SQL_ATTR_TXN_ISOLATION)",
-                rc, SQL_HANDLE_DBC, trans->dbc);
-    return APR_FROM_SQL_RESULT(rc);
+    trans->apr_dbd->can_commit = mode;
+    return APR_SUCCESS;
 }
 
 /** pbquery: query using a prepared statement + binary args **/
@@ -1510,6 +1541,9 @@ static int odbc_pbquery(apr_pool_t * pool, apr_dbd_t * handle, int *nrows,
 {
     SQLRETURN rc = SQL_SUCCESS;
     int i, argp;
+
+    if (odbc_check_rollback(handle))
+        return APR_EGENERAL;
 
     for (i = argp = 0; i < statement->nargs && SQL_SUCCEEDED(rc); i++)
         rc = odbc_bind_param(pool, statement, i + 1, statement->types[i],
@@ -1536,6 +1570,9 @@ static int odbc_pbselect(apr_pool_t * pool, apr_dbd_t * handle,
 {
     SQLRETURN rc = SQL_SUCCESS;
     int i, argp;
+
+    if (odbc_check_rollback(handle))
+        return APR_EGENERAL;
 
     if (random) {
         rc = SQLSetStmtAttr(statement->stmt, SQL_ATTR_CURSOR_SCROLLABLE,
