@@ -362,31 +362,34 @@ APU_DECLARE(apr_status_t) apr_thread_pool_create(apr_thread_pool_t ** me,
 {
     apr_thread_t *t;
     apr_status_t rv = APR_SUCCESS;
+    apr_thread_pool_t *tp;
 
-    *me = apr_pcalloc(pool, sizeof(**me));
-    if (!*me) {
-        return APR_ENOMEM;
-    }
+    *me = NULL;
+    tp = apr_pcalloc(pool, sizeof(apr_thread_pool_t));
 
-    (*me)->pool = pool;
+    tp->pool = pool;
 
-    rv = thread_pool_construct(*me, init_threads, max_threads);
+    rv = thread_pool_construct(tp, init_threads, max_threads);
     if (APR_SUCCESS != rv) {
-        *me = NULL;
         return rv;
     }
-    apr_pool_cleanup_register(pool, *me, thread_pool_cleanup,
+    apr_pool_cleanup_register(pool, tp, thread_pool_cleanup,
                               apr_pool_cleanup_null);
 
     while (init_threads) {
-        rv = apr_thread_create(&t, NULL, thread_pool_func, *me, (*me)->pool);
+        rv = apr_thread_create(&t, NULL, thread_pool_func, tp, tp->pool);
         if (APR_SUCCESS != rv) {
             break;
         }
-        ++(*me)->thd_cnt;
-        if ((*me)->thd_cnt > (*me)->thd_high)
-            (*me)->thd_high = (*me)->thd_cnt;
+        tp->thd_cnt++;
+        if (tp->thd_cnt > tp->thd_high) {
+            tp->thd_high = tp->thd_cnt;
+        }
         --init_threads;
+    }
+
+    if (rv == APR_SUCCESS) {
+        *me = tp;
     }
 
     return rv;
