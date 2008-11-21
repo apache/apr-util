@@ -24,7 +24,10 @@ AC_DEFUN([APU_CHECK_UTIL_DSO], [
      APR_HELP_STRING([--disable-util-dso],
        [disable DSO build of modular components (dbd, ldap)]))
 
-  if test "$enable_util_dso" = "no"; then
+  apr_h=`$apr_config --includedir`/apr.h
+  aprdso=`awk '/^#define APR_HAS_DSO/ { print @S|@3; }' $apr_h`
+
+  if test "$enable_util_dso" = "no" || "$aprdso" = "0"; then
      # Statically link the DBD drivers:
 
      objs=
