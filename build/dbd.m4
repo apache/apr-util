@@ -520,4 +520,14 @@ AC_DEFUN([APU_CHECK_DBD_ODBC], [
   LIBS="$old_libs"
   CPPFLAGS="$old_cppflags"
   LDFLAGS="$old_ldflags"
+
+  apu_dbd_tests=""
+  test $apu_have_oracle = 1 &&  apu_dbd_tests="$apu_dbd_tests oracle"
+  test $apu_have_pgsql = 1 &&   apu_dbd_tests="$apu_dbd_tests pgsql"
+  test $apu_have_mysql = 1 &&   apu_dbd_tests="$apu_dbd_tests mysql"
+  test $apu_have_sqlite2 = 1 && apu_dbd_tests="$apu_dbd_tests sqlite2"
+  test $apu_have_sqlite3 = 1 && apu_dbd_tests="$apu_dbd_tests sqlite3"
+  test $apu_have_freetds = 1 && apu_dbd_tests="$apu_dbd_tests freetds"
+  test $apu_have_odbc = 1 &&    apu_dbd_tests="$apu_dbd_tests odbc"
+  AC_SUBST(apu_dbd_tests)
 ])
