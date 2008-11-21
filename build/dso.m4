@@ -28,6 +28,7 @@ AC_DEFUN([APU_CHECK_UTIL_DSO], [
   aprdso=`awk '/^#define APR_HAS_DSO/ { print @S|@3; }' $apr_h`
 
   if test "$enable_util_dso" = "no" || "$aprdso" = "0"; then
+     # Statically link the DBD drivers:
 
      objs=
      test $apu_have_openssl = 1 && objs="$objs crypto/apr_crypto_openssl.lo"
