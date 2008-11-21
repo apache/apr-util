@@ -110,13 +110,11 @@ struct apr_dbm_t
 
 /* Declare all of the builtin DBM providers */
 APU_DECLARE_DATA extern const apr_dbm_type_t apr_dbm_type_sdbm;
+#ifndef DSO_BUILD
 APU_DECLARE_DATA extern const apr_dbm_type_t apr_dbm_type_gdbm;
 APU_DECLARE_DATA extern const apr_dbm_type_t apr_dbm_type_ndbm;
-APU_DECLARE_DATA extern const apr_dbm_type_t apr_dbm_type_db1;
-APU_DECLARE_DATA extern const apr_dbm_type_t apr_dbm_type_db2;
-APU_DECLARE_DATA extern const apr_dbm_type_t apr_dbm_type_db3;
-APU_DECLARE_DATA extern const apr_dbm_type_t apr_dbm_type_db4;
 APU_DECLARE_DATA extern const apr_dbm_type_t apr_dbm_type_db;
+#endif
 
 #ifdef __cplusplus
 }
