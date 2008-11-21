@@ -1,6 +1,10 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.3.5
 
+  *) Introduce DSO handling of the db, gdbm and ndbm drivers, so these are
+     loaded as .so's on first demand, unless --disable-util-dso is configured.
+     [William Rowe]
+
   *) Fix a segfault in the DBD testcase when the DBD modules were not present.
      [Graham Leggett]
 
