@@ -31,14 +31,14 @@
 #include "apu_internal.h"
 #include "apu_version.h"
 
+#if APU_DSO_BUILD
 
 #if APR_HAS_THREADS
 static apr_thread_mutex_t* mutex = NULL;
 #endif
 static apr_hash_t *dsos = NULL;
 
-
-#if APR_HAS_THREADS && APU_DSO_BUILD
+#if APR_HAS_THREADS
 apr_status_t apu_dso_mutex_lock()
 {
     return apr_thread_mutex_lock(mutex);
@@ -55,9 +55,6 @@ apr_status_t apu_dso_mutex_unlock() {
     return APR_SUCCESS;
 }
 #endif
-
-#define CLEANUP_CAST (apr_status_t (*)(void*))
-
 
 static apr_status_t apu_dso_term(void *ptr)
 {
@@ -76,7 +73,6 @@ static apr_status_t apu_dso_term(void *ptr)
 apr_status_t apu_dso_init(apr_pool_t *pool)
 {
     apr_status_t ret = APR_SUCCESS;
-#if APU_DSO_BUILD
     apr_pool_t *global;
     apr_pool_t *parent;
 
@@ -98,17 +94,14 @@ apr_status_t apu_dso_init(apr_pool_t *pool)
     apr_pool_cleanup_register(global, NULL, apu_dso_term,
                               apr_pool_cleanup_null);
 
-#endif /* APU_DSO_BUILD */
     return ret;
 }
 
-#if APR_HAS_DSO
-apr_status_t apu_dso_load(apr_dso_handle_sym_t *dsoptr, const char *module,
-                          const char *modsym, apr_pool_t *pool)
+apr_status_t apu_dso_load(apr_dso_handle_sym_t *dsoptr,
+                          const char *module,
+                          const char *modsym,
+                          apr_pool_t *pool)
 {
-#if !APU_DSO_BUILD
-    return APR_ENOTIMPL;
-#else
     apr_dso_handle_t *dlhandle = NULL;
     char *pathlist;
     char path[APR_PATH_MAX + 1];
@@ -193,7 +186,7 @@ apr_status_t apu_dso_load(apr_dso_handle_sym_t *dsoptr, const char *module,
         apr_hash_set(dsos, module, APR_HASH_KEY_STRING, *dsoptr);
     }
     return rv;
-#endif /* APU_DSO_BUILD */
 }
-#endif /* APR_HAS_DSO */
+
+#endif /* APU_DSO_BUILD */
 
