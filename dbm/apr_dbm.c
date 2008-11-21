@@ -51,7 +51,7 @@
 #error a DBM implementation was not specified
 #endif
 
-#ifdef APU_DSO_BUILD
+#if APU_DSO_BUILD
 
 static apr_hash_t *drivers = NULL;
 
@@ -72,7 +72,7 @@ static apr_status_t dbm_open_type(apr_dbm_type_t const* * vtable,
                                   const char *type, 
                                   apr_pool_t *pool)
 {
-#ifndef APU_DSO_BUILD
+#if !APU_DSO_BUILD
 
     *vtable = NULL;
     if (!strcasecmp(type, "default"))     *vtable = &DBM_VTABLE;
