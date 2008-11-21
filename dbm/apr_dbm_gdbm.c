@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "apu_config.h"
 #include "apu.h"
 #include "apr_strings.h"
 

@@ -15,6 +15,8 @@
  */
 
 #include "apr.h"
+#include "apr_dso.h"
+#include "apr_hash.h"
 #include "apr_errno.h"
 #include "apr_pools.h"
 #include "apr_strings.h"
@@ -23,7 +25,10 @@
 #include "apr_want.h"
 #include "apr_general.h"
 
+#include "apu_config.h"
 #include "apu.h"
+#include "apu_internal.h"
+#include "apu_version.h"
 #include "apr_dbm_private.h"
 #include "apu_select_dbm.h"
 #include "apr_dbm.h"
@@ -55,7 +60,7 @@
 
 static apr_hash_t *drivers = NULL;
 
-static apr_status_t apr_dbd_term(void *ptr)
+static apr_status_t dbm_term(void *ptr)
 {
     /* set drivers to NULL so init can work again */
     drivers = NULL;
@@ -81,13 +86,13 @@ static apr_status_t dbm_open_type(apr_dbm_type_t const* * vtable,
 #endif
     else if (*type && !strcasecmp(type + 1, "dbm")) {
 #if APU_HAVE_GDBM
-        if (*type == 'G' && *type == 'g') *vtable = &apr_dbm_type_gdbm;
+        if (*type == 'G' || *type == 'g') *vtable = &apr_dbm_type_gdbm;
 #endif
 #if APU_HAVE_NDBM
-        if (*type == 'N' && *type == 'n') *vtable = &apr_dbm_type_ndbm;
+        if (*type == 'N' || *type == 'n') *vtable = &apr_dbm_type_ndbm;
 #endif
 #if APU_HAVE_SDBM
-        if (*type == 'S' && *type == 's') *vtable = &apr_dbm_type_sdbm;
+        if (*type == 'S' || *type == 's') *vtable = &apr_dbm_type_sdbm;
 #endif
         /* avoid empty block */ ;
     }
@@ -106,34 +111,33 @@ static apr_status_t dbm_open_type(apr_dbm_type_t const* * vtable,
     if (!strcasecmp(type, "default"))        type = DBM_NAME;
     else if (!strcasecmp(type, "db"))        type = "db";
     else if (*type && !strcasecmp(type + 1, "dbm")) {
-        if      (type == 'G' || type == 'g') type = "gdbm"; 
-        else if (type == 'N' || type == 'n') type = "ndbm"; 
-        else if (type == 'S' || type == 's') type = "sdbm"; 
+        if      (*type == 'G' || *type == 'g') type = "gdbm"; 
+        else if (*type == 'N' || *type == 'n') type = "ndbm"; 
+        else if (*type == 'S' || *type == 's') type = "sdbm"; 
     }
     else usertype = 1;
 
     if (!drivers)
     {
-        apr_pool_t *ppool = pool;
         apr_pool_t *parent;
 
         /* Top level pool scope, need process-scope lifetime */
-        for (parent = pool;  parent; parent = apr_pool_parent_get(ppool))
-             ppool = parent;
+        for (parent = pool;  parent; parent = apr_pool_parent_get(pool))
+             pool = parent;
 
         /* deprecate in 2.0 - permit implicit initialization */
-        apu_dso_init(ppool);
+        apu_dso_init(pool);
 
-        drivers = apr_hash_make(ppool);
+        drivers = apr_hash_make(pool);
         apr_hash_set(drivers, "sdbm", APR_HASH_KEY_STRING, &apr_dbm_type_sdbm);
 
-        apr_pool_cleanup_register(ppool, NULL, dbm_term,
+        apr_pool_cleanup_register(pool, NULL, dbm_term,
                                   apr_pool_cleanup_null);
     }
 
     rv = apu_dso_mutex_lock();
     if (rv) {
-        *vtable = NULL
+        *vtable = NULL;
         return rv;
     }
 
@@ -159,11 +163,12 @@ static apr_status_t dbm_open_type(apr_dbm_type_t const* * vtable,
     apr_snprintf(symname, sizeof(symname), "apr_dbm_type_%s", type);
 
     rv = apu_dso_load(&symbol, modname, symname, pool);
-    if (rv != APR_SUCCESS || rv == APR_EINIT) { /* previously loaded?!? */
+    if (rv == APR_SUCCESS || rv == APR_EINIT) { /* previously loaded?!? */
         *vtable = symbol;
         if (usertype)
             type = apr_pstrdup(pool, type);
         apr_hash_set(drivers, type, APR_HASH_KEY_STRING, *vtable);
+        rv = APR_SUCCESS;
     }
     else
         *vtable = NULL;

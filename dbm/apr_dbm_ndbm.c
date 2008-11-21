@@ -20,6 +20,7 @@
 #include <stdlib.h>     /* for free() */
 #endif
 
+#include "apu_config.h"
 #include "apu.h"
 
 #if APU_HAVE_NDBM
