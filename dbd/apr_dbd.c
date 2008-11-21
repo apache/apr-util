@@ -101,6 +101,7 @@ APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool)
     /* deprecate in 2.0 - permit implicit initialization */
     apu_dso_init(pool);
 #endif
+
     drivers = apr_hash_make(pool);
 
 #if APR_HAS_THREADS
@@ -109,6 +110,7 @@ APU_DECLARE(apr_status_t) apr_dbd_init(apr_pool_t *pool)
 #endif
 
 #if !APU_DSO_BUILD
+
     /* Load statically-linked drivers: */
 #if APU_HAVE_MYSQL
     DRIVER_LOAD("mysql", apr_dbd_mysql_driver, pool);
@@ -182,17 +184,15 @@ APU_DECLARE(apr_status_t) apr_dbd_get_driver(apr_pool_t *pool, const char *name,
 #endif
     apr_snprintf(symname, sizeof(symname), "apr_dbd_%s_driver", name);
     rv = apu_dso_load(&symbol, modname, symname, pool);
-    if (rv != APR_SUCCESS) { /* APR_EDSOOPEN or APR_ESYMNOTFOUND? */
-        if (rv == APR_EINIT) { /* previously loaded?!? */
-            name = apr_pstrdup(pool, name);
-            apr_hash_set(drivers, name, APR_HASH_KEY_STRING, *driver);
-            rv = APR_SUCCESS;
+    if (rv == APR_SUCCESS || rv == APR_EINIT) { /* previously loaded?!? */
+        *driver = symbol;
+        name = apr_pstrdup(pool, name);
+        apr_hash_set(drivers, name, APR_HASH_KEY_STRING, *driver);
+        rv = APR_SUCCESS;
+        if ((*driver)->init) {
+            (*driver)->init(pool);
         }
         goto unlock;
-    }
-    *driver = symbol;
-    if ((*driver)->init) {
-        (*driver)->init(pool);
     }
     name = apr_pstrdup(pool, name);
     apr_hash_set(drivers, name, APR_HASH_KEY_STRING, *driver);
