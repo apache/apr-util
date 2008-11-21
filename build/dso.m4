@@ -24,8 +24,10 @@ AC_DEFUN([APU_CHECK_UTIL_DSO], [
      APR_HELP_STRING([--disable-util-dso],
        [disable DSO build of modular components (crypto, dbd, ldap)]))
 
-  if test "$enable_util_dso" = "no"; then
-     # Statically link the DBD drivers:
+  apr_h=`$apr_config --includedir`/apr.h
+  aprdso=`awk '/^#define APR_HAS_DSO/ { print @S|@3; }' $apr_h`
+
+  if test "$enable_util_dso" = "no" || "$aprdso" = "0"; then
 
      objs=
      test $apu_have_openssl = 1 && objs="$objs crypto/apr_crypto_openssl.lo"
