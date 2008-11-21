@@ -25,6 +25,7 @@
 #include <stdlib.h> /* for abort() */
 #endif
 
+#include "apu_config.h"
 #include "apu.h"
 
 #if APU_HAVE_DB 
