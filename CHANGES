@@ -1,4 +1,4 @@
-﻿                                                     -*- coding: utf-8 -*-
+                                                     -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
   *) Suppress pgsql column-out-of-range warning.
