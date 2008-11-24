@@ -3,46 +3,45 @@
 #
 
 SUBDIRS = \
-	ldap \
-	xml \
-	$(EOLIST) 
-
-ifdef WITH_APR_DBD
-SUBDIRS += \
-	dbd \
-	$(EOLIST) 
-endif
-
-ifdef WITH_APR_DBM
-SUBDIRS += \
-	dbm \
-	$(EOLIST) 
-endif
+	$(EOLIST)
 
 #
 # Get the 'head' of the build environment.  This includes default targets and
 # paths to tools
 #
 
+ifndef EnvironmentDefined
 include $(APR_WORK)\build\NWGNUhead.inc
+endif
+
+#include $(APR)\build\NWGNUcustom.inc
+
+#
+# build this level's files
 
 #
 # Make sure all needed macro's are defined
 #
+
+# LINK_STATIC = 1
+
+# for now defined here - should finally go into build/NWGNUenvironment.inc
+GDBM_INC = $(GDBMSDK)/inc
+GDBM_IMP = $(GDBMSDK)/imp/libgdbm.imp
+GDBM_LIB = $(GDBMSDK)/lib/libgdbm.lib
+GDBM_NLM = libgdbm
 
 #
 # These directories will be at the beginning of the include list, followed by
 # INCDIRS
 #
 XINCDIRS	+= \
+			$(APR)/include/arch/netware \
 			$(APR)/include \
-			$(APR)/include/arch/NetWare \
 			$(APRUTIL)/include \
-			$(APRUTIL)/uri \
-			$(APRUTIL)/dbm/sdbm \
 			$(APRUTIL)/include/private \
-			$(APRUTIL)/xml/expat/lib \
-			$(LDAPSDK)/inc \
+			$(APR) \
+			$(GDBM_INC) \
 			$(EOLIST)
 
 #
@@ -55,6 +54,8 @@ XCFLAGS		+= \
 # These defines will come after DEFINES
 #
 XDEFINES	+= \
+			-DAPU_DSO_MODULE_BUILD \
+			-DAPU_HAVE_GDBM=1 \
 			$(EOLIST)
 
 #
@@ -62,6 +63,12 @@ XDEFINES	+= \
 #
 XLFLAGS		+= \
 			$(EOLIST)
+
+ifdef LINK_STATIC
+XLFLAGS		+= \
+			-l $(GDBMSDK)/lib \
+			$(EOLIST)
+endif
 
 #
 # These values will be appended to the correct variables based on the value of
@@ -114,39 +121,41 @@ endif
 # This is used by the link 'name' directive to name the nlm.  If left blank
 # TARGET_nlm (see below) will be used.
 #
-NLM_NAME		= 
+NLM_NAME	= dbmgdbm
 
 #
-# This is used by the link '-desc ' directive. 
+# This is used by the link '-desc ' directive.
 # If left blank, NLM_NAME will be used.
 #
-NLM_DESCRIPTION	= 
+NLM_DESCRIPTION	= Apache Portability Runtime Library $(VERSION_STR) GDBM Driver Module
 
 #
 # This is used by the '-threadname' directive.  If left blank,
 # NLM_NAME Thread will be used.
 #
-NLM_THREAD_NAME	= 
+NLM_THREAD_NAME	= dbmgdbm
+
 #
-# If this is specified, it will override VERSION value in 
-# $(APR_WORK)\build\NWGNUenvironment.inc
+# If this is specified, it will override VERSION value in
+# $(AP_WORK)\build\NWGNUenvironment.inc
 #
-NLM_VERSION		=
+NLM_VERSION	=
 
 #
 # If this is specified, it will override the default of 64K
 #
-NLM_STACK_SIZE	= 
+NLM_STACK_SIZE	= 8192
+
 
 #
 # If this is specified it will be used by the link '-entry' directive
 #
-NLM_ENTRY_SYM	= 
+NLM_ENTRY_SYM	= _LibCPrelude
 
 #
 # If this is specified it will be used by the link '-exit' directive
 #
-NLM_EXIT_SYM	= 
+NLM_EXIT_SYM	= _LibCPostlude
 
 #
 # If this is specified it will be used by the link '-check' directive
@@ -154,32 +163,28 @@ NLM_EXIT_SYM	=
 NLM_CHECK_SYM	=
 
 #
-# If this is specified it will be used by the link '-flags' directive
+# If these are specified it will be used by the link '-flags' directive
 #
-NLM_FLAGS		=
+NLM_FLAGS	= AUTOUNLOAD, PSEUDOPREEMPTION
 
 #
-# If this is specified it will be linked in with the XDCData option in the def 
-# file instead of the default of $(APR)/misc/netware/apache.xdc.  XDCData can 
-# be disabled by setting APACHE_UNIPROC in the environment
+# If this is specified it will be linked in with the XDCData option in the def
+# file instead of the default of $(NWOS)/apache.xdc.  XDCData can be disabled
+# by setting APACHE_UNIPROC in the environment
 #
-XDCDATA         = 
-
-#
-# Declare all target files (you must add your files here)
-#
+XDCDATA		=
 
 #
 # If there is an NLM target, put it here
 #
 TARGET_nlm = \
+	$(OBJDIR)\$(NLM_NAME).nlm \
 	$(EOLIST)
 
 #
 # If there is an LIB target, put it here
 #
 TARGET_lib = \
-	$(OBJDIR)/aprutil.lib \
 	$(EOLIST)
 
 #
@@ -187,6 +192,7 @@ TARGET_lib = \
 # Paths must all use the '/' character
 #
 FILES_nlm_objs = \
+	$(OBJDIR)/apr_dbm_gdbm.o \
 	$(EOLIST)
 
 #
@@ -194,20 +200,35 @@ FILES_nlm_objs = \
 # These will be added as a library command in the link.opt file.
 #
 FILES_nlm_libs = \
+	libcpre.o \
 	$(EOLIST)
+
+ifeq ($(LINK_STATIC),1)
+FILES_nlm_libs += \
+	$(GDBM_LIB) \
+	$(EOLIST)
+endif
 
 #
 # These are the modules that the above NLM target depends on to load.
 # These will be added as a module command in the link.opt file.
 #
 FILES_nlm_modules = \
+	aprlib \
+	libc \
 	$(EOLIST)
+
+ifneq ($(LINK_STATIC),1)
+FILES_nlm_modules += \
+	$(GDBM_NLM) \
+	$(EOLIST)
+endif
 
 #
 # If the nlm has a msg file, put it's path here
 #
 FILE_nlm_msg =
- 
+
 #
 # If the nlm has a hlp file put it's path here
 #
@@ -222,56 +243,28 @@ FILE_nlm_copyright =
 # Any additional imports go here
 #
 FILES_nlm_Ximports = \
+	@$(APR)/aprlib.imp \
+	@libc.imp \
 	$(EOLIST)
- 
-#   
+
+ifneq ($(LINK_STATIC),1)
+FILES_nlm_Ximports += \
+	@$(GDBM_IMP) \
+	$(EOLIST)
+endif
+
+#
 # Any symbols exported to here
 #
 FILES_nlm_exports = \
+	apr_dbm_type_gdbm \
 	$(EOLIST)
-	
-#   
+
+#
 # These are the OBJ files needed to create the LIB target above.
 # Paths must all use the '/' character
 #
 FILES_lib_objs = \
-	$(OBJDIR)/apr_base64.o \
-	$(OBJDIR)/apr_brigade.o \
-	$(OBJDIR)/apr_buckets.o \
-	$(OBJDIR)/apr_buckets_alloc.o \
-	$(OBJDIR)/apr_buckets_eos.o \
-	$(OBJDIR)/apr_buckets_file.o \
-	$(OBJDIR)/apr_buckets_flush.o \
-	$(OBJDIR)/apr_buckets_heap.o \
-	$(OBJDIR)/apr_buckets_mmap.o \
-	$(OBJDIR)/apr_buckets_pipe.o \
-	$(OBJDIR)/apr_buckets_pool.o \
-	$(OBJDIR)/apr_buckets_refcount.o \
-	$(OBJDIR)/apr_buckets_simple.o \
-	$(OBJDIR)/apr_buckets_socket.o \
-	$(OBJDIR)/apr_date.o \
-	$(OBJDIR)/apr_dbm.o \
-	$(OBJDIR)/apr_dbd.o \
-	$(OBJDIR)/apr_dbm_sdbm.o \
-	$(OBJDIR)/apu_dso.o \
-	$(OBJDIR)/apr_hooks.o \
-	$(OBJDIR)/apr_md4.o \
-	$(OBJDIR)/apr_md5.o \
-	$(OBJDIR)/apr_memcache.o \
-	$(OBJDIR)/apr_queue.o \
-	$(OBJDIR)/apr_reslist.o \
-	$(OBJDIR)/apr_rmm.o \
-	$(OBJDIR)/apr_sha1.o \
-	$(OBJDIR)/apu_version.o \
-	$(OBJDIR)/getuuid.o \
-	$(OBJDIR)/uuid.o \
-	$(OBJDIR)/apr_strmatch.o \
-	$(OBJDIR)/apr_uri.o \
-	$(OBJDIR)/sdbm.o \
-	$(OBJDIR)/sdbm_hash.o \
-	$(OBJDIR)/sdbm_lock.o \
-	$(OBJDIR)/sdbm_pair.o \
-	$(OBJDIR)/xlate.o \
 	$(EOLIST)
 
 #
@@ -283,8 +276,8 @@ libs :: $(OBJDIR) $(TARGET_lib)
 nlms :: libs $(TARGET_nlm)
 
 #
-# Updated this target to create necessary directories and copy files to the 
-# correct place.  (See $(APR_WORK)\build\NWGNUhead.inc for examples)
+# Updated this target to create necessary directories and copy files to the
+# correct place.  (See $(AP_WORK)\build\NWGNUhead.inc for examples)
 #
 install :: nlms FORCE
 
@@ -292,13 +285,12 @@ install :: nlms FORCE
 # Any specialized rules here
 #
 
-vpath %.c buckets:crypto:dbd:dbm:dbm/sdbm:encoding:hooks:ldap:memcache:misc:strmatch:uri:xlate:xml
-
 #
 # Include the 'tail' makefile that has targets that depend on variables defined
 # in this makefile
 #
 
 include $(APR_WORK)\build\NWGNUtail.inc
+
 
 
