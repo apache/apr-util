@@ -25,7 +25,7 @@
 #define APU_CONFIG_H
 
 /* Always compile Netware with DSO support for .nlm builds */
-#define APU_DSO_BUILD           1
+#define APU_DSO_BUILD           0
 
 /*
  * NetWare does not have GDBM, and we always use the bundled (new) Expat
