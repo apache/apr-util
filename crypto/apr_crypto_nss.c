@@ -78,7 +78,7 @@ static apr_status_t crypto_shutdown_helper(void *data)
 /**
  * Initialise the crypto library and perform one time initialisation.
  */
-static apr_status_t crypto_init(apr_pool_t *pool, const apr_array_header_t *params)
+static apr_status_t crypto_init(apr_pool_t *pool, const apr_array_header_t *params, int *rc)
 {
     SECStatus s;
     const char *dir = NULL;
@@ -127,6 +127,9 @@ static apr_status_t crypto_init(apr_pool_t *pool, const apr_array_header_t *para
         s = NSS_NoDB_Init(NULL);
     }
     if (s != SECSuccess) {
+        if (rc) {
+            *rc = PR_GetError();
+        }
         return APR_ECRYPT;
     }
 
@@ -386,7 +389,7 @@ static apr_status_t crypto_passphrase(apr_pool_t *p,
 
     key->ivSize = PK11_GetIVLength(key->cipherMech);
     if (ivSize) {
-    *ivSize = key->ivSize;
+        *ivSize = key->ivSize;
     }
 
     return rv;

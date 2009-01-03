@@ -111,6 +111,7 @@ APU_DECLARE(apr_status_t) apr_crypto_get_driver(apr_pool_t *pool, const char *na
     apr_dso_handle_sym_t symbol;
 #endif
     apr_status_t rv;
+    int rc = 0;
 
 #if APU_DSO_BUILD
     rv = apu_dso_mutex_lock();
@@ -151,7 +152,7 @@ APU_DECLARE(apr_status_t) apr_crypto_get_driver(apr_pool_t *pool, const char *na
     }
     *driver = symbol;
     if ((*driver)->init) {
-        (*driver)->init(pool, params);
+        rv = (*driver)->init(pool, params, &rc);
     }
     name = apr_pstrdup(pool, name);
     apr_hash_set(drivers, name, APR_HASH_KEY_STRING, *driver);
@@ -165,6 +166,7 @@ APU_DECLARE(apr_status_t) apr_crypto_get_driver(apr_pool_t *pool, const char *na
             apr_dso_error(dso, buffer, ERROR_SIZE - 1);
             err->msg = buffer;
             err->reason = modname;
+            err->rc = rc;
             *result = err;
         }
     }

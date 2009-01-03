@@ -77,7 +77,7 @@ static apr_status_t crypto_shutdown_helper(void *data) {
  * Initialise the crypto library and perform one time initialisation.
  */
 static apr_status_t crypto_init(apr_pool_t *pool,
-        const apr_array_header_t *params) {
+        const apr_array_header_t *params, int *rc) {
     CRYPTO_malloc_init();
     ERR_load_crypto_strings();
     /* SSL_load_error_strings(); */
