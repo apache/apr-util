@@ -47,13 +47,13 @@
  * programs such as structure size changes.  No binary compatibility is
  * possible across a change in the major version.
  */
-#define APU_MAJOR_VERSION       1
+#define APU_MAJOR_VERSION       2
 
 /** minor version
  * Minor API changes that do not cause binary compatibility problems.
  * Reset to 0 when upgrading APU_MAJOR_VERSION
  */
-#define APU_MINOR_VERSION       4
+#define APU_MINOR_VERSION       0
 
 /** patch level 
  * The Patch Level never includes API changes, simply bug fixes.
