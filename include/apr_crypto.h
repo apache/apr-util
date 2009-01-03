@@ -81,6 +81,25 @@ extern "C" {
 
 #if APU_HAVE_CRYPTO
 
+#ifndef APU_CRYPTO_RECOMMENDED_DRIVER
+#if APU_HAVE_OPENSSL
+#define APU_CRYPTO_RECOMMENDED_DRIVER "openssl"
+#else
+#if APU_HAVE_NSS
+#define APU_CRYPTO_RECOMMENDED_DRIVER "nss"
+#else
+#if APU_HAVE_MSCNG
+#define APU_CRYPTO_RECOMMENDED_DRIVER "mscng"
+#else
+#if APU_HAVE_MSCAPI
+#define APU_CRYPTO_RECOMMENDED_DRIVER "mscapi"
+#else
+#endif
+#endif
+#endif
+#endif
+#endif
+
 /**
  * Symmetric Key types understood by the library.
  *

@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
+  *) Provide a mechanism to provide the recommended crypto driver to
+     calling application. [Graham Leggett]
+
   *) Suppress pgsql column-out-of-range warning.
      PR 46012 [Michiel van Loon <michiel van-loon.xs4all.nl>]
 
