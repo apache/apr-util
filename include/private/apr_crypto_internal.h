@@ -38,7 +38,7 @@ struct apr_crypto_driver_t {
      * @param pool The pool to register the cleanup in.
      * @param params An array of optional init parameters.
      */
-    apr_status_t (*init)(apr_pool_t *pool, const apr_array_header_t *params);
+    apr_status_t (*init)(apr_pool_t *pool, const apr_array_header_t *params, int *rc);
 
     /**
      * @brief Create a context for supporting encryption. Keys, certificates,
