@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
+  *) Make sure that the underlying result code during driver initialisation
+     is exposed to the caller. [Graham Leggett]
+
   *) Provide a mechanism to provide the recommended crypto driver to
      calling application. [Graham Leggett]
 
