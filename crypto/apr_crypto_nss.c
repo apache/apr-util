@@ -421,7 +421,6 @@ static apr_status_t crypto_block_encrypt_init(apr_pool_t *p,
 {
     PRErrorCode perr;
     SECItem * secParam;
-    int usedIvSize;
     SECItem ivItem;
     unsigned char * usedIv;
     apr_crypto_block_t *block = *ctx;
@@ -457,7 +456,7 @@ static apr_status_t crypto_block_encrypt_init(apr_pool_t *p,
              usedIv = (unsigned char *)*iv;
         }
         ivItem.data = usedIv;
-        ivItem.len = usedIvSize;
+        ivItem.len = key->ivSize;
         secParam = PK11_ParamFromIV(key->cipherMech, &ivItem);
     }
     else {
