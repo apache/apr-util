@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
+  *) Fix a bogus initialisation of the IV size in the NSS crypto driver.
+     [Graham Leggett]
+
   *) Make sure that the underlying result code during driver initialisation
      is exposed to the caller. [Graham Leggett]
 
