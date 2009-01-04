@@ -142,7 +142,7 @@ AC_DEFUN([APU_CHECK_CRYPTO_NSS], [
   [APR_HELP_STRING([--with-nss=DIR], [specify location of OpenSSL])],
   [
     if test "$withval" = "yes"; then
-      AC_CHECK_HEADERS(nspr/nspr.h nss/nss.h, [nss_have_headers=1])
+      AC_CHECK_HEADERS(prerror.h nspr4/prerror.h nss/nss.h nss3/nss.h nss/pk11pub.h nss3/pk11pub.h, [nss_have_headers=1])
       AC_CHECK_LIB(nspr4, PR_Initialize, AC_CHECK_LIB(nss3, PK11_CreatePBEV2AlgorithmID, [nss_have_libs=1],,-lnspr4))
       if test "$nss_have_headers" != "0" && test "$nss_have_libs" != "0"; then
         apu_have_nss=1
@@ -160,7 +160,7 @@ AC_DEFUN([APU_CHECK_CRYPTO_NSS], [
       APR_ADDTO(LDFLAGS, [$nss_LDFLAGS])
 
       AC_MSG_NOTICE(checking for nss in $withval)
-      AC_CHECK_HEADERS(nspr/nspr.h nss/nss.h, [nss_have_headers=1])
+      AC_CHECK_HEADERS(prerror.h nspr4/prerror.h nss/nss.h nss3/nss.h nss/pk11pub.h nss3/pk11pub.h, [nss_have_headers=1])
       AC_CHECK_LIB(nspr4, PR_Initialize, AC_CHECK_LIB(nss3, PK11_CreatePBEV2AlgorithmID, [nss_have_libs=1],,-lnspr4))
       if test "$nss_have_headers" != "0" && test "$nss_have_libs" != "0"; then
         apu_have_nss=1
@@ -169,7 +169,7 @@ AC_DEFUN([APU_CHECK_CRYPTO_NSS], [
       fi
 
       if test "$apu_have_nss" != "1"; then
-        AC_CHECK_HEADERS(nspr/nspr.h nss/nss.h, [nss_have_headers=1])
+        AC_CHECK_HEADERS(prerror.h nspr4/prerror.h nss/nss.h nss3/nss.h nss/pk11pub.h nss3/pk11pub.h, [nss_have_headers=1])
         AC_CHECK_LIB(nspr4, PR_Initialize, AC_CHECK_LIB(nss3, PK11_CreatePBEV2AlgorithmID, [nss_have_libs=1],,-lnspr4))
         if test "$nss_have_headers" != "0" && test "$nss_have_libs" != "0"; then
           apu_have_nss=1

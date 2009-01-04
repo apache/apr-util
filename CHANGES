@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
+  *) apr_crypto_nss: The nss.h header file could be in nss or nss3, the
+     prerror.h header file could be in nspr4. [Graham Leggett]
+
   *) apr_dbd_freetds: The sybdb.h header file might be freetds/sybdb.h
      or sybdb.h. [Graham Leggett]
 
