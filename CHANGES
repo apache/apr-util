@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
+  *) apr_crypto_nss: Oh that it was this easy. Use pgk-config to find
+     NSS where possible. [Graham Leggett]
+
   *) apr_crypto_nss: The nss.h header file could be in nss or nss3, the
      prerror.h header file could be in nspr4. [Graham Leggett]
 
