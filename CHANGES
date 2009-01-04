@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
+  *) apr_dbd_freetds: The sybdb.h header file might be freetds/sybdb.h
+     or sybdb.h. [Graham Leggett]
+
   *) Fix a bogus initialisation of the IV size in the NSS crypto driver.
      [Graham Leggett]
 
