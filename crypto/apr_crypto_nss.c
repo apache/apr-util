@@ -30,9 +30,26 @@
 
 #if APU_HAVE_CRYPTO
 
+#ifdef HAVE_PRERROR_H
 #include <prerror.h>
+#endif
+#ifdef HAVE_NSPR4_PRERROR_H
+#include <nspr4/prerror.h>
+#endif
+
+#ifdef HAVE_NSS_NSS_H
 #include <nss/nss.h>
+#endif
+#ifdef HAVE_NSS3_NSS_H
+#include <nss3/nss.h>
+#endif
+
+#ifdef HAVE_NSS_PK11PUB_H
 #include <nss/pk11pub.h>
+#endif
+#ifdef HAVE_NSS3_PK11PUB_H
+#include <nss3/pk11pub.h>
+#endif
 
 struct apr_crypto_config_t {
 };
