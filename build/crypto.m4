@@ -139,10 +139,17 @@ AC_DEFUN([APU_CHECK_CRYPTO_NSS], [
   nss_have_libs=0
 
   AC_ARG_WITH([nss], 
-  [APR_HELP_STRING([--with-nss=DIR], [specify location of OpenSSL])],
+  [APR_HELP_STRING([--with-nss=DIR], [specify location of NSS])],
   [
     if test "$withval" = "yes"; then
-      AC_CHECK_HEADERS(prerror.h nspr4/prerror.h nss/nss.h nss3/nss.h nss/pk11pub.h nss3/pk11pub.h, [nss_have_headers=1])
+      AC_PATH_TOOL([PKG_CONFIG], [pkg-config])
+      if test -n "$PKG_CONFIG"; then
+        nss_CPPFLAGS=`$PKG_CONFIG --cflags-only-I nss`
+        nss_LDFLAGS=`$PKG_CONFIG --libs nss`
+        APR_ADDTO(CPPFLAGS, [$nss_CPPFLAGS])
+        APR_ADDTO(LDFLAGS, [$nss_LDFLAGS])
+      fi
+      AC_CHECK_HEADERS(prerror.h nss/nss.h nss.h nss/pk11pub.h pk11pub.h, [nss_have_headers=1])
       AC_CHECK_LIB(nspr4, PR_Initialize, AC_CHECK_LIB(nss3, PK11_CreatePBEV2AlgorithmID, [nss_have_libs=1],,-lnspr4))
       if test "$nss_have_headers" != "0" && test "$nss_have_libs" != "0"; then
         apu_have_nss=1
@@ -160,26 +167,17 @@ AC_DEFUN([APU_CHECK_CRYPTO_NSS], [
       APR_ADDTO(LDFLAGS, [$nss_LDFLAGS])
 
       AC_MSG_NOTICE(checking for nss in $withval)
-      AC_CHECK_HEADERS(prerror.h nspr4/prerror.h nss/nss.h nss3/nss.h nss/pk11pub.h nss3/pk11pub.h, [nss_have_headers=1])
+      AC_CHECK_HEADERS(prerror.h nss/nss.h nss.h nss/pk11pub.h pk11pub.h, [nss_have_headers=1])
       AC_CHECK_LIB(nspr4, PR_Initialize, AC_CHECK_LIB(nss3, PK11_CreatePBEV2AlgorithmID, [nss_have_libs=1],,-lnspr4))
       if test "$nss_have_headers" != "0" && test "$nss_have_libs" != "0"; then
         apu_have_nss=1
-        APR_ADDTO(APRUTIL_LDFLAGS, [-L$withval/lib])
-        APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/include -I$withval/../public])
-      fi
-
-      if test "$apu_have_nss" != "1"; then
-        AC_CHECK_HEADERS(prerror.h nspr4/prerror.h nss/nss.h nss3/nss.h nss/pk11pub.h nss3/pk11pub.h, [nss_have_headers=1])
-        AC_CHECK_LIB(nspr4, PR_Initialize, AC_CHECK_LIB(nss3, PK11_CreatePBEV2AlgorithmID, [nss_have_libs=1],,-lnspr4))
-        if test "$nss_have_headers" != "0" && test "$nss_have_libs" != "0"; then
-          apu_have_nss=1
-          APR_ADDTO(APRUTIL_LDFLAGS, [-L$withval/lib])
-          APR_ADDTO(APRUTIL_INCLUDES, [-I$withval/include -I$withval/../public])
-        fi
       fi
 
       CPPFLAGS="$old_cppflags"
       LDFLAGS="$old_ldflags"
+    fi
+    if test "$apu_have_nss" != "0"; then
+      APR_ADDTO(APRUTIL_PRIV_INCLUDES, [$nss_CPPFLAGS])
     fi
   ], [
     apu_have_nss=0
