@@ -31,6 +31,15 @@ build applications using the APR utility library.  The mission
 of the Apache Portable Runtime (APR) is to provide a free 
 library of C data structures and routines.
 
+%package dbm
+Group: Development/Libraries 
+Summary: APR utility library DBM driver
+BuildRequires: db4-devel
+Requires: apr-util = %{version}-%{release}
+
+%description dbm
+This package provides the DBM driver for the apr-util.
+
 %package pgsql
 Group: Development/Libraries
 Summary: APR utility library PostgreSQL DBD driver
@@ -90,6 +99,24 @@ Requires: apr-util = %{version}-%{release}
 %description ldap
 This package provides the LDAP support for the apr-util.
 
+%package openssl
+Group: Development/Libraries
+Summary: APR utility library OpenSSL crypto support
+BuildRequires: openssl-devel
+Requires: apr-util = %{version}-%{release}
+
+%description openssl
+This package provides crypto support for apr-util based on OpenSSL.
+
+%package nss
+Group: Development/Libraries
+Summary: APR utility library NSS crypto support
+BuildRequires: nss-devel
+Requires: apr-util = %{version}-%{release}
+
+%description nss
+This package provides crypto support for apr-util based on Mozilla NSS.
+
 %prep
 %setup -q
 
@@ -99,6 +126,7 @@ This package provides the LDAP support for the apr-util.
         --with-ldap --without-gdbm \
         --with-sqlite3 --with-pgsql --with-mysql --with-freetds --with-odbc \
         --with-berkeley-db \
+        --with-crypto --with-openssl --with-nss \
         --without-sqlite2
 make %{?_smp_mflags} && make dox
 
@@ -132,6 +160,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libaprutil-%{apuver}.so.*
 %dir %{_libdir}/apr-util-%{apuver}
 
+%files dbm
+%defattr(-,root,root,-)
+%{_libdir}/apr-util-%{apuver}/apr_dbm_db*
+
 %files pgsql
 %defattr(-,root,root,-)
 %{_libdir}/apr-util-%{apuver}/apr_dbd_pgsql*
@@ -155,6 +187,14 @@ rm -rf $RPM_BUILD_ROOT
 %files ldap
 %defattr(-,root,root,-)
 %{_libdir}/apr-util-%{apuver}/apr_ldap*
+
+%files openssl
+%defattr(-,root,root,-)
+%{_libdir}/apr-util-%{apuver}/apr_crypto_openssl*
+
+%files nss
+%defattr(-,root,root,-)
+%{_libdir}/apr-util-%{apuver}/apr_crypto_nss*
 
 %files devel
 %defattr(-,root,root,-)

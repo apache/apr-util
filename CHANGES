@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
+  *) Add optional dbm, openssl and nss subpackages to the RPM spec file.
+     [Graham Leggett]
+
   *) apr_crypto_nss: Oh that it was this easy. Use pgk-config to find
      NSS where possible. [Graham Leggett]
 
