@@ -49,6 +49,10 @@ AC_DEFUN([APU_CHECK_CRYPTO_OPENSSL], [
   openssl_have_headers=0
   openssl_have_libs=0
 
+  old_libs="$LIBS"
+  old_cppflags="$CPPFLAGS"
+  old_ldflags="$LDFLAGS"
+
   AC_ARG_WITH([openssl], 
   [APR_HELP_STRING([--with-openssl=DIR], [specify location of OpenSSL])],
   [
@@ -61,8 +65,6 @@ AC_DEFUN([APU_CHECK_CRYPTO_OPENSSL], [
     elif test "$withval" = "no"; then
       apu_have_openssl=0
     else
-      old_cppflags="$CPPFLAGS"
-      old_ldflags="$LDFLAGS"
 
       openssl_CPPFLAGS="-I$withval/include"
       openssl_LDFLAGS="-L$withval/lib "
@@ -92,8 +94,6 @@ AC_DEFUN([APU_CHECK_CRYPTO_OPENSSL], [
       AC_CHECK_DECLS([EVP_PKEY_CTX_new], [], [],
                      [#include <openssl/evp.h>])
 
-      CPPFLAGS="$old_cppflags"
-      LDFLAGS="$old_ldflags"
     fi
   ], [
     apu_have_openssl=0
@@ -138,9 +138,14 @@ AC_DEFUN([APU_CHECK_CRYPTO_NSS], [
   nss_have_headers=0
   nss_have_libs=0
 
+  old_libs="$LIBS"
+  old_cppflags="$CPPFLAGS"
+  old_ldflags="$LDFLAGS"
+
   AC_ARG_WITH([nss], 
   [APR_HELP_STRING([--with-nss=DIR], [specify location of NSS])],
   [
+
     if test "$withval" = "yes"; then
       AC_PATH_TOOL([PKG_CONFIG], [pkg-config])
       if test -n "$PKG_CONFIG"; then
@@ -157,8 +162,6 @@ AC_DEFUN([APU_CHECK_CRYPTO_NSS], [
     elif test "$withval" = "no"; then
       apu_have_nss=0
     elif test "x$withval" != "x"; then
-      old_cppflags="$CPPFLAGS"
-      old_ldflags="$LDFLAGS"
 
       nss_CPPFLAGS="-I$withval/include -I$withval/../public"
       nss_LDFLAGS="-L$withval/lib "
@@ -173,8 +176,6 @@ AC_DEFUN([APU_CHECK_CRYPTO_NSS], [
         apu_have_nss=1
       fi
 
-      CPPFLAGS="$old_cppflags"
-      LDFLAGS="$old_ldflags"
     fi
     if test "$apu_have_nss" != "0"; then
       APR_ADDTO(APRUTIL_PRIV_INCLUDES, [$nss_CPPFLAGS])
