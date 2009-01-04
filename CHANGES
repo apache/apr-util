@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
+  *) Fix the saving of the old LIBS, CPPFLAGS and LDFLAGS when OpenSSL
+     and NSS are detected. [Graham Leggett, Ruediger Pluem]
+
   *) Add optional dbm, openssl and nss subpackages to the RPM spec file.
      [Graham Leggett]
 
