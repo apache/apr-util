@@ -36,7 +36,13 @@
 #include "apr_pools.h"
 #include "apr_dbd_internal.h"
 
+#ifdef HAVE_FREETDS_SYBDB_H
+#include <freetds/sybdb.h>
+#endif
+#ifdef HAVE_SYBDB_H
 #include <sybdb.h>
+#endif
+
 #include <stdio.h>
 #include <sys/types.h>
 #include <regex.h>
