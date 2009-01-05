@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.3.5
 
+  *) Fix a buffer overrun and password matching for SHA passwords.
+     PR 45679 [Ben Noordhuis <bnoordhuis gmail.com>]
+
   *) Introduce DSO handling of the db, gdbm and ndbm drivers, so these are
      loaded as .so's on first demand, unless --disable-util-dso is configured.
      [William Rowe]
