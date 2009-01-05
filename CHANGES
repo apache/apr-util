@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
+  *) Fix a buffer overrun and password matching for SHA passwords.
+     PR 45679 [Ben Noordhuis <bnoordhuis gmail.com>]
+
   *) Fix the saving of the old LIBS, CPPFLAGS and LDFLAGS when OpenSSL
      and NSS are detected. [Graham Leggett, Ruediger Pluem]
 
