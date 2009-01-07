@@ -22,8 +22,8 @@
  * @brief APR-Util Error Codes
  */
 
-#include <apr.h>
-#include <apr_errno.h>
+#include "apr.h"
+#include "apr_errno.h"
 
 #ifdef __cplusplus
 extern "C" {
