@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
+  *) Do not include apr.h and apr_errno.h from system search path in
+     apu_errno.h. PR 46487 [Rainer Jung <rainer.jung kippdata.de>]
+
   *) Fix the saving of the old LIBS, CPPFLAGS and LDFLAGS when OpenSSL
      and NSS are detected. [Graham Leggett, Ruediger Pluem]
 
