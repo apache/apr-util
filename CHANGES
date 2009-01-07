@@ -1,4 +1,7 @@
                                                      -*- coding: utf-8 -*-
+Changes with APR-util 2.0.0
+
+
 Changes with APR-util 1.4.0
 
   *) Do not include apr.h and apr_errno.h from system search path in
