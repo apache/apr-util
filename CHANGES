@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
+  *) Do not include apr.h and apr_errno.h from system search path in
+     apu_errno.h. PR 46487 [Rainer Jung <rainer.jung kippdata.de>]
+
   *) Fix a buffer overrun and password matching for SHA passwords.
      PR 45679 [Ben Noordhuis <bnoordhuis gmail.com>]
 
