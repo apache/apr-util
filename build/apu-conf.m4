@@ -187,8 +187,12 @@ AC_DEFUN([APU_FIND_LDAPLIB], [
   if test ${apu_has_ldap} != "1"; then
     ldaplib=$1
     extralib=$2
-    unset ac_cv_lib_${ldaplib}_ldap_init
-    unset ac_cv_lib_${ldaplib}___ldap_init
+    # Clear the cache entry for subsequent APU_FIND_LDAPLIB invocations.
+    changequote(,)
+    ldaplib_cache_id="`echo $ldaplib | sed -e 's/[^a-zA-Z0-9_]/_/g'`"
+    changequote([,])
+    unset ac_cv_lib_${ldaplib_cache_id}_ldap_init
+    unset ac_cv_lib_${ldaplib_cache_id}___ldap_init
     AC_CHECK_LIB(${ldaplib}, ldap_init, 
       [
         LDADD_ldap="-l${ldaplib} ${extralib}"
