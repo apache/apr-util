@@ -235,6 +235,18 @@ apu_has_ldap_zos="0"
 apu_has_ldap_other="0"
 LDADD_ldap=""
 
+AC_ARG_WITH(lber,[  --with-lber=library     lber library to use],
+  [
+    if test "$withval" = "yes"; then
+      apu_liblber_name="lber"
+    else
+      apu_liblber_name="$withval"
+    fi
+  ],
+  [
+    apu_liblber_name="lber"
+  ])
+
 AC_ARG_WITH(ldap-include,[  --with-ldap-include=path  path to ldap include files with trailing slash])
 AC_ARG_WITH(ldap-lib,[  --with-ldap-lib=path    path to ldap lib file])
 AC_ARG_WITH(ldap,[  --with-ldap=library     ldap library to use],
@@ -273,7 +285,7 @@ dnl The iPlanet C SDK 5.0 is as yet untested...
     fi
 
     test ${apu_has_ldap} != "1" && AC_MSG_ERROR(could not find an LDAP library)
-    AC_CHECK_LIB(lber, ber_init)
+    AC_CHECK_LIB($apu_liblber_name, ber_init)
 
     AC_CHECK_HEADERS(lber.h, lber_h=["#include <lber.h>"])
 
