@@ -1,8 +1,10 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 2.0.0
 
-  *) Support ldap library names with non-alphanumeric characters, such
-     as libldap-2.4.so.  [Jeff Trawick]
+  *) LDAP detection improvements: --with-ldap now supports library names 
+     containing non-alphanumeric characters, such as libldap-2.4.so.  New
+     option --with-lber can be used to override the default liblber name.
+     [Jeff Trawick]
 
 Changes with APR-util 1.4.0
 
