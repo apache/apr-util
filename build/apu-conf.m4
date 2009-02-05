@@ -285,7 +285,8 @@ dnl The iPlanet C SDK 5.0 is as yet untested...
     fi
 
     test ${apu_has_ldap} != "1" && AC_MSG_ERROR(could not find an LDAP library)
-    AC_CHECK_LIB($apu_liblber_name, ber_init)
+    AC_CHECK_LIB($apu_liblber_name, ber_init,
+      [LDADD_ldap="${LDADD_ldap} -l${apu_liblber_name}"])
 
     AC_CHECK_HEADERS(lber.h, lber_h=["#include <lber.h>"])
 
