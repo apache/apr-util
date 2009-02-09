@@ -1,6 +1,12 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
+  *) LDAP detection improvements: --with-ldap now supports library names 
+     containing non-alphanumeric characters, such as libldap-2.4.so.  New
+     option --with-lber can be used to override the default liblber name.
+     Fix a problem reporting the lber library from apu-N-config.
+     [Jeff Trawick]
+
   *) Do not include apr.h and apr_errno.h from system search path in
      apu_errno.h. PR 46487 [Rainer Jung <rainer.jung kippdata.de>]
 
