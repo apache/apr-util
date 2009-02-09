@@ -1,6 +1,12 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.3.5
 
+  *) LDAP detection improvements: --with-ldap now supports library names
+     containing non-alphanumeric characters, such as libldap-2.4.so.  New
+     option --with-lber can be used to override the default liblber name.
+     Fix a problem reporting the lber library from apu-N-config.
+     [Jeff Trawick]
+
   *) Suppress pgsql column-out-of-range warning.
      PR 46012 [Michiel van Loon <michiel van-loon.xs4all.nl>]
 
