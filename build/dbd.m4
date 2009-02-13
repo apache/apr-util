@@ -336,9 +336,15 @@ AC_DEFUN([APU_CHECK_DBD_ORACLE], [
 
       AC_CHECK_HEADERS(oci.h, AC_CHECK_LIB(clntsh, OCIEnvCreate, [apu_have_oracle=1],[
         unset ac_cv_lib_clntsh_OCIEnvCreate
-        oracle_LIBS="-lnnz10"
+        oracle_LIBS="-lnnz11"
         APR_ADDTO(LIBS, [$oracle_LIBS])
-        AC_CHECK_LIB(clntsh, OCIEnvCreate, [apu_have_oracle=1])
+        AC_CHECK_LIB(clntsh, OCIEnvCreate, [apu_have_oracle=1],[
+          unset ac_cv_lib_clntsh_OCIEnvCreate
+          APR_REMOVEFROM(LIBS, [$oracle_LIBS])
+          oracle_LIBS="-lnnz10"
+          APR_ADDTO(LIBS, [$oracle_LIBS])
+          AC_CHECK_LIB(clntsh, OCIEnvCreate, [apu_have_oracle=1])
+        ])
       ]))
     elif test "$withval" = "no"; then
       :
@@ -357,9 +363,15 @@ AC_DEFUN([APU_CHECK_DBD_ORACLE], [
       AC_MSG_NOTICE(checking for oracle in $withval)
       AC_CHECK_HEADERS(oci.h, AC_CHECK_LIB(clntsh, OCIEnvCreate, [apu_have_oracle=1],[
         unset ac_cv_lib_clntsh_OCIEnvCreate
-        oracle_LIBS="-lnnz10"
+        oracle_LIBS="-lnnz11"
         APR_ADDTO(LIBS, [$oracle_LIBS])
-        AC_CHECK_LIB(clntsh, OCIEnvCreate, [apu_have_oracle=1])
+        AC_CHECK_LIB(clntsh, OCIEnvCreate, [apu_have_oracle=1],[
+          unset ac_cv_lib_clntsh_OCIEnvCreate
+          APR_REMOVEFROM(LIBS, [$oracle_LIBS])
+          oracle_LIBS="-lnnz10"
+          APR_ADDTO(LIBS, [$oracle_LIBS])
+          AC_CHECK_LIB(clntsh, OCIEnvCreate, [apu_have_oracle=1])
+        ])
       ]))
       if test "$apu_have_oracle" != "0"; then
         oracle_LDFLAGS="$oracle_LDFLAGS -R$withval/lib"
