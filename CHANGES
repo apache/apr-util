@@ -1,6 +1,8 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
+  *) Add Oracle 11 support. [Bojan Smojver]
+
   *) apr_dbd_freetds: Avoid segfault when process is NULL.
      Do no print diagnostics to stderr. Never allow driver to exit
      process. [Bojan Smojver]
