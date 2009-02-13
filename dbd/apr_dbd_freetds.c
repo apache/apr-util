@@ -606,9 +606,7 @@ static DBPROCESS *freetds_open(apr_pool_t *pool, const char *params,
 
     process = dbopen(login, server);
 
-    fprintf(stderr, "databaseName [%s]\n", databaseName);
-
-    if (databaseName != NULL)
+    if (process != NULL && databaseName != NULL)
     {
         dbuse(process, databaseName);
     }
@@ -691,6 +689,11 @@ static apr_status_t freetds_term(void *dummy)
     regfree(&dbd_freetds_find_arg);
     return APR_SUCCESS;
 }
+static int freetds_err_handler(DBPROCESS *dbproc, int severity, int dberr,
+                               int oserr, char *dberrstr, char *oserrstr)
+{
+    return INT_CANCEL; /* never exit */
+}
 static void dbd_freetds_init(apr_pool_t *pool)
 {
     int rv = regcomp(&dbd_freetds_find_arg,
@@ -701,6 +704,7 @@ static void dbd_freetds_init(apr_pool_t *pool)
         fprintf(stderr, "regcomp failed: %s\n", errmsg);
     }
     dbinit();
+    dberrhandle(freetds_err_handler);
     apr_pool_cleanup_register(pool, NULL, freetds_term, apr_pool_cleanup_null);
 }
 

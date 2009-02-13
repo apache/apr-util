@@ -1,6 +1,10 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
+  *) apr_dbd_freetds: Avoid segfault when process is NULL.
+     Do no print diagnostics to stderr. Never allow driver to exit
+     process. [Bojan Smojver]
+
   *) Do not include apr.h and apr_errno.h from system search path in
      apu_errno.h. PR 46487 [Rainer Jung <rainer.jung kippdata.de>]
 
@@ -10,7 +14,7 @@ Changes with APR-util 1.4.0
   *) Add optional dbm, openssl and nss subpackages to the RPM spec file.
      [Graham Leggett]
 
-  *) apr_crypto_nss: Oh that it was this easy. Use pgk-config to find
+  *) apr_crypto_nss: Oh that it was this easy. Use pkg-config to find
      NSS where possible. [Graham Leggett]
 
   *) apr_crypto_nss: The nss.h header file could be in nss or nss3, the
