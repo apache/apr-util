@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
+  *) Fix memcache memory leak with persistent connections.
+     PR 46482 [Sami Tolvanen <sami.tolvanen mywot.com>]
+
   *) Add Oracle 11 support. [Bojan Smojver]
 
   *) apr_dbd_freetds: Avoid segfault when process is NULL.
