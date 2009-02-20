@@ -25,8 +25,8 @@ struct apr_memcache_conn_t
     char *buffer;
     apr_size_t blen;
     apr_pool_t *p;
+    apr_pool_t *tp;
     apr_socket_t *sock;
-    apr_bucket_alloc_t *balloc;
     apr_bucket_brigade *bb;
     apr_bucket_brigade *tb;
     apr_memcache_server_t *ms;
@@ -224,12 +224,29 @@ APU_DECLARE(apr_memcache_server_t *) apr_memcache_find_server(apr_memcache_t *mc
 
 static apr_status_t ms_find_conn(apr_memcache_server_t *ms, apr_memcache_conn_t **conn) 
 {
+    apr_status_t rv;
+    apr_bucket_alloc_t *balloc;
+    apr_bucket *e;
+
 #if APR_HAS_THREADS
-    return apr_reslist_acquire(ms->conns, (void **)conn);
+    rv = apr_reslist_acquire(ms->conns, (void **)conn);
 #else
     *conn = ms->conn;
-    return APR_SUCCESS;
+    rv = APR_SUCCESS;
 #endif
+
+    if (rv != APR_SUCCESS) {
+        return rv;
+    }
+
+    balloc = apr_bucket_alloc_create((*conn)->tp);
+    (*conn)->bb = apr_brigade_create((*conn)->tp, balloc);
+    (*conn)->tb = apr_brigade_create((*conn)->tp, balloc);
+
+    e = apr_bucket_socket_create((*conn)->sock, balloc);
+    APR_BRIGADE_INSERT_TAIL((*conn)->bb, e);
+
+    return rv;
 }
 
 static apr_status_t ms_bad_conn(apr_memcache_server_t *ms, apr_memcache_conn_t *conn) 
@@ -243,6 +260,7 @@ static apr_status_t ms_bad_conn(apr_memcache_server_t *ms, apr_memcache_conn_t *
 
 static apr_status_t ms_release_conn(apr_memcache_server_t *ms, apr_memcache_conn_t *conn) 
 {
+    apr_pool_clear(conn->tp);
 #if APR_HAS_THREADS
     return apr_reslist_release(ms->conns, conn);
 #else
@@ -301,8 +319,8 @@ mc_conn_construct(void **conn_, void *params, apr_pool_t *pool)
 {
     apr_status_t rv = APR_SUCCESS;
     apr_memcache_conn_t *conn;
-    apr_bucket *e;
     apr_pool_t *np;
+    apr_pool_t *tp;
     apr_memcache_server_t *ms = params;
 
     rv = apr_pool_create(&np, pool);
@@ -310,9 +328,16 @@ mc_conn_construct(void **conn_, void *params, apr_pool_t *pool)
         return rv;
     }
 
+    rv = apr_pool_create(&tp, np);
+    if (rv != APR_SUCCESS) {
+        apr_pool_destroy(np);
+        return rv;
+    }
+
     conn = apr_palloc(np, sizeof( apr_memcache_conn_t ));
 
     conn->p = np;
+    conn->tp = tp;
 
     rv = apr_socket_create(&conn->sock, APR_INET, SOCK_STREAM, 0, np);
 
@@ -321,15 +346,9 @@ mc_conn_construct(void **conn_, void *params, apr_pool_t *pool)
         return rv;
     }
 
-    conn->balloc = apr_bucket_alloc_create(conn->p);
-    conn->bb = apr_brigade_create(conn->p, conn->balloc);
-    conn->tb = apr_brigade_create(conn->p, conn->balloc);
     conn->buffer = apr_palloc(conn->p, BUFFER_SIZE);
     conn->blen = 0;
     conn->ms = ms;
-
-    e = apr_bucket_socket_create(conn->sock, conn->balloc);
-    APR_BRIGADE_INSERT_TAIL(conn->bb, e);
 
     rv = conn_connect(conn);
     if (rv != APR_SUCCESS) {
