@@ -3,6 +3,18 @@ Changes with APR-util 2.0.0
 
 Changes with APR-util 1.4.0
 
+  *) Fix apr_memcache_multgetp memory corruption and incorrect error 
+     handling. PR 46588 [Sami Tolvanen <sami.tolvanen mywot.com>]
+
+  *) Fix memcache memory leak with persistent connections.
+     PR 46482 [Sami Tolvanen <sami.tolvanen mywot.com>]
+
+  *) Add Oracle 11 support. [Bojan Smojver]
+
+  *) apr_dbd_freetds: Avoid segfault when process is NULL.
+     Do no print diagnostics to stderr. Never allow driver to exit
+     process. [Bojan Smojver]
+
   *) Do not include apr.h and apr_errno.h from system search path in
      apu_errno.h. PR 46487 [Rainer Jung <rainer.jung kippdata.de>]
 
