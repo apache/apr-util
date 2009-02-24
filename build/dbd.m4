@@ -409,7 +409,10 @@ AC_DEFUN([APU_CHECK_DBD_FREETDS], [
     APR_HELP_STRING([--with-freetds=DIR], [specify FreeTDS location]),
   [
     if test "$withval" = "yes"; then
-      AC_CHECK_HEADERS(sybdb.h freetds/sybdb.h, AC_CHECK_LIB(sybdb, tdsdbopen, [apu_have_freetds=1]))
+      AC_CHECK_HEADERS(sybdb.h, AC_CHECK_LIB(sybdb, tdsdbopen, [apu_have_freetds=1]))
+      if test "$apu_have_freetds" = "0"; then
+        AC_CHECK_HEADERS(freetds/sybdb.h, AC_CHECK_LIB(sybdb, tdsdbopen, [apu_have_freetds=1]))
+      fi
     elif test "$withval" = "no"; then
       :
     else
@@ -420,13 +423,19 @@ AC_DEFUN([APU_CHECK_DBD_FREETDS], [
       APR_ADDTO(LDFLAGS, [$sybdb_LDFLAGS])
 
       AC_MSG_NOTICE(checking for freetds in $withval)
-      AC_CHECK_HEADERS(sybdb.h freetds/sybdb.h, AC_CHECK_LIB(sybdb, tdsdbopen, [apu_have_freetds=1]))
+      AC_CHECK_HEADERS(sybdb.h, AC_CHECK_LIB(sybdb, tdsdbopen, [apu_have_freetds=1]))
+      if test "$apu_have_freetds" = "0"; then
+        AC_CHECK_HEADERS(freetds/sybdb.h, AC_CHECK_LIB(sybdb, tdsdbopen, [apu_have_freetds=1]))
+      fi
       if test "$apu_have_freetds" != "0"; then
         APR_ADDTO(APRUTIL_PRIV_INCLUDES, [-I$withval/include])
       fi
     fi
   ], [
-    AC_CHECK_HEADERS(sybdb.h freetds/sybdb.h, AC_CHECK_LIB(sybdb, tdsdbopen, [apu_have_freetds=1]))
+    AC_CHECK_HEADERS(sybdb.h, AC_CHECK_LIB(sybdb, tdsdbopen, [apu_have_freetds=1]))
+    if test "$apu_have_freetds" = "0"; then
+      AC_CHECK_HEADERS(freetds/sybdb.h, AC_CHECK_LIB(sybdb, tdsdbopen, [apu_have_freetds=1]))
+    fi
   ])
 
   AC_SUBST(apu_have_freetds)
