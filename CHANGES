@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
+  *) Clean up ODBC types. Warnings seen when compiling packages for
+     Fedora 11. [Bojan Smojver]
+
   *) Use of my_init() requires my_global.h and my_sys.h.
      [Bojan Smojver]
 
