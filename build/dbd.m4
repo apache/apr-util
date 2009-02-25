@@ -176,9 +176,15 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
         APR_ADDTO(LIBS, [$mysql_LIBS])
       fi
 
-      AC_CHECK_HEADERS(mysql.h, AC_CHECK_LIB(mysqlclient_r, mysql_init, [apu_have_mysql=1]))
+      AC_CHECK_HEADERS([mysql.h my_global.h my_sys.h],
+                       AC_CHECK_LIB(mysqlclient_r, mysql_init, [apu_have_mysql=1]),
+                       [apu_have_mysql=0; break],
+                       [#include <my_global.h>])
       if test "$apu_have_mysql" = "0"; then
-        AC_CHECK_HEADERS(mysql/mysql.h, AC_CHECK_LIB(mysqlclient_r, mysql_init, [apu_have_mysql=1]))
+        AC_CHECK_HEADERS([mysql/mysql.h mysql/my_global.h mysql/my_sys.h],
+                         AC_CHECK_LIB(mysqlclient_r, mysql_init, [apu_have_mysql=1]),
+                         [apu_have_mysql=0; break],
+                         [#include <mysql/my_global.h>])
       fi
       if test "$apu_have_mysql" != "0" && test "x$MYSQL_CONFIG" != 'x'; then
         APR_ADDTO(APRUTIL_PRIV_INCLUDES, [$mysql_CPPFLAGS])
@@ -201,10 +207,16 @@ AC_DEFUN([APU_CHECK_DBD_MYSQL], [
       APR_ADDTO(LIBS, [$mysql_LIBS])
 
       AC_MSG_NOTICE(checking for mysql in $withval)
-      AC_CHECK_HEADERS(mysql.h, AC_CHECK_LIB(mysqlclient_r, mysql_init, [apu_have_mysql=1]))
+      AC_CHECK_HEADERS([mysql.h my_global.h my_sys.h],
+                       AC_CHECK_LIB(mysqlclient_r, mysql_init, [apu_have_mysql=1]),
+                       [apu_have_mysql=0; break],
+                       [#include <my_global.h>])
 
       if test "$apu_have_mysql" != "1"; then
-        AC_CHECK_HEADERS(mysql/mysql.h, AC_CHECK_LIB(mysqlclient_r, mysql_init, [apu_have_mysql=1]))
+        AC_CHECK_HEADERS([mysql/mysql.h mysql/my_global.h mysql/my_sys.h],
+                         AC_CHECK_LIB(mysqlclient_r, mysql_init, [apu_have_mysql=1]),
+                         [apu_have_mysql=0; break],
+                         [#include <mysql/my_global.h>])
       fi
       if test "$apu_have_mysql" != "0"; then
         APR_ADDTO(APRUTIL_PRIV_INCLUDES, [$mysql_CPPFLAGS])
