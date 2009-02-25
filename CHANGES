@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
+  *) Use of my_init() requires my_global.h and my_sys.h.
+     [Bojan Smojver]
+
   *) Fix apr_memcache_multgetp memory corruption and incorrect error
      handling. PR 46588 [Sami Tolvanen <sami.tolvanen mywot.com>]
 
