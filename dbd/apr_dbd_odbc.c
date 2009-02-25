@@ -500,9 +500,9 @@ static SQLRETURN odbc_bind_param(apr_pool_t * pool,
     SQLRETURN rc;
     SQLSMALLINT baseType, cType;
     void *ptr;
-    SQLUINTEGER len;
-    SQLINTEGER *indicator;
-    static SQLINTEGER nullValue = SQL_NULL_DATA;
+    SQLULEN len;
+    SQLLEN *indicator;
+    static SQLLEN nullValue = SQL_NULL_DATA;
     static SQLSMALLINT inOut = SQL_PARAM_INPUT;     /* only input params */
 
     /* bind a NULL data value */
@@ -522,7 +522,7 @@ static SQLRETURN odbc_bind_param(apr_pool_t * pool,
         /* LOBs */
         if (IS_LOB(cType)) {
             ptr = (void *) args[*argp];
-            len = (SQLUINTEGER) * (apr_size_t *) args[*argp + 1];
+            len = (SQLULEN) * (apr_size_t *) args[*argp + 1];
             cType = (IS_CLOB(cType)) ? SQL_C_CHAR : SQL_C_DEFAULT;
             (*argp) += 4;  /* LOBs consume 4 args (last two are unused) */
         }
@@ -534,7 +534,7 @@ static SQLRETURN odbc_bind_param(apr_pool_t * pool,
             case SQL_TIME:
             case SQL_TIMESTAMP:
                 ptr = (void *) args[*argp];
-                len = (SQLUINTEGER) strlen(ptr);
+                len = (SQLULEN) strlen(ptr);
                 break;
             case SQL_TINYINT:
                 ptr = apr_palloc(pool, sizeof(unsigned char));
@@ -619,7 +619,7 @@ static apr_status_t odbc_lob_bucket_read(apr_bucket *e, const char **str,
                                          apr_size_t *len, apr_read_type_e block)
 {
     SQLRETURN rc;
-    SQLINTEGER len_indicator;
+    SQLLEN len_indicator;
     SQLSMALLINT type;
     odbc_bucket *bd = (odbc_bucket *) e->data;
     apr_bucket *nxt;
@@ -666,8 +666,8 @@ static apr_status_t odbc_lob_bucket_read(apr_bucket *e, const char **str,
              * We try to handle both interpretations.
              */
             *len =  (len_indicator > bufsize 
-                     && len_indicator >= (SQLINTEGER) e->start)
-                ? (len_indicator - (SQLINTEGER) e->start) : len_indicator;
+                     && len_indicator >= (SQLLEN) e->start)
+                ? (len_indicator - (SQLLEN) e->start) : len_indicator;
 
             eos = 1;
         }
@@ -731,7 +731,7 @@ static void *odbc_get(const apr_dbd_row_t *row, const int col,
                       const SQLSMALLINT sqltype)
 {
     SQLRETURN rc;
-    SQLINTEGER indicator;
+    SQLLEN indicator;
     int state = row->res->colstate[col];
     int options = row->res->apr_dbd->dboptions;
 
@@ -1028,7 +1028,7 @@ static apr_dbd_t* odbc_open(apr_pool_t *pool, const char *params, const char **e
             err_step="SQLSetConnectAttr (from DBD Parameters)";
             err_htype = SQL_HANDLE_DBC;
             err_h = hdbc;
-            rc = SQLSetConnectAttr(hdbc, attrs[i], (void *) attrvals[i], 0);
+            rc = SQLSetConnectAttr(hdbc, attrs[i], (SQLPOINTER) attrvals[i], 0);
         }
     }
     if (SQL_SUCCEEDED(rc)) {
@@ -1119,8 +1119,8 @@ static int odbc_start_transaction(apr_pool_t *pool, apr_dbd_t *handle,
     SQLRETURN rc = SQL_SUCCESS;
 
     if (handle->transaction_mode) {
-        rc = SQLSetConnectAttr(handle->dbc, SQL_ATTR_TXN_ISOLATION, (void *)
-                               handle->transaction_mode, 0);
+        rc = SQLSetConnectAttr(handle->dbc, SQL_ATTR_TXN_ISOLATION,
+                               (SQLPOINTER) handle->transaction_mode, 0);
         CHECK_ERROR(handle, "SQLSetConnectAttr (SQL_ATTR_TXN_ISOLATION)", rc,
                     SQL_HANDLE_DBC, handle->dbc);
     }
@@ -1180,7 +1180,10 @@ static int odbc_query(apr_dbd_t *handle, int *nrows, const char *statement)
     CHECK_ERROR(handle, "SQLExecDirect", rc, SQL_HANDLE_STMT, hstmt);
 
     if SQL_SUCCEEDED(rc) {
-        rc = SQLRowCount(hstmt,  (SQLINTEGER *) nrows);
+        SQLLEN rowcount;
+
+        rc = SQLRowCount(hstmt, &rowcount);
+        *nrows = (int) rowcount;
         CHECK_ERROR(handle, "SQLRowCount", rc, SQL_HANDLE_STMT, hstmt);
     }
 
@@ -1242,7 +1245,7 @@ static int odbc_num_cols(apr_dbd_results_t *res)
 static int odbc_num_tuples(apr_dbd_results_t *res)
 {
     SQLRETURN rc;
-    SQLINTEGER  nrows;
+    SQLLEN nrows;
 
     rc = SQLRowCount(res->stmt, &nrows);
     CHECK_ERROR(res->apr_dbd, "SQLRowCount", rc, SQL_HANDLE_STMT, res->stmt);
@@ -1425,7 +1428,10 @@ static int odbc_pquery(apr_pool_t * pool, apr_dbd_t * handle, int *nrows,
                     statement->stmt);
         }
     if (SQL_SUCCEEDED(rc)) {
-        rc = SQLRowCount(statement->stmt, (SQLINTEGER *) nrows);
+        SQLLEN rowcount;
+
+        rc = SQLRowCount(statement->stmt, &rowcount);
+        *nrows = (int) rowcount;
         CHECK_ERROR(handle, "SQLRowCount", rc, SQL_HANDLE_STMT,
                     statement->stmt);
         }
@@ -1500,7 +1506,7 @@ static const char *odbc_get_name(const apr_dbd_results_t * res, int col)
     SQLRETURN rc;
     char buffer[MAX_COLUMN_NAME];
     SQLSMALLINT colnamelength, coltype, coldecimal, colnullable;
-    SQLUINTEGER colsize;
+    SQLULEN colsize;
 
     if (col >= res->ncols)
         return NULL;            /* bogus column number */
@@ -1555,7 +1561,10 @@ static int odbc_pbquery(apr_pool_t * pool, apr_dbd_t * handle, int *nrows,
                     statement->stmt);
         }
     if (SQL_SUCCEEDED(rc)) {
-        rc = SQLRowCount(statement->stmt, (SQLINTEGER *) nrows);
+        SQLLEN rowcount;
+
+        rc = SQLRowCount(statement->stmt, &rowcount);
+        *nrows = (int) rowcount;
         CHECK_ERROR(handle, "SQLRowCount", rc, SQL_HANDLE_STMT,
                     statement->stmt);
         }
