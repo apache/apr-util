@@ -91,7 +91,7 @@ AC_DEFUN([APR_FIND_APU], [
   [
     ifdef(AC_WARNING,([$0: missing argument 4 (acceptable-majors): Defaulting to APU 0.x then APU 1.x]))
     acceptable_majors="0 1"
-  ], [acceptable_majors="$4"])
+  ], [acceptable_majors=$4])
 
   apu_temp_acceptable_apu_config=""
   for apu_temp_major in $acceptable_majors
