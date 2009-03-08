@@ -3,6 +3,11 @@ Changes with APR-util 2.0.0
 
 Changes with APR-util 1.4.0
 
+  *) APR_LDAP_SIZELIMIT should prefer LDAP_DEFAULT_LIMIT/-1 when the 
+     SDK supports it, but in the absence of LDAP_DEFAULT_LIMIT (and 
+     LDAP_NO_LIMIT/0) it is not safe to use a literal -1.
+     PR23356 [Eric Covener]
+
   *) Fix apr_memcache_multgetp memory corruption and incorrect error 
      handling. PR 46588 [Sami Tolvanen <sami.tolvanen mywot.com>]
 
