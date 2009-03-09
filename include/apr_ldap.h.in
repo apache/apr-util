@@ -99,6 +99,7 @@
  * Some SDKs do not have the define for LDAP_DEFAULT_LIMIT (-1) or LDAP_NO_LIMIT (0)
  * LDAP_DEFAULT_LIMIT is preferred as it allows inheritance from whatever the SDK
  * or process is configured for.
+ * @bug APR_LDAP_SIZELIMIT is not part of the 1.2 API
  */
 #ifdef LDAP_DEFAULT_LIMIT
 #define APR_LDAP_SIZELIMIT LDAP_DEFAULT_LIMIT
