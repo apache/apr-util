@@ -1,6 +1,8 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
+  *) Fix off by one overflow in apr_brigade_vprintf.
+     [C. Michael Pilato <cmpilato collab.net>]
 
   *) APR_LDAP_SIZELIMIT should prefer LDAP_DEFAULT_LIMIT/-1 when the
      SDK supports it, but in the absence of LDAP_DEFAULT_LIMIT (and
