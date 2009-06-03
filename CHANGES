@@ -1,7 +1,10 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 0.9.17
 
-
+  *) SECURITY:
+     Fix a denial of service attack against the apr_xml_* interface
+     using the "billion laughs" entity expansion technique.
+     [Joe Orton]
 
 Changes with APR-util 0.9.16
 
