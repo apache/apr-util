@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
+  *) Make sure --without-ldap works.
+     [Arfrever Frehtes Taifersar Arahesis <arfrever.fta gmail.com>]
+
   *) SECURITY: CVE-2009-0023 (cve.mitre.org)
      Fix underflow in apr_strmatch_precompile.
      [Matthew Palmer <mpalmer debian.org>]
