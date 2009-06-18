@@ -5,7 +5,7 @@ Changes with APR-util 0.9.18
 
 Changes with APR-util 0.9.17
 
-  *) SECURITY:
+  *) SECURITY: CVE-2009-1955 (cve.mitre.org)
      Fix a denial of service attack against the apr_xml_* interface
      using the "billion laughs" entity expansion technique.
      [Joe Orton]
@@ -16,7 +16,8 @@ Changes with APR-util 0.9.16
      Fix underflow in apr_strmatch_precompile.
      [Matthew Palmer <mpalmer debian.org>]
 
-  *) Fix off by one overflow in apr_brigade_vprintf.
+  *) SECURITY: CVE-2009-1956 (cve.mitre.org)
+     Fix off by one overflow in apr_brigade_vprintf.
      [C. Michael Pilato <cmpilato collab.net>]
 
   *) Better error detection for bucket allocation failures. 
