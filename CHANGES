@@ -1,6 +1,10 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.3.8
 
+  *) Use locally scoped variables in PostgreSQL driver to avoid stomping
+     on return codes. PR 47431
+     [Wayne Jensen <wayne_jensen trendmicro.com>]
+
   *) Fix race conditions in initialisation of DBD, DBM and DSO.
      [Bojan Smojver]
 
