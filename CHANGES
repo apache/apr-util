@@ -1,6 +1,8 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
+  *) Clarify the error messages within the dbd tests. [Graham Leggett]
+
   *) Use locally scoped variables in PostgreSQL driver to avoid stomping
      on return codes. PR 47431
      [Wayne Jensen <wayne_jensen trendmicro.com>]
