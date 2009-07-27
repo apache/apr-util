@@ -1,6 +1,11 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.3.9
 
+  *) Make sure the LD_LIBRARY_PATH is sensible when running the tests
+     from the RPM build, so that the crypto, dbd and dbm tests pass.
+     Ensure the dbm module is packaged up correctly in the RPM.
+     [Graham Leggett]
+
   *) Clarify the error messages within the dbd tests. [Graham Leggett]
 
 Changes with APR-util 1.3.8
