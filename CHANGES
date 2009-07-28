@@ -1,6 +1,10 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.3.9
 
+  *) Make sure the mysql version of dbd_mysql_get_entry() respects the
+     rule that if the column number exceeds the number of columns, we
+     return NULL. [Graham Leggett]
+
   *) Make sure the LD_LIBRARY_PATH is sensible when running the tests
      from the RPM build, so that the crypto, dbd and dbm tests pass.
      Ensure the dbm module is packaged up correctly in the RPM.
