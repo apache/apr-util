@@ -15,7 +15,6 @@
  */
 
 #include "apu.h"
-#define HAVE_MYSQL_MYSQL_H
 
 #if APU_HAVE_MYSQL
 
@@ -25,22 +24,20 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-#ifdef HAVE_MY_GLOBAL_H
-#include <my_global.h>
-#elif defined(HAVE_MYSQL_MY_GLOBAL_H)
-#include <mysql/my_global.h>
-#endif
-#ifdef HAVE_MY_SYS_H
-#include <my_sys.h>
-#elif defined(HAVE_MYSQL_MY_SYS_H)
-#include <mysql/my_sys.h>
-#endif
-#ifdef HAVE_MYSQL_H
-#include <mysql.h>
-#include <errmsg.h>
-#elif defined(HAVE_MYSQL_MYSQL_H)
+#if defined(HAVE_MYSQL_MYSQL_H)
 #include <mysql/mysql.h>
 #include <mysql/errmsg.h>
+#if defined(HAVE_MYSQL_MY_GLOBAL_H) && defined(HAVE_MYSQL_MY_SYS_H)
+#include <mysql/my_global.h>
+#include <mysql/mysql.h>
+#endif
+#else
+#include <mysql.h>
+#include <errmsg.h>
+#if defined(HAVE_MY_GLOBAL_H) && defined(HAVE_MY_SYS_H)
+#include <my_global.h>
+#include <my_sys.h>
+#endif
 #endif
 
 #include "apr_strings.h"
