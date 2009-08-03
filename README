@@ -64,7 +64,15 @@ built by default.  To enable MySQL support, use the --with-mysql option,
 but be aware that the MySQL license may introduce licensing implications
 for your compiled code.  Similarly, the bindings for propritary drivers
 such as Oracle (--with-oracle option) must also be explicitly enabled.
- 
+
+On windows, selection of supported drivers is via the environment values
+DBD_LIST (for freetds, mysql, oracle, pgsql, sqlite2 and/or sqlite3) 
+and DBM_LIST (db and/or gdbm).  DBD odbc and DBM sdbm are unconditionally
+compiled and installed, do not include these in the list.
+
+Whenever distributing apr-util in combination with database client 
+drivers, always review the license requirements of all components.
+
 
 Cryptographic Software Notice
 -----------------------------
