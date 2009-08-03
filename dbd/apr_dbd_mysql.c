@@ -25,16 +25,20 @@
 #include <stdlib.h>
 
 #if defined(HAVE_MYSQL_MYSQL_H)
-#if defined(HAVE_MYSQL_MY_GLOBAL_H) && defined(HAVE_MYSQL_MY_SYS_H)
+#if defined(HAVE_MYSQL_MY_GLOBAL_H)
 #include <mysql/my_global.h>
+#if defined(HAVE_MYSQL_MY_SYS_H)
 #include <mysql/my_sys.h>
+#endif
 #endif
 #include <mysql/mysql.h>
 #include <mysql/errmsg.h>
-#else
-#if defined(HAVE_MY_GLOBAL_H) && defined(HAVE_MY_SYS_H)
+#else /* !defined(HAVE_MYSQL_MYSQL_H) */
+#if defined(HAVE_MY_GLOBAL_H) 
 #include <my_global.h>
+#if defined(HAVE_MY_SYS_H)
 #include <my_sys.h>
+#endif
 #endif
 #include <mysql.h>
 #include <errmsg.h>
