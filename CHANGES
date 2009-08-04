@@ -2,6 +2,10 @@
 Changes with APR-util 0.9.18
 
 
+  *) SECURITY: CVE-2009-2412 (cve.mitre.org)
+     Fix overflow in rmm, where size alignment was taking place.
+     [Matt Lewis <mattlewis@google.com>, Sander Striker]
+
 
 Changes with APR-util 0.9.17
 
