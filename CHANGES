@@ -5,6 +5,9 @@ Changes with APR-util 1.4.0
      Fix overflow in rmm, where size alignment was taking place.
      [Matt Lewis <mattlewis@google.com>, Sander Striker]
 
+  *) Add support for Berkeley DB 4.8. [Arfrever Frehtes Taifersar Arahesis
+     <arfrever.fta gmail.com>]
+
   *) Make sure that "make check" is used in the RPM spec file, so that
      the crypto, dbd and dbm tests pass. [Graham Leggett]
 
