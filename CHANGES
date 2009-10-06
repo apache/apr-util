@@ -4,49 +4,19 @@ Changes with APR-util 1.4.0
   *) Do not include apr.h and apr_errno.h from system search path in
      apu_errno.h. PR 46487 [Rainer Jung <rainer.jung kippdata.de>]
 
-  *) Fix the saving of the old LIBS, CPPFLAGS and LDFLAGS when OpenSSL
-     and NSS are detected. [Graham Leggett, Ruediger Pluem]
-
   *) Add optional dbm, openssl and nss subpackages to the RPM spec file.
      [Graham Leggett]
 
-  *) apr_crypto_nss: Oh that it was this easy. Use pkg-config to find
-     NSS where possible. [Graham Leggett]
-
-  *) apr_crypto_nss: The nss.h header file could be in nss or nss3, the
-     prerror.h header file could be in nspr4. [Graham Leggett]
-
   *) apr_dbd_freetds: The sybdb.h header file might be freetds/sybdb.h
      or sybdb.h. [Graham Leggett]
-
-  *) Fix a bogus initialisation of the IV size in the NSS crypto driver.
-     [Graham Leggett]
-
-  *) Make sure that the underlying result code during driver initialisation
-     is exposed to the caller. [Graham Leggett]
-
-  *) Provide a mechanism to provide the recommended crypto driver to
-     calling application. [Graham Leggett]
-
-  *) Move APU_HAVE_CRYPTO from private apu_config.h to public apu.h.
-     [Ruediger Pluem, Graham Leggett]
-
-  *) Add apr_crypto implementations for OpenSSL and Mozilla NSS. Add a unit
-     test to verify the interoperability of the two modules. Builds default
-     to disabled unless explicitly enabled.
-     [Graham Leggett]
 
   *) Add the apr_crypto interface, a rewrite of the earlier apr_ssl code,
      based on the modular dso interface used for dbd and ldap. Initially,
      the interface supports symmetrical encryption and decryption. The
      purpose of the interface is to offer portable and interoperable
      access to basic crypto using the native crypto libraries present on
-     each platform. [Graham Leggett]
-
-  *) Expose the apr_dso_handle_t when calling apu_dso_load, so that the
-     crypto code can call apr_dso_error and find out why the dso load
-     failed. The existing LDAP and DBD code ignores this, as their APIs
-     do not yet allow for errors to be returned. [Graham Leggett]
+     each platform.  Implementations are provided for OpenSSL and Mozilla
+     NSS.  [Graham Leggett]
 
   *) Add DTrace Probes to Hooks, making it easier to inspect APR Hook based
      applications with DTrace. [Theo Schlossnagle <jesus omniti.com>]
