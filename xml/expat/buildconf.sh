@@ -1,5 +1,10 @@
 #! /bin/sh
 
+if [ "$1" = "--verbose" -o "$1" = "-v" ]; then
+    verbose="--verbose"
+    shift
+fi
+
 #
 # Find libtoolize
 #
@@ -25,7 +30,7 @@ echo "Copying libtool helper files ..."
 (cd conftools ; rm -f ltconfig ltmain.sh)
 rm -rf aclocal.m4 libtool.m4 ltsugar.m4 autom4te*.cache
 
-$libtoolize --copy --automake
+$libtoolize --copy --automake --force $verbose
 
 #
 # Build aclocal.m4 from libtool's libtool.m4
@@ -42,12 +47,12 @@ echo "dnl edits here will be lost" >> aclocal.m4
 cat $ltfile >> aclocal.m4
 
 if [ -f ltsugar.m4 ]; then
-  echo "Incorporating ltsugar.m4 into aclocal.m4 ..."
-  cat ltsugar.m4 >> aclocal.m4
+   rm -f conftools/ltsugar.m4
+   mv ltsugar.m4 conftools/ltsugar.m4
 fi
 
-# Clean up again
-rm -f libtool.m4 ltsugar.m4
+# Clean up any leftovers
+rm -f aclocal.m4 libtool.m4
 
 cross_compile_warning="warning: AC_TRY_RUN called without default to allow cross compiling"
 
@@ -55,11 +60,11 @@ cross_compile_warning="warning: AC_TRY_RUN called without default to allow cross
 # Generate the autoconf header template (config.h.in) and ./configure
 #
 echo "Creating config.h.in ..."
-${AUTOHEADER:-autoheader} 2>&1 | grep -v "$cross_compile_warning"
+${AUTOHEADER:-autoheader} $verbose 2>&1 | grep -v "$cross_compile_warning"
 
 echo "Creating configure ..."
 ### do some work to toss config.cache?
-${AUTOCONF:-autoconf} 2>&1 | grep -v "$cross_compile_warning"
+${AUTOCONF:-autoconf} $verbose 2>&1 | grep -v "$cross_compile_warning"
 
 # Remove autoconf caches
 rm -rf autom4te*.cache
