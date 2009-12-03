@@ -17,11 +17,6 @@
 #
 #
 
-if [ "$1" = "--verbose" -o "$1" = "-v" ]; then
-    verbose="--verbose"
-    shift
-fi
-
 # Default place to look for apr source.  Can be overridden with 
 #   --with-apr=[directory]
 apr_src_dir=../apr
@@ -72,11 +67,11 @@ rm -rf aclocal.m4 autom4te*.cache
 # Generate the autoconf header (include/apu_config.h) and ./configure
 #
 echo "Creating include/private/apu_config.h ..."
-${AUTOHEADER:-autoheader} $verbose
+${AUTOHEADER:-autoheader}
 
 echo "Creating configure ..."
 ### do some work to toss config.cache?
-if ${AUTOCONF:-autoconf} $verbose; then
+if ${AUTOCONF:-autoconf}; then
   :
 else
   echo "autoconf failed"
@@ -87,14 +82,14 @@ fi
 # Generate build-outputs.mk for the build system
 #
 echo "Generating 'make' outputs ..."
-$apr_src_dir/build/gen-build.py $verbose make
+$apr_src_dir/build/gen-build.py make
 
 #
 # If Expat has been bundled, then go and configure the thing
 #
 if [ -f xml/expat/buildconf.sh ]; then
   echo "Invoking xml/expat/buildconf.sh ..."
-  (cd xml/expat; ./buildconf.sh $verbose)
+  (cd xml/expat; ./buildconf.sh)
 fi
 
 # Remove autoconf cache again
