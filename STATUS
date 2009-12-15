@@ -57,6 +57,11 @@ Bundled with httpd:
 
 RELEASE SHOWSTOPPERS:
 
+    * Resolve hook probe support; current APR-Util 1.4.0-dev has only the
+      --enable-dtrace configure option which can't be used in a general
+     purpose build of APR-Util.  See this thread:
+       http://www.mail-archive.com/dev@apr.apache.org/msg22534.html
+
 RELEASE NON-SHOWSTOPPERS BUT WOULD BE REAL NICE TO WRAP THESE UP:
 
     * Solaris's Sun Freeware (sfw) package has a busted gcc/ld setup.
