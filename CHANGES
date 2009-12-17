@@ -22,8 +22,9 @@ Changes with APR-util 1.4.0
      access to basic crypto using the native crypto libraries present on
      each platform.  [Graham Leggett]
 
-  *) Add DTrace Probes to Hooks, making it easier to inspect APR Hook based
-     applications with DTrace. [Theo Schlossnagle <jesus omniti.com>]
+  *) Add trace probes to hooks, making it easier to inspect APR Hook based
+     applications with DTrace or other such mechanisms.
+     [Theo Schlossnagle <jesus omniti.com>, generalized by Jeff Trawick]
 
   *) Implement resource list when threads are unavailable. PR 24325
      [Bojan Smojver]
