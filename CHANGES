@@ -1,32 +1,9 @@
                                                      -*- coding: utf-8 -*-
+Changes with APR-util 1.5.0
+
 Changes with APR-util 1.4.0
 
-  *) Do not include apr.h and apr_errno.h from system search path in
-     apu_errno.h. PR 46487 [Rainer Jung <rainer.jung kippdata.de>]
-
-  *) Add optional dbm, openssl and nss subpackages to the RPM spec file.
-     [Graham Leggett]
-
-  *) apr_dbd_freetds: The sybdb.h header file might be freetds/sybdb.h
-     or sybdb.h. [Graham Leggett]
-
-  *) Add apr_crypto implementations for OpenSSL and Mozilla NSS. Add a unit
-     test to verify the interoperability of the two modules. Builds default
-     to disabled unless explicitly enabled.
-     [Graham Leggett]
-
-  *) Add the apr_crypto interface, a rewrite of the earlier apr_ssl code,
-     based on the modular dso interface used for dbd and ldap. Initially,
-     the interface supports symmetrical encryption and decryption. The
-     purpose of the interface is to offer portable and interoperable
-     access to basic crypto using the native crypto libraries present on
-     each platform.  [Graham Leggett]
-
-  *) Add DTrace Probes to Hooks, making it easier to inspect APR Hook based
-     applications with DTrace. [Theo Schlossnagle <jesus omniti.com>]
-
-  *) Implement resource list when threads are unavailable. PR 24325
-     [Bojan Smojver]
+  *) http://svn.apache.org/viewvc/apr/apr-util/branches/1.4.x/CHANGES?view=markup
 
 Changes for APR-util 1.3.x and later:
 
