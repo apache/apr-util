@@ -59,6 +59,16 @@ RELEASE SHOWSTOPPERS:
 
 RELEASE NON-SHOWSTOPPERS BUT WOULD BE REAL NICE TO WRAP THESE UP:
 
+    * OpenSSL detection in crypto configure is broken.
+      At least on Solaris you need to add -lsocket -lnsl -ldl
+      when you link against OpenSSL.
+      We could use pkgconfig where available.
+      HTTPD uses a macro APACHE_CHECK_SSL_TOOLKIT whih itself
+      uses pkgconfig. If pkgconfig is not available, it finds
+      the libs more or less by accident via apr-config.
+      APR trunk has the needed libs already in the LIBS when testing
+      for OpenSSL.
+
     * Solaris's Sun Freeware (sfw) package has a busted gcc/ld setup.
       This gcc passes -L/opt/sfw/lib to /usr/ccs/bin/ld, but does not 
       pass -R.  Therefore, when trying to run the code using a
