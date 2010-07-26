@@ -46,7 +46,7 @@ LIBAGE=1
 AC_CONFIG_HEADER(config.h)
 
 AC_CANONICAL_SYSTEM
-case "$host_alias" in
+case "$host_os" in
 *os2*)
     # Use a custom made libtool replacement
     echo Using aplibtool
