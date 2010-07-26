@@ -5,6 +5,12 @@ Changes with APR-util 0.9.18
      Fix overflow in rmm, where size alignment was taking place.
      [Matt Lewis <mattlewis@google.com>, Sander Striker]
 
+  *) Make bundled expat compatible with libtool 2.x.
+     This only affects the release process. [Rainer Jung]
+
+  *) Prefer libtool 1.x when searching for libtool in
+     bundled expat release process. [Rainer Jung, Jim Jagielski]
+
   *) Improve platform detection for bundled expat by updating
      config.guess and config.sub. [Rainer Jung]
 
