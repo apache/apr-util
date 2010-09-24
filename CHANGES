@@ -1,6 +1,10 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.3.10
 
+  *) DBD ODBC support: Fix memory corruption using apr_dbd_datum_get() with
+     several different data types, including APR_DBD_TYPE_TIME.  PR 49645.
+     [<kappa psilambda.com>]
+
   *) Add support for Berkeley DB 5.0. [Bernhard Rosenkraenzer
      <br blankpage.ch>]
 
