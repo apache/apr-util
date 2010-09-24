@@ -7,8 +7,8 @@ Changes with APR-util 1.3.10
   *) Add support for Berkeley DB 4.8. [Arfrever Frehtes Taifersar Arahesis
      <arfrever.fta gmail.com>]
 
-  *) Make bundled expat compatible with libtool 2.x.
-     This only affects the release process. [Rainer Jung]
+  *) Make bundled expat compatible with libtool 2.x.  PR 49053. 
+     [Rainer Jung]
 
   *) Prefer libtool 1.x when searching for libtool in
      bundled expat release process. [Rainer Jung, Jim Jagielski]
