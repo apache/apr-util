@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.3.10
 
+  *) apr_thread_pool_create(): Only set the output thread pool handle on
+     success.  [Paul Querna]
+
   *) DBD ODBC support: Fix memory corruption using apr_dbd_datum_get() with
      several different data types, including APR_DBD_TYPE_TIME.  PR 49645.
      [<kappa psilambda.com>]
