@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.3.10
 
+  *) apr_thread_pool: Fix some potential deadlock situations.  PR 49709.
+     [Joe Mudd <Joe.Mudd sas.com>]
+
   *) apr_thread_pool_create: Fix pool corruption caused by multithreaded
      use of the pool when multiple initial threads are created.  PR 47843.
      [Alex Korobka <akorobka fxcm.com>]
