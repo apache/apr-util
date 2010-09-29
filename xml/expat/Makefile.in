@@ -67,11 +67,7 @@ all: $(LIBRARY)
 
 clean:
 	cd lib && rm -f $(LIBRARY) *.o *.lo && rm -rf .libs _libs
-	cd xmlwf && rm -f xmlwf *.o *.lo && rm -rf .libs _libs
-	cd examples && rm -f elements outline *.o *.lo && rm -rf .libs _libs
-	cd tests && rm -rf .libs runtests runtests.o chardata.o
 	rm -rf .libs libexpat.la
-	rm -f examples/core tests/core xmlwf/core
 
 clobber: clean
 
