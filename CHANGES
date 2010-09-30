@@ -1,6 +1,13 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.3.10
 
+  *) SECURITY: CVE-2009-3560, CVE-2009-3720 (cve.mitre.org)
+     Fix two buffer over-read flaws in the bundled copy of expat which
+     could cause applications to crash while parsing specially-crafted
+     XML documents.  [Joe Orton]
+
+  *) Upgrade bundled copy of expat library to 1.95.7.  [Joe Orton]
+
   *) apr_thread_pool: Fix some potential deadlock situations.  PR 49709.
      [Joe Mudd <Joe.Mudd sas.com>]
 
