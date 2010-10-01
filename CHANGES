@@ -1,6 +1,10 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 0.9.18
 
+  *) SECURITY: CVE-2010-1623 (cve.mitre.org)
+     Fix a denial of service attack against apr_brigade_split_line().
+     [Stefan Fritsch]
+
   *) SECURITY: CVE-2009-2412 (cve.mitre.org)
      Fix overflow in rmm, where size alignment was taking place.
      [Matt Lewis <mattlewis@google.com>, Sander Striker]
