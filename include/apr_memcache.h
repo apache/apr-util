@@ -150,16 +150,15 @@ APU_DECLARE(apr_uint32_t) apr_memcache_hash_default(void *baton,
  * @return server that controls specified hash
  * @see apr_memcache_hash
  */
-APU_DECLARE(apr_memcache_server_t *) apr_memcache_find_server_hash(apr_memcache_t *mc, 
+APU_DECLARE(apr_memcache_server_t *) apr_memcache_find_server_hash(apr_memcache_t *mc,
                                                                    const apr_uint32_t hash);
 
 /**
  * server selection compatible with the standard Perl Client.
  */
-APU_DECLARE(apr_memcache_server_t *)
-apr_memcache_find_server_hash_default(void *baton,
-                                      apr_memcache_t *mc, 
-                                      const apr_uint32_t hash);
+APU_DECLARE(apr_memcache_server_t *) apr_memcache_find_server_hash_default(void *baton,
+                                                                           apr_memcache_t *mc, 
+                                                                           const apr_uint32_t hash);
 
 /**
  * Adds a server to a client object
