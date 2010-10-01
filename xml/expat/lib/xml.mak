@@ -50,7 +50,7 @@ CLEAN :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP=cl.exe
-CPP_PROJ=/nologo /MD /W3 /Zi /O2 /Oy- /I "." /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D VERSION=\"expat_1.95.2\" /Fo"$(INTDIR)\\" /Fd"$(OUTDIR)\xml" /FD /c 
+CPP_PROJ=/nologo /MD /W3 /Zi /O2 /Oy- /I "." /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "COMPILED_FROM_DSP" /D "XML_STATIC" /Fo"$(INTDIR)\\" /Fd"$(OUTDIR)\xml" /FD /c 
 
 .c{$(INTDIR)}.obj::
    $(CPP) @<<
@@ -107,7 +107,7 @@ INTDIR=.\LibD
 OutDir=.\LibD
 # End Custom Macros
 
-ALL : ".\expat.h" ".\config.h" "$(OUTDIR)\xml.lib"
+ALL : "$(OUTDIR)\xml.lib"
 
 
 CLEAN :
@@ -117,14 +117,12 @@ CLEAN :
 	-@erase "$(INTDIR)\xmlrole.obj"
 	-@erase "$(INTDIR)\xmltok.obj"
 	-@erase "$(OUTDIR)\xml.lib"
-	-@erase ".\config.h"
-	-@erase ".\expat.h"
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP=cl.exe
-CPP_PROJ=/nologo /MDd /W3 /Zi /Od /I "." /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D VERSION=\"expat_1.95.2\" /Fo"$(INTDIR)\\" /Fd"$(OUTDIR)\xml" /FD /EHsc /c 
+CPP_PROJ=/nologo /MDd /W3 /Zi /Od /I "." /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "COMPILED_FROM_DSP" /D "XML_STATIC" /Fo"$(INTDIR)\\" /Fd"$(OUTDIR)\xml" /FD /EHsc /c 
 
 .c{$(INTDIR)}.obj::
    $(CPP) @<<
@@ -181,7 +179,7 @@ INTDIR=.\x64\LibR
 OutDir=.\x64\LibR
 # End Custom Macros
 
-ALL : ".\expat.h" ".\config.h" "$(OUTDIR)\xml.lib"
+ALL : "$(OUTDIR)\xml.lib"
 
 
 CLEAN :
@@ -191,14 +189,12 @@ CLEAN :
 	-@erase "$(INTDIR)\xmlrole.obj"
 	-@erase "$(INTDIR)\xmltok.obj"
 	-@erase "$(OUTDIR)\xml.lib"
-	-@erase ".\config.h"
-	-@erase ".\expat.h"
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP=cl.exe
-CPP_PROJ=/nologo /MD /W3 /Zi /O2 /Oy- /I "." /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D VERSION=\"expat_1.95.2\" /Fo"$(INTDIR)\\" /Fd"$(OUTDIR)\xml" /FD /c 
+CPP_PROJ=/nologo /MD /W3 /Zi /O2 /Oy- /I "." /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "COMPILED_FROM_DSP" /D "XML_STATIC" /Fo"$(INTDIR)\\" /Fd"$(OUTDIR)\xml" /FD /c 
 
 .c{$(INTDIR)}.obj::
    $(CPP) @<<
@@ -255,7 +251,7 @@ INTDIR=.\x64\LibD
 OutDir=.\x64\LibD
 # End Custom Macros
 
-ALL : ".\expat.h" ".\config.h" "$(OUTDIR)\xml.lib"
+ALL : "$(OUTDIR)\xml.lib"
 
 
 CLEAN :
@@ -265,14 +261,12 @@ CLEAN :
 	-@erase "$(INTDIR)\xmlrole.obj"
 	-@erase "$(INTDIR)\xmltok.obj"
 	-@erase "$(OUTDIR)\xml.lib"
-	-@erase ".\config.h"
-	-@erase ".\expat.h"
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP=cl.exe
-CPP_PROJ=/nologo /MDd /W3 /Zi /Od /I "." /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D VERSION=\"expat_1.95.2\" /Fo"$(INTDIR)\\" /Fd"$(OUTDIR)\xml" /FD /EHsc /c 
+CPP_PROJ=/nologo /MDd /W3 /Zi /Od /I "." /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "COMPILED_FROM_DSP" /D "XML_STATIC" /Fo"$(INTDIR)\\" /Fd"$(OUTDIR)\xml" /FD /EHsc /c 
 
 .c{$(INTDIR)}.obj::
    $(CPP) @<<
@@ -336,117 +330,21 @@ LIB32_OBJS= \
 !IF "$(CFG)" == "xml - Win32 Release" || "$(CFG)" == "xml - Win32 Debug" || "$(CFG)" == "xml - x64 Release" || "$(CFG)" == "xml - x64 Debug"
 SOURCE=.\xmlparse.c
 
-"$(INTDIR)\xmlparse.obj" : $(SOURCE) "$(INTDIR)" ".\winconfig.h" ".\expat.h" ".\config.h"
+"$(INTDIR)\xmlparse.obj" : $(SOURCE) "$(INTDIR)"
 
 
 SOURCE=.\xmlrole.c
 
-"$(INTDIR)\xmlrole.obj" : $(SOURCE) "$(INTDIR)" ".\winconfig.h" ".\config.h"
+"$(INTDIR)\xmlrole.obj" : $(SOURCE) "$(INTDIR)"
 
 
 SOURCE=.\xmltok.c
 
-"$(INTDIR)\xmltok.obj" : $(SOURCE) "$(INTDIR)" ".\winconfig.h" ".\config.h"
+"$(INTDIR)\xmltok.obj" : $(SOURCE) "$(INTDIR)"
 
 
 SOURCE=xmltok_impl.c
 SOURCE=xmltok_ns.c
-SOURCE=.\expat.h.in
-
-!IF  "$(CFG)" == "xml - Win32 Release"
-
-InputPath=.\expat.h.in
-
-".\expat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	<<tempfile.bat 
-	@echo off 
-	type .\expat.h.in > .\expat.h
-<< 
-	
-
-!ELSEIF  "$(CFG)" == "xml - Win32 Debug"
-
-InputPath=.\expat.h.in
-
-".\expat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	<<tempfile.bat 
-	@echo off 
-	type .\expat.h.in > .\expat.h
-<< 
-	
-
-!ELSEIF  "$(CFG)" == "xml - x64 Release"
-
-InputPath=.\expat.h.in
-
-".\expat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	<<tempfile.bat 
-	@echo off 
-	type .\expat.h.in > .\expat.h
-<< 
-	
-
-!ELSEIF  "$(CFG)" == "xml - x64 Debug"
-
-InputPath=.\expat.h.in
-
-".\expat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	<<tempfile.bat 
-	@echo off 
-	type .\expat.h.in > .\expat.h
-<< 
-	
-
-!ENDIF 
-
-SOURCE=.\winconfig.h
-
-!IF  "$(CFG)" == "xml - Win32 Release"
-
-InputPath=.\winconfig.h
-
-".\config.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	<<tempfile.bat 
-	@echo off 
-	type .\winconfig.h > .\config.h
-<< 
-	
-
-!ELSEIF  "$(CFG)" == "xml - Win32 Debug"
-
-InputPath=.\winconfig.h
-
-".\config.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	<<tempfile.bat 
-	@echo off 
-	type .\winconfig.h > .\config.h
-<< 
-	
-
-!ELSEIF  "$(CFG)" == "xml - x64 Release"
-
-InputPath=.\winconfig.h
-
-".\config.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	<<tempfile.bat 
-	@echo off 
-	type .\winconfig.h > .\config.h
-<< 
-	
-
-!ELSEIF  "$(CFG)" == "xml - x64 Debug"
-
-InputPath=.\winconfig.h
-
-".\config.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	<<tempfile.bat 
-	@echo off 
-	type .\winconfig.h > .\config.h
-<< 
-	
-
-!ENDIF 
-
 
 !ENDIF 
 
