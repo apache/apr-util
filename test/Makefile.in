@@ -1,3 +1,4 @@
+srcdir = @srcdir@
 VPATH = @srcdir@
 
 INCLUDES = @APRUTIL_PRIV_INCLUDES@ @APR_INCLUDES@ @APRUTIL_INCLUDES@
@@ -18,6 +19,8 @@ APRUTIL_LDFLAGS = @APRUTIL_LDFLAGS@ @LT_NO_INSTALL@
 all: $(PROGRAMS)
 
 check: $(PROGRAMS)
+# For VPATH builds; where we have no ./data, copy us some data
+	if test ! -d "./data"; then cp -r $(srcdir)/data data; fi
 	for prog in $(PROGRAMS); do \
 		if test "$$prog" = 'testmd4'; then \
 			./$$prog -ssomestringtohash; \
