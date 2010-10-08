@@ -5,9 +5,17 @@ Changes with APR-util 0.9.18
      Fix a denial of service attack against apr_brigade_split_line().
      [Stefan Fritsch]
 
+  *) SECURITY: CVE-2009-3560, CVE-2009-3720 (cve.mitre.org)
+     Fix two buffer over-read flaws in the bundled copy of expat which
+     could cause applications to crash while parsing specially-crafted
+     XML documents.  [Joe Orton, Rainer Jung]
+
   *) SECURITY: CVE-2009-2412 (cve.mitre.org)
      Fix overflow in rmm, where size alignment was taking place.
      [Matt Lewis <mattlewis@google.com>, Sander Striker]
+
+  *) Upgrade bundled copy of expat library to 1.95.7.
+     [Joe Orton, Rainer Jung]
 
   *) Make bundled expat compatible with libtool 2.x.
      This only affects the release process. [Rainer Jung]
@@ -17,6 +25,11 @@ Changes with APR-util 0.9.18
 
   *) Improve platform detection for bundled expat by updating
      config.guess and config.sub. [Rainer Jung]
+
+  *) Add support for Berkeley DB 4.6 to 5.1.  PR 49866, PR 49179.
+     [Bernhard Rosenkraenzer <br blankpage.ch>,
+      Arfrever Frehtes Taifersar Arahesis <arfrever.fta gmail.com>,
+      Rainer Jung]
 
 Changes with APR-util 0.9.17
 
