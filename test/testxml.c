@@ -156,9 +156,8 @@ static void oops(const char *s1, const char *s2, apr_status_t rv)
     exit(1);
 }
 
-int main(int argc, const char *const * argv)
+static int test_xml_parser(apr_pool_t *pool, const char *file)
 {
-    apr_pool_t *pool;
     apr_file_t *fd;
     apr_xml_parser *parser;
     apr_xml_doc *doc;
@@ -166,26 +165,19 @@ int main(int argc, const char *const * argv)
     char errbuf[2000];
     char errbufXML[2000];
 
-    (void) apr_initialize();
-    apr_pool_create(&pool, NULL);
-    progname = argv[0];
-    if (argc == 1) {
+    if (file == NULL) {
         rv = create_dummy_file(pool, &fd);
         if (rv != APR_SUCCESS) {
             oops("cannot create dummy file", "oops", rv);
         }
     }
     else {
-        if (argc == 2) {
-            rv = apr_file_open(&fd, argv[1], APR_READ, APR_OS_DEFAULT, pool);
-            if (rv != APR_SUCCESS) {
-                oops("cannot open: %s", argv[1], rv);
-            }
-        }
-        else {
-            oops("usage: %s", usage, 0);
+        rv = apr_file_open(&fd, file, APR_READ, APR_OS_DEFAULT, pool);
+        if (rv != APR_SUCCESS) {
+            oops("cannot open: %s", file, rv);
         }
     }
+
     rv = apr_xml_parse_file(pool, &parser, &doc, fd, 2000);
     if (rv != APR_SUCCESS) {
         fprintf(stderr, "APR Error %s\nXML Error: %s\n",
@@ -193,9 +185,12 @@ int main(int argc, const char *const * argv)
              apr_xml_parser_geterror(parser, errbufXML, sizeof(errbufXML)));
         return rv;
     }
+
     dump_xml(doc->root, 0);
-    apr_file_close(fd);
-    if (argc == 1) {
+
+    rv = apr_file_close(fd);
+
+    if (file == NULL) {
         rv = create_dummy_file_error(pool, &fd);
         if (rv != APR_SUCCESS) {
             oops("cannot create error dummy file", "oops", rv);
@@ -213,6 +208,79 @@ int main(int argc, const char *const * argv)
             return APR_EGENERAL;
         }
     }
+    return rv;
+}
+
+static void test_billion_laughs(apr_pool_t *pool)
+{
+    apr_file_t *fd;
+    apr_xml_parser *parser;
+    apr_xml_doc *doc;
+    apr_status_t rv;
+    char errbuf[2000];
+
+    rv = apr_file_open(&fd, "data/billion-laughs.xml", 
+                       APR_READ, 0, pool);
+    if (rv != APR_SUCCESS) {
+        fprintf(stderr, "APR Error %s\n",
+                apr_strerror(rv, errbuf, sizeof(errbuf)));
+    }
+
+    /* Don't test for return value; if it returns, chances are the bug
+     * is fixed or the machine has insane amounts of RAM. */
+    apr_xml_parse_file(pool, &parser, &doc, fd, 2000);
+
+    apr_file_close(fd);
+}
+
+static void test_CVE_2009_3720_alpha(apr_pool_t *pool)
+{
+    apr_xml_parser *xp;
+    apr_xml_doc *doc;
+    apr_status_t rv;
+
+    xp = apr_xml_parser_create(pool);
+    
+    rv = apr_xml_parser_feed(xp, "\0\r\n", 3);
+    if (rv == APR_SUCCESS)
+        apr_xml_parser_done(xp, &doc);
+}
+
+static void test_CVE_2009_3720_beta(apr_pool_t *pool)
+{
+    apr_xml_parser *xp;
+    apr_xml_doc *doc;
+    apr_status_t rv;
+
+    xp = apr_xml_parser_create(pool);
+    
+    rv = apr_xml_parser_feed(xp, "<?xml version\xc2\x85='1.0'?>\r\n", 25);
+    if (rv == APR_SUCCESS)
+        apr_xml_parser_done(xp, &doc);
+}
+
+int main(int argc, const char *const * argv)
+{
+    apr_pool_t *pool;
+    apr_status_t rv;
+
+    (void) apr_initialize();
+    apr_pool_create(&pool, NULL);
+    progname = argv[0];
+    if (argc == 1) {
+        rv = test_xml_parser(pool, NULL);
+    }
+    else {
+        if (argc == 2) {
+            rv = test_xml_parser(pool, argv[1]);
+        }
+        else {
+            oops("usage: %s", usage, 0);
+        }
+    }
+    test_billion_laughs(pool);
+    test_CVE_2009_3720_alpha(pool);
+    test_CVE_2009_3720_beta(pool);
     apr_pool_destroy(pool);
     apr_terminate();
     return rv;
