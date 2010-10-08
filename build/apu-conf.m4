@@ -40,12 +40,12 @@ AC_DEFUN(APU_TEST_EXPAT,[
 
   expat_libtool=""
 
-  if test -r "$1/lib/expat.h.in"; then
+  if test -r "$1/lib/expat.h"; then
     dnl Expat 1.95.* distribution
     expat_include_dir="$1/lib"
-    expat_ldflags="-L$1/lib"
+    expat_ldflags="-L$1"
     expat_libs="-lexpat"
-    expat_libtool="$1/lib/libexpat.la"
+    expat_libtool="$1/libexpat.la"
   elif test -r "$1/include/expat.h" -a \
     -r "$1/lib/libexpat.la"; then
     dnl Expat 1.95.* installation (with libtool)
@@ -190,7 +190,7 @@ if test "$expat_include_dir" = "$abs_srcdir/xml/expat/include" -o "$expat_includ
   expat_include_dir=$top_builddir/$bundled_subdir/lib
   expat_ldflags="-L$top_builddir/$bundled_subdir/lib"
   expat_libs="-lexpat"
-  expat_libtool=$top_builddir/$bundled_subdir/lib/libexpat.la
+  expat_libtool=$top_builddir/$bundled_subdir/libexpat.la
   APR_XML_SUBDIRS="`echo $bundled_subdir | sed -e 's%xml/%%'`"
   APR_ADDTO(APRUTIL_EXPORT_LIBS, [$expat_libtool])
 else
