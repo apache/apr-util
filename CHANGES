@@ -1,4 +1,7 @@
                                                      -*- coding: utf-8 -*-
+Changes with APR-util 0.9.19
+
+
 Changes with APR-util 0.9.18
 
   *) SECURITY: CVE-2010-1623 (cve.mitre.org)
