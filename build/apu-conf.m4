@@ -178,7 +178,7 @@ if test "$expat_include_dir" = "xml/expat/lib" -o "$expat_include_dir" = "xml/ex
   expat_include_dir=$top_builddir/$bundled_subdir/lib
   expat_ldflags="-L$top_builddir/$bundled_subdir/lib"
   expat_libs="-lexpat"
-  expat_libtool=$top_builddir/$bundled_subdir/lib/libexpat.la
+  expat_libtool=$top_builddir/$bundled_subdir/libexpat.la
   APR_XML_SUBDIRS="`echo $bundled_subdir | sed -e 's%xml/%%'`"
   APR_ADDTO(APRUTIL_EXPORT_LIBS, [$expat_libtool])
 else
