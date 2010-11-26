@@ -120,6 +120,7 @@ typedef struct
 
 /**
  * Creates a crc32 hash used to split keys between servers
+ * @param mc The memcache client object to use
  * @param data Data to be hashed
  * @param data_len Length of the data to use
  * @return crc32 hash of data
@@ -163,7 +164,7 @@ APU_DECLARE(apr_memcache_server_t *) apr_memcache_find_server_hash_default(void 
 /**
  * Adds a server to a client object
  * @param mc The memcache client object to use
- * @param ms Server to add
+ * @param server Server to add
  * @remark Adding servers is not thread safe, and should be done once at startup.
  * @warning Changing servers after startup may cause keys to go to
  * different servers.
@@ -283,7 +284,7 @@ APU_DECLARE(apr_status_t) apr_memcache_multgetp(apr_memcache_t *mc,
  * @param mc client to use
  * @param key   null terminated string containing the key
  * @param baton data to store on the server
- * @param len   length of data at baton
+ * @param data_size   length of data at baton
  * @param timeout time in seconds for the data to live on the server
  * @param flags any flags set by the client for this key
  */
@@ -299,7 +300,7 @@ APU_DECLARE(apr_status_t) apr_memcache_set(apr_memcache_t *mc,
  * @param mc client to use
  * @param key   null terminated string containing the key
  * @param baton data to store on the server
- * @param len   length of data at baton
+ * @param data_size   length of data at baton
  * @param timeout time for the data to live on the server
  * @param flags any flags set by the client for this key
  * @return APR_SUCCESS if the key was added, APR_EEXIST if the key 
@@ -317,7 +318,7 @@ APU_DECLARE(apr_status_t) apr_memcache_add(apr_memcache_t *mc,
  * @param mc client to use
  * @param key   null terminated string containing the key
  * @param baton data to store on the server
- * @param len   length of data at baton
+ * @param data_size   length of data at baton
  * @param timeout time for the data to live on the server
  * @param flags any flags set by the client for this key
  * @return APR_SUCCESS if the key was added, APR_EEXIST if the key 
@@ -325,7 +326,7 @@ APU_DECLARE(apr_status_t) apr_memcache_add(apr_memcache_t *mc,
  */
 APU_DECLARE(apr_status_t) apr_memcache_replace(apr_memcache_t *mc,
                                                const char *key,
-                                               char *data,
+                                               char *baton,
                                                const apr_size_t data_size,
                                                apr_uint32_t timeout,
                                                apr_uint16_t flags);
@@ -356,7 +357,7 @@ APU_DECLARE(apr_status_t) apr_memcache_incr(apr_memcache_t *mc,
  * @param mc client to use
  * @param key   null terminated string containing the key
  * @param n     number to decrement by
- * @param nv    new value after decrementing
+ * @param new_value    new value after decrementing
  */
 APU_DECLARE(apr_status_t) apr_memcache_decr(apr_memcache_t *mc, 
                                             const char *key,
