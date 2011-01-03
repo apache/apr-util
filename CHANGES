@@ -2,7 +2,7 @@
 Changes with APR-util 1.4.0
 
   *) Do not include apr.h and apr_errno.h from system search path in
-     apu_errno.h. PR 46487 [Rainer Jung <rainer.jung kippdata.de>]
+     apu_errno.h. PR 46487 [Rainer Jung]
 
   *) Add optional dbm, openssl and nss subpackages to the RPM spec file.
      [Graham Leggett]
