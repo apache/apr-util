@@ -1,6 +1,10 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.3.11
 
+  *) DBD ODBC support: Fix stack buffer overwrite when an unexpected
+     number of parameters is passed to open.  Fix range checking of the
+     APR DBD type enum passed to some of the APIs.  [Jeff Trawick]
+
   *) Add support for Berkeley DB 5.1.
      [Rainer Jung]
 
