@@ -202,7 +202,7 @@ typedef struct {
 
 /* SQL datatype mappings to DBD datatypes 
  * These tables must correspond *exactly* to the apr_dbd_type_e enum 
- * in apr_dbd_internal.h 
+ * in apr_dbd.h
  */
 
 /* ODBC "C" types to DBD datatypes  */
@@ -231,6 +231,7 @@ static SQLSMALLINT const sqlCtype[] = {
     SQL_LONGVARCHAR,                /* APR_DBD_TYPE_CLOB,       \%pDc */
     SQL_TYPE_NULL                   /* APR_DBD_TYPE_NULL        \%pDn */
 };
+#define NUM_APR_DBD_TYPES (sizeof(sqlCtype) / sizeof(sqlCtype[0]))
 
 /*  ODBC Base types to DBD datatypes */
 static SQLSMALLINT const sqlBaseType[] = {
@@ -528,6 +529,10 @@ static SQLRETURN odbc_bind_param(apr_pool_t *pool,
     }
     /* bind a non-NULL data value */
     else {
+        if (type < 0 || type >= NUM_APR_DBD_TYPES) {
+            return APR_EGENERAL;
+        }
+
         baseType = sqlBaseType[type];
         cType = sqlCtype[type];
         indicator = NULL;
@@ -814,7 +819,7 @@ static apr_status_t odbc_parse_params(apr_pool_t *pool, const char *params,
                                int *defaultBufferSize, int *nattrs,
                                int **attrs, int **attrvals)
 {
-    char *seps, *last, *name[MAX_PARAMS], *val[MAX_PARAMS];
+    char *seps, *last, *next, *name[MAX_PARAMS], *val[MAX_PARAMS];
     int nparams = 0, i, j;
 
     *attrs = apr_pcalloc(pool, MAX_PARAMS * sizeof(char *));
@@ -834,8 +839,18 @@ static apr_status_t odbc_parse_params(apr_pool_t *pool, const char *params,
         }
         val[nparams] = apr_strtok(NULL, seps, &last);
         seps = DEFAULTSEPS;
-        name[++nparams] = apr_strtok(NULL, seps, &last);
-    } while (nparams <= MAX_PARAMS && name[nparams] != NULL);
+
+        ++nparams;
+        next = apr_strtok(NULL, seps, &last);
+        if (!next) {
+            break;
+        }
+        if (nparams >= MAX_PARAMS) {
+            /* too many parameters, no place to store */
+            return APR_EGENERAL;
+        }
+        name[nparams] = next;
+    } while (1);
 
     for (j = i = 0; i < nparams; i++) {
         if (!apr_strnatcasecmp(name[i], "CONNECT")) {
@@ -904,15 +919,16 @@ static void check_error(apr_dbd_t *dbc, const char *step, SQLRETURN rc,
     SQLSMALLINT reslength;
     char *res, *p, *end, *logval = NULL;
     int i;
-    apr_status_t r;
 
     /* set info about last error in dbc  - fast return for SQL_SUCCESS  */
     if (rc == SQL_SUCCESS) {
         char successMsg[] = "[dbd_odbc] SQL_SUCCESS ";
+        apr_size_t successMsgLen = sizeof successMsg - 1;
 
         dbc->lasterrorcode = SQL_SUCCESS;
-        strcpy(dbc->lastError, successMsg);
-        strcpy(dbc->lastError + sizeof(successMsg) - 1, step);
+        apr_cpystrn(dbc->lastError, successMsg, sizeof dbc->lastError);
+        apr_cpystrn(dbc->lastError + successMsgLen, step,
+                    sizeof dbc->lastError - successMsgLen);
         return;
     }
     switch (rc) {
@@ -953,7 +969,7 @@ static void check_error(apr_dbd_t *dbc, const char *step, SQLRETURN rc,
         if (SQL_SUCCEEDED(rc) && (p < (end - 280))) 
             p += sprintf(p, "%.256s %.20s ", buffer, sqlstate);
     }
-    r = apr_env_get(&logval, "apr_dbd_odbc_log", dbc->pool);
+    apr_env_get(&logval, "apr_dbd_odbc_log", dbc->pool);
     /* if env var was set or call was init/open (no dbname) - log to stderr */
     if (logval || !dbc->dbname ) {
         char timestamp[APR_CTIME_LEN];
@@ -969,7 +985,8 @@ static APR_INLINE int odbc_check_rollback(apr_dbd_t *handle)
 {
     if (handle->can_commit == APR_DBD_TRANSACTION_ROLLBACK) {
         handle->lasterrorcode = SQL_ERROR;
-        strcpy(handle->lastError, "[dbd_odbc] Rollback pending ");
+        apr_cpystrn(handle->lastError, "[dbd_odbc] Rollback pending ",
+                    sizeof handle->lastError);
         return 1;
     }
     return 0;
@@ -1338,15 +1355,17 @@ static apr_status_t odbc_datum_get(const apr_dbd_row_t *row, int col,
 {
     SQLSMALLINT sqltype;
     void *p;
-    int len = sqlSizes[dbdtype];
+    int len;
 
     if (col >= row->res->ncols)
         return APR_EGENERAL;
 
-    if (dbdtype < 0 || dbdtype >= sizeof(sqlCtype)) {
+    if (dbdtype < 0 || dbdtype >= NUM_APR_DBD_TYPES) {
         data = NULL;            /* invalid type */
         return APR_EGENERAL;
     }
+
+    len = sqlSizes[dbdtype];
     sqltype = sqlCtype[dbdtype];
 
     /* must not memcpy a brigade, sentinals are relative to orig loc */
