@@ -24,7 +24,7 @@ endif
 # paths to tools
 #
 
-include $(APR_WORK)\build\NWGNUhead.inc
+include $(APR_WORK)/build/NWGNUhead.inc
 
 #
 # Make sure all needed macro's are defined
@@ -37,11 +37,11 @@ include $(APR_WORK)\build\NWGNUhead.inc
 XINCDIRS	+= \
 			$(APR)/include \
 			$(APR)/include/arch/NetWare \
-			$(APRUTIL)/include \
-			$(APRUTIL)/uri \
-			$(APRUTIL)/dbm/sdbm \
-			$(APRUTIL)/include/private \
-			$(APRUTIL)/xml/expat/lib \
+			$(APU)/include \
+			$(APU)/uri \
+			$(APU)/dbm/sdbm \
+			$(APU)/include/private \
+			$(APUXML)/expat/lib \
 			$(LDAPSDK)/inc \
 			$(EOLIST)
 
@@ -129,7 +129,7 @@ NLM_DESCRIPTION	=
 NLM_THREAD_NAME	=
 #
 # If this is specified, it will override VERSION value in
-# $(APR_WORK)\build\NWGNUenvironment.inc
+# $(APR_WORK)/build/NWGNUenvironment.inc
 #
 NLM_VERSION	=
 
@@ -179,7 +179,7 @@ TARGET_nlm = \
 # If there is an LIB target, put it here
 #
 TARGET_lib = \
-	$(OBJDIR)/aprutil.lib \
+	$(OBJDIR)/apulib.lib \
 	$(EOLIST)
 
 #
@@ -285,7 +285,7 @@ nlms :: libs $(TARGET_nlm)
 
 #
 # Updated this target to create necessary directories and copy files to the
-# correct place.  (See $(APR_WORK)\build\NWGNUhead.inc for examples)
+# correct place.  (See $(APR_WORK)/build/NWGNUhead.inc for examples)
 #
 install :: nlms FORCE
 
@@ -300,6 +300,6 @@ vpath %.c buckets:crypto:dbd:dbm:dbm/sdbm:encoding:hooks:ldap:memcache:misc:strm
 # in this makefile
 #
 
-include $(APR_WORK)\build\NWGNUtail.inc
+include $(APRBUILD)/NWGNUtail.inc
 
 
