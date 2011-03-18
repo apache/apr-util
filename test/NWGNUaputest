@@ -234,9 +234,10 @@ FILE_nlm_copyright =
 #
 FILES_nlm_Ximports = \
 	@libc.imp \
- 	@aprlib.imp \
- 	@lldapsdk.imp \
- 	@lldapssl.imp \
+	@netware.imp \
+	@aprlib.imp \
+	@lldapsdk.imp \
+	@lldapssl.imp \
 	$(EOLIST)
  
 #   
@@ -244,7 +245,7 @@ FILES_nlm_Ximports = \
 #
 FILES_nlm_exports = \
 	$(EOLIST)
-	
+
 #   
 # These are the OBJ files needed to create the LIB target above.
 # Paths must all use the '/' character
