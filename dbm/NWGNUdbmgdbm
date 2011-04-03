@@ -14,8 +14,6 @@ ifndef EnvironmentDefined
 include $(APR_WORK)/build/NWGNUhead.inc
 endif
 
-#include $(APR)\build\NWGNUcustom.inc
-
 #
 # build this level's files
 
@@ -27,8 +25,8 @@ endif
 
 # for now defined here - should finally go into build/NWGNUenvironment.inc
 GDBM_INC = $(GDBMSDK)/inc
-GDBM_IMP = $(GDBMSDK)/imp/libgdbm.imp
-GDBM_LIB = $(GDBMSDK)/lib/libgdbm.lib
+GDBM_IMP = libgdbm.imp
+GDBM_LIB = libgdbm.lib
 GDBM_NLM = libgdbm
 
 #
@@ -38,8 +36,8 @@ GDBM_NLM = libgdbm
 XINCDIRS	+= \
 			$(APR)/include/arch/netware \
 			$(APR)/include \
-			$(APRUTIL)/include \
-			$(APRUTIL)/include/private \
+			$(APU)/include \
+			$(APU)/include/private \
 			$(APR) \
 			$(GDBM_INC) \
 			$(EOLIST)
@@ -67,6 +65,10 @@ XLFLAGS		+= \
 ifdef LINK_STATIC
 XLFLAGS		+= \
 			-l $(GDBMSDK)/lib \
+			$(EOLIST)
+else
+XLFLAGS		+= \
+			-l $(GDBMSDK)/imp \
 			$(EOLIST)
 endif
 
@@ -243,7 +245,7 @@ FILE_nlm_copyright =
 # Any additional imports go here
 #
 FILES_nlm_Ximports = \
-	@$(APR)/aprlib.imp \
+	@aprlib.imp \
 	@libc.imp \
 	$(EOLIST)
 
