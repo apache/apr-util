@@ -1,4 +1,7 @@
                                                      -*- coding: utf-8 -*-
+Changes with APR-util 1.3.12
+
+
 Changes with APR-util 1.3.11
 
   *) apr_dbd_oracle: fix endianness issue in prepared statements.
