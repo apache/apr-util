@@ -142,17 +142,18 @@ extern "C" {
  */
 
 typedef enum {
-    KEY_NONE, KEY_3DES_192, /** 192 bit (3-Key) 3DES */
-    KEY_AES_128, /** 128 bit AES */
-    KEY_AES_192, /** 192 bit AES */
-    KEY_AES_256
+    APR_KEY_NONE,
+    APR_KEY_3DES_192, /** 192 bit (3-Key) 3DES */
+    APR_KEY_AES_128, /** 128 bit AES */
+    APR_KEY_AES_192, /** 192 bit AES */
+    APR_KEY_AES_256
 /** 256 bit AES */
 } apr_crypto_block_key_type_e;
 
 typedef enum {
-    MODE_NONE, /** An error condition */
-    MODE_ECB, /** Electronic Code Book */
-    MODE_CBC
+    APR_MODE_NONE, /** An error condition */
+    APR_MODE_ECB, /** Electronic Code Book */
+    APR_MODE_CBC
 /** Cipher Block Chaining */
 } apr_crypto_block_key_mode_e;
 
@@ -184,6 +185,7 @@ typedef struct apr_crypto_block_t apr_crypto_block_t;
  * @brief Perform once-only initialisation. Call once only.
  *
  * @param pool - pool to register any shutdown cleanups, etc
+ * @param params - array of initialisation parameters
  * @return APR_NOTIMPL in case of no crypto support.
  */
 APU_DECLARE(apr_status_t) apr_crypto_init(apr_pool_t *pool,
@@ -192,17 +194,19 @@ APU_DECLARE(apr_status_t) apr_crypto_init(apr_pool_t *pool,
 /**
  * @brief Get the driver struct for a name
  *
- * @param pool - (process) pool to register cleanup
- * @param name - driver name
  * @param driver - pointer to driver struct.
+ * @param name - driver name
+ * @param params - array of initialisation parameters
+ * @param result - result and error message on failure
+ * @param pool - (process) pool to register cleanup
  * @return APR_SUCCESS for success
  * @return APR_ENOTIMPL for no driver (when DSO not enabled)
  * @return APR_EDSOOPEN if DSO driver file can't be opened
  * @return APR_ESYMNOTFOUND if the driver file doesn't contain a driver
  */
-APU_DECLARE(apr_status_t) apr_crypto_get_driver(apr_pool_t *pool, const char *name,
-        const apr_crypto_driver_t **driver, const apr_array_header_t *params,
-        const apu_err_t **result);
+APU_DECLARE(apr_status_t) apr_crypto_get_driver(const apr_crypto_driver_t **driver,
+        const char *name, const apr_array_header_t *params, const apu_err_t **result,
+        apr_pool_t *pool);
 
 /**
  * @brief Return the name of the driver.
@@ -210,32 +214,32 @@ APU_DECLARE(apr_status_t) apr_crypto_get_driver(apr_pool_t *pool, const char *na
  * @param driver - The driver in use.
  * @return The name of the driver.
  */
-APU_DECLARE(const char *)apr_crypto_driver_name (const apr_crypto_driver_t *driver);
+APU_DECLARE(const char *) apr_crypto_driver_name(const apr_crypto_driver_t *driver);
 
 /**
  * @brief Get the result of the last operation on a context. If the result
  *        is NULL, the operation was successful.
- * @param f - context pointer
  * @param result - the result structure
+ * @param f - context pointer
  * @return APR_SUCCESS for success
  */
-APR_DECLARE(apr_status_t) apr_crypto_error(const apr_crypto_driver_t *driver,
-        const apr_crypto_t *f, const apu_err_t **result);
+APU_DECLARE(apr_status_t) apr_crypto_error(const apu_err_t **result,
+        const apr_crypto_t *f);
 
 /**
  * @brief Create a context for supporting encryption. Keys, certificates,
  *        algorithms and other parameters will be set per context. More than
  *        one context can be created at one time. A cleanup will be automatically
  *        registered with the given pool to guarantee a graceful shutdown.
- * @param driver - driver to use
- * @param pool - process pool
- * @param params - array of key parameters
  * @param f - context pointer will be written here
+ * @param driver - driver to use
+ * @param params - array of key parameters
+ * @param pool - process pool
  * @return APR_ENOENGINE when the engine specified does not exist. APR_EINITENGINE
  * if the engine cannot be initialised.
  */
-APU_DECLARE(apr_status_t) apr_crypto_make(const apr_crypto_driver_t *driver,
-        apr_pool_t *pool, const apr_array_header_t *params, apr_crypto_t **f);
+APU_DECLARE(apr_status_t) apr_crypto_make(apr_crypto_t **f, const apr_crypto_driver_t *driver,
+        const apr_array_header_t *params, apr_pool_t *pool);
 
 /**
  * @brief Create a key from the given passphrase. By default, the PBKDF2
@@ -246,9 +250,9 @@ APU_DECLARE(apr_status_t) apr_crypto_make(const apr_crypto_driver_t *driver,
  *        operations.
  * @note If *key is NULL, a apr_crypto_key_t will be created from a pool. If
  *       *key is not NULL, *key must point at a previously created structure.
- * @param driver - driver to use
- * @param p The pool to use.
- * @param f The context to use.
+ * @param key The key returned, see note.
+ * @param ivSize The size of the initialisation vector will be returned, based
+ *               on whether an IV is relevant for this type of crypto.
  * @param pass The passphrase to use.
  * @param passLen The passphrase length in bytes
  * @param salt The salt to use.
@@ -256,45 +260,41 @@ APU_DECLARE(apr_status_t) apr_crypto_make(const apr_crypto_driver_t *driver,
  * @param type 3DES_192, AES_128, AES_192, AES_256.
  * @param mode Electronic Code Book / Cipher Block Chaining.
  * @param doPad Pad if necessary.
- * @param key The key returned, see note.
- * @param ivSize The size of the initialisation vector will be returned, based
- *               on whether an IV is relevant for this type of crypto.
+ * @param iterations Number of iterations to use in algorithm
+ * @param f The context to use.
+ * @param p The pool to use.
  * @return Returns APR_ENOKEY if the pass phrase is missing or empty, or if a backend
  *         error occurred while generating the key. APR_ENOCIPHER if the type or mode
  *         is not supported by the particular backend. APR_EKEYTYPE if the key type is
  *         not known. APR_EPADDING if padding was requested but is not supported.
  *         APR_ENOTIMPL if not implemented.
  */
-APU_DECLARE(apr_status_t) apr_crypto_passphrase(const apr_crypto_driver_t *driver,
-        apr_pool_t *p, const apr_crypto_t *f, const char *pass,
-        apr_size_t passLen, const unsigned char * salt, apr_size_t saltLen,
+APU_DECLARE(apr_status_t) apr_crypto_passphrase(apr_crypto_key_t **key,
+        apr_size_t *ivSize, const char *pass, apr_size_t passLen,
+        const unsigned char * salt, apr_size_t saltLen,
         const apr_crypto_block_key_type_e type,
         const apr_crypto_block_key_mode_e mode, const int doPad,
-        const int iterations, apr_crypto_key_t **key, apr_size_t *ivSize);
+        const int iterations, const apr_crypto_t *f, apr_pool_t *p);
 
 /**
  * @brief Initialise a context for encrypting arbitrary data using the given key.
  * @note If *ctx is NULL, a apr_crypto_block_t will be created from a pool. If
  *       *ctx is not NULL, *ctx must point at a previously created structure.
- * @param driver - driver to use
- * @param p The pool to use.
- * @param f The block context to use.
- * @param key The key structure to use.
+ * @param ctx The block context returned, see note.
  * @param iv Optional initialisation vector. If the buffer pointed to is NULL,
  *           an IV will be created at random, in space allocated from the pool.
  *           If the buffer pointed to is not NULL, the IV in the buffer will be
  *           used.
- * @param ctx The block context returned, see note.
+ * @param key The key structure to use.
  * @param blockSize The block size of the cipher.
+ * @param p The pool to use.
  * @return Returns APR_ENOIV if an initialisation vector is required but not specified.
  *         Returns APR_EINIT if the backend failed to initialise the context. Returns
  *         APR_ENOTIMPL if not implemented.
  */
 APU_DECLARE(apr_status_t) apr_crypto_block_encrypt_init(
-        const apr_crypto_driver_t *driver, apr_pool_t *p,
-        const apr_crypto_t *f, const apr_crypto_key_t *key,
-        const unsigned char **iv, apr_crypto_block_t **ctx,
-        apr_size_t *blockSize);
+        apr_crypto_block_t **ctx, const unsigned char **iv,
+        const apr_crypto_key_t *key, apr_size_t *blockSize, apr_pool_t *p);
 
 /**
  * @brief Encrypt data provided by in, write it to out.
@@ -305,20 +305,18 @@ APU_DECLARE(apr_status_t) apr_crypto_block_encrypt_init(
  *       to NULL, a buffer sufficiently large will be created from
  *       the pool provided. If *out points to a not-NULL value, this
  *       value will be used as a buffer instead.
- * @param driver - driver to use
- * @param ctx The block context to use.
  * @param out Address of a buffer to which data will be written,
  *        see note.
  * @param outlen Length of the output will be written here.
  * @param in Address of the buffer to read.
  * @param inlen Length of the buffer to read.
+ * @param ctx The block context to use.
  * @return APR_ECRYPT if an error occurred. Returns APR_ENOTIMPL if
  *         not implemented.
  */
-APU_DECLARE(apr_status_t) apr_crypto_block_encrypt(
-        const apr_crypto_driver_t *driver, apr_crypto_block_t *ctx,
-        unsigned char **out, apr_size_t *outlen, const unsigned char *in,
-        apr_size_t inlen);
+APU_DECLARE(apr_status_t) apr_crypto_block_encrypt(unsigned char **out,
+        apr_size_t *outlen, const unsigned char *in, apr_size_t inlen,
+        apr_crypto_block_t *ctx);
 
 /**
  * @brief Encrypt final data block, write it to out.
@@ -328,41 +326,35 @@ APU_DECLARE(apr_status_t) apr_crypto_block_encrypt(
  *       number of bytes returned as actually written by the
  *       apr_crypto_block_encrypt() call. After this call, the context
  *       is cleaned and can be reused by apr_crypto_block_encrypt_init().
- * @param driver - driver to use
- * @param ctx The block context to use.
  * @param out Address of a buffer to which data will be written. This
  *            buffer must already exist, and is usually the same
  *            buffer used by apr_evp_crypt(). See note.
  * @param outlen Length of the output will be written here.
+ * @param ctx The block context to use.
  * @return APR_ECRYPT if an error occurred.
  * @return APR_EPADDING if padding was enabled and the block was incorrectly
  *         formatted.
  * @return APR_ENOTIMPL if not implemented.
  */
-APU_DECLARE(apr_status_t) apr_crypto_block_encrypt_finish(
-        const apr_crypto_driver_t *driver, apr_crypto_block_t *ctx,
-        unsigned char *out, apr_size_t *outlen);
+APU_DECLARE(apr_status_t) apr_crypto_block_encrypt_finish(unsigned char *out,
+        apr_size_t *outlen, apr_crypto_block_t *ctx);
 
 /**
  * @brief Initialise a context for decrypting arbitrary data using the given key.
  * @note If *ctx is NULL, a apr_crypto_block_t will be created from a pool. If
  *       *ctx is not NULL, *ctx must point at a previously created structure.
- * @param driver - driver to use
- * @param p The pool to use.
- * @param f The block context to use.
- * @param key The key structure to use.
- * @param iv Optional initialisation vector.
  * @param ctx The block context returned, see note.
  * @param blockSize The block size of the cipher.
+ * @param iv Optional initialisation vector.
+ * @param key The key structure to use.
+ * @param p The pool to use.
  * @return Returns APR_ENOIV if an initialisation vector is required but not specified.
  *         Returns APR_EINIT if the backend failed to initialise the context. Returns
  *         APR_ENOTIMPL if not implemented.
  */
 APU_DECLARE(apr_status_t) apr_crypto_block_decrypt_init(
-        const apr_crypto_driver_t *driver, apr_pool_t *p,
-        const apr_crypto_t *f, const apr_crypto_key_t *key,
-        const unsigned char *iv, apr_crypto_block_t **ctx,
-        apr_size_t *blockSize);
+        apr_crypto_block_t **ctx, apr_size_t *blockSize,
+        const unsigned char *iv, const apr_crypto_key_t *key, apr_pool_t *p);
 
 /**
  * @brief Decrypt data provided by in, write it to out.
@@ -373,20 +365,18 @@ APU_DECLARE(apr_status_t) apr_crypto_block_decrypt_init(
  *       to NULL, a buffer sufficiently large will be created from
  *       the pool provided. If *out points to a not-NULL value, this
  *       value will be used as a buffer instead.
- * @param driver - driver to use
- * @param ctx The block context to use.
  * @param out Address of a buffer to which data will be written,
  *        see note.
  * @param outlen Length of the output will be written here.
  * @param in Address of the buffer to read.
  * @param inlen Length of the buffer to read.
+ * @param ctx The block context to use.
  * @return APR_ECRYPT if an error occurred. Returns APR_ENOTIMPL if
  *         not implemented.
  */
-APU_DECLARE(apr_status_t) apr_crypto_block_decrypt(
-        const apr_crypto_driver_t *driver, apr_crypto_block_t *ctx,
-        unsigned char **out, apr_size_t *outlen, const unsigned char *in,
-        apr_size_t inlen);
+APU_DECLARE(apr_status_t) apr_crypto_block_decrypt(unsigned char **out,
+        apr_size_t *outlen, const unsigned char *in, apr_size_t inlen,
+        apr_crypto_block_t *ctx);
 
 /**
  * @brief Decrypt final data block, write it to out.
@@ -396,50 +386,42 @@ APU_DECLARE(apr_status_t) apr_crypto_block_decrypt(
  *       number of bytes returned as actually written by the
  *       apr_crypto_block_decrypt() call. After this call, the context
  *       is cleaned and can be reused by apr_crypto_block_decrypt_init().
- * @param driver - driver to use
- * @param ctx The block context to use.
  * @param out Address of a buffer to which data will be written. This
  *            buffer must already exist, and is usually the same
  *            buffer used by apr_evp_crypt(). See note.
  * @param outlen Length of the output will be written here.
+ * @param ctx The block context to use.
  * @return APR_ECRYPT if an error occurred.
  * @return APR_EPADDING if padding was enabled and the block was incorrectly
  *         formatted.
  * @return APR_ENOTIMPL if not implemented.
  */
-APU_DECLARE(apr_status_t) apr_crypto_block_decrypt_finish(
-        const apr_crypto_driver_t *driver, apr_crypto_block_t *ctx,
-        unsigned char *out, apr_size_t *outlen);
+APU_DECLARE(apr_status_t) apr_crypto_block_decrypt_finish(unsigned char *out,
+        apr_size_t *outlen, apr_crypto_block_t *ctx);
 
 /**
  * @brief Clean encryption / decryption context.
  * @note After cleanup, a context is free to be reused if necessary.
- * @param driver - driver to use
  * @param ctx The block context to use.
  * @return Returns APR_ENOTIMPL if not supported.
  */
-APU_DECLARE(apr_status_t) apr_crypto_block_cleanup(
-        const apr_crypto_driver_t *driver, apr_crypto_block_t *ctx);
+APU_DECLARE(apr_status_t) apr_crypto_block_cleanup(apr_crypto_block_t *ctx);
 
 /**
  * @brief Clean encryption / decryption context.
  * @note After cleanup, a context is free to be reused if necessary.
- * @param driver - driver to use
  * @param f The context to use.
  * @return Returns APR_ENOTIMPL if not supported.
  */
-APU_DECLARE(apr_status_t) apr_crypto_cleanup(const apr_crypto_driver_t *driver,
-        apr_crypto_t *f);
+APU_DECLARE(apr_status_t) apr_crypto_cleanup(apr_crypto_t *f);
 
 /**
  * @brief Shutdown the crypto library.
  * @note After shutdown, it is expected that the init function can be called again.
  * @param driver - driver to use
- * @param p The pool to use.
  * @return Returns APR_ENOTIMPL if not supported.
  */
-APU_DECLARE(apr_status_t) apr_crypto_shutdown(const apr_crypto_driver_t *driver,
-        apr_pool_t *p);
+APU_DECLARE(apr_status_t) apr_crypto_shutdown(const apr_crypto_driver_t *driver);
 
 #endif /* APU_HAVE_CRYPTO */
 
