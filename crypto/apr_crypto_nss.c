@@ -15,6 +15,7 @@
  */
 
 #include "apu.h"
+#include "apu_config.h"
 #include "apu_errno.h"
 
 #include <ctype.h>
