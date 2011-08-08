@@ -1,15 +1,15 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.3.13
 
+  *) Avoid compiler warning in ldap_set_rebind_proc() test.
+     [Bojan Smojver]
+
   *) apr_thread_pool: Fix thread unsafe pool usage. [Stefan Fritsch]
 
   *) Improve platform detection for bundled expat by updating
      config.guess and config.sub. [Rainer Jung]
 
   *) Sync libtool handling of bundled expat from APR.  [Rainer Jung]
-
-  *) Avoid compiler warning in ldap_set_rebind_proc() test.
-     [Bojan Smojver]
 
 Changes with APR-util 1.3.12
 
