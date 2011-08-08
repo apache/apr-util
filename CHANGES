@@ -1,9 +1,6 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
-  *) Avoid compiler warning in ldap_set_rebind_proc() test.
-     [Bojan Smojver]
-
   *) apr_thread_pool: Fix thread unsafe pool usage. [Stefan Fritsch]
 
   *) Do not include apr.h and apr_errno.h from system search path in
