@@ -8,6 +8,9 @@ Changes with APR-util 1.3.13
 
   *) Sync libtool handling of bundled expat from APR.  [Rainer Jung]
 
+  *) Avoid compiler warning in ldap_set_rebind_proc() test.
+     [Bojan Smojver]
+
 Changes with APR-util 1.3.12
 
   *) apr_ldap: Fix crash because of NULL cleanup registered by
