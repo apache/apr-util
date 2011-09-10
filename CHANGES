@@ -1,6 +1,7 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 0.9.20
 
+  *) Updated config.guess and config.sub.  [Rainer Jung]
 
 Changes with APR-util 0.9.19
 
