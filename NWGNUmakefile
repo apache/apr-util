@@ -249,6 +249,7 @@ FILES_lib_objs = \
 	$(OBJDIR)/apr_buckets_refcount.o \
 	$(OBJDIR)/apr_buckets_simple.o \
 	$(OBJDIR)/apr_buckets_socket.o \
+	$(OBJDIR)/apr_crypto.o \
 	$(OBJDIR)/apr_date.o \
 	$(OBJDIR)/apr_dbm.o \
 	$(OBJDIR)/apr_dbd.o \
