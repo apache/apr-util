@@ -159,8 +159,9 @@ static void test_billion_laughs(abts_case *tc, void *data)
                        APR_FOPEN_READ, 0, p);
     apr_assert_success(tc, "open billion-laughs.xml", rv);
 
-    rv = apr_xml_parse_file(p, &parser, &doc, fd, 2000);
-    ABTS_TRUE(tc, rv != APR_SUCCESS);
+    /* Don't test for return value; if it returns, chances are the bug
+     * is fixed or the machine has insane amounts of RAM. */
+    apr_xml_parse_file(p, &parser, &doc, fd, 2000);
 
     apr_file_close(fd);
 }
