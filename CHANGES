@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
+  *) apr_ldap_init: Pass secure=1 to ldapssl_init() with Solaris LDAP SDK.
+     PR: 42682 [Stefan Fritsch]
+
   *) apr_memcache_server_create: Fix possible segfault. PR 51064.
      [Michajlo Matijkiw <michajlo_matijkiw comcast com>]
 
