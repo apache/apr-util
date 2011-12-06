@@ -418,15 +418,17 @@ APU_DECLARE(apr_status_t) apr_memcache_server_create(apr_pool_t *p,
                                mc_conn_construct,       /* Make a New Connection */
                                mc_conn_destruct,        /* Kill Old Connection */
                                server, np);
+    if (rv != APR_SUCCESS) {
+        return rv;
+    }
 
     apr_reslist_cleanup_order_set(server->conns, APR_RESLIST_CLEANUP_FIRST);
 #else
     rv = mc_conn_construct((void**)&(server->conn), server, np);
-#endif
-
     if (rv != APR_SUCCESS) {
         return rv;
     }
+#endif
 
     *ms = server;
 
@@ -772,11 +774,9 @@ apr_memcache_getp(apr_memcache_t *mc,
     if (strncmp(MS_VALUE, conn->buffer, MS_VALUE_LEN) == 0) {
         char *flags;
         char *length;
-        char *start;
         char *last;
         apr_size_t len = 0;
 
-        start = conn->buffer;
         flags = apr_strtok(conn->buffer, " ", &last);
         flags = apr_strtok(NULL, " ", &last);
         flags = apr_strtok(NULL, " ", &last);
@@ -1345,12 +1345,10 @@ apr_memcache_multgetp(apr_memcache_t *mc,
                char *key;
                char *flags;
                char *length;
-               char *start;
                char *last;
                char *data;
                apr_size_t len = 0;
 
-               start = conn->buffer;
                key = apr_strtok(conn->buffer, " ", &last); /* just the VALUE, ignore */
                key = apr_strtok(NULL, " ", &last);
                flags = apr_strtok(NULL, " ", &last);

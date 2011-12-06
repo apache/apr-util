@@ -164,9 +164,9 @@ if test "${apu_has_expat}${apu_try_builtin_expat}" = "01"; then
   dnl we are working with the bundled version of the software.
   bundled_subdir="xml/expat"
   APR_SUBDIR_CONFIG($bundled_subdir, [--prefix=$prefix --exec-prefix=$exec_prefix --libdir=$libdir --includedir=$includedir --bindir=$bindir])
-  APR_ADDTO(APRUTIL_INCLUDES, [-I$top_builddir/$bundled_subdir/lib])
+  APR_ADDTO(APRUTIL_INCLUDES, [-I$abs_srcdir/$bundled_subdir/lib])
   APR_ADDTO(LDFLAGS, [-L$top_builddir/$bundled_subdir/lib])
-  apu_expat_libs="$top_builddir/$bundled_subdir/lib/libexpat.la"
+  apu_expat_libs="$top_builddir/$bundled_subdir/libexpat.la"
 fi
 
 APR_ADDTO(APRUTIL_EXPORT_LIBS, [$apu_expat_libs])
@@ -391,9 +391,7 @@ if test "$apu_has_ldap_openldap" = "1"; then
     #include <ldap.h>
     #endif
     ], [
-    int tmp = ldap_set_rebind_proc((LDAP *)0, (LDAP_REBIND_PROC *)0, (void *)0);
-    /* use tmp to suppress the warning */
-    tmp=0;
+    ldap_set_rebind_proc((LDAP *)0, (LDAP_REBIND_PROC *)0, (void *)0);
     ], ac_cv_ldap_set_rebind_proc_style=three, ac_cv_ldap_set_rebind_proc_style=two))
 
     if test "$ac_cv_ldap_set_rebind_proc_style" = "three"; then

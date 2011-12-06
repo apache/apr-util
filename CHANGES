@@ -1,8 +1,16 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.0
 
+  *) apr_ldap_init: Pass secure=1 to ldapssl_init() with Solaris LDAP SDK.
+     PR: 42682 [Stefan Fritsch]
+
+  *) apr_memcache_server_create: Fix possible segfault. PR 51064.
+     [Michajlo Matijkiw <michajlo_matijkiw comcast com>]
+
+  *) apr_thread_pool: Fix thread unsafe pool usage. [Stefan Fritsch]
+
   *) Do not include apr.h and apr_errno.h from system search path in
-     apu_errno.h. PR 46487 [Rainer Jung <rainer.jung kippdata.de>]
+     apu_errno.h. PR 46487 [Rainer Jung]
 
   *) Add optional dbm, openssl and nss subpackages to the RPM spec file.
      [Graham Leggett]
@@ -22,8 +30,9 @@ Changes with APR-util 1.4.0
      access to basic crypto using the native crypto libraries present on
      each platform.  [Graham Leggett]
 
-  *) Add DTrace Probes to Hooks, making it easier to inspect APR Hook based
-     applications with DTrace. [Theo Schlossnagle <jesus omniti.com>]
+  *) Add trace probes to hooks, making it easier to inspect APR Hook based
+     applications with DTrace or other such mechanisms.
+     [Theo Schlossnagle <jesus omniti.com>, generalized by Jeff Trawick]
 
   *) Implement resource list when threads are unavailable. PR 24325
      [Bojan Smojver]
