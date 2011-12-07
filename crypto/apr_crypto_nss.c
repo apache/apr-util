@@ -57,6 +57,7 @@ struct apr_crypto_t {
 };
 
 struct apr_crypto_config_t {
+	int _unused;
 };
 
 struct apr_crypto_key_t {
