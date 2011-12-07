@@ -1,6 +1,7 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-Util 1.4.1
 
+  *) Apply Windows build fixes for the apr_crypto API. [Mladen Turk]
 
 Changes with APR-util 1.4.0
 
