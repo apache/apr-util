@@ -139,7 +139,7 @@ APU_DECLARE(apr_status_t) apr_crypto_init(apr_pool_t *pool);
  * @param buffer - buffer to zero out
  * @param size - size of the buffer to zero out
  */
-APR_DECLARE(apr_status_t) apr_crypto_clear(apr_pool_t *pool, void *buffer,
+APU_DECLARE(apr_status_t) apr_crypto_clear(apr_pool_t *pool, void *buffer,
         apr_size_t size);
 
 /**
