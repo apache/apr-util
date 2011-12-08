@@ -46,6 +46,11 @@
 #
 #     DBM_LIST="db gdbm"
 #
+# Provide a CRYPTO_LIST argument after configuring LIB and INCLUDE with
+# the SDK paths of the corresponding cryptographic support libraries.
+#
+#     CRYPTO_LIST="nss openssl"
+#
 # For example;
 #
 #   nmake -f Makefile.win PREFIX=C:\APR buildall checkall installall clean
@@ -86,6 +91,7 @@ APU_PATH=..\apr-util
 !MESSAGE PREFIX      = $(PREFIX)  (install path)
 !MESSAGE DBD_LIST    = $(DBD_LIST)
 !MESSAGE DBM_LIST    = $(DBM_LIST)
+!MESSAGE CRYPTO_LIST = $(CRYPTO_LIST)
 
 # Utility and Translation things, nothing here for the user
 #
@@ -207,6 +213,10 @@ buildall:
 	  for %d in ($(DBM_LIST) x) do if not %d == x \
 	    $(MAKE) $(MAKEOPT) -f apr_dbm_%d.mak CFG="apr_dbm_%d - $(ARCH)" RECURSE=0 $(CTARGET)
 	cd ..
+	cd crypto
+	  for %d in ($(CRYPTO_LIST) x) do if not %d == x \
+	    $(MAKE) $(MAKEOPT) -f apr_crypto_%d.mak CFG="apr_crypto_%d - $(ARCH)" RECURSE=0 $(CTARGET)
+	cd ..
 
 !ELSEIF $(USESLN) == 1
 
@@ -215,6 +225,8 @@ clean:
 	  devenv aprutil.sln /useenv /clean "$(SLNARCH)" /project apr_dbd_%d
 	-for %d in ($(DBM_LIST) x) do if not %d == x \
 	  devenv aprutil.sln /useenv /clean "$(SLNARCH)" /project apr_dbm_%d
+	-for %d in ($(CRYPTO_LIST) x) do if not %d == x \
+	  devenv aprutil.sln /useenv /clean "$(SLNARCH)" /project apr_crypto_%d
 	-devenv aprutil.sln /useenv /clean "$(SLNARCH)" /project apr_ldap
 	-devenv aprutil.sln /useenv /clean "$(SLNARCH)" /project libaprutil
 	-devenv aprutil.sln /useenv /clean "$(SLNARCH)" /project aprutil
@@ -239,6 +251,8 @@ buildall:
 	  devenv aprutil.sln /useenv /build "$(SLNARCH)" /project apr_dbd_%d
 	for %d in ($(DBM_LIST) x) do if not %d == x \
 	  devenv aprutil.sln /useenv /build "$(SLNARCH)" /project apr_dbm_%d
+	for %d in ($(CRYPTO_LIST) x) do if not %d == x \
+	  devenv aprutil.sln /useenv /build "$(SLNARCH)" /project apr_crypto_%d
 
 !ELSE
 #	$(USEDSP) == 1
@@ -248,6 +262,8 @@ clean:
 	  msdev aprutil.dsw /USEENV /MAKE "apr_dbd_%d - $(ARCH)" /CLEAN
 	-for %d in ($(DBM_LIST) x) do if not %d == x \
 	  msdev aprutil.dsw /USEENV /MAKE "apr_dbm_%d - $(ARCH)" /CLEAN
+	-for %d in ($(CRYPTO_LIST) x) do if not %d == x \
+	  msdev aprutil.dsw /USEENV /MAKE "apr_crypto_%d - $(ARCH)" /CLEAN
 	-msdev aprutil.dsw /USEENV /MAKE "apr_ldap - $(ARCH)" /CLEAN
 	-msdev aprutil.dsw /USEENV /MAKE "libaprutil - $(ARCH)" /CLEAN
 	-msdev aprutil.dsw /USEENV /MAKE "aprutil - $(ARCH)" /CLEAN
@@ -272,6 +288,8 @@ buildall:
 	  msdev aprutil.dsw /USEENV /MAKE "apr_dbd_%d - $(ARCH)"
 	@for %d in ($(DBM_LIST) x) do if not %d == x \
 	  msdev aprutil.dsw /USEENV /MAKE "apr_dbm_%d - $(ARCH)"
+	@for %d in ($(CRYPTO_LIST) x) do if not %d == x \
+	  msdev aprutil.dsw /USEENV /MAKE "apr_crypto_%d - $(ARCH)"
 
 !ENDIF
 
@@ -335,6 +353,10 @@ install:
 	for %d in ($(DBM_LIST) x) do if not %d == x ( \
 	  copy $(APU_PATH)\dbm\$(ARCHPATH)\apr_dbm_%d-1.dll "$(PREFIX)\bin\" <.y && \
 	  copy $(APU_PATH)\dbm\$(ARCHPATH)\apr_dbm_%d-1.pdb "$(PREFIX)\bin\" <.y \
+	)
+	for %d in ($(CRYPTO_LIST) x) do if not %d == x ( \
+	  copy $(APU_PATH)\crypto\$(ARCHPATH)\apr_crypto_%d-1.dll "$(PREFIX)\bin\" <.y && \
+	  copy $(APU_PATH)\crypto\$(ARCHPATH)\apr_crypto_%d-1.pdb "$(PREFIX)\bin\" <.y \
 	)
 	xcopy $(API_PATH)\$(ARCHPATH)\iconv\*.so  "$(PREFIX)\bin\iconv\" /d < .a
 	xcopy $(API_PATH)\$(ARCHPATH)\iconv\*.pdb "$(PREFIX)\bin\iconv\" /d < .a
