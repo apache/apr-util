@@ -68,12 +68,12 @@ typedef struct apr_crypto_clear_t {
 } apr_crypto_clear_t;
 
 #if !APU_DSO_BUILD
-#define DRIVER_LOAD(name,driver,pool,params) \
+#define DRIVER_LOAD(name,driver,pool) \
     {   \
         extern const apr_crypto_driver_t driver; \
         apr_hash_set(drivers,name,APR_HASH_KEY_STRING,&driver); \
         if (driver.init) {     \
-            driver.init(pool, params); \
+            driver.init(pool, NULL, NULL); \
         }  \
     }
 #endif
@@ -110,16 +110,16 @@ APU_DECLARE(apr_status_t) apr_crypto_init(apr_pool_t *pool)
 #if !APU_DSO_BUILD
     /* Load statically-linked drivers: */
 #if APU_HAVE_OPENSSL
-    DRIVER_LOAD("openssl", apr_crypto_openssl_driver, pool, params);
+    DRIVER_LOAD("openssl", apr_crypto_openssl_driver, pool);
 #endif
 #if APU_HAVE_NSS
-    DRIVER_LOAD("nss", apr_crypto_nss_driver, pool, params);
+    DRIVER_LOAD("nss", apr_crypto_nss_driver, pool);
 #endif
 #if APU_HAVE_MSCAPI
-    DRIVER_LOAD("mscapi", apr_crypto_mscapi_driver, pool, params);
+    DRIVER_LOAD("mscapi", apr_crypto_mscapi_driver, pool);
 #endif
 #if APU_HAVE_MSCNG
-    DRIVER_LOAD("mscng", apr_crypto_mscng_driver, pool, params);
+    DRIVER_LOAD("mscng", apr_crypto_mscng_driver, pool);
 #endif
 #endif /* APU_DSO_BUILD */
 
