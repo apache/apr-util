@@ -124,7 +124,7 @@ static apr_status_t crypto_clear(void *ptr)
     return APR_SUCCESS;
 }
 
-APR_DECLARE(apr_status_t) apr_crypto_clear(apr_pool_t *pool,
+APU_DECLARE(apr_status_t) apr_crypto_clear(apr_pool_t *pool,
         void *buffer, apr_size_t size)
 {
     apr_crypto_clear_t *clear = apr_palloc(pool, sizeof(apr_crypto_clear_t));
