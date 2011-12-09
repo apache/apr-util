@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-Util 1.4.2
 
+  *) apr_crypto: Move the static initialisation of DRIVER_LOAD from
+     apr_crypto_init() to apr_crypto_get_driver(), so that we don't lose
+     the parameters. [Graham Leggett]
 
 Changes with APR-Util 1.4.1
 
