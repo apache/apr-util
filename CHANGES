@@ -1,6 +1,10 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.3
 
+  *) apr_crypto: Ensure that the if/else that governs the static
+     initialisation of each crypto driver works when the first driver
+     isn't in use. [Graham Leggett]
+
   *) apr_crypto: Ensure the *driver variable is initialised when a statically
      compiled library is initialised for the first time. [Graham Leggett]
 
