@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.5.0
 
+  *) apr_crypto: Ensure that the if/else that governs the static
+     initialisation of each crypto driver works when the first driver
+     isn't in use. [Graham Leggett]
 
 Changes with APR-util 1.4.0
 
