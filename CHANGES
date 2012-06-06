@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.3
 
+  *) Fix segfaults in crypt() and crypt_r() failure modes.
+     PR 47272.  [Arkadiusz Miskiewicz <arekm pld-linux.org>]
+
   *) apr_crypto: Ensure that the if/else that governs the static
      initialisation of each crypto driver works when the first driver
      isn't in use. [Graham Leggett]
