@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.3
 
+  *) apr_password_validate: Increase maximum hash string length to allow
+     more than 9999 rounds with sha512-crypt. PR 53410. [Stefan Fritsch]
+
   *) Fix segfaults in crypt() and crypt_r() failure modes.
      PR 47272.  [Arkadiusz Miskiewicz <arekm pld-linux.org>]
 
