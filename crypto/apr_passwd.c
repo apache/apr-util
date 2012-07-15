@@ -72,7 +72,7 @@ static void crypt_mutex_unlock(void)
 APU_DECLARE(apr_status_t) apr_password_validate(const char *passwd, 
                                                 const char *hash)
 {
-    char sample[120];
+    char sample[200];
 #if !defined(WIN32) && !defined(BEOS) && !defined(NETWARE)
     char *crypt_pw;
 #endif

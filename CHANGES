@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.5.0
 
+  *) apr_password_validate: Increase maximum hash string length to allow
+     more than 9999 rounds with sha512-crypt. PR 53410. [Stefan Fritsch]
+
   *) apr_password_validate, apr_bcrypt_encode: Add support for bcrypt encoded
      passwords. The bcrypt implementation uses code from crypt_blowfish
      written by Solar Designer <solar openwall com>. apr_bcrypt_encode creates
