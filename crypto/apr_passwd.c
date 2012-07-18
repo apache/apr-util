@@ -33,7 +33,7 @@
 #include <pthread.h>
 #endif
 
-static const char const *apr1_id = "$apr1$";
+static const char * const apr1_id = "$apr1$";
 
 #if !defined(WIN32) && !defined(BEOS) && !defined(NETWARE)
 #if defined(APU_CRYPT_THREADSAFE) || !APR_HAS_THREADS || \
@@ -150,7 +150,7 @@ APU_DECLARE(apr_status_t) apr_password_validate(const char *passwd,
     return (strcmp(sample, hash) == 0) ? APR_SUCCESS : APR_EMISMATCH;
 }
 
-static const char const *bcrypt_id = "$2y$";
+static const char * const bcrypt_id = "$2y$";
 APU_DECLARE(apr_status_t) apr_bcrypt_encode(const char *pw,
                                             unsigned int count,
                                             const unsigned char *salt,
