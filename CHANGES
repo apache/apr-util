@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.3
 
+  *) APR dbd FreeTDS support: Fix spurious API errors caused by unitialized
+     fields.  [TROY.LIU 劉春偉 <TROY.LIU deltaww.com.cn>]
+
   *) apr_password_validate: Increase maximum hash string length to allow
      more than 9999 rounds with sha512-crypt. PR 53410. [Stefan Fritsch]
 
