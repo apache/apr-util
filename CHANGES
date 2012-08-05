@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.3
 
+  *) APR dbd: Allow to use apr_dbd_get_row() with a different pool than
+     apr_dbd_select(). PR 53533. [<arthur echo gmail com>]
+
   *) APR dbd FreeTDS support: Fix spurious API errors caused by uninitialized
      fields.  [TROY.LIU 劉春偉 <TROY.LIU deltaww.com.cn>]
 
