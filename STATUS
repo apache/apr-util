@@ -3,8 +3,10 @@ Last modified at [$Date$]
 
 Releases:
     2.0.0     : None/EOL - merged into apr/trunk/
-    1.5.0     : in development on branches/1.5.x/
-    1.4.0     : in development on branches/1.4.x/
+    1.5.0     : tagged August 6, 2012
+    1.4.2     : not released
+    1.4.1     : released December 15, 2011
+    1.4.0     : not released
     1.3.9     : released August 5, 2009
     1.3.8     : released July 6, 2009
     1.3.7     : released June 5, 2009
