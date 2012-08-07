@@ -18,6 +18,7 @@
 #include "apr_md5.h"
 #include "apr_lib.h"
 #include "apr_sha1.h"
+#include "apu_config.h"
 #include "crypt_blowfish.h"
 
 #if APR_HAVE_STRING_H
