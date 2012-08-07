@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.3
 
+  *) Improve platform detection for bundled expat by updating
+     config.guess and config.sub. [Rainer Jung]
+
   *) APR dbd: Allow to use apr_dbd_get_row() with a different pool than
      apr_dbd_select(). PR 53533. [<arthur echo gmail com>]
 
