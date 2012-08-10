@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.5.1
 
+  *) configure: Allow to specify library specific custom linker flags
+     via the LDADD_XXX variables. [Rainer Jung]
+
   *) apr_password_validate(): Fix intermittent errors on systems
      such as FreeBSD where the crypt() function is used.
      (Broken only in 1.5.0)  [Jeff Trawick]
