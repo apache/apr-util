@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.5.1
 
+  *) Add support for Berkeley DB 5.2 and 5.3. Simplify detection skript.
+     PR 53684.  [Rainer Jung]
+
   *) configure: Allow to specify library specific custom linker flags
      via the LDADD_XXX variables. [Rainer Jung]
 
