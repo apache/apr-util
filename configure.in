@@ -225,8 +225,19 @@ fi
 dnl
 dnl MinGW: If APR is shared, APR_DECLARE_EXPORT will be defined in the
 dnl        internal CPPFLAGS, but APR-Util needs APU_DECLARE_EXPORT instead.
+dnl        If APR is static, APR_DECLARE_STATIC will be defined in the
+dnl        internal CPPFLAGS, but APR-Util needs APU_DECLARE_STATIC too.
 dnl
-sed -e 's/-DAPR_DECLARE_EXPORT/-DAPU_DECLARE_EXPORT/' < $APR_BUILD_DIR/apr_rules.mk > $abs_builddir/build/rules.mk
+case $host in
+    *-mingw*)
+        sed -e 's/-DAPR_DECLARE_EXPORT/-DAPU_DECLARE_EXPORT/' \
+            -e 's/-DAPR_DECLARE_STATIC/-DAPU_DECLARE_STATIC -DAPR_DECLARE_STATIC/' \
+            < $APR_BUILD_DIR/apr_rules.mk > $abs_builddir/build/rules.mk
+        ;;
+    *)
+        cp $APR_BUILD_DIR/apr_rules.mk $abs_builddir/build/rules.mk
+        ;;
+esac
 
 dnl
 dnl BSD/OS (BSDi) needs to use a different include syntax in the Makefiles
