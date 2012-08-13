@@ -4,7 +4,7 @@ Changes with APR-util 1.5.1
   *) MinGW: Support shared builds of apr-util when apr is shared.
      PR 46175.  [Carlo Bramini <carlo.bramix libero.it>, Jeff Trawick]
 
-  *) Add support for Berkeley DB 5.2 and 5.3. Simplify detection skript.
+  *) Add support for Berkeley DB 5.2 and 5.3. Simplify detection script.
      PR 53684.  [Rainer Jung]
 
   *) configure: Allow to specify library specific custom linker flags
