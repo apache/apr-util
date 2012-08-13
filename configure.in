@@ -222,7 +222,11 @@ dnl copy apr's rules.mk into our build directory.
 if test ! -d ./build; then
    $mkdir_p build
 fi
-cp $APR_BUILD_DIR/apr_rules.mk $abs_builddir/build/rules.mk
+dnl
+dnl MinGW: If APR is shared, APR_DECLARE_EXPORT will be defined in the
+dnl        internal CPPFLAGS, but APR-Util needs APU_DECLARE_EXPORT instead.
+dnl
+sed -e 's/-DAPR_DECLARE_EXPORT/-DAPU_DECLARE_EXPORT/' < $APR_BUILD_DIR/apr_rules.mk > $abs_builddir/build/rules.mk
 
 dnl
 dnl BSD/OS (BSDi) needs to use a different include syntax in the Makefiles
