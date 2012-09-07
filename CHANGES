@@ -27,7 +27,7 @@ Changes with APR-util 1.5.0
      passwords. The bcrypt implementation uses code from crypt_blowfish
      written by Solar Designer <solar openwall com>. apr_bcrypt_encode creates
      hashes with "$2y$" prefix, but apr_password_validate also accepts the old
-     prefix "$2a$". [Stefan Fritsch]
+     prefix "$2a$". PR 49288. [Stefan Fritsch]
 
   *) APR dbd: Allow to use apr_dbd_get_row() with a different pool than
      apr_dbd_select(). PR 53533. [<arthur echo gmail com>]
