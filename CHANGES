@@ -1,7 +1,7 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.5.1
 
-  *) testmemcache: Fix uninitialized variable. [Peter Poeml <peter poeml de>]
+  *) testmemcache: Fix crash. [Peter Poeml <peter poeml de>]
 
   *) MinGW: Support shared builds of apr-util when apr is shared.
      PR 46175.  [Carlo Bramini <carlo.bramix libero.it>, Jeff Trawick]
