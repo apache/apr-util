@@ -433,6 +433,7 @@ static void test_memcache_multiget(abts_case * tc, void *data)
   rv = apr_memcache_add_server(memcache, server);
   ABTS_ASSERT(tc, "server add failed", rv == APR_SUCCESS);
   
+  values = apr_hash_make(p);
   tdata = apr_hash_make(p);
   
   create_test_hash(pool, tdata);
