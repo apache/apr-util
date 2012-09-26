@@ -1,6 +1,7 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.5.2
 
+  *) memcache: Fix dead server retry logic.  [Gavin Shelley <columbusmonkey me.com>]
 
 Changes with APR-util 1.5.1
 
