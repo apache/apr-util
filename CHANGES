@@ -4,10 +4,6 @@ Changes with APR-util 1.5.2
   *) apr_crypto: If --with-crypto is passed to configure but no crypto
      libraries are enabled, autodetect available libraries.  [Jeff Trawick]
 
-  *) apr_memcache_server_create(): Fix handling of the ttl parameter.
-     It is documented as a number of seconds but was treated as 
-     microseconds.  PR: 51511.  [Tim Whittington <timw apache.org>]
-
   *) memcache: Fix dead server retry logic.  [Gavin Shelley <columbusmonkey me.com>]
 
 Changes with APR-util 1.5.1
