@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.3
 
+  *) Remove duplicated logic in apr_brigade_puts(). PR 53740. [Christophe
+     Jaillet <christophe jaillet wanadoo fr>]
+
   *) memcache: Fix dead server retry logic.  [Gavin Shelley <columbusmonkey me.com>]
 
   *) Improve platform detection for bundled expat by updating
