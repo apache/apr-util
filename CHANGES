@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.5.2
 
+  *) Fix syntax error in crypto/apr_passwd.c on non-glibc systems. PR 54275.
+     [Stefan Fritsch]
+
   *) Fix potential data corruption in apr_brigade_write() and friends if
      the last bucket of the brigade is a heap bucket that has been split,
      and there are still references to the next part of the original bucket
