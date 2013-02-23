@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.5.2
 
+  *) Fix password validation failure for all crypt and crypt_r based
+     algorithms. PR 54603.  [Harvey Eneman <harvey.eneman oracle.com>]
+
   *) Fix syntax error in crypto/apr_passwd.c on non-glibc systems. PR 54275.
      [Stefan Fritsch]
 
