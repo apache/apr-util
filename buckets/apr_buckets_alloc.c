@@ -131,6 +131,7 @@ APU_DECLARE_NONSTD(void *) apr_bucket_alloc(apr_size_t size,
             if (endp >= active->endp) {
                 list->blocks = apr_allocator_alloc(list->allocator, ALLOC_AMT);
                 if (!list->blocks) {
+                    list->blocks = active;
                     return NULL;
                 }
                 list->blocks->next = active;
