@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.5.2
 
+  *) Use heap memory for crypt in apr_password_validate(), to reduce stack
+     usage. PR 54572. [Stefan Fritsch]
+
   *) Fix password validation failure for all crypt and crypt_r based
      algorithms. PR 54603.  [Harvey Eneman <harvey.eneman oracle.com>]
 
