@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.5.2
 
+  *) Fix memory leak in hook sorting function. PR 51256.
+     [<horowity checkpoint com>]
+
   *) Speedup md5 calculation by avoiding some copying on little endian
      architectures. PR 49011. [Stefan Fritsch, Stefan Fuhrmann
      <stefanfuhrmann alice-dsl de>]
