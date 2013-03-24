@@ -1,6 +1,10 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.5.2
 
+  *) Speedup md5 calculation by avoiding some copying on little endian
+     architectures. PR 49011. [Stefan Fritsch, Stefan Fuhrmann
+     <stefanfuhrmann alice-dsl de>]
+
   *) Use heap memory for crypt in apr_password_validate(), to reduce stack
      usage. PR 54572. [Stefan Fritsch]
 
