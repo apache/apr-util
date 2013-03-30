@@ -1,6 +1,8 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.5.2
 
+  *) Windows: Add command line makefiles. [Gregg Smith]
+
   *) apr_uri_parse(): Do not accept invalid characters in the scheme.
      Per RFC 3986 3.3, enforce that the first segment of a relative path does
      not contain a colon. PR 52479. [Stefan Fritsch]
