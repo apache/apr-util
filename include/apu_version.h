@@ -96,7 +96,9 @@ APU_DECLARE(const char *) apu_version_string(void);
 
 /** Internal: string form of the "is dev" flag */
 #ifdef APU_IS_DEV_VERSION
+#ifndef APU_IS_DEV_STRING
 #define APU_IS_DEV_STRING "-dev"
+#endif
 #else
 #define APU_IS_DEV_STRING ""
 #endif
