@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.5.3
 
+  *) Fix warnings in odbc driver on 64bit systems.
+     PR 55197  [Tom Donovan]
+
   *) Add support to apr_memcache for unix domain sockets. PR 54573 [Remi
      Gacogne <rgacogne+asf aquaray.com>]
 
