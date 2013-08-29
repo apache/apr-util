@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.5.3
 
+  *) Add experimental cmake-based build system for Windows.  Refer to
+     README.cmake for more information.  [Jeff Trawick, Tom Donovan]
+
   *) Fix warnings in odbc driver on 64bit systems.
      PR 55197  [Tom Donovan]
 
