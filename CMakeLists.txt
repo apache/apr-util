@@ -252,16 +252,6 @@ INSTALL(TARGETS ${install_targets}
        )
 
 INSTALL(FILES ${APR_PUBLIC_HEADERS_STATIC} ${APR_PUBLIC_HEADERS_GENERATED} DESTINATION include)
-IF(APR_INSTALL_PRIVATE_H)
-  # Kludges for unexpected dependencies of httpd 2.x, not installed by default
-  SET(APR_PRIVATE_H_FOR_HTTPD
-    include/arch/win32/apr_arch_file_io.h
-    include/arch/win32/apr_arch_misc.h
-    include/arch/win32/apr_arch_utf8.h
-    include/arch/win32/apr_private.h
-    )
-  INSTALL(FILES ${APR_PRIVATE_H_FOR_HTTPD} DESTINATION include/arch/win32)
-ENDIF()
 
 IF(APR_SHOW_SETTINGS)
   STRING(TOUPPER "${CMAKE_BUILD_TYPE}" buildtype)
@@ -274,5 +264,4 @@ IF(APR_SHOW_SETTINGS)
   MESSAGE(STATUS "  DBD ODBC driver ................. : ${APU_HAVE_ODBC}")
   MESSAGE(STATUS "  Library files for XML ........... : ${XMLLIB_LIBRARIES}")
   MESSAGE(STATUS "  Build test suite ................ : ${APR_BUILD_TESTAPR}")
-  MESSAGE(STATUS "  Install private .h for httpd .... : ${APR_INSTALL_PRIVATE_H}")
 ENDIF(APR_SHOW_SETTINGS)
