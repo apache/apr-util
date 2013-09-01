@@ -59,10 +59,14 @@ How to build
 
 5. cmake -G "some backend, like 'NMake Makefiles'"
      -DCMAKE_INSTALL_PREFIX=d:/path/to/aprinst
-     -DAPR_INCLUDE_DIR=d:/path/to/apr1inst/include
-     -DAPR_LIBRARIES=d:/path/to/apr1inst/lib/libapr-1.lib
      -DAPR-Util-specific-flags
      d:/path/to/aprutilsource
+
+   If APR 1.x was installed to a different directory than APR-Util,
+   also pass these additional arguments:
+
+     -DAPR_INCLUDE_DIR=d:/path/to/apr1inst/include
+     -DAPR_LIBRARIES=d:/path/to/apr1inst/lib/libapr-1.lib
 
    Alternately, use cmake-gui and update settings in the GUI.
 
