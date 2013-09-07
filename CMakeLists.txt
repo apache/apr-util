@@ -23,6 +23,7 @@ FIND_PACKAGE(OpenSSL)
 
 OPTION(APU_HAVE_CRYPTO      "Crypto support"                            OFF)
 OPTION(APU_HAVE_ODBC        "Build ODBC DBD driver"                     ON)
+OPTION(APR_HAS_LDAP         "LDAP support"                              ON)
 OPTION(APR_SHOW_SETTINGS    "Show the build configuration"              ON)
 OPTION(APR_BUILD_TESTAPR    "Build the test suite"                      OFF)
 SET(APR_INCLUDE_DIR         "${CMAKE_INSTALL_PREFIX}/include"           CACHE STRING "Directory with APR include files")
@@ -47,10 +48,14 @@ ENDIF()
 
 SET(apu_have_crypto_10 0)
 SET(apu_have_apr_iconv_10 0) # not yet implemented
-SET(apr_has_ldap_10 0) # not yet implemented
+SET(apr_has_ldap_10 0)
 
 IF(APU_HAVE_CRYPTO)
   SET(apu_have_crypto_10 1)
+ENDIF()
+
+IF(APR_HAS_LDAP)
+  SET(apr_has_ldap_10 1)
 ENDIF()
 
 CONFIGURE_FILE(include/apu.hwc
@@ -70,6 +75,11 @@ CONFIGURE_FILE(include/apu_want.hw
 
 SET(XMLLIB_INCLUDE_DIR   ${CMAKE_CURRENT_SOURCE_DIR}/xml/expat/lib)
 SET(XMLLIB_LIBRARIES     libexpat)
+
+SET(LDAP_LIBRARIES)
+IF(APR_HAS_LDAP)
+  SET(LDAP_LIBRARIES wldap32)
+ENDIF()
 
 # Generated .h files are stored in PROJECT_BINARY_DIR, not the
 # source tree.
@@ -152,7 +162,6 @@ SET(APR_SOURCES
   crypto/getuuid.c
   crypto/uuid.c
   dbd/apr_dbd.c
-  dbd/apr_dbd_odbc.c
   dbm/apr_dbm.c
   dbm/apr_dbm_sdbm.c
   dbm/sdbm/sdbm.c
@@ -174,6 +183,10 @@ SET(APR_SOURCES
   xlate/xlate.c
   xml/apr_xml.c
 )
+
+IF(APR_HAS_LDAP)
+  SET(APR_SOURCES ${APR_SOURCES} ldap/apr_ldap_stub.c ldap/apr_ldap_url.c)
+ENDIF()
 
 SET(APR_TEST_SOURCES
   test/abts.c
@@ -214,7 +227,7 @@ SET_TARGET_PROPERTIES(libexpat PROPERTIES COMPILE_DEFINITIONS "XML_STATIC;COMPIL
 ADD_LIBRARY(libaprutil-1 SHARED ${APR_HEADERS} ${APR_SOURCES} ${PROJECT_BINARY_DIR}/apu.h)
 SET(install_targets ${install_targets} libaprutil-1)
 TARGET_LINK_LIBRARIES(libaprutil-1 ${APR_LIBRARIES} ${XMLLIB_LIBRARIES})
-SET_TARGET_PROPERTIES(libaprutil-1 PROPERTIES COMPILE_DEFINITIONS "APU_DECLARE_EXPORT;APU_DSO_MODULE_BUILD;XML_STATIC")
+SET_TARGET_PROPERTIES(libaprutil-1 PROPERTIES COMPILE_DEFINITIONS "APU_DECLARE_EXPORT;XML_STATIC")
 
 ADD_LIBRARY(aprutil-1 STATIC ${APR_HEADERS} ${APR_SOURCES} ${PROJECT_BINARY_DIR}/apu.h)
 SET(install_targets ${install_targets} aprutil-1)
@@ -239,12 +252,22 @@ IF(APU_HAVE_ODBC)
   SET_TARGET_PROPERTIES(apr_dbd_odbc-1 PROPERTIES COMPILE_DEFINITIONS "APU_HAVE_ODBC;HAVE_SQL_H;APU_DECLARE_EXPORT;APU_DSO_MODULE_BUILD")
 ENDIF()
 
+IF(APR_HAS_LDAP)
+  ADD_LIBRARY(apr_ldap-1 SHARED ldap/apr_ldap_init.c ldap/apr_ldap_option.c 
+              ldap/apr_ldap_rebind.c)
+  SET(install_targets ${install_targets} apr_ldap-1)
+  TARGET_LINK_LIBRARIES(apr_ldap-1 libaprutil-1 ${APR_LIBRARIES} ${LDAP_LIBRARIES})
+  SET(apr_ldap_libraries apr_ldap-1)
+ELSE()
+  SET(apr_ldap_libraries)
+ENDIF()
+
 IF(APR_BUILD_TESTAPR)
   EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/data)
   EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E copy_if_different ${PROJECT_SOURCE_DIR}/test/data/billion-laughs.xml ${PROJECT_BINARY_DIR}/data/billion-laughs.xml)
 
   ADD_EXECUTABLE(testall ${APR_TEST_SOURCES})
-  TARGET_LINK_LIBRARIES(testall aprutil-1 ${XMLLIB_LIBRARIES})
+  TARGET_LINK_LIBRARIES(testall aprutil-1 ${apr_ldap_libraries} ${XMLLIB_LIBRARIES} ${LDAP_LIBRARIES})
 
   ADD_EXECUTABLE(dbd test/dbd.c)
   TARGET_LINK_LIBRARIES(dbd aprutil-1)
@@ -275,5 +298,7 @@ IF(APR_SHOW_SETTINGS)
   MESSAGE(STATUS "  APR include directory ........... : ${APR_INCLUDE_DIR}")
   MESSAGE(STATUS "  APR libraries ................... : ${APR_LIBRARIES}")
   MESSAGE(STATUS "  DBD ODBC driver ................. : ${APU_HAVE_ODBC}")
+  MESSAGE(STATUS "  APU_HAVE_CRYPTO ................. : ${APU_HAVE_CRYPTO}")
+  MESSAGE(STATUS "  APR_HAS_LDAP .................... : ${APR_HAS_LDAP}")
   MESSAGE(STATUS "  Build test suite ................ : ${APR_BUILD_TESTAPR}")
 ENDIF(APR_SHOW_SETTINGS)
