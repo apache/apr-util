@@ -101,7 +101,6 @@ Known Bugs and Limitations
   cause the build to fail.
 * Options should be provided for remaining features, along with finding any
   necessary libraries
-  + LDAP
   + DBM:
     . APU_HAVE_GDBM
     . APU_HAVE_NDBM
