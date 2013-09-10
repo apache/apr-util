@@ -77,9 +77,6 @@ How to build
                               Default: OFF
        APU_HAVE_ODBC          Build ODBC DBD driver
                               Default: ON
-       APR_SHOW_SETTINGS      Display key build settings at the end of build
-                              generation
-                              Default: ON
        APR_BUILD_TESTAPR      Build APR-Util test suite
                               Default: OFF
 
@@ -99,6 +96,7 @@ Known Bugs and Limitations
 * If include/apu.h or other generated files have been created in the source
   directory by another build system, they will be used unexpectedly and
   cause the build to fail.
+* .pdb files are not installed
 * Options should be provided for remaining features, along with finding any
   necessary libraries
   + DBM:
@@ -113,11 +111,13 @@ Known Bugs and Limitations
     . APU_HAVE_ORACLE
   + CRYPTO:
     . APU_HAVE_NSS
-  + XLATE, APU_HAVE_ICONV
+  + XLATE, APU_HAVE_ICONV (no way to consume an apr-iconv build yet)
 * Static builds of APR modules are not supported.
 * No test program build to use libaprutil-1.dll is created.
 * No script or other mechanism is provided to run the test suite.
 * CHANGES/LICENSE/NOTICE is not installed, unlike Makefile.win.
+  (but unlike Makefile.win we want to call them APR-Util-CHANGES.txt
+  and so on)
 
 Generally:
 
