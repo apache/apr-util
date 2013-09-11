@@ -24,6 +24,7 @@ FIND_PACKAGE(OpenSSL)
 OPTION(APU_HAVE_CRYPTO      "Crypto support"                            OFF)
 OPTION(APU_HAVE_ODBC        "Build ODBC DBD driver"                     ON)
 OPTION(APR_HAS_LDAP         "LDAP support"                              ON)
+OPTION(INSTALL_PDB          "Install .pdb files (if generated)"         ON)
 OPTION(APR_BUILD_TESTAPR    "Build the test suite"                      OFF)
 SET(APR_INCLUDE_DIR         "${CMAKE_INSTALL_PREFIX}/include"           CACHE STRING "Directory with APR include files")
 SET(APR_LIBRARIES           "${CMAKE_INSTALL_PREFIX}/lib/libapr-1.lib"  CACHE STRING "APR library to link with")
@@ -217,6 +218,8 @@ SET(EXPAT_SOURCES
 )
 
 SET(install_targets)
+SET(install_bin_pdb)
+SET(install_lib_pdb)
 
 # static expat (not installed)
 ADD_LIBRARY(libexpat STATIC ${EXPAT_SOURCES})
@@ -225,11 +228,13 @@ SET_TARGET_PROPERTIES(libexpat PROPERTIES COMPILE_DEFINITIONS "XML_STATIC;COMPIL
 # libaprutil-1 is shared, aprutil-1 is static
 ADD_LIBRARY(libaprutil-1 SHARED ${APR_HEADERS} ${APR_SOURCES} ${PROJECT_BINARY_DIR}/apu.h)
 SET(install_targets ${install_targets} libaprutil-1)
+SET(install_bin_pdb ${install_bin_pdb} ${PROJECT_BINARY_DIR}/libaprutil-1.pdb)
 TARGET_LINK_LIBRARIES(libaprutil-1 ${APR_LIBRARIES} ${XMLLIB_LIBRARIES})
 SET_TARGET_PROPERTIES(libaprutil-1 PROPERTIES COMPILE_DEFINITIONS "APU_DECLARE_EXPORT;XML_STATIC")
 
 ADD_LIBRARY(aprutil-1 STATIC ${APR_HEADERS} ${APR_SOURCES} ${PROJECT_BINARY_DIR}/apu.h)
 SET(install_targets ${install_targets} aprutil-1)
+SET(install_lib_pdb ${install_lib_pdb} ${PROJECT_BINARY_DIR}/aprutil-1.pdb)
 TARGET_LINK_LIBRARIES(aprutil-1 ${APR_LIBRARIES} ${XMLLIB_LIBRARIES})
 SET_TARGET_PROPERTIES(aprutil-1 PROPERTIES COMPILE_DEFINITIONS "APU_DECLARE_STATIC;APR_DECLARE_STATIC;APU_DSO_MODULE_BUILD;XML_STATIC")
 
@@ -239,6 +244,7 @@ IF(APU_HAVE_CRYPTO)
   ENDIF()
   ADD_LIBRARY(apr_crypto_openssl-1 SHARED crypto/apr_crypto_openssl.c)
   SET(install_targets ${install_targets} apr_crypto_openssl-1)
+  SET(install_bin_pdb ${install_bin_pdb} ${PROJECT_BINARY_DIR}/apr_crypto_openssl-1.pdb)
   SET_TARGET_PROPERTIES(apr_crypto_openssl-1 PROPERTIES INCLUDE_DIRECTORIES "${APR_INCLUDE_DIRECTORIES};${OPENSSL_INCLUDE_DIR}")
   TARGET_LINK_LIBRARIES(apr_crypto_openssl-1 libaprutil-1 ${APR_LIBRARIES} ${OPENSSL_LIBRARIES})
 ENDIF()
@@ -246,6 +252,7 @@ ENDIF()
 IF(APU_HAVE_ODBC)
   ADD_LIBRARY(apr_dbd_odbc-1 SHARED dbd/apr_dbd_odbc.c)
   SET(install_targets ${install_targets} apr_dbd_odbc-1)
+  SET(install_bin_pdb ${install_bin_pdb} ${PROJECT_BINARY_DIR}/apr_dbd_odbc-1.pdb)
   TARGET_LINK_LIBRARIES(apr_dbd_odbc-1 libaprutil-1 ${APR_LIBRARIES} odbc32 odbccp32)
   SET_PROPERTY(TARGET apr_dbd_odbc-1 APPEND PROPERTY LINK_FLAGS /export:apr_dbd_odbc_driver)
   SET_TARGET_PROPERTIES(apr_dbd_odbc-1 PROPERTIES COMPILE_DEFINITIONS "APU_HAVE_ODBC;HAVE_SQL_H;APU_DECLARE_EXPORT;APU_DSO_MODULE_BUILD")
@@ -255,6 +262,7 @@ IF(APR_HAS_LDAP)
   ADD_LIBRARY(apr_ldap-1 SHARED ldap/apr_ldap_init.c ldap/apr_ldap_option.c 
               ldap/apr_ldap_rebind.c)
   SET(install_targets ${install_targets} apr_ldap-1)
+  SET(install_bin_pdb ${install_bin_pdb} ${PROJECT_BINARY_DIR}/apr_ldap-1.pdb)
   TARGET_LINK_LIBRARIES(apr_ldap-1 libaprutil-1 ${APR_LIBRARIES} ${LDAP_LIBRARIES})
   SET(apr_ldap_libraries apr_ldap-1)
 ELSE()
@@ -284,13 +292,25 @@ INSTALL(TARGETS ${install_targets}
         ARCHIVE DESTINATION lib
        )
 
+IF(INSTALL_PDB)
+  INSTALL(FILES ${install_bin_pdb}
+          DESTINATION bin
+          CONFIGURATIONS RelWithDebInfo Debug)
+
+  INSTALL(FILES ${install_lib_pdb}
+          DESTINATION lib
+          CONFIGURATIONS RelWithDebInfo Debug)
+ENDIF()
+
 INSTALL(FILES ${APR_PUBLIC_HEADERS_STATIC} ${APR_PUBLIC_HEADERS_GENERATED} DESTINATION include)
 
 STRING(TOUPPER "${CMAKE_BUILD_TYPE}" buildtype)
 MESSAGE(STATUS "")
 MESSAGE(STATUS "")
-MESSAGE(STATUS "APR configuration summary:")
+MESSAGE(STATUS "APR-Util configuration summary:")
 MESSAGE(STATUS "")
+MESSAGE(STATUS "  Build type ...................... : ${CMAKE_BUILD_TYPE}")
+MESSAGE(STATUS "  Install .pdb (if available)...... : ${INSTALL_PDB}")
 MESSAGE(STATUS "  Install prefix .................. : ${CMAKE_INSTALL_PREFIX}")
 MESSAGE(STATUS "  C compiler ...................... : ${CMAKE_C_COMPILER}")
 MESSAGE(STATUS "  APR include directory ........... : ${APR_INCLUDE_DIR}")
