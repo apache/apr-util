@@ -79,6 +79,8 @@ How to build
                               Default: ON
        APR_BUILD_TESTAPR      Build APR-Util test suite
                               Default: OFF
+       INSTALL_PDB            Install .pdb files if generated.
+                              Default: ON
 
    CMAKE_C_FLAGS_RELEASE, _DEBUG, _RELWITHDEBINFO, _MINSIZEREL
 
@@ -116,8 +118,8 @@ Known Bugs and Limitations
 * No test program build to use libaprutil-1.dll is created.
 * No script or other mechanism is provided to run the test suite.
 * CHANGES/LICENSE/NOTICE is not installed, unlike Makefile.win.
-  (but unlike Makefile.win we want to call them APR-Util-CHANGES.txt
-  and so on)
+  (But unlike Makefile.win we want to call them APR-Util-CHANGES.txt
+  and so on.)  But perhaps that is a job for a higher-level script.
 
 Generally:
 
