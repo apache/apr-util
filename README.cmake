@@ -98,7 +98,6 @@ Known Bugs and Limitations
 * If include/apu.h or other generated files have been created in the source
   directory by another build system, they will be used unexpectedly and
   cause the build to fail.
-* .pdb files are not installed
 * Options should be provided for remaining features, along with finding any
   necessary libraries
   + DBM:
