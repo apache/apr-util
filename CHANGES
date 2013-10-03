@@ -4,11 +4,16 @@ Changes with APR-util 1.5.3
   *) Add experimental cmake-based build system for Windows.  Refer to
      README.cmake for more information.  [Jeff Trawick, Tom Donovan]
 
+  *) Add apr_pbase64_encode() and apr_pbase64_decode() to encode to/from
+     the pool. [Graham Leggett]
+
   *) Fix warnings in odbc driver on 64bit systems.
      PR 55197  [Tom Donovan]
 
   *) Add support to apr_memcache for unix domain sockets. PR 54573 [Remi
      Gacogne <rgacogne+asf aquaray.com>]
+
+  *) Add support for Berkeley DB 6.0. [Rainer Jung]
 
 Changes with APR-util 1.5.2
 
