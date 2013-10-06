@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.5.3
 
+  *) Cygwin: Use correct file extension when loading APR DSOs.  PR 55587.
+     [Carlo Bramini <carlo.bramix libero.it>]
+
   *) Add experimental cmake-based build system for Windows.  Refer to
      README.cmake for more information.  [Jeff Trawick, Tom Donovan]
 
