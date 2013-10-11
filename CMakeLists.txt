@@ -26,6 +26,7 @@ OPTION(APU_HAVE_ODBC        "Build ODBC DBD driver"                     ON)
 OPTION(APR_HAS_LDAP         "LDAP support"                              ON)
 OPTION(INSTALL_PDB          "Install .pdb files (if generated)"         ON)
 OPTION(APR_BUILD_TESTAPR    "Build the test suite"                      OFF)
+OPTION(TEST_STATIC_LIBS     "Test programs use APR static libraries instead of shared libraries?" OFF)
 SET(APR_INCLUDE_DIR         "${CMAKE_INSTALL_PREFIX}/include"           CACHE STRING "Directory with APR include files")
 SET(APR_LIBRARIES           "${CMAKE_INSTALL_PREFIX}/lib/libapr-1.lib"  CACHE STRING "APR library to link with")
 
@@ -220,6 +221,7 @@ SET(EXPAT_SOURCES
 SET(install_targets)
 SET(install_bin_pdb)
 SET(install_lib_pdb)
+SET(dbd_drivers)
 
 # static expat (not installed)
 ADD_LIBRARY(libexpat STATIC ${EXPAT_SOURCES})
@@ -254,6 +256,7 @@ IF(APU_HAVE_ODBC)
   ADD_LIBRARY(apr_dbd_odbc-1 SHARED dbd/apr_dbd_odbc.c libaprutil.rc)
   SET(install_targets ${install_targets} apr_dbd_odbc-1)
   SET(install_bin_pdb ${install_bin_pdb} ${PROJECT_BINARY_DIR}/apr_dbd_odbc-1.pdb)
+  SET(dbd_drivers ${dbd_drivers} odbc)
   TARGET_LINK_LIBRARIES(apr_dbd_odbc-1 libaprutil-1 ${APR_LIBRARIES} odbc32 odbccp32)
   SET_PROPERTY(TARGET apr_dbd_odbc-1 APPEND PROPERTY LINK_FLAGS /export:apr_dbd_odbc_driver)
   SET_TARGET_PROPERTIES(apr_dbd_odbc-1 PROPERTIES COMPILE_DEFINITIONS "APU_HAVE_ODBC;HAVE_SQL_H;APU_DECLARE_EXPORT;APU_DSO_MODULE_BUILD")
@@ -273,17 +276,42 @@ ELSE()
 ENDIF()
 
 IF(APR_BUILD_TESTAPR)
-  EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/data)
-  EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E copy_if_different ${PROJECT_SOURCE_DIR}/test/data/billion-laughs.xml ${PROJECT_BINARY_DIR}/data/billion-laughs.xml)
+  ENABLE_TESTING()
+  # Create a "check" target that displays test program output to the console.
+  ADD_CUSTOM_TARGET(check COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
+
+  # copy data files to build directory so that we can run programs from there
+  EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E make_directory 
+                  ${PROJECT_BINARY_DIR}/data)
+  EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E copy_if_different 
+                  ${PROJECT_SOURCE_DIR}/test/data/billion-laughs.xml
+                  ${PROJECT_BINARY_DIR}/data/billion-laughs.xml)
+
+  IF(TEST_STATIC_LIBS)
+    SET(whichapr    aprutil-1)
+    SET(apiflag     "-DAPR_DECLARE_STATIC -DAPU_DECLARE_STATIC")
+  ELSE()
+    SET(whichapr    libaprutil-1)
+    SET(apiflag)
+  ENDIF()
 
   ADD_EXECUTABLE(testall ${APR_TEST_SOURCES})
-  TARGET_LINK_LIBRARIES(testall aprutil-1 ${apr_ldap_libraries} ${XMLLIB_LIBRARIES} ${LDAP_LIBRARIES})
+  TARGET_LINK_LIBRARIES(testall ${whichapr} ${apr_ldap_libraries} ${XMLLIB_LIBRARIES} ${LDAP_LIBRARIES})
+  IF(apiflag)
+    SET_TARGET_PROPERTIES(testall PROPERTIES COMPILE_FLAGS ${apiflag})
+  ENDIF()
+  ADD_TEST(NAME testall COMMAND testall)
 
   ADD_EXECUTABLE(dbd test/dbd.c)
-  TARGET_LINK_LIBRARIES(dbd aprutil-1)
+  TARGET_LINK_LIBRARIES(dbd ${whichapr})
+  IF(apiflag)
+    SET_TARGET_PROPERTIES(dbd PROPERTIES COMPILE_FLAGS ${apiflag})
+  ENDIF()
 
-  # test programs are linked with static library
-  SET_TARGET_PROPERTIES(testall dbd PROPERTIES COMPILE_FLAGS "-DAPU_DECLARE_STATIC -DAPR_DECLARE_STATIC")
+  # dbd is run multiple times with different parameters.
+  FOREACH(somedbd ${dbd_drivers})
+    ADD_TEST(NAME dbd-${somedbd} COMMAND dbd ${somedbd})
+  ENDFOREACH()
 
 ENDIF (APR_BUILD_TESTAPR)
 
@@ -322,3 +350,8 @@ MESSAGE(STATUS "  DBD ODBC driver ................. : ${APU_HAVE_ODBC}")
 MESSAGE(STATUS "  APU_HAVE_CRYPTO ................. : ${APU_HAVE_CRYPTO}")
 MESSAGE(STATUS "  APR_HAS_LDAP .................... : ${APR_HAS_LDAP}")
 MESSAGE(STATUS "  Build test suite ................ : ${APR_BUILD_TESTAPR}")
+IF(TEST_STATIC_LIBS)
+MESSAGE(STATUS "    (testing static libraries)")
+ELSE()
+MESSAGE(STATUS "    (testing dynamic libraries)")
+ENDIF()
