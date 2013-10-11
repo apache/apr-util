@@ -79,6 +79,13 @@ How to build
                               Default: ON
        APR_BUILD_TESTAPR      Build APR-Util test suite
                               Default: OFF
+       TEST_STATIC_LIBS       Build the test suite to test the APR static
+                              library instead of the APR dynamic library.
+                              Default: OFF
+                              In order to build the test suite against both
+                              static and dynamic libraries, separate builds
+                              will be required, one with TEST_STATIC_LIBS
+                              set to ON.
        INSTALL_PDB            Install .pdb files if generated.
                               Default: ON
 
@@ -114,8 +121,6 @@ Known Bugs and Limitations
     . APU_HAVE_NSS
   + XLATE, APU_HAVE_ICONV (no way to consume an apr-iconv build yet)
 * Static builds of APR modules are not supported.
-* No test program build to use libaprutil-1.dll is created.
-* No script or other mechanism is provided to run the test suite.
 * CHANGES/LICENSE/NOTICE is not installed, unlike Makefile.win.
   (But unlike Makefile.win we want to call them APR-Util-CHANGES.txt
   and so on.)  But perhaps that is a job for a higher-level script.
