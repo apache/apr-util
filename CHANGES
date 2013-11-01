@@ -15,6 +15,9 @@ Changes with APR-util 1.5.3
 
   *) Add support for Berkeley DB 6.0. [Rainer Jung]
 
+  *) Improve platform detection for bundled expat by updating
+     config.guess and config.sub. [Rainer Jung]
+
 Changes with APR-util 1.5.2
 
   *) Windows: Add command line makefiles. [Gregg Smith]
