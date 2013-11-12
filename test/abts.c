@@ -250,7 +250,8 @@ void abts_int_nequal(abts_case *tc, const int expected, const int actual, int li
 
     tc->failed = TRUE;
     if (verbose) {
-        fprintf(stderr, "Line %d: expected <%d>, but saw <%d>\n", lineno, expected, actual);
+        fprintf(stderr, "Line %d: expected something other than <%d>, but saw <%d>\n",
+                lineno, expected, actual);
         fflush(stderr);
     }
 }
@@ -282,7 +283,8 @@ void abts_str_nequal(abts_case *tc, const char *expected, const char *actual,
 
     tc->failed = TRUE;
     if (verbose) {
-        fprintf(stderr, "Line %d: expected <%s>, but saw <%s>\n", lineno, expected, actual);
+        fprintf(stderr, "Line %d: expected something other than <%s>, but saw <%s>\n",
+                lineno, expected, actual);
         fflush(stderr);
     }
 }
