@@ -4,6 +4,9 @@ Changes with APR-util 1.5.4
   *) Windows cmake build: Fix an incompatiblity with Visual Studio
      generators.  [Jeff Trawick, Bert Huijben]
 
+  *) Fix detection of Berkeley DB 6.0. PR 55277.
+     [Lars Wendler <polynomial-c gentoo.org>]
+
 Changes with APR-util 1.5.3
 
   *) Cygwin: Use correct file extension when loading APR DSOs.  PR 55587.
