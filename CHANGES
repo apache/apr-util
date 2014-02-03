@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.5.4
 
+  *) Fix to let ODBC driver build with MSVC6, which does not have intptr_t
+     [Tom Donovan]
+
   *) Windows cmake build: Fix an incompatiblity with Visual Studio
      generators.  [Jeff Trawick, Bert Huijben]
 
