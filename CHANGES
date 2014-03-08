@@ -36,6 +36,9 @@ Changes with APR-util 1.4.3
   *) apr_crypto: Ensure the *driver variable is initialised when the library
      has already been loaded. Fix ported from apr_dbd. [Graham Leggett]
 
+  *) Improve platform detection for bundled expat by updating
+     config.guess and config.sub. [Rainer Jung]
+
 Changes with APR-util 1.4.2 (not released)
 
   *) apr_crypto: Move the static initialisation of DRIVER_LOAD from
