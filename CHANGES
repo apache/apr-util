@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.5.4
 
+  *) Fix compile failure for Android.  PR 56627.  [Fredrik Fornwall 
+     <fredrik fornwall.net>, Jeff Trawick]
+
   *) Fix to let ODBC driver build with MSVC6, which does not have intptr_t
      [Tom Donovan]
 
