@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.5.4
 
+  *) apr_crypto_get_driver(): Fix invalid storage reference on error path.
+     [Philip Martin <philip.martin wandisco.com>]
+
   *) Fix compile failure for Android.  PR 56627.  [Fredrik Fornwall 
      <fredrik fornwall.net>, Jeff Trawick]
 
