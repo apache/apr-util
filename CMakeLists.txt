@@ -218,7 +218,6 @@ SET(EXPAT_SOURCES
 
 SET(install_targets)
 SET(install_bin_pdb)
-SET(install_lib_pdb)
 SET(dbd_drivers)
 
 # Note: The WINNT definition on some targets is used only by libaprutil.rc.
@@ -236,7 +235,6 @@ SET_TARGET_PROPERTIES(libaprutil-1 PROPERTIES COMPILE_DEFINITIONS "APU_DECLARE_E
 
 ADD_LIBRARY(aprutil-1 STATIC ${APR_SOURCES} ${APR_PUBLIC_HEADERS_GENERATED})
 SET(install_targets ${install_targets} aprutil-1)
-SET(install_lib_pdb ${install_lib_pdb} ${PROJECT_BINARY_DIR}/aprutil-1.pdb)
 TARGET_LINK_LIBRARIES(aprutil-1 ${APR_LIBRARIES} ${XMLLIB_LIBRARIES})
 SET_TARGET_PROPERTIES(aprutil-1 PROPERTIES COMPILE_DEFINITIONS "APU_DECLARE_STATIC;APR_DECLARE_STATIC;APU_DSO_MODULE_BUILD;XML_STATIC")
 
@@ -328,10 +326,6 @@ INSTALL(TARGETS ${install_targets}
 IF(INSTALL_PDB)
   INSTALL(FILES ${install_bin_pdb}
           DESTINATION bin
-          CONFIGURATIONS RelWithDebInfo Debug)
-
-  INSTALL(FILES ${install_lib_pdb}
-          DESTINATION lib
           CONFIGURATIONS RelWithDebInfo Debug)
 ENDIF()
 

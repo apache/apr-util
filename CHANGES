@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.5.4
 
+  *) Windows cmake build: Fix an incompatibility with cmake 2.8.12 and 
+     later.  [Jeff Trawick]
+
   *) apr_crypto_get_driver(): Fix invalid storage reference on error path.
      [Philip Martin <philip.martin wandisco.com>]
 
