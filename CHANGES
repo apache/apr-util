@@ -1,4 +1,7 @@
                                                      -*- coding: utf-8 -*-
+Changes with APR-util 1.5.5
+
+
 Changes with APR-util 1.5.4
 
   *) MySQL driver: Fix incorrect handling of bad parameter in the
