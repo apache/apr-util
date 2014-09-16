@@ -1,9 +1,6 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.5.4
 
-  *) Windows cmake build: Fix an incompatibility with cmake 2.8.12 and 
-     later.  [Jeff Trawick]
-
   *) apr_crypto_get_driver(): Fix invalid storage reference on error path.
      [Philip Martin <philip.martin wandisco.com>]
 
@@ -13,8 +10,10 @@ Changes with APR-util 1.5.4
   *) Fix to let ODBC driver build with MSVC6, which does not have intptr_t
      [Tom Donovan]
 
-  *) Windows cmake build: Fix an incompatiblity with Visual Studio
-     generators.  [Jeff Trawick, Bert Huijben]
+  *) Windows cmake build: Fix incompatiblities with Visual Studio
+     generators with all cmake versions, and the NMake Makefile generator
+     with cmake 2.8.12 and later.  PR 56616 and other bugs.  [Jeff Trawick,
+     Bert Huijben]
 
   *) Fix detection of Berkeley DB 6.0. PR 55277.
      [Lars Wendler <polynomial-c gentoo.org>]
