@@ -1,6 +1,10 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.5.4
 
+  *) MySQL driver: Fix incorrect handling of bad parameter in the
+     driver support for apr_dbd_transaction_end().  PR 56330.
+     [Weiqiang Li <weiqiang_li hotmail.com>]
+
   *) apr_crypto_get_driver(): Fix invalid storage reference on error path.
      [Philip Martin <philip.martin wandisco.com>]
 
