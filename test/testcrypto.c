@@ -463,17 +463,14 @@ static void test_crypto_block_nss_openssl(abts_case *tc, void *data)
             inlen, "KEY_AES_256/MODE_CBC");
     crypto_block_cross(tc, pool, drivers, APR_KEY_AES_256, APR_MODE_ECB, 0, in,
             inlen, "KEY_AES_256/MODE_ECB");
-
-    /* all 4 of these tests fail to interoperate - a clue from the xml-security code is that
-     * NSS cannot distinguish between the 128 and 192 bit versions of AES. Will need to be
-     * investigated.
-     */
-    /*
-     crypto_block_cross(tc, pool, drivers, KEY_AES_192, MODE_CBC, 0, in, inlen, "KEY_AES_192/MODE_CBC");
-     crypto_block_cross(tc, pool, drivers, KEY_AES_192, MODE_ECB, 0, in, inlen, "KEY_AES_192/MODE_ECB");
-     crypto_block_cross(tc, pool, drivers, KEY_AES_128, MODE_CBC, 0, in, inlen, "KEY_AES_128/MODE_CBC");
-     crypto_block_cross(tc, pool, drivers, KEY_AES_128, MODE_ECB, 0, in, inlen, "KEY_AES_128/MODE_ECB");
-     */
+    crypto_block_cross(tc, pool, drivers, APR_KEY_AES_192, APR_MODE_CBC, 0, in,
+            inlen, "KEY_AES_192/MODE_CBC");
+    crypto_block_cross(tc, pool, drivers, APR_KEY_AES_192, APR_MODE_ECB, 0, in,
+            inlen, "KEY_AES_192/MODE_ECB");
+    crypto_block_cross(tc, pool, drivers, APR_KEY_AES_128, APR_MODE_CBC, 0, in,
+            inlen, "KEY_AES_128/MODE_CBC");
+    crypto_block_cross(tc, pool, drivers, APR_KEY_AES_128, APR_MODE_ECB, 0, in,
+            inlen, "KEY_AES_128/MODE_ECB");
     apr_pool_destroy(pool);
 
 }
@@ -502,17 +499,14 @@ static void test_crypto_block_openssl_nss(abts_case *tc, void *data)
             inlen, "KEY_AES_256/MODE_CBC");
     crypto_block_cross(tc, pool, drivers, APR_KEY_AES_256, APR_MODE_ECB, 0, in,
             inlen, "KEY_AES_256/MODE_ECB");
-
-    /* all 4 of these tests fail to interoperate - a clue from the xml-security code is that
-     * NSS cannot distinguish between the 128 and 192 bit versions of AES. Will need to be
-     * investigated.
-     */
-    /*
-     crypto_block_cross(tc, pool, drivers, KEY_AES_192, MODE_CBC, 0, in, inlen, "KEY_AES_192/MODE_CBC");
-     crypto_block_cross(tc, pool, drivers, KEY_AES_192, MODE_ECB, 0, in, inlen, "KEY_AES_192/MODE_ECB");
-     crypto_block_cross(tc, pool, drivers, KEY_AES_128, MODE_CBC, 0, in, inlen, "KEY_AES_128/MODE_CBC");
-     crypto_block_cross(tc, pool, drivers, KEY_AES_128, MODE_ECB, 0, in, inlen, "KEY_AES_128/MODE_ECB");
-     */
+    crypto_block_cross(tc, pool, drivers, APR_KEY_AES_192, APR_MODE_CBC, 0, in,
+            inlen, "KEY_AES_192/MODE_CBC");
+    crypto_block_cross(tc, pool, drivers, APR_KEY_AES_192, APR_MODE_ECB, 0, in,
+            inlen, "KEY_AES_192/MODE_ECB");
+    crypto_block_cross(tc, pool, drivers, APR_KEY_AES_128, APR_MODE_CBC, 0, in,
+            inlen, "KEY_AES_128/MODE_CBC");
+    crypto_block_cross(tc, pool, drivers, APR_KEY_AES_128, APR_MODE_ECB, 0, in,
+            inlen, "KEY_AES_128/MODE_ECB");
     apr_pool_destroy(pool);
 
 }
@@ -623,16 +617,20 @@ static void test_crypto_block_nss_openssl_pad(abts_case *tc, void *data)
     /* KEY_AES_256 / MODE_ECB doesn't support padding on NSS */
     /*crypto_block_cross(tc, pool, drivers, KEY_AES_256, MODE_ECB, 1, in, inlen, "KEY_AES_256/MODE_ECB");*/
 
-    /* all 4 of these tests fail to interoperate - a clue from the xml-security code is that
-     * NSS cannot distinguish between the 128 and 192 bit versions of AES. Will need to be
-     * investigated.
-     */
-    /*
-     crypto_block_cross(tc, pool, drivers, KEY_AES_192, MODE_CBC, 1, in, inlen, "KEY_AES_192/MODE_CBC");
-     crypto_block_cross(tc, pool, drivers, KEY_AES_192, MODE_ECB, 1, in, inlen, "KEY_AES_192/MODE_ECB");
-     crypto_block_cross(tc, pool, drivers, KEY_AES_128, MODE_CBC, 1, in, inlen, "KEY_AES_128/MODE_CBC");
-     crypto_block_cross(tc, pool, drivers, KEY_AES_128, MODE_ECB, 1, in, inlen, "KEY_AES_128/MODE_ECB");
-     */
+    crypto_block_cross(tc, pool, drivers, APR_KEY_AES_192, APR_MODE_CBC, 1, in,
+            inlen, "KEY_AES_192/MODE_CBC");
+
+    /* KEY_AES_192 / MODE_ECB doesn't support padding on NSS */
+    /*crypto_block_cross(tc, pool, drivers, APR_KEY_AES_192, APR_MODE_ECB, 1, in,
+            inlen, "KEY_AES_192/MODE_ECB");*/
+
+    crypto_block_cross(tc, pool, drivers, APR_KEY_AES_128, APR_MODE_CBC, 1, in,
+            inlen, "KEY_AES_128/MODE_CBC");
+
+    /* KEY_AES_192 / MODE_ECB doesn't support padding on NSS */
+    /*crypto_block_cross(tc, pool, drivers, APR_KEY_AES_128, APR_MODE_ECB, 1, in,
+            inlen, "KEY_AES_128/MODE_ECB");*/
+
     apr_pool_destroy(pool);
 
 }
@@ -663,16 +661,20 @@ static void test_crypto_block_openssl_nss_pad(abts_case *tc, void *data)
     /* KEY_AES_256 / MODE_ECB doesn't support padding on NSS */
     /*crypto_block_cross(tc, pool, drivers, KEY_AES_256, MODE_ECB, 1, in, inlen, "KEY_AES_256/MODE_ECB");*/
 
-    /* all 4 of these tests fail to interoperate - a clue from the xml-security code is that
-     * NSS cannot distinguish between the 128 and 192 bit versions of AES. Will need to be
-     * investigated.
-     */
-    /*
-     crypto_block_cross(tc, pool, drivers, KEY_AES_192, MODE_CBC, 1, in, inlen, "KEY_AES_192/MODE_CBC");
-     crypto_block_cross(tc, pool, drivers, KEY_AES_192, MODE_ECB, 1, in, inlen, "KEY_AES_192/MODE_ECB");
-     crypto_block_cross(tc, pool, drivers, KEY_AES_128, MODE_CBC, 1, in, inlen, "KEY_AES_128/MODE_CBC");
-     crypto_block_cross(tc, pool, drivers, KEY_AES_128, MODE_ECB, 1, in, inlen, "KEY_AES_128/MODE_ECB");
-     */
+    crypto_block_cross(tc, pool, drivers, APR_KEY_AES_192, APR_MODE_CBC, 1, in, inlen,
+            "KEY_AES_192/MODE_CBC");
+
+    /* KEY_AES_192 / MODE_ECB doesn't support padding on NSS */
+    /*crypto_block_cross(tc, pool, drivers, APR_KEY_AES_192, APR_MODE_ECB, 1, in, inlen,
+            "KEY_AES_192/MODE_ECB");*/
+
+    crypto_block_cross(tc, pool, drivers, APR_KEY_AES_128, APR_MODE_CBC, 1, in, inlen,
+            "KEY_AES_128/MODE_CBC");
+
+    /* KEY_AES_128 / MODE_ECB doesn't support padding on NSS */
+    /*crypto_block_cross(tc, pool, drivers, APR_KEY_AES_128, APR_MODE_ECB, 1, in, inlen,
+            "KEY_AES_128/MODE_ECB");*/
+
     apr_pool_destroy(pool);
 
 }
