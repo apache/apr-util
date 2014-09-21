@@ -5,6 +5,9 @@ Changes with APR-util 1.5.5
      versions of NSS detect key sizes correctly, leading to test failures.
      [Graham Leggett]
 
+  *) Improve platform detection for bundled expat by updating
+     config.guess and config.sub. [Rainer Jung]
+
 Changes with APR-util 1.5.4
 
   *) MySQL driver: Fix incorrect handling of bad parameter in the
