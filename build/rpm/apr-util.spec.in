@@ -203,7 +203,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libaprutil-%{apuver}.so
 %{_libdir}/pkgconfig/apr-util-%{apuver}.pc
 %{_includedir}/apr-%{apuver}/*.h
-%doc --parents html
+%doc html
 
 %changelog
 * Tue Jun 22 2004 Graham Leggett <minfrin@sharp.fm> 1.0.0-1
