@@ -64,7 +64,7 @@ CLEAN :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP=cl.exe
-CPP_PROJ=/nologo /MD /W3 /Zi /O2 /Oy- /I "../include" /I "../../apr/include" /I "../include/private" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DSO_MODULE_BUILD" /D APU_HAVE_SQLITE3=1 /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\apr_dbd_sqlite3_src" /FD /c 
+CPP_PROJ=/nologo /MD /W3 /Zi /O2 /Oy- /I "../include" /I "../../apr/include" /I "../include/private" /I "../../sqlite3" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DSO_MODULE_BUILD" /D APU_HAVE_SQLITE3=1 /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\apr_dbd_sqlite3_src" /FD /c 
 
 .c{$(INTDIR)}.obj::
    $(CPP) @<<
@@ -105,7 +105,7 @@ BSC32_FLAGS=/nologo /o"$(OUTDIR)\apr_dbd_sqlite3.bsc"
 BSC32_SBRS= \
 	
 LINK32=link.exe
-LINK32_FLAGS=kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib sqlite3.lib /nologo /base:"0x6EF20000" /subsystem:windows /dll /incremental:no /pdb:"$(OUTDIR)\apr_dbd_sqlite3-1.pdb" /debug /out:"$(OUTDIR)\apr_dbd_sqlite3-1.dll" /implib:"$(OUTDIR)\apr_dbd_sqlite3-1.lib" /MACHINE:X86 /opt:ref 
+LINK32_FLAGS=kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib sqlite3.lib /nologo /base:"0x6EF20000" /subsystem:windows /dll /incremental:no /libpath:"..\..\sqlite3" /pdb:"$(OUTDIR)\apr_dbd_sqlite3-1.pdb" /debug /out:"$(OUTDIR)\apr_dbd_sqlite3-1.dll" /implib:"$(OUTDIR)\apr_dbd_sqlite3-1.lib" /MACHINE:X86 /opt:ref 
 LINK32_OBJS= \
 	"$(INTDIR)\apr_dbd_sqlite3.obj" \
 	"$(INTDIR)\apr_dbd_sqlite3-1.res" \
@@ -167,7 +167,7 @@ CLEAN :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP=cl.exe
-CPP_PROJ=/nologo /MDd /W3 /Zi /Od /I "../include" /I "../../apr/include" /I "../include/private" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DSO_MODULE_BUILD" /D APU_HAVE_SQLITE3=1 /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\apr_dbd_sqlite3_src" /FD /EHsc /c 
+CPP_PROJ=/nologo /MDd /W3 /Zi /Od /I "../include" /I "../../apr/include" /I "../include/private" /I "../../sqlite3" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DSO_MODULE_BUILD" /D APU_HAVE_SQLITE3=1 /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\apr_dbd_sqlite3_src" /FD /EHsc /c 
 
 .c{$(INTDIR)}.obj::
    $(CPP) @<<
@@ -208,7 +208,7 @@ BSC32_FLAGS=/nologo /o"$(OUTDIR)\apr_dbd_sqlite3.bsc"
 BSC32_SBRS= \
 	
 LINK32=link.exe
-LINK32_FLAGS=kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib sqlite3.lib /nologo /base:"0x6EF20000" /subsystem:windows /dll /incremental:no /pdb:"$(OUTDIR)\apr_dbd_sqlite3-1.pdb" /debug /out:"$(OUTDIR)\apr_dbd_sqlite3-1.dll" /implib:"$(OUTDIR)\apr_dbd_sqlite3-1.lib" /MACHINE:X86 
+LINK32_FLAGS=kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib sqlite3.lib /nologo /base:"0x6EF20000" /subsystem:windows /dll /incremental:no /libpath:"..\..\sqlite3" /pdb:"$(OUTDIR)\apr_dbd_sqlite3-1.pdb" /debug /out:"$(OUTDIR)\apr_dbd_sqlite3-1.dll" /implib:"$(OUTDIR)\apr_dbd_sqlite3-1.lib" /MACHINE:X86 
 LINK32_OBJS= \
 	"$(INTDIR)\apr_dbd_sqlite3.obj" \
 	"$(INTDIR)\apr_dbd_sqlite3-1.res" \
@@ -270,7 +270,7 @@ CLEAN :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP=cl.exe
-CPP_PROJ=/nologo /MD /W3 /Zi /O2 /Oy- /I "../include" /I "../../apr/include" /I "../include/private" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DSO_MODULE_BUILD" /D APU_HAVE_SQLITE3=1 /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\apr_dbd_sqlite3_src" /FD /c 
+CPP_PROJ=/nologo /MD /W3 /Zi /O2 /Oy- /I "../include" /I "../../apr/include" /I "../include/private" /I "../../sqlite3" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DSO_MODULE_BUILD" /D APU_HAVE_SQLITE3=1 /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\apr_dbd_sqlite3_src" /FD /c 
 
 .c{$(INTDIR)}.obj::
    $(CPP) @<<
@@ -311,7 +311,7 @@ BSC32_FLAGS=/nologo /o"$(OUTDIR)\apr_dbd_sqlite3.bsc"
 BSC32_SBRS= \
 	
 LINK32=link.exe
-LINK32_FLAGS=kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib sqlite3.lib /nologo /base:"0x6EF20000" /subsystem:windows /dll /incremental:no /pdb:"$(OUTDIR)\apr_dbd_sqlite3-1.pdb" /debug /out:"$(OUTDIR)\apr_dbd_sqlite3-1.dll" /implib:"$(OUTDIR)\apr_dbd_sqlite3-1.lib" /MACHINE:X64 /opt:ref 
+LINK32_FLAGS=kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib sqlite3.lib /nologo /base:"0x6EF20000" /subsystem:windows /dll /incremental:no /libpath:"..\..\sqlite3" /pdb:"$(OUTDIR)\apr_dbd_sqlite3-1.pdb" /debug /out:"$(OUTDIR)\apr_dbd_sqlite3-1.dll" /implib:"$(OUTDIR)\apr_dbd_sqlite3-1.lib" /MACHINE:X64 /opt:ref 
 LINK32_OBJS= \
 	"$(INTDIR)\apr_dbd_sqlite3.obj" \
 	"$(INTDIR)\apr_dbd_sqlite3-1.res" \
@@ -373,7 +373,7 @@ CLEAN :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP=cl.exe
-CPP_PROJ=/nologo /MDd /W3 /Zi /Od /I "../include" /I "../../apr/include" /I "../include/private" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DSO_MODULE_BUILD" /D APU_HAVE_SQLITE3=1 /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\apr_dbd_sqlite3_src" /FD /EHsc /c 
+CPP_PROJ=/nologo /MDd /W3 /Zi /Od /I "../include" /I "../../apr/include" /I "../include/private" /I "../../sqlite3" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DSO_MODULE_BUILD" /D APU_HAVE_SQLITE3=1 /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\apr_dbd_sqlite3_src" /FD /EHsc /c 
 
 .c{$(INTDIR)}.obj::
    $(CPP) @<<
@@ -414,7 +414,7 @@ BSC32_FLAGS=/nologo /o"$(OUTDIR)\apr_dbd_sqlite3.bsc"
 BSC32_SBRS= \
 	
 LINK32=link.exe
-LINK32_FLAGS=kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib sqlite3.lib /nologo /base:"0x6EF20000" /subsystem:windows /dll /incremental:no /pdb:"$(OUTDIR)\apr_dbd_sqlite3-1.pdb" /debug /out:"$(OUTDIR)\apr_dbd_sqlite3-1.dll" /implib:"$(OUTDIR)\apr_dbd_sqlite3-1.lib" /MACHINE:X64 
+LINK32_FLAGS=kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib sqlite3.lib /nologo /base:"0x6EF20000" /subsystem:windows /dll /incremental:no /libpath:"..\..\sqlite3" /pdb:"$(OUTDIR)\apr_dbd_sqlite3-1.pdb" /debug /out:"$(OUTDIR)\apr_dbd_sqlite3-1.dll" /implib:"$(OUTDIR)\apr_dbd_sqlite3-1.lib" /MACHINE:X64 
 LINK32_OBJS= \
 	"$(INTDIR)\apr_dbd_sqlite3.obj" \
 	"$(INTDIR)\apr_dbd_sqlite3-1.res" \
