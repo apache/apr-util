@@ -121,7 +121,6 @@ if [ -f "include/apu.h" -o -f "include/private/apu_config.h" -o \
     echo ""
     echo "Generated include files already exist, the tree is not clean."
     echo "The resulting build-outputs.mk file is incorrect"
-    exit 1
 fi
 
 exit 0
