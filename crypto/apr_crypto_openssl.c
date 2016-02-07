@@ -64,7 +64,7 @@ struct apr_crypto_block_t {
     apr_pool_t *pool;
     const apr_crypto_driver_t *provider;
     const apr_crypto_t *f;
-    EVP_CIPHER_CTX cipherCtx;
+    EVP_CIPHER_CTX *cipherCtx;
     int initialised;
     int ivSize;
     int blockSize;
@@ -111,7 +111,11 @@ static apr_status_t crypto_shutdown_helper(void *data)
 static apr_status_t crypto_init(apr_pool_t *pool, const char *params,
         const apu_err_t **result)
 {
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
     CRYPTO_malloc_init();
+#else
+    OPENSSL_malloc_init();
+#endif
     ERR_load_crypto_strings();
     /* SSL_load_error_strings(); */
     OpenSSL_add_all_algorithms();
@@ -134,7 +138,7 @@ static apr_status_t crypto_block_cleanup(apr_crypto_block_t *ctx)
 {
 
     if (ctx->initialised) {
-        EVP_CIPHER_CTX_cleanup(&ctx->cipherCtx);
+        EVP_CIPHER_CTX_free(ctx->cipherCtx);
         ctx->initialised = 0;
     }
 
@@ -491,8 +495,10 @@ static apr_status_t crypto_block_encrypt_init(apr_crypto_block_t **ctx,
             apr_pool_cleanup_null);
 
     /* create a new context for encryption */
-    EVP_CIPHER_CTX_init(&block->cipherCtx);
-    block->initialised = 1;
+    if (!block->initialised) {
+        block->cipherCtx = EVP_CIPHER_CTX_new();
+        block->initialised = 1;
+    }
 
     /* generate an IV, if necessary */
     usedIv = NULL;
@@ -519,16 +525,16 @@ static apr_status_t crypto_block_encrypt_init(apr_crypto_block_t **ctx,
 
     /* set up our encryption context */
 #if CRYPTO_OPENSSL_CONST_BUFFERS
-    if (!EVP_EncryptInit_ex(&block->cipherCtx, key->cipher, config->engine,
+    if (!EVP_EncryptInit_ex(block->cipherCtx, key->cipher, config->engine,
             key->key, usedIv)) {
 #else
-        if (!EVP_EncryptInit_ex(&block->cipherCtx, key->cipher, config->engine, (unsigned char *) key->key, (unsigned char *) usedIv)) {
+        if (!EVP_EncryptInit_ex(block->cipherCtx, key->cipher, config->engine, (unsigned char *) key->key, (unsigned char *) usedIv)) {
 #endif
         return APR_EINIT;
     }
 
     /* Clear up any read padding */
-    if (!EVP_CIPHER_CTX_set_padding(&block->cipherCtx, key->doPad)) {
+    if (!EVP_CIPHER_CTX_set_padding(block->cipherCtx, key->doPad)) {
         return APR_EPADDING;
     }
 
@@ -582,10 +588,15 @@ static apr_status_t crypto_block_encrypt(unsigned char **out,
     }
 
 #if CRYPT_OPENSSL_CONST_BUFFERS
-    if (!EVP_EncryptUpdate(&ctx->cipherCtx, (*out), &outl, in, inlen)) {
+    if (!EVP_EncryptUpdate(ctx->cipherCtx, (*out), &outl, in, inlen)) {
 #else
-    if (!EVP_EncryptUpdate(&ctx->cipherCtx, (*out), &outl,
+    if (!EVP_EncryptUpdate(ctx->cipherCtx, (*out), &outl,
             (unsigned char *) in, inlen)) {
+#endif
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+        EVP_CIPHER_CTX_cleanup(ctx->cipherCtx);
+#else
+        EVP_CIPHER_CTX_reset(ctx->cipherCtx);
 #endif
         return APR_ECRYPT;
     }
@@ -616,14 +627,22 @@ static apr_status_t crypto_block_encrypt(unsigned char **out,
 static apr_status_t crypto_block_encrypt_finish(unsigned char *out,
         apr_size_t *outlen, apr_crypto_block_t *ctx)
 {
+    apr_status_t rc = APR_SUCCESS;
     int len = *outlen;
 
-    if (EVP_EncryptFinal_ex(&ctx->cipherCtx, out, &len) == 0) {
-        return APR_EPADDING;
+    if (EVP_EncryptFinal_ex(ctx->cipherCtx, out, &len) == 0) {
+        rc = APR_EPADDING;
     }
-    *outlen = len;
+    else {
+        *outlen = len;
+    }
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+    EVP_CIPHER_CTX_cleanup(ctx->cipherCtx);
+#else
+    EVP_CIPHER_CTX_reset(ctx->cipherCtx);
+#endif
 
-    return APR_SUCCESS;
+    return rc;
 
 }
 
@@ -662,8 +681,10 @@ static apr_status_t crypto_block_decrypt_init(apr_crypto_block_t **ctx,
             apr_pool_cleanup_null);
 
     /* create a new context for encryption */
-    EVP_CIPHER_CTX_init(&block->cipherCtx);
-    block->initialised = 1;
+    if (!block->initialised) {
+        block->cipherCtx = EVP_CIPHER_CTX_new();
+        block->initialised = 1;
+    }
 
     /* generate an IV, if necessary */
     if (key->ivSize) {
@@ -674,16 +695,16 @@ static apr_status_t crypto_block_decrypt_init(apr_crypto_block_t **ctx,
 
     /* set up our encryption context */
 #if CRYPTO_OPENSSL_CONST_BUFFERS
-    if (!EVP_DecryptInit_ex(&block->cipherCtx, key->cipher, config->engine,
+    if (!EVP_DecryptInit_ex(block->cipherCtx, key->cipher, config->engine,
             key->key, iv)) {
 #else
-        if (!EVP_DecryptInit_ex(&block->cipherCtx, key->cipher, config->engine, (unsigned char *) key->key, (unsigned char *) iv)) {
+        if (!EVP_DecryptInit_ex(block->cipherCtx, key->cipher, config->engine, (unsigned char *) key->key, (unsigned char *) iv)) {
 #endif
         return APR_EINIT;
     }
 
     /* Clear up any read padding */
-    if (!EVP_CIPHER_CTX_set_padding(&block->cipherCtx, key->doPad)) {
+    if (!EVP_CIPHER_CTX_set_padding(block->cipherCtx, key->doPad)) {
         return APR_EPADDING;
     }
 
@@ -737,10 +758,15 @@ static apr_status_t crypto_block_decrypt(unsigned char **out,
     }
 
 #if CRYPT_OPENSSL_CONST_BUFFERS
-    if (!EVP_DecryptUpdate(&ctx->cipherCtx, *out, &outl, in, inlen)) {
+    if (!EVP_DecryptUpdate(ctx->cipherCtx, *out, &outl, in, inlen)) {
 #else
-    if (!EVP_DecryptUpdate(&ctx->cipherCtx, *out, &outl, (unsigned char *) in,
+    if (!EVP_DecryptUpdate(ctx->cipherCtx, *out, &outl, (unsigned char *) in,
             inlen)) {
+#endif
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+        EVP_CIPHER_CTX_cleanup(ctx->cipherCtx);
+#else
+        EVP_CIPHER_CTX_reset(ctx->cipherCtx);
 #endif
         return APR_ECRYPT;
     }
@@ -771,15 +797,22 @@ static apr_status_t crypto_block_decrypt(unsigned char **out,
 static apr_status_t crypto_block_decrypt_finish(unsigned char *out,
         apr_size_t *outlen, apr_crypto_block_t *ctx)
 {
-
+    apr_status_t rc = APR_SUCCESS;
     int len = *outlen;
 
-    if (EVP_DecryptFinal_ex(&ctx->cipherCtx, out, &len) == 0) {
-        return APR_EPADDING;
+    if (EVP_DecryptFinal_ex(ctx->cipherCtx, out, &len) == 0) {
+        rc = APR_EPADDING;
     }
-    *outlen = len;
+    else {
+        *outlen = len;
+    }
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+    EVP_CIPHER_CTX_cleanup(ctx->cipherCtx);
+#else
+    EVP_CIPHER_CTX_reset(ctx->cipherCtx);
+#endif
 
-    return APR_SUCCESS;
+    return rc;
 
 }
 
