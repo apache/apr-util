@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.5.5
 
+  *) apr_crypto_openssl: Add support for OpenSSL 1.1.0.
+     [Rainer Jung]
+
   *) apr_crypto_nss: Explicitly declare key sizes when using NSS. Not all
      versions of NSS detect key sizes correctly, leading to test failures.
      [Graham Leggett]
