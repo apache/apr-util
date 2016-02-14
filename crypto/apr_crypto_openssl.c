@@ -128,6 +128,30 @@ static apr_status_t crypto_init(apr_pool_t *pool, const char *params,
     return APR_SUCCESS;
 }
 
+#if OPENSSL_VERSION_NUMBER < 0x0090802fL
+
+/* Code taken from OpenSSL 0.9.8b, see
+ * https://github.com/openssl/openssl/commit/cf6bc84148cb15af09b292394aaf2b45f0d5af0d
+ */
+
+EVP_CIPHER_CTX *EVP_CIPHER_CTX_new(void)
+{
+     EVP_CIPHER_CTX *ctx = OPENSSL_malloc(sizeof *ctx);
+     if (ctx)
+         EVP_CIPHER_CTX_init(ctx);
+     return ctx;
+}
+
+void EVP_CIPHER_CTX_free(EVP_CIPHER_CTX *ctx)
+{
+    if (ctx) {
+        EVP_CIPHER_CTX_cleanup(ctx);
+        OPENSSL_free(ctx);
+    }
+}
+
+#endif
+
 /**
  * @brief Clean encryption / decryption context.
  * @note After cleanup, a context is free to be reused if necessary.
