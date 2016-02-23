@@ -1,9 +1,6 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.4.3
 
-  *) apr_crypto_openssl: Add support for OpenSSL 1.1.0.
-     [Rainer Jung]
-
   *) Fix potential data corruption in apr_brigade_write() and friends if
      the last bucket of the brigade is a heap bucket that has been split,
      and there are still references to the next part of the original bucket
