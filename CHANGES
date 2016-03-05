@@ -1,6 +1,10 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.5.5
 
+  *) apr_memcache: Abort connections and error out on unexpected value,
+     length or type returned by the memcache server for multigetp.
+     [Jeffrey Crowell <jcrowell google.com>, Yann Ylavic]
+
   *) apr_crypto_openssl: Add support for OpenSSL 1.1.0.
      [Rainer Jung]
 
