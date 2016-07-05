@@ -43,6 +43,7 @@ LDADD_dbm_ndbm = @LDADD_dbm_ndbm@
 LDADD_ldap = @LDADD_ldap@
 LDADD_crypto_openssl = @LDADD_crypto_openssl@
 LDADD_crypto_nss = @LDADD_crypto_nss@
+LDADD_crypto_commoncrypto = @LDADD_crypto_commoncrypto@
 
 TARGETS = $(TARGET_LIB) aprutil.exp apu-config.out $(APU_MODULES)
 
