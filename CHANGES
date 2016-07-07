@@ -1,6 +1,10 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.6.0
 
+  *) apr_crypto: Don't cache the driver if initialisation fails. This
+     stops the second and subsequent attempt to use the API from failing
+     claiming the library is not initialised. [Graham Leggett]
+
   *) apr_crypto: Add a native CommonCrypto implementation for iOS and OSX
      where OpenSSL has been deprecated. [Graham Leggett]
 
