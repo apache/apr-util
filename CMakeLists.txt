@@ -74,7 +74,8 @@ CONFIGURE_FILE(include/apu_want.hw
                ${PROJECT_BINARY_DIR}/apu_want.h
                COPYONLY)
 
-SET(XMLLIB_INCLUDE_DIR   ${CMAKE_CURRENT_SOURCE_DIR}/xml/expat/lib)
+# TBD:
+# SET(XMLLIB_INCLUDE_DIR   ${CMAKE_CURRENT_SOURCE_DIR}/xml/expat/lib)
 SET(XMLLIB_LIBRARIES     libexpat)
 
 SET(LDAP_LIBRARIES)
