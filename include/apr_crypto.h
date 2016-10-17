@@ -178,8 +178,7 @@ typedef struct apr_crypto_key_rec_t {
 APU_DECLARE(apr_status_t) apr_crypto_init(apr_pool_t *pool);
 
 /**
- * @brief Register a cleanup to zero out the buffer provided
- * when the pool is cleaned up.
+ * @brief Zero out the buffer provided when the pool is cleaned up.
  *
  * @param pool - pool to register the cleanup
  * @param buffer - buffer to zero out
@@ -187,6 +186,27 @@ APU_DECLARE(apr_status_t) apr_crypto_init(apr_pool_t *pool);
  */
 APU_DECLARE(apr_status_t) apr_crypto_clear(apr_pool_t *pool, void *buffer,
         apr_size_t size);
+
+/**
+ * @brief Always zero out the buffer provided, without being optimized out by
+ * the compiler.
+ *
+ * @param buffer - buffer to zero out
+ * @param size - size of the buffer to zero out
+ */
+APR_DECLARE(apr_status_t) apr_crypto_memzero(void *buffer, apr_size_t size);
+
+/**
+ * @brief Timing attacks safe buffers comparison, where the executing time does
+ * not depend on the bytes compared but solely on the number of bytes.
+ *
+ * @param buf1 - first buffer to compare
+ * @param buf2 - second buffer to compare
+ * @param size - size of the buffers to compare
+ * @return 1 if the buffers are equals, 0 otherwise.
+ */
+APR_DECLARE(int) apr_crypto_equals(const void *buf1, const void *buf2,
+                                   apr_size_t size);
 
 /**
  * @brief Get the driver struct for a name
