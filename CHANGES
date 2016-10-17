@@ -1,6 +1,8 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.6.0
 
+  *) apr_siphash: Implement keyed hash function SipHash.  [Yann Ylavic]
+
   *) apr_crypto: Add apr_crypto_key() function which supports keys
      generated from a passphrase or a raw secret provided by the caller.
      Deprecate apr_crypto_passphrase(). [Graham Leggett]

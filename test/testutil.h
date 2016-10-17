@@ -67,5 +67,6 @@ abts_suite *testxml(abts_suite *suite);
 abts_suite *testxlate(abts_suite *suite);
 abts_suite *testrmm(abts_suite *suite);
 abts_suite *testdbm(abts_suite *suite);
+abts_suite *testsiphash(abts_suite *suite);
 
 #endif /* APR_TEST_INCLUDES */

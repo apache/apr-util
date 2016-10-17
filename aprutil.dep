@@ -104,6 +104,10 @@
 	".\include\apu.h"\
 	
 
+.\crypto\apr_siphash.c : \
+	".\include\apr_siphash.h"\
+	
+
 .\crypto\crypt_blowfish.c : \
 	".\crypto\crypt_blowfish.h"\
 	

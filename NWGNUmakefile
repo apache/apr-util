@@ -264,6 +264,7 @@ FILES_lib_objs = \
 	$(OBJDIR)/apr_reslist.o \
 	$(OBJDIR)/apr_rmm.o \
 	$(OBJDIR)/apr_sha1.o \
+	$(OBJDIR)/apr_siphash.o \
 	$(OBJDIR)/apu_version.o \
 	$(OBJDIR)/getuuid.o \
 	$(OBJDIR)/uuid.o \
