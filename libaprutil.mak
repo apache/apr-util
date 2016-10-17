@@ -81,6 +81,7 @@ CLEAN :
 	-@erase "$(INTDIR)\apr_reslist.obj"
 	-@erase "$(INTDIR)\apr_rmm.obj"
 	-@erase "$(INTDIR)\apr_sha1.obj"
+	-@erase "$(INTDIR)\apr_siphash.obj"
 	-@erase "$(INTDIR)\apr_strmatch.obj"
 	-@erase "$(INTDIR)\apr_thread_pool.obj"
 	-@erase "$(INTDIR)\apr_uri.obj"
@@ -169,6 +170,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\apr_md5.obj" \
 	"$(INTDIR)\apr_passwd.obj" \
 	"$(INTDIR)\apr_sha1.obj" \
+	"$(INTDIR)\apr_siphash.obj" \
 	"$(INTDIR)\crypt_blowfish.obj" \
 	"$(INTDIR)\getuuid.obj" \
 	"$(INTDIR)\uuid.obj" \
@@ -272,6 +274,7 @@ CLEAN :
 	-@erase "$(INTDIR)\apr_reslist.obj"
 	-@erase "$(INTDIR)\apr_rmm.obj"
 	-@erase "$(INTDIR)\apr_sha1.obj"
+	-@erase "$(INTDIR)\apr_siphash.obj"
 	-@erase "$(INTDIR)\apr_strmatch.obj"
 	-@erase "$(INTDIR)\apr_thread_pool.obj"
 	-@erase "$(INTDIR)\apr_uri.obj"
@@ -364,6 +367,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\apr_md5.obj" \
 	"$(INTDIR)\apr_passwd.obj" \
 	"$(INTDIR)\apr_sha1.obj" \
+	"$(INTDIR)\apr_siphash.obj" \
 	"$(INTDIR)\crypt_blowfish.obj" \
 	"$(INTDIR)\getuuid.obj" \
 	"$(INTDIR)\uuid.obj" \
@@ -467,6 +471,7 @@ CLEAN :
 	-@erase "$(INTDIR)\apr_reslist.obj"
 	-@erase "$(INTDIR)\apr_rmm.obj"
 	-@erase "$(INTDIR)\apr_sha1.obj"
+	-@erase "$(INTDIR)\apr_siphash.obj"
 	-@erase "$(INTDIR)\apr_strmatch.obj"
 	-@erase "$(INTDIR)\apr_thread_pool.obj"
 	-@erase "$(INTDIR)\apr_uri.obj"
@@ -559,6 +564,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\apr_md5.obj" \
 	"$(INTDIR)\apr_passwd.obj" \
 	"$(INTDIR)\apr_sha1.obj" \
+	"$(INTDIR)\apr_siphash.obj" \
 	"$(INTDIR)\crypt_blowfish.obj" \
 	"$(INTDIR)\getuuid.obj" \
 	"$(INTDIR)\uuid.obj" \
@@ -662,6 +668,7 @@ CLEAN :
 	-@erase "$(INTDIR)\apr_reslist.obj"
 	-@erase "$(INTDIR)\apr_rmm.obj"
 	-@erase "$(INTDIR)\apr_sha1.obj"
+	-@erase "$(INTDIR)\apr_siphash.obj"
 	-@erase "$(INTDIR)\apr_strmatch.obj"
 	-@erase "$(INTDIR)\apr_thread_pool.obj"
 	-@erase "$(INTDIR)\apr_uri.obj"
@@ -754,6 +761,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\apr_md5.obj" \
 	"$(INTDIR)\apr_passwd.obj" \
 	"$(INTDIR)\apr_sha1.obj" \
+	"$(INTDIR)\apr_siphash.obj" \
 	"$(INTDIR)\crypt_blowfish.obj" \
 	"$(INTDIR)\getuuid.obj" \
 	"$(INTDIR)\uuid.obj" \
@@ -921,6 +929,12 @@ SOURCE=.\crypto\apr_passwd.c
 SOURCE=.\crypto\apr_sha1.c
 
 "$(INTDIR)\apr_sha1.obj" : $(SOURCE) "$(INTDIR)" ".\include\apu.h"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+SOURCE=.\crypto\apr_siphash.c
+
+"$(INTDIR)\apr_siphash.obj" : $(SOURCE) "$(INTDIR)"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 

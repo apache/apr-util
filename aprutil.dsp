@@ -216,6 +216,10 @@ SOURCE=.\crypto\apr_sha1.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\crypto\apr_siphash.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\crypto\crypt_blowfish.c
 # End Source File
 # Begin Source File
@@ -772,6 +776,10 @@ SOURCE=.\include\apr_sdbm.h
 # Begin Source File
 
 SOURCE=.\include\apr_sha1.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\apr_siphash.h
 # End Source File
 # Begin Source File
 
