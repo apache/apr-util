@@ -105,8 +105,8 @@ typedef struct apr_redis_t apr_redis_t;
 * @param data_len length of data
 */
 typedef apr_uint32_t (*apr_redis_hash_func)(void *baton,
-                                               const char *data,
-                                               const apr_size_t data_len);
+                                            const char *data,
+                                            const apr_size_t data_len);
 /* Custom Server Select callback function prototype.
 * @param baton user selected baton
 * @param rc redis instance, use rc->live_servers to select a node
@@ -139,22 +139,22 @@ struct apr_redis_t
  * @remark The crc32 hash is not compatible with old redisd clients.
  */
 APU_DECLARE(apr_uint32_t) apr_redis_hash(apr_redis_t *rc,
-                                            const char *data,
-                                            const apr_size_t data_len);
+                                         const char *data,
+                                         const apr_size_t data_len);
 
 /**
  * Pure CRC32 Hash. Used by some clients.
  */
 APU_DECLARE(apr_uint32_t) apr_redis_hash_crc32(void *baton,
-                                                  const char *data,
-                                                  const apr_size_t data_len);
+                                               const char *data,
+                                               const apr_size_t data_len);
 
 /**
  * hash compatible with the standard Perl Client.
  */
 APU_DECLARE(apr_uint32_t) apr_redis_hash_default(void *baton,
-                                                    const char *data,
-                                                    const apr_size_t data_len);
+                                                 const char *data,
+                                                 const apr_size_t data_len);
 
 /**
  * Picks a server based on a hash
@@ -164,14 +164,14 @@ APU_DECLARE(apr_uint32_t) apr_redis_hash_default(void *baton,
  * @see apr_redis_hash
  */
 APU_DECLARE(apr_redis_server_t *) apr_redis_find_server_hash(apr_redis_t *rc,
-                                                                   const apr_uint32_t hash);
+                                                             const apr_uint32_t hash);
 
 /**
  * server selection compatible with the standard Perl Client.
  */
 APU_DECLARE(apr_redis_server_t *) apr_redis_find_server_hash_default(void *baton,
-                                                                           apr_redis_t *rc,
-                                                                           const apr_uint32_t hash);
+                                                                      apr_redis_t *rc,
+                                                                      const apr_uint32_t hash);
 
 /**
  * Adds a server to a client object
@@ -182,7 +182,7 @@ APU_DECLARE(apr_redis_server_t *) apr_redis_find_server_hash_default(void *baton
  * different servers.
  */
 APU_DECLARE(apr_status_t) apr_redis_add_server(apr_redis_t *rc,
-                                                  apr_redis_server_t *server);
+                                               apr_redis_server_t *server);
 
 
 /**
@@ -193,8 +193,8 @@ APU_DECLARE(apr_status_t) apr_redis_add_server(apr_redis_t *rc,
  * @return Server with matching Hostname and Port, or NULL if none was found.
  */
 APU_DECLARE(apr_redis_server_t *) apr_redis_find_server(apr_redis_t *rc,
-                                                              const char *host,
-                                                              apr_port_t port);
+                                                        const char *host,
+                                                        apr_port_t port);
 
 /**
  * Enables a Server for use again
@@ -202,7 +202,7 @@ APU_DECLARE(apr_redis_server_t *) apr_redis_find_server(apr_redis_t *rc,
  * @param rs Server to Activate
  */
 APU_DECLARE(apr_status_t) apr_redis_enable_server(apr_redis_t *rc,
-                                                     apr_redis_server_t *rs);
+                                                  apr_redis_server_t *rs);
 
 
 /**
@@ -211,7 +211,7 @@ APU_DECLARE(apr_status_t) apr_redis_enable_server(apr_redis_t *rc,
  * @param rs Server to Disable
  */
 APU_DECLARE(apr_status_t) apr_redis_disable_server(apr_redis_t *rc,
-                                                      apr_redis_server_t *rs);
+                                                   apr_redis_server_t *rs);
 
 /**
  * Creates a new Server Object
@@ -228,14 +228,14 @@ APU_DECLARE(apr_status_t) apr_redis_disable_server(apr_redis_t *rc,
  * @remark min, smax, and max are only used when APR_HAS_THREADS
  */
 APU_DECLARE(apr_status_t) apr_redis_server_create(apr_pool_t *p,
-                                                     const char *host,
-                                                     apr_port_t port,
-                                                     apr_uint32_t min,
-                                                     apr_uint32_t smax,
-                                                     apr_uint32_t max,
-                                                     apr_uint32_t ttl,
-                                                     apr_uint32_t rwto,
-                                                     apr_redis_server_t **ns);
+                                                  const char *host,
+                                                  apr_port_t port,
+                                                  apr_uint32_t min,
+                                                  apr_uint32_t smax,
+                                                  apr_uint32_t max,
+                                                  apr_uint32_t ttl,
+                                                  apr_uint32_t rwto,
+                                                  apr_redis_server_t **ns);
 /**
  * Creates a new redisd client object
  * @param p Pool to use
@@ -244,9 +244,9 @@ APU_DECLARE(apr_status_t) apr_redis_server_create(apr_pool_t *p,
  * @param rc   location of the new redis client object
  */
 APU_DECLARE(apr_status_t) apr_redis_create(apr_pool_t *p,
-                                              apr_uint16_t max_servers,
-                                              apr_uint32_t flags,
-                                              apr_redis_t **rc);
+                                           apr_uint16_t max_servers,
+                                           apr_uint32_t flags,
+                                           apr_redis_t **rc);
 
 /**
  * Gets a value from the server, allocating the value out of p
@@ -259,11 +259,11 @@ APU_DECLARE(apr_status_t) apr_redis_create(apr_pool_t *p,
  * @return 
  */
 APU_DECLARE(apr_status_t) apr_redis_getp(apr_redis_t *rc,
-                                            apr_pool_t *p,
-                                            const char* key,
-                                            char **baton,
-                                            apr_size_t *len,
-                                            apr_uint16_t *flags);
+                                         apr_pool_t *p,
+                                         const char* key,
+                                         char **baton,
+                                         apr_size_t *len,
+                                         apr_uint16_t *flags);
 
 /**
  * Sets a value by key on the server
@@ -275,11 +275,11 @@ APU_DECLARE(apr_status_t) apr_redis_getp(apr_redis_t *rc,
  * @param flags any flags set by the client for this key
  */
 APU_DECLARE(apr_status_t) apr_redis_setex(apr_redis_t *rc,
-                                           const char *key,
-                                           char *baton,
-                                           const apr_size_t data_size,
-                                           apr_uint32_t timeout,
-                                           apr_uint16_t flags);
+                                          const char *key,
+                                          char *baton,
+                                          const apr_size_t data_size,
+                                          apr_uint32_t timeout,
+                                          apr_uint16_t flags);
 
 /**
  * Deletes a key from a server
@@ -288,8 +288,8 @@ APU_DECLARE(apr_status_t) apr_redis_setex(apr_redis_t *rc,
  * @param timeout time for the delete to stop other clients from adding
  */
 APU_DECLARE(apr_status_t) apr_redis_delete(apr_redis_t *rc,
-                                              const char *key,
-                                              apr_uint32_t timeout);
+                                           const char *key,
+                                           apr_uint32_t timeout);
 
 /**
  * Query a server's version
@@ -299,8 +299,8 @@ APU_DECLARE(apr_status_t) apr_redis_delete(apr_redis_t *rc,
  * @param len   length of the server version string
  */
 APU_DECLARE(apr_status_t) apr_redis_version(apr_redis_server_t *rs,
-                                               apr_pool_t *p,
-                                               char **baton);
+                                            apr_pool_t *p,
+                                            char **baton);
 
 typedef struct
 {
