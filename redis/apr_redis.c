@@ -859,6 +859,66 @@ APU_DECLARE(apr_status_t) apr_redis_setex(apr_redis_t *rc,
     rs_release_conn(rs, conn);
     return rv;
 }
+static apr_status_t grab_bulk (apr_redis_server_t *rs, apr_redis_t *rc,
+                               apr_redis_conn_t *conn, apr_pool_t *p,
+                               char **baton, apr_size_t *new_length)
+{
+    char *length;
+    char *last;
+    apr_size_t len = 0;
+    *new_length = 0;
+    apr_status_t rv;
+
+    length = apr_strtok(conn->buffer + 1, " ", &last);
+    if (length) {
+        len = strtol(length, (char **) NULL, 10);
+    }
+
+    if (len == 0) {
+        *new_length = 0;
+        *baton = NULL;
+    }
+    else {
+        apr_bucket_brigade *bbb;
+        apr_bucket *e;
+
+        /* eat the trailing \r\n */
+        rv = apr_brigade_partition(conn->bb, len + 2, &e);
+
+        if (rv != APR_SUCCESS) {
+            rs_bad_conn(rs, conn);
+            if (rc)
+                apr_redis_disable_server(rc, rs);
+            return rv;
+        }
+
+        bbb = apr_brigade_split(conn->bb, e);
+
+        rv = apr_brigade_pflatten(conn->bb, baton, &len, p);
+
+        if (rv != APR_SUCCESS) {
+            rs_bad_conn(rs, conn);
+            if (rc)
+                apr_redis_disable_server(rc, rs);
+            return rv;
+        }
+
+        rv = apr_brigade_destroy(conn->bb);
+        if (rv != APR_SUCCESS) {
+            rs_bad_conn(rs, conn);
+            if (rc)
+                apr_redis_disable_server(rc, rs);
+            return rv;
+        }
+
+        conn->bb = bbb;
+
+        *new_length = len - 2;
+        (*baton)[*new_length] = '\0';
+    }
+    return APR_SUCCESS;
+
+}
 
 APU_DECLARE(apr_status_t) apr_redis_getp(apr_redis_t *rc,
                                          apr_pool_t *p,
@@ -935,55 +995,7 @@ APU_DECLARE(apr_status_t) apr_redis_getp(apr_redis_t *rc,
         rv = APR_NOTFOUND;
     }
     else if (strncmp(RS_TYPE_STRING, conn->buffer, RS_TYPE_STRING_LEN) == 0) {
-        char *length;
-        char *last;
-        apr_size_t len = 0;
-        *new_length = 0;
-
-        length = apr_strtok(conn->buffer + 1, " ", &last);
-        if (length) {
-            len = strtol(length, (char **) NULL, 10);
-        }
-
-        if (len == 0) {
-            *new_length = 0;
-            *baton = NULL;
-        }
-        else {
-            apr_bucket_brigade *bbb;
-            apr_bucket *e;
-
-            /* eat the trailing \r\n */
-            rv = apr_brigade_partition(conn->bb, len + 2, &e);
-
-            if (rv != APR_SUCCESS) {
-                rs_bad_conn(rs, conn);
-                apr_redis_disable_server(rc, rs);
-                return rv;
-            }
-
-            bbb = apr_brigade_split(conn->bb, e);
-
-            rv = apr_brigade_pflatten(conn->bb, baton, &len, p);
-
-            if (rv != APR_SUCCESS) {
-                rs_bad_conn(rs, conn);
-                apr_redis_disable_server(rc, rs);
-                return rv;
-            }
-
-            rv = apr_brigade_destroy(conn->bb);
-            if (rv != APR_SUCCESS) {
-                rs_bad_conn(rs, conn);
-                apr_redis_disable_server(rc, rs);
-                return rv;
-            }
-
-            conn->bb = bbb;
-
-            *new_length = len - 2;
-            (*baton)[*new_length] = '\0';
-        }
+        rv = grab_bulk (rs, rc, conn, p, baton, new_length);
     }
     else {
         rs_bad_conn(rs, conn);
@@ -1161,48 +1173,8 @@ apr_redis_info(apr_redis_server_t *rs, apr_pool_t *p, char **baton)
     }
 
     if (strncmp(RS_TYPE_STRING, conn->buffer, RS_TYPE_STRING_LEN) == 0) {
-        char *length;
-        char *last;
-        apr_size_t len = 0;
-
-        length = apr_strtok(conn->buffer + 1, " ", &last);
-        if (length) {
-            len = strtol(length, (char **) NULL, 10);
-        }
-
-        if (len == 0) {
-            /* Huh? */
-            *baton = NULL;
-        } else {
-            apr_bucket_brigade *bbb;
-            apr_bucket *e;
-
-            /* eat the trailing \r\n */
-            rv = apr_brigade_partition(conn->bb, len + 2, &e);
-
-            if (rv != APR_SUCCESS) {
-                rs_bad_conn(rs, conn);
-                return rv;
-            }
-
-            bbb = apr_brigade_split(conn->bb, e);
-
-            rv = apr_brigade_pflatten(conn->bb, baton, &len, p);
-
-            if (rv != APR_SUCCESS) {
-                rs_bad_conn(rs, conn);
-                return rv;
-            }
-
-            rv = apr_brigade_destroy(conn->bb);
-            if (rv != APR_SUCCESS) {
-                rs_bad_conn(rs, conn);
-                return rv;
-            }
-
-            conn->bb = bbb;
-            (*baton)[len - 2] = '\0';
-        }
+        apr_size_t nl;
+        rv = grab_bulk (rs, NULL, conn, p, baton, &nl);
     } else {
         rs_bad_conn(rs, conn);
         return (APR_EGENERAL);
