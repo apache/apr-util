@@ -859,9 +859,10 @@ APU_DECLARE(apr_status_t) apr_redis_setex(apr_redis_t *rc,
     rs_release_conn(rs, conn);
     return rv;
 }
-static apr_status_t grab_bulk (apr_redis_server_t *rs, apr_redis_t *rc,
-                               apr_redis_conn_t *conn, apr_pool_t *p,
-                               char **baton, apr_size_t *new_length)
+
+static apr_status_t grab_bulk_resp(apr_redis_server_t *rs, apr_redis_t *rc,
+                                   apr_redis_conn_t *conn, apr_pool_t *p,
+                                   char **baton, apr_size_t *new_length)
 {
     char *length;
     char *last;
@@ -995,7 +996,7 @@ APU_DECLARE(apr_status_t) apr_redis_getp(apr_redis_t *rc,
         rv = APR_NOTFOUND;
     }
     else if (strncmp(RS_TYPE_STRING, conn->buffer, RS_TYPE_STRING_LEN) == 0) {
-        rv = grab_bulk (rs, rc, conn, p, baton, new_length);
+        rv = grab_bulk_resp(rs, rc, conn, p, baton, new_length);
     }
     else {
         rs_bad_conn(rs, conn);
@@ -1174,7 +1175,7 @@ apr_redis_info(apr_redis_server_t *rs, apr_pool_t *p, char **baton)
 
     if (strncmp(RS_TYPE_STRING, conn->buffer, RS_TYPE_STRING_LEN) == 0) {
         apr_size_t nl;
-        rv = grab_bulk (rs, NULL, conn, p, baton, &nl);
+        rv = grab_bulk_resp(rs, NULL, conn, p, baton, &nl);
     } else {
         rs_bad_conn(rs, conn);
         return (APR_EGENERAL);
