@@ -310,11 +310,20 @@ APU_DECLARE(apr_status_t) apr_redis_delete(apr_redis_t *rc,
  * @param rs    server to query
  * @param p     Pool to allocate answer from
  * @param baton location to store server version string
- * @param len   length of the server version string
  */
 APU_DECLARE(apr_status_t) apr_redis_version(apr_redis_server_t *rs,
                                             apr_pool_t *p,
                                             char **baton);
+
+/**
+ * Query a server's INFO
+ * @param rs    server to query
+ * @param p     Pool to allocate answer from
+ * @param baton location to store server INFO response string
+ */
+APU_DECLARE(apr_status_t) apr_redis_info(apr_redis_server_t *rs,
+                                         apr_pool_t *p,
+                                         char **baton);
 
 typedef struct
 {
