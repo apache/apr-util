@@ -88,6 +88,13 @@ struct apr_redis_server_t
 #endif
     apr_time_t btime;
     apr_uint32_t rwto;
+    struct
+    {
+        int major;
+        int minor;
+        int patch;
+        char *number;
+    } version;
 };
 
 typedef struct apr_redis_t apr_redis_t;
@@ -283,6 +290,17 @@ APU_DECLARE(apr_status_t) apr_redis_setex(apr_redis_t *rc,
 APU_DECLARE(apr_status_t) apr_redis_delete(apr_redis_t *rc,
                                               const char *key,
                                               apr_uint32_t timeout);
+
+/**
+ * Query a server's version
+ * @param rs    server to query
+ * @param p     Pool to allocate answer from
+ * @param baton location to store server version string
+ * @param len   length of the server version string
+ */
+APU_DECLARE(apr_status_t) apr_redis_version(apr_redis_server_t *rs,
+                                               apr_pool_t *p,
+                                               char **baton);
 
 typedef struct
 {
