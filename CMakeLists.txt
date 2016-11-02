@@ -118,6 +118,7 @@ SET(APR_PUBLIC_HEADERS_STATIC
   include/apr_optional.h
   include/apr_optional_hooks.h
   include/apr_queue.h
+  include/apr_redis.h
   include/apr_reslist.h
   include/apr_rmm.h
   include/apr_sdbm.h
@@ -180,6 +181,7 @@ SET(APR_SOURCES
   misc/apr_thread_pool.c
   misc/apu_dso.c
   misc/apu_version.c
+  redis/apr_redis.c
   strmatch/apr_strmatch.c
   uri/apr_uri.c
   xlate/xlate.c
@@ -203,6 +205,7 @@ SET(APR_TEST_SOURCES
   test/testmemcache.c
   test/testpass.c
   test/testqueue.c
+  test/testredis.c
   test/testreslist.c
   test/testrmm.c
   test/teststrmatch.c

@@ -81,6 +81,12 @@ struct apr_redis_conn_t
 #define RC_PING_SIZE "$4\r\n"
 #define RC_PING_SIZE_LEN (sizeof(RC_PING_SIZE)-1)
 
+#define RC_INFO "INFO\r\n"
+#define RC_INFO_LEN (sizeof(RC_INFO)-1)
+
+#define RC_INFO_SIZE "$4\r\n"
+#define RC_INFO_SIZE_LEN (sizeof(RC_INFO_SIZE)-1)
+
 /* Strings for Server Replies */
 
 #define RS_STORED "+OK"
@@ -693,8 +699,7 @@ APU_DECLARE(apr_status_t) apr_redis_setex(apr_redis_t *rc,
     vec[5].iov_len = RC_EOL_LEN;
 
     expire_len = apr_snprintf(expire_str, INT_64_LEN, "%u\r\n", timeout);
-    len =
-        apr_snprintf(expiresize_str, INT_64_LEN, "$%" APR_SIZE_T_FMT "\r\n",
+    len = apr_snprintf(expiresize_str, INT_64_LEN, "$%" APR_SIZE_T_FMT "\r\n",
                      expire_len - 2);
     vec[6].iov_base = (void *) expiresize_str;
     vec[6].iov_len = len;
@@ -702,8 +707,7 @@ APU_DECLARE(apr_status_t) apr_redis_setex(apr_redis_t *rc,
     vec[7].iov_base = (void *) expire_str;
     vec[7].iov_len = expire_len;
 
-    len =
-        apr_snprintf(datasize_str, INT_64_LEN, "$%" APR_SIZE_T_FMT "",
+    len = apr_snprintf(datasize_str, INT_64_LEN, "$%" APR_SIZE_T_FMT "",
                      data_size);
     vec[8].iov_base = datasize_str;
     vec[8].iov_len = len;
@@ -790,8 +794,7 @@ APU_DECLARE(apr_status_t) apr_redis_getp(apr_redis_t *rc,
     vec[2].iov_base = RC_GET;
     vec[2].iov_len = RC_GET_LEN;
 
-    len =
-        apr_snprintf(keysize_str, INT_64_LEN, "$%" APR_SIZE_T_FMT "\r\n",
+    len = apr_snprintf(keysize_str, INT_64_LEN, "$%" APR_SIZE_T_FMT "\r\n",
                      klen);
     vec[3].iov_base = keysize_str;
     vec[3].iov_len = len;
@@ -922,8 +925,7 @@ APU_DECLARE(apr_status_t)
     vec[2].iov_base = RC_DEL;
     vec[2].iov_len = RC_DEL_LEN;
 
-    len =
-        apr_snprintf(keysize_str, INT_64_LEN, "$%" APR_SIZE_T_FMT "\r\n",
+    len = apr_snprintf(keysize_str, INT_64_LEN, "$%" APR_SIZE_T_FMT "\r\n",
                      klen);
     vec[3].iov_base = keysize_str;
     vec[3].iov_len = len;
@@ -952,8 +954,7 @@ APU_DECLARE(apr_status_t)
     if (strncmp(RS_DELETED, conn->buffer, RS_DELETED_LEN) == 0) {
         rv = APR_SUCCESS;
     }
-    else if (strncmp(RS_NOT_FOUND_DEL, conn->buffer, RS_NOT_FOUND_DEL_LEN) ==
-             0) {
+    else if (strncmp(RS_NOT_FOUND_DEL, conn->buffer, RS_NOT_FOUND_DEL_LEN) == 0) {
         rv = APR_NOTFOUND;
     }
     else {
@@ -1004,5 +1005,121 @@ apr_status_t rc_ping(apr_redis_server_t *rs)
 
     rv = get_server_line(conn);
     rs_release_conn(rs, conn);
+    return rv;
+}
+
+#define RV_FIELD "redis_version:"
+APU_DECLARE(apr_status_t)
+apr_redis_version(apr_redis_server_t *rs,
+                  apr_pool_t *p,
+                  char **baton)
+{
+    apr_status_t rv;
+    apr_redis_conn_t *conn;
+    apr_size_t written;
+    struct iovec vec[3];
+
+    /* Have we already obtained the version number? */
+    if (rs->version.number != 0) {
+        *baton = apr_pstrdup(p, rs->version.number);
+        return APR_SUCCESS;
+    }
+    rv = rs_find_conn(rs, &conn);
+
+    if (rv != APR_SUCCESS) {
+        return rv;
+    }
+
+    /*
+     * RESP Command:
+     *   *1
+     *   $4
+     *   INFO
+     */
+    vec[0].iov_base = RC_RESP_1;
+    vec[0].iov_len = RC_RESP_1_LEN;
+
+    vec[1].iov_base = RC_INFO_SIZE;
+    vec[1].iov_len = RC_INFO_SIZE_LEN;
+
+    vec[2].iov_base = RC_INFO;
+    vec[2].iov_len = RC_INFO_LEN;
+
+    rv = apr_socket_sendv(conn->sock, vec, 3, &written);
+
+    if (rv != APR_SUCCESS) {
+        rs_bad_conn(rs, conn);
+        return rv;
+    }
+
+    rv = get_server_line(conn);
+    if (rv != APR_SUCCESS) {
+        rs_bad_conn(rs, conn);
+        return rv;
+    }
+
+    if (strncmp(RS_TYPE_STRING, conn->buffer, RS_TYPE_STRING_LEN) == 0) {
+            char *length;
+            char *last;
+            char *ptr, *eptr, **resp;
+            apr_size_t len = 0;
+            apr_size_t new_length = 0;
+
+            length = apr_strtok(conn->buffer + 1, " ", &last);
+            if (length) {
+                len = strtol(length, (char **) NULL, 10);
+            }
+
+            if (len != 0) {
+                apr_bucket_brigade *bbb;
+                apr_bucket *e;
+
+                /* eat the trailing \r\n */
+                rv = apr_brigade_partition(conn->bb, len + 2, &e);
+
+                if (rv != APR_SUCCESS) {
+                    rs_bad_conn(rs, conn);
+                    return rv;
+                }
+
+                bbb = apr_brigade_split(conn->bb, e);
+
+                rv = apr_brigade_pflatten(conn->bb, resp, &len, p);
+
+                if (rv != APR_SUCCESS) {
+                    rs_bad_conn(rs, conn);
+                    return rv;
+                }
+
+                rv = apr_brigade_destroy(conn->bb);
+                if (rv != APR_SUCCESS) {
+                    rs_bad_conn(rs, conn);
+                    return rv;
+                }
+
+                conn->bb = bbb;
+
+                new_length = len - 2;
+                (*resp)[new_length] = '\0';
+                ptr = strstr(*resp, RV_FIELD);
+                rs->version.major = strtol(ptr + sizeof(RV_FIELD) - 1, &eptr, 10);
+                ptr = eptr + 1;
+                rs->version.minor = strtol(ptr, &eptr, 10);
+                ptr = eptr + 1;
+                rs->version.patch = strtol(ptr, &eptr, 10);
+                rs->version.number = apr_psprintf(rs->p, "%d.%d.%d",
+                        rs->version.major, rs->version.minor,
+                        rs->version.patch);
+                *baton = apr_pstrdup(p, rs->version.number);
+
+           }
+        }
+        else {
+            rs_bad_conn(rs, conn);
+            return (APR_EGENERAL);
+        }
+
+    rs_release_conn(rs, conn);
+
     return rv;
 }
