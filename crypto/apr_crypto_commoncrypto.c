@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+#include "apr.h"
 #include "apr_lib.h"
 #include "apu.h"
-#include "apr_private.h"
 #include "apu_errno.h"
 
 #include <ctype.h>
@@ -899,7 +899,7 @@ static apr_status_t crypto_block_decrypt_finish(unsigned char *out,
 /**
  * OSX Common Crypto module.
  */
-APR_MODULE_DECLARE_DATA const apr_crypto_driver_t apr_crypto_commoncrypto_driver =
+APU_MODULE_DECLARE_DATA const apr_crypto_driver_t apr_crypto_commoncrypto_driver =
 {
         "commoncrypto", crypto_init, crypto_make, crypto_get_block_key_types,
         crypto_get_block_key_modes, crypto_passphrase,
