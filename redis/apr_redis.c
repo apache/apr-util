@@ -48,6 +48,9 @@ struct apr_redis_conn_t
 #define RC_RESP_2 "*2\r\n"
 #define RC_RESP_2_LEN (sizeof(RC_RESP_2)-1)
 
+#define RC_RESP_3 "*3\r\n"
+#define RC_RESP_3_LEN (sizeof(RC_RESP_3)-1)
+
 #define RC_RESP_4 "*4\r\n"
 #define RC_RESP_4_LEN (sizeof(RC_RESP_4)-1)
 
@@ -56,6 +59,12 @@ struct apr_redis_conn_t
 
 #define RC_GET_SIZE "$3\r\n"
 #define RC_GET_SIZE_LEN (sizeof(RC_GET_SIZE)-1)
+
+#define RC_SET "SET\r\n"
+#define RC_SET_LEN (sizeof(RC_SET)-1)
+
+#define RC_SET_SIZE "$3\r\n"
+#define RC_SET_SIZE_LEN (sizeof(RC_SET_SIZE)-1)
 
 #define RC_SETEX "SETEX\r\n"
 #define RC_SETEX_LEN (sizeof(RC_SETEX)-1)
@@ -625,6 +634,116 @@ static apr_status_t get_server_line(apr_redis_conn_t *conn)
     return apr_brigade_cleanup(conn->tb);
 }
 
+APU_DECLARE(apr_status_t) apr_redis_set(apr_redis_t *rc,
+                                        const char *key,
+                                        char *data,
+                                        const apr_size_t data_size,
+                                        apr_uint16_t flags)
+{
+    apr_uint32_t hash;
+    apr_redis_server_t *rs;
+    apr_redis_conn_t *conn;
+    apr_status_t rv;
+    apr_size_t written;
+    struct iovec vec[9];
+    int index = 0;
+    char keysize_str[INT_64_LEN];
+    char expire_str[INT_64_LEN];
+    char expiresize_str[INT_64_LEN];
+    char datasize_str[BUFFER_SIZE];
+    apr_size_t len, klen, expire_len;
+
+
+    if (data_size >= BUFFER_SIZE) {
+        return APR_NOTFOUND;
+    }
+
+
+    hash = apr_redis_hash(rc, key, klen);
+
+    rs = apr_redis_find_server_hash(rc, hash);
+
+    if (rs == NULL)
+        return APR_NOTFOUND;
+
+    rv = rs_find_conn(rs, &conn);
+
+    if (rv != APR_SUCCESS) {
+        apr_redis_disable_server(rc, rs);
+        return rv;
+    }
+
+    klen = strlen(key);
+    /*
+     * RESP Command:
+     *   *3
+     *   $3
+     *   SET
+     *   $<keylen>
+     *   key
+     *   $<datalen>
+     *   data
+     */
+
+    vec[0].iov_base = RC_RESP_3;
+    vec[0].iov_len = RC_RESP_3_LEN;
+
+    vec[1].iov_base = RC_SET_SIZE;
+    vec[1].iov_len = RC_SET_SIZE_LEN;
+
+    vec[2].iov_base = RC_SET;
+    vec[2].iov_len = RC_SET_LEN;
+
+    len = apr_snprintf(keysize_str, INT_64_LEN, "$%" APR_SIZE_T_FMT "", klen);
+    vec[3].iov_base = keysize_str;
+    vec[3].iov_len = len;
+
+    vec[4].iov_base = (void *) key;
+    vec[4].iov_len = klen;
+
+    vec[5].iov_base = RC_EOL;
+    vec[5].iov_len = RC_EOL_LEN;
+
+    len = apr_snprintf(datasize_str, INT_64_LEN, "$%" APR_SIZE_T_FMT "",
+                     data_size);
+    vec[6].iov_base = datasize_str;
+    vec[6].iov_len = len;
+
+    vec[7].iov_base = data;
+    vec[7].iov_len = data_size;
+
+    vec[8].iov_base = RC_EOL;
+    vec[8].iov_len = RC_EOL_LEN;
+
+    rv = apr_socket_sendv(conn->sock, vec, 9, &written);
+
+    if (rv != APR_SUCCESS) {
+        rs_bad_conn(rs, conn);
+        apr_redis_disable_server(rc, rs);
+        return rv;
+    }
+
+    rv = get_server_line(conn);
+    if (rv != APR_SUCCESS) {
+        rs_bad_conn(rs, conn);
+        apr_redis_disable_server(rc, rs);
+        return rv;
+    }
+
+    if (strcmp(conn->buffer, RS_STORED RC_EOL) == 0) {
+        rv = APR_SUCCESS;
+    }
+    else if (strcmp(conn->buffer, RS_NOT_STORED RC_EOL) == 0) {
+        rv = APR_EEXIST;
+    }
+    else {
+        rv = APR_EGENERAL;
+    }
+
+    rs_release_conn(rs, conn);
+    return rv;
+}
+
 APU_DECLARE(apr_status_t) apr_redis_setex(apr_redis_t *rc,
                                           const char *key,
                                           char *data,
@@ -668,7 +787,7 @@ APU_DECLARE(apr_status_t) apr_redis_setex(apr_redis_t *rc,
     klen = strlen(key);
     /*
      * RESP Command:
-     *   *1
+     *   *4
      *   $5
      *   SETEX
      *   $<keylen>
@@ -746,7 +865,6 @@ APU_DECLARE(apr_status_t) apr_redis_setex(apr_redis_t *rc,
     rs_release_conn(rs, conn);
     return rv;
 }
-
 
 APU_DECLARE(apr_status_t) apr_redis_getp(apr_redis_t *rc,
                                          apr_pool_t *p,

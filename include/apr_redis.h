@@ -271,6 +271,20 @@ APU_DECLARE(apr_status_t) apr_redis_getp(apr_redis_t *rc,
  * @param key   null terminated string containing the key
  * @param baton data to store on the server
  * @param data_size   length of data at baton
+ * @param flags any flags set by the client for this key
+ */
+APU_DECLARE(apr_status_t) apr_redis_set(apr_redis_t *rc,
+                                        const char *key,
+                                        char *baton,
+                                        const apr_size_t data_size,
+                                        apr_uint16_t flags);
+
+/**
+ * Sets a value by key on the server
+ * @param rc client to use
+ * @param key   null terminated string containing the key
+ * @param baton data to store on the server
+ * @param data_size   length of data at baton
  * @param timeout time in seconds for the data to live on the server
  * @param flags any flags set by the client for this key
  */
