@@ -1349,3 +1349,11 @@ apr_redis_multgetp(apr_redis_t *rc,
 {
     return APR_ENOTIMPL;
 }
+
+APU_DECLARE(apr_status_t)
+apr_redis_stats(apr_redis_server_t *rs,
+                apr_pool_t *p,
+                apr_redis_stats_t **stats)
+{
+    return APR_ENOTIMPL;
+}

@@ -413,6 +413,16 @@ typedef struct
     apr_uint32_t threads; 
 } apr_redis_stats_t;
 
+/**
+ * Query a server for statistics
+ * @param rs    server to query
+ * @param p     Pool to allocate answer from
+ * @param stats location of the new statistics structure
+ */
+APU_DECLARE(apr_status_t) apr_redis_stats(apr_redis_server_t *rs,
+                                          apr_pool_t *p,
+                                          apr_redis_stats_t **stats);
+
 /** @} */
 
 #ifdef __cplusplus
