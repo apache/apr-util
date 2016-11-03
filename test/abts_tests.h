@@ -35,6 +35,7 @@ const struct testlist {
     {testdbd},
     {testdate},
     {testmemcache},
+    {testredis},
     {testxml},
     {testxlate},
     {testrmm},
