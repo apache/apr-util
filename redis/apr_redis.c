@@ -1195,7 +1195,7 @@ apr_redis_version(apr_redis_server_t *rs, apr_pool_t *p, char **baton)
     apr_pool_t *subpool;
 
     /* Have we already obtained the version number? */
-    if (rs->version.number != 0) {
+    if (rs->version.major != 0) {
         *baton = apr_pstrdup(p, rs->version.number);
         return APR_SUCCESS;
     }
@@ -1206,6 +1206,9 @@ apr_redis_version(apr_redis_server_t *rs, apr_pool_t *p, char **baton)
     rv = apr_redis_info(rs, subpool, baton);
 
     if (rv != APR_SUCCESS) {
+        if (subpool != p) {
+            apr_pool_destroy(subpool);
+        }
         return rv;
     }
 
@@ -1350,10 +1353,131 @@ apr_redis_multgetp(apr_redis_t *rc,
     return APR_ENOTIMPL;
 }
 
+/**
+ * Define all of the strings for stats
+ */
+
+#define STAT_process_id "process_id:"
+#define STAT_process_id_LEN (sizeof(STAT_process_id)-1)
+
+#define STAT_uptime_in_seconds "uptime_in_seconds:"
+#define STAT_uptime_in_seconds_LEN (sizeof(STAT_uptime_in_seconds)-1)
+
+#define STAT_arch_bits "arch_bits:"
+#define STAT_arch_bits_LEN (sizeof(STAT_arch_bits)-1)
+
+#define STAT_connected_clients "connected_clients:"
+#define STAT_connected_clients_LEN (sizeof(STAT_connected_clients)-1)
+
+#define STAT_blocked_clients "blocked_clients:"
+#define STAT_blocked_clients_LEN (sizeof(STAT_blocked_clients)-1)
+
+#define STAT_maxmemory "maxmemory:"
+#define STAT_maxmemory_LEN (sizeof(STAT_maxmemory)-1)
+
+#define STAT_used_memory "used_memory:"
+#define STAT_used_memory_LEN (sizeof(STAT_used_memory)-1)
+
+#define STAT_total_system_memory "total_system_memory:"
+#define STAT_total_system_memory_LEN (sizeof(STAT_total_system_memory)-1)
+
+#define STAT_total_connections_received "total_connections_received:"
+#define STAT_total_connections_received_LEN (sizeof(STAT_total_connections_received)-1)
+
+#define STAT_total_commands_processed "total_commands_processed:"
+#define STAT_total_commands_processed_LEN (sizeof(STAT_total_commands_processed)-1)
+
+#define STAT_total_net_input_bytes "total_net_input_bytes:"
+#define STAT_total_net_input_bytes_LEN (sizeof(STAT_total_net_input_bytes)-1)
+
+#define STAT_total_net_output_bytes "total_net_output_bytes:"
+#define STAT_total_net_output_bytes_LEN (sizeof(STAT_total_net_output_bytes)-1)
+
+#define STAT_keyspace_hits "keyspace_hits:"
+#define STAT_keyspace_hits_LEN (sizeof(STAT_keyspace_hits)-1)
+
+#define STAT_keyspace_misses "keyspace_misses:"
+#define STAT_keyspace_misses_LEN (sizeof(STAT_keyspace_misses)-1)
+
+#define STAT_connected_slaves "connected_slaves:"
+#define STAT_connected_slaves_LEN (sizeof(STAT_connected_slaves)-1)
+
+#define STAT_used_cpu_sys "used_cpu_sys:"
+#define STAT_used_cpu_sys_LEN (sizeof(STAT_used_cpu_sys)-1)
+
+#define STAT_used_cpu_user "used_cpu_user:"
+#define STAT_used_cpu_user_LEN (sizeof(STAT_used_cpu_user)-1)
+
+#define STAT_cluster_enabled "cluster_enabled:"
+#define STAT_cluster_enabled_LEN (sizeof(STAT_cluster_enabled)-1)
+
+static apr_uint32_t stat_read_uint32( char *buf)
+{
+    return atoi(buf);
+}
+
+static apr_uint64_t stat_read_uint64(char *buf)
+{
+    return apr_atoi64(buf);
+}
+
+#define rc_do_stat(name, type) \
+    if ((ptr = strstr(info , STAT_ ## name )) != NULL ) { \
+        char *str = ptr + (STAT_ ## name ## _LEN ); \
+        stats-> name = stat_read_ ## type (str); \
+    }
+
+static void update_stats(char *info, apr_redis_stats_t *stats)
+{
+    char *ptr;
+
+    rc_do_stat(process_id, uint32);
+    rc_do_stat(uptime_in_seconds, uint32);
+    rc_do_stat(arch_bits, uint32);
+    rc_do_stat(connected_clients, uint32);
+    rc_do_stat(blocked_clients, uint32);
+    rc_do_stat(maxmemory, uint64);
+    rc_do_stat(used_memory, uint64);
+    rc_do_stat(total_system_memory, uint64);
+    rc_do_stat(total_connections_received, uint64);
+    rc_do_stat(total_commands_processed, uint64);
+    rc_do_stat(total_net_input_bytes, uint64);
+    rc_do_stat(total_net_output_bytes, uint64);
+    rc_do_stat(keyspace_hits, uint32);
+    rc_do_stat(keyspace_misses, uint32);
+    rc_do_stat(connected_slaves, uint32);
+    rc_do_stat(used_cpu_sys, uint32);
+    rc_do_stat(used_cpu_user, uint32);
+    rc_do_stat(cluster_enabled, uint32);
+}
+
 APU_DECLARE(apr_status_t)
 apr_redis_stats(apr_redis_server_t *rs,
                 apr_pool_t *p,
                 apr_redis_stats_t **stats)
 {
-    return APR_ENOTIMPL;
+    apr_status_t rv;
+    char *info;
+    apr_pool_t *subpool;
+    apr_redis_stats_t *ret;
+
+    if (apr_pool_create(&subpool, p) != APR_SUCCESS) {
+        /* well, we tried */
+        subpool = p;
+    }
+    rv = apr_redis_info(rs, subpool, &info);
+
+    if (rv != APR_SUCCESS) {
+        if (subpool != p) {
+            apr_pool_destroy(subpool);
+        }
+        return rv;
+    }
+    ret = apr_pcalloc(p, sizeof(apr_redis_stats_t));
+    update_stats(info, ret);
+    if (stats) {
+        *stats = ret;
+    }
+
+    return APR_SUCCESS;
 }
