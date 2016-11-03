@@ -325,6 +325,30 @@ APU_DECLARE(apr_status_t) apr_redis_info(apr_redis_server_t *rs,
                                          apr_pool_t *p,
                                          char **baton);
 
+/**
+ * Increments a value
+ * @param rc client to use
+ * @param key   null terminated string containing the key
+ * @param inc     number to increment by
+ * @param new_value    new value after incrementing
+ */
+APU_DECLARE(apr_status_t) apr_redis_incr(apr_redis_t *rc,
+                                         const char *key,
+                                         apr_int32_t inc,
+                                         apr_uint32_t *new_value);
+/**
+ * Decrements a value
+ * @param rc client to use
+ * @param key   null terminated string containing the key
+ * @param inc     number to decrement by
+ * @param new_value    new value after decrementing
+ */
+APU_DECLARE(apr_status_t) apr_redis_decr(apr_redis_t *rc,
+                                         const char *key,
+                                         apr_int32_t inc,
+                                         apr_uint32_t *new_value);
+
+
 typedef struct
 {
     /** Version string of this server */
