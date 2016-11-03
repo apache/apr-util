@@ -1224,3 +1224,119 @@ apr_redis_version(apr_redis_server_t *rs, apr_pool_t *p, char **baton)
     }
     return APR_SUCCESS;
 }
+
+static apr_status_t plus_minus(apr_redis_t *rc,
+                    int incr,
+                    const char *key,
+                    apr_int32_t inc,
+                    apr_uint32_t *new_value)
+{
+    apr_status_t rv;
+    apr_redis_server_t *rs;
+    apr_redis_conn_t *conn;
+    apr_uint32_t hash;
+    apr_size_t written;
+    apr_size_t len, klen;
+    struct iovec vec[8];
+    char keysize_str[INT_64_LEN];
+    char inc_str[INT_64_LEN];
+    int i = 0;
+
+    klen = strlen(key);
+    hash = apr_redis_hash(rc, key, klen);
+    rs = apr_redis_find_server_hash(rc, hash);
+    if (rs == NULL)
+        return APR_NOTFOUND;
+
+    rv = rs_find_conn(rs, &conn);
+
+    if (rv != APR_SUCCESS) {
+        apr_redis_disable_server(rc, rs);
+        return rv;
+    }
+
+    /*
+     * RESP Command:
+     *   *2|*3
+     *   $4|$6
+     *   INCR/DECR|INCRBY/DECRBY
+     *   $<keylen>
+     *   key
+     *   <:inc>
+     */
+    vec[i].iov_base = RC_RESP_2;
+    vec[i++].iov_len = RC_RESP_2_LEN;
+
+    vec[i].iov_base = "$4\r\n";
+    vec[i++].iov_len = 6;
+
+    if (inc == 1) {
+        if (incr)
+            vec[i].iov_base = "INCR\r\n";
+        else
+            vec[i].iov_base = "DECR\r\n";
+        vec[i++].iov_len = 8;
+    }
+    else {
+        if (incr)
+            vec[i].iov_base = "INCRBY\r\n";
+        else
+            vec[i].iov_base = "DECRBY\r\n";
+        vec[i++].iov_len = 10;
+    }
+
+    len = apr_snprintf(keysize_str, INT_64_LEN, "$%" APR_SIZE_T_FMT "\r\n",
+                     klen);
+    vec[i].iov_base = keysize_str;
+    vec[i++].iov_len = len;
+
+    vec[i].iov_base = (void *) key;
+    vec[i++].iov_len = klen;
+
+    if (inc != 1) {
+        len = apr_snprintf(inc_str, INT_64_LEN, ":%d\r\n", inc);
+        vec[i].iov_base = inc_str;
+        vec[i++].iov_len = len;
+    }
+    vec[i].iov_base = RC_EOL;
+    vec[i++].iov_len = RC_EOL_LEN;
+
+    rv = apr_socket_sendv(conn->sock, vec, i, &written);
+
+    if (rv != APR_SUCCESS) {
+        rs_bad_conn(rs, conn);
+        apr_redis_disable_server(rc, rs);
+        return rv;
+    }
+
+    rv = get_server_line(conn);
+    if (rv != APR_SUCCESS) {
+        rs_bad_conn(rs, conn);
+        apr_redis_disable_server(rc, rs);
+        return rv;
+    }
+    if (strncmp(RS_NOT_FOUND_GET, conn->buffer, RS_NOT_FOUND_GET_LEN) == 0) {
+        rv = APR_NOTFOUND;
+    }
+    else if (*conn->buffer == ':') {
+        *new_value = atoi((const char *)(conn->buffer + 1));
+        rv = APR_SUCCESS;
+    }
+    else {
+        rv = APR_EGENERAL;
+    }
+
+    return rv;
+}
+
+APU_DECLARE(apr_status_t)
+apr_redis_incr(apr_redis_t *rc, const char *key, apr_int32_t inc, apr_uint32_t *new_value)
+{
+    return plus_minus(rc, 1, key, inc, new_value);
+}
+
+APU_DECLARE(apr_status_t)
+apr_redis_decr(apr_redis_t *rc, const char *key, apr_int32_t inc, apr_uint32_t *new_value)
+{
+    return plus_minus(rc, 0, key, inc, new_value);
+}
