@@ -367,7 +367,8 @@ APU_DECLARE(apr_status_t) apr_redis_multgetp(apr_redis_t *rc,
 typedef enum
 {
     APR_RS_SERVER_MASTER, /**< Server is a master */
-    APR_RS_SERVER_SLAVE  /**< Server is a slave */
+    APR_RS_SERVER_SLAVE,  /**< Server is a slave */
+    APR_RS_SERVER_UNKNOWN  /**< Server role is unknown */
 } apr_redis_server_role_t;
 
 typedef struct
