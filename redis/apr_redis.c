@@ -156,6 +156,17 @@ APU_DECLARE(apr_status_t) apr_redis_add_server(apr_redis_t *rc,
 static apr_status_t rc_ping(apr_redis_server_t *rs);
 
 APU_DECLARE(apr_redis_server_t *)
+apr_redis_find_server_hash(apr_redis_t *rc, const apr_uint32_t hash)
+{
+    if (rc->server_func) {
+        return rc->server_func(rc->server_baton, rc, hash);
+    }
+    else {
+        return apr_redis_find_server_hash_default(NULL, rc, hash);
+    }
+}
+
+APU_DECLARE(apr_redis_server_t *)
     apr_redis_find_server_hash_default(void *baton, apr_redis_t *rc,
                                    const apr_uint32_t hash)
 {
@@ -204,17 +215,6 @@ APU_DECLARE(apr_redis_server_t *)
     }
 
     return rs;
-}
-
-APU_DECLARE(apr_redis_server_t *)
-    apr_redis_find_server_hash(apr_redis_t *rc, const apr_uint32_t hash)
-{
-    if (rc->server_func) {
-        return rc->server_func(rc->server_baton, rc, hash);
-    }
-    else {
-        return apr_redis_find_server_hash_default(NULL, rc, hash);
-    }
 }
 
 APU_DECLARE(apr_redis_server_t *) apr_redis_find_server(apr_redis_t *rc,
@@ -994,9 +994,7 @@ APU_DECLARE(apr_status_t) apr_redis_getp(apr_redis_t *rc,
         rv = grab_bulk_resp(rs, rc, conn, p, baton, new_length);
     }
     else {
-        rs_bad_conn(rs, conn);
-        apr_redis_disable_server(rc, rs);
-        return (APR_EGENERAL);
+        rv = APR_EGENERAL;
     }
 
     rs_release_conn(rs, conn);
