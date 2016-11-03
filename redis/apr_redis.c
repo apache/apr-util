@@ -21,7 +21,7 @@
 #include <string.h>
 
 #define BUFFER_SIZE 512
-#define INT_64_LEN 22
+#define INT64_LEN 22
 struct apr_redis_conn_t
 {
     char *buffer;
@@ -646,7 +646,7 @@ APU_DECLARE(apr_status_t) apr_redis_set(apr_redis_t *rc,
     apr_status_t rv;
     apr_size_t written;
     struct iovec vec[9];
-    char keysize_str[INT_64_LEN];
+    char keysize_str[INT64_LEN];
     char datasize_str[BUFFER_SIZE];
     apr_size_t len, klen;
 
@@ -690,7 +690,7 @@ APU_DECLARE(apr_status_t) apr_redis_set(apr_redis_t *rc,
     vec[2].iov_base = RC_SET;
     vec[2].iov_len = RC_SET_LEN;
 
-    len = apr_snprintf(keysize_str, INT_64_LEN, "$%" APR_SIZE_T_FMT "", klen);
+    len = apr_snprintf(keysize_str, INT64_LEN, "$%" APR_SIZE_T_FMT "", klen);
     vec[3].iov_base = keysize_str;
     vec[3].iov_len = len;
 
@@ -700,7 +700,7 @@ APU_DECLARE(apr_status_t) apr_redis_set(apr_redis_t *rc,
     vec[5].iov_base = RC_EOL;
     vec[5].iov_len = RC_EOL_LEN;
 
-    len = apr_snprintf(datasize_str, INT_64_LEN, "$%" APR_SIZE_T_FMT "",
+    len = apr_snprintf(datasize_str, INT64_LEN, "$%" APR_SIZE_T_FMT "",
                      data_size);
     vec[6].iov_base = datasize_str;
     vec[6].iov_len = len;
@@ -753,9 +753,9 @@ APU_DECLARE(apr_status_t) apr_redis_setex(apr_redis_t *rc,
     apr_status_t rv;
     apr_size_t written;
     struct iovec vec[11];
-    char keysize_str[INT_64_LEN];
-    char expire_str[INT_64_LEN];
-    char expiresize_str[INT_64_LEN];
+    char keysize_str[INT64_LEN];
+    char expire_str[INT64_LEN];
+    char expiresize_str[INT64_LEN];
     char datasize_str[BUFFER_SIZE];
     apr_size_t len, klen, expire_len;
 
@@ -801,7 +801,7 @@ APU_DECLARE(apr_status_t) apr_redis_setex(apr_redis_t *rc,
     vec[2].iov_base = RC_SETEX;
     vec[2].iov_len = RC_SETEX_LEN;
 
-    len = apr_snprintf(keysize_str, INT_64_LEN, "$%" APR_SIZE_T_FMT "", klen);
+    len = apr_snprintf(keysize_str, INT64_LEN, "$%" APR_SIZE_T_FMT "", klen);
     vec[3].iov_base = keysize_str;
     vec[3].iov_len = len;
 
@@ -811,8 +811,8 @@ APU_DECLARE(apr_status_t) apr_redis_setex(apr_redis_t *rc,
     vec[5].iov_base = RC_EOL;
     vec[5].iov_len = RC_EOL_LEN;
 
-    expire_len = apr_snprintf(expire_str, INT_64_LEN, "%u\r\n", timeout);
-    len = apr_snprintf(expiresize_str, INT_64_LEN, "$%" APR_SIZE_T_FMT "\r\n",
+    expire_len = apr_snprintf(expire_str, INT64_LEN, "%u\r\n", timeout);
+    len = apr_snprintf(expiresize_str, INT64_LEN, "$%" APR_SIZE_T_FMT "\r\n",
                      expire_len - 2);
     vec[6].iov_base = (void *) expiresize_str;
     vec[6].iov_len = len;
@@ -820,7 +820,7 @@ APU_DECLARE(apr_status_t) apr_redis_setex(apr_redis_t *rc,
     vec[7].iov_base = (void *) expire_str;
     vec[7].iov_len = expire_len;
 
-    len = apr_snprintf(datasize_str, INT_64_LEN, "$%" APR_SIZE_T_FMT "",
+    len = apr_snprintf(datasize_str, INT64_LEN, "$%" APR_SIZE_T_FMT "",
                      data_size);
     vec[8].iov_base = datasize_str;
     vec[8].iov_len = len;
@@ -935,7 +935,7 @@ APU_DECLARE(apr_status_t) apr_redis_getp(apr_redis_t *rc,
     apr_size_t written;
     apr_size_t len, klen;
     struct iovec vec[6];
-    char keysize_str[INT_64_LEN];
+    char keysize_str[INT64_LEN];
 
     klen = strlen(key);
     hash = apr_redis_hash(rc, key, klen);
@@ -967,7 +967,7 @@ APU_DECLARE(apr_status_t) apr_redis_getp(apr_redis_t *rc,
     vec[2].iov_base = RC_GET;
     vec[2].iov_len = RC_GET_LEN;
 
-    len = apr_snprintf(keysize_str, INT_64_LEN, "$%" APR_SIZE_T_FMT "\r\n",
+    len = apr_snprintf(keysize_str, INT64_LEN, "$%" APR_SIZE_T_FMT "\r\n",
                      klen);
     vec[3].iov_base = keysize_str;
     vec[3].iov_len = len;
@@ -1018,7 +1018,7 @@ APU_DECLARE(apr_status_t)
     apr_size_t written;
     struct iovec vec[6];
     apr_size_t len, klen;
-    char keysize_str[INT_64_LEN];
+    char keysize_str[INT64_LEN];
 
     klen = strlen(key);
     hash = apr_redis_hash(rc, key, klen);
@@ -1050,7 +1050,7 @@ APU_DECLARE(apr_status_t)
     vec[2].iov_base = RC_DEL;
     vec[2].iov_len = RC_DEL_LEN;
 
-    len = apr_snprintf(keysize_str, INT_64_LEN, "$%" APR_SIZE_T_FMT "\r\n",
+    len = apr_snprintf(keysize_str, INT64_LEN, "$%" APR_SIZE_T_FMT "\r\n",
                      klen);
     vec[3].iov_base = keysize_str;
     vec[3].iov_len = len;
@@ -1238,8 +1238,8 @@ static apr_status_t plus_minus(apr_redis_t *rc,
     apr_size_t written;
     apr_size_t len, klen;
     struct iovec vec[8];
-    char keysize_str[INT_64_LEN];
-    char inc_str[INT_64_LEN];
+    char keysize_str[INT64_LEN];
+    char inc_str[INT64_LEN];
     int i = 0;
 
     klen = strlen(key);
@@ -1285,7 +1285,7 @@ static apr_status_t plus_minus(apr_redis_t *rc,
         vec[i++].iov_len = 10;
     }
 
-    len = apr_snprintf(keysize_str, INT_64_LEN, "$%" APR_SIZE_T_FMT "\r\n",
+    len = apr_snprintf(keysize_str, INT64_LEN, "$%" APR_SIZE_T_FMT "\r\n",
                      klen);
     vec[i].iov_base = keysize_str;
     vec[i++].iov_len = len;
@@ -1294,7 +1294,7 @@ static apr_status_t plus_minus(apr_redis_t *rc,
     vec[i++].iov_len = klen;
 
     if (inc != 1) {
-        len = apr_snprintf(inc_str, INT_64_LEN, ":%d\r\n", inc);
+        len = apr_snprintf(inc_str, INT64_LEN, ":%d\r\n", inc);
         vec[i].iov_base = inc_str;
         vec[i++].iov_len = len;
     }
@@ -1339,4 +1339,13 @@ APU_DECLARE(apr_status_t)
 apr_redis_decr(apr_redis_t *rc, const char *key, apr_int32_t inc, apr_uint32_t *new_value)
 {
     return plus_minus(rc, 0, key, inc, new_value);
+}
+
+APU_DECLARE(apr_status_t)
+apr_redis_multgetp(apr_redis_t *rc,
+                   apr_pool_t *temp_pool,
+                   apr_pool_t *data_pool,
+                   apr_hash_t *values)
+{
+    return APR_ENOTIMPL;
 }

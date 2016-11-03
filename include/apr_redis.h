@@ -349,6 +349,21 @@ APU_DECLARE(apr_status_t) apr_redis_decr(apr_redis_t *rc,
                                          apr_uint32_t *new_value);
 
 
+/**
+ * Gets multiple values from the server, allocating the values out of p
+ * @param rc client to use
+ * @param temp_pool Pool used for temporary allocations. May be cleared inside this
+ *        call.
+ * @param data_pool Pool used to allocate data for the returned values.
+ * @param values hash of apr_redis_value_t keyed by strings, contains the
+ *        result of the multiget call.
+ * @return
+ */
+APU_DECLARE(apr_status_t) apr_redis_multgetp(apr_redis_t *rc,
+                                             apr_pool_t *temp_pool,
+                                             apr_pool_t *data_pool,
+                                             apr_hash_t *values);
+
 typedef struct
 {
     /** Version string of this server */
