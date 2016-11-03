@@ -380,55 +380,55 @@ typedef struct
     /** Patch version number of this server */
     apr_uint32_t patch;
     /** Process id of this server process */
-    apr_uint32_t pid;
+    apr_uint32_t process_id;
     /** Number of seconds this server has been running */
-    apr_uint32_t uptime;
+    apr_uint32_t uptime_in_seconds;
     /** Bitsize of the arch on the current machine */
-    apr_uint32_t arch;
+    apr_uint32_t arch_bits;
 
 /* # Clients */
     /** Number of connected clients */
-    apr_uint32_t clients;
+    apr_uint32_t connected_clients;
     /** Number of blocked clients */
-    apr_uint32_t blocked;
+    apr_uint32_t blocked_clients;
 
 /* # Memory */
     /** Max memory of this server */
-    apr_uint64_t max_memory;
+    apr_uint64_t maxmemory;
     /** Amount of used memory */
     apr_uint64_t used_memory;
     /** Total memory available on this server */
-    apr_uint64_t total_memory;
+    apr_uint64_t total_system_memory;
 
 /* # Stats */
     /** Total connections received */
-    apr_uint64_t conn_recd;
+    apr_uint64_t total_connections_received;
     /** Total commands processed */
-    apr_uint64_t commands;
+    apr_uint64_t total_commands_processed;
     /** Total net input bytes */
-    apr_uint64_t bytes_in;
+    apr_uint64_t total_net_input_bytes;
     /** Total net output bytes */
-    apr_uint64_t bytes_out;
+    apr_uint64_t total_net_output_bytes;
     /** Keyspace hits */
-    apr_uint32_t hits;
+    apr_uint32_t keyspace_hits;
     /** Keyspace misses */
-    apr_uint32_t misses;
+    apr_uint32_t keyspace_misses;
 
 /* # Replication */
     /** Role */
     apr_redis_server_role_t role;
     /** Number of connected slave */
-    apr_uint32_t slaves;
+    apr_uint32_t connected_slaves;
 
 /* # CPU */
     /** Accumulated CPU user time for this process */
-    apr_uint32_t cpu_user;
+    apr_uint32_t used_cpu_sys;
     /** Accumulated CPU system time for this process */
-    apr_uint32_t cpu_system;
+    apr_uint32_t used_cpu_user;
 
 /* # Cluster */
     /** Is cluster enabled */
-    char cluster;
+    apr_uint32_t cluster_enabled;
 } apr_redis_stats_t;
 
 /**
