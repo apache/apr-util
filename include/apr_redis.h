@@ -364,53 +364,71 @@ APU_DECLARE(apr_status_t) apr_redis_multgetp(apr_redis_t *rc,
                                              apr_pool_t *data_pool,
                                              apr_hash_t *values);
 
+typedef enum
+{
+    APR_RS_SERVER_MASTER, /**< Server is a master */
+    APR_RS_SERVER_SLAVE  /**< Server is a slave */
+} apr_redis_server_role_t;
+
 typedef struct
 {
-    /** Version string of this server */
-    const char *version;
+/* # Server */
+    /** Major version number of this server */
+    apr_uint32_t major;
+    /** Minor version number of this server */
+    apr_uint32_t minor;
+    /** Patch version number of this server */
+    apr_uint32_t patch;
     /** Process id of this server process */
     apr_uint32_t pid;
     /** Number of seconds this server has been running */
     apr_uint32_t uptime;
-    /** current UNIX time according to the server */
-    apr_time_t time;
-    /** The size of a pointer on the current machine */
-    apr_uint32_t pointer_size;
-    /** Accumulated user time for this process */
-    apr_time_t rusage_user;
-    /** Accumulated system time for this process */
-    apr_time_t rusage_system;
-    /** Current number of items stored by the server */
-    apr_uint32_t curr_items;
-    /** Total number of items stored by this server */
-    apr_uint32_t total_items;
-    /** Current number of bytes used by this server to store items */
-    apr_uint64_t bytes;
-    /** Number of open connections */
-    apr_uint32_t curr_connections;
-    /** Total number of connections opened since the server started running */
-    apr_uint32_t total_connections;
-    /** Number of connection structures allocated by the server */
-    apr_uint32_t connection_structures;
-    /** Cumulative number of retrieval requests */
-    apr_uint32_t cmd_get;
-    /** Cumulative number of storage requests */
-    apr_uint32_t cmd_set;
-    /** Number of keys that have been requested and found present */
-    apr_uint32_t get_hits;
-    /** Number of items that have been requested and not found */
-    apr_uint32_t get_misses;
-    /** Number of items removed from cache because they passed their
-        expiration time */
-    apr_uint64_t evictions;
-    /** Total number of bytes read by this server */
-    apr_uint64_t bytes_read;
-    /** Total number of bytes sent by this server */
-    apr_uint64_t bytes_written;
-    /** Number of bytes this server is allowed to use for storage. */
-    apr_uint32_t limit_maxbytes;
-    /** Number of threads the server is running (if built with threading) */
-    apr_uint32_t threads; 
+    /** Bitsize of the arch on the current machine */
+    apr_uint32_t arch;
+
+/* # Clients */
+    /** Number of connected clients */
+    apr_uint32_t clients;
+    /** Number of blocked clients */
+    apr_uint32_t blocked;
+
+/* # Memory */
+    /** Max memory of this server */
+    apr_uint64_t max_memory;
+    /** Amount of used memory */
+    apr_uint64_t used_memory;
+    /** Total memory available on this server */
+    apr_uint64_t total_memory;
+
+/* # Stats */
+    /** Total connections received */
+    apr_uint64_t conn_recd;
+    /** Total commands processed */
+    apr_uint64_t commands;
+    /** Total net input bytes */
+    apr_uint64_t bytes_in;
+    /** Total net output bytes */
+    apr_uint64_t bytes_out;
+    /** Keyspace hits */
+    apr_uint32_t hits;
+    /** Keyspace misses */
+    apr_uint32_t misses;
+
+/* # Replication */
+    /** Role */
+    apr_redis_server_role_t role;
+    /** Number of connected slave */
+    apr_uint32_t slaves;
+
+/* # CPU */
+    /** Accumulated CPU user time for this process */
+    apr_uint32_t cpu_user;
+    /** Accumulated CPU system time for this process */
+    apr_uint32_t cpu_system;
+
+/* # Cluster */
+    /** Is cluster enabled */
+    char cluster;
 } apr_redis_stats_t;
 
 /**
