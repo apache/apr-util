@@ -1196,7 +1196,8 @@ apr_redis_version(apr_redis_server_t *rs, apr_pool_t *p, char **baton)
 
     /* Have we already obtained the version number? */
     if (rs->version.major != 0) {
-        *baton = apr_pstrdup(p, rs->version.number);
+        if (baton)
+            *baton = apr_pstrdup(p, rs->version.number);
         return APR_SUCCESS;
     }
     if (apr_pool_create(&subpool, p) != APR_SUCCESS) {
@@ -1213,15 +1214,18 @@ apr_redis_version(apr_redis_server_t *rs, apr_pool_t *p, char **baton)
     }
 
     ptr = strstr(*baton, RV_FIELD);
-    rs->version.major = strtol(ptr + sizeof(RV_FIELD) - 1, &eptr, 10);
-    ptr = eptr + 1;
-    rs->version.minor = strtol(ptr, &eptr, 10);
-    ptr = eptr + 1;
-    rs->version.patch = strtol(ptr, &eptr, 10);
-    rs->version.number = apr_psprintf(rs->p, "%d.%d.%d",
-            rs->version.major, rs->version.minor,
-            rs->version.patch);
-    *baton = apr_pstrdup(p, rs->version.number);
+    if (ptr) {
+        rs->version.major = strtol(ptr + sizeof(RV_FIELD) - 1, &eptr, 10);
+        ptr = eptr + 1;
+        rs->version.minor = strtol(ptr, &eptr, 10);
+        ptr = eptr + 1;
+        rs->version.patch = strtol(ptr, &eptr, 10);
+        rs->version.number = apr_psprintf(rs->p, "%d.%d.%d",
+                rs->version.major, rs->version.minor,
+                rs->version.patch);
+    }
+    if (baton)
+        *baton = apr_pstrdup(p, rs->version.number);
     if (subpool != p) {
         apr_pool_destroy(subpool);
     }
@@ -1460,6 +1464,7 @@ apr_redis_stats(apr_redis_server_t *rs,
     char *info;
     apr_pool_t *subpool;
     apr_redis_stats_t *ret;
+    char *ptr;
 
     if (apr_pool_create(&subpool, p) != APR_SUCCESS) {
         /* well, we tried */
@@ -1474,7 +1479,38 @@ apr_redis_stats(apr_redis_server_t *rs,
         return rv;
     }
     ret = apr_pcalloc(p, sizeof(apr_redis_stats_t));
+    /* Get the bulk of the stats */
     update_stats(info, ret);
+
+    /* Now the version number */
+    if (rs->version.major != 0) {
+        ret->major = rs->version.major;
+        ret->minor = rs->version.minor;
+        ret->patch = rs->version.patch;
+    }
+    else {
+        char *eptr;
+        ptr = strstr(info, RV_FIELD);
+        if (ptr) {
+            ret->major = rs->version.major = strtol(ptr + sizeof(RV_FIELD) - 1, &eptr, 10);
+            ptr = eptr + 1;
+            ret->minor = rs->version.minor = strtol(ptr, &eptr, 10);
+            ptr = eptr + 1;
+            ret->patch = rs->version.patch = strtol(ptr, &eptr, 10);
+        }
+    }
+
+    /* Finally, the role */
+    ptr = strstr(info, "role:");
+    if (!ptr) {
+        ret->role = APR_RS_SERVER_UNKNOWN;
+    }
+    else if (!strncmp("master", ptr + sizeof("role:") - 1, sizeof("master")-1)) {
+        ret->role = APR_RS_SERVER_MASTER;
+    }
+    else {
+        ret->role = APR_RS_SERVER_SLAVE;
+    }
     if (stats) {
         *stats = ret;
     }
