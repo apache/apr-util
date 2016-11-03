@@ -146,7 +146,7 @@ static void test_redis_create(abts_case * tc, void *data)
     
     port = PORT + i;
     rv =
-      apr_redis_server_create(pool, HOST, PORT + i, 0, 1, 1, 60, 5, &server);
+      apr_redis_server_create(pool, HOST, PORT + i, 0, 1, 1, 60, 60, &server);
     ABTS_ASSERT(tc, "server create failed", rv == APR_SUCCESS);
     
     rv = apr_redis_add_server(redis, server);
@@ -168,7 +168,7 @@ static void test_redis_create(abts_case * tc, void *data)
     ABTS_PTR_NOTNULL(tc, s);
   }
 
-  rv = apr_redis_server_create(pool, HOST, PORT, 0, 1, 1, 60, 5, &server);
+  rv = apr_redis_server_create(pool, HOST, PORT, 0, 1, 1, 60, 60, &server);
   ABTS_ASSERT(tc, "server create failed", rv == APR_SUCCESS);
   
   rv = apr_redis_add_server(redis, server);
@@ -222,7 +222,7 @@ static void test_redis_user_funcs(abts_case * tc, void *data)
   for(i = 1; i <= 10; i++) {
     apr_redis_server_t *ms;
 
-    rv = apr_redis_server_create(pool, HOST, i, 0, 1, 1, 60, 5, &ms);
+    rv = apr_redis_server_create(pool, HOST, i, 0, 1, 1, 60, 60, &ms);
     ABTS_ASSERT(tc, "server create failed", rv == APR_SUCCESS);
     
     rv = apr_redis_add_server(redis, ms);
@@ -253,7 +253,7 @@ static void test_redis_meta(abts_case * tc, void *data)
     rv = apr_redis_create(pool, 1, 0, &redis);
     ABTS_ASSERT(tc, "redis create failed", rv == APR_SUCCESS);
 
-    rv = apr_redis_server_create(pool, HOST, PORT, 0, 1, 1, 60, 5, &server);
+    rv = apr_redis_server_create(pool, HOST, PORT, 0, 1, 1, 60, 60, &server);
     ABTS_ASSERT(tc, "server create failed", rv == APR_SUCCESS);
 
     rv = apr_redis_add_server(redis, server);
@@ -309,7 +309,7 @@ static void test_redis_incrdecr(abts_case * tc, void *data)
   rv = apr_redis_create(pool, 1, 0, &redis);
   ABTS_ASSERT(tc, "redis create failed", rv == APR_SUCCESS);
   
-  rv = apr_redis_server_create(pool, HOST, PORT, 0, 1, 1, 60, 5, &server);
+  rv = apr_redis_server_create(pool, HOST, PORT, 0, 1, 1, 60, 60, &server);
   ABTS_ASSERT(tc, "server create failed", rv == APR_SUCCESS);
   
   rv = apr_redis_add_server(redis, server);
@@ -364,7 +364,7 @@ static void test_redis_setget(abts_case * tc, void *data)
     rv = apr_redis_create(pool, 1, 0, &redis);
     ABTS_ASSERT(tc, "redis create failed", rv == APR_SUCCESS);
 
-    rv = apr_redis_server_create(pool, HOST, PORT, 0, 1, 1, 60, 5, &server);
+    rv = apr_redis_server_create(pool, HOST, PORT, 0, 1, 1, 60, 60, &server);
     ABTS_ASSERT(tc, "server create failed", rv == APR_SUCCESS);
 
     rv = apr_redis_add_server(redis, server);
