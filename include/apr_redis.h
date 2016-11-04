@@ -55,7 +55,7 @@ extern "C" {
 #endif
 
 /**
- * @defgroup APR_Util_MC Redis Client Routines
+ * @defgroup APR_Util_RC Redis Client Routines
  * @ingroup APR_Util
  * @{
  */
