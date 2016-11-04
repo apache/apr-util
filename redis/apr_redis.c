@@ -154,8 +154,6 @@ APU_DECLARE(apr_status_t) apr_redis_add_server(apr_redis_t *rc,
     return rv;
 }
 
-static apr_status_t rc_ping(apr_redis_server_t *rs);
-
 APU_DECLARE(apr_redis_server_t *)
 apr_redis_find_server_hash(apr_redis_t *rc, const apr_uint32_t hash)
 {
@@ -168,7 +166,7 @@ apr_redis_find_server_hash(apr_redis_t *rc, const apr_uint32_t hash)
 }
 
 APU_DECLARE(apr_redis_server_t *)
-    apr_redis_find_server_hash_default(void *baton, apr_redis_t *rc,
+apr_redis_find_server_hash_default(void *baton, apr_redis_t *rc,
                                    const apr_uint32_t hash)
 {
     apr_redis_server_t *rs = NULL;
@@ -195,7 +193,7 @@ APU_DECLARE(apr_redis_server_t *)
             /* Try the dead server, every 5 seconds */
             if (curtime - rs->btime > apr_time_from_sec(5)) {
                 rs->btime = curtime;
-                if (rc_ping(rs) == APR_SUCCESS) {
+                if (apr_redis_ping(rs) == APR_SUCCESS) {
                     make_server_live(rc, rs);
 #if APR_HAS_THREADS
                     apr_thread_mutex_unlock(rs->lock);
@@ -1085,7 +1083,8 @@ APU_DECLARE(apr_status_t)
     return rv;
 }
 
-apr_status_t rc_ping(apr_redis_server_t *rs)
+APU_DECLARE(apr_status_t)
+apr_redis_ping(apr_redis_server_t *rs)
 {
     apr_status_t rv;
     apr_size_t written;
@@ -1121,6 +1120,12 @@ apr_status_t rc_ping(apr_redis_server_t *rs)
     }
 
     rv = get_server_line(conn);
+    if (rv == APR_SUCCESS) {
+        /* we got *something*. Was it Redis? */
+        if (strncmp(conn->buffer, "+PONG", sizeof("+PONG")-1) != 0) {
+            rv = APR_EGENERAL;
+        }
+    }
     rs_release_conn(rs, conn);
     return rv;
 }
