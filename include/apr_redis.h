@@ -350,6 +350,12 @@ APU_DECLARE(apr_status_t) apr_redis_decr(apr_redis_t *rc,
 
 
 /**
+ * Pings the server
+ * @param rs Server to ping
+ */
+APU_DECLARE(apr_status_t) apr_redis_ping(apr_redis_server_t *rs);
+
+/**
  * Gets multiple values from the server, allocating the values out of p
  * @param rc client to use
  * @param temp_pool Pool used for temporary allocations. May be cleared inside this

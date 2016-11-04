@@ -404,15 +404,149 @@ static void test_redis_setget(abts_case * tc, void *data)
     }
 }
 
+/* test setting and getting */
+
+static void test_redis_setexget(abts_case * tc, void *data)
+{
+    apr_pool_t *pool = p;
+    apr_status_t rv;
+    apr_redis_t *redis;
+    apr_redis_server_t *server;
+    apr_hash_t *tdata;
+    apr_hash_index_t *hi;
+    char *result;
+    apr_size_t len;
+
+    rv = apr_redis_create(pool, 1, 0, &redis);
+    ABTS_ASSERT(tc, "redis create failed", rv == APR_SUCCESS);
+
+    rv = apr_redis_server_create(pool, HOST, PORT, 0, 1, 1, 60, 60, &server);
+    ABTS_ASSERT(tc, "server create failed", rv == APR_SUCCESS);
+
+    rv = apr_redis_add_server(redis, server);
+    ABTS_ASSERT(tc, "server add failed", rv == APR_SUCCESS);
+
+    tdata = apr_hash_make(pool);
+
+    create_test_hash(pool, tdata);
+
+    for (hi = apr_hash_first(p, tdata); hi; hi = apr_hash_next(hi)) {
+    const void *k;
+    void *v;
+        const char *key;
+
+    apr_hash_this(hi, &k, NULL, &v);
+        key = k;
+
+    rv = apr_redis_ping(server);
+    ABTS_ASSERT(tc, "ping failed", rv == APR_SUCCESS);
+    rv = apr_redis_setex(redis, key, v, strlen(v), 10, 27);
+    ABTS_ASSERT(tc, "set failed", rv == APR_SUCCESS);
+    rv = apr_redis_getp(redis, pool, key, &result, &len, NULL);
+    ABTS_ASSERT(tc, "get failed", rv == APR_SUCCESS);
+    }
+
+    rv = apr_redis_getp(redis, pool, "nothere3423", &result, &len, NULL);
+
+    ABTS_ASSERT(tc, "get should have failed", rv != APR_SUCCESS);
+
+    for (hi = apr_hash_first(p, tdata); hi; hi = apr_hash_next(hi)) {
+    const void *k;
+    const char *key;
+
+    apr_hash_this(hi, &k, NULL, NULL);
+    key = k;
+
+    rv = apr_redis_delete(redis, key, 0);
+    ABTS_ASSERT(tc, "delete failed", rv == APR_SUCCESS);
+    }
+}
+
+/* use apr_socket stuff to see if there is in fact a Redis server
+ * running on PORT.
+ */
+static apr_status_t check_redis(void)
+{
+  apr_pool_t *pool = p;
+  apr_status_t rv;
+  apr_socket_t *sock = NULL;
+  apr_sockaddr_t *sa;
+  struct iovec vec[2];
+  apr_size_t written;
+  char buf[128];
+  apr_size_t len;
+
+  rv = apr_socket_create(&sock, APR_INET, SOCK_STREAM, 0, pool);
+  if(rv != APR_SUCCESS) {
+    return rv;
+  }
+
+  rv = apr_sockaddr_info_get(&sa, HOST, APR_INET, PORT, 0, pool);
+  if(rv != APR_SUCCESS) {
+    return rv;
+  }
+
+  rv = apr_socket_timeout_set(sock, 1 * APR_USEC_PER_SEC);
+  if (rv != APR_SUCCESS) {
+    return rv;
+  }
+
+  rv = apr_socket_connect(sock, sa);
+  if (rv != APR_SUCCESS) {
+    return rv;
+  }
+
+  rv = apr_socket_timeout_set(sock, -1);
+  if (rv != APR_SUCCESS) {
+    return rv;
+  }
+
+  vec[0].iov_base = "PING";
+  vec[0].iov_len  = sizeof("PING") - 1;
+
+  vec[1].iov_base = "\r\n";
+  vec[1].iov_len  = sizeof("\r\n") -1;
+
+  rv = apr_socket_sendv(sock, vec, 2, &written);
+  if (rv != APR_SUCCESS) {
+    return rv;
+  }
+
+  len = sizeof(buf);
+  rv = apr_socket_recv(sock, buf, &len);
+  if(rv != APR_SUCCESS) {
+    return rv;
+  }
+  if(strncmp(buf, "+PONG", sizeof("+PONG")-1) != 0) {
+    rv = APR_EGENERAL;
+  }
+
+  apr_socket_close(sock);
+  return rv;
+}
+
 abts_suite *testredis(abts_suite * suite)
 {
+    apr_status_t rv;
     suite = ADD_SUITE(suite);
-    abts_run_test(suite, test_redis_create, NULL);
-    abts_run_test(suite, test_redis_user_funcs, NULL);
-    abts_run_test(suite, test_redis_meta, NULL);
-    abts_run_test(suite, test_redis_setget, NULL);
-    /* abts_run_test(suite, test_redis_multiget, NULL); */
-    abts_run_test(suite, test_redis_incrdecr, NULL);
+    /* check for a running redis on the typical port before
+     * trying to run the tests. succeed if we don't find one.
+     */
+    rv = check_redis();
+    if (rv == APR_SUCCESS) {
+        abts_run_test(suite, test_redis_create, NULL);
+        abts_run_test(suite, test_redis_user_funcs, NULL);
+        abts_run_test(suite, test_redis_meta, NULL);
+        abts_run_test(suite, test_redis_setget, NULL);
+        abts_run_test(suite, test_redis_setexget, NULL);
+        /* abts_run_test(suite, test_redis_multiget, NULL); */
+        abts_run_test(suite, test_redis_incrdecr, NULL);
+    }
+    else {
+        abts_log_message("Error %d occurred attempting to reach Redis "
+                         "on %s:%d.  Skipping apr_redis tests...",
+                         rv, HOST, PORT);
+    }
 
     return suite;
 }
