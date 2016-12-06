@@ -89,6 +89,7 @@ CLEAN :
 	-@erase "$(INTDIR)\apr_memcache.obj"
 	-@erase "$(INTDIR)\apr_passwd.obj"
 	-@erase "$(INTDIR)\apr_queue.obj"
+	-@erase "$(INTDIR)\apr_redis.obj"
 	-@erase "$(INTDIR)\apr_reslist.obj"
 	-@erase "$(INTDIR)\apr_rmm.obj"
 	-@erase "$(INTDIR)\apr_sha1.obj"
@@ -200,6 +201,7 @@ LIB32_OBJS= \
 	"$(INTDIR)\apr_date.obj" \
 	"$(INTDIR)\apu_dso.obj" \
 	"$(INTDIR)\apr_queue.obj" \
+	"$(INTDIR)\apr_redis.obj" \
 	"$(INTDIR)\apr_reslist.obj" \
 	"$(INTDIR)\apr_rmm.obj" \
 	"$(INTDIR)\apr_thread_pool.obj" \
@@ -213,7 +215,7 @@ LIB32_OBJS= \
 	"$(INTDIR)\xlate.obj" \
 	"$(INTDIR)\apr_xml.obj" \
 	"..\apr-iconv\LibR\apriconv-1.lib" \
-	".\xml\expat\lib\LibR\xml.lib"
+	".\xml\LibR\xml.lib"
 
 "$(OUTDIR)\aprutil-1.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -282,6 +284,7 @@ CLEAN :
 	-@erase "$(INTDIR)\apr_memcache.obj"
 	-@erase "$(INTDIR)\apr_passwd.obj"
 	-@erase "$(INTDIR)\apr_queue.obj"
+	-@erase "$(INTDIR)\apr_redis.obj"
 	-@erase "$(INTDIR)\apr_reslist.obj"
 	-@erase "$(INTDIR)\apr_rmm.obj"
 	-@erase "$(INTDIR)\apr_sha1.obj"
@@ -398,6 +401,7 @@ LIB32_OBJS= \
 	"$(INTDIR)\apr_date.obj" \
 	"$(INTDIR)\apu_dso.obj" \
 	"$(INTDIR)\apr_queue.obj" \
+	"$(INTDIR)\apr_redis.obj" \
 	"$(INTDIR)\apr_reslist.obj" \
 	"$(INTDIR)\apr_rmm.obj" \
 	"$(INTDIR)\apr_thread_pool.obj" \
@@ -411,7 +415,7 @@ LIB32_OBJS= \
 	"$(INTDIR)\xlate.obj" \
 	"$(INTDIR)\apr_xml.obj" \
 	"..\apr-iconv\LibD\apriconv-1.lib" \
-	".\xml\expat\lib\LibD\xml.lib"
+	".\xml\LibD\xml.lib"
 
 "$(OUTDIR)\aprutil-1.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -480,6 +484,7 @@ CLEAN :
 	-@erase "$(INTDIR)\apr_memcache.obj"
 	-@erase "$(INTDIR)\apr_passwd.obj"
 	-@erase "$(INTDIR)\apr_queue.obj"
+	-@erase "$(INTDIR)\apr_redis.obj"
 	-@erase "$(INTDIR)\apr_reslist.obj"
 	-@erase "$(INTDIR)\apr_rmm.obj"
 	-@erase "$(INTDIR)\apr_sha1.obj"
@@ -596,6 +601,7 @@ LIB32_OBJS= \
 	"$(INTDIR)\apr_date.obj" \
 	"$(INTDIR)\apu_dso.obj" \
 	"$(INTDIR)\apr_queue.obj" \
+	"$(INTDIR)\apr_redis.obj" \
 	"$(INTDIR)\apr_reslist.obj" \
 	"$(INTDIR)\apr_rmm.obj" \
 	"$(INTDIR)\apr_thread_pool.obj" \
@@ -609,7 +615,7 @@ LIB32_OBJS= \
 	"$(INTDIR)\xlate.obj" \
 	"$(INTDIR)\apr_xml.obj" \
 	"..\apr-iconv\x64\LibR\apriconv-1.lib" \
-	".\xml\expat\lib\x64\LibR\xml.lib"
+	".\xml\x64\LibR\xml.lib"
 
 "$(OUTDIR)\aprutil-1.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -678,6 +684,7 @@ CLEAN :
 	-@erase "$(INTDIR)\apr_memcache.obj"
 	-@erase "$(INTDIR)\apr_passwd.obj"
 	-@erase "$(INTDIR)\apr_queue.obj"
+	-@erase "$(INTDIR)\apr_redis.obj"
 	-@erase "$(INTDIR)\apr_reslist.obj"
 	-@erase "$(INTDIR)\apr_rmm.obj"
 	-@erase "$(INTDIR)\apr_sha1.obj"
@@ -794,6 +801,7 @@ LIB32_OBJS= \
 	"$(INTDIR)\apr_date.obj" \
 	"$(INTDIR)\apu_dso.obj" \
 	"$(INTDIR)\apr_queue.obj" \
+	"$(INTDIR)\apr_redis.obj" \
 	"$(INTDIR)\apr_reslist.obj" \
 	"$(INTDIR)\apr_rmm.obj" \
 	"$(INTDIR)\apr_thread_pool.obj" \
@@ -807,7 +815,7 @@ LIB32_OBJS= \
 	"$(INTDIR)\xlate.obj" \
 	"$(INTDIR)\apr_xml.obj" \
 	"..\apr-iconv\x64\LibD\apriconv-1.lib" \
-	".\xml\expat\lib\x64\LibD\xml.lib"
+	".\xml\x64\LibD\xml.lib"
 
 "$(OUTDIR)\aprutil-1.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -1118,6 +1126,12 @@ SOURCE=.\misc\apu_dso.c
 SOURCE=.\misc\apu_version.c
 
 "$(INTDIR)\apu_version.obj" : $(SOURCE) "$(INTDIR)" ".\include\apu.h"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+SOURCE=.\redis\apr_redis.c
+
+"$(INTDIR)\apr_redis.obj" : $(SOURCE) "$(INTDIR)" ".\include\apr_redis.h"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 

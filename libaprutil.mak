@@ -78,6 +78,7 @@ CLEAN :
 	-@erase "$(INTDIR)\apr_memcache.obj"
 	-@erase "$(INTDIR)\apr_passwd.obj"
 	-@erase "$(INTDIR)\apr_queue.obj"
+	-@erase "$(INTDIR)\apr_redis.obj"
 	-@erase "$(INTDIR)\apr_reslist.obj"
 	-@erase "$(INTDIR)\apr_rmm.obj"
 	-@erase "$(INTDIR)\apr_sha1.obj"
@@ -109,7 +110,7 @@ CLEAN :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP=cl.exe
-CPP_PROJ=/nologo /MD /W3 /Zi /O2 /Oy- /I "./include" /I "../apr/include" /I "./include/private" /I "../apr-iconv/include" /I "./dbm/sdbm" /I "./xml/expat/lib" /D "NDEBUG" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" /D "XML_STATIC" /D "WIN32" /D "_WINDOWS" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\libaprutil_src" /FD /c 
+CPP_PROJ=/nologo /MD /W3 /Zi /O2 /Oy- /I "./include" /I "../apr/include" /I "./include/private" /I "../apr-iconv/include" /I "./dbm/sdbm" /I "./xml/expat/lib" /D "NDEBUG" /D "APR_DECLARE_EXPORT" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" /D "XML_STATIC" /D "WIN32" /D "_WINDOWS" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\libaprutil_src" /FD /c 
 
 .c{$(INTDIR)}.obj::
    $(CPP) @<<
@@ -185,6 +186,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\apr_date.obj" \
 	"$(INTDIR)\apu_dso.obj" \
 	"$(INTDIR)\apr_queue.obj" \
+	"$(INTDIR)\apr_redis.obj" \
 	"$(INTDIR)\apr_reslist.obj" \
 	"$(INTDIR)\apr_rmm.obj" \
 	"$(INTDIR)\apr_thread_pool.obj" \
@@ -200,7 +202,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\libaprutil.res" \
 	"..\apr\Release\libapr-1.lib" \
 	"..\apr-iconv\Release\libapriconv-1.lib" \
-	".\xml\expat\lib\LibR\xml.lib"
+	".\xml\LibR\xml.lib"
 
 "$(OUTDIR)\libaprutil-1.dll" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
@@ -271,6 +273,7 @@ CLEAN :
 	-@erase "$(INTDIR)\apr_memcache.obj"
 	-@erase "$(INTDIR)\apr_passwd.obj"
 	-@erase "$(INTDIR)\apr_queue.obj"
+	-@erase "$(INTDIR)\apr_redis.obj"
 	-@erase "$(INTDIR)\apr_reslist.obj"
 	-@erase "$(INTDIR)\apr_rmm.obj"
 	-@erase "$(INTDIR)\apr_sha1.obj"
@@ -306,7 +309,7 @@ CLEAN :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP=cl.exe
-CPP_PROJ=/nologo /MDd /W3 /Zi /Od /I "./include" /I "../apr/include" /I "./include/private" /I "../apr-iconv/include" /I "./dbm/sdbm" /I "./xml/expat/lib" /D "_DEBUG" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" /D "XML_STATIC" /D "WIN32" /D "_WINDOWS" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\libaprutil_src" /FD /EHsc /c 
+CPP_PROJ=/nologo /MDd /W3 /Zi /Od /I "./include" /I "../apr/include" /I "./include/private" /I "../apr-iconv/include" /I "./dbm/sdbm" /I "./xml/expat/lib" /D "_DEBUG" /D "APR_DECLARE_EXPORT" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" /D "XML_STATIC" /D "WIN32" /D "_WINDOWS" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\libaprutil_src" /FD /EHsc /c 
 
 .c{$(INTDIR)}.obj::
    $(CPP) @<<
@@ -382,6 +385,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\apr_date.obj" \
 	"$(INTDIR)\apu_dso.obj" \
 	"$(INTDIR)\apr_queue.obj" \
+	"$(INTDIR)\apr_redis.obj" \
 	"$(INTDIR)\apr_reslist.obj" \
 	"$(INTDIR)\apr_rmm.obj" \
 	"$(INTDIR)\apr_thread_pool.obj" \
@@ -397,7 +401,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\libaprutil.res" \
 	"..\apr\Debug\libapr-1.lib" \
 	"..\apr-iconv\Debug\libapriconv-1.lib" \
-	".\xml\expat\lib\LibD\xml.lib"
+	".\xml\LibD\xml.lib"
 
 "$(OUTDIR)\libaprutil-1.dll" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
@@ -468,6 +472,7 @@ CLEAN :
 	-@erase "$(INTDIR)\apr_memcache.obj"
 	-@erase "$(INTDIR)\apr_passwd.obj"
 	-@erase "$(INTDIR)\apr_queue.obj"
+	-@erase "$(INTDIR)\apr_redis.obj"
 	-@erase "$(INTDIR)\apr_reslist.obj"
 	-@erase "$(INTDIR)\apr_rmm.obj"
 	-@erase "$(INTDIR)\apr_sha1.obj"
@@ -503,7 +508,7 @@ CLEAN :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP=cl.exe
-CPP_PROJ=/nologo /MD /W3 /Zi /O2 /Oy- /I "./include" /I "../apr/include" /I "./include/private" /I "../apr-iconv/include" /I "./dbm/sdbm" /I "./xml/expat/lib" /D "NDEBUG" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" /D "XML_STATIC" /D "WIN32" /D "_WINDOWS" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\libaprutil_src" /FD /c 
+CPP_PROJ=/nologo /MD /W3 /Zi /O2 /Oy- /I "./include" /I "../apr/include" /I "./include/private" /I "../apr-iconv/include" /I "./dbm/sdbm" /I "./xml/expat/lib" /D "NDEBUG" /D "APR_DECLARE_EXPORT" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" /D "XML_STATIC" /D "WIN32" /D "_WINDOWS" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\libaprutil_src" /FD /c 
 
 .c{$(INTDIR)}.obj::
    $(CPP) @<<
@@ -579,6 +584,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\apr_date.obj" \
 	"$(INTDIR)\apu_dso.obj" \
 	"$(INTDIR)\apr_queue.obj" \
+	"$(INTDIR)\apr_redis.obj" \
 	"$(INTDIR)\apr_reslist.obj" \
 	"$(INTDIR)\apr_rmm.obj" \
 	"$(INTDIR)\apr_thread_pool.obj" \
@@ -594,7 +600,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\libaprutil.res" \
 	"..\apr\x64\Release\libapr-1.lib" \
 	"..\apr-iconv\x64\Release\libapriconv-1.lib" \
-	".\xml\expat\lib\x64\LibR\xml.lib"
+	".\xml\x64\LibR\xml.lib"
 
 "$(OUTDIR)\libaprutil-1.dll" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
@@ -665,6 +671,7 @@ CLEAN :
 	-@erase "$(INTDIR)\apr_memcache.obj"
 	-@erase "$(INTDIR)\apr_passwd.obj"
 	-@erase "$(INTDIR)\apr_queue.obj"
+	-@erase "$(INTDIR)\apr_redis.obj"
 	-@erase "$(INTDIR)\apr_reslist.obj"
 	-@erase "$(INTDIR)\apr_rmm.obj"
 	-@erase "$(INTDIR)\apr_sha1.obj"
@@ -700,7 +707,7 @@ CLEAN :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP=cl.exe
-CPP_PROJ=/nologo /MDd /W3 /Zi /Od /I "./include" /I "../apr/include" /I "./include/private" /I "../apr-iconv/include" /I "./dbm/sdbm" /I "./xml/expat/lib" /D "_DEBUG" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" /D "XML_STATIC" /D "WIN32" /D "_WINDOWS" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\libaprutil_src" /FD /EHsc /c 
+CPP_PROJ=/nologo /MDd /W3 /Zi /Od /I "./include" /I "../apr/include" /I "./include/private" /I "../apr-iconv/include" /I "./dbm/sdbm" /I "./xml/expat/lib" /D "_DEBUG" /D "APR_DECLARE_EXPORT" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" /D "XML_STATIC" /D "WIN32" /D "_WINDOWS" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\libaprutil_src" /FD /EHsc /c 
 
 .c{$(INTDIR)}.obj::
    $(CPP) @<<
@@ -776,6 +783,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\apr_date.obj" \
 	"$(INTDIR)\apu_dso.obj" \
 	"$(INTDIR)\apr_queue.obj" \
+	"$(INTDIR)\apr_redis.obj" \
 	"$(INTDIR)\apr_reslist.obj" \
 	"$(INTDIR)\apr_rmm.obj" \
 	"$(INTDIR)\apr_thread_pool.obj" \
@@ -791,7 +799,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\libaprutil.res" \
 	"..\apr\x64\Debug\libapr-1.lib" \
 	"..\apr-iconv\x64\Debug\libapriconv-1.lib" \
-	".\xml\expat\lib\x64\LibD\xml.lib"
+	".\xml\x64\LibD\xml.lib"
 
 "$(OUTDIR)\libaprutil-1.dll" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
@@ -1055,6 +1063,12 @@ SOURCE=.\misc\apu_dso.c
 SOURCE=.\misc\apu_version.c
 
 "$(INTDIR)\apu_version.obj" : $(SOURCE) "$(INTDIR)" ".\include\apu.h"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+SOURCE=.\redis\apr_redis.c
+
+"$(INTDIR)\apr_redis.obj" : $(SOURCE) "$(INTDIR)" ".\include\apr_redis.h"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 

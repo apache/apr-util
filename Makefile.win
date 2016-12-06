@@ -56,6 +56,17 @@
 #   nmake -f Makefile.win PREFIX=C:\APR buildall checkall installall clean
 #
 
+!IF EXIST("xml\expat\lib\expat.h")
+!ELSEIF
+!MESSAGE Please obtain the latest expat source from http://expat.sourceforge.net/
+!MESSAGE and place it in the xml folder of apr-util so that expat.h is located in
+!MESSAGE apr-util/xml/expat/lib/expat.h and include all the other files in expat's
+!MESSAGE "lib" folder.
+!MESSAGE 
+!ERROR Need expat sources to build!
+!ENDIF
+
+
 !IF EXIST("aprutil.sln") && ([devenv /help > NUL 2>&1] == 0) \
     && !defined(USEMAK) && !defined(USEDSW)
 USESLN=1
@@ -197,9 +208,9 @@ buildall:
 		BUILD_MODE="$(ARCH)" BIND_MODE=shared
 	 cd ..
 !ENDIF
-	cd $(APU_PATH)\xml\expat\lib
+	cd $(APU_PATH)\xml
 	 $(MAKE) $(MAKEOPT) -f xml.mak         CFG="xml - $(ARCH)" RECURSE=0 $(CTARGET)
-	cd ..\..\..
+	cd ..
 	 $(MAKE) $(MAKEOPT) -f aprutil.mak     CFG="aprutil - $(ARCH)" RECURSE=0 $(CTARGET)
 	 $(MAKE) $(MAKEOPT) -f libaprutil.mak  CFG="libaprutil - $(ARCH)" RECURSE=0 $(CTARGET)
 	cd ldap
@@ -306,7 +317,7 @@ checkapr:
 checkapu:
 	cd $(APU_PATH)
 	cd test
-	 $(MAKE) $(MAKEOPT) -f Makefile.win MODEL=static \
+		 $(MAKE) $(MAKEOPT) -f Makefile.win MODEL=static \
 		OUTDIR=$(LIBSPATH) APROUTDIR=$(LIBSOSPATH) \
 		APR_PATH=..\$(APR_PATH) API_PATH=..\$(API_PATH) check
 	 $(MAKE) $(MAKEOPT) -f Makefile.win MODEL=dynamic \
