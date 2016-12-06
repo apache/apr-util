@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.6.0
 
+  *) apr_crypto: avoid excessive iteration in bcrypt hash.
+     [Hanno Böck <hanno hboeck.de>]
+
   *) apr_siphash: Implement keyed hash function SipHash.  [Yann Ylavic]
 
   *) apr_crypto: Add apr_crypto_key() function which supports keys
