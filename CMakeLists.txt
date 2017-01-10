@@ -208,6 +208,7 @@ SET(APR_TEST_SOURCES
   test/testredis.c
   test/testreslist.c
   test/testrmm.c
+  test/testsiphash.c
   test/teststrmatch.c
   test/testuri.c
   test/testutil.c
