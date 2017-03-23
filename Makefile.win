@@ -56,8 +56,7 @@
 #   nmake -f Makefile.win PREFIX=C:\APR buildall checkall installall clean
 #
 
-!IF EXIST("xml\expat\lib\expat.h")
-!ELSEIF
+!IF !EXIST("xml\expat\lib\expat.h")
 !MESSAGE Please obtain the latest expat source from http://expat.sourceforge.net/
 !MESSAGE and place it in the xml folder of apr-util so that expat.h is located in
 !MESSAGE apr-util/xml/expat/lib/expat.h and include all the other files in expat's
@@ -83,6 +82,12 @@ USEDSW=1
 !ENDIF
 
 PREFIX=..\apr-dist
+
+!IF EXIST("..\openssl")
+!IF EXIST("..\openssl\libcrypto.lib")
+SSLOPT=_HAVE_OSSL110=1
+!ENDIF
+!ENDIF
 
 !IF [$(COMSPEC) /c cl /nologo /? \
 	| $(SystemRoot)\System32\find.exe "x64" >NUL ] == 0
@@ -211,8 +216,8 @@ buildall:
 	cd $(APU_PATH)\xml
 	 $(MAKE) $(MAKEOPT) -f xml.mak         CFG="xml - $(ARCH)" RECURSE=0 $(CTARGET)
 	cd ..
-	 $(MAKE) $(MAKEOPT) -f aprutil.mak     CFG="aprutil - $(ARCH)" RECURSE=0 $(CTARGET)
-	 $(MAKE) $(MAKEOPT) -f libaprutil.mak  CFG="libaprutil - $(ARCH)" RECURSE=0 $(CTARGET)
+	 $(MAKE) $(MAKEOPT) $(SSLOPT) -f aprutil.mak     CFG="aprutil - $(ARCH)" RECURSE=0 $(CTARGET)
+	 $(MAKE) $(MAKEOPT) $(SSLOPT) -f libaprutil.mak  CFG="libaprutil - $(ARCH)" RECURSE=0 $(CTARGET)
 	cd ldap
 	 $(MAKE) $(MAKEOPT) -f apr_ldap.mak    CFG="apr_ldap - $(ARCH)" RECURSE=0 $(CTARGET)
 	cd ..
@@ -226,7 +231,7 @@ buildall:
 	cd ..
 	cd crypto
 	  for %d in ($(CRYPTO_LIST) x) do if not %d == x \
-	    $(MAKE) $(MAKEOPT) -f apr_crypto_%d.mak CFG="apr_crypto_%d - $(ARCH)" RECURSE=0 $(CTARGET)
+	    $(MAKE) $(MAKEOPT) $(SSLOPT) -f apr_crypto_%d.mak CFG="apr_crypto_%d - $(ARCH)" RECURSE=0 $(CTARGET)
 	cd ..
 
 !ELSEIF $(USESLN) == 1
