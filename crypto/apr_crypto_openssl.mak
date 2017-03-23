@@ -27,6 +27,18 @@ NULL=
 NULL=nul
 !ENDIF 
 
+!IF "$(_HAVE_OSSL110)" == "1"
+SSLCRP=libcrypto
+SSLLIB=libssl
+SSLINC=/I ../../openssl/include
+SSLBIN=/libpath:../../openssl
+!ELSE 
+SSLCRP=libeay32
+SSLLIB=ssleay32
+SSLINC=/I ../../openssl/inc32
+SSLBIN=/libpath:../../openssl/out32dll
+!ENDIF 
+
 !IF  "$(CFG)" == "apr_crypto_openssl - Win32 Release"
 
 OUTDIR=.\Release
@@ -64,7 +76,7 @@ CLEAN :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP=cl.exe
-CPP_PROJ=/nologo /MD /W3 /Zi /O2 /Oy- /I "../include" /I "../../apr/include" /I "../include/private" /I "../../openssl/inc32" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DSO_MODULE_BUILD" /D APU_HAVE_OPENSSL=1 /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\apr_crypto_openssl_src" /FD /c 
+CPP_PROJ=/nologo /MD /W3 /Zi /O2 /Oy- /I "../include" /I "../../apr/include" /I "../include/private" $(SSLINC) /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DSO_MODULE_BUILD" /D APU_HAVE_OPENSSL=1 /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\apr_crypto_openssl_src" /FD /c 
 
 .c{$(INTDIR)}.obj::
    $(CPP) @<<
@@ -105,7 +117,7 @@ BSC32_FLAGS=/nologo /o"$(OUTDIR)\apr_crypto_openssl.bsc"
 BSC32_SBRS= \
 	
 LINK32=link.exe
-LINK32_FLAGS=kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib libeay32.lib ssleay32.lib /nologo /base:"0x6F100000" /subsystem:windows /dll /incremental:no /pdb:"$(OUTDIR)\apr_crypto_openssl-1.pdb" /debug /out:"$(OUTDIR)\apr_crypto_openssl-1.dll" /implib:"$(OUTDIR)\apr_crypto_openssl-1.lib" /libpath:"..\..\openssl\out32dll" /MACHINE:X86 /opt:ref 
+LINK32_FLAGS=kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib $(SSLCRP).lib $(SSLLIB).lib /nologo /base:"0x6F100000" /subsystem:windows /dll /incremental:no /pdb:"$(OUTDIR)\apr_crypto_openssl-1.pdb" /debug /out:"$(OUTDIR)\apr_crypto_openssl-1.dll" /implib:"$(OUTDIR)\apr_crypto_openssl-1.lib" $(SSLBIN) /opt:ref 
 LINK32_OBJS= \
 	"$(INTDIR)\apr_crypto_openssl.obj" \
 	"$(INTDIR)\apr_crypto_openssl-1.res" \
@@ -167,7 +179,7 @@ CLEAN :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP=cl.exe
-CPP_PROJ=/nologo /MDd /W3 /Zi /Od /I "../include" /I "../../apr/include" /I "../include/private" /I "../../openssl/inc32" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DSO_MODULE_BUILD" /D APU_HAVE_OPENSSL=1 /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\apr_crypto_openssl_src" /FD /D /EHsc /c 
+CPP_PROJ=/nologo /MDd /W3 /Zi /Od /I "../include" /I "../../apr/include" /I "../include/private" $(SSLINC) /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "APU_DSO_MODULE_BUILD" /D APU_HAVE_OPENSSL=1 /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\apr_crypto_openssl_src" /FD /D /EHsc /c 
 
 .c{$(INTDIR)}.obj::
    $(CPP) @<<
@@ -208,7 +220,7 @@ BSC32_FLAGS=/nologo /o"$(OUTDIR)\apr_crypto_openssl.bsc"
 BSC32_SBRS= \
 	
 LINK32=link.exe
-LINK32_FLAGS=kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib libeay32.lib ssleay32.lib /nologo /base:"0x6F100000" /subsystem:windows /dll /incremental:no /pdb:"$(OUTDIR)\apr_crypto_openssl-1.pdb" /debug /out:"$(OUTDIR)\apr_crypto_openssl-1.dll" /implib:"$(OUTDIR)\apr_crypto_openssl-1.lib" /libpath:"..\..\openssl\out32dll" /MACHINE:X86 
+LINK32_FLAGS=kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib $(SSLCRP).lib $(SSLLIB).lib /nologo /base:"0x6F100000" /subsystem:windows /dll /incremental:no /pdb:"$(OUTDIR)\apr_crypto_openssl-1.pdb" /debug /out:"$(OUTDIR)\apr_crypto_openssl-1.dll" /implib:"$(OUTDIR)\apr_crypto_openssl-1.lib" $(SSLBIN) 
 LINK32_OBJS= \
 	"$(INTDIR)\apr_crypto_openssl.obj" \
 	"$(INTDIR)\apr_crypto_openssl-1.res" \
@@ -270,7 +282,7 @@ CLEAN :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP=cl.exe
-CPP_PROJ=/nologo /MD /W3 /Zi /O2 /Oy- /I "../include" /I "../../apr/include" /I "../include/private" /I "../../openssl/inc32" /D "NDEBUG" /D "WIN32" /D "WIN64" /D "_WINDOWS" /D "APU_DSO_MODULE_BUILD" /D APU_HAVE_OPENSSL=1 /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\apr_crypto_openssl_src" /FD /c 
+CPP_PROJ=/nologo /MD /W3 /Zi /O2 /Oy- /I "../include" /I "../../apr/include" /I "../include/private" $(SSLINC) /D "NDEBUG" /D "WIN32" /D "WIN64" /D "_WINDOWS" /D "APU_DSO_MODULE_BUILD" /D APU_HAVE_OPENSSL=1 /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\apr_crypto_openssl_src" /FD /c 
 
 .c{$(INTDIR)}.obj::
    $(CPP) @<<
@@ -311,7 +323,7 @@ BSC32_FLAGS=/nologo /o"$(OUTDIR)\apr_crypto_openssl.bsc"
 BSC32_SBRS= \
 	
 LINK32=link.exe
-LINK32_FLAGS=kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib libeay32.lib ssleay32.lib /nologo /base:"0x6F100000" /subsystem:windows /dll /incremental:no /pdb:"$(OUTDIR)\apr_crypto_openssl-1.pdb" /debug /out:"$(OUTDIR)\apr_crypto_openssl-1.dll" /implib:"$(OUTDIR)\apr_crypto_openssl-1.lib" /libpath:"..\..\openssl\out32dll" /machine:X64 /opt:ref 
+LINK32_FLAGS=kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib $(SSLCRP).lib $(SSLLIB).lib /nologo /base:"0x6F100000" /subsystem:windows /dll /incremental:no /pdb:"$(OUTDIR)\apr_crypto_openssl-1.pdb" /debug /out:"$(OUTDIR)\apr_crypto_openssl-1.dll" /implib:"$(OUTDIR)\apr_crypto_openssl-1.lib" $(SSLBIN) /opt:ref 
 LINK32_OBJS= \
 	"$(INTDIR)\apr_crypto_openssl.obj" \
 	"$(INTDIR)\apr_crypto_openssl-1.res" \
@@ -373,7 +385,7 @@ CLEAN :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP=cl.exe
-CPP_PROJ=/nologo /MDd /W3 /Zi /Od /I "../include" /I "../../apr/include" /I "../include/private" /I "../../openssl/inc32" /D "_DEBUG" /D "WIN32" /D "WIN64" /D "_WINDOWS" /D "APU_DSO_MODULE_BUILD" /D APU_HAVE_OPENSSL=1 /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\apr_crypto_openssl_src" /FD /D /EHsc /c 
+CPP_PROJ=/nologo /MDd /W3 /Zi /Od /I "../include" /I "../../apr/include" /I "../include/private" $(SSLINC) /D "_DEBUG" /D "WIN32" /D "WIN64" /D "_WINDOWS" /D "APU_DSO_MODULE_BUILD" /D APU_HAVE_OPENSSL=1 /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\apr_crypto_openssl_src" /FD /D /EHsc /c 
 
 .c{$(INTDIR)}.obj::
    $(CPP) @<<
@@ -414,7 +426,7 @@ BSC32_FLAGS=/nologo /o"$(OUTDIR)\apr_crypto_openssl.bsc"
 BSC32_SBRS= \
 	
 LINK32=link.exe
-LINK32_FLAGS=kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib libeay32.lib ssleay32.lib /nologo /base:"0x6F100000" /subsystem:windows /dll /incremental:no /pdb:"$(OUTDIR)\apr_crypto_openssl-1.pdb" /debug /out:"$(OUTDIR)\apr_crypto_openssl-1.dll" /implib:"$(OUTDIR)\apr_crypto_openssl-1.lib" /libpath:"..\..\openssl\out32dll" /machine:X64 
+LINK32_FLAGS=kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib $(SSLCRP).lib $(SSLLIB).lib /nologo /base:"0x6F100000" /subsystem:windows /dll /incremental:no /pdb:"$(OUTDIR)\apr_crypto_openssl-1.pdb" /debug /out:"$(OUTDIR)\apr_crypto_openssl-1.dll" /implib:"$(OUTDIR)\apr_crypto_openssl-1.lib" $(SSLBIN) 
 LINK32_OBJS= \
 	"$(INTDIR)\apr_crypto_openssl.obj" \
 	"$(INTDIR)\apr_crypto_openssl-1.res" \
