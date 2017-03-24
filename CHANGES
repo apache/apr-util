@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.6.0
 
+  *) apr_buckets: Add apr_bucket_file_set_buf_size() which allows to configure
+     the size of the buffer used to read files.  [Yann Ylavic]
+
   *) apr_crypto: avoid excessive iteration in bcrypt hash.
      [Hanno Böck <hanno hboeck.de>]
 
