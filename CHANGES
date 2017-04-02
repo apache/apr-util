@@ -1,6 +1,12 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.6.0
 
+  *) Mark apr_dbd_freetds as unsupported, and remove it from all builds
+     [Nick Kew]
+
+  *) Update MySQL build to stop using libmysqlclient_r.
+     [Petr Sumbera <petr.sumbera oracle.com>]
+
   *) apr_buckets: Add apr_bucket_file_set_buf_size() which allows to configure
      the size of the buffer used to read files.  [Yann Ylavic]
 

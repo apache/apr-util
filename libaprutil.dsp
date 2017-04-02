@@ -278,11 +278,6 @@ SOURCE=.\dbd\apr_dbd.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\dbd\apr_dbd_freetds.c
-# PROP Exclude_From_Build 1
-# End Source File
-# Begin Source File
-
 SOURCE=.\dbd\apr_dbd_mysql.c
 # PROP Exclude_From_Build 1
 # End Source File
