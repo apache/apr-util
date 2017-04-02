@@ -243,10 +243,6 @@ SOURCE=.\dbd\apr_dbd.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\dbd\apr_dbd_freetds.c
-# End Source File
-# Begin Source File
-
 SOURCE=.\dbd\apr_dbd_mysql.c
 # End Source File
 # Begin Source File
