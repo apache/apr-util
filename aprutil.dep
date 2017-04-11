@@ -133,13 +133,6 @@
 	".\include\private\apu_internal.h"\
 	
 
-.\dbd\apr_dbd_freetds.c : \
-	".\include\apr_dbd.h"\
-	".\include\apu.h"\
-	".\include\private\apr_dbd_internal.h"\
-	".\include\private\apu_config.h"\
-	
-
 .\dbd\apr_dbd_mysql.c : \
 	".\include\apr_buckets.h"\
 	".\include\apr_dbd.h"\
