@@ -73,7 +73,6 @@ CLEAN :
 	-@erase "$(INTDIR)\apr_crypto.obj"
 	-@erase "$(INTDIR)\apr_date.obj"
 	-@erase "$(INTDIR)\apr_dbd.obj"
-	-@erase "$(INTDIR)\apr_dbd_freetds.obj"
 	-@erase "$(INTDIR)\apr_dbd_mysql.obj"
 	-@erase "$(INTDIR)\apr_dbd_odbc.obj"
 	-@erase "$(INTDIR)\apr_dbd_oracle.obj"
@@ -185,7 +184,6 @@ LIB32_OBJS= \
 	"$(INTDIR)\getuuid.obj" \
 	"$(INTDIR)\uuid.obj" \
 	"$(INTDIR)\apr_dbd.obj" \
-	"$(INTDIR)\apr_dbd_freetds.obj" \
 	"$(INTDIR)\apr_dbd_mysql.obj" \
 	"$(INTDIR)\apr_dbd_odbc.obj" \
 	"$(INTDIR)\apr_dbd_oracle.obj" \
@@ -268,7 +266,6 @@ CLEAN :
 	-@erase "$(INTDIR)\apr_crypto.obj"
 	-@erase "$(INTDIR)\apr_date.obj"
 	-@erase "$(INTDIR)\apr_dbd.obj"
-	-@erase "$(INTDIR)\apr_dbd_freetds.obj"
 	-@erase "$(INTDIR)\apr_dbd_mysql.obj"
 	-@erase "$(INTDIR)\apr_dbd_odbc.obj"
 	-@erase "$(INTDIR)\apr_dbd_oracle.obj"
@@ -385,7 +382,6 @@ LIB32_OBJS= \
 	"$(INTDIR)\getuuid.obj" \
 	"$(INTDIR)\uuid.obj" \
 	"$(INTDIR)\apr_dbd.obj" \
-	"$(INTDIR)\apr_dbd_freetds.obj" \
 	"$(INTDIR)\apr_dbd_mysql.obj" \
 	"$(INTDIR)\apr_dbd_odbc.obj" \
 	"$(INTDIR)\apr_dbd_oracle.obj" \
@@ -468,7 +464,6 @@ CLEAN :
 	-@erase "$(INTDIR)\apr_crypto.obj"
 	-@erase "$(INTDIR)\apr_date.obj"
 	-@erase "$(INTDIR)\apr_dbd.obj"
-	-@erase "$(INTDIR)\apr_dbd_freetds.obj"
 	-@erase "$(INTDIR)\apr_dbd_mysql.obj"
 	-@erase "$(INTDIR)\apr_dbd_odbc.obj"
 	-@erase "$(INTDIR)\apr_dbd_oracle.obj"
@@ -585,7 +580,6 @@ LIB32_OBJS= \
 	"$(INTDIR)\getuuid.obj" \
 	"$(INTDIR)\uuid.obj" \
 	"$(INTDIR)\apr_dbd.obj" \
-	"$(INTDIR)\apr_dbd_freetds.obj" \
 	"$(INTDIR)\apr_dbd_mysql.obj" \
 	"$(INTDIR)\apr_dbd_odbc.obj" \
 	"$(INTDIR)\apr_dbd_oracle.obj" \
@@ -668,7 +662,6 @@ CLEAN :
 	-@erase "$(INTDIR)\apr_crypto.obj"
 	-@erase "$(INTDIR)\apr_date.obj"
 	-@erase "$(INTDIR)\apr_dbd.obj"
-	-@erase "$(INTDIR)\apr_dbd_freetds.obj"
 	-@erase "$(INTDIR)\apr_dbd_mysql.obj"
 	-@erase "$(INTDIR)\apr_dbd_odbc.obj"
 	-@erase "$(INTDIR)\apr_dbd_oracle.obj"
@@ -785,7 +778,6 @@ LIB32_OBJS= \
 	"$(INTDIR)\getuuid.obj" \
 	"$(INTDIR)\uuid.obj" \
 	"$(INTDIR)\apr_dbd.obj" \
-	"$(INTDIR)\apr_dbd_freetds.obj" \
 	"$(INTDIR)\apr_dbd_mysql.obj" \
 	"$(INTDIR)\apr_dbd_odbc.obj" \
 	"$(INTDIR)\apr_dbd_oracle.obj" \
@@ -976,12 +968,6 @@ SOURCE=.\crypto\uuid.c
 SOURCE=.\dbd\apr_dbd.c
 
 "$(INTDIR)\apr_dbd.obj" : $(SOURCE) "$(INTDIR)" ".\include\private\apu_config.h" ".\include\apu.h"
-	$(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-SOURCE=.\dbd\apr_dbd_freetds.c
-
-"$(INTDIR)\apr_dbd_freetds.obj" : $(SOURCE) "$(INTDIR)" ".\include\apu.h" ".\include\private\apu_config.h"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 

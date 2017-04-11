@@ -976,7 +976,6 @@ SOURCE=.\dbd\apr_dbd.c
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
-SOURCE=.\dbd\apr_dbd_freetds.c
 SOURCE=.\dbd\apr_dbd_mysql.c
 SOURCE=.\dbd\apr_dbd_odbc.c
 SOURCE=.\dbd\apr_dbd_oracle.c
