@@ -68,8 +68,8 @@
  * The symbol APU_IS_DEV_VERSION is only defined for internal,
  * "development" copies of APU.  It is undefined for released versions
  * of APU.
+ * #define APU_IS_DEV_VERSION
  */
-#define APU_IS_DEV_VERSION
 
 
 #if defined(APU_IS_DEV_VERSION) || defined(DOXYGEN)
