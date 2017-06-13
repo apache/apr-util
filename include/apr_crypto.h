@@ -194,7 +194,7 @@ APU_DECLARE(apr_status_t) apr_crypto_clear(apr_pool_t *pool, void *buffer,
  * @param buffer - buffer to zero out
  * @param size - size of the buffer to zero out
  */
-APR_DECLARE(apr_status_t) apr_crypto_memzero(void *buffer, apr_size_t size);
+APU_DECLARE(apr_status_t) apr_crypto_memzero(void *buffer, apr_size_t size);
 
 /**
  * @brief Timing attacks safe buffers comparison, where the executing time does
@@ -205,7 +205,7 @@ APR_DECLARE(apr_status_t) apr_crypto_memzero(void *buffer, apr_size_t size);
  * @param size - size of the buffers to compare
  * @return 1 if the buffers are equals, 0 otherwise.
  */
-APR_DECLARE(int) apr_crypto_equals(const void *buf1, const void *buf2,
+APU_DECLARE(int) apr_crypto_equals(const void *buf1, const void *buf2,
                                    apr_size_t size);
 
 /**
@@ -309,7 +309,7 @@ APU_DECLARE(apr_status_t) apr_crypto_get_block_key_modes(apr_hash_t **modes,
  *         not known. APR_EPADDING if padding was requested but is not supported.
  *         APR_ENOTIMPL if not implemented.
  */
-APR_DECLARE(apr_status_t) apr_crypto_key(apr_crypto_key_t **key,
+APU_DECLARE(apr_status_t) apr_crypto_key(apr_crypto_key_t **key,
         const apr_crypto_key_rec_t *rec, const apr_crypto_t *f, apr_pool_t *p);
 
 /**
