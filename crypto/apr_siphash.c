@@ -95,7 +95,7 @@ do { \
     r = v0 ^ v1 ^ v2 ^ v3; \
 } while (0)
 
-APR_DECLARE(apr_uint64_t) apr_siphash(const void *src, apr_size_t len,
+APU_DECLARE(apr_uint64_t) apr_siphash(const void *src, apr_size_t len,
                               const unsigned char key[APR_SIPHASH_KSIZE],
                                       unsigned int c, unsigned int d)
 {
@@ -118,7 +118,7 @@ APR_DECLARE(apr_uint64_t) apr_siphash(const void *src, apr_size_t len,
     return h;
 }
 
-APR_DECLARE(void) apr_siphash_auth(unsigned char out[APR_SIPHASH_DSIZE],
+APU_DECLARE(void) apr_siphash_auth(unsigned char out[APR_SIPHASH_DSIZE],
                                    const void *src, apr_size_t len,
                              const unsigned char key[APR_SIPHASH_KSIZE],
                                    unsigned int c, unsigned int d)
@@ -128,7 +128,7 @@ APR_DECLARE(void) apr_siphash_auth(unsigned char out[APR_SIPHASH_DSIZE],
     U64TO8_LE(out, h);
 }
 
-APR_DECLARE(apr_uint64_t) apr_siphash24(const void *src, apr_size_t len,
+APU_DECLARE(apr_uint64_t) apr_siphash24(const void *src, apr_size_t len,
                                const unsigned char key[APR_SIPHASH_KSIZE])
 {
     apr_uint64_t h;
@@ -149,7 +149,7 @@ APR_DECLARE(apr_uint64_t) apr_siphash24(const void *src, apr_size_t len,
     return h;
 }
 
-APR_DECLARE(void) apr_siphash24_auth(unsigned char out[APR_SIPHASH_DSIZE],
+APU_DECLARE(void) apr_siphash24_auth(unsigned char out[APR_SIPHASH_DSIZE],
                                      const void *src, apr_size_t len,
                                const unsigned char key[APR_SIPHASH_KSIZE])
 {
@@ -158,7 +158,7 @@ APR_DECLARE(void) apr_siphash24_auth(unsigned char out[APR_SIPHASH_DSIZE],
     U64TO8_LE(out, h);
 }
 
-APR_DECLARE(apr_uint64_t) apr_siphash48(const void *src, apr_size_t len,
+APU_DECLARE(apr_uint64_t) apr_siphash48(const void *src, apr_size_t len,
                                const unsigned char key[APR_SIPHASH_KSIZE])
 {
     apr_uint64_t h;
@@ -185,7 +185,7 @@ APR_DECLARE(apr_uint64_t) apr_siphash48(const void *src, apr_size_t len,
     return h;
 }
 
-APR_DECLARE(void) apr_siphash48_auth(unsigned char out[APR_SIPHASH_DSIZE],
+APU_DECLARE(void) apr_siphash48_auth(unsigned char out[APR_SIPHASH_DSIZE],
                                      const void *src, apr_size_t len,
                                const unsigned char key[APR_SIPHASH_KSIZE])
 {

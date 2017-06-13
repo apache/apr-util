@@ -66,7 +66,7 @@ extern "C" {
  * @param d   The number of finalization rounds
  * @return The hash value as a 64bit unsigned integer
  */
-APR_DECLARE(apr_uint64_t) apr_siphash(const void *src, apr_size_t len,
+APU_DECLARE(apr_uint64_t) apr_siphash(const void *src, apr_size_t len,
                               const unsigned char key[APR_SIPHASH_KSIZE],
                                       unsigned int c, unsigned int d);
 
@@ -83,7 +83,7 @@ APR_DECLARE(apr_uint64_t) apr_siphash(const void *src, apr_size_t len,
  * @param d   The number of finalization rounds
  * @return The hash value as a 64bit unsigned integer
  */
-APR_DECLARE(void) apr_siphash_auth(unsigned char out[APR_SIPHASH_DSIZE],
+APU_DECLARE(void) apr_siphash_auth(unsigned char out[APR_SIPHASH_DSIZE],
                                    const void *src, apr_size_t len,
                              const unsigned char key[APR_SIPHASH_KSIZE],
                                    unsigned int c, unsigned int d);
@@ -96,7 +96,7 @@ APR_DECLARE(void) apr_siphash_auth(unsigned char out[APR_SIPHASH_DSIZE],
  * @param key The secret key
  * @return The hash value as a 64bit unsigned integer
  */
-APR_DECLARE(apr_uint64_t) apr_siphash24(const void *src, apr_size_t len,
+APU_DECLARE(apr_uint64_t) apr_siphash24(const void *src, apr_size_t len,
                                const unsigned char key[APR_SIPHASH_KSIZE]);
 
 /**
@@ -110,7 +110,7 @@ APR_DECLARE(apr_uint64_t) apr_siphash24(const void *src, apr_size_t len,
  * @param key The secret key
  * @return The hash value as a 64bit unsigned integer
  */
-APR_DECLARE(void) apr_siphash24_auth(unsigned char out[APR_SIPHASH_DSIZE],
+APU_DECLARE(void) apr_siphash24_auth(unsigned char out[APR_SIPHASH_DSIZE],
                                      const void *src, apr_size_t len,
                                const unsigned char key[APR_SIPHASH_KSIZE]);
 
@@ -122,7 +122,7 @@ APR_DECLARE(void) apr_siphash24_auth(unsigned char out[APR_SIPHASH_DSIZE],
  * @param key The secret key
  * @return The hash value as a 64bit unsigned integer
  */
-APR_DECLARE(apr_uint64_t) apr_siphash48(const void *src, apr_size_t len,
+APU_DECLARE(apr_uint64_t) apr_siphash48(const void *src, apr_size_t len,
                                const unsigned char key[APR_SIPHASH_KSIZE]);
 
 /**
@@ -136,7 +136,7 @@ APR_DECLARE(apr_uint64_t) apr_siphash48(const void *src, apr_size_t len,
  * @param key The secret key
  * @return The hash value as a 64bit unsigned integer
  */
-APR_DECLARE(void) apr_siphash48_auth(unsigned char out[APR_SIPHASH_DSIZE],
+APU_DECLARE(void) apr_siphash48_auth(unsigned char out[APR_SIPHASH_DSIZE],
                                      const void *src, apr_size_t len,
                                const unsigned char key[APR_SIPHASH_KSIZE]);
 
