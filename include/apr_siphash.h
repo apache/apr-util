@@ -30,6 +30,7 @@
 #define APR_SIPHASH_H
 
 #include "apr.h"
+#include "apu.h"
 
 #ifdef __cplusplus
 extern "C" {
