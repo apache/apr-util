@@ -4,6 +4,10 @@ Changes with APR-util 1.6.1
 
 Changes with APR-util 1.6.0
 
+  *) The expat dependency of apr-util is no longer built with apr-util.
+     Install expat (including development headers and libraries) first
+     before building apr-util. [https://libexpat.github.io/]
+
   *) Mark apr_dbd_freetds as unsupported, and remove it from all builds
      [Nick Kew]
 
