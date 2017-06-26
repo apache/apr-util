@@ -34,7 +34,7 @@ Apache Portable Runtime Utility Library README
      String filename-style pattern matching
      URI Parsing
      Charset translation (iconv based)
-     XML parsing (expat or libxml2 based)
+     XML parsing (expat)
 
    For a more complete list, please refer to the following URLs:
 
