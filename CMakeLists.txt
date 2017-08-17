@@ -218,6 +218,7 @@ SET(APR_TEST_SOURCES
 )
 
 SET(EXPAT_SOURCES
+  xml/expat/lib/loadlibrary.c
   xml/expat/lib/xmlrole.c
   xml/expat/lib/xmltok.c
   xml/expat/lib/xmlparse.c
