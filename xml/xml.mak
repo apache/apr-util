@@ -41,6 +41,7 @@ ALL : "$(OUTDIR)\xml.lib"
 CLEAN :
 	-@erase "$(INTDIR)\xml.idb"
 	-@erase "$(INTDIR)\xml.pdb"
+	-@erase "$(INTDIR)\loadlibrary.obj"
 	-@erase "$(INTDIR)\xmlparse.obj"
 	-@erase "$(INTDIR)\xmlrole.obj"
 	-@erase "$(INTDIR)\xmltok.obj"
@@ -90,6 +91,7 @@ BSC32_SBRS= \
 LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:"$(OUTDIR)\xml.lib" 
 LIB32_OBJS= \
+	"$(INTDIR)\loadlibrary.obj" \
 	"$(INTDIR)\xmlparse.obj" \
 	"$(INTDIR)\xmlrole.obj" \
 	"$(INTDIR)\xmltok.obj"
@@ -113,6 +115,7 @@ ALL : "$(OUTDIR)\xml.lib"
 CLEAN :
 	-@erase "$(INTDIR)\xml.idb"
 	-@erase "$(INTDIR)\xml.pdb"
+	-@erase "$(INTDIR)\loadlibrary.obj"
 	-@erase "$(INTDIR)\xmlparse.obj"
 	-@erase "$(INTDIR)\xmlrole.obj"
 	-@erase "$(INTDIR)\xmltok.obj"
@@ -162,6 +165,7 @@ BSC32_SBRS= \
 LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:"$(OUTDIR)\xml.lib" 
 LIB32_OBJS= \
+	"$(INTDIR)\loadlibrary.obj" \
 	"$(INTDIR)\xmlparse.obj" \
 	"$(INTDIR)\xmlrole.obj" \
 	"$(INTDIR)\xmltok.obj"
@@ -185,6 +189,7 @@ ALL : "$(OUTDIR)\xml.lib"
 CLEAN :
 	-@erase "$(INTDIR)\xml.idb"
 	-@erase "$(INTDIR)\xml.pdb"
+	-@erase "$(INTDIR)\loadlibrary.obj"
 	-@erase "$(INTDIR)\xmlparse.obj"
 	-@erase "$(INTDIR)\xmlrole.obj"
 	-@erase "$(INTDIR)\xmltok.obj"
@@ -234,6 +239,7 @@ BSC32_SBRS= \
 LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:"$(OUTDIR)\xml.lib" 
 LIB32_OBJS= \
+	"$(INTDIR)\loadlibrary.obj" \
 	"$(INTDIR)\xmlparse.obj" \
 	"$(INTDIR)\xmlrole.obj" \
 	"$(INTDIR)\xmltok.obj"
@@ -257,6 +263,7 @@ ALL : "$(OUTDIR)\xml.lib"
 CLEAN :
 	-@erase "$(INTDIR)\xml.idb"
 	-@erase "$(INTDIR)\xml.pdb"
+	-@erase "$(INTDIR)\loadlibrary.obj"
 	-@erase "$(INTDIR)\xmlparse.obj"
 	-@erase "$(INTDIR)\xmlrole.obj"
 	-@erase "$(INTDIR)\xmltok.obj"
@@ -306,6 +313,7 @@ BSC32_SBRS= \
 LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:"$(OUTDIR)\xml.lib" 
 LIB32_OBJS= \
+	"$(INTDIR)\loadlibrary.obj" \
 	"$(INTDIR)\xmlparse.obj" \
 	"$(INTDIR)\xmlrole.obj" \
 	"$(INTDIR)\xmltok.obj"
@@ -328,6 +336,12 @@ LIB32_OBJS= \
 
 
 !IF "$(CFG)" == "xml - Win32 Release" || "$(CFG)" == "xml - Win32 Debug" || "$(CFG)" == "xml - x64 Release" || "$(CFG)" == "xml - x64 Debug"
+SOURCE=.\expat\lib\loadlibrary.c
+
+"$(INTDIR)\loadlibrary.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
 SOURCE=.\expat\lib\xmlparse.c
 
 "$(INTDIR)\xmlparse.obj" : $(SOURCE) "$(INTDIR)"
