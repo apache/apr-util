@@ -1,6 +1,8 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.6.1
 
+  *) sdbm: better database/page validation to fail cleanly when corrupted.
+     [Yann Ylavic]
 
 Changes with APR-util 1.6.0
 
