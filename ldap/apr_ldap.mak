@@ -107,7 +107,7 @@ BSC32_FLAGS=/nologo /o"$(OUTDIR)\apr_ldap.bsc"
 BSC32_SBRS= \
 	
 LINK32=link.exe
-LINK32_FLAGS=kernel32.lib advapi32.lib ws2_32.lib mswsock.lib wldap32.lib ole32.lib /nologo /base:"0x6EEB0000" /subsystem:windows /dll /incremental:no /pdb:"$(OUTDIR)\apr_ldap-1.pdb" /debug /out:"$(OUTDIR)\apr_ldap-1.dll" /implib:"$(OUTDIR)\apr_ldap-1.lib" /MACHINE:X86 /opt:ref 
+LINK32_FLAGS=kernel32.lib advapi32.lib ws2_32.lib mswsock.lib wldap32.lib ole32.lib /nologo /base:"0x6EEB0000" /subsystem:windows /dll /incremental:no /pdb:"$(OUTDIR)\apr_ldap-1.pdb" /debug /out:"$(OUTDIR)\apr_ldap-1.dll" /implib:"$(OUTDIR)\apr_ldap-1.lib" /opt:ref 
 LINK32_OBJS= \
 	"$(INTDIR)\apr_ldap_init.obj" \
 	"$(INTDIR)\apr_ldap_option.obj" \
@@ -214,7 +214,7 @@ BSC32_FLAGS=/nologo /o"$(OUTDIR)\apr_ldap.bsc"
 BSC32_SBRS= \
 	
 LINK32=link.exe
-LINK32_FLAGS=kernel32.lib advapi32.lib ws2_32.lib mswsock.lib wldap32.lib ole32.lib /nologo /base:"0x6EEB0000" /subsystem:windows /dll /incremental:no /pdb:"$(OUTDIR)\apr_ldap-1.pdb" /debug /out:"$(OUTDIR)\apr_ldap-1.dll" /implib:"$(OUTDIR)\apr_ldap-1.lib" /MACHINE:X86 
+LINK32_FLAGS=kernel32.lib advapi32.lib ws2_32.lib mswsock.lib wldap32.lib ole32.lib /nologo /base:"0x6EEB0000" /subsystem:windows /dll /incremental:no /pdb:"$(OUTDIR)\apr_ldap-1.pdb" /debug /out:"$(OUTDIR)\apr_ldap-1.dll" /implib:"$(OUTDIR)\apr_ldap-1.lib" 
 LINK32_OBJS= \
 	"$(INTDIR)\apr_ldap_init.obj" \
 	"$(INTDIR)\apr_ldap_option.obj" \

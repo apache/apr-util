@@ -105,7 +105,7 @@ BSC32_FLAGS=/nologo /o"$(OUTDIR)\apr_crypto_nss.bsc"
 BSC32_SBRS= \
 	
 LINK32=link.exe
-LINK32_FLAGS=kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib nss3.lib libnspr4.lib /nologo /base:"0x6F110000" /subsystem:windows /dll /incremental:no /pdb:"$(OUTDIR)\apr_crypto_nss-1.pdb" /debug /out:"$(OUTDIR)\apr_crypto_nss-1.dll" /implib:"$(OUTDIR)\apr_crypto_nss-1.lib" /libpath:"..\..\nss\lib" /MACHINE:X86 /opt:ref 
+LINK32_FLAGS=kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib nss3.lib libnspr4.lib /nologo /base:"0x6F110000" /subsystem:windows /dll /incremental:no /pdb:"$(OUTDIR)\apr_crypto_nss-1.pdb" /debug /out:"$(OUTDIR)\apr_crypto_nss-1.dll" /implib:"$(OUTDIR)\apr_crypto_nss-1.lib" /libpath:"..\..\nss\lib" /opt:ref 
 LINK32_OBJS= \
 	"$(INTDIR)\apr_crypto_nss.obj" \
 	"$(INTDIR)\apr_crypto_nss-1.res" \
@@ -208,7 +208,7 @@ BSC32_FLAGS=/nologo /o"$(OUTDIR)\apr_crypto_nss.bsc"
 BSC32_SBRS= \
 	
 LINK32=link.exe
-LINK32_FLAGS=kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib nss3.lib libnspr4.lib /nologo /base:"0x6F110000" /subsystem:windows /dll /incremental:no /pdb:"$(OUTDIR)\apr_crypto_nss-1.pdb" /debug /out:"$(OUTDIR)\apr_crypto_nss-1.dll" /implib:"$(OUTDIR)\apr_crypto_nss-1.lib" /libpath:"..\..\nss\lib" /MACHINE:X86 
+LINK32_FLAGS=kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib nss3.lib libnspr4.lib /nologo /base:"0x6F110000" /subsystem:windows /dll /incremental:no /pdb:"$(OUTDIR)\apr_crypto_nss-1.pdb" /debug /out:"$(OUTDIR)\apr_crypto_nss-1.dll" /implib:"$(OUTDIR)\apr_crypto_nss-1.lib" /libpath:"..\..\nss\lib" 
 LINK32_OBJS= \
 	"$(INTDIR)\apr_crypto_nss.obj" \
 	"$(INTDIR)\apr_crypto_nss-1.res" \
