@@ -105,7 +105,7 @@ BSC32_FLAGS=/nologo /o"$(OUTDIR)\apr_dbd_mysql.bsc"
 BSC32_SBRS= \
 	
 LINK32=link.exe
-LINK32_FLAGS=kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib libmysql.lib /nologo /base:"0x6EF50000" /subsystem:windows /dll /incremental:no /libpath:"..\..\mysql\lib" /pdb:"$(OUTDIR)\apr_dbd_mysql-1.pdb" /debug /out:"$(OUTDIR)\apr_dbd_mysql-1.dll" /implib:"$(OUTDIR)\apr_dbd_mysql-1.lib" /MACHINE:X86 /opt:ref 
+LINK32_FLAGS=kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib libmysql.lib /nologo /base:"0x6EF50000" /subsystem:windows /dll /incremental:no /libpath:"..\..\mysql\lib" /pdb:"$(OUTDIR)\apr_dbd_mysql-1.pdb" /debug /out:"$(OUTDIR)\apr_dbd_mysql-1.dll" /implib:"$(OUTDIR)\apr_dbd_mysql-1.lib" /opt:ref 
 LINK32_OBJS= \
 	"$(INTDIR)\apr_dbd_mysql.obj" \
 	"$(INTDIR)\apr_dbd_mysql-1.res" \
@@ -208,7 +208,7 @@ BSC32_FLAGS=/nologo /o"$(OUTDIR)\apr_dbd_mysql.bsc"
 BSC32_SBRS= \
 	
 LINK32=link.exe
-LINK32_FLAGS=kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib libmysqld.lib /nologo /base:"0x6EF50000" /subsystem:windows /dll /incremental:no /libpath:"..\..\mysql\lib" /pdb:"$(OUTDIR)\apr_dbd_mysql-1.pdb" /debug /out:"$(OUTDIR)\apr_dbd_mysql-1.dll" /implib:"$(OUTDIR)\apr_dbd_mysql-1.lib" /MACHINE:X86 
+LINK32_FLAGS=kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib libmysqld.lib /nologo /base:"0x6EF50000" /subsystem:windows /dll /incremental:no /libpath:"..\..\mysql\lib" /pdb:"$(OUTDIR)\apr_dbd_mysql-1.pdb" /debug /out:"$(OUTDIR)\apr_dbd_mysql-1.dll" /implib:"$(OUTDIR)\apr_dbd_mysql-1.lib" 
 LINK32_OBJS= \
 	"$(INTDIR)\apr_dbd_mysql.obj" \
 	"$(INTDIR)\apr_dbd_mysql-1.res" \
