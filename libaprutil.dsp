@@ -45,7 +45,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FD /c
-# ADD CPP /nologo /MD /W3 /Zi /O2 /Oy- /I "./include" /I "../apr/include" /I "./include/private" /I "./xml/expat/lib" /I "../apr-iconv/include" /I "./dbm/sdbm" /D "NDEBUG" /D "APR_DECLARE_EXPORT" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" /D "XML_STATIC" /D "WIN32" /D "_WINDOWS" /Fo"$(INTDIR)\" /Fd"$(INTDIR)\libaprutil_src" /FD /c
+# ADD CPP /nologo /MD /W3 /Zi /O2 /Oy- /I "./include" /I "../apr/include" /I "./include/private" /I "./xml/expat/lib" /I "../apr-iconv/include" /I "./dbm/sdbm" /D "NDEBUG" /D "APR_DECLARE_EXPORT" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" $(XML_OPTIONS) /D "WIN32" /D "_WINDOWS" /Fo"$(INTDIR)\" /Fd"$(INTDIR)\libaprutil_src" /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -55,7 +55,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib /nologo /base:"0x6EE60000" /subsystem:windows /dll /incremental:no /debug /opt:ref
-# ADD LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib /nologo /base:"0x6EE60000" /subsystem:windows /dll /incremental:no /debug /out:"Release\libaprutil-1.dll" /pdb:"Release\libaprutil-1.pdb" /implib:"Release\libaprutil-1.lib" /MACHINE:X86 /opt:ref
+# ADD LINK32 $(XML_PARSER).lib kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib /nologo /base:"0x6EE60000" /subsystem:windows /dll /incremental:no /debug /out:"Release\libaprutil-1.dll" /pdb:"Release\libaprutil-1.pdb" /implib:"Release\libaprutil-1.lib" /MACHINE:X86 /opt:ref
 # Begin Special Build Tool
 TargetPath=Release\libaprutil-1.dll
 SOURCE="$(InputPath)"
@@ -77,7 +77,7 @@ PostBuild_Cmds=if exist $(TargetPath).manifest mt.exe -manifest $(TargetPath).ma
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MDd /W3 /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FD /EHsc /c
-# ADD CPP /nologo /MDd /W3 /Zi /Od /I "./include" /I "../apr/include" /I "./include/private" /I "./xml/expat/lib" /I "../apr-iconv/include" /I "./dbm/sdbm" /D "_DEBUG" /D "APR_DECLARE_EXPORT" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" /D "XML_STATIC" /D "WIN32" /D "_WINDOWS" /Fo"$(INTDIR)\" /Fd"$(INTDIR)\libaprutil_src" /FD /EHsc /c
+# ADD CPP /nologo /MDd /W3 /Zi /Od /I "./include" /I "../apr/include" /I "./include/private" /I "./xml/expat/lib" /I "../apr-iconv/include" /I "./dbm/sdbm" /D "_DEBUG" /D "APR_DECLARE_EXPORT" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" $(XML_OPTIONS) /D "WIN32" /D "_WINDOWS" /Fo"$(INTDIR)\" /Fd"$(INTDIR)\libaprutil_src" /FD /EHsc /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
@@ -87,7 +87,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib /nologo /base:"0x6EE60000" /subsystem:windows /dll /incremental:no /debug
-# ADD LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib /nologo /base:"0x6EE60000" /subsystem:windows /dll /incremental:no /debug /out:"Debug\libaprutil-1.dll" /pdb:"Debug\libaprutil-1.pdb" /implib:"Debug\libaprutil-1.lib" /MACHINE:X86
+# ADD LINK32 $(XML_PARSER).lib kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib /nologo /base:"0x6EE60000" /subsystem:windows /dll /incremental:no /debug /out:"Debug\libaprutil-1.dll" /pdb:"Debug\libaprutil-1.pdb" /implib:"Debug\libaprutil-1.lib" /MACHINE:X86
 # Begin Special Build Tool
 TargetPath=Debug\libaprutil-1.dll
 SOURCE="$(InputPath)"
@@ -109,7 +109,7 @@ PostBuild_Cmds=if exist $(TargetPath).manifest mt.exe -manifest $(TargetPath).ma
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FD /c
-# ADD CPP /nologo /MD /W3 /Zi /O2 /Oy- /I "./include" /I "../apr/include" /I "./include/private" /I "./xml/expat/lib" /I "../apr-iconv/include" /I "./dbm/sdbm" /D "NDEBUG" /D "APR_DECLARE_EXPORT" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" /D "XML_STATIC" /D "WIN32" /D "_WINDOWS" /Fo"$(INTDIR)\" /Fd"$(INTDIR)\libaprutil_src" /FD /c
+# ADD CPP /nologo /MD /W3 /Zi /O2 /Oy- /I "./include" /I "../apr/include" /I "./include/private" /I "./xml/expat/lib" /I "../apr-iconv/include" /I "./dbm/sdbm" /D "NDEBUG" /D "APR_DECLARE_EXPORT" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" $(XML_OPTIONS) /D "WIN32" /D "_WINDOWS" /Fo"$(INTDIR)\" /Fd"$(INTDIR)\libaprutil_src" /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -119,7 +119,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib /nologo /base:"0x6EE60000" /subsystem:windows /dll /incremental:no /debug /opt:ref
-# ADD LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib /nologo /base:"0x6EE60000" /subsystem:windows /dll /incremental:no /debug /out:"x64\Release\libaprutil-1.dll" /pdb:"x64\Release\libaprutil-1.pdb" /implib:"x64\Release\libaprutil-1.lib" /MACHINE:X64 /opt:ref
+# ADD LINK32 $(XML_PARSER).lib kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib /nologo /base:"0x6EE60000" /subsystem:windows /dll /incremental:no /debug /out:"x64\Release\libaprutil-1.dll" /pdb:"x64\Release\libaprutil-1.pdb" /implib:"x64\Release\libaprutil-1.lib" /MACHINE:X64 /opt:ref
 # Begin Special Build Tool
 TargetPath=x64\Release\libaprutil-1.dll
 SOURCE="$(InputPath)"
@@ -141,7 +141,7 @@ PostBuild_Cmds=if exist $(TargetPath).manifest mt.exe -manifest $(TargetPath).ma
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MDd /W3 /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FD /EHsc /c
-# ADD CPP /nologo /MDd /W3 /Zi /Od /I "./include" /I "../apr/include" /I "./include/private" /I "./xml/expat/lib" /I "../apr-iconv/include" /I "./dbm/sdbm" /D "_DEBUG" /D "APR_DECLARE_EXPORT" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" /D "XML_STATIC" /D "WIN32" /D "_WINDOWS" /Fo"$(INTDIR)\" /Fd"$(INTDIR)\libaprutil_src" /FD /EHsc /c
+# ADD CPP /nologo /MDd /W3 /Zi /Od /I "./include" /I "../apr/include" /I "./include/private" /I "./xml/expat/lib" /I "../apr-iconv/include" /I "./dbm/sdbm" /D "_DEBUG" /D "APR_DECLARE_EXPORT" /D "APU_DECLARE_EXPORT" /D "APU_USE_SDBM" $(XML_OPTIONS) /D "WIN32" /D "_WINDOWS" /Fo"$(INTDIR)\" /Fd"$(INTDIR)\libaprutil_src" /FD /EHsc /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
@@ -151,7 +151,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib /nologo /base:"0x6EE60000" /subsystem:windows /dll /incremental:no /debug
-# ADD LINK32 kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib /nologo /base:"0x6EE60000" /subsystem:windows /dll /incremental:no /debug /out:"x64\Debug\libaprutil-1.dll" /pdb:"x64\Debug\libaprutil-1.pdb" /implib:"x64\Debug\libaprutil-1.lib" /MACHINE:X64
+# ADD LINK32 $(XML_PARSER).lib kernel32.lib advapi32.lib ws2_32.lib mswsock.lib ole32.lib /nologo /base:"0x6EE60000" /subsystem:windows /dll /incremental:no /debug /out:"x64\Debug\libaprutil-1.dll" /pdb:"x64\Debug\libaprutil-1.pdb" /implib:"x64\Debug\libaprutil-1.lib" /MACHINE:X64
 # Begin Special Build Tool
 TargetPath=x64\Debug\libaprutil-1.dll
 SOURCE="$(InputPath)"

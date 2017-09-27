@@ -47,12 +47,12 @@ ALL : "$(OUTDIR)\aprutil-1.lib"
 
 !ELSE 
 
-ALL : "xml - Win32 Release" "apriconv - Win32 Release" "$(OUTDIR)\aprutil-1.lib"
+ALL : "apriconv - Win32 Release" "$(OUTDIR)\aprutil-1.lib"
 
 !ENDIF 
 
 !IF "$(RECURSE)" == "1" 
-CLEAN :"apriconv - Win32 ReleaseCLEAN" "xml - Win32 ReleaseCLEAN" 
+CLEAN :"apriconv - Win32 ReleaseCLEAN" 
 !ELSE 
 CLEAN :
 !ENDIF 
@@ -218,8 +218,7 @@ LIB32_OBJS= \
 	"$(INTDIR)\apr_uri.obj" \
 	"$(INTDIR)\xlate.obj" \
 	"$(INTDIR)\apr_xml.obj" \
-	"..\apr-iconv\LibR\apriconv-1.lib" \
-	".\xml\LibR\xml.lib"
+	"..\apr-iconv\LibR\apriconv-1.lib"
 
 "$(OUTDIR)\aprutil-1.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -240,12 +239,12 @@ ALL : ".\include\private\apu_select_dbm.h" ".\include\private\apu_config.h" ".\i
 
 !ELSE 
 
-ALL : "xml - Win32 Debug" "apriconv - Win32 Debug" ".\include\private\apu_select_dbm.h" ".\include\private\apu_config.h" ".\include\apu_want.h" ".\include\apu.h" ".\include\apr_ldap.h" "$(OUTDIR)\aprutil-1.lib"
+ALL : "apriconv - Win32 Debug" ".\include\private\apu_select_dbm.h" ".\include\private\apu_config.h" ".\include\apu_want.h" ".\include\apu.h" ".\include\apr_ldap.h" "$(OUTDIR)\aprutil-1.lib"
 
 !ENDIF 
 
 !IF "$(RECURSE)" == "1" 
-CLEAN :"apriconv - Win32 DebugCLEAN" "xml - Win32 DebugCLEAN" 
+CLEAN :"apriconv - Win32 DebugCLEAN" 
 !ELSE 
 CLEAN :
 !ENDIF 
@@ -416,8 +415,7 @@ LIB32_OBJS= \
 	"$(INTDIR)\apr_uri.obj" \
 	"$(INTDIR)\xlate.obj" \
 	"$(INTDIR)\apr_xml.obj" \
-	"..\apr-iconv\LibD\apriconv-1.lib" \
-	".\xml\LibD\xml.lib"
+	"..\apr-iconv\LibD\apriconv-1.lib"
 
 "$(OUTDIR)\aprutil-1.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -438,12 +436,12 @@ ALL : ".\include\private\apu_select_dbm.h" ".\include\private\apu_config.h" ".\i
 
 !ELSE 
 
-ALL : "xml - x64 Release" "apriconv - x64 Release" ".\include\private\apu_select_dbm.h" ".\include\private\apu_config.h" ".\include\apu_want.h" ".\include\apu.h" ".\include\apr_ldap.h" "$(OUTDIR)\aprutil-1.lib"
+ALL : "apriconv - x64 Release" ".\include\private\apu_select_dbm.h" ".\include\private\apu_config.h" ".\include\apu_want.h" ".\include\apu.h" ".\include\apr_ldap.h" "$(OUTDIR)\aprutil-1.lib"
 
 !ENDIF 
 
 !IF "$(RECURSE)" == "1" 
-CLEAN :"apriconv - x64 ReleaseCLEAN" "xml - x64 ReleaseCLEAN" 
+CLEAN :"apriconv - x64 ReleaseCLEAN" 
 !ELSE 
 CLEAN :
 !ENDIF 
@@ -614,8 +612,7 @@ LIB32_OBJS= \
 	"$(INTDIR)\apr_uri.obj" \
 	"$(INTDIR)\xlate.obj" \
 	"$(INTDIR)\apr_xml.obj" \
-	"..\apr-iconv\x64\LibR\apriconv-1.lib" \
-	".\xml\x64\LibR\xml.lib"
+	"..\apr-iconv\x64\LibR\apriconv-1.lib"
 
 "$(OUTDIR)\aprutil-1.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -636,12 +633,12 @@ ALL : ".\include\private\apu_select_dbm.h" ".\include\private\apu_config.h" ".\i
 
 !ELSE 
 
-ALL : "xml - x64 Debug" "apriconv - x64 Debug" ".\include\private\apu_select_dbm.h" ".\include\private\apu_config.h" ".\include\apu_want.h" ".\include\apu.h" ".\include\apr_ldap.h" "$(OUTDIR)\aprutil-1.lib"
+ALL : "apriconv - x64 Debug" ".\include\private\apu_select_dbm.h" ".\include\private\apu_config.h" ".\include\apu_want.h" ".\include\apu.h" ".\include\apr_ldap.h" "$(OUTDIR)\aprutil-1.lib"
 
 !ENDIF 
 
 !IF "$(RECURSE)" == "1" 
-CLEAN :"apriconv - x64 DebugCLEAN" "xml - x64 DebugCLEAN" 
+CLEAN :"apriconv - x64 DebugCLEAN" 
 !ELSE 
 CLEAN :
 !ENDIF 
@@ -812,8 +809,7 @@ LIB32_OBJS= \
 	"$(INTDIR)\apr_uri.obj" \
 	"$(INTDIR)\xlate.obj" \
 	"$(INTDIR)\apr_xml.obj" \
-	"..\apr-iconv\x64\LibD\apriconv-1.lib" \
-	".\xml\x64\LibD\xml.lib"
+	"..\apr-iconv\x64\LibD\apriconv-1.lib"
 
 "$(OUTDIR)\aprutil-1.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -1462,56 +1458,6 @@ InputPath=.\include\apu_want.hw
    cd ".\..\apr-iconv"
    $(MAKE) /$(MAKEFLAGS) /F ".\apriconv.mak" CFG="apriconv - x64 Debug" RECURSE=1 CLEAN 
    cd "..\apr-util"
-
-!ENDIF 
-
-!IF  "$(CFG)" == "aprutil - Win32 Release"
-
-"xml - Win32 Release" : 
-   cd ".\xml\expat\lib"
-   $(MAKE) /$(MAKEFLAGS) /F ".\xml.mak" CFG="xml - Win32 Release" 
-   cd "..\..\.."
-
-"xml - Win32 ReleaseCLEAN" : 
-   cd ".\xml\expat\lib"
-   $(MAKE) /$(MAKEFLAGS) /F ".\xml.mak" CFG="xml - Win32 Release" RECURSE=1 CLEAN 
-   cd "..\..\.."
-
-!ELSEIF  "$(CFG)" == "aprutil - Win32 Debug"
-
-"xml - Win32 Debug" : 
-   cd ".\xml\expat\lib"
-   $(MAKE) /$(MAKEFLAGS) /F ".\xml.mak" CFG="xml - Win32 Debug" 
-   cd "..\..\.."
-
-"xml - Win32 DebugCLEAN" : 
-   cd ".\xml\expat\lib"
-   $(MAKE) /$(MAKEFLAGS) /F ".\xml.mak" CFG="xml - Win32 Debug" RECURSE=1 CLEAN 
-   cd "..\..\.."
-
-!ELSEIF  "$(CFG)" == "aprutil - x64 Release"
-
-"xml - x64 Release" : 
-   cd ".\xml\expat\lib"
-   $(MAKE) /$(MAKEFLAGS) /F ".\xml.mak" CFG="xml - x64 Release" 
-   cd "..\..\.."
-
-"xml - x64 ReleaseCLEAN" : 
-   cd ".\xml\expat\lib"
-   $(MAKE) /$(MAKEFLAGS) /F ".\xml.mak" CFG="xml - x64 Release" RECURSE=1 CLEAN 
-   cd "..\..\.."
-
-!ELSEIF  "$(CFG)" == "aprutil - x64 Debug"
-
-"xml - x64 Debug" : 
-   cd ".\xml\expat\lib"
-   $(MAKE) /$(MAKEFLAGS) /F ".\xml.mak" CFG="xml - x64 Debug" 
-   cd "..\..\.."
-
-"xml - x64 DebugCLEAN" : 
-   cd ".\xml\expat\lib"
-   $(MAKE) /$(MAKEFLAGS) /F ".\xml.mak" CFG="xml - x64 Debug" RECURSE=1 CLEAN 
-   cd "..\..\.."
 
 !ENDIF 
 
