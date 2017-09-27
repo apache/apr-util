@@ -281,7 +281,6 @@
 	".\include\apr_xml.h"\
 	".\include\apu.h"\
 	".\include\private\apu_config.h"\
-	".\xml\expat\lib\expat.h"\
 	
 
 !IF  "$(CFG)" == "libaprutil - Win32 Release"
