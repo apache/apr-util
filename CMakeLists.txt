@@ -21,6 +21,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 FIND_PACKAGE(OpenSSL)
 
+FIND_PACKAGE(expat)
+
 OPTION(APU_HAVE_CRYPTO      "Crypto support"                            OFF)
 OPTION(APU_HAVE_ODBC        "Build ODBC DBD driver"                     ON)
 OPTION(APR_HAS_LDAP         "LDAP support"                              ON)
@@ -59,6 +61,18 @@ IF(APR_HAS_LDAP)
   SET(apr_has_ldap_10 1)
 ENDIF()
 
+IF(NOT EXPAT_FOUND)
+  MESSAGE(FATAL_ERROR "Expat is required, and it wasn't found!")
+ENDIF()
+
+SET(XMLLIB_INCLUDE_DIR   ${EXPAT_INCLUDE_DIRS})
+SET(XMLLIB_LIBRARIES     ${EXPAT_LIBRARIES})
+
+SET(LDAP_LIBRARIES)
+IF(APR_HAS_LDAP)
+  SET(LDAP_LIBRARIES wldap32)
+ENDIF()
+
 CONFIGURE_FILE(include/apu.hwc
               ${PROJECT_BINARY_DIR}/apu.h)
 CONFIGURE_FILE(include/apr_ldap.hwc
@@ -73,15 +87,6 @@ CONFIGURE_FILE(include/private/apu_select_dbm.hw
 CONFIGURE_FILE(include/apu_want.hw
                ${PROJECT_BINARY_DIR}/apu_want.h
                COPYONLY)
-
-# TBD:
-# SET(XMLLIB_INCLUDE_DIR   ${CMAKE_CURRENT_SOURCE_DIR}/xml/expat/lib)
-SET(XMLLIB_LIBRARIES     libexpat)
-
-SET(LDAP_LIBRARIES)
-IF(APR_HAS_LDAP)
-  SET(LDAP_LIBRARIES wldap32)
-ENDIF()
 
 # Generated .h files are stored in PROJECT_BINARY_DIR, not the
 # source tree.
@@ -217,22 +222,11 @@ SET(APR_TEST_SOURCES
   test/testxml.c
 )
 
-SET(EXPAT_SOURCES
-  xml/expat/lib/loadlibrary.c
-  xml/expat/lib/xmlrole.c
-  xml/expat/lib/xmltok.c
-  xml/expat/lib/xmlparse.c
-)
-
 SET(install_targets)
 SET(install_bin_pdb)
 SET(dbd_drivers)
 
 # Note: The WINNT definition on some targets is used only by libaprutil.rc.
-
-# static expat (not installed)
-ADD_LIBRARY(libexpat STATIC ${EXPAT_SOURCES})
-SET_TARGET_PROPERTIES(libexpat PROPERTIES COMPILE_DEFINITIONS "XML_STATIC;COMPILED_FROM_DSP")
 
 # libaprutil-1 is shared, aprutil-1 is static
 ADD_LIBRARY(libaprutil-1 SHARED ${APR_SOURCES} ${APR_PUBLIC_HEADERS_GENERATED} libaprutil.rc)
