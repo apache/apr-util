@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.6.1
 
+  *) apr_crypto: Fix compatibility with LibreSSL.  PR 61596.
+     [Bernard Spil <brnrd freebsd.org>, Yann Ylavic]
+
   *) sdbm: better database/page validation to fail cleanly when corrupted.
      [Yann Ylavic]
 
