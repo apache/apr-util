@@ -1,4 +1,8 @@
                                                      -*- coding: utf-8 -*-
+Changes with APR-util 1.6.2
+
+
+
 Changes with APR-util 1.6.1
 
   *) Win32: Add function exports from new apr_crypto API's missing in 1.6.0.
