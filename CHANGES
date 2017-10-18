@@ -1,6 +1,15 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.6.1
 
+  *) Win32: Add function exports from new apr_crypto API's missing in 1.6.0.
+
+  *) Win32: Introduce XML_PARSER build-time variable to select the expat
+     library name to be linked to libaprutil-1.dll. See Makefile.win
+
+  *) Win32: Removed lingering xml/xml.dsp project forked from the expat
+     Project in the 1.9x era. Use expat's maintained build schema instead,
+     prior to building apr-util.
+
   *) apr_crypto: Fix compatibility with LibreSSL.  PR 61596.
      [Bernard Spil <brnrd freebsd.org>, Yann Ylavic]
 
