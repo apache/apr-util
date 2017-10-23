@@ -2,7 +2,9 @@ APACHE PORTABLE RUNTIME APR-UTIL LIBRARY STATUS:     -*- coding: utf-8 -*-
 Last modified at [$Date$]
 
 Releases:
-    2.0.0     : None/EOL - merged into apr/trunk/
+    2.0.0     : None/EOL - merged into ../apr/trunk/
+    1.7.0     : in development on branches/1.7.x
+    1.6.2     : in maintenance
     1.6.1     : tagged October 18, 2017
     1.6.0     : released June 14, 2017
     1.5.4     : released September 22, 2014
