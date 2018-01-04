@@ -38,7 +38,7 @@
  */
 
 
-#define APU_COPYRIGHT "Copyright (c) 2000-2017 The Apache Software " \
+#define APU_COPYRIGHT "Copyright (c) 2000-2018 The Apache Software " \
                       "Foundation or its licensors, as applicable."
 
 /* The numeric compile-time version constants. These constants are the
