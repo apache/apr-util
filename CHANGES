@@ -1,7 +1,10 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.6.2
 
-
+  *) apr_dbm_gdbm: Fix handling of error codes. This makes gdbm 1.14 work.
+     apr_dbm_gdbm will now also return error codes starting with
+     APR_OS_START_USEERR, as apr_dbm_berkleydb does, instead of always
+     returning APR_EGENERAL. [Stefan Fritsch]
 
 Changes with APR-util 1.6.1
 
