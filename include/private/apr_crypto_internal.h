@@ -288,6 +288,46 @@ struct apr_crypto_driver_t {
 
 };
 
+#if APU_HAVE_OPENSSL
+const char *apr__crypto_openssl_version(void);
+apr_status_t apr__crypto_openssl_init(const char *params,
+                                      const apu_err_t **result,
+                                      apr_pool_t *pool);
+apr_status_t apr__crypto_openssl_term(void);
+#endif
+
+#if APU_HAVE_NSS
+const char *apr__crypto_nss_version(void);
+apr_status_t apr__crypto_nss_init(const char *params,
+                                  const apu_err_t **result,
+                                  apr_pool_t *pool);
+apr_status_t apr__crypto_nss_term(void);
+#endif
+
+#if APU_HAVE_COMMONCRYPTO
+const char *apr__crypto_commoncrypto_version(void);
+apr_status_t apr__crypto_commoncrypto_init(const char *params,
+                                           const apu_err_t **result,
+                                           apr_pool_t *pool);
+apr_status_t apr__crypto_commoncrypto_term(void);
+#endif
+
+#if APU_HAVE_MSCAPI
+const char *apr__crypto_mscapi_version(void);
+apr_status_t apr__crypto_mscapi_init(const char *params,
+                                     const apu_err_t **result,
+                                     apr_pool_t *pool);
+apr_status_t apr__crypto_mscapi_term(void);
+#endif
+
+#if APU_HAVE_MSCNG
+const char *apr__crypto_mscng_version(void);
+apr_status_t apr__crypto_mscng_init(const char *params,
+                                    const apu_err_t **result,
+                                    apr_pool_t *pool);
+apr_status_t apr__crypto_mscng_term(void);
+#endif
+
 #endif
 
 #ifdef __cplusplus
