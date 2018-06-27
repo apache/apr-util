@@ -1599,7 +1599,7 @@ static void test_crypto_fork_random(abts_case *tc, void *data)
     if (rv == APR_INCHILD) {
         apr_file_close(pread);
 #if !APR_VERSION_AT_LEAST(2,0,0)
-        rv = apr_crypto_prng_after_fork(&proc);
+        rv = apr_crypto_prng_after_fork(NULL, 1);
         if (rv == APR_SUCCESS)
 #endif
         {
