@@ -16,7 +16,6 @@
 
 #include "apr_lib.h"
 #include "apu.h"
-#include "apr_private.h"
 #include "apr_crypto.h"
 #include "apr_crypto_internal.h"
 #include "apr_strings.h"
