@@ -36,16 +36,8 @@
 
 #define LOG_PREFIX "apr_crypto_openssl: "
 
-#ifndef APR_USE_OPENSSL_PRE_1_1_API
-#if defined(LIBRESSL_VERSION_NUMBER)
-/* LibreSSL declares OPENSSL_VERSION_NUMBER == 2.0 but does not include most
- * changes from OpenSSL >= 1.1 (new functions, macros, deprecations, ...), so
- * we have to work around this...
- */
-#define APR_USE_OPENSSL_PRE_1_1_API (1)
-#else
-#define APR_USE_OPENSSL_PRE_1_1_API (OPENSSL_VERSION_NUMBER < 0x10100000L)
-#endif
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+#define EVP_CIPHER_CTX_reset EVP_CIPHER_CTX_cleanup
 #endif
 
 struct apr_crypto_t {
@@ -712,11 +704,7 @@ static apr_status_t crypto_block_encrypt(unsigned char **out,
     if (!EVP_EncryptUpdate(ctx->cipherCtx, (*out), &outl,
             (unsigned char *) in, inlen)) {
 #endif
-#if APR_USE_OPENSSL_PRE_1_1_API
-        EVP_CIPHER_CTX_cleanup(ctx->cipherCtx);
-#else
         EVP_CIPHER_CTX_reset(ctx->cipherCtx);
-#endif
         return APR_ECRYPT;
     }
     *outlen = outl;
@@ -755,11 +743,7 @@ static apr_status_t crypto_block_encrypt_finish(unsigned char *out,
     else {
         *outlen = len;
     }
-#if APR_USE_OPENSSL_PRE_1_1_API
-    EVP_CIPHER_CTX_cleanup(ctx->cipherCtx);
-#else
     EVP_CIPHER_CTX_reset(ctx->cipherCtx);
-#endif
 
     return rc;
 
@@ -882,11 +866,7 @@ static apr_status_t crypto_block_decrypt(unsigned char **out,
     if (!EVP_DecryptUpdate(ctx->cipherCtx, *out, &outl, (unsigned char *) in,
             inlen)) {
 #endif
-#if APR_USE_OPENSSL_PRE_1_1_API
-        EVP_CIPHER_CTX_cleanup(ctx->cipherCtx);
-#else
         EVP_CIPHER_CTX_reset(ctx->cipherCtx);
-#endif
         return APR_ECRYPT;
     }
     *outlen = outl;
@@ -925,11 +905,7 @@ static apr_status_t crypto_block_decrypt_finish(unsigned char *out,
     else {
         *outlen = len;
     }
-#if APR_USE_OPENSSL_PRE_1_1_API
-    EVP_CIPHER_CTX_cleanup(ctx->cipherCtx);
-#else
     EVP_CIPHER_CTX_reset(ctx->cipherCtx);
-#endif
 
     return rc;
 
