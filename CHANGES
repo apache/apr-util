@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.7.0
 
+  *) apr_json: Add support for encoding and decoding RFC8259 JSON.
+     [Moriyoshi Koizumi <mozo mozo jp>]
+
   *) New apr_crypto_prng API and apr_crypto_random[_thread]_bytes() functions.
      [Yann Ylavic]
 
