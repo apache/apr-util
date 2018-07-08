@@ -42,7 +42,8 @@ const struct testlist {
     {testdbm},
     {testqueue},
     {testreslist},
-    {testsiphash}
+    {testsiphash},
+    {testjson}
 };
 
 #endif /* APR_TEST_INCLUDES */
