@@ -19,6 +19,7 @@
 #include "apr_crypto.h"
 #include "apr_crypto_internal.h"
 #include "apr_strings.h"
+#include "apu_config.h"
 
 #if APU_HAVE_CRYPTO
 
