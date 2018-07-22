@@ -1456,6 +1456,7 @@ static void test_crypto_equals(abts_case *tc, void *data)
     TEST_SCALAR_MATCH(6, p, 0);
 }
 
+#if APU_HAVE_CRYPTO_PRNG
 #if APU_HAVE_OPENSSL
 #include <openssl/obj_mac.h> /* for NID_* */
 #endif
@@ -1524,7 +1525,7 @@ static const unsigned char test_PRNG_kat0[128] = {
 static void test_crypto_prng(abts_case *tc, void *data)
 {
     unsigned char randbytes[128], seed[APR_CRYPTO_PRNG_SEED_SIZE];
-    apr_crypto_prng_t *cprng;
+    apr_crypto_prng_t *cprng = NULL;
     apr_pool_t *pool = NULL;
     apr_status_t rv;
     int i;
@@ -1553,8 +1554,10 @@ static void test_crypto_prng(abts_case *tc, void *data)
                         rv == APR_SUCCESS);
         }
 
-        rv = apr_crypto_prng_bytes(cprng, randbytes, 128 - 32);
-        ABTS_ASSERT(tc, "apr_crypto_prng_bytes failed", rv == APR_SUCCESS);
+        if (cprng) {
+            rv = apr_crypto_prng_bytes(cprng, randbytes, 128 - 32);
+            ABTS_ASSERT(tc, "apr_crypto_prng_bytes failed", rv == APR_SUCCESS);
+        }
 
         /* Should match the first time only */
         if (i != 0) {
@@ -1568,8 +1571,10 @@ static void test_crypto_prng(abts_case *tc, void *data)
                         memcmp(randbytes, test_PRNG_kat0 + 32, 128 - 32) == 0);
         }
 
-        rv = apr_crypto_prng_destroy(cprng);
-        ABTS_ASSERT(tc, "apr_crypto_prng_destroy failed", rv == APR_SUCCESS);
+        if (cprng) {
+            rv = apr_crypto_prng_destroy(cprng);
+            ABTS_ASSERT(tc, "apr_crypto_prng_destroy failed", rv == APR_SUCCESS);
+        }
     }
 
     apr_pool_destroy(pool);
@@ -1695,6 +1700,7 @@ static void test_crypto_thread_random(abts_case *tc, void *data)
     apr_pool_destroy(pool);
 }
 #endif
+#endif
 
 abts_suite *testcrypto(abts_suite *suite)
 {
@@ -1775,12 +1781,14 @@ abts_suite *testcrypto(abts_suite *suite)
     abts_run_test(suite, test_crypto_memzero, NULL);
     abts_run_test(suite, test_crypto_equals, NULL);
 
+#if APU_HAVE_CRYPTO_PRNG
     abts_run_test(suite, test_crypto_prng, NULL);
 #if APR_HAS_FORK
     abts_run_test(suite, test_crypto_fork_random, NULL);
 #endif
 #if APR_HAS_THREADS
     abts_run_test(suite, test_crypto_thread_random, NULL);
+#endif
 #endif
 
     return suite;
