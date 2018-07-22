@@ -60,6 +60,12 @@ APR_TYPEDEF_STRUCT(apr_crypto_block_t,
     const apr_crypto_t *f;
 )
 
+APR_TYPEDEF_STRUCT(apr_crypto_digest_t,
+    apr_pool_t *pool;
+    apr_crypto_driver_t *provider;
+    const apr_crypto_t *f;
+)
+
 typedef struct apr_crypto_clear_t {
     void *buffer;
     apr_size_t size;
@@ -203,6 +209,24 @@ APU_DECLARE(int) apr_crypto_equals(const void *buf1, const void *buf2,
     }
 
     return 1 & ((diff - 1) >> 8);
+}
+
+APU_DECLARE(apr_crypto_key_rec_t *) apr_crypto_key_rec_make(
+        apr_crypto_key_type ktype, apr_pool_t *p)
+{
+    apr_crypto_key_rec_t *key = apr_pcalloc(p, sizeof(apr_crypto_key_rec_t));
+    key->ktype = ktype;
+    return key;
+}
+
+APU_DECLARE(apr_crypto_digest_rec_t *) apr_crypto_digest_rec_make(
+        apr_crypto_digest_type_e dtype, apr_pool_t *p)
+{
+    apr_crypto_digest_rec_t *rec = apr_pcalloc(p, sizeof(apr_crypto_digest_rec_t));
+    if (rec) {
+        rec->dtype = dtype;
+    }
+    return rec;
 }
 
 APU_DECLARE(apr_status_t) apr_crypto_get_driver(
@@ -651,6 +675,21 @@ APU_DECLARE(apr_status_t) apr_crypto_make(apr_crypto_t **f,
 }
 
 /**
+ * @brief Get a hash table of digests, keyed by the name of the digest against
+ * a pointer to apr_crypto_digest_t, which in turn begins with an
+ * integer.
+ *
+ * @param digests - hashtable of digests keyed to constants.
+ * @param f - encryption context
+ * @return APR_SUCCESS for success
+ */
+APU_DECLARE(apr_status_t) apr_crypto_get_block_key_digests(apr_hash_t **digests,
+        const apr_crypto_t *f)
+{
+    return f->provider->get_block_key_digests(digests, f);
+}
+
+/**
  * @brief Get a hash table of key types, keyed by the name of the type against
  * a pointer to apr_crypto_block_key_type_t, which in turn begins with an
  * integer.
@@ -882,6 +921,30 @@ APU_DECLARE(apr_status_t) apr_crypto_block_decrypt_finish(unsigned char *out,
     return ctx->provider->block_decrypt_finish(out, outlen, ctx);
 }
 
+APU_DECLARE(apr_status_t) apr_crypto_digest_init(apr_crypto_digest_t **d,
+        const apr_crypto_key_t *key, apr_crypto_digest_rec_t *rec, apr_pool_t *p)
+{
+    return key->provider->digest_init(d, key, rec, p);
+}
+
+APU_DECLARE(apr_status_t) apr_crypto_digest_update(apr_crypto_digest_t *digest,
+        const unsigned char *in, apr_size_t inlen)
+{
+    return digest->provider->digest_update(digest, in, inlen);
+}
+
+APU_DECLARE(apr_status_t) apr_crypto_digest_final(apr_crypto_digest_t *digest)
+{
+    return digest->provider->digest_final(digest);
+}
+
+APU_DECLARE(apr_status_t) apr_crypto_digest(const apr_crypto_key_t *key,
+        apr_crypto_digest_rec_t *rec, const unsigned char *in, apr_size_t inlen,
+        apr_pool_t *p)
+{
+    return key->provider->digest(key, rec, in, inlen, p);
+}
+
 /**
  * @brief Clean encryption / decryption context.
  * @note After cleanup, a context is free to be reused if necessary.
@@ -891,6 +954,17 @@ APU_DECLARE(apr_status_t) apr_crypto_block_decrypt_finish(unsigned char *out,
 APU_DECLARE(apr_status_t) apr_crypto_block_cleanup(apr_crypto_block_t *ctx)
 {
     return ctx->provider->block_cleanup(ctx);
+}
+
+/**
+ * @brief Clean sign / verify context.
+ * @note After cleanup, a context is free to be reused if necessary.
+ * @param ctx The digest context to use.
+ * @return Returns APR_ENOTIMPL if not supported.
+ */
+APU_DECLARE(apr_status_t) apr_crypto_digest_cleanup(apr_crypto_digest_t *ctx)
+{
+    return ctx->provider->digest_cleanup(ctx);
 }
 
 /**
