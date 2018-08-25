@@ -1587,7 +1587,7 @@ APU_DECLARE(apr_status_t) apr_bucket_file_enable_mmap(apr_bucket *b,
  * @remark Relevant/used only when memory-mapping is disabled (@see
  * apr_bucket_file_enable_mmap)
  */
-APU_DECLARE(apr_status_t) apr_bucket_file_set_buf_size(apr_bucket *e,
+APU_DECLARE(apr_status_t) apr_bucket_file_set_buf_size(apr_bucket *b,
                                                        apr_size_t size);
 
 /** @} */
