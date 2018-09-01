@@ -18,7 +18,7 @@ TESTS = teststrmatch.lo testuri.lo testuuid.lo testbuckets.lo testpass.lo \
 	testmd4.lo testmd5.lo testldap.lo testdate.lo testdbm.lo testdbd.lo \
 	testxml.lo testrmm.lo testreslist.lo testqueue.lo testxlate.lo \
 	testmemcache.lo testcrypto.lo testsiphash.lo testredis.lo \
-	testjson.lo
+	testjson.lo testjose.lo
 
 PROGRAMS = $(STDTEST_PORTABLE)
 
