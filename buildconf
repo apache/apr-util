@@ -87,7 +87,8 @@ fi
 # Generate build-outputs.mk for the build system
 #
 echo "Generating 'make' outputs ..."
-$apr_src_dir/build/gen-build.py $verbose make
+PYTHON=${PYTHON-`$apr_src_dir/build/PrintPath python3 python2 python`}
+$PYTHON $apr_src_dir/build/gen-build.py $verbose make
 
 # Remove autoconf cache again
 rm -rf autom4te*.cache
