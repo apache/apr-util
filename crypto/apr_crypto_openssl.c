@@ -30,6 +30,7 @@
 
 #if APU_HAVE_CRYPTO
 
+#include <openssl/ssl.h>
 #include <openssl/evp.h>
 #include <openssl/rand.h>
 #include <openssl/engine.h>
@@ -133,6 +134,8 @@ static apr_status_t crypto_init(apr_pool_t *pool, const char *params,
 #if APR_USE_OPENSSL_PRE_1_1_API
     (void)CRYPTO_malloc_init();
 #else
+    /* SSL_library_init() must be called prior to any other OpenSSL action. */
+    SSL_library_init();
     OPENSSL_malloc_init();
 #endif
     ERR_load_crypto_strings();
