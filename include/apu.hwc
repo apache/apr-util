@@ -141,5 +141,8 @@
 #define APU_HAVE_ICONV          0
 #define APR_HAS_XLATE           (APU_HAVE_APR_ICONV || APU_HAVE_ICONV)
 
+#define APU_USE_EXPAT           @apu_use_expat_10@
+#define APU_USE_LIBXML2         @apu_use_libxml2_10@
+
 #endif /* APU_H */
 /** @} */
