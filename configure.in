@@ -9,6 +9,7 @@ AC_CONFIG_HEADER(include/private/apu_config.h)
 AC_CONFIG_AUX_DIR(build)
 
 sinclude(build/apu-conf.m4)
+sinclude(build/xml.m4)
 sinclude(build/apu-iconv.m4)
 sinclude(build/apu-hints.m4)
 sinclude(build/apr_common.m4)
@@ -166,7 +167,7 @@ APU_CHECK_DBD_SQLITE3
 APU_CHECK_DBD_SQLITE2
 APU_CHECK_DBD_ORACLE
 APU_CHECK_DBD_ODBC
-APU_FIND_EXPAT
+APU_FIND_XML
 APU_FIND_ICONV
 
 dnl Enable DSO build; must be last:
