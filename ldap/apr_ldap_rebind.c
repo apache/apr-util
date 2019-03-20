@@ -50,7 +50,6 @@ typedef struct apr_ldap_rebind_entry apr_ldap_rebind_entry_t;
 
 
 #ifdef NETWARE
-#include "apr_private.h"
 #define get_apd                 APP_DATA* apd = (APP_DATA*)get_app_data(gLibId);
 #define apr_ldap_xref_lock      ((apr_thread_mutex_t *)(apd->gs_ldap_xref_lock))
 #define xref_head               ((apr_ldap_rebind_entry_t *)(apd->gs_xref_head))
