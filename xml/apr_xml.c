@@ -334,19 +334,19 @@ static void cdata_handler(void *userdata, const char *data, int len)
     apr_text_append(parser->p, hdr, s);
 }
 
-APR_DECLARE(apr_xml_parser *) apr_xml_parser_create(apr_pool_t *pool)
+APU_DECLARE(apr_xml_parser *) apr_xml_parser_create(apr_pool_t *pool)
 {
     return apr_xml_parser_create_internal(pool, &start_handler, &end_handler, &cdata_handler);
 }
 
-APR_DECLARE(apr_status_t) apr_xml_parser_feed(apr_xml_parser *parser,
+APU_DECLARE(apr_status_t) apr_xml_parser_feed(apr_xml_parser *parser,
                                               const char *data,
                                               apr_size_t len)
 {
     return parser->impl->Parse(parser, data, len, 0 /* is_final */);
 }
 
-APR_DECLARE(apr_status_t) apr_xml_parser_done(apr_xml_parser *parser,
+APU_DECLARE(apr_status_t) apr_xml_parser_done(apr_xml_parser *parser,
                                               apr_xml_doc **pdoc)
 {
     char end;
@@ -363,7 +363,7 @@ APR_DECLARE(apr_status_t) apr_xml_parser_done(apr_xml_parser *parser,
     return APR_SUCCESS;
 }
 
-APR_DECLARE(char *) apr_xml_parser_geterror(apr_xml_parser *parser,
+APU_DECLARE(char *) apr_xml_parser_geterror(apr_xml_parser *parser,
                                             char *errbuf,
                                             apr_size_t errbufsize)
 {
@@ -405,7 +405,7 @@ APR_DECLARE(char *) apr_xml_parser_geterror(apr_xml_parser *parser,
     return errbuf;
 }
 
-APR_DECLARE(apr_status_t) apr_xml_parse_file(apr_pool_t *p,
+APU_DECLARE(apr_status_t) apr_xml_parse_file(apr_pool_t *p,
                                              apr_xml_parser **parser,
                                              apr_xml_doc **ppdoc,
                                              apr_file_t *xmlfd,
@@ -443,7 +443,7 @@ APR_DECLARE(apr_status_t) apr_xml_parse_file(apr_pool_t *p,
     return rv;
 }
 
-APR_DECLARE(void) apr_text_append(apr_pool_t * p, apr_text_header *hdr,
+APU_DECLARE(void) apr_text_append(apr_pool_t * p, apr_text_header *hdr,
                                   const char *text)
 {
     apr_text *t = apr_palloc(p, sizeof(*t));
@@ -477,7 +477,7 @@ APR_DECLARE(void) apr_text_append(apr_pool_t * p, apr_text_header *hdr,
 ** quotes is typically set to true for XML strings that will occur within
 ** double quotes -- attribute values.
 */
-APR_DECLARE(const char *) apr_xml_quote_string(apr_pool_t *p, const char *s,
+APU_DECLARE(const char *) apr_xml_quote_string(apr_pool_t *p, const char *s,
                                                int quotes)
 {
     const char *scan;
@@ -804,7 +804,7 @@ static char *write_elem(char *s, const apr_xml_elem *elem, int style,
     return s;
 }
 
-APR_DECLARE(void) apr_xml_quote_elem(apr_pool_t *p, apr_xml_elem *elem)
+APU_DECLARE(void) apr_xml_quote_elem(apr_pool_t *p, apr_xml_elem *elem)
 {
     apr_text *scan_txt;
     apr_xml_attr *scan_attr;
@@ -838,7 +838,7 @@ APR_DECLARE(void) apr_xml_quote_elem(apr_pool_t *p, apr_xml_elem *elem)
 }
 
 /* convert an element to a text string */
-APR_DECLARE(void) apr_xml_to_text(apr_pool_t * p, const apr_xml_elem *elem,
+APU_DECLARE(void) apr_xml_to_text(apr_pool_t * p, const apr_xml_elem *elem,
                                   int style, apr_array_header_t *namespaces,
                                   int *ns_map, const char **pbuf,
                                   apr_size_t *psize)
@@ -855,7 +855,7 @@ APR_DECLARE(void) apr_xml_to_text(apr_pool_t * p, const apr_xml_elem *elem,
         *psize = size;
 }
 
-APR_DECLARE(const char *) apr_xml_empty_elem(apr_pool_t * p,
+APU_DECLARE(const char *) apr_xml_empty_elem(apr_pool_t * p,
                                              const apr_xml_elem *elem)
 {
     if (elem->ns == APR_XML_NS_NONE) {
@@ -870,7 +870,7 @@ APR_DECLARE(const char *) apr_xml_empty_elem(apr_pool_t * p,
 }
 
 /* return the URI's (existing) index, or insert it and return a new index */
-APR_DECLARE(int) apr_xml_insert_uri(apr_array_header_t *uri_array,
+APU_DECLARE(int) apr_xml_insert_uri(apr_array_header_t *uri_array,
                                     const char *uri)
 {
     int i;
@@ -946,7 +946,7 @@ static apr_status_t apr_xml_parser_convert_elem(apr_xml_elem *e,
 }
 
 /* convert the whole document to EBCDIC */
-APR_DECLARE(apr_status_t) apr_xml_parser_convert_doc(apr_pool_t *pool,
+APU_DECLARE(apr_status_t) apr_xml_parser_convert_doc(apr_pool_t *pool,
                                                      apr_xml_doc *pdoc,
                                                      apr_xlate_t *convset)
 {

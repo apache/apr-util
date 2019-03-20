@@ -398,7 +398,7 @@ static apr_status_t crypto_lib_cleanup(void *arg)
     return APR_SUCCESS;
 }
 
-APR_DECLARE(apr_status_t) apr_crypto_lib_version(const char *name,
+APU_DECLARE(apr_status_t) apr_crypto_lib_version(const char *name,
                                                  const char **version)
 {
     apr_status_t rv = APR_ENOTIMPL;
@@ -441,7 +441,7 @@ APR_DECLARE(apr_status_t) apr_crypto_lib_version(const char *name,
     return rv;
 }
 
-APR_DECLARE(apr_status_t) apr_crypto_lib_init(const char *name,
+APU_DECLARE(apr_status_t) apr_crypto_lib_init(const char *name,
                                               const char *params,
                                               const apu_err_t **result,
                                               apr_pool_t *pool)
@@ -602,7 +602,7 @@ static apr_status_t crypto_lib_term(const char *name)
     return rv;
 }
 
-APR_DECLARE(apr_status_t) apr_crypto_lib_term(const char *name)
+APU_DECLARE(apr_status_t) apr_crypto_lib_term(const char *name)
 {
     if (!active_libs) {
         return APR_EINIT;
@@ -623,7 +623,7 @@ APR_DECLARE(apr_status_t) apr_crypto_lib_term(const char *name)
     return crypto_lib_term(name);
 }
 
-APR_DECLARE(int) apr_crypto_lib_is_active(const char *name)
+APU_DECLARE(int) apr_crypto_lib_is_active(const char *name)
 {
     return active_libs && apr_hash_get(active_libs, name, APR_HASH_KEY_STRING);
 }
