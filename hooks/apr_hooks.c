@@ -18,9 +18,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "apr.h"
+#include "apu.h"
+#include "apu_config.h"
 #include "apr_pools.h"
 #include "apr_tables.h"
-#include "apr.h"
 #include "apr_hooks.h"
 #include "apr_hash.h"
 #include "apr_optional_hooks.h"
@@ -65,7 +67,6 @@ typedef struct tsort_
 } TSort;
 
 #ifdef NETWARE
-#include "apr_private.h"
 #define get_apd                 APP_DATA* apd = (APP_DATA*)get_app_data(gLibId);
 #define s_aHooksToSort          ((apr_array_header_t *)(apd->gs_aHooksToSort))
 #define s_phOptionalHooks       ((apr_hash_t *)(apd->gs_phOptionalHooks))

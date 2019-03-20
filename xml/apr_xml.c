@@ -15,7 +15,8 @@
  */
 
 #include "apr.h"
-#include "apr_private.h"
+#include "apu.h"
+#include "apu_config.h"
 #include "apr_strings.h"
 
 #define APR_WANT_STDIO          /* for sprintf() */
