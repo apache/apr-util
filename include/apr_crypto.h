@@ -504,14 +504,14 @@ typedef struct apr_crypto_digest_rec_t {
 APU_DECLARE(apr_status_t) apr_crypto_init(apr_pool_t *pool);
 
 /* TODO: doxygen */
-APR_DECLARE(apr_status_t) apr_crypto_lib_version(const char *name,
+APU_DECLARE(apr_status_t) apr_crypto_lib_version(const char *name,
                                                  const char **version);
-APR_DECLARE(apr_status_t) apr_crypto_lib_init(const char *name,
+APU_DECLARE(apr_status_t) apr_crypto_lib_init(const char *name,
                                               const char *params,
                                               const apu_err_t **result,
                                               apr_pool_t *pool);
-APR_DECLARE(apr_status_t) apr_crypto_lib_term(const char *name);
-APR_DECLARE(int) apr_crypto_lib_is_active(const char *name);
+APU_DECLARE(apr_status_t) apr_crypto_lib_term(const char *name);
+APU_DECLARE(int) apr_crypto_lib_is_active(const char *name);
 
 /**
  * @brief Zero out the buffer provided when the pool is cleaned up.
@@ -1016,7 +1016,7 @@ typedef struct apr_crypto_prng_t apr_crypto_prng_t;
  * @return APR_EREINIT if called more than once,
  *         any system error (APR_ENOMEM, ...).
  */
-APR_DECLARE(apr_status_t) apr_crypto_prng_init(apr_pool_t *pool,
+APU_DECLARE(apr_status_t) apr_crypto_prng_init(apr_pool_t *pool,
                                                apr_size_t bufsize,
                                                const unsigned char seed[],
                                                int flags);
@@ -1025,7 +1025,7 @@ APR_DECLARE(apr_status_t) apr_crypto_prng_init(apr_pool_t *pool,
  *
  * @return APR_EINIT if \ref apr_crypto_prng_init() was not called.
  */
-APR_DECLARE(apr_status_t) apr_crypto_prng_term(void);
+APU_DECLARE(apr_status_t) apr_crypto_prng_term(void);
 
 /**
  * @brief Generate cryptographically secure random bytes from the global CPRNG.
@@ -1035,7 +1035,7 @@ APR_DECLARE(apr_status_t) apr_crypto_prng_term(void);
  * @return APR_EINIT if \ref apr_crypto_prng_init() was not called.
  *         any system error (APR_ENOMEM, ...).
  */
-APR_DECLARE(apr_status_t) apr_crypto_random_bytes(void *buf, apr_size_t len);
+APU_DECLARE(apr_status_t) apr_crypto_random_bytes(void *buf, apr_size_t len);
 
 #if APR_HAS_THREADS
 /**
@@ -1048,7 +1048,7 @@ APR_DECLARE(apr_status_t) apr_crypto_random_bytes(void *buf, apr_size_t len);
  *                   called without \ref APR_CRYPTO_PRNG_PER_THREAD,
  *         any system error (APR_ENOMEM, ...).
  */
-APR_DECLARE(apr_status_t) apr_crypto_random_thread_bytes(void *buf,
+APU_DECLARE(apr_status_t) apr_crypto_random_thread_bytes(void *buf,
                                                          apr_size_t len);
 #endif
 
@@ -1070,7 +1070,7 @@ APR_DECLARE(apr_status_t) apr_crypto_random_thread_bytes(void *buf,
  *         APR_ENOTIMPL if \ref APR_CRYPTO_PRNG_LOCKED with !APR_HAS_THREADS,
  *         any system error (APR_ENOMEM, ...).
  */
-APR_DECLARE(apr_status_t) apr_crypto_prng_create(apr_crypto_prng_t **pcprng,
+APU_DECLARE(apr_status_t) apr_crypto_prng_create(apr_crypto_prng_t **pcprng,
                                                  apr_size_t bufsize, int flags,
                                                  const unsigned char seed[],
                                                  apr_pool_t *pool);
@@ -1081,7 +1081,7 @@ APR_DECLARE(apr_status_t) apr_crypto_prng_create(apr_crypto_prng_t **pcprng,
  * @param cprng The CPRNG to destroy.
  * @return APR_SUCCESS.
  */
-APR_DECLARE(apr_status_t) apr_crypto_prng_destroy(apr_crypto_prng_t *cprng);
+APU_DECLARE(apr_status_t) apr_crypto_prng_destroy(apr_crypto_prng_t *cprng);
 
 /**
  * @brief Rekey a CPRNG.
@@ -1089,7 +1089,7 @@ APR_DECLARE(apr_status_t) apr_crypto_prng_destroy(apr_crypto_prng_t *cprng);
  * @param cprng The CPRNG, or NULL for all the created CPRNGs (but per-thread).
  * @return Any system error (APR_ENOMEM, ...).
  */
-APR_DECLARE(apr_status_t) apr_crypto_prng_rekey(apr_crypto_prng_t *cprng);
+APU_DECLARE(apr_status_t) apr_crypto_prng_rekey(apr_crypto_prng_t *cprng);
 
 /**
  * @brief Reseed a CPRNG.
@@ -1099,7 +1099,7 @@ APR_DECLARE(apr_status_t) apr_crypto_prng_rekey(apr_crypto_prng_t *cprng);
  *             or NULL for the seed to be gathered from system entropy.
  * @return Any system error (APR_ENOMEM, ...).
  */
-APR_DECLARE(apr_status_t) apr_crypto_prng_reseed(apr_crypto_prng_t *cprng,
+APU_DECLARE(apr_status_t) apr_crypto_prng_reseed(apr_crypto_prng_t *cprng,
                                                  const unsigned char seed[]);
 
 #if APR_HAS_FORK
@@ -1113,7 +1113,7 @@ APR_DECLARE(apr_status_t) apr_crypto_prng_reseed(apr_crypto_prng_t *cprng,
  *
  * @return Any system error (APR_ENOMEM, ...).
  */
-APR_DECLARE(apr_status_t) apr_crypto_prng_after_fork(apr_crypto_prng_t *cprng,
+APU_DECLARE(apr_status_t) apr_crypto_prng_after_fork(apr_crypto_prng_t *cprng,
                                                      int in_child);
 #endif
 
@@ -1125,7 +1125,7 @@ APR_DECLARE(apr_status_t) apr_crypto_prng_after_fork(apr_crypto_prng_t *cprng,
  * @param len The destination length
  * @return Any system error (APR_ENOMEM, ...).
  */
-APR_DECLARE(apr_status_t) apr_crypto_prng_bytes(apr_crypto_prng_t *cprng,
+APU_DECLARE(apr_status_t) apr_crypto_prng_bytes(apr_crypto_prng_t *cprng,
                                                 void *buf, apr_size_t len);
 
 #endif /* APU_HAVE_CRYPTO_PRNG */

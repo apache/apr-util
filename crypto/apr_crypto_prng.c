@@ -219,7 +219,7 @@ static void cprng_thread_destroy(void *cprng)
 #define cprng_ring_unlock()
 #endif /* !APR_HAS_THREADS */
 
-APR_DECLARE(apr_status_t) apr_crypto_prng_init(apr_pool_t *pool,
+APU_DECLARE(apr_status_t) apr_crypto_prng_init(apr_pool_t *pool,
                                                apr_size_t bufsize,
                                                const unsigned char seed[],
                                                int flags)
@@ -269,7 +269,7 @@ APR_DECLARE(apr_status_t) apr_crypto_prng_init(apr_pool_t *pool,
     return apr_crypto_prng_create(&cprng_global, bufsize, flags, seed, pool);
 }
 
-APR_DECLARE(apr_status_t) apr_crypto_prng_term(void)
+APU_DECLARE(apr_status_t) apr_crypto_prng_term(void)
 {
     if (!cprng_global) {
         return APR_EINIT;
@@ -281,7 +281,7 @@ APR_DECLARE(apr_status_t) apr_crypto_prng_term(void)
     return APR_SUCCESS;
 }
 
-APR_DECLARE(apr_status_t) apr_crypto_random_bytes(void *buf, apr_size_t len)
+APU_DECLARE(apr_status_t) apr_crypto_random_bytes(void *buf, apr_size_t len)
 {
     if (!cprng_global) {
         return APR_EINIT;
@@ -291,7 +291,7 @@ APR_DECLARE(apr_status_t) apr_crypto_random_bytes(void *buf, apr_size_t len)
 }
 
 #if APR_HAS_THREADS
-APR_DECLARE(apr_status_t) apr_crypto_random_thread_bytes(void *buf,
+APU_DECLARE(apr_status_t) apr_crypto_random_thread_bytes(void *buf,
                                                          apr_size_t len)
 {
     apr_status_t rv;
@@ -359,7 +359,7 @@ static apr_status_t cprng_cleanup(void *arg)
     return APR_SUCCESS;
 }
 
-APR_DECLARE(apr_status_t) apr_crypto_prng_create(apr_crypto_prng_t **pcprng,
+APU_DECLARE(apr_status_t) apr_crypto_prng_create(apr_crypto_prng_t **pcprng,
                                                  apr_size_t bufsize, int flags,
                                                  const unsigned char seed[],
                                                  apr_pool_t *pool)
@@ -464,7 +464,7 @@ APR_DECLARE(apr_status_t) apr_crypto_prng_create(apr_crypto_prng_t **pcprng,
     return APR_SUCCESS;
 }
 
-APR_DECLARE(apr_status_t) apr_crypto_prng_destroy(apr_crypto_prng_t *cprng)
+APU_DECLARE(apr_status_t) apr_crypto_prng_destroy(apr_crypto_prng_t *cprng)
 {
     if (!cprng->pool) {
         return cprng_cleanup(cprng);
@@ -486,7 +486,7 @@ static apr_status_t cprng_stream_bytes(apr_crypto_prng_t *cprng,
     return rv;
 }
 
-APR_DECLARE(apr_status_t) apr_crypto_prng_reseed(apr_crypto_prng_t *cprng,
+APU_DECLARE(apr_status_t) apr_crypto_prng_reseed(apr_crypto_prng_t *cprng,
                                                  const unsigned char seed[])
 {
     apr_status_t rv = APR_SUCCESS;
@@ -584,7 +584,7 @@ static apr_status_t cprng_bytes(apr_crypto_prng_t *cprng,
     return APR_SUCCESS;
 }
 
-APR_DECLARE(apr_status_t) apr_crypto_prng_bytes(apr_crypto_prng_t *cprng,
+APU_DECLARE(apr_status_t) apr_crypto_prng_bytes(apr_crypto_prng_t *cprng,
                                                 void *buf, apr_size_t len)
 {
     apr_status_t rv;
@@ -614,7 +614,7 @@ static apr_status_t cprng_newkey(apr_crypto_prng_t *cprng)
     return cprng_stream_bytes(cprng, NULL, cprng->key, CPRNG_KEY_SIZE);
 }
 
-APR_DECLARE(apr_status_t) apr_crypto_prng_rekey(apr_crypto_prng_t *cprng)
+APU_DECLARE(apr_status_t) apr_crypto_prng_rekey(apr_crypto_prng_t *cprng)
 {
     apr_status_t rv;
 
@@ -654,7 +654,7 @@ APR_DECLARE(apr_status_t) apr_crypto_prng_rekey(apr_crypto_prng_t *cprng)
 }
 
 #if APR_HAS_FORK
-APR_DECLARE(apr_status_t) apr_crypto_prng_after_fork(apr_crypto_prng_t *cprng,
+APU_DECLARE(apr_status_t) apr_crypto_prng_after_fork(apr_crypto_prng_t *cprng,
                                                      int in_child)
 {
     apr_status_t rv;
