@@ -29,10 +29,9 @@ ENDIF()
 
 IF(EXPAT_FOUND)
   OPTION(APU_USE_EXPAT      "Use Expat"                    ON)
-  IF(LIBXML2_FOUND)
-    OPTION(APU_USE_LIBXML2  "Use LibXml2"                  OFF)
-  ENDIF()
+  OPTION(APU_USE_LIBXML2    "Use LibXml2"                  OFF)
 ELSE()
+  OPTION(APU_USE_EXPAT      "Use Expat"                    OFF)
   OPTION(APU_USE_LIBXML2    "Use LibXml2"                  ON)
 ENDIF()
 
@@ -44,6 +43,10 @@ OPTION(APR_BUILD_TESTAPR    "Build the test suite"                      OFF)
 OPTION(TEST_STATIC_LIBS     "Test programs use APR static libraries instead of shared libraries?" OFF)
 SET(APR_INCLUDE_DIR         "${CMAKE_INSTALL_PREFIX}/include"           CACHE STRING "Directory with APR include files")
 SET(APR_LIBRARIES           "${CMAKE_INSTALL_PREFIX}/lib/libapr-1.lib"  CACHE STRING "APR library to link with")
+SET(LIBXML2_ICONV_INCLUDE_DIR   ""
+    CACHE STRING "Directory with iconv include files for libxml2")
+SET(LIBXML2_ICONV_LIBRARIES     ""
+    CACHE STRING "iconv libraries to link with for libxml2")
 
 IF(NOT EXISTS "${APR_INCLUDE_DIR}/apr.h")
   MESSAGE(FATAL_ERROR "APR include directory ${APR_INCLUDE_DIR} is not correct.")
@@ -72,25 +75,21 @@ ENDIF()
 SET(apu_have_crypto_10 0)
 SET(apu_have_apr_iconv_10 0) # not yet implemented
 SET(apr_has_ldap_10 0)
+SET(apu_use_libxml2_10 0)
+SET(apu_use_expat_10 0)
 
 IF(APU_HAVE_CRYPTO)
   SET(apu_have_crypto_10 1)
 ENDIF()
 
+IF(APU_USE_EXPAT)
+  SET(apu_use_expat_10 1)
+ELSE()
+  SET(apu_use_libxml2_10 1)
+ENDIF()
+
 IF(APR_HAS_LDAP)
   SET(apr_has_ldap_10 1)
-ENDIF()
-
-IF(NOT EXPAT_FOUND)
-  MESSAGE(FATAL_ERROR "Expat is required, and it wasn't found!")
-ENDIF()
-
-IF(APU_USE_EXPAT)
-  SET(XMLLIB_INCLUDE_DIR ${EXPAT_INCLUDE_DIRS})
-  SET(XMLLIB_LIBRARIES   ${EXPAT_LIBRARIES})
-ELSE()
-  SET(XMLLIB_INCLUDE_DIR "${LIBXML2_INCLUDE_DIR};${LIBXML2_ICONV_INCLUDE_DIR}")
-  SET(XMLLIB_LIBRARIES   "${LIBXML2_LIBRARIES};${LIBXML2_ICONV_LIBRARIES}")
 ENDIF()
 
 SET(LDAP_LIBRARIES)
@@ -112,6 +111,15 @@ CONFIGURE_FILE(include/private/apu_select_dbm.hw
 CONFIGURE_FILE(include/apu_want.hw
                ${PROJECT_BINARY_DIR}/apu_want.h
                COPYONLY)
+
+IF(APU_USE_EXPAT)
+  SET(XMLLIB_INCLUDE_DIR ${EXPAT_INCLUDE_DIRS})
+  SET(XMLLIB_LIBRARIES   ${EXPAT_LIBRARIES})
+ELSE()
+  SET(XMLLIB_INCLUDE_DIR "${LIBXML2_INCLUDE_DIR};${LIBXML2_ICONV_INCLUDE_DIR}")
+  SET(XMLLIB_LIBRARIES   "${LIBXML2_LIBRARIES};${LIBXML2_ICONV_LIBRARIES}")
+ENDIF()
+
 
 # Generated .h files are stored in PROJECT_BINARY_DIR, not the
 # source tree.
@@ -218,16 +226,12 @@ SET(APR_SOURCES
   uri/apr_uri.c
   xlate/xlate.c
   xml/apr_xml.c
+  xml/apr_xml_expat.c
+  xml/apr_xml_libxml2.c
 )
 
 IF(APR_HAS_LDAP)
   SET(APR_SOURCES ${APR_SOURCES} ldap/apr_ldap_stub.c ldap/apr_ldap_url.c)
-ENDIF()
-
-IF(APU_USE_EXPAT)
-  SET(APR_SOURCES ${APR_SOURCES} xml/apr_xml_expat.c)
-ELSE()
-  SET(APR_SOURCES ${APR_SOURCES} xml/apr_xml_xml2.c)
 ENDIF()
 
 SET(APR_TEST_SOURCES
@@ -265,7 +269,7 @@ SET(dbd_drivers)
 ADD_LIBRARY(libaprutil-1 SHARED ${APR_SOURCES} ${APR_PUBLIC_HEADERS_GENERATED} libaprutil.rc)
 SET(install_targets ${install_targets} libaprutil-1)
 SET(install_bin_pdb ${install_bin_pdb} ${PROJECT_BINARY_DIR}/libaprutil-1.pdb)
-TARGET_LINK_LIBRARIES(libaprutil-1 ${APR_LIBRARIES} ${XMLLIB_LIBRARIES})
+TARGET_LINK_LIBRARIES(libaprutil-1 ${XMLLIB_LIBRARIES} ${APR_LIBRARIES})
 SET_TARGET_PROPERTIES(libaprutil-1 PROPERTIES COMPILE_DEFINITIONS "APU_DECLARE_EXPORT;APR_DECLARE_IMPORT;XML_STATIC;WINNT")
 
 ADD_LIBRARY(aprutil-1 STATIC ${APR_SOURCES} ${APR_PUBLIC_HEADERS_GENERATED})
@@ -380,6 +384,8 @@ MESSAGE(STATUS "  APR libraries ................... : ${APR_LIBRARIES}")
 MESSAGE(STATUS "  DBD ODBC driver ................. : ${APU_HAVE_ODBC}")
 MESSAGE(STATUS "  APU_HAVE_CRYPTO ................. : ${APU_HAVE_CRYPTO}")
 MESSAGE(STATUS "  APR_HAS_LDAP .................... : ${APR_HAS_LDAP}")
+MESSAGE(STATUS "  Use Expat ....................... : ${APU_USE_EXPAT}")
+MESSAGE(STATUS "  Use LibXml2 ..................... : ${APU_USE_LIBXML2}")
 MESSAGE(STATUS "  Build test suite ................ : ${APR_BUILD_TESTAPR}")
 IF(TEST_STATIC_LIBS)
 MESSAGE(STATUS "    (testing static libraries)")
