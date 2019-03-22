@@ -15,6 +15,8 @@
  */
 
 #include "apr.h"
+#include "apu.h"
+#include "apu_config.h"
 
 #if APU_USE_EXPAT
 #include "apr_xml.h"
