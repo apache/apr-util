@@ -1444,20 +1444,37 @@ static apr_status_t crypto_digest(
     return status;
 }
 
+static apr_status_t cprng_stream_ctx_make(cprng_stream_ctx_t **psctx,
+        apr_crypto_t *f, apr_crypto_cipher_e cipher, apr_pool_t *pool)
+{
+    return APR_ENOTIMPL;
+}
+
+void cprng_stream_ctx_free(cprng_stream_ctx_t *sctx)
+{
+}
+
+static apr_status_t cprng_stream_ctx_bytes(cprng_stream_ctx_t **pctx,
+        unsigned char *key, unsigned char *to, apr_size_t n, const unsigned char *z)
+{
+    return APR_ENOTIMPL;
+}
+
 /**
  * OSX Common Crypto module.
  */
 APU_MODULE_DECLARE_DATA const apr_crypto_driver_t apr_crypto_commoncrypto_driver =
 {
         "commoncrypto", crypto_init, crypto_make,
-                crypto_get_block_key_digests, crypto_get_block_key_types,
-                crypto_get_block_key_modes, crypto_passphrase,
-                crypto_block_encrypt_init, crypto_block_encrypt,
-                crypto_block_encrypt_finish, crypto_block_decrypt_init,
-                crypto_block_decrypt, crypto_block_decrypt_finish,
-                crypto_digest_init, crypto_digest_update, crypto_digest_final,
-                crypto_digest, crypto_block_cleanup, crypto_digest_cleanup,
-                crypto_cleanup, crypto_shutdown, crypto_error, crypto_key
+        crypto_get_block_key_digests, crypto_get_block_key_types,
+        crypto_get_block_key_modes, crypto_passphrase,
+        crypto_block_encrypt_init, crypto_block_encrypt,
+        crypto_block_encrypt_finish, crypto_block_decrypt_init,
+        crypto_block_decrypt, crypto_block_decrypt_finish,
+        crypto_digest_init, crypto_digest_update, crypto_digest_final,
+        crypto_digest, crypto_block_cleanup, crypto_digest_cleanup,
+        crypto_cleanup, crypto_shutdown, crypto_error, crypto_key,
+        cprng_stream_ctx_make, cprng_stream_ctx_free, cprng_stream_ctx_bytes
 };
 
 #endif
