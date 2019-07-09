@@ -96,7 +96,7 @@ AC_DEFUN([APU_CHECK_CRYPTO_OPENSSL], [
   [
     if test "$withval" = "yes"; then
       AC_CHECK_HEADERS(openssl/x509.h, [openssl_have_headers=1])
-      AC_CHECK_LIB(crypto, EVP_CIPHER_CTX_new, AC_CHECK_LIB(ssl, SSL_accept, [openssl_have_libs=1],,-lcrypto))
+      AC_CHECK_LIB(crypto, EVP_CIPHER_CTX_new, openssl_have_libs=1)
       if test "$openssl_have_headers" != "0" && test "$openssl_have_libs" != "0"; then
         apu_have_openssl=1
       fi
@@ -112,7 +112,7 @@ AC_DEFUN([APU_CHECK_CRYPTO_OPENSSL], [
 
       AC_MSG_NOTICE(checking for openssl in $withval)
       AC_CHECK_HEADERS(openssl/x509.h, [openssl_have_headers=1])
-      AC_CHECK_LIB(crypto, EVP_CIPHER_CTX_new, AC_CHECK_LIB(ssl, SSL_accept, [openssl_have_libs=1],,-lcrypto))
+      AC_CHECK_LIB(crypto, EVP_CIPHER_CTX_new, openssl_have_libs=1)
       if test "$openssl_have_headers" != "0" && test "$openssl_have_libs" != "0"; then
         apu_have_openssl=1
         APR_ADDTO(APRUTIL_LDFLAGS, [-L$withval/lib])
