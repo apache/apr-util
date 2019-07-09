@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.7.0
 
+  *) apr_crypto_openssl: use OPENSSL_init_crypto() to initialise OpenSSL
+     on versions 1.1+. [Graham Leggett]
+
   *) apr_jose: Add support for encoding and decoding of JSON Object
      Signing and Encryption messages as per RFC7515, RFC7516, RFC7517
      and RFC7519. [Graham Leggett]
