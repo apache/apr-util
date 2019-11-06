@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.7.0
 
+  *) apr_crypto_commoncrypto: Remove stray reference to -lcrypto that
+     prevented commoncrypto being enabled. [Graham Leggett]
+
   *) Add --tag=CC to libtool invocations. PR 62640. [Michael Osipov]
 
   *) apr_crypto_openssl: Remove unused link to the ssl library.
