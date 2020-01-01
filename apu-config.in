@@ -47,7 +47,7 @@ location=@APU_CONFIG_LOCATION@
 case "$0" in
   "${bindir}/"*) ;;
   "/"*)         location=crosscompile;
-                APU_TARGET_DIR=${0%${bindir}/apu-${APU_MAJOR_VERSION}-config} ;;
+                APU_TARGET_DIR=${0%${bindir}/apu-${APRUTIL_MAJOR_VERSION}-config} ;;
   *)            ;;
 esac
 
