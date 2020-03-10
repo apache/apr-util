@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.7.0
 
+  *) Trick autoconf into printing the correct default prefix in the help.
+     [Stefan Fritsch]
+
   *) Add the ability to cross compile APR-Util. [Graham Leggett]
 
   *) Teach configure how to find and build against MariaDB 10.2. PR 61517
