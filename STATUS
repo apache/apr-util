@@ -9,6 +9,6 @@ Branches:
 Effective with the last binary compatible 1.x releases, apr-util becomes part
 of apr itself.  To find version 2.0 apr-util functionality see;
 
-  http://svn.apache.org/repos/asf/apr/apr/trunk
+  https://svn.apache.org/repos/asf/apr/apr/trunk
 
-  http://svn.apache.org/viewvc/apr/apr/trunk (ViewCV browsable interface)
+  https://svn.apache.org/viewvc/apr/apr/trunk (ViewCV browsable interface)
