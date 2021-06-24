@@ -57,6 +57,8 @@
 #error a DBM implementation was not specified
 #endif
 
+#define ERROR_SIZE 1024
+
 #if APU_DSO_BUILD
 
 static apr_hash_t *drivers = NULL;
@@ -75,11 +77,18 @@ static apr_status_t dbm_term(void *ptr)
 
 #endif /* APU_DSO_BUILD */
 
-static apr_status_t dbm_open_type(apr_dbm_type_t const* * vtable,
-                                  const char *type, 
-                                  apr_pool_t *pool)
+APU_DECLARE(apr_status_t) apr_dbm_get_driver(const apr_dbm_driver_t **vtable,
+        const char *type, const apu_err_t **result, apr_pool_t *pool)
 {
 #if !APU_DSO_BUILD
+
+    if (result) {
+        *result = NULL; /* until further notice */
+    }
+
+    if (!type) {
+        type = DBM_NAME;
+    }
 
     *vtable = NULL;
     if (!strcasecmp(type, "default"))     *vtable = &DBM_VTABLE;
@@ -98,17 +107,38 @@ static apr_status_t dbm_open_type(apr_dbm_type_t const* * vtable,
 #endif
         /* avoid empty block */ ;
     }
-    if (*vtable)
+    if (*vtable) {
         return APR_SUCCESS;
+    }
+
+    if (result && !*result) {
+        apu_err_t *err = apr_pcalloc(pool, sizeof(apu_err_t));
+        if (err) {
+            apr_status_t rv = APR_ENOTIMPL;
+            err->msg = apr_psprintf(pool, "%pm", &rv);
+            err->reason = apr_pstrdup(pool, type);
+            *result = err;
+        }
+    }
+
     return APR_ENOTIMPL;
 
 #else /* APU_DSO_BUILD */
 
     char modname[32];
     char symname[34];
+    apr_dso_handle_t *dso;
     apr_dso_handle_sym_t symbol;
     apr_status_t rv;
     int usertype = 0;
+
+    if (result) {
+        *result = NULL; /* until further notice */
+    }
+
+    if (!type) {
+        type = DBM_NAME;
+    }
 
     if (!strcasecmp(type, "default"))        type = DBM_NAME;
     else if (!strcasecmp(type, "db"))        type = "db";
@@ -173,7 +203,7 @@ static apr_status_t dbm_open_type(apr_dbm_type_t const* * vtable,
 #endif
     apr_snprintf(symname, sizeof(symname), "apr_dbm_type_%s", type);
 
-    rv = apu_dso_load(NULL, &symbol, modname, symname, pool);
+    rv = apu_dso_load(&dso, &symbol, modname, symname, pool);
     if (rv == APR_SUCCESS || rv == APR_EINIT) { /* previously loaded?!? */
         *vtable = symbol;
         if (usertype)
@@ -185,6 +215,18 @@ static apr_status_t dbm_open_type(apr_dbm_type_t const* * vtable,
         *vtable = NULL;
 
     apu_dso_mutex_unlock();
+
+    if (APR_SUCCESS != rv && result && !*result) {
+        char *buffer = apr_pcalloc(pool, ERROR_SIZE);
+        apu_err_t *err = apr_pcalloc(pool, sizeof(apu_err_t));
+        if (err && buffer) {
+            apr_dso_error(dso, buffer, ERROR_SIZE - 1);
+            err->msg = buffer;
+            err->reason = apr_pstrdup(pool, modname);
+            *result = err;
+        }
+    }
+
     return rv;
 
 #endif /* APU_DSO_BUILD */
@@ -196,8 +238,8 @@ APU_DECLARE(apr_status_t) apr_dbm_open_ex(apr_dbm_t **pdb, const char *type,
                                           apr_fileperms_t perm,
                                           apr_pool_t *pool)
 {
-    apr_dbm_type_t const* vtable = NULL;
-    apr_status_t rv = dbm_open_type(&vtable, type, pool);
+    apr_dbm_driver_t const* vtable = NULL;
+    apr_status_t rv = apr_dbm_get_driver(&vtable, type, NULL, pool);
 
     if (rv == APR_SUCCESS) {
         rv = (vtable->open)(pdb, pathname, mode, perm, pool);
@@ -210,6 +252,14 @@ APU_DECLARE(apr_status_t) apr_dbm_open(apr_dbm_t **pdb, const char *pathname,
                                        apr_pool_t *pool)
 {
     return apr_dbm_open_ex(pdb, DBM_NAME, pathname, mode, perm, pool);
+}
+
+APU_DECLARE(apr_status_t) apr_dbm_open2(apr_dbm_t **pdb,
+                                        const apr_dbm_driver_t *vtable,
+                                        const char *pathname, apr_int32_t mode,
+                                        apr_fileperms_t perm, apr_pool_t *pool)
+{
+    return (vtable->open)(pdb, pathname, mode, perm, pool);
 }
 
 APU_DECLARE(void) apr_dbm_close(apr_dbm_t *dbm)
@@ -275,8 +325,8 @@ APU_DECLARE(apr_status_t) apr_dbm_get_usednames_ex(apr_pool_t *p,
                                                    const char **used1,
                                                    const char **used2)
 {
-    apr_dbm_type_t const* vtable;
-    apr_status_t rv = dbm_open_type(&vtable, type, p);
+    apr_dbm_driver_t const* vtable;
+    apr_status_t rv = apr_dbm_get_driver(&vtable, type, NULL, p);
 
     if (rv == APR_SUCCESS) {
         (vtable->getusednames)(p, pathname, used1, used2);

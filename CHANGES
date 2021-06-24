@@ -1,6 +1,10 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.7.0
 
+  *) apr_dbm: Add dedicated apr_dbm_get_driver() function that returns
+     details of the driver selected and any error encountered. Add the
+     apr_dbm_open2() function that references the driver. [Graham Leggett]
+
   *) Trick autoconf into printing the correct default prefix in the help.
      [Stefan Fritsch]
 
