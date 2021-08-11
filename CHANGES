@@ -1,6 +1,8 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.6.2
 
+  *) Add --tag=CC to libtool invocations. PR 62640. [Michael Osipov]
+
   *) apr_dbm_gdbm: Fix handling of error codes. This makes gdbm 1.14 work.
      apr_dbm_gdbm will now also return error codes starting with
      APR_OS_START_USEERR, as apr_dbm_berkleydb does, instead of always
