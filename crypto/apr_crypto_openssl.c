@@ -106,6 +106,7 @@ struct apr_crypto_digest_t {
 
 struct cprng_stream_ctx_t {
     EVP_CIPHER_CTX *ctx;
+    int malloced;
 };
 
 static struct apr_crypto_block_key_digest_t key_digests[] =
@@ -1531,6 +1532,16 @@ static apr_status_t crypto_digest(
     return status;
 }
 
+static void cprng_stream_ctx_free(cprng_stream_ctx_t *sctx)
+{
+    if (sctx->ctx) {
+        EVP_CIPHER_CTX_free(sctx->ctx);
+    }
+    if (sctx->malloced) {
+        free(sctx);
+    }
+}
+
 static apr_status_t cprng_stream_ctx_make(cprng_stream_ctx_t **psctx,
         apr_crypto_t *f, apr_crypto_cipher_e cipher, apr_pool_t *pool)
 {
@@ -1538,18 +1549,22 @@ static apr_status_t cprng_stream_ctx_make(cprng_stream_ctx_t **psctx,
     EVP_CIPHER_CTX *ctx;
     const EVP_CIPHER *ecipher;
 
+    *psctx = NULL;
+
     if (pool) {
-        *psctx = sctx = apr_palloc(pool, sizeof(cprng_stream_ctx_t));
+        sctx = apr_palloc(pool, sizeof(cprng_stream_ctx_t));
     }
     else {
-        *psctx = sctx = malloc(sizeof(cprng_stream_ctx_t));
+        sctx = malloc(sizeof(cprng_stream_ctx_t));
     }
     if (!sctx) {
         return APR_ENOMEM;
     }
 
+    sctx->malloced = !pool;
     sctx->ctx = ctx = EVP_CIPHER_CTX_new();
     if (!ctx) {
+        cprng_stream_ctx_free(sctx);
         return APR_ENOMEM;
     }
 
@@ -1567,6 +1582,7 @@ static apr_status_t cprng_stream_ctx_make(cprng_stream_ctx_t **psctx,
 #elif defined(NID_aes_256_ctr)
         ecipher = EVP_aes_256_ctr();
 #else
+        cprng_stream_ctx_free(sctx);
         return APR_ENOCIPHER;
 #endif
     }
@@ -1575,33 +1591,32 @@ static apr_status_t cprng_stream_ctx_make(cprng_stream_ctx_t **psctx,
         ecipher = EVP_aes_256_ctr();
         break;
 #else
+        cprng_stream_ctx_free(sctx);
         return APR_ENOCIPHER;
 #endif
     }
-    case APR_CRYPTO_CIPHER_CHACHA20_CTR: {
+    case APR_CRYPTO_CIPHER_CHACHA20: {
 #if defined(NID_chacha20)
         ecipher = EVP_chacha20();
         break;
 #else
+        cprng_stream_ctx_free(sctx);
         return APR_ENOCIPHER;
 #endif
     }
     default: {
+        cprng_stream_ctx_free(sctx);
         return APR_ENOCIPHER;
     }
     }
 
     if (EVP_EncryptInit_ex(ctx, ecipher, f->config->engine, NULL, NULL) <= 0) {
-        EVP_CIPHER_CTX_free(ctx);
+        cprng_stream_ctx_free(sctx);
         return APR_ENOMEM;
     }
 
+    *psctx = sctx;
     return APR_SUCCESS;
-}
-
-static void cprng_stream_ctx_free(cprng_stream_ctx_t *sctx)
-{
-    EVP_CIPHER_CTX_free(sctx->ctx);
 }
 
 static APR_INLINE

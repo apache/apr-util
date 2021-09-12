@@ -118,11 +118,14 @@ static apr_threadkey_t *cprng_thread_key = NULL;
 
 static void cprng_thread_destroy(void *cprng)
 {
+    apr_threadkey_private_set(NULL, cprng_thread_key);
+    if (cprng) {
+        apr_crypto_prng_destroy(cprng);
+    }
     if (!cprng_global) {
         apr_threadkey_private_delete(cprng_thread_key);
         cprng_thread_key = NULL;
     }
-    apr_crypto_prng_destroy(cprng);
 }
 
 #else  /* !APR_HAS_THREADS */
@@ -141,6 +144,12 @@ APU_DECLARE(apr_status_t) apr_crypto_prng_init(apr_pool_t *pool, apr_crypto_t *c
         return APR_EREINIT;
     }
 
+    cprng_ring = apr_palloc(pool, sizeof(*cprng_ring));
+    if (!cprng_ring) {
+        return APR_ENOMEM;
+    }
+    APR_RING_INIT(cprng_ring, apr_crypto_prng_t, link);
+
     if (flags & APR_CRYPTO_PRNG_PER_THREAD) {
 #if !APR_HAS_THREADS
         return APR_ENOTIMPL;
@@ -153,18 +162,14 @@ APU_DECLARE(apr_status_t) apr_crypto_prng_init(apr_pool_t *pool, apr_crypto_t *c
 #endif
     }
 
-    cprng_ring = apr_palloc(pool, sizeof(*cprng_ring));
-    if (!cprng_ring) {
-        return APR_ENOMEM;
-    }
-    APR_RING_INIT(cprng_ring, apr_crypto_prng_t, link);
-
 #if APR_HAS_THREADS
     rv = apr_thread_mutex_create(&cprng_ring_mutex, APR_THREAD_MUTEX_DEFAULT,
                                  pool);
     if (rv != APR_SUCCESS) {
-        apr_threadkey_private_delete(cprng_thread_key);
-        cprng_thread_key = NULL;
+        if (flags & APR_CRYPTO_PRNG_PER_THREAD) {
+            apr_threadkey_private_delete(cprng_thread_key);
+            cprng_thread_key = NULL;
+        }
         return rv;
     }
 
@@ -172,8 +177,17 @@ APU_DECLARE(apr_status_t) apr_crypto_prng_init(apr_pool_t *pool, apr_crypto_t *c
     flags = (flags | APR_CRYPTO_PRNG_LOCKED) & ~APR_CRYPTO_PRNG_PER_THREAD;
 #endif
 
-    return apr_crypto_prng_create(&cprng_global, crypto, cipher, bufsize, flags,
-            seed, pool);
+    rv = apr_crypto_prng_create(&cprng_global, crypto, cipher, bufsize, flags,
+                                seed, pool);
+    if (rv != APR_SUCCESS) {
+        if (flags & APR_CRYPTO_PRNG_PER_THREAD) {
+            apr_threadkey_private_delete(cprng_thread_key);
+            cprng_thread_key = NULL;
+        }
+        return rv;
+    }
+
+    return APR_SUCCESS;
 }
 
 APU_DECLARE(apr_status_t) apr_crypto_prng_term(void)
