@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.6.2
 
+  *) apr_crypto_commoncrypto: Remove stray reference to -lcrypto that
+     prevented commoncrypto being enabled. [Graham Leggett]
+
   *) Add --tag=CC to libtool invocations. PR 62640. [Michael Osipov]
 
   *) apr_dbm_gdbm: Fix handling of error codes. This makes gdbm 1.14 work.
