@@ -733,7 +733,7 @@ static apr_status_t crypto_key(apr_crypto_key_t **k,
 
     case APR_CRYPTO_KTYPE_CMAC: {
 
-#ifndef APR_USE_OPENSSL_PRE_1_1_1_API
+#if !APR_USE_OPENSSL_PRE_1_1_1_API
         apr_crypto_config_t *config = f->config;
 
         /* decide on what cipher mechanism we will be using */
@@ -748,7 +748,7 @@ static apr_status_t crypto_key(apr_crypto_key_t **k,
             return APR_ENOKEY;
         }
 
-        switch (rec->k.hmac.hmac) {
+        switch (rec->k.hmac.digest) {
         case APR_CRYPTO_DIGEST_MD5:
             key->hmac = EVP_md5();
             break;
