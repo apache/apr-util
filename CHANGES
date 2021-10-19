@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.7.0
 
+  *) apr_brigades: Add apr_brigade_split_boundary(), allowing us to split
+     brigades on boundaries of arbitrary length. [Graham Leggett]
+
   *) apr_dbm: Add dedicated apr_dbm_get_driver() function that returns
      details of the driver selected and any error encountered. Add the
      apr_dbm_open2() function that references the driver. [Graham Leggett]
