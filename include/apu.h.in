@@ -128,5 +128,7 @@
 #define APU_USE_EXPAT          @apu_has_expat@
 #define APU_USE_LIBXML2        @apu_has_libxml2@
 
+#define APU_HAVE_MEMMEM        @have_memmem@
+
 #endif /* APU_H */
 /** @} */

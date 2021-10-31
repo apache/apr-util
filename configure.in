@@ -186,6 +186,8 @@ else
 fi
 AC_MSG_RESULT([$msg])
 
+AC_CHECK_FUNCS(memmem, [ have_memmem="1" ], [have_memmem="0" ])
+
 AC_CHECK_FUNCS(crypt_r, [ crypt_r="1" ], [ crypt_r="0" ])
 if test "$crypt_r" = "1"; then
   APU_CHECK_CRYPT_R_STYLE
@@ -243,6 +245,8 @@ int main(int argc, const char **argv)
 if test "$apu_cv_explicit_bzero" = "yes"; then
    AC_DEFINE([HAVE_EXPLICIT_BZERO], 1, [Define if explicit_bzero function is supported])
 fi
+
+AC_SUBST(have_memmem)
 
 so_ext=$APR_SO_EXT
 lib_target=$APR_LIB_TARGET

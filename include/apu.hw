@@ -145,5 +145,7 @@
 #define APU_USE_EXPAT           1
 #define APU_USE_LIBXML2         0
 
+#define APU_HAVE_MEMMEM         0
+
 #endif /* APU_H */
 /** @} */
