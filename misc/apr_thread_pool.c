@@ -452,6 +452,14 @@ APU_DECLARE(apr_status_t) apr_thread_pool_create(apr_thread_pool_t ** me,
 
 APU_DECLARE(apr_status_t) apr_thread_pool_destroy(apr_thread_pool_t * me)
 {
+    /* Stop the threads before destroying me->pool: with APR <= 1.7 the
+     * threads' pools are children of me->pool and APR_POOL_DEBUG would
+     * deadlock if thread_pool_cleanup() is called while me->pool is
+     * destroyed (because of parent locking).
+     * With APR > 1.7 the threads' pools are unmanaged so there is no
+     * such issue, yet it does not hurt to stop the threads before.
+     */
+    apr_pool_cleanup_run(me->pool, me, thread_pool_cleanup);
     apr_pool_destroy(me->pool);
     return APR_SUCCESS;
 }
