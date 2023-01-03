@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.7.0
 
+  *) configure: Fix configure for compilers which don't accept implicit
+     "int".  PR 66396.  [Florian Weimer <fweimer redhat.com>]
+
   *) apr_brigades: Add apr_brigade_split_boundary(), allowing us to split
      brigades on boundaries of arbitrary length. [Graham Leggett]
 
