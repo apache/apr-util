@@ -21,7 +21,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 FIND_PACKAGE(OpenSSL)
 
-FIND_PACKAGE(expat)
+FIND_PACKAGE(EXPAT)
 
 OPTION(APU_HAVE_CRYPTO      "Crypto support"                            OFF)
 OPTION(APU_HAVE_ODBC        "Build ODBC DBD driver"                     ON)
