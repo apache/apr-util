@@ -178,10 +178,10 @@ APU_CHECK_UTIL_DSO
 
 AC_SEARCH_LIBS(crypt, crypt ufc)
 case "$ac_cv_search_crypt" in
+"no"|"none required")
+    ;;
 *)
     APR_ADDTO(APRUTIL_LIBS, [$ac_cv_search_crypt])
-    ;;
-"no"|"none required")
     ;;
 esac
 AC_MSG_CHECKING(if system crypt() function is threadsafe)
