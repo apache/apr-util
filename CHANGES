@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.6.2
 
+  *) Teach configure how to find and build against MariaDB 10.2. PR 61517
+     [Kris Karas <bugs-a17 moonlit-rail.com>]
+
   *) apr_crypto_commoncrypto: Remove stray reference to -lcrypto that
      prevented commoncrypto being enabled. [Graham Leggett]
 
