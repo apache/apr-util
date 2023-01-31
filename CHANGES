@@ -1,6 +1,11 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.6.2
 
+  *) SECURITY: CVE-2022-25147 (cve.mitre.org)
+     Integer Overflow or Wraparound vulnerability in apr_base64 functions 
+     of Apache Portable Runtime Utility (APR-util) allows an attacker to 
+     write beyond bounds of a buffer.
+     
   *) Teach configure how to find and build against MariaDB 10.2. PR 61517
      [Kris Karas <bugs-a17 moonlit-rail.com>]
 
