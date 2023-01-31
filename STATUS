@@ -4,7 +4,8 @@ Last modified at [$Date$]
 Releases:
     2.0.0     : None/EOL - merged into ../apr/trunk/
     1.7.0     : in development on branches/1.7.x
-    1.6.2     : in maintenance
+    1.6.3     : in maintenance
+    1.6.2     : released January 31, 2023
     1.6.1     : released October 22, 2017
     1.6.0     : released June 14, 2017
     1.5.4     : released September 22, 2014
