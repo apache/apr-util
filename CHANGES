@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.6.4
 
+  *) apr_memcache: Fix name lookup to allow IPv6 as well as IPv4.
+     [Lubos Uhliarik <luhliari redhat.com>]
+
 Changes with APR-util 1.6.3
 
   *) Correct a packaging issue in 1.6.2. The contents of the release were
