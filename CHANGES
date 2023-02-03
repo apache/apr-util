@@ -4,6 +4,10 @@ Changes with APR-util 1.6.4
   *) apr_memcache: Fix name lookup to allow IPv6 as well as IPv4.
      [Lubos Uhliarik <luhliari redhat.com>]
 
+  *) configure: Fix Berkeley DB detection with compilers enforcing
+     strict C99 compliance.  PR 66396.
+     [Florian Weimer <fweimer redhat.com>]
+
 Changes with APR-util 1.6.3
 
   *) Correct a packaging issue in 1.6.2. The contents of the release were
