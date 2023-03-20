@@ -17,6 +17,7 @@
 #include "apr_lib.h"
 #include "apu.h"
 #include "apu_errno.h"
+#include "apu_config.h"
 
 #include <ctype.h>
 #include <assert.h>
@@ -30,23 +31,68 @@
 
 #if APU_HAVE_CRYPTO
 
+#ifndef OPENSSL_API_COMPAT
+#define OPENSSL_API_COMPAT 0x10101000L /* for ENGINE API */
+#endif
+
 #include <openssl/evp.h>
 #include <openssl/rand.h>
 #include <openssl/engine.h>
+#include <openssl/opensslv.h>
+#if OPENSSL_VERSION_NUMBER >= 0x30000000
+#include <openssl/macros.h>
+#include <openssl/core_names.h>
+#endif
 
-#define LOG_PREFIX "apr_crypto_openssl: "
-
-#ifndef APR_USE_OPENSSL_PRE_1_1_API
 #if defined(LIBRESSL_VERSION_NUMBER)
+
 /* LibreSSL declares OPENSSL_VERSION_NUMBER == 2.0 but does not include most
  * changes from OpenSSL >= 1.1 (new functions, macros, deprecations, ...), so
  * we have to work around this...
  */
-#define APR_USE_OPENSSL_PRE_1_1_API (1)
+#define APR_USE_OPENSSL_PRE_1_0_API     0
+#if LIBRESSL_VERSION_NUMBER < 0x2070000f
+#define APR_USE_OPENSSL_PRE_1_1_API     1
 #else
-#define APR_USE_OPENSSL_PRE_1_1_API (OPENSSL_VERSION_NUMBER < 0x10100000L)
+#define APR_USE_OPENSSL_PRE_1_1_API     0
 #endif
+/* TODO: keep up with LibreSSL latest versions */
+#define APR_USE_OPENSSL_PRE_1_1_1_API   1
+#define APR_USE_OPENSSL_PRE_3_0_API     1
+
+#else  /* defined(LIBRESSL_VERSION_NUMBER) */
+
+#if OPENSSL_VERSION_NUMBER < 0x10000000L
+#define APR_USE_OPENSSL_PRE_1_0_API     1
+#else
+#define APR_USE_OPENSSL_PRE_1_0_API     0
 #endif
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#define APR_USE_OPENSSL_PRE_1_1_API     1
+#else
+#define APR_USE_OPENSSL_PRE_1_1_API     0
+#endif
+#if OPENSSL_VERSION_NUMBER < 0x10101000L
+#define APR_USE_OPENSSL_PRE_1_1_1_API   1
+#else
+#define APR_USE_OPENSSL_PRE_1_1_1_API   0
+#endif
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
+#define APR_USE_OPENSSL_PRE_3_0_API     1
+#else
+#define APR_USE_OPENSSL_PRE_3_0_API     0
+#endif
+
+#endif /* defined(LIBRESSL_VERSION_NUMBER) */
+
+#if APR_USE_OPENSSL_PRE_3_0_API \
+    || (defined(OPENSSL_API_LEVEL) && OPENSSL_API_LEVEL < 30000)
+#define APR_USE_OPENSSL_ENGINE_API 1
+#else
+#define APR_USE_OPENSSL_ENGINE_API 0
+#endif
+
+#define LOG_PREFIX "apr_crypto_openssl: "
 
 struct apr_crypto_t {
     apr_pool_t *pool;
@@ -58,7 +104,11 @@ struct apr_crypto_t {
 };
 
 struct apr_crypto_config_t {
+#if APR_USE_OPENSSL_ENGINE_API
     ENGINE *engine;
+#else
+    void *engine;
+#endif
 };
 
 struct apr_crypto_key_t {
@@ -113,9 +163,21 @@ static apr_status_t crypto_error(const apu_err_t **result,
  */
 static apr_status_t crypto_shutdown(void)
 {
+#if HAVE_OPENSSL_INIT_CRYPTO
+    /* Openssl v1.1+ handles all termination automatically. Do
+     * nothing in this case.
+     */
+
+#else
+    /* Termination below is for legacy Openssl versions v1.0.x and
+     * older.
+     */
+
     ERR_free_strings();
     EVP_cleanup();
     ENGINE_cleanup();
+#endif
+
     return APR_SUCCESS;
 }
 
@@ -130,6 +192,19 @@ static apr_status_t crypto_shutdown_helper(void *data)
 static apr_status_t crypto_init(apr_pool_t *pool, const char *params,
         const apu_err_t **result)
 {
+#if HAVE_OPENSSL_INIT_CRYPTO
+    /* Openssl v1.1+ handles all initialisation automatically, apart
+     * from hints as to how we want to use the library.
+     *
+     * We tell openssl we want to include engine support.
+     */
+    OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_ALL_BUILTIN, NULL);
+
+#else
+    /* Configuration below is for legacy versions Openssl v1.0 and
+     * older.
+     */
+
 #if APR_USE_OPENSSL_PRE_1_1_API
     (void)CRYPTO_malloc_init();
 #else
@@ -140,6 +215,7 @@ static apr_status_t crypto_init(apr_pool_t *pool, const char *params,
     OpenSSL_add_all_algorithms();
     ENGINE_load_builtin_engines();
     ENGINE_register_all_complete();
+#endif
 
     apr_pool_cleanup_register(pool, pool, crypto_shutdown_helper,
             apr_pool_cleanup_null);
@@ -203,12 +279,13 @@ static apr_status_t crypto_block_cleanup_helper(void *data)
  */
 static apr_status_t crypto_cleanup(apr_crypto_t *f)
 {
-
+#if APR_USE_OPENSSL_ENGINE_API
     if (f->config->engine) {
         ENGINE_finish(f->config->engine);
         ENGINE_free(f->config->engine);
         f->config->engine = NULL;
     }
+#endif
     return APR_SUCCESS;
 
 }
@@ -235,11 +312,10 @@ static apr_status_t crypto_make(apr_crypto_t **ff,
         const apr_crypto_driver_t *provider, const char *params,
         apr_pool_t *pool)
 {
-    apr_crypto_config_t *config = NULL;
-    apr_crypto_t *f = apr_pcalloc(pool, sizeof(apr_crypto_t));
-
+    apr_crypto_t *f;
+    apr_crypto_config_t *config;
     const char *engine = NULL;
-
+    apr_status_t status = APR_SUCCESS;
     struct {
         const char *field;
         const char *value;
@@ -253,7 +329,8 @@ static apr_status_t crypto_make(apr_crypto_t **ff,
     char **elts = NULL;
     char *elt;
     int i = 0, j;
-    apr_status_t status;
+
+    *ff = NULL;
 
     if (params) {
         if (APR_SUCCESS != (status = apr_tokenize_to_argv(params, &elts, pool))) {
@@ -287,25 +364,45 @@ static apr_status_t crypto_make(apr_crypto_t **ff,
         engine = fields[0].value;
     }
 
+    f = apr_pcalloc(pool, sizeof(apr_crypto_t));
     if (!f) {
         return APR_ENOMEM;
     }
-    *ff = f;
-    f->pool = pool;
-    f->provider = provider;
-    config = f->config = apr_pcalloc(pool, sizeof(apr_crypto_config_t));
+    f->config = config = apr_pcalloc(pool, sizeof(apr_crypto_config_t));
     if (!config) {
         return APR_ENOMEM;
+    }
+    f->pool = pool;
+    f->provider = provider;
+
+    /* The default/builtin "openssl" engine is the same as NULL though with
+     * openssl-3+ it's called something else, keep NULL for that name.
+     */
+    if (engine && strcasecmp(engine, "openssl") != 0) {
+#if APR_USE_OPENSSL_ENGINE_API
+        config->engine = ENGINE_by_id(engine);
+        if (!config->engine) {
+            return APR_ENOENGINE;
+        }
+        if (!ENGINE_init(config->engine)) {
+            status = APR_EINITENGINE;
+            goto cleanup;
+        }
+#else
+        return APR_ENOTIMPL;
+#endif
     }
 
     f->result = apr_pcalloc(pool, sizeof(apu_err_t));
     if (!f->result) {
-        return APR_ENOMEM;
+        status = APR_ENOMEM;
+        goto cleanup;
     }
 
     f->types = apr_hash_make(pool);
     if (!f->types) {
-        return APR_ENOMEM;
+        status = APR_ENOMEM;
+        goto cleanup;
     }
     apr_hash_set(f->types, "3des192", APR_HASH_KEY_STRING, &(key_types[0]));
     apr_hash_set(f->types, "aes128", APR_HASH_KEY_STRING, &(key_types[1]));
@@ -314,28 +411,20 @@ static apr_status_t crypto_make(apr_crypto_t **ff,
 
     f->modes = apr_hash_make(pool);
     if (!f->modes) {
-        return APR_ENOMEM;
+        status = APR_ENOMEM;
+        goto cleanup;
     }
     apr_hash_set(f->modes, "ecb", APR_HASH_KEY_STRING, &(key_modes[0]));
     apr_hash_set(f->modes, "cbc", APR_HASH_KEY_STRING, &(key_modes[1]));
 
+    *ff = f;
     apr_pool_cleanup_register(pool, f, crypto_cleanup_helper,
-            apr_pool_cleanup_null);
-
-    if (engine) {
-        config->engine = ENGINE_by_id(engine);
-        if (!config->engine) {
-            return APR_ENOENGINE;
-        }
-        if (!ENGINE_init(config->engine)) {
-            ENGINE_free(config->engine);
-            config->engine = NULL;
-            return APR_EINITENGINE;
-        }
-    }
-
+                              apr_pool_cleanup_null);
     return APR_SUCCESS;
 
+cleanup:
+    crypto_cleanup(f);
+    return status;
 }
 
 /**
@@ -435,7 +524,7 @@ static apr_status_t crypto_cipher_mechanism(apr_crypto_key_t *key,
         return APR_ENOMEM;
     }
     apr_crypto_clear(p, key->key, key->keyLen);
-
+ 
     return APR_SUCCESS;
 }
 

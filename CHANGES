@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.6.4
 
+  *) apr_crypto_openssl: use OPENSSL_init_crypto() to initialise OpenSSL
+     on versions 1.1+. [Graham Leggett]
+
   *) apr_memcache: Fix name lookup to allow IPv6 as well as IPv4.
      [Lubos Uhliarik <luhliari redhat.com>]
 
