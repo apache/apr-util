@@ -1,6 +1,8 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.7.0
 
+  *) apr_crypto_openssl: Compatibility with OpenSSL 3.  [Yann Ylavic]
+
   *) configure: Fix configure for compilers which don't accept implicit
      "int".  PR 66396.  [Florian Weimer <fweimer redhat.com>]
 
