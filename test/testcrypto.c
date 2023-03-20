@@ -878,6 +878,10 @@ static void crypto_block_cross(abts_case *tc, apr_pool_t *pool,
 
     f1 = make(tc, pool, driver1);
     f2 = make(tc, pool, driver2);
+    if (!f1 || !f2) {
+        return;
+    }
+
     key1 = passphrase(tc, pool, driver1, f1, type, mode, doPad, description);
     key2 = passphrase(tc, pool, driver2, f2, type, mode, doPad, description);
 
@@ -973,6 +977,9 @@ static void crypto_cross_hash(abts_case *tc, apr_pool_t *pool,
 
     f1 = make(tc, pool, driver1);
     f2 = make(tc, pool, driver2);
+    if (!f1 || !f2) {
+        return;
+    }
 
     key7 = keyhash(tc, pool, driver1, f1, digest, description);
     key8 = keyhash(tc, pool, driver2, f2, digest, description);
@@ -1038,6 +1045,9 @@ static void crypto_cross_sign(abts_case *tc, apr_pool_t *pool,
 
     f1 = make(tc, pool, driver1);
     f2 = make(tc, pool, driver2);
+    if (!f1 || !f2) {
+        return;
+    }
 
     key7 = keyhmac(tc, pool, driver1, f1, digest, type, mode, doPad, secretLen,
             description);
@@ -1096,6 +1106,10 @@ static void test_crypto_key_openssl(abts_case *tc, void *data)
     driver = get_openssl_driver(tc, pool);
 
     f = make(tc, pool, driver);
+    if (!f) {
+        return;
+    }
+
     keysecret(tc, pool, driver, f, APR_KEY_AES_256, APR_MODE_CBC, 1, 32,
             "KEY_AES_256/MODE_CBC");
     apr_pool_destroy(pool);
@@ -1115,6 +1129,10 @@ static void test_crypto_key_nss(abts_case *tc, void *data)
     driver = get_nss_driver(tc, pool);
 
     f = make(tc, pool, driver);
+    if (!f) {
+        return;
+    }
+
     keysecret(tc, pool, driver, f, APR_KEY_AES_256, APR_MODE_CBC, 1, 32,
             "KEY_AES_256/MODE_CBC");
     apr_pool_destroy(pool);
@@ -1134,6 +1152,10 @@ static void test_crypto_key_commoncrypto(abts_case *tc, void *data)
     driver = get_commoncrypto_driver(tc, pool);
 
     f = make(tc, pool, driver);
+    if (!f) {
+        return;
+    }
+
     keysecret(tc, pool, driver, f, APR_KEY_AES_256, APR_MODE_CBC, 1, 32,
             "KEY_AES_256/MODE_CBC");
     apr_pool_destroy(pool);
@@ -2080,6 +2102,10 @@ static void test_crypto_get_block_key_types_openssl(abts_case *tc, void *data)
     if (driver) {
 
         f = make(tc, pool, driver);
+        if (!f) {
+            return;
+        }
+
         apr_crypto_get_block_key_types(&types, f);
 
         key_3des_192 = apr_hash_get(types, "3des192", APR_HASH_KEY_STRING);
@@ -2123,6 +2149,10 @@ static void test_crypto_get_block_key_types_nss(abts_case *tc, void *data)
     if (driver) {
 
         f = make(tc, pool, driver);
+        if (!f) {
+            return;
+        }
+
         apr_crypto_get_block_key_types(&types, f);
 
         key_3des_192 = apr_hash_get(types, "3des192", APR_HASH_KEY_STRING);
@@ -2166,6 +2196,10 @@ static void test_crypto_get_block_key_types_commoncrypto(abts_case *tc, void *da
     if (driver) {
 
         f = make(tc, pool, driver);
+        if (!f) {
+            return;
+        }
+
         apr_crypto_get_block_key_types(&types, f);
 
         key_3des_192 = apr_hash_get(types, "3des192", APR_HASH_KEY_STRING);
@@ -2207,6 +2241,10 @@ static void test_crypto_get_block_key_modes_openssl(abts_case *tc, void *data)
     if (driver) {
 
         f = make(tc, pool, driver);
+        if (!f) {
+            return;
+        }
+
         apr_crypto_get_block_key_modes(&modes, f);
 
         mode_ecb = apr_hash_get(modes, "ecb", APR_HASH_KEY_STRING);
@@ -2240,6 +2278,10 @@ static void test_crypto_get_block_key_modes_nss(abts_case *tc, void *data)
     if (driver) {
 
         f = make(tc, pool, driver);
+        if (!f) {
+            return;
+        }
+
         apr_crypto_get_block_key_modes(&modes, f);
 
         mode_ecb = apr_hash_get(modes, "ecb", APR_HASH_KEY_STRING);
@@ -2273,6 +2315,10 @@ static void test_crypto_get_block_key_modes_commoncrypto(abts_case *tc, void *da
     if (driver) {
 
         f = make(tc, pool, driver);
+        if (!f) {
+            return;
+        }
+
         apr_crypto_get_block_key_modes(&modes, f);
 
         mode_ecb = apr_hash_get(modes, "ecb", APR_HASH_KEY_STRING);
