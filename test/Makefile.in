@@ -57,6 +57,10 @@ OBJECTS_dbd = dbd.lo $(LOCAL_LIBS)
 dbd: $(OBJECTS_dbd)
 	$(LINK_PROG) $(OBJECTS_dbd) $(APRUTIL_LIBS)
 
+OBJECTS_memcachedmock = memcachedmock.lo $(LOCAL_LIBS)
+memcachedmock: $(OBJECTS_memcachedmock)
+	$(LINK_PROG) $(OBJECTS_memcachedmock) $(APRUTIL_LIBS)
+
 check: $(TESTALL_COMPONENTS) $(STDTEST_PORTABLE) $(STDTEST_NONPORTABLE)
 	teststatus=0; \
 	progfailed=""; \

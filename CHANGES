@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.7.0
 
+  *) apr_memcache: Check sockets from connection pool before using them and try
+     to reconnect them if they are not usable any longer.[Ruediger Pluem]
+
   *) apr_crypto_openssl: Compatibility with OpenSSL 3.  [Yann Ylavic]
 
   *) configure: Fix configure for compilers which don't accept implicit

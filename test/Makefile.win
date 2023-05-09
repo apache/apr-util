@@ -141,6 +141,10 @@ $(OUTDIR)\dbd.exe: $(INTDIR)\dbd.obj $(PROGRAM_DEPENDENCIES)
 	@if exist "$@.manifest" \
 	    mt.exe -manifest "$@.manifest" -outputresource:$@;1
 
+$(OUTDIR)\memcachedmock.exe: $(INTDIR)\memcachedmock.obj $(PROGRAM_DEPENDENCIES)
+	$(LD) $(LDFLAGS) /out:"$@" $** $(LD_LIBS)
+	@if exist "$@.manifest" \
+	    mt.exe -manifest "$@.manifest" -outputresource:$@;1
 
 cleandata:
 	@for %f in ($(CLEAN_DATA)) do @if EXIST %f del /f %f
