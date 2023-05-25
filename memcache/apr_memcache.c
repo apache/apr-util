@@ -165,7 +165,7 @@ apr_memcache_find_server_hash_default(void *baton, apr_memcache_t *mc,
     apr_uint32_t i = 0;
     apr_time_t curtime = 0;
    
-    if(mc->ntotal == 0) {
+    if (mc->ntotal == 0) {
         return NULL;
     }
 
@@ -182,7 +182,7 @@ apr_memcache_find_server_hash_default(void *baton, apr_memcache_t *mc,
             apr_thread_mutex_lock(ms->lock);
 #endif
             /* Try the dead server, every 5 seconds */
-            if (curtime - ms->btime >  apr_time_from_sec(5)) {
+            if (curtime - ms->btime > mc->retry_period) {
                 ms->btime = curtime;
                 if (mc_version_ping(ms) == APR_SUCCESS) {
                     make_server_live(mc, ms);
@@ -511,13 +511,24 @@ APU_DECLARE(apr_status_t) apr_memcache_server_create(apr_pool_t *p,
     return rv;
 }
 
+APU_DECLARE(void) apr_memcache_set_retry_period(apr_memcache_t *mc,
+                                                apr_time_t retry_period)
+{
+    mc->retry_period = retry_period;
+}
+
+APU_DECLARE(apr_time_t) apr_memcache_get_retry_period(apr_memcache_t *mc)
+{
+    return mc->retry_period;
+}
+
 APU_DECLARE(apr_status_t) apr_memcache_create(apr_pool_t *p,
                                               apr_uint16_t max_servers, apr_uint32_t flags,
-                                              apr_memcache_t **memcache) 
+                                              apr_memcache_t **memcache)
 {
     apr_status_t rv = APR_SUCCESS;
     apr_memcache_t *mc;
-    
+
     mc = apr_palloc(p, sizeof(apr_memcache_t));
     mc->p = p;
     mc->nalloc = max_servers;
@@ -527,6 +538,8 @@ APU_DECLARE(apr_status_t) apr_memcache_create(apr_pool_t *p,
     mc->hash_baton = NULL;
     mc->server_func = NULL;
     mc->server_baton = NULL;
+    /* Init with previous default value */
+    mc->retry_period = apr_time_from_sec(5);
     *memcache = mc;
     return rv;
 }
