@@ -1,6 +1,11 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.6.4
 
+  *) apr_brigade: Metadata buckets are now ignored in
+     apr_brigade_split_line, apr_brigade_flatten and
+     apr_brigade_to_iovec, fixing possible undefined behaviour.  PR 68278
+     [Ben Kallus <benjamin.p.kallus.gr dartmouth.edu>, Joe Orton]
+
   *) apr_crypto_openssl: Compatibility with OpenSSL 3.  [Yann Ylavic]
 
   *) apr_crypto_openssl: use OPENSSL_init_crypto() to initialise OpenSSL
