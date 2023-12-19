@@ -40,6 +40,8 @@ extern apr_pool_t *p;
 /* Assert that RV is an APR_SUCCESS value; else fail giving strerror
  * for RV and CONTEXT message. */
 void apr_assert_success(abts_case* tc, const char *context, apr_status_t rv);
+#define APR_ASSERT_SUCCESS(tc, ctxt, rv) \
+             apr_assert_success(tc, ctxt, rv)
 
 void apr_assert_failure(abts_case* tc, const char *context,
                         apr_status_t rv, int lineno);
