@@ -45,23 +45,17 @@ struct apr_bucket_alloc_t {
 static apr_status_t alloc_cleanup(void *data)
 {
     apr_bucket_alloc_t *list = data;
-#if APR_POOL_DEBUG
     apr_allocator_t *allocator = NULL;
-#endif
 
-#if APR_POOL_DEBUG
     if (list->pool && list->allocator != apr_pool_allocator_get(list->pool)) {
         allocator = list->allocator;
     }
-#endif
 
     apr_allocator_free(list->allocator, list->blocks);
 
-#if APR_POOL_DEBUG
     if (allocator) {
         apr_allocator_destroy(allocator);
     }
-#endif
 
     return APR_SUCCESS;
 }
@@ -71,8 +65,7 @@ APU_DECLARE_NONSTD(apr_bucket_alloc_t *) apr_bucket_alloc_create(apr_pool_t *p)
     apr_allocator_t *allocator = apr_pool_allocator_get(p);
     apr_bucket_alloc_t *list;
 
-#if APR_POOL_DEBUG
-    /* may be NULL for debug mode. */
+    /* May be NULL in APR_POOL_DEBUG mode. */
     if (allocator == NULL) {
         if (apr_allocator_create(&allocator) != APR_SUCCESS) {
             apr_abortfunc_t fn = apr_pool_abort_get(p);
@@ -81,7 +74,7 @@ APU_DECLARE_NONSTD(apr_bucket_alloc_t *) apr_bucket_alloc_create(apr_pool_t *p)
             abort();
         }
     }
-#endif
+
     list = apr_bucket_alloc_create_ex(allocator);
     if (list == NULL) {
             apr_abortfunc_t fn = apr_pool_abort_get(p);
@@ -124,11 +117,9 @@ APU_DECLARE_NONSTD(void) apr_bucket_alloc_destroy(apr_bucket_alloc_t *list)
 
     apr_allocator_free(list->allocator, list->blocks);
 
-#if APR_POOL_DEBUG
     if (list->pool && list->allocator != apr_pool_allocator_get(list->pool)) {
         apr_allocator_destroy(list->allocator);
     }
-#endif
 }
 
 APU_DECLARE_NONSTD(apr_size_t) apr_bucket_alloc_aligned_floor(apr_bucket_alloc_t *list,
