@@ -48,19 +48,19 @@ static apr_uint32_t initialised = 0, in_init = 1;
  * no longer be exported.
  */
 static apr_thread_mutex_t* mutex = NULL;
-APU_DECLARE(apr_status_t) apr_dbd_mutex_lock()
+APU_DECLARE(apr_status_t) apr_dbd_mutex_lock(void)
 {
     return apr_thread_mutex_lock(mutex);
 }
-APU_DECLARE(apr_status_t) apr_dbd_mutex_unlock()
+APU_DECLARE(apr_status_t) apr_dbd_mutex_unlock(void)
 {
     return apr_thread_mutex_unlock(mutex);
 }
 #else
-APU_DECLARE(apr_status_t) apr_dbd_mutex_lock() {
+APU_DECLARE(apr_status_t) apr_dbd_mutex_lock(void) {
     return APR_SUCCESS;
 }
-APU_DECLARE(apr_status_t) apr_dbd_mutex_unlock() {
+APU_DECLARE(apr_status_t) apr_dbd_mutex_unlock(void) {
     return APR_SUCCESS;
 }
 #endif
