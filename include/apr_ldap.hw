@@ -90,6 +90,7 @@
 #define APR_HAS_LDAPSSL_INIT 0
 #define APR_HAS_LDAPSSL_INSTALL_ROUTINES 0
 #define APR_HAS_LDAP_SASL_INTERACTIVE_BIND 0
+#define APR_HAS_LDAP_CONNECT 1
 
 /*
  * Make sure the secure LDAP port is defined

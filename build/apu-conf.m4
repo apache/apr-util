@@ -71,6 +71,7 @@ AC_DEFUN([APU_FIND_LDAPLIB], [
         AC_CHECK_LIB(${ldaplib}, ldapssl_init, apu_has_ldapssl_init="1", , ${extralib})
         AC_CHECK_LIB(${ldaplib}, ldapssl_install_routines, apu_has_ldapssl_install_routines="1", , ${extralib})
         AC_CHECK_LIB(${ldaplib}, ldap_sasl_interactive_bind, apu_has_ldap_sasl_interactive_bind="1", , ${extralib})
+        AC_CHECK_LIB(${ldaplib}, ldap_connect, apu_has_ldap_connect="1", , ${extralib})
         apu_has_ldap="1";
       ], , ${extralib})
   fi
@@ -93,6 +94,7 @@ apu_has_ldapssl_init="0"
 apu_has_ldap_sslinit="0"
 apu_has_ldapssl_install_routines="0"
 apu_has_ldap_sasl_interactive_bind="0"
+apu_has_ldap_connect="0"
 apu_has_ldap_openldap="0"
 apu_has_ldap_solaris="0"
 apu_has_ldap_novell="0"
@@ -289,6 +291,7 @@ AC_SUBST(apu_has_ldapssl_init)
 AC_SUBST(apu_has_ldap_sslinit)
 AC_SUBST(apu_has_ldapssl_install_routines)
 AC_SUBST(apu_has_ldap_sasl_interactive_bind)
+AC_SUBST(apu_has_ldap_connect)
 AC_SUBST(apu_has_ldap)
 AC_SUBST(apu_has_ldap_openldap)
 AC_SUBST(apu_has_ldap_solaris)

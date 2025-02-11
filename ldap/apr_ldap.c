@@ -85,6 +85,11 @@ typedef struct apr_ldap_result_t {
         apr_ldap_bind_cb bind;
         apr_ldap_compare_cb compare;
         apr_ldap_search_result_cb search;
+        apr_ldap_add_cb add;
+        apr_ldap_modify_cb modify;
+        apr_ldap_rename_cb rename;
+        apr_ldap_delete_cb delete;
+        apr_ldap_extended_cb ext;
     } cb;
     union {
         apr_ldap_search_entry_cb search;
@@ -98,6 +103,10 @@ typedef struct apr_ldap_result_t {
 
 APU_DECLARE_LDAP(apr_status_t) apr_ldap_status(int rc, apr_status_t status)
 {
+
+    if (LDAP_SUCCESS == rc) {
+        return APR_SUCCESS;
+    }
 
     switch (rc) {
     case LDAP_SUCCESS:
@@ -143,6 +152,11 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_status(int rc, apr_status_t status)
         return APR_CONSTRAINT_VIOLATION;
 #endif
 
+#ifdef LDAP_OBJECT_CLASS_VIOLATION
+    case LDAP_OBJECT_CLASS_VIOLATION:
+        return APR_OBJECT_CLASS_VIOLATION;
+#endif
+
     case LDAP_NO_RESULTS_RETURNED:
         return APR_NO_RESULTS_RETURNED;
 
@@ -151,6 +165,15 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_status(int rc, apr_status_t status)
 
     case LDAP_COMPARE_FALSE:
         return APR_COMPARE_FALSE;
+
+    case LDAP_NO_SUCH_OBJECT:
+        return APR_NO_SUCH_OBJECT;
+
+    case LDAP_NO_SUCH_ATTRIBUTE:
+        return APR_NO_SUCH_ATTRIBUTE;
+
+    case LDAP_ALREADY_EXISTS:
+        return APR_ALREADY_EXISTS;
 
     case LDAP_OPERATIONS_ERROR:
     case LDAP_PROTOCOL_ERROR:
@@ -875,11 +898,11 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_option_set(apr_pool_t *pool, apr_ldap_t 
         /* windows allows the socket to be set here */
 
         rc = LDAP_UNWILLING_TO_PERFORM;
-        break;
+        goto end;
 
     case APR_LDAP_OPT_URI:
         rc = option_set_uri(ldap, invalue->uri, result);
-        break;
+        goto end;
 
     default:
         break;
@@ -1048,6 +1071,7 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_option_set(apr_pool_t *pool, apr_ldap_t 
         rc = ldap_set_option(ldap ? ldap->ld : NULL, option, invalue->opt);
     }
 
+end:
     if (rc != LDAP_OPT_SUCCESS) {
 
         result->rc = rc;
@@ -1437,6 +1461,206 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_process(apr_pool_t *pool,
 
             break;
         }
+        case LDAP_RES_ADD: {
+
+            /* handle adding */
+
+            char *matcheddn = NULL;
+            char *errmsg = NULL;
+            LDAPControl **serverctrls = NULL;
+            int rc;
+
+            err->rc = ldap_parse_result(ldap->ld, res->message, &rc, &matcheddn, &errmsg,
+                                        NULL, &serverctrls, 0);
+
+            err->rc = rc != LDAP_SUCCESS ? rc : err->rc;
+            err->msg = ldap_err2string(err->rc);
+            err->reason = "LDAP add: ldap_parse_result()";
+
+            if (res->cb.add) {
+                status = res->cb.add(ldap, apr_ldap_status(err->rc, APR_EGENERAL),
+                                         matcheddn, (apr_ldap_control_t **)serverctrls,
+                                         res->ctx, err);
+            }
+            else {
+                status = apr_ldap_status(err->rc, APR_EGENERAL);
+            }
+
+
+            apr_ldap_result_remove(ldap, res);
+
+            if (matcheddn) {
+                ldap_memfree(matcheddn);
+            }
+
+            if (errmsg) {
+                ldap_memfree(errmsg);
+            }
+
+            if (serverctrls) {
+                ldap_controls_free(serverctrls);
+            }
+
+            break;
+        }
+        case LDAP_RES_MODIFY: {
+
+            /* handle modification */
+
+            char *matcheddn = NULL;
+            char *errmsg = NULL;
+            LDAPControl **serverctrls = NULL;
+            int rc;
+
+            err->rc = ldap_parse_result(ldap->ld, res->message, &rc, &matcheddn, &errmsg,
+                                        NULL, &serverctrls, 0);
+
+            err->rc = rc != LDAP_SUCCESS ? rc : err->rc;
+            err->msg = ldap_err2string(err->rc);
+            err->reason = "LDAP modify: ldap_parse_result()";
+
+            if (res->cb.modify) {
+                status = res->cb.modify(ldap, apr_ldap_status(err->rc, APR_EGENERAL),
+                                        matcheddn, (apr_ldap_control_t **)serverctrls,
+                                        res->ctx, err);
+            }
+            else {
+                status = apr_ldap_status(err->rc, APR_EGENERAL);
+            }
+
+
+            apr_ldap_result_remove(ldap, res);
+
+            if (matcheddn) {
+                ldap_memfree(matcheddn);
+            }
+
+            if (errmsg) {
+                ldap_memfree(errmsg);
+            }
+
+            if (serverctrls) {
+                ldap_controls_free(serverctrls);
+            }
+
+            break;
+        }
+        case LDAP_RES_RENAME: {
+
+            /* handle rename */
+
+            char *matcheddn = NULL;
+            char *errmsg = NULL;
+            LDAPControl **serverctrls = NULL;
+            int rc;
+
+            err->rc = ldap_parse_result(ldap->ld, res->message, &rc, &matcheddn, &errmsg,
+                                        NULL, &serverctrls, 0);
+
+            err->rc = rc != LDAP_SUCCESS ? rc : err->rc;
+            err->msg = ldap_err2string(err->rc);
+            err->reason = "LDAP rename: ldap_parse_result()";
+
+            if (res->cb.rename) {
+                status = res->cb.rename(ldap, apr_ldap_status(err->rc, APR_EGENERAL),
+                                        matcheddn, (apr_ldap_control_t **)serverctrls,
+                                        res->ctx, err);
+            }
+            else {
+                status = apr_ldap_status(err->rc, APR_EGENERAL);
+            }
+
+
+            apr_ldap_result_remove(ldap, res);
+
+            if (matcheddn) {
+                ldap_memfree(matcheddn);
+            }
+
+            if (errmsg) {
+                ldap_memfree(errmsg);
+            }
+
+            if (serverctrls) {
+                ldap_controls_free(serverctrls);
+            }
+
+            break;
+        }
+        case LDAP_RES_DELETE: {
+
+            /* handle delete */
+
+            char *matcheddn = NULL;
+            char *errmsg = NULL;
+            LDAPControl **serverctrls = NULL;
+            int rc;
+
+            err->rc = ldap_parse_result(ldap->ld, res->message, &rc, &matcheddn, &errmsg,
+                                        NULL, &serverctrls, 0);
+
+            err->rc = rc != LDAP_SUCCESS ? rc : err->rc;
+            err->msg = ldap_err2string(err->rc);
+            err->reason = "LDAP delete: ldap_parse_result()";
+
+            if (res->cb.delete) {
+                status = res->cb.delete(ldap, apr_ldap_status(err->rc, APR_EGENERAL),
+                                        matcheddn, (apr_ldap_control_t **)serverctrls,
+                                        res->ctx, err);
+            }
+            else {
+                status = apr_ldap_status(err->rc, APR_EGENERAL);
+            }
+
+
+            apr_ldap_result_remove(ldap, res);
+
+            if (matcheddn) {
+                ldap_memfree(matcheddn);
+            }
+
+            if (errmsg) {
+                ldap_memfree(errmsg);
+            }
+
+            if (serverctrls) {
+                ldap_controls_free(serverctrls);
+            }
+
+            break;
+        }
+        case LDAP_RES_EXTENDED: {
+
+            /* handle extended operation */
+
+            char *roid = NULL;
+            struct berval *rd = NULL;
+            apr_buffer_t rdata;
+
+            err->rc = ldap_parse_extended_result(ldap->ld, res->message, &roid,
+                                        &rd, 0);
+
+            err->msg = ldap_err2string(err->rc);
+            err->reason = "LDAP extended operation: ldap_parse_result()";
+
+            if (rd) {
+                apr_buffer_mem_set(&rdata, rd->bv_val, rd->bv_len);
+            }
+
+            if (res->cb.ext) {
+                status = res->cb.ext(ldap, apr_ldap_status(err->rc, APR_EGENERAL),
+                                     roid, &rdata,
+                                     res->ctx, err);
+            }
+            else {
+                status = apr_ldap_status(err->rc, APR_EGENERAL);
+            }
+
+
+            apr_ldap_result_remove(ldap, res);
+
+            break;
+        }
         default:
             break;
         }
@@ -1531,23 +1755,6 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_result(apr_pool_t *pool,
              * We generally get away with this because the server doesn't typically
              * decide when the connection is closed, so we're almost always writable
              * so we don't see a problem.
-             */
-
-            if (res->message) {
-                /* two unprocessed bind messages would be weird, but don't leak */
-                ldap_msgfree(res->message);
-            }
-
-            res->message = msg;
-
-            return APR_WANT_WRITE;
-        }
-        case LDAP_RES_COMPARE: {
-
-            /*
-             * Set the result aside for callbacks to be fired when our LDAP socket
-             * is next writable. This means that we can safely write the next LDAP
-             * request in the callback without messing about.
              */
 
             if (res->message) {
@@ -1672,7 +1879,13 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_result(apr_pool_t *pool,
 
             break;
         }
-        case LDAP_RES_SEARCH_RESULT: {
+        case LDAP_RES_SEARCH_RESULT:
+        case LDAP_RES_COMPARE:
+        case LDAP_RES_ADD:
+        case LDAP_RES_MODIFY:
+        case LDAP_RES_RENAME:
+        case LDAP_RES_DELETE:
+        case LDAP_RES_EXTENDED: {
 
             /*
              * Set the result aside for callbacks to be fired when our LDAP socket
@@ -1681,7 +1894,7 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_result(apr_pool_t *pool,
              */
 
             if (res->message) {
-                /* two unprocessed bind messages would be weird, but don't leak */
+                /* two unprocessed messages would be weird, but don't leak */
                 ldap_msgfree(res->message);
             }
 
@@ -2237,6 +2450,494 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_search(apr_pool_t *pool,
     res->cb.search = search_result_cb;
     res->entry_cb.search = search_entry_cb;
     res->ctx = search_ctx;
+
+    apr_ldap_result_add(pool, ldap, res, msgid);
+
+    return APR_WANT_READ;
+}
+
+APU_DECLARE_LDAP(apr_status_t) apr_ldap_add(apr_pool_t *pool,
+                                            apr_ldap_t *ldap,
+                                            const char *dn,
+                                            apr_array_header_t *adds,
+                                            apr_ldap_control_t **serverctrls,
+                                            apr_ldap_control_t **clientctrls,
+                                            apr_interval_time_t timeout,
+                                            apr_ldap_add_cb add_cb, void *ctx,
+                                            apu_err_t *err)
+{
+    apr_ldap_result_t *res;
+
+    apr_pool_t *tpool;
+
+    LDAPMod **mps, *ms;
+
+    int msgid = 0, i, j;
+
+#ifdef LDAP_OPT_NETWORK_TIMEOUT
+    {
+        struct timeval tv, *tvptr;
+
+        if (timeout < 0) {
+            tvptr = NULL;
+        }
+        else {
+            tv.tv_sec = (long) apr_time_sec(timeout);
+            tv.tv_usec = (long) apr_time_usec(timeout);
+            tvptr = &tv;
+        }
+
+        err->rc = ldap_set_option(ldap->ld, LDAP_OPT_NETWORK_TIMEOUT, tvptr);
+        if (err->rc != LDAP_SUCCESS) {
+            err->msg = ldap_err2string(err->rc);
+            err->reason = "LDAP: Could not set network timeout";
+            return APR_EINVAL;
+        }
+    }
+#endif
+
+    /* sanity check - any binary inconsistency? */
+    for (i = 0; i < adds->nelts; ++i) {
+        apr_ldap_pair_t *pair = &APR_ARRAY_IDX(adds, i, apr_ldap_pair_t);
+
+        int is_str = 0;
+
+        /* no adding attributes with no values */
+        if (!pair->vals->nelts) {
+            return APR_EINVAL;
+        }
+
+        /* no adding mixed strings / binary */
+        for (j = 0; j < pair->vals->nelts; ++j) {
+            apr_buffer_t *buf = &APR_ARRAY_IDX(pair->vals, j, apr_buffer_t);
+
+            if (0 == j) {
+                is_str = apr_buffer_is_str(buf);
+            }
+            else if (apr_buffer_is_str(buf) != is_str) {
+                return APR_EINVAL;
+            }
+        }
+    }
+
+    /* all sane, let's translate into the LDAP world */
+    apr_pool_create(&tpool, pool);
+
+    mps = apr_pcalloc(tpool, (adds->nelts + 1) * sizeof(LDAPMod *));
+    ms = apr_pcalloc(tpool, (adds->nelts) * sizeof(LDAPMod));
+
+    /* walk our attributes */
+    for (i = 0; i < adds->nelts; ++i) {
+        apr_ldap_pair_t *pair = &APR_ARRAY_IDX(adds, i, apr_ldap_pair_t);
+
+        ms->mod_op = 0; /* entry add, no operation on attributes */
+        ms->mod_type = (char *)pair->attr;
+
+        for (j = 0; j < pair->vals->nelts; ++j) {
+            apr_buffer_t *buf = &APR_ARRAY_IDX(pair->vals, j, apr_buffer_t);
+
+            if (apr_buffer_is_str(buf)) {
+                if (0 == j) {
+                    ms->mod_vals.modv_strvals = apr_pcalloc(tpool, (pair->vals->nelts + 1) * sizeof(void *));
+                }
+                ms->mod_vals.modv_strvals[j] = apr_buffer_str(buf);
+            }
+            else {
+                if (0 == j) {
+                    ms->mod_op |= LDAP_MOD_BVALUES;
+                    ms->mod_vals.modv_bvals = apr_pcalloc(tpool, (pair->vals->nelts + 1) * sizeof(void *));
+                }
+                ms->mod_vals.modv_bvals[j]->bv_val = apr_buffer_mem(buf, NULL);
+                ms->mod_vals.modv_bvals[j]->bv_len = apr_buffer_len(buf);
+            }
+        }
+
+        mps[i] = ms++;
+    }
+
+    err->rc = ldap_add_ext(ldap->ld, dn, mps,
+                               (LDAPControl **)serverctrls, (LDAPControl **)clientctrls, &msgid);
+
+    apr_pool_destroy(tpool);
+
+    if (err->rc != LDAP_SUCCESS) {
+        err->msg = ldap_err2string(err->rc);
+        err->reason = "LDAP: ldap_add failed";
+        return apr_ldap_status(err->rc, APR_EGENERAL);
+    }
+    else {
+        memset(err, 0, sizeof(*err));
+    }
+
+    res = apr_pcalloc(pool, sizeof(apr_ldap_result_t));
+
+    if (!res) {
+        return APR_ENOMEM;
+    }
+
+    res->msgtype = LDAP_RES_ADD;
+    res->cb.add = add_cb;
+    res->ctx = ctx;
+
+    apr_ldap_result_add(pool, ldap, res, msgid);
+
+    return APR_WANT_READ;
+}
+
+APU_DECLARE_LDAP(apr_status_t) apr_ldap_modify(apr_pool_t *pool,
+                                               apr_ldap_t *ldap,
+                                               const char *dn,
+                                               apr_array_header_t *mods,
+                                               apr_ldap_control_t **serverctrls,
+                                               apr_ldap_control_t **clientctrls,
+                                               apr_interval_time_t timeout,
+                                               apr_ldap_modify_cb modify_cb, void *ctx,
+                                               apu_err_t *err)
+{
+    apr_ldap_result_t *res;
+
+    apr_pool_t *tpool;
+
+    LDAPMod **mps, *ms;
+
+    int msgid = 0, i, j;
+
+#ifdef LDAP_OPT_NETWORK_TIMEOUT
+    {
+        struct timeval tv, *tvptr;
+
+        if (timeout < 0) {
+            tvptr = NULL;
+        }
+        else {
+            tv.tv_sec = (long) apr_time_sec(timeout);
+            tv.tv_usec = (long) apr_time_usec(timeout);
+            tvptr = &tv;
+        }
+
+        err->rc = ldap_set_option(ldap->ld, LDAP_OPT_NETWORK_TIMEOUT, tvptr);
+        if (err->rc != LDAP_SUCCESS) {
+            err->msg = ldap_err2string(err->rc);
+            err->reason = "LDAP: Could not set network timeout";
+            return APR_EINVAL;
+        }
+    }
+#endif
+
+    /* sanity check - any binary inconsistency? */
+    for (i = 0; i < mods->nelts; ++i) {
+        apr_ldap_modify_t *mod = &APR_ARRAY_IDX(mods, i, apr_ldap_modify_t);
+
+        int is_str = 0;
+
+        /* non recognised operations */
+        switch (mod->op) {
+        case APR_LDAP_MOD_ADD:
+        case APR_LDAP_MOD_DELETE:
+        case APR_LDAP_MOD_REPLACE:
+        case APR_LDAP_MOD_INCREMENT:
+            break;
+        default:
+            return APR_EINVAL;
+        }
+
+        /* no attribute */
+        if (!mod->pair.attr) {
+            return APR_EINVAL;
+        }
+
+        /* no adding attributes with no values */
+        if (mod->op == APR_LDAP_MOD_ADD && !mod->pair.vals->nelts) {
+            return APR_EINVAL;
+        }
+
+        /* no adding mixed strings / binary */
+        for (j = 0; j < mod->pair.vals->nelts; ++j) {
+            apr_buffer_t *buf = &APR_ARRAY_IDX(mod->pair.vals, j, apr_buffer_t);
+
+            if (0 == j) {
+                is_str = apr_buffer_is_str(buf);
+            }
+            else if (apr_buffer_is_str(buf) != is_str) {
+                return APR_EINVAL;
+            }
+        }
+    }
+
+    /* all sane, let's translate into the LDAP world */
+    apr_pool_create(&tpool, pool);
+
+    mps = apr_pcalloc(tpool, (mods->nelts + 1) * sizeof(LDAPMod *));
+    ms = apr_pcalloc(tpool, (mods->nelts) * sizeof(LDAPMod));
+
+    /* walk our attributes */
+    for (i = 0; i < mods->nelts; ++i) {
+        apr_ldap_modify_t *mod = &APR_ARRAY_IDX(mods, i, apr_ldap_modify_t);
+
+        switch (mod->op) {
+        case APR_LDAP_MOD_ADD:
+            ms->mod_op = LDAP_MOD_ADD;
+            break;
+        case APR_LDAP_MOD_DELETE:
+            ms->mod_op = LDAP_MOD_DELETE;
+            break;
+        case APR_LDAP_MOD_REPLACE:
+            ms->mod_op = LDAP_MOD_REPLACE;
+            break;
+        case APR_LDAP_MOD_INCREMENT:
+            ms->mod_op = LDAP_MOD_INCREMENT;
+            break;
+        }
+
+        ms->mod_type = (char *)mod->pair.attr;
+
+        for (j = 0; j < mod->pair.vals->nelts; ++j) {
+            apr_buffer_t *buf = &APR_ARRAY_IDX(mod->pair.vals, j, apr_buffer_t);
+
+            if (apr_buffer_is_str(buf)) {
+                if (0 == j) {
+                    ms->mod_vals.modv_strvals = apr_pcalloc(tpool, (mod->pair.vals->nelts + 1) * sizeof(void *));
+                }
+                ms->mod_vals.modv_strvals[j] = apr_buffer_str(buf);
+            }
+            else {
+                if (0 == j) {
+                    ms->mod_op |= LDAP_MOD_BVALUES;
+                    ms->mod_vals.modv_bvals = apr_pcalloc(tpool, (mod->pair.vals->nelts + 1) * sizeof(void *));
+                }
+                ms->mod_vals.modv_bvals[j]->bv_val = apr_buffer_mem(buf, NULL);
+                ms->mod_vals.modv_bvals[j]->bv_len = apr_buffer_len(buf);
+            }
+        }
+
+        mps[i] = ms++;
+    }
+
+    err->rc = ldap_modify_ext(ldap->ld, dn, mps,
+                              (LDAPControl **)serverctrls, (LDAPControl **)clientctrls, &msgid);
+
+    apr_pool_destroy(tpool);
+
+    if (err->rc != LDAP_SUCCESS) {
+        err->msg = ldap_err2string(err->rc);
+        err->reason = "LDAP: ldap_modify failed";
+        return apr_ldap_status(err->rc, APR_EGENERAL);
+    }
+    else {
+        memset(err, 0, sizeof(*err));
+    }
+
+    res = apr_pcalloc(pool, sizeof(apr_ldap_result_t));
+
+    if (!res) {
+        return APR_ENOMEM;
+    }
+
+    res->msgtype = LDAP_RES_MODIFY;
+    res->cb.modify = modify_cb;
+    res->ctx = ctx;
+
+    apr_ldap_result_add(pool, ldap, res, msgid);
+
+    return APR_WANT_READ;
+}
+
+APU_DECLARE_LDAP(apr_status_t) apr_ldap_rename(apr_pool_t *pool,
+                                               apr_ldap_t *ldap,
+                                               const char *dn, const char *newrdn, const char *newparent,
+                                               apr_ldap_rename_e flags,
+                                               apr_ldap_control_t **serverctrls,
+                                               apr_ldap_control_t **clientctrls,
+                                               apr_interval_time_t timeout,
+                                               apr_ldap_rename_cb rename_cb, void *ctx,
+                                               apu_err_t *err)
+{
+    apr_ldap_result_t *res;
+
+    int msgid = 0;
+
+#ifdef LDAP_OPT_NETWORK_TIMEOUT
+    {
+        struct timeval tv, *tvptr;
+
+        if (timeout < 0) {
+            tvptr = NULL;
+        }
+        else {
+            tv.tv_sec = (long) apr_time_sec(timeout);
+            tv.tv_usec = (long) apr_time_usec(timeout);
+            tvptr = &tv;
+        }
+
+        err->rc = ldap_set_option(ldap->ld, LDAP_OPT_NETWORK_TIMEOUT, tvptr);
+        if (err->rc != LDAP_SUCCESS) {
+            err->msg = ldap_err2string(err->rc);
+            err->reason = "LDAP: Could not set network timeout";
+            return APR_EINVAL;
+        }
+    }
+#endif
+
+    /* ldap_rename_ext on Windows */
+
+    err->rc = ldap_rename(ldap->ld, dn, newrdn, newparent, flags,
+                          (LDAPControl **)serverctrls, (LDAPControl **)clientctrls, &msgid);
+
+    if (err->rc != LDAP_SUCCESS) {
+        err->msg = ldap_err2string(err->rc);
+        err->reason = "LDAP: ldap_rename failed";
+        return apr_ldap_status(err->rc, APR_EGENERAL);
+    }
+    else {
+        memset(err, 0, sizeof(*err));
+    }
+
+    res = apr_pcalloc(pool, sizeof(apr_ldap_result_t));
+
+    if (!res) {
+        return APR_ENOMEM;
+    }
+
+    res->msgtype = LDAP_RES_RENAME;
+    res->cb.rename = rename_cb;
+    res->ctx = ctx;
+
+    apr_ldap_result_add(pool, ldap, res, msgid);
+
+    return APR_WANT_READ;
+}
+
+APU_DECLARE_LDAP(apr_status_t) apr_ldap_delete(apr_pool_t *pool,
+                                               apr_ldap_t *ldap,
+                                               const char *dn,
+                                               apr_ldap_control_t **serverctrls,
+                                               apr_ldap_control_t **clientctrls,
+                                               apr_interval_time_t timeout,
+                                               apr_ldap_delete_cb delete_cb, void *ctx,
+                                               apu_err_t *err)
+{
+    apr_ldap_result_t *res;
+
+    int msgid = 0;
+
+#ifdef LDAP_OPT_NETWORK_TIMEOUT
+    {
+        struct timeval tv, *tvptr;
+
+        if (timeout < 0) {
+            tvptr = NULL;
+        }
+        else {
+            tv.tv_sec = (long) apr_time_sec(timeout);
+            tv.tv_usec = (long) apr_time_usec(timeout);
+            tvptr = &tv;
+        }
+
+        err->rc = ldap_set_option(ldap->ld, LDAP_OPT_NETWORK_TIMEOUT, tvptr);
+        if (err->rc != LDAP_SUCCESS) {
+            err->msg = ldap_err2string(err->rc);
+            err->reason = "LDAP: Could not set network timeout";
+            return APR_EINVAL;
+        }
+    }
+#endif
+
+    err->rc = ldap_delete_ext(ldap->ld, dn,
+                              (LDAPControl **)serverctrls, (LDAPControl **)clientctrls, &msgid);
+
+    if (err->rc != LDAP_SUCCESS) {
+        err->msg = ldap_err2string(err->rc);
+        err->reason = "LDAP: ldap_delete failed";
+        return apr_ldap_status(err->rc, APR_EGENERAL);
+    }
+    else {
+        memset(err, 0, sizeof(*err));
+    }
+
+    res = apr_pcalloc(pool, sizeof(apr_ldap_result_t));
+
+    if (!res) {
+        return APR_ENOMEM;
+    }
+
+    res->msgtype = LDAP_RES_DELETE;
+    res->cb.delete = delete_cb;
+    res->ctx = ctx;
+
+    apr_ldap_result_add(pool, ldap, res, msgid);
+
+    return APR_WANT_READ;
+}
+
+APU_DECLARE_LDAP(apr_status_t) apr_ldap_extended(apr_pool_t *pool,
+                                                 apr_ldap_t *ldap,
+                                                 const char *oid,
+                                                 apr_buffer_t *data,
+                                                 apr_ldap_control_t **serverctrls,
+                                                 apr_ldap_control_t **clientctrls,
+                                                 apr_interval_time_t timeout,
+                                                 apr_ldap_extended_cb ext_cb, void *ctx,
+                                                 apu_err_t *err)
+{
+    apr_ldap_result_t *res;
+
+    struct berval reqdata;
+    struct berval *rd;
+
+    int msgid = 0;
+
+#ifdef LDAP_OPT_NETWORK_TIMEOUT
+    {
+        struct timeval tv, *tvptr;
+
+        if (timeout < 0) {
+            tvptr = NULL;
+        }
+        else {
+            tv.tv_sec = (long) apr_time_sec(timeout);
+            tv.tv_usec = (long) apr_time_usec(timeout);
+            tvptr = &tv;
+        }
+
+        err->rc = ldap_set_option(ldap->ld, LDAP_OPT_NETWORK_TIMEOUT, tvptr);
+        if (err->rc != LDAP_SUCCESS) {
+            err->msg = ldap_err2string(err->rc);
+            err->reason = "LDAP: Could not set network timeout";
+            return APR_EINVAL;
+        }
+    }
+#endif
+
+    if (!data || apr_buffer_is_null(data)) {
+        rd = NULL;
+    }
+    else {
+        reqdata.bv_val = apr_buffer_mem(data, NULL);
+        reqdata.bv_len = apr_buffer_len(data);
+        rd = &reqdata;
+    }
+
+    err->rc = ldap_extended_operation(ldap->ld, oid, rd,
+                              (LDAPControl **)serverctrls, (LDAPControl **)clientctrls, &msgid);
+
+    if (err->rc != LDAP_SUCCESS) {
+        err->msg = ldap_err2string(err->rc);
+        err->reason = "LDAP: ldap_extended_operation failed";
+        return apr_ldap_status(err->rc, APR_EGENERAL);
+    }
+    else {
+        memset(err, 0, sizeof(*err));
+    }
+
+    res = apr_pcalloc(pool, sizeof(apr_ldap_result_t));
+
+    if (!res) {
+        return APR_ENOMEM;
+    }
+
+    res->msgtype = LDAP_RES_EXTENDED;
+    res->cb.ext = ext_cb;
+    res->ctx = ctx;
 
     apr_ldap_result_add(pool, ldap, res, msgid);
 

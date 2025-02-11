@@ -241,6 +241,11 @@ APU_MODULE_DECLARE_DATA struct apr__ldap_dso_fntable apr__ldap_fns = {
     apr_ldap_bind,
     apr_ldap_compare,
     apr_ldap_search,
+    apr_ldap_add,
+    apr_ldap_modify,
+    apr_ldap_rename,
+    apr_ldap_delete,
+    apr_ldap_extended,
     apr_ldap_unbind
 };
 
