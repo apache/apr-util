@@ -1097,6 +1097,7 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_connect(apr_pool_t *pool,
                                                 apr_interval_time_t timeout,
                                                 apu_err_t *err)
 {
+#if APR_HAS_LDAP_CONNECT
     LDAP *ld = ldap->ld;
 
 #if APR_HAS_MICROSOFT_LDAPSDK
@@ -1151,6 +1152,9 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_connect(apr_pool_t *pool,
     }
 
     return APR_SUCCESS;
+#else
+    return APR_ENOTIMPL;
+#endif
 }
 
 
