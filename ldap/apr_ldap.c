@@ -101,7 +101,7 @@ typedef struct apr_ldap_result_t {
 
 
 
-APU_DECLARE_LDAP(apr_status_t) apr_ldap_status(int rc, apr_status_t status)
+static apr_status_t apr_ldap_status(int rc, apr_status_t status)
 {
 
     if (LDAP_SUCCESS == rc) {
