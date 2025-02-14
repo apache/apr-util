@@ -2505,18 +2505,35 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_compare(apr_pool_t *pool,
                                                 const char *dn,
                                                 const char *attr,
                                                 const apr_buffer_t *val,
-                                                apr_ldap_control_t **serverctrls,
-                                                apr_ldap_control_t **clientctrls,
+                                                apr_array_header_t *serverctrls,
+                                                apr_array_header_t *clientctrls,
                                                 apr_interval_time_t timeout,
                                                 apr_ldap_compare_cb compare_cb, void *compare_ctx,
                                                 apu_err_t *err)
 {
+    LDAPControl **sctrls = NULL;
+    LDAPControl **cctrls = NULL;
+
     apr_ldap_result_t *res;
 
     struct berval bval;
     apr_size_t size;
 
     int msgid = 0;
+
+    apr_status_t status;
+
+    status = apr_ldap_control_create(pool, ldap, &sctrls, serverctrls, err);
+
+    if (APR_SUCCESS != status) {
+        return status;
+    }
+
+    status = apr_ldap_control_create(pool, ldap, &cctrls, clientctrls, err);
+
+    if (APR_SUCCESS != status) {
+        return status;
+    }
 
     bval.bv_val = apr_buffer_mem(val, &size);
     bval.bv_len = size;
@@ -2544,7 +2561,7 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_compare(apr_pool_t *pool,
 #endif
 
     err->rc = ldap_compare_ext(ldap->ld, dn, attr, &bval,
-                               (LDAPControl **)serverctrls, (LDAPControl **)clientctrls, &msgid);
+                               sctrls, cctrls, &msgid);
 
     if (err->rc != LDAP_SUCCESS) {
         err->msg = ldap_err2string(err->rc);
@@ -2652,19 +2669,24 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_add(apr_pool_t *pool,
                                             apr_ldap_t *ldap,
                                             const char *dn,
                                             apr_array_header_t *adds,
-                                            apr_ldap_control_t **serverctrls,
-                                            apr_ldap_control_t **clientctrls,
+                                            apr_array_header_t *serverctrls,
+                                            apr_array_header_t *clientctrls,
                                             apr_interval_time_t timeout,
                                             apr_ldap_add_cb add_cb, void *ctx,
                                             apu_err_t *err)
 {
-    apr_ldap_result_t *res;
+    LDAPControl **sctrls = NULL;
+    LDAPControl **cctrls = NULL;
 
     apr_pool_t *tpool;
+
+    apr_ldap_result_t *res;
 
     LDAPMod **mps, *ms;
 
     int msgid = 0, i, j;
+
+    apr_status_t status;
 
 #ifdef LDAP_OPT_NETWORK_TIMEOUT
     {
@@ -2715,6 +2737,18 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_add(apr_pool_t *pool,
     /* all sane, let's translate into the LDAP world */
     apr_pool_create(&tpool, pool);
 
+    status = apr_ldap_control_create(tpool, ldap, &sctrls, serverctrls, err);
+
+    if (APR_SUCCESS != status) {
+        return status;
+    }
+
+    status = apr_ldap_control_create(tpool, ldap, &cctrls, clientctrls, err);
+
+    if (APR_SUCCESS != status) {
+        return status;
+    }
+
     mps = apr_pcalloc(tpool, (adds->nelts + 1) * sizeof(LDAPMod *));
     ms = apr_pcalloc(tpool, (adds->nelts) * sizeof(LDAPMod));
 
@@ -2748,7 +2782,7 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_add(apr_pool_t *pool,
     }
 
     err->rc = ldap_add_ext(ldap->ld, dn, mps,
-                               (LDAPControl **)serverctrls, (LDAPControl **)clientctrls, &msgid);
+                           sctrls, cctrls, &msgid);
 
     apr_pool_destroy(tpool);
 
@@ -2780,19 +2814,24 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_modify(apr_pool_t *pool,
                                                apr_ldap_t *ldap,
                                                const char *dn,
                                                apr_array_header_t *mods,
-                                               apr_ldap_control_t **serverctrls,
-                                               apr_ldap_control_t **clientctrls,
+                                               apr_array_header_t *serverctrls,
+                                               apr_array_header_t *clientctrls,
                                                apr_interval_time_t timeout,
                                                apr_ldap_modify_cb modify_cb, void *ctx,
                                                apu_err_t *err)
 {
-    apr_ldap_result_t *res;
+    LDAPControl **sctrls = NULL;
+    LDAPControl **cctrls = NULL;
 
     apr_pool_t *tpool;
+
+    apr_ldap_result_t *res;
 
     LDAPMod **mps, *ms;
 
     int msgid = 0, i, j;
+
+    apr_status_t status;
 
 #ifdef LDAP_OPT_NETWORK_TIMEOUT
     {
@@ -2859,6 +2898,18 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_modify(apr_pool_t *pool,
     /* all sane, let's translate into the LDAP world */
     apr_pool_create(&tpool, pool);
 
+    status = apr_ldap_control_create(tpool, ldap, &sctrls, serverctrls, err);
+
+    if (APR_SUCCESS != status) {
+        return status;
+    }
+
+    status = apr_ldap_control_create(tpool, ldap, &cctrls, clientctrls, err);
+
+    if (APR_SUCCESS != status) {
+        return status;
+    }
+
     mps = apr_pcalloc(tpool, (mods->nelts + 1) * sizeof(LDAPMod *));
     ms = apr_pcalloc(tpool, (mods->nelts) * sizeof(LDAPMod));
 
@@ -2906,7 +2957,7 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_modify(apr_pool_t *pool,
     }
 
     err->rc = ldap_modify_ext(ldap->ld, dn, mps,
-                              (LDAPControl **)serverctrls, (LDAPControl **)clientctrls, &msgid);
+                              sctrls, cctrls, &msgid);
 
     apr_pool_destroy(tpool);
 
@@ -2938,15 +2989,32 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_rename(apr_pool_t *pool,
                                                apr_ldap_t *ldap,
                                                const char *dn, const char *newrdn, const char *newparent,
                                                apr_ldap_rename_e flags,
-                                               apr_ldap_control_t **serverctrls,
-                                               apr_ldap_control_t **clientctrls,
+                                               apr_array_header_t *serverctrls,
+                                               apr_array_header_t *clientctrls,
                                                apr_interval_time_t timeout,
                                                apr_ldap_rename_cb rename_cb, void *ctx,
                                                apu_err_t *err)
 {
+    LDAPControl **sctrls = NULL;
+    LDAPControl **cctrls = NULL;
+
     apr_ldap_result_t *res;
 
     int msgid = 0;
+
+    apr_status_t status;
+
+    status = apr_ldap_control_create(pool, ldap, &sctrls, serverctrls, err);
+
+    if (APR_SUCCESS != status) {
+        return status;
+    }
+
+    status = apr_ldap_control_create(pool, ldap, &cctrls, clientctrls, err);
+
+    if (APR_SUCCESS != status) {
+        return status;
+    }
 
 #ifdef LDAP_OPT_NETWORK_TIMEOUT
     {
@@ -2973,7 +3041,7 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_rename(apr_pool_t *pool,
     /* ldap_rename_ext on Windows */
 
     err->rc = ldap_rename(ldap->ld, dn, newrdn, newparent, flags,
-                          (LDAPControl **)serverctrls, (LDAPControl **)clientctrls, &msgid);
+                          sctrls, cctrls, &msgid);
 
     if (err->rc != LDAP_SUCCESS) {
         err->msg = ldap_err2string(err->rc);
@@ -3002,15 +3070,32 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_rename(apr_pool_t *pool,
 APU_DECLARE_LDAP(apr_status_t) apr_ldap_delete(apr_pool_t *pool,
                                                apr_ldap_t *ldap,
                                                const char *dn,
-                                               apr_ldap_control_t **serverctrls,
-                                               apr_ldap_control_t **clientctrls,
+                                               apr_array_header_t *serverctrls,
+                                               apr_array_header_t *clientctrls,
                                                apr_interval_time_t timeout,
                                                apr_ldap_delete_cb delete_cb, void *ctx,
                                                apu_err_t *err)
 {
+    LDAPControl **sctrls = NULL;
+    LDAPControl **cctrls = NULL;
+
     apr_ldap_result_t *res;
 
     int msgid = 0;
+
+    apr_status_t status;
+
+    status = apr_ldap_control_create(pool, ldap, &sctrls, serverctrls, err);
+
+    if (APR_SUCCESS != status) {
+        return status;
+    }
+
+    status = apr_ldap_control_create(pool, ldap, &cctrls, clientctrls, err);
+
+    if (APR_SUCCESS != status) {
+        return status;
+    }
 
 #ifdef LDAP_OPT_NETWORK_TIMEOUT
     {
@@ -3035,7 +3120,7 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_delete(apr_pool_t *pool,
 #endif
 
     err->rc = ldap_delete_ext(ldap->ld, dn,
-                              (LDAPControl **)serverctrls, (LDAPControl **)clientctrls, &msgid);
+                              sctrls, cctrls, &msgid);
 
     if (err->rc != LDAP_SUCCESS) {
         err->msg = ldap_err2string(err->rc);
@@ -3065,18 +3150,35 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_extended(apr_pool_t *pool,
                                                  apr_ldap_t *ldap,
                                                  const char *oid,
                                                  apr_buffer_t *data,
-                                                 apr_ldap_control_t **serverctrls,
-                                                 apr_ldap_control_t **clientctrls,
+                                                 apr_array_header_t *serverctrls,
+                                                 apr_array_header_t *clientctrls,
                                                  apr_interval_time_t timeout,
                                                  apr_ldap_extended_cb ext_cb, void *ctx,
                                                  apu_err_t *err)
 {
+    LDAPControl **sctrls = NULL;
+    LDAPControl **cctrls = NULL;
+
     apr_ldap_result_t *res;
 
     struct berval reqdata;
     struct berval *rd;
 
     int msgid = 0;
+
+    apr_status_t status;
+
+    status = apr_ldap_control_create(pool, ldap, &sctrls, serverctrls, err);
+
+    if (APR_SUCCESS != status) {
+        return status;
+    }
+
+    status = apr_ldap_control_create(pool, ldap, &cctrls, clientctrls, err);
+
+    if (APR_SUCCESS != status) {
+        return status;
+    }
 
 #ifdef LDAP_OPT_NETWORK_TIMEOUT
     {
@@ -3110,7 +3212,7 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_extended(apr_pool_t *pool,
     }
 
     err->rc = ldap_extended_operation(ldap->ld, oid, rd,
-                              (LDAPControl **)serverctrls, (LDAPControl **)clientctrls, &msgid);
+                                      sctrls, cctrls, &msgid);
 
     if (err->rc != LDAP_SUCCESS) {
         err->msg = ldap_err2string(err->rc);
@@ -3137,13 +3239,24 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_extended(apr_pool_t *pool,
 }
 
 APU_DECLARE_LDAP(apr_status_t) apr_ldap_unbind(apr_ldap_t *ldap,
-                                               apr_ldap_control_t **serverctrls,
-                                               apr_ldap_control_t **clientctrls,
+                                               apr_array_header_t *serverctrls,
+                                               apr_array_header_t *clientctrls,
                                                apu_err_t *err)
 {
 
-    ldap->serverctrls = (LDAPControl **)serverctrls;
-    ldap->clientctrls = (LDAPControl **)clientctrls;
+    apr_status_t status;
+
+    status = apr_ldap_control_create(ldap->pool, ldap, &ldap->serverctrls, serverctrls, err);
+
+    if (APR_SUCCESS != status) {
+        return status;
+    }
+
+    status = apr_ldap_control_create(ldap->pool, ldap, &ldap->clientctrls, clientctrls, err);
+
+    if (APR_SUCCESS != status) {
+        return status;
+    }
 
     apr_pool_cleanup_run(ldap->pool, ldap, ldap_cleanup);
 
