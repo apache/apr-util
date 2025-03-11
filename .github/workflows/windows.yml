@@ -126,7 +126,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         repository: apache/apr
-        ref: 1.7.x
+        ref: 1.8.x
         path: apr
 
     - name: Configure APR

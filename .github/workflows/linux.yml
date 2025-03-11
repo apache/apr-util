@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        apr-version: [1.6.x, 1.7.x]
+        apr-version: [1.7.x, 1.8.x]
         os: [ubuntu-20.04, ubuntu-22.04]
         include: 
           - name: APR 1.7.x maintainer-mode
