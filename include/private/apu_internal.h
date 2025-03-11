@@ -87,21 +87,52 @@ struct apr__ldap_dso_fntable {
     apr_status_t (*compare)(apr_pool_t *pool, apr_ldap_t *ldap,
                             const char *dn, const char *attr,
                             const apr_buffer_t *bval,
-                            apr_ldap_control_t **serverctrls,
-                            apr_ldap_control_t **clientctrls,
+                            apr_array_header_t *serverctrls,
+                            apr_array_header_t *clientctrls,
                             apr_interval_time_t timeout,
                             apr_ldap_compare_cb compare_cb, void *ctx, apu_err_t *err);
     apr_status_t (*search)(apr_pool_t *pool, apr_ldap_t *ldap, const char *dn,
                            apr_ldap_search_scope_e scope, const char *filter,
                            const char **attrs, apr_ldap_switch_e attrsonly,
-                           apr_ldap_control_t **serverctrls,
-                           apr_ldap_control_t **clientctrls,
+                           apr_array_header_t *serverctrls,
+                           apr_array_header_t *clientctrls,
                            apr_interval_time_t timeout, apr_ssize_t sizelimit,
                            apr_ldap_search_result_cb search_result_cb,          
                            apr_ldap_search_entry_cb search_entry_cb,                                          
                            void *search_ctx, apu_err_t *err);
-    apr_status_t (*unbind)(apr_ldap_t *ldap, apr_ldap_control_t **serverctrls,
-                           apr_ldap_control_t **clientctrls, apu_err_t *err);
+    apr_status_t (*add)(apr_pool_t *pool, apr_ldap_t *ldap,
+                        const char *dn, apr_array_header_t *adds,
+                        apr_array_header_t *serverctrls,
+                        apr_array_header_t *clientctrls,
+                        apr_interval_time_t timeout,
+                        apr_ldap_add_cb add_cb, void *ctx, apu_err_t *err);
+    apr_status_t (*modify)(apr_pool_t *pool, apr_ldap_t *ldap,
+                           const char *dn, apr_array_header_t *mods,
+                           apr_array_header_t *serverctrls,
+                           apr_array_header_t *clientctrls,
+                           apr_interval_time_t timeout,
+                           apr_ldap_modify_cb modify_cb, void *ctx, apu_err_t *err);
+    apr_status_t (*rename)(apr_pool_t *pool, apr_ldap_t *ldap,
+                           const char *dn, const char *newrdn, const char *newparent,
+                           apr_ldap_rename_e flags,
+                           apr_array_header_t *serverctrls,
+                           apr_array_header_t *clientctrls,
+                           apr_interval_time_t timeout,
+                           apr_ldap_rename_cb rename_cb, void *ctx, apu_err_t *err);
+    apr_status_t (*delete)(apr_pool_t *pool, apr_ldap_t *ldap,
+                           const char *dn,
+                           apr_array_header_t *serverctrls,
+                           apr_array_header_t *clientctrls,
+                           apr_interval_time_t timeout,
+                           apr_ldap_delete_cb delete_cb, void *ctx, apu_err_t *err);
+    apr_status_t (*extended)(apr_pool_t *pool, apr_ldap_t *ldap,
+                             const char *dn, apr_buffer_t *data,
+                             apr_array_header_t *serverctrls,
+                             apr_array_header_t *clientctrls,
+                             apr_interval_time_t timeout,
+                             apr_ldap_extended_cb ext_cb, void *ctx, apu_err_t *err);
+    apr_status_t (*unbind)(apr_ldap_t *ldap, apr_array_header_t *serverctrls,
+                           apr_array_header_t *clientctrls, apu_err_t *err);
 };
 
 #endif /* APR_HAS_LDAP */
