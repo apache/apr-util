@@ -51,9 +51,34 @@
 
 #include <assert.h>
 
+/* Older APIs don't define this from RFC4520 */
+#ifndef LDAP_MOD_INCREMENT
+#define LDAP_MOD_INCREMENT 3
+#endif
+
+/* Older APIs use LDAP_RES_MODRDN instead of LDAP_RES_RENAME */
+#ifndef LDAP_RES_RENAME
+#define LDAP_RES_RENAME LDAP_RES_MODRDN
+#endif
+
+/* Older APIs use LDAP_RES_REFERRAL instead of LDAP_RES_SEARCH_REFERENCE */
+#ifndef LDAP_RES_SEARCH_REFERENCE
+#define LDAP_RES_SEARCH_REFERENCE LDAP_RES_REFERRAL
+#endif
+
+#if APR_HAS_MICROSOFT_LDAPSDK
+#define MSGID_T ULONG
+#define TO_BV_LEN(a) (ULONG)(a)
+#else
+#define MSGID_T int
+#define TO_BV_LEN(a) (a)
+#endif
 
 typedef struct apr_ldap_t {
     apr_pool_t *pool;
+#if !APR_HAS_OPENLDAP_LDAPSDK
+    const char *uri;
+#endif
     LDAP *ld;
     apr_socket_t *socket;
     apr_skiplist *results;
@@ -80,7 +105,7 @@ typedef struct apr_ldap_result_t {
     const char *mech;
     const char *rmech;
     LDAPMessage *message;
-    int msgid;
+    MSGID_T msgid;
     int msgtype;
     union {
         apr_ldap_bind_cb bind;
@@ -292,8 +317,8 @@ static apr_status_t apr_ldap_cleanup(void *dptr)
 
 static int result_comp(void *a, void *b)
 {
-    int m1 = ((apr_ldap_result_t *)a)->msgid;
-    int m2 = ((apr_ldap_result_t *)b)->msgid;
+    MSGID_T m1 = ((apr_ldap_result_t *)a)->msgid;
+    MSGID_T m2 = ((apr_ldap_result_t *)b)->msgid;
     return (m1 == m2) ? 0 : ((m1 < m2) ? -1 : 1);
 }
 
@@ -314,7 +339,7 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_initialise(apr_pool_t *pool,
     apr_skiplist_init(&(*ldap)->results, pool);
     apr_skiplist_set_compare((*ldap)->results, result_comp, result_comp);
 
-    (*ldap)->abandons = apr_array_make(pool, 1, sizeof(int));
+    (*ldap)->abandons = apr_array_make(pool, 1, sizeof(MSGID_T));
     (*ldap)->prepares = apr_array_make(pool, 1, sizeof(apr_ldap_prepare_t));
 
     apr_pool_cleanup_register(pool, (*ldap), apr_ldap_cleanup,
@@ -343,6 +368,7 @@ static apr_status_t option_set_uri(apr_ldap_t *ldap, const char *uri,
 
     {
         apr_ldap_url_desc_t *urld;
+        apu_err_t *result;
         apr_status_t status;
         int secure;
 
@@ -358,6 +384,8 @@ static apr_status_t option_set_uri(apr_ldap_t *ldap, const char *uri,
 #else
         ld = ldap_init((char *)urld->lud_host, urld->lud_port);
 #endif
+
+        ldap->uri = apr_pstrdup(ldap->pool, uri);
 
     }
 
@@ -783,6 +811,15 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_option_get(apr_pool_t *pool, apr_ldap_t 
 
         return status;
     }
+    case APR_LDAP_OPT_URI: {
+#if APR_HAS_OPENLDAP_LDAPSDK
+        rc = ldap_get_option(ldap ? ldap->ld : NULL, option, &outvalue->opt);
+        break;
+#else
+        outvalue->uri = ldap->uri;
+        return APR_SUCCESS;
+#endif
+    }
     case APR_LDAP_OPT_DEBUG_LEVEL: {
 
 #if defined(LDAP_OPT_DEBUG_LEVEL)
@@ -1125,7 +1162,12 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_option_set(apr_pool_t *pool, apr_ldap_t 
     }
 
 end:
+
+#if defined (LDAP_OPT_SUCCESS)
     if (rc != LDAP_OPT_SUCCESS) {
+#else
+    if (rc != LDAP_SUCCESS) {
+#endif
 
         result->rc = rc;
         if (!result->msg) {
@@ -1154,7 +1196,7 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_connect(apr_pool_t *pool,
     LDAP *ld = ldap->ld;
 
 #if APR_HAS_MICROSOFT_LDAPSDK
-    struct timeval tv, *tvptr;
+    LDAP_TIMEVAL tv, *tvptr;
 
     if (timeout < 0) {
         tvptr = NULL;
@@ -1434,7 +1476,7 @@ static apr_status_t apr_ldap_control_create(apr_pool_t *pool,
 {
     LDAPControl **cs;
 
-    int i, j, count;
+    int i, count;
 
     if (!controls || !(count = controls->nelts)) {
         *ctrls = NULL;
@@ -1460,7 +1502,7 @@ static apr_status_t apr_ldap_control_create(apr_pool_t *pool,
             struct berval cookie;
 
             cookie.bv_val = apr_buffer_str(&control->c.pagerq.cookie);
-            cookie.bv_len = apr_buffer_len(&control->c.pagerq.cookie);
+            cookie.bv_len = TO_BV_LEN(apr_buffer_len(&control->c.pagerq.cookie));
 
             err->rc = ldap_create_page_control(ldap->ld, pagesize, &cookie, control->critical ? 1 : 0, &c);
 
@@ -1490,6 +1532,8 @@ static apr_status_t apr_ldap_control_create(apr_pool_t *pool,
             LDAPSortKey **sks;
 
             apr_array_header_t *keys = control->c.sortrq.keys;
+
+            int j;
 
             if (!keys || !keys->nelts) {
                 err->reason = "LDAP: no sort control keys specified";
@@ -1550,7 +1594,7 @@ static apr_status_t apr_ldap_control_create(apr_pool_t *pool,
             }
             else {
                 attrvalue.bv_val = (char *)apr_buffer_mem(&control->c.vlvrq.attrvalue, NULL);
-                attrvalue.bv_len = apr_buffer_len(&control->c.vlvrq.attrvalue);
+                attrvalue.bv_len = TO_BV_LEN(apr_buffer_len(&control->c.vlvrq.attrvalue));
                 vlvInfo.ldvlv_attrvalue = &attrvalue;
             }
 
@@ -1559,7 +1603,7 @@ static apr_status_t apr_ldap_control_create(apr_pool_t *pool,
             }
             else {
                 context.bv_val = (char *)apr_buffer_mem(&control->c.vlvrq.context, NULL);
-                context.bv_len = apr_buffer_len(&control->c.vlvrq.context);
+                context.bv_len = TO_BV_LEN(apr_buffer_len(&control->c.vlvrq.context));
                 vlvInfo.ldvlv_context = &context;
             }
 
@@ -1601,7 +1645,7 @@ static apr_status_t apr_ldap_control_create(apr_pool_t *pool,
 
             c->ldctl_oid = (char *)control->oid.oid;
             c->ldctl_value.bv_val = apr_buffer_mem(&control->oid.val, &size);
-            c->ldctl_value.bv_len = size;
+            c->ldctl_value.bv_len = TO_BV_LEN(size);
             c->ldctl_iscritical = control->critical ? 1 : 0;
 
             cs[i] = c;
@@ -1682,7 +1726,7 @@ static apr_status_t results_cleanup(void *dptr)
 static void apr_ldap_result_add(apr_pool_t *pool,
                                 apr_ldap_t *ldap,
                                 apr_ldap_result_t *res,
-                                int msgid)
+                                MSGID_T msgid)
 {
     res->pool = pool;
     res->ld = ldap;
@@ -1712,7 +1756,7 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_process(apr_pool_t *pool,
 
     apr_status_t status = APR_SUCCESS;
 
-    int msgid = 0;
+    MSGID_T msgid = 0;
 
     /* do we have a prepare callback outstanding? */
 
@@ -1734,7 +1778,7 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_process(apr_pool_t *pool,
 
     if (ldap->abandons->nelts) {
 
-        int *msgid = apr_array_pop(ldap->abandons);
+        MSGID_T *msgid = apr_array_pop(ldap->abandons);
 
 #if APR_HAS_OPENLDAP_LDAPSDK
         err->rc = ldap_abandon_ext(ldap->ld, *msgid, NULL, NULL);
@@ -1775,6 +1819,8 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_process(apr_pool_t *pool,
 
         switch(res->msgtype) {
         case LDAP_RES_BIND: {
+
+#if APR_HAS_OPENLDAP_LDAPSDK && APR_HAS_LDAP_SASL_INTERACTIVE_BIND
 
             /* handle binding */
 
@@ -1817,6 +1863,18 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_process(apr_pool_t *pool,
             }
 
             break;
+#else
+
+            /*
+             * for platforms that do not support ldap_sasl_interactive_bind(), alternative
+             * implementations using ldap_sasl_bind() go here.
+             */
+
+            err->reason = "LDAP: SASL bind not yet supported by APR on this "
+                          "LDAP SDK";
+            err->rc = LDAP_UNWILLING_TO_PERFORM;
+            return APR_ENOTIMPL;
+#endif
         }
         case LDAP_RES_COMPARE: {
 
@@ -2134,7 +2192,11 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_result(apr_pool_t *pool,
 
     apr_status_t status = APR_SUCCESS;
 
+#if APR_HAS_MICROSOFT_LDAPSDK
+    LDAP_TIMEVAL tv, *tvptr;
+#else
     struct timeval tv, *tvptr;
+#endif
 
     if (timeout < 0) {
         tvptr = NULL;
@@ -2267,7 +2329,9 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_result(apr_pool_t *pool,
                             apr_buffer_mem_set(&e.val, vals[e.vidx]->bv_val, vals[e.vidx]->bv_len);
                         }
                         else {
-                            str = strndup(vals[e.vidx]->bv_val, vals[e.vidx]->bv_len);
+                            str = malloc(vals[e.vidx]->bv_len + 1);
+                            str[vals[e.vidx]->bv_len] = 0;
+                            memcpy(str, vals[e.vidx]->bv_val, vals[e.vidx]->bv_len);
                             apr_buffer_str_set(&e.val, str, vals[e.vidx]->bv_len);
                         }
 
@@ -2356,7 +2420,7 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_result(apr_pool_t *pool,
 
         /* we are no longer interested in this message - a pool was cleaned up */
 
-        int *msgid = apr_array_push(ldap->abandons);
+        MSGID_T *msgid = apr_array_push(ldap->abandons);
         *msgid = find.msgid;
 
         ldap_msgfree(msg);
@@ -2482,19 +2546,18 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_poll(apr_pool_t *pool,
 }
 
 
-
-#if APR_HAS_OPENLDAP_LDAPSDK && APR_HAS_LDAP_SASL_INTERACTIVE_BIND
-
-#if !defined(HAVE_SASL_H) && !defined(HAVE_SASL_SASL_H)
-#error OpenLDAP was built with SASL support, but the SASL headers are not installed as required.
-#endif
-
 typedef struct apr_ldap_bind_ctx_t {
     apr_ldap_t *ld;
     apr_ldap_bind_interact_cb *interact;
     void *ctx;
     apr_status_t status;
 } apr_ldap_bind_ctx_t;
+
+#if APR_HAS_OPENLDAP_LDAPSDK && APR_HAS_LDAP_SASL_INTERACTIVE_BIND
+
+#if !defined(HAVE_SASL_H) && !defined(HAVE_SASL_SASL_H)
+#error OpenLDAP was built with SASL support, but the SASL headers are not installed as required.
+#endif
 
 static int bind_sasl_interact(LDAP *ld, unsigned flags, void *ctx, void *in)
 {
@@ -2567,8 +2630,6 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_bind(apr_pool_t *pool, apr_ldap_t *ldap,
     LDAPControl *sctrls[] = { 0 };
     LDAPControl *cctrls[] = { 0 };
 
-    unsigned int flags = LDAP_SASL_QUIET;
-
     apr_ldap_bind_ctx_t payload;
 
     payload.ld = ldap;
@@ -2576,7 +2637,7 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_bind(apr_pool_t *pool, apr_ldap_t *ldap,
     payload.ctx = interact_ctx;
     payload.status = APR_SUCCESS;
 
-    int msgid = 0;
+    MSGID_T msgid = 0;
 
 #ifdef LDAP_OPT_NETWORK_TIMEOUT
     {
@@ -2643,7 +2704,7 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_bind(apr_pool_t *pool, apr_ldap_t *ldap,
 
         if (!apr_buffer_is_null(&interaction.result)) {
             cred.bv_val = (char *)apr_buffer_mem(&interaction.result, NULL);
-            cred.bv_len = apr_buffer_len(&interaction.result);
+            cred.bv_len = TO_BV_LEN(apr_buffer_len(&interaction.result));
         } else {
             cred.bv_val = "";
             cred.bv_len = 0;
@@ -2655,8 +2716,13 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_bind(apr_pool_t *pool, apr_ldap_t *ldap,
          * password is passed as a buffer to cred.
          */
 
+#if APR_HAS_MICROSOFT_LDAPSDK
+        err->rc = ldap_sasl_bind(ldap->ld, (char *)dn, NULL, &cred,
+                                 NULL, NULL, &msgid);
+#else
         err->rc = ldap_sasl_bind(ldap->ld, dn, LDAP_SASL_SIMPLE, &cred,
                                  NULL, NULL, &msgid);
+#endif
 
         if (err->rc != LDAP_SUCCESS) {
             err->msg = ldap_err2string(err->rc);
@@ -2687,6 +2753,8 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_bind(apr_pool_t *pool, apr_ldap_t *ldap,
 #if APR_HAS_OPENLDAP_LDAPSDK && APR_HAS_LDAP_SASL_INTERACTIVE_BIND
 
         const char *rmech;
+
+        unsigned int flags = LDAP_SASL_QUIET;
 
         /* No distinguished name is a SASL bind */
 
@@ -2764,7 +2832,7 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_compare(apr_pool_t *pool,
     struct berval bval;
     apr_size_t size;
 
-    int msgid = 0;
+    MSGID_T msgid = 0;
 
     apr_status_t status;
 
@@ -2781,7 +2849,7 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_compare(apr_pool_t *pool,
     }
 
     bval.bv_val = apr_buffer_mem(val, &size);
-    bval.bv_len = size;
+    bval.bv_len = TO_BV_LEN(size);
 
 #ifdef LDAP_OPT_NETWORK_TIMEOUT
     {
@@ -2795,7 +2863,7 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_compare(apr_pool_t *pool,
             tv.tv_usec = (long) apr_time_usec(timeout);
             tvptr = &tv;
         }
-        
+
         err->rc = ldap_set_option(ldap->ld, LDAP_OPT_NETWORK_TIMEOUT, tvptr);
         if (err->rc != LDAP_SUCCESS) {
             err->msg = ldap_err2string(err->rc);
@@ -2805,8 +2873,13 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_compare(apr_pool_t *pool,
     }
 #endif
 
+#if APR_HAS_MICROSOFT_LDAPSDK
+    err->rc = ldap_compare_ext(ldap->ld, (char *)dn, (char *)attr, NULL, &bval,
+                               sctrls, cctrls, &msgid);
+#else
     err->rc = ldap_compare_ext(ldap->ld, dn, attr, &bval,
                                sctrls, cctrls, &msgid);
+#endif
 
     if (err->rc != LDAP_SUCCESS) {
         err->msg = ldap_err2string(err->rc);
@@ -2855,9 +2928,13 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_search(apr_pool_t *pool,
 
     apr_ldap_result_t *res;
 
+#if APR_HAS_MICROSOFT_LDAPSDK
+    ULONG timelimit;
+#else
     struct timeval tv, *tvptr;
+#endif
 
-    int msgid = 0;
+    MSGID_T msgid = 0;
 
     apr_status_t status;
 
@@ -2873,6 +2950,14 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_search(apr_pool_t *pool,
         return status;
     }
 
+#if APR_HAS_MICROSOFT_LDAPSDK
+
+    timelimit = (ULONG)apr_time_sec(timeout);
+
+    err->rc = ldap_search_ext(ldap->ld, (char *)dn, scope, (char *)filter, (char **)attrs, attrsonly,
+                              sctrls, cctrls, timelimit, (ULONG)sizelimit, &msgid);
+#else
+
     if (timeout < 0) {
         tvptr = NULL;
     }
@@ -2884,6 +2969,7 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_search(apr_pool_t *pool,
 
     err->rc = ldap_search_ext(ldap->ld, (char *)dn, scope, (char *)filter, (char **)attrs, attrsonly,
                               sctrls, cctrls, tvptr, sizelimit, &msgid);
+#endif
 
     if (err->rc != LDAP_SUCCESS) {
         err->msg = ldap_err2string(err->rc);
@@ -2929,7 +3015,9 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_add(apr_pool_t *pool,
 
     LDAPMod **mps, *ms;
 
-    int msgid = 0, i, j;
+    MSGID_T msgid = 0;
+
+    int i, j;
 
     apr_status_t status;
 
@@ -3019,15 +3107,20 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_add(apr_pool_t *pool,
                     ms->mod_vals.modv_bvals = apr_pcalloc(tpool, (pair->vals->nelts + 1) * sizeof(void *));
                 }
                 ms->mod_vals.modv_bvals[j]->bv_val = apr_buffer_mem(buf, NULL);
-                ms->mod_vals.modv_bvals[j]->bv_len = apr_buffer_len(buf);
+                ms->mod_vals.modv_bvals[j]->bv_len = TO_BV_LEN(apr_buffer_len(buf));
             }
         }
 
         mps[i] = ms++;
     }
 
+#if APR_HAS_MICROSOFT_LDAPSDK
+    err->rc = ldap_add_ext(ldap->ld, (char *)dn, mps,
+                           sctrls, cctrls, &msgid);
+#else
     err->rc = ldap_add_ext(ldap->ld, dn, mps,
                            sctrls, cctrls, &msgid);
+#endif
 
     apr_pool_destroy(tpool);
 
@@ -3074,7 +3167,9 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_modify(apr_pool_t *pool,
 
     LDAPMod **mps, *ms;
 
-    int msgid = 0, i, j;
+    MSGID_T msgid = 0;
+
+    int i, j;
 
     apr_status_t status;
 
@@ -3194,15 +3289,20 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_modify(apr_pool_t *pool,
                     ms->mod_vals.modv_bvals = apr_pcalloc(tpool, (mod->pair.vals->nelts + 1) * sizeof(void *));
                 }
                 ms->mod_vals.modv_bvals[j]->bv_val = apr_buffer_mem(buf, NULL);
-                ms->mod_vals.modv_bvals[j]->bv_len = apr_buffer_len(buf);
+                ms->mod_vals.modv_bvals[j]->bv_len = TO_BV_LEN(apr_buffer_len(buf));
             }
         }
 
         mps[i] = ms++;
     }
 
+#if APR_HAS_MICROSOFT_LDAPSDK
+    err->rc = ldap_modify_ext(ldap->ld, (char *)dn, mps,
+                              sctrls, cctrls, &msgid);
+#else
     err->rc = ldap_modify_ext(ldap->ld, dn, mps,
                               sctrls, cctrls, &msgid);
+#endif
 
     apr_pool_destroy(tpool);
 
@@ -3245,7 +3345,7 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_rename(apr_pool_t *pool,
 
     apr_ldap_result_t *res;
 
-    int msgid = 0;
+    MSGID_T msgid = 0;
 
     apr_status_t status;
 
@@ -3283,10 +3383,13 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_rename(apr_pool_t *pool,
     }
 #endif
 
-    /* ldap_rename_ext on Windows */
-
+#if APR_HAS_MICROSOFT_LDAPSDK
+    err->rc = ldap_rename_ext(ldap->ld, (char *)dn, (char *)newrdn, (char *)newparent, flags,
+                              sctrls, cctrls, &msgid);
+#else
     err->rc = ldap_rename(ldap->ld, dn, newrdn, newparent, flags,
                           sctrls, cctrls, &msgid);
+#endif
 
     if (err->rc != LDAP_SUCCESS) {
         err->msg = ldap_err2string(err->rc);
@@ -3326,7 +3429,7 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_delete(apr_pool_t *pool,
 
     apr_ldap_result_t *res;
 
-    int msgid = 0;
+    MSGID_T msgid = 0;
 
     apr_status_t status;
 
@@ -3364,8 +3467,13 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_delete(apr_pool_t *pool,
     }
 #endif
 
+#if APR_HAS_MICROSOFT_LDAPSDK
+    err->rc = ldap_delete_ext(ldap->ld, (char *)dn,
+                              sctrls, cctrls, &msgid);
+#else
     err->rc = ldap_delete_ext(ldap->ld, dn,
                               sctrls, cctrls, &msgid);
+#endif
 
     if (err->rc != LDAP_SUCCESS) {
         err->msg = ldap_err2string(err->rc);
@@ -3409,7 +3517,7 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_extended(apr_pool_t *pool,
     struct berval reqdata;
     struct berval *rd;
 
-    int msgid = 0;
+    MSGID_T msgid = 0;
 
     apr_status_t status;
 
@@ -3452,12 +3560,17 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_extended(apr_pool_t *pool,
     }
     else {
         reqdata.bv_val = apr_buffer_mem(data, NULL);
-        reqdata.bv_len = apr_buffer_len(data);
+        reqdata.bv_len = TO_BV_LEN(apr_buffer_len(data));
         rd = &reqdata;
     }
 
+#if APR_HAS_MICROSOFT_LDAPSDK
+    err->rc = ldap_extended_operation(ldap->ld, (char *)oid, rd,
+                                      sctrls, cctrls, &msgid);
+#else
     err->rc = ldap_extended_operation(ldap->ld, oid, rd,
                                       sctrls, cctrls, &msgid);
+#endif
 
     if (err->rc != LDAP_SUCCESS) {
         err->msg = ldap_err2string(err->rc);
