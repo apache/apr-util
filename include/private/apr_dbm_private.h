@@ -111,6 +111,7 @@ struct apr_dbm_t
 /* Declare all of the DBM provider tables */
 APU_MODULE_DECLARE_DATA extern const apr_dbm_driver_t apr_dbm_type_sdbm;
 APU_MODULE_DECLARE_DATA extern const apr_dbm_driver_t apr_dbm_type_gdbm;
+APU_MODULE_DECLARE_DATA extern const apr_dbm_driver_t apr_dbm_type_lmdb;
 APU_MODULE_DECLARE_DATA extern const apr_dbm_driver_t apr_dbm_type_ndbm;
 APU_MODULE_DECLARE_DATA extern const apr_dbm_driver_t apr_dbm_type_db;
 

@@ -60,6 +60,7 @@ yes
      test $apu_have_db = 1 && objs="$objs dbm/apr_dbm_berkeleydb.lo"
      test $apu_have_gdbm = 1 && objs="$objs dbm/apr_dbm_gdbm.lo"
      test $apu_have_ndbm = 1 && objs="$objs dbm/apr_dbm_ndbm.lo"
+     test $apu_have_lmdb = 1 && objs="$objs dbm/apr_dbm_lmdb.lo"
      test $apu_has_ldap = 1 && objs="$objs ldap/apr_ldap_init.lo"
      test $apu_has_ldap = 1 && objs="$objs ldap/apr_ldap_option.lo"
      test $apu_has_ldap = 1 && objs="$objs ldap/apr_ldap_rebind.lo"
@@ -81,11 +82,11 @@ yes
 
      APRUTIL_LIBS="$APRUTIL_LIBS $LDADD_crypto_openssl $LDADD_crypto_nss $LDADD_crypto_commoncrypto"
      APRUTIL_LIBS="$APRUTIL_LIBS $LDADD_dbd_pgsql $LDADD_dbd_sqlite2 $LDADD_dbd_sqlite3 $LDADD_dbd_oracle $LDADD_dbd_mysql $LDADD_dbd_odbc"
-     APRUTIL_LIBS="$APRUTIL_LIBS $LDADD_dbm_db $LDADD_dbm_gdbm $LDADD_dbm_ndbm"
+     APRUTIL_LIBS="$APRUTIL_LIBS $LDADD_dbm_db $LDADD_dbm_gdbm $LDADD_dbm_ndbm $LDADD_dbm_lmdb"
      APRUTIL_LIBS="$APRUTIL_LIBS $LDADD_ldap"
      APRUTIL_EXPORT_LIBS="$APRUTIL_EXPORT_LIBS $LDADD_crypto_openssl $LDADD_crypto_nss $LDADD_crypto_commoncrypto"
      APRUTIL_EXPORT_LIBS="$APRUTIL_EXPORT_LIBS $LDADD_dbd_pgsql $LDADD_dbd_sqlite2 $LDADD_dbd_sqlite3 $LDADD_dbd_oracle $LDADD_dbd_mysql $LDADD_dbd_odbc"
-     APRUTIL_EXPORT_LIBS="$APRUTIL_EXPORT_LIBS $LDADD_dbm_db $LDADD_dbm_gdbm $LDADD_dbm_ndbm"
+     APRUTIL_EXPORT_LIBS="$APRUTIL_EXPORT_LIBS $LDADD_dbm_db $LDADD_dbm_gdbm $LDADD_dbm_ndbm $LDADD_dbm_lmdb"
      APRUTIL_EXPORT_LIBS="$APRUTIL_EXPORT_LIBS $LDADD_ldap"
 
   else
@@ -104,6 +105,7 @@ yes
      test $apu_have_db = 1 && dsos="$dsos dbm/apr_dbm_db.la"
      test $apu_have_gdbm = 1 && dsos="$dsos dbm/apr_dbm_gdbm.la"
      test $apu_have_ndbm = 1 && dsos="$dsos dbm/apr_dbm_ndbm.la"
+     test $apu_have_lmdb = 1 && dsos="$dsos dbm/apr_dbm_lmdb.la"
      test $apu_has_ldap = 1 && dsos="$dsos ldap/apr_ldap.la"
 
      if test -n "$dsos"; then
