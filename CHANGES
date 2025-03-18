@@ -1,7 +1,10 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.7.0
 
-  *) apr-dbm-lmdb: Add LMDB driver for apr_dbm.
+  *) apr_crypto_openssl: Add provider support on OpenSSL3+.
+     [Graham Leggett]
+
+  *) apr_dbm_lmdb: Add LMDB driver for apr_dbm.
      [Lubos Uhliarik <uhliarik redhat.com>]
 
   *) apr_ldap: Add write capability to the LDAP API. Support for
