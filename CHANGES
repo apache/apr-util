@@ -1,6 +1,9 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.7.0
 
+  *) apr_ldap: Fix the switching on and off of LDAP_OPT_SSL in the
+     Microsoft LDAP SDK. [Ivan Zhakov]
+
   *) apr_crypto_openssl: Add provider support on OpenSSL3+.
      [Graham Leggett]
 
