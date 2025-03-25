@@ -2064,7 +2064,7 @@ APU_DECLARE_LDAP(apr_status_t) apr_ldap_unbind(apr_ldap_t *ldap,
                                                __attribute__((nonnull(1,4)));
 
 
-#endif /* APU_HAS_LDAP */
+#endif /* APR_HAS_LDAP */
 /** @} */
 #endif /* APR_LDAP_COMMON_H */
 
