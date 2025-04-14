@@ -71,6 +71,7 @@ static const apr_crypto_driver_t *get_driver(abts_case *tc, apr_pool_t *pool,
 
 }
 
+#if APU_HAVE_NSS
 static const apr_crypto_driver_t *get_nss_driver(abts_case *tc,
         apr_pool_t *pool)
 {
@@ -79,7 +80,9 @@ static const apr_crypto_driver_t *get_nss_driver(abts_case *tc,
     return get_driver(tc, pool, "nss", "");
 
 }
+#endif /* APU_HAVE_NSS */
 
+#if APU_HAVE_OPENSSL
 static const apr_crypto_driver_t *get_openssl_driver(abts_case *tc,
         apr_pool_t *pool)
 {
@@ -87,7 +90,9 @@ static const apr_crypto_driver_t *get_openssl_driver(abts_case *tc,
     return get_driver(tc, pool, "openssl", NULL);
 
 }
+#endif /* APU_HAVE_OPENSSL */
 
+#if APU_HAVE_COMMONCRYPTO
 static const apr_crypto_driver_t *get_commoncrypto_driver(abts_case *tc,
         apr_pool_t *pool)
 {
@@ -95,6 +100,7 @@ static const apr_crypto_driver_t *get_commoncrypto_driver(abts_case *tc,
     return get_driver(tc, pool, "commoncrypto", NULL);
 
 }
+#endif /* APU_HAVE_COMMONCRYPTO */
 
 static apr_crypto_t *make(abts_case *tc, apr_pool_t *pool,
         const apr_crypto_driver_t *driver)
@@ -1100,6 +1106,7 @@ static void test_crypto_init(abts_case *tc, void *data)
 
 }
 
+#if APU_HAVE_OPENSSL
 /**
  * Simple test of OpenSSL key.
  */
@@ -1122,7 +1129,9 @@ static void test_crypto_key_openssl(abts_case *tc, void *data)
     apr_pool_destroy(pool);
 
 }
+#endif /* APU_HAVE_OPENSSL */
 
+#if APU_HAVE_NSS
 /**
  * Simple test of NSS key.
  */
@@ -1145,7 +1154,9 @@ static void test_crypto_key_nss(abts_case *tc, void *data)
     apr_pool_destroy(pool);
 
 }
+#endif /* APU_HAVE_NSS */
 
+#if APU_HAVE_COMMONCRYPTO
 /**
  * Simple test of CommonCrypto key.
  */
@@ -1168,7 +1179,9 @@ static void test_crypto_key_commoncrypto(abts_case *tc, void *data)
     apr_pool_destroy(pool);
 
 }
+#endif /* APU_HAVE_COMMONCRYPTO */
 
+#if APU_HAVE_OPENSSL
 /**
  * Simple test of OpenSSL block crypt.
  */
@@ -1258,7 +1271,9 @@ static void test_crypto_digest_openssl(abts_case *tc, void *data)
     apr_pool_destroy(pool);
 
 }
+#endif /* APU_HAVE_OPENSSL */
 
+#if APU_HAVE_NSS
 /**
  * Simple test of NSS block crypt.
  */
@@ -1347,7 +1362,9 @@ static void test_crypto_digest_nss(abts_case *tc, void *data)
     apr_pool_destroy(pool);
 
 }
+#endif /* APU_HAVE_NSS */
 
+#if APU_HAVE_COMMONCRYPTO
 /**
  * Simple test of Common Crypto block crypt.
  */
@@ -1437,7 +1454,10 @@ static void test_crypto_digest_commoncrypto(abts_case *tc, void *data)
     apr_pool_destroy(pool);
 
 }
+#endif /* APU_HAVE_COMMONCRYPTO */
 
+#if APU_HAVE_OPENSSL
+#if APU_HAVE_NSS
 /**
  * Encrypt NSS, decrypt OpenSSL.
  */
@@ -1623,7 +1643,9 @@ static void test_crypto_digest_openssl_nss(abts_case *tc, void *data)
     apr_pool_destroy(pool);
 
 }
+#endif /* APU_HAVE_NSS */
 
+#if APU_HAVE_COMMONCRYPTO
 /**
  * Encrypt OpenSSL, decrypt CommonCrypto.
  */
@@ -1809,6 +1831,7 @@ static void test_crypto_digest_commoncrypto_openssl(abts_case *tc, void *data)
     apr_pool_destroy(pool);
 
 }
+#endif /* APU_HAVE_COMMONCRYPTO */
 
 /**
  * Simple test of OpenSSL block crypt.
@@ -1845,7 +1868,9 @@ static void test_crypto_block_openssl_pad(abts_case *tc, void *data)
     apr_pool_destroy(pool);
 
 }
+#endif /* APU_HAVE_OPENSSL */
 
+#if APU_HAVE_NSS
 /**
  * Simple test of NSS block crypt.
  */
@@ -1888,7 +1913,9 @@ static void test_crypto_block_nss_pad(abts_case *tc, void *data)
     apr_pool_destroy(pool);
 
 }
+#endif /* APU_HAVE_NSS */
 
+#if APU_HAVE_COMMONCRYPTO
 /**
  * Simple test of Common Crypto block crypt.
  */
@@ -1924,7 +1951,10 @@ static void test_crypto_block_commoncrypto_pad(abts_case *tc, void *data)
     apr_pool_destroy(pool);
 
 }
+#endif /* APU_HAVE_COMMONCRYPTO */
 
+#if APU_HAVE_OPENSSL
+#if APU_HAVE_NSS
 /**
  * Encrypt NSS, decrypt OpenSSL.
  */
@@ -2013,7 +2043,9 @@ static void test_crypto_block_openssl_nss_pad(abts_case *tc, void *data)
     apr_pool_destroy(pool);
 
 }
+#endif /* APU_HAVE_NSS */
 
+#if APU_HAVE_COMMONCRYPTO
 /**
  * Encrypt CommonCrypto, decrypt OpenSSL.
  */
@@ -2089,6 +2121,7 @@ static void test_crypto_block_openssl_commoncrypto_pad(abts_case *tc,
     apr_pool_destroy(pool);
 
 }
+#endif /* APU_HAVE_COMMONCRYPTO */
 
 /**
  * Get Types, OpenSSL.
@@ -2136,7 +2169,9 @@ static void test_crypto_get_block_key_types_openssl(abts_case *tc, void *data)
     apr_pool_destroy(pool);
 
 }
+#endif /* APU_HAVE_OPENSSL */
 
+#if APU_HAVE_NSS
 /**
  * Get Types, NSS.
  */
@@ -2183,7 +2218,9 @@ static void test_crypto_get_block_key_types_nss(abts_case *tc, void *data)
     apr_pool_destroy(pool);
 
 }
+#endif /* APU_HAVE_NSS */
 
+#if APU_HAVE_COMMONCRYPTO
 /**
  * Get Types, Common Crypto.
  */
@@ -2230,7 +2267,9 @@ static void test_crypto_get_block_key_types_commoncrypto(abts_case *tc, void *da
     apr_pool_destroy(pool);
 
 }
+#endif /* APU_HAVE_COMMONCRYPTO */
 
+#if APU_HAVE_OPENSSL
 /**
  * Get Modes, OpenSSL.
  */
@@ -2267,7 +2306,9 @@ static void test_crypto_get_block_key_modes_openssl(abts_case *tc, void *data)
     apr_pool_destroy(pool);
 
 }
+#endif /* APU_HAVE_OPENSSL */
 
+#if APU_HAVE_NSS
 /**
  * Get Modes, NSS.
  */
@@ -2304,7 +2345,9 @@ static void test_crypto_get_block_key_modes_nss(abts_case *tc, void *data)
     apr_pool_destroy(pool);
 
 }
+#endif /* APU_HAVE_NSS */
 
+#if APU_HAVE_COMMONCRYPTO
 /**
  * Get Modes, Common Crypto.
  */
@@ -2341,6 +2384,7 @@ static void test_crypto_get_block_key_modes_commoncrypto(abts_case *tc, void *da
     apr_pool_destroy(pool);
 
 }
+#endif /* APU_HAVE_COMMONCRYPTO */
 
 static void test_crypto_memzero(abts_case *tc, void *data)
 {
@@ -2705,7 +2749,7 @@ abts_suite *testcrypto(abts_suite *suite)
     /* test simple init and shutdown */
     abts_run_test(suite, test_crypto_init, NULL);
 
-#if APU_APU_HAVE_OPENSSL
+#if APU_HAVE_OPENSSL
     /* test key parsing - openssl */
     abts_run_test(suite, test_crypto_key_openssl, NULL);
     /* test a simple encrypt / decrypt operation - openssl */
@@ -2714,17 +2758,13 @@ abts_suite *testcrypto(abts_suite *suite)
     abts_run_test(suite, test_crypto_digest_openssl, NULL);
     /* test a padded encrypt / decrypt operation - openssl */
     abts_run_test(suite, test_crypto_block_openssl_pad, NULL);
-    /* test encrypt nss / decrypt openssl */
-    abts_run_test(suite, test_crypto_block_nss_openssl, NULL);
-    /* test padded encrypt nss / decrypt openssl */
-    abts_run_test(suite, test_crypto_block_nss_openssl_pad, NULL);
     /* test block key types openssl */
     abts_run_test(suite, test_crypto_get_block_key_types_openssl, NULL);
     /* test block key modes openssl */
     abts_run_test(suite, test_crypto_get_block_key_modes_openssl, NULL);
 
 #endif
-#if APU_APU_HAVE_NSS
+#if APU_HAVE_NSS
     /* test key parsing - nss */
     abts_run_test(suite, test_crypto_key_nss, NULL);
     /* test a simple encrypt / decrypt operation - nss */
@@ -2734,13 +2774,17 @@ abts_suite *testcrypto(abts_suite *suite)
     /* test a padded encrypt / decrypt operation - nss */
     abts_run_test(suite, test_crypto_block_nss_pad, NULL);
 
-#if APU_APU_HAVE_OPENSSL
-    /* test sign nss / verify openssl */
-    abts_run_test(suite, test_crypto_digest_nss_openssl, NULL);
+#if APU_HAVE_OPENSSL
+    /* test encrypt nss / decrypt openssl */
+    abts_run_test(suite, test_crypto_block_nss_openssl, NULL);
+    /* test padded encrypt nss / decrypt openssl */
+    abts_run_test(suite, test_crypto_block_nss_openssl_pad, NULL);
     /* test encrypt openssl / decrypt nss */
     abts_run_test(suite, test_crypto_block_openssl_nss, NULL);
     /* test padded encrypt openssl / decrypt nss */
     abts_run_test(suite, test_crypto_block_openssl_nss_pad, NULL);
+    /* test sign nss / verify openssl */
+    abts_run_test(suite, test_crypto_digest_nss_openssl, NULL);
     /* test sign openssl / verify nss */
     abts_run_test(suite, test_crypto_digest_openssl_nss, NULL);
 #endif
@@ -2751,7 +2795,7 @@ abts_suite *testcrypto(abts_suite *suite)
     abts_run_test(suite, test_crypto_get_block_key_modes_nss, NULL);
 #endif
 
-#if APU_APU_HAVE_COMMONCRYPTO
+#if APU_HAVE_COMMONCRYPTO
     /* test key parsing - commoncrypto */
     abts_run_test(suite, test_crypto_key_commoncrypto, NULL);
     /* test a simple encrypt / decrypt operation - commoncrypto */
@@ -2761,7 +2805,7 @@ abts_suite *testcrypto(abts_suite *suite)
     /* test a padded encrypt / decrypt operation - commoncrypto */
     abts_run_test(suite, test_crypto_block_commoncrypto_pad, NULL);
 
-#if APU_APU_HAVE_OPENSSL
+#if APU_HAVE_OPENSSL
     /* test encrypt openssl / decrypt commoncrypto */
     abts_run_test(suite, test_crypto_block_openssl_commoncrypto, NULL);
     /* test padded encrypt openssl / decrypt commoncrypto */
