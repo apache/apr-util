@@ -38,7 +38,7 @@ The following tools must be in PATH:
 
 The following support libraries are mandatory:
 
-* APR 1.7.5 or later, built with cmake
+* APR 1.7.6 or later, built with cmake
 
 Optional support libraries allow optional features of APR to be enabled:
 
