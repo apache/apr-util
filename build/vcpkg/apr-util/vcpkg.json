@@ -5,7 +5,10 @@
   "homepage": "https://apr.apache.org/",
   "license": "Apache-2.0",
   "dependencies": [
-    "apr",
+    {
+      "name": "apr",
+      "version>=": "1.7.6"
+    },
     "expat",
     {
       "name": "vcpkg-cmake",
