@@ -398,7 +398,7 @@ APU_DECLARE(apr_status_t) apr_brigade_split_boundary(apr_bucket_brigade *bbOut,
                                                      apr_off_t maxbytes)
 {
     apr_off_t outbytes = 0;
-    apr_off_t ignore = 0;
+    apr_size_t ignore = 0;
 
     if (!boundary || !boundary[0]) {
         return APR_EINVAL;
@@ -421,7 +421,7 @@ APU_DECLARE(apr_status_t) apr_brigade_split_boundary(apr_bucket_brigade *bbOut,
         const char *pos;
         const char *str;
         apr_bucket *e, *next, *prev;
-        apr_off_t inbytes = 0;
+        apr_size_t inbytes = 0;
         apr_size_t len;
         apr_status_t rv;
 
