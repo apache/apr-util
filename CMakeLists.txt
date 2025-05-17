@@ -286,7 +286,7 @@ ENDIF()
 
 MACRO(ADD_APU_MODULE name dllname sources libraries)
   IF(APU_DSO_BUILD)
-    ADD_LIBRARY(${name} SHARED ${sources})
+    ADD_LIBRARY(${name} MODULE ${sources})
     LIST(APPEND install_targets ${name})
     LIST(APPEND install_bin_pdb $<TARGET_PDB_FILE:${name}>)
 
