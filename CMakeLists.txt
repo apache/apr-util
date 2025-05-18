@@ -275,6 +275,7 @@ SET(APR_TEST_SUITES
 )
 
 SET(install_targets)
+SET(install_modules)
 SET(install_bin_pdb)
 SET(dbd_drivers)
 
@@ -287,7 +288,7 @@ ENDIF()
 MACRO(ADD_APU_MODULE name dllname sources libraries)
   IF(APU_DSO_BUILD)
     ADD_LIBRARY(${name} MODULE ${sources})
-    LIST(APPEND install_targets ${name})
+    LIST(APPEND install_modules ${name})
     LIST(APPEND install_bin_pdb $<TARGET_PDB_FILE:${name}>)
 
     TARGET_SOURCES(${name} PRIVATE libaprutil.rc)
@@ -440,6 +441,10 @@ INSTALL(TARGETS ${install_targets}
         LIBRARY DESTINATION ${APU_INSTALL_LIB_DIR}
         ARCHIVE DESTINATION ${APU_INSTALL_LIB_DIR}
        )
+
+# For DSO modules, install only binaries
+INSTALL(TARGETS ${install_modules}
+        DESTINATION ${APU_INSTALL_BIN_DIR})
 
 IF(INSTALL_PDB)
   INSTALL(FILES ${install_bin_pdb}
