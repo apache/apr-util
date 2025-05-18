@@ -18,7 +18,7 @@ jobs:
         port:
         - apr-util
         - apr-util[core]
-        - apr-util[crypto,dbd-sqlite3,dbd-odbc,dbd-postgresql,xlate]
+        - apr-util[crypto,dbd-sqlite3,dbd-odbc,dbd-postgresql,ldap,xlate]
       fail-fast: false
     
     name: "${{ matrix.port }}:${{ matrix.triplet }} on ${{ matrix.os }}"

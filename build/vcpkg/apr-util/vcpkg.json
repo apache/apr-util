@@ -46,6 +46,9 @@
         }
       ]
     },
+    "ldap": {
+      "description": "LDAP support"
+    },
     "xlate": {
       "description": "Xlate support",
       "dependencies": [
