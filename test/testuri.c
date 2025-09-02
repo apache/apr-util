@@ -92,6 +92,16 @@ struct aup_test aup_tests[] =
         0, "http", "sonyamt@[fe80::1]", "sonyamt", NULL, "fe80::1", NULL, "/filespace/", "arg1=store", NULL, 0
     },
     {
+        /* https://datatracker.ietf.org/doc/html/rfc6874 */
+        "http://[fe80::1%25iface]/",
+        0, "http", "[fe80::1%25iface]", NULL, NULL, "fe80::1%iface", NULL, "/", NULL, NULL, 0
+    },
+    {
+        /* https://datatracker.ietf.org/doc/html/rfc6874 */
+        "http://[ffff::1%25iface]/",
+        0, "http", "[ffff::1%25iface]", NULL, NULL, "ffff::1%25iface", NULL, "/", NULL, NULL, 0
+    },
+    {
         "http://localhost",
         0, "http", "localhost", NULL, NULL, "localhost", NULL, NULL, NULL, NULL, 0
     },
@@ -202,6 +212,16 @@ struct uph_test uph_tests[] =
     {
         "[fe80::1]:443",
         0, "fe80::1", "443", 443
+    },
+    {
+        /* https://datatracker.ietf.org/doc/html/rfc6874 */
+        "[fe80::1%25iface]:443",
+        0, "fe80::1%iface", "443", 443
+    },
+    {
+        /* https://datatracker.ietf.org/doc/html/rfc6874 */
+        "[ffff::1%25iface]:443",
+        0, "ffff::1%25iface", "443", 443
     },
     {
         "127.0.0.1:443",
