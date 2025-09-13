@@ -36,7 +36,8 @@ library of C data structures and routines.
 Summary: APR utility library LMDB driver
 BuildRequires: pkgconfig(lmdb)
 Requires: apr-util%{?_isa} = %{version}-%{release}
-Provides: apr-%{aprver}(lmdb) = %{version}-%{release}
+Provides: apr-%{apuver}(lmdb)%{?_isa} = %{version}-%{release}
+Provides: apr-util-%{apuver}(dbm)%{?_isa} = %{version}-%{release}
 
 %description lmdb
 This package provides the LMDB driver for the apr-util
@@ -46,7 +47,7 @@ DBM (database abstraction) interface.
 Summary: APR utility library PostgreSQL DBD driver
 BuildRequires: pkgconfig(libpq)
 Requires: apr-util%{?_isa} = %{version}-%{release}
-Provides: apr-%{aprver}(pgsql) = %{version}-%{release}
+Provides: apr-%{apuver}(pgsql)%{?_isa} = %{version}-%{release}
 
 %description pgsql
 This package provides the PostgreSQL driver for the apr-util
@@ -56,7 +57,7 @@ DBD (database abstraction) interface.
 Summary: APR utility library MySQL DBD driver
 BuildRequires: pkgconfig(mariadb)
 Requires: apr-util%{?_isa} = %{version}-%{release}
-Provides: apr-%{aprver}(mysql) = %{version}-%{release}
+Provides: apr-%{apuver}(mysql)%{?_isa} = %{version}-%{release}
 
 %description mysql
 This package provides the MySQL driver for the apr-util DBD
@@ -66,7 +67,7 @@ This package provides the MySQL driver for the apr-util DBD
 Summary: APR utility library SQLite DBD driver
 BuildRequires: pkgconfig(sqlite3)
 Requires: apr-util%{?_isa} = %{version}-%{release}
-Provides: apr-%{aprver}(sqlite) = %{version}-%{release}
+Provides: apr-%{apuver}(sqlite)%{?_isa} = %{version}-%{release}
 
 %description sqlite
 This package provides the SQLite driver for the apr-util DBD
@@ -76,7 +77,7 @@ This package provides the SQLite driver for the apr-util DBD
 Summary: APR utility library ODBC DBD driver
 BuildRequires: pkgconfig(odbc)
 Requires: apr-util%{?_isa} = %{version}-%{release}
-Provides: apr-%{aprver}(odbc) = %{version}-%{release}
+Provides: apr-%{apuver}(odbc)%{?_isa} = %{version}-%{release}
 
 %description odbc
 This package provides the ODBC driver for the apr-util DBD
@@ -86,7 +87,7 @@ This package provides the ODBC driver for the apr-util DBD
 Summary: APR utility library LDAP support
 BuildRequires: pkgconfig(ldap)
 Requires: apr-util%{?_isa} = %{version}-%{release}
-Provides: apr-%{aprver}(ldap) = %{version}-%{release}
+Provides: apr-%{apuver}(ldap)%{?_isa} = %{version}-%{release}
 
 %description ldap
 This package provides the LDAP support for the apr-util.
@@ -95,7 +96,7 @@ This package provides the LDAP support for the apr-util.
 Summary: APR utility library OpenSSL crypto support
 BuildRequires: pkgconfig(libcrypto)
 Requires: apr-util%{?_isa} = %{version}-%{release}
-Provides: apr-%{aprver}(openssl) = %{version}-%{release}
+Provides: apr-%{apuver}(openssl)%{?_isa} = %{version}-%{release}
 
 %description openssl
 This package provides the OpenSSL crypto support for the apr-util.
@@ -104,7 +105,7 @@ This package provides the OpenSSL crypto support for the apr-util.
 Summary: APR utility library NSS crypto support
 BuildRequires: pkgconfig(nss)
 Requires: apr-util%{?_isa} = %{version}-%{release}
-Provides: apr-%{aprver}(nss) = %{version}-%{release}
+Provides: apr-%{apuver}(nss)%{?_isa} = %{version}-%{release}
 
 %description nss
 This package provides the NSS crypto support for the apr-util.
@@ -150,6 +151,7 @@ sed -ri '/^dependency_libs/{s,-l(pq|sqlite[0-9]|rt|dl|uuid) ,,g}' \
 
 # Trim libtool DSO cruft
 rm -f $RPM_BUILD_ROOT%{_libdir}/apr-util-%{apuver}/*.*a
+rm -f $RPM_BUILD_ROOT%{_libdir}/libaprutil-%{apuver}.la
 
 %check
 # Run the less verbose test suites
@@ -192,7 +194,6 @@ export LD_LIBRARY_PATH=%{buildroot}/%{_libdir}/apr-util-%{apuver}
 
 %files devel
 %{_bindir}/apu-%{apuver}-config
-%{_libdir}/libaprutil-%{apuver}.la
 %{_libdir}/libaprutil-%{apuver}.so
 %{_includedir}/apr-%{apuver}/*.h
 %{_libdir}/pkgconfig/*.pc
