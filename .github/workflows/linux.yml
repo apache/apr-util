@@ -36,8 +36,8 @@ jobs:
           - name: APR 1.7.x Databases + maintainer-mode
             apr-version: 1.7.x
             apr-config: --enable-maintainer-mode
-            config-output: APU_HAVE_SDBM APU_HAVE_GDBM APU_HAVE_DB APU_HAVE_NMDB APU_HAVE_LMDB
-            config: --with-dbm=db5 --with-berkeley-db --with-gdbm --with-ndbm --with-lmdb
+            config-output: APU_HAVE_SDBM APU_HAVE_GDBM APU_HAVE_DB APU_HAVE_LMDB
+            config: --with-dbm=db5 --with-berkeley-db --with-gdbm --with-lmdb
             notest-cflags: -Werror
             packages: libdb5.3-dev liblmdb-dev libgdbm-dev libgdbm-compat-dev
             os: ubuntu-latest
