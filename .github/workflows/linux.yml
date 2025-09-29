@@ -39,7 +39,7 @@ jobs:
             config-output: APU_HAVE_SDBM APU_HAVE_GDBM APU_HAVE_DB APU_HAVE_NMDB APU_HAVE_LMDB
             config: --with-dbm=db5 --with-berkeley-db --with-gdbm --with-ndbm --with-lmdb
             notest-cflags: -Werror
-            packages: libdb5.3-dev liblmdb-dev
+            packages: libdb5.3-dev liblmdb-dev libgdbm-dev
             os: ubuntu-latest
           - name: APR 1.7.x OpenSSL + maintainer-mode
             apr-version: 1.7.x
