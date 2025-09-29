@@ -48,7 +48,7 @@ jobs:
             config-output: APU_HAVE_CRYPTO APU_HAVE_OPENSSL APU_HAVE_SDBM
             notest-cflags: -Werror
             os: ubuntu-latest
-          - name: APR 1.7.x LDAP+DB+OpenSSL, Ubuntu 20.04
+          - name: APR 1.7.x LDAP+DB+OpenSSL
             apr-version: 1.7.x
             apr-config: --enable-maintainer-mode
             config: >-
@@ -56,7 +56,7 @@ jobs:
               --with-dbm=db5 --with-berkeley-db --with-gdbm --with-ndbm
             config-output: APU_HAVE_CRYPTO APU_HAVE_OPENSSL APU_HAVE_SDBM
             notest-cflags: -Werror
-            os: ubuntu-20.04
+            os: ubuntu-latest
             packages: libdb5.3-dev libldap-dev libsasl2-dev
     runs-on: ${{ matrix.os }}
     env:
