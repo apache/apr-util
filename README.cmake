@@ -64,11 +64,12 @@ How to build
      -DAPR-Util-specific-flags
      d:/path/to/aprutilsource
 
-   If APR 1.x was installed to a different directory than APR-Util,
-   also pass these additional arguments:
+   To specify the APR installation location, pass one of these additional
+   arguments:
 
-     -DAPR_INCLUDE_DIR=d:/path/to/apr1inst/include
-     -DAPR_LIBRARIES=d:/path/to/apr1inst/lib/libapr-1.lib
+     -DCMAKE_PREFIX_PATH=d:/path/to/apr1inst
+   or
+     -DAPR_DIR=d:/path/to/apr1inst/lib/cmake/apr
 
    Alternately, use cmake-gui and update settings in the GUI.
 
