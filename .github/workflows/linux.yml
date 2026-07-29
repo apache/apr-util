@@ -1,0 +1,96 @@
+name: Linux
+
+on:
+  push:
+    branches: [ "1.7.x", "1.6.x" ]
+    tags: [ "*" ]
+  pull_request:
+    branches: [ "1.7.x", "1.6.x" ]
+
+env:
+  MARGS: "-j2"
+
+jobs:
+
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        apr-version: [1.7.x, 1.8.x]
+        os: [ubuntu-22.04, ubuntu-24.04, ubuntu-22.04-arm]
+        include: 
+          - name: APR 1.7.x maintainer-mode
+            apr-version: 1.7.x
+            apr-config: --enable-maintainer-mode
+            config-output: APU_HAVE_SDBM
+            notest-cflags: -Werror
+            os: ubuntu-latest
+          - name: APR 1.7.x LDAP + maintainer-mode
+            apr-version: 1.7.x
+            apr-config: --enable-maintainer-mode
+            config-output: APU_HAVE_SDBM
+            config: --with-ldap
+            notest-cflags: -Werror
+            packages: libldap-dev libsasl2-dev
+            os: ubuntu-latest
+          - name: APR 1.7.x Databases + maintainer-mode
+            apr-version: 1.7.x
+            apr-config: --enable-maintainer-mode
+            config-output: APU_HAVE_SDBM APU_HAVE_GDBM APU_HAVE_DB APU_HAVE_LMDB
+            config: --with-dbm=db5 --with-berkeley-db --with-gdbm --with-lmdb
+            notest-cflags: -Werror
+            packages: libdb5.3-dev liblmdb-dev libgdbm-dev
+            os: ubuntu-latest
+          - name: APR 1.7.x OpenSSL + maintainer-mode
+            apr-version: 1.7.x
+            apr-config: --enable-maintainer-mode
+            config: --with-crypto=yes --with-openssl=yes
+            config-output: APU_HAVE_CRYPTO APU_HAVE_OPENSSL APU_HAVE_SDBM
+            notest-cflags: -Werror
+            os: ubuntu-latest
+          - name: APR 1.7.x LDAP+DB+OpenSSL
+            apr-version: 1.7.x
+            apr-config: --enable-maintainer-mode
+            config: >-
+              --with-crypto=yes --with-openssl=yes --with-ldap
+              --with-dbm=db5 --with-berkeley-db --with-gdbm --with-ndbm
+            config-output: APU_HAVE_CRYPTO APU_HAVE_OPENSSL APU_HAVE_SDBM
+            notest-cflags: -Werror
+            os: ubuntu-latest
+            packages: libdb5.3-dev libldap-dev libsasl2-dev
+    runs-on: ${{ matrix.os }}
+    env:
+      NOTEST_CFLAGS: ${{ matrix.notest-cflags }}
+    name: ${{ matrix.name && matrix.name || format('APR {0} on {1}', matrix.apr-version, matrix.os) }}
+    steps:
+    - name: Install prerequisites
+      run: sudo apt-get install libtool libtool-bin ${{ matrix.packages }}
+    - name: Workaround ASAN issue in Ubuntu 22.04 runners
+      run: sudo sysctl vm.mmap_rnd_bits=28
+    - uses: actions/checkout@v6
+    # https://github.com/actions/runner-images/issues/9491#issuecomment-1989718917
+    - uses: actions/checkout@v6
+      with:
+        repository: apache/apr
+        ref: ${{ matrix.apr-version }}
+        path: apr
+    - name: Configure and build APR ${{ matrix.apr-version }}
+      working-directory: ./apr
+      run: |
+        ./buildconf
+        ./configure ${{ matrix.apr-config }} --prefix=/tmp/apr-root
+        make $MARGS
+        make install
+    - name: buildconf
+      run: ./buildconf --with-apr=./apr
+    - name: configure
+      run: ./configure --prefix=/tmp/apr-util --with-apr=/tmp/apr-root ${{ matrix.config }}
+    - if: ${{ matrix.config-output != '' }}
+      name: check for expected configure output ${{ matrix.config-output }}
+      run: for var in ${{ matrix.config-output }}; do grep "^#define *${var} *1" include/apu.h; done
+    - name: make
+      run: make $MARGS
+    - name: install
+      run: make install
+    - name: check
+      run: make check

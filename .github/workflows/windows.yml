@@ -1,0 +1,190 @@
+name: Windows
+
+on:
+  push:
+    branches: [ "1.7.x" ]
+    tags: [ "*" ]
+  pull_request:
+    branches: [ "1.7.x" ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - name: Default
+            os: windows-latest
+            triplet: x64-windows
+            arch: x64
+            build-type: Debug
+            generator: Ninja
+            build-shared: ON
+            dso-build: ON
+            packages: expat
+          - name: Default x86
+            os: windows-latest
+            triplet: x86-windows
+            arch: x86
+            build-type: Debug
+            generator: Ninja
+            build-shared: ON
+            dso-build: ON
+            packages: expat
+          - name: Use Libxml2
+            os: windows-latest
+            triplet: x64-windows
+            arch: x64
+            build-type: Debug
+            generator: Ninja
+            build-shared: ON
+            dso-build: ON
+            packages: libxml2
+            config: >-
+              -DAPU_USE_EXPAT=OFF
+              -DAPU_USE_LIBXML2=ON
+          - name: Shared (no DSO)
+            os: windows-latest
+            triplet: x64-windows
+            arch: x64
+            build-type: Debug
+            generator: Ninja
+            build-shared: ON
+            dso-build: OFF
+            packages: expat
+          - name: Minimal
+            os: windows-latest
+            triplet: x64-windows
+            arch: x64
+            build-type: Debug
+            generator: Ninja
+            build-shared: ON
+            dso-build: OFF
+            packages: expat
+            config: >-
+              -DAPU_HAVE_ODBC=OFF
+              -DAPU_HAVE_SQLITE3=OFF
+              -DAPU_HAVE_CRYPTO=OFF
+          - name: ODBC + SQLITE3 + PGSQL + CRYPTO + ICONV
+            os: windows-latest
+            triplet: x64-windows
+            arch: x64
+            build-type: Debug
+            generator: Ninja
+            build-shared: ON
+            dso-build: OFF
+            packages: expat sqlite3 openssl libpq libiconv
+            config: >-
+              -DAPU_HAVE_ODBC=ON
+              -DAPU_HAVE_SQLITE3=ON
+              -DAPU_HAVE_PGSQL=ON
+              -DAPU_HAVE_CRYPTO=ON
+              -DAPU_HAVE_ICONV=ON
+          - name: LDAP
+            os: windows-latest
+            triplet: x64-windows
+            arch: x64
+            build-type: Debug
+            generator: Ninja
+            build-shared: ON
+            dso-build: OFF
+            packages: expat
+            config: >-
+              -DAPR_HAS_LDAP=ON
+              -DAPU_HAVE_SQLITE3=OFF
+              -DAPU_HAVE_CRYPTO=OFF
+          - name: Static
+            os: windows-latest
+            triplet: x64-windows-static
+            arch: x64
+            build-type: Debug
+            generator: Ninja
+            build-shared: OFF
+            dso-build: OFF
+            packages: expat
+      fail-fast: false
+
+    name: ${{ matrix.name }}
+    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
+    # You can convert this to a matrix build if you need cross-platform coverage.
+    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    runs-on: ${{ matrix.os }}
+
+    env:
+      VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
+
+    steps:
+    - name: Export GitHub Actions cache environment variables
+      uses: actions/github-script@v7
+      with:
+          script: |
+              core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+              core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+
+    - name: Install dependencies
+      run: vcpkg install --triplet ${{ matrix.triplet }} ${{ matrix.packages }}
+
+    - uses: actions/checkout@v6
+      with:
+        repository: apache/apr
+        ref: 1.8.x
+        path: apr
+
+    - name: Configure APR
+      shell: cmd
+      run: |
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat" -arch=${{ matrix.arch }}
+        cmake -G "${{ matrix.generator }}" ^
+          -B ${{github.workspace}}/apr/out/build ^
+          -S ${{github.workspace}}/apr ^
+          -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} ^
+          -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake ^
+          -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/install ^
+          -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }}
+
+    - name: Build APR
+      shell: cmd
+      run: |
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat" -arch=${{ matrix.arch }}
+        cmake --build ${{github.workspace}}/apr/out/build --config ${{ matrix.build-type }}
+
+    - name: Install APR
+      shell: cmd
+      run: |
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat" -arch=${{ matrix.arch }}
+        cmake --install ${{github.workspace}}/apr/out/build --config ${{ matrix.build-type }}
+
+    - uses: actions/checkout@v5
+      with:
+        path: apu
+
+    - name: Configure CMake
+      shell: cmd
+      run: |
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat" -arch=${{ matrix.arch }}
+        cmake -G "${{ matrix.generator }}" ^
+          -B ${{github.workspace}}/apu/build ^
+          -S ${{github.workspace}}/apu ^
+          -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} ^
+          -DBUILD_SHARED_LIBS=${{ matrix.build-shared }} ^
+          -DAPU_DSO_BUILD=${{ matrix.dso-build }} ^
+          -DAPU_BUILD_TEST=ON ^
+          -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake ^
+          -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/install ^
+          -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} ^
+          ${{ matrix.config }}
+
+    - name: Build
+      # Build your program with the given configuration
+      shell: cmd
+      run: |
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat" -arch=${{ matrix.arch }}
+        cmake --build ${{github.workspace}}/apu/build --config ${{ matrix.build-type }}
+
+    - name: Test
+      working-directory: ${{github.workspace}}/apu/build
+      # Execute tests defined by the CMake configuration.
+      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+      run: ctest -C ${{ matrix.build-type }} --output-on-failure
+
+    - name: Install
+      run: cmake --install ${{github.workspace}}/apu/build --config ${{ matrix.build-type }}

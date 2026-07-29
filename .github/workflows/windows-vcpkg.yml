@@ -1,0 +1,44 @@
+name: vcpkg
+
+on:
+  push:
+    branches: [ "1.7.x" ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [windows-latest]
+        triplet:
+        - x64-windows
+        - x64-windows-static
+        - x64-windows-static-md
+        - x86-windows
+        - x86-windows-static
+        port:
+        - apr-util
+        - apr-util[core]
+        - apr-util[crypto,dbd-sqlite3,dbd-odbc,dbd-postgresql,ldap,xlate]
+      fail-fast: false
+    
+    name: "${{ matrix.port }}:${{ matrix.triplet }} on ${{ matrix.os }}"
+    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
+    # You can convert this to a matrix build if you need cross-platform coverage.
+    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    runs-on: ${{ matrix.os }}
+
+    env: 
+      VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
+
+    steps:
+    - name: Export GitHub Actions cache environment variables
+      uses: actions/github-script@v7
+      with:
+        script: |
+          core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+          core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+
+    - uses: actions/checkout@v6
+
+    - name: Vcpkg Install
+      run: C:\vcpkg\vcpkg.exe install ${{ matrix.port }} --head --overlay-ports ${{ github.workspace }}\build\vcpkg --triplet ${{ matrix.triplet }} --enforce-port-checks
