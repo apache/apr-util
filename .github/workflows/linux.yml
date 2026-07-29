@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        apr-version: [1.7.x, 1.8.x]
+        apr-version: [1.6.x, 1.7.x, 1.8.x]
         os: [ubuntu-22.04, ubuntu-24.04, ubuntu-22.04-arm]
         include: 
           - name: APR 1.7.x maintainer-mode
@@ -36,10 +36,10 @@ jobs:
           - name: APR 1.7.x Databases + maintainer-mode
             apr-version: 1.7.x
             apr-config: --enable-maintainer-mode
-            config-output: APU_HAVE_SDBM APU_HAVE_GDBM APU_HAVE_DB APU_HAVE_LMDB
-            config: --with-dbm=db5 --with-berkeley-db --with-gdbm --with-lmdb
+            config-output: APU_HAVE_SDBM APU_HAVE_GDBM APU_HAVE_DB
+            config: --with-dbm=db5 --with-berkeley-db --with-gdbm
             notest-cflags: -Werror
-            packages: libdb5.3-dev liblmdb-dev libgdbm-dev
+            packages: libdb5.3-dev libgdbm-dev
             os: ubuntu-latest
           - name: APR 1.7.x OpenSSL + maintainer-mode
             apr-version: 1.7.x
