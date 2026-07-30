@@ -1,4 +1,3 @@
-/*.
 /aclocal.m4
 /aprutil.exp
 /aprutil.ncb
@@ -24,6 +23,7 @@
 /build-outputs.mk
 /build/pkg/pkginfo
 /build/rules.mk
+/CMakeSettings.json
 /config.cache
 /config.log
 /config.nice
