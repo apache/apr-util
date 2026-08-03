@@ -288,6 +288,9 @@ IF(APR_BUILD_TESTAPR)
   EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E copy_if_different 
                   ${PROJECT_SOURCE_DIR}/test/data/billion-laughs.xml
                   ${PROJECT_BINARY_DIR}/data/billion-laughs.xml)
+  EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E copy_if_different 
+                  ${PROJECT_SOURCE_DIR}/test/data/nesting.xml
+                  ${PROJECT_BINARY_DIR}/data/nesting.xml)
 
   IF(TEST_STATIC_LIBS)
     SET(whichapr    aprutil-1)

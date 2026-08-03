@@ -61,11 +61,18 @@ struct apr_xml_parser {
     int error;			/* an error has occurred */
 #define APR_XML_ERROR_EXPAT             1
 #define APR_XML_ERROR_PARSE_DONE        2
-/* also: public APR_XML_NS_ERROR_* values (if any) */
+#define APR_XML_ERROR_DEPTH_LIMIT       3
 
+/* also: public APR_XML_NS_ERROR_* values (if any) */
+    /** depth of element tree. */
+    unsigned int depth;
     XML_Parser xp;              /* the actual (Expat) XML parser */
     enum XML_Error xp_err;      /* stored Expat error code */
 };
+
+#ifndef APR_XML_MAX_DEPTH
+#define APR_XML_MAX_DEPTH 256
+#endif
 
 /* struct for scoping namespace declarations */
 typedef struct apr_xml_ns_scope {
@@ -153,6 +160,11 @@ static void start_handler(void *userdata, const char *name, const char **attrs)
     /* punt once we find an error */
     if (parser->error)
 	return;
+
+    if (++parser->depth > APR_XML_MAX_DEPTH) {
+        parser->error = APR_XML_ERROR_DEPTH_LIMIT;
+        return;
+    }
 
     elem = apr_pcalloc(parser->p, sizeof(*elem));
 
@@ -327,6 +339,8 @@ static void end_handler(void *userdata, const char *name)
     if (parser->error)
 	return;
 
+    parser->depth--;
+
     /* pop up one level */
     parser->cur_elem = parser->cur_elem->parent;
 }
@@ -498,6 +512,11 @@ APU_DECLARE(char *) apr_xml_parser_geterror(apr_xml_parser *parser,
                             "XML parser error code: %s (%d)",
                             XML_ErrorString(parser->xp_err), parser->xp_err);
         return errbuf;
+
+    case APR_XML_ERROR_DEPTH_LIMIT:
+        msg = "The maximum element nesting limit ("
+            APR_STRINGIFY(APR_XML_MAX_DEPTH) ") was exceeded.";
+        break;
 
     case APR_XML_ERROR_PARSE_DONE:
         msg = "The parser is not active.";
