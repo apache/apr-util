@@ -21,6 +21,7 @@
 #include "apu.h"
 #include "apr_pools.h"
 #include "apr_dso.h"
+#include "apr_version.h"
 #include "apr_strings.h"
 #include "apr_hash.h"
 #include "apr_thread_mutex.h"
@@ -179,19 +180,64 @@ APU_DECLARE(apr_status_t) apr_crypto_memzero(void *buffer, apr_size_t size)
     return APR_SUCCESS;
 }
 
+/* Borrow this from APR-1.8 if not available */
+#if !APR_VERSION_AT_LEAST(1,8,0)
+
+/* A volatile variable which is always zero but allows to block the compiler
+ * from optimizing or eliding code using it. Volatile forces the compiler to
+ * emit a memory load for which no value can be assumed, so for instance an
+ * add/sub/xor/or with "optblocker" is a noop that will hide the result to
+ * the optimizer.
+ */
+static volatile const apr_uint32_t optblocker;
+
+/* Return whether x is not zero, with no branching controlled by x.
+ *
+ * Taken from the cryptoint library (public domain) by D. J. Bernstein,
+ * which provides timing attacks safe integer operations/primitives.
+ * Code:
+ *   https://lib.mceliece.org/libmceliece-20250507/cryptoint/crypto_uint32.h
+ * Paper:
+ *   https://cr.yp.to/papers/cryptoint-20250424.pdf
+ */
+#if __has_attribute(always_inline)
+__attribute__((always_inline))
+#endif
+static APR_INLINE int test_nonzero_timingsafe(apr_uint32_t x)
+{
+    x |= -x; /* sets the most significant bit unless x == 0 */
+
+    /* shift bit 31 (MSB) to bit 0 */
+    x >>= 32-6;      /* keep 6 bits */
+    x += optblocker; /* lose the optimizer */
+    x >>= 5;         /* keep the (original) MSB only */
+
+    /* x is now 0 or 1 */
+    return x & INT_MAX;
+}
+
+#endif /* !APR_VERSION_AT_LEAST(1,8,0) */
+
 APU_DECLARE(int) apr_crypto_equals(const void *buf1, const void *buf2,
                                    apr_size_t size)
 {
-    const unsigned char *p1 = buf1;
-    const unsigned char *p2 = buf2;
-    unsigned char diff = 0;
-    apr_size_t i;
+#if APR_VERSION_AT_LEAST(1,8,0)
+    return apr_memeq_timingsafe(buf1, buf2, size);
+#else
+    apr_uint32_t diff = 0;
+    volatile apr_size_t count = size; /* prevent loop unrolling */
+    apr_size_t i = 0;
 
-    for (i = 0; i < size; ++i) {
-        diff |= p1[i] ^ p2[i];
+    for (; i < count; ++i) {
+        const unsigned char c1 = ((volatile const unsigned char *)buf1)[i];
+        const unsigned char c2 = ((volatile const unsigned char *)buf2)[i];
+
+        diff |= c1 ^ c2; /* sets diff to non-zero whenever c1 != c2 */
     }
 
-    return 1 & ((diff - 1) >> 8);
+    /* (diff == 0) <=> (diff != 0) ^ 1 */
+    return test_nonzero_timingsafe(diff) ^ 1;
+#endif
 }
 
 APU_DECLARE(apr_crypto_key_rec_t *) apr_crypto_key_rec_make(
