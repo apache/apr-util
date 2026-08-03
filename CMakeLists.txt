@@ -396,6 +396,9 @@ IF(APU_BUILD_TEST)
   EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E copy_if_different 
                   ${PROJECT_SOURCE_DIR}/test/data/billion-laughs.xml
                   ${PROJECT_BINARY_DIR}/data/billion-laughs.xml)
+  EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E copy_if_different 
+                  ${PROJECT_SOURCE_DIR}/test/data/nesting.xml
+                  ${PROJECT_BINARY_DIR}/data/nesting.xml)
 
   IF(BUILD_SHARED_LIBS)
     SET(whichapr    "apr::libapr-1;libaprutil-1")
