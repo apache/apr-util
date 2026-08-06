@@ -1,5 +1,58 @@
                                                      -*- coding: utf-8 -*-
+Changes with APR-util 1.6.5
+
 Changes with APR-util 1.6.4
+
+  *) SECURITY: CVE-2026-34502: Heap buffer overflow in APR memcached
+     client (cve.mitre.org)
+     Heap-based Buffer Overflow vulnerability in Apache Portable
+     Runtime Utility memcached client
+     This issue affects Apache Portable Runtime Utility: from 1.3.0
+     through 1.6.3.
+     Credits: Elhanan Haenel
+
+  *) SECURITY: CVE-2026-34501: Apache Portable Runtime Utility: Heap
+     buffer overflow in APR redis client (cve.mitre.org)
+     Heap-based Buffer Overflow vulnerability in Apache Portable
+     Runtime Utility redis client.
+     This issue affects Apache Portable Runtime Utility: from 1.6.0
+     through 1.6.3.
+     Users are recommended to upgrade to version 1.6.4, which fixes
+     the issue.
+     Credits: Elhanan Haenel
+
+  *) SECURITY: CVE-2026-34191: Apache Portable Runtime Utility: SQL
+     Injection in apr_dbd_oracle (cve.mitre.org)
+     Improper Neutralization of Special Elements used in an SQL
+     Command ('SQL Injection') vulnerability in Apache Portable
+     Runtime Utility via apr_dbd_oracle provider.
+     This issue affects Apache Portable Runtime Utility: from 1.6.0
+     through 1.6.3.
+     Users are recommended to upgrade to version 1.6.4, which fixes
+     the issue.
+     Credits: Elhanan Haenel
+
+  *) SECURITY: CVE-2026-32327: Apache Portable Runtime Utility:
+     apr-util XML stack recursion crash (cve.mitre.org)
+     A bug in APR-util version 1.6.3 (and earlier) allows a stack
+     recursion attack against any library consumer which parses XML
+     from untrusted sources and uses the apr_xml_quote_elem()
+     function.
+     Users are recommended to upgrade to version 1.6.4, which fixes
+     this issue.
+     Credits: Younghyo Cho @ CISLab, SeoulTech
+
+  *) SECURITY: CVE-2025-49506: apr_password_validate() vulnerable to
+     timing attack (cve.mitre.org)
+     APR-util versions 1.6.3 (and earlier) function
+     apr_password_validate() was not constant-time with regards to
+     hashes or passwords comparisons, potentially leaking their
+     content via a side channel timing attack particularly on
+     platforms without crypt() such as  Windows, BeOS, NetWare, or
+     Android.
+     Users are recommended to upgrade to version 1.6.4, which fixes
+     this issue.
+     Credits: Michael Rowley <michael csirt.global>
 
   *) apr_brigade: Don't split the final LF in apr_brigade_split_line() to
      avoid producing an empty bucket.  PR 64273
