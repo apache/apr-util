@@ -1,6 +1,8 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.6.5
 
+  *) Fix oracle DBD compilation errors introduced in 1.6.4. PR 70170.
+
 Changes with APR-util 1.6.4
 
   *) SECURITY: CVE-2026-34502: Heap buffer overflow in APR memcached
