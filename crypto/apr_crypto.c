@@ -200,6 +200,10 @@ static volatile const apr_uint32_t optblocker;
  * Paper:
  *   https://cr.yp.to/papers/cryptoint-20250424.pdf
  */
+#ifndef __has_attribute
+#define __has_attribute(__x)    0
+#endif
+
 #if __has_attribute(always_inline)
 __attribute__((always_inline))
 #endif
