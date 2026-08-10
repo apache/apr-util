@@ -1,4 +1,6 @@
                                                      -*- coding: utf-8 -*-
+Changes with APR-util 1.6.6
+
 Changes with APR-util 1.6.5
 
   *) Fix oracle DBD compilation errors introduced in 1.6.4. PR 70170.
