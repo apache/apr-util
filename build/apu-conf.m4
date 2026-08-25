@@ -255,7 +255,7 @@ if test "$apu_has_ldap_openldap" = "1"; then
     save_ldflags="$LDFLAGS"
     save_libs="$LIBS"
 
-    CPPFLAGS="$CPPFLAGS $APRUTIL_INCLUDES"
+    CPPFLAGS="$CPPFLAGS $APRUTIL_INCLUDES -Wno-deprecated-declarations"
     LDFLAGS="$LDFLAGS $APRUTIL_LDFLAGS"
     AC_CACHE_CHECK([style of ldap_set_rebind_proc routine], ac_cv_ldap_set_rebind_proc_style,
     APR_TRY_COMPILE_NO_WARNING([
