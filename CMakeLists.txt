@@ -55,6 +55,7 @@ SET(apr_has_ldap_10 0)
 
 IF(APU_HAVE_CRYPTO)
   SET(apu_have_crypto_10 1)
+  SET(APU_HAVE_OPENSSL ON)
 ENDIF()
 
 IF(APR_HAS_LDAP)
