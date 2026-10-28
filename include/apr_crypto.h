@@ -259,8 +259,9 @@ APU_DECLARE(apr_status_t) apr_crypto_error(const apu_err_t **result,
  * @param driver - driver to use
  * @param params - array of key parameters
  * @param pool - process pool
- * @return APR_ENOENGINE when the engine specified does not exist. APR_EINITENGINE
- * if the engine cannot be initialised.
+ * @return APR_EINVAL if f, driver or pool is NULL. APR_ENOENGINE when the
+ * engine specified does not exist. APR_EINITENGINE if the engine cannot be
+ * initialised.
  * @remarks NSS: currently no params are supported.
  * @remarks OpenSSL: the params can have "engine" as a key, followed by an equal
  *  sign and a value.
