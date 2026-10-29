@@ -38,7 +38,7 @@
  */
 
 
-#define APU_COPYRIGHT "Copyright 2025 The Apache Software Foundation."
+#define APU_COPYRIGHT "Copyright 2026 The Apache Software Foundation."
 
 /* The numeric compile-time version constants. These constants are the
  * authoritative version numbers for APU. 
@@ -68,7 +68,7 @@
  * "development" copies of APU.  It is undefined for released versions
  * of APU.
  */
-#define APU_IS_DEV_VERSION
+/* #undef APU_IS_DEV_VERSION */
 
 
 #if defined(APU_IS_DEV_VERSION) || defined(DOXYGEN)
