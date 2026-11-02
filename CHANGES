@@ -1,4 +1,6 @@
                                                      -*- coding: utf-8 -*-
+Changes with APR-util 1.6.7
+
 Changes with APR-util 1.6.6
 
   *) Fix crypto/apr_passwd.c compilation errors on older systems. PR 70283.
