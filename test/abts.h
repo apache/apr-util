@@ -71,6 +71,28 @@ void abts_log_message(const char *fmt, ...);
 
 void abts_int_equal(abts_case *tc, const int expected, const int actual, int lineno);
 void abts_int_nequal(abts_case *tc, const int expected, const int actual, int lineno);
+void abts_uint_equal(abts_case *tc, const unsigned int expected,
+                     const unsigned int actual, int lineno);
+void abts_uint_nequal(abts_case *tc, const unsigned int expected,
+                      const unsigned int actual, int lineno);
+void abts_long_equal(abts_case *tc, const long expected,
+                     const long actual, int lineno);
+void abts_long_nequal(abts_case *tc, const long expected,
+                      const long actual, int lineno);
+void abts_ulong_equal(abts_case *tc, const unsigned long expected,
+                      const unsigned long actual, int lineno);
+void abts_ulong_nequal(abts_case *tc, const unsigned long expected,
+                       const unsigned long actual, int lineno);
+void abts_llong_equal(abts_case *tc, const long long expected,
+                      const long long actual, int lineno);
+void abts_llong_nequal(abts_case *tc, const long long expected,
+                       const long long actual, int lineno);
+void abts_ullong_equal(abts_case *tc, const unsigned long long expected,
+                       const unsigned long long actual, int lineno);
+void abts_ullong_nequal(abts_case *tc, const unsigned long long expected,
+                        const unsigned long long actual, int lineno);
+void abts_size_equal(abts_case *tc, size_t expected, size_t actual, int lineno);
+void abts_size_nequal(abts_case *tc, size_t expected, size_t actual, int lineno);
 void abts_str_equal(abts_case *tc, const char *expected, const char *actual, int lineno);
 void abts_str_nequal(abts_case *tc, const char *expected, const char *actual,
                        size_t n, int lineno);
@@ -84,6 +106,18 @@ void abts_assert(abts_case *tc, const char *message, int condition, int lineno);
 /* Convenience macros. Ryan hates these! */
 #define ABTS_INT_EQUAL(a, b, c)     abts_int_equal(a, b, c, __LINE__)
 #define ABTS_INT_NEQUAL(a, b, c)    abts_int_nequal(a, b, c, __LINE__)
+#define ABTS_UINT_EQUAL(a, b, c)    abts_uint_equal(a, b, c, __LINE__)
+#define ABTS_UINT_NEQUAL(a, b, c)   abts_uint_nequal(a, b, c, __LINE__)
+#define ABTS_LONG_EQUAL(a, b, c)    abts_long_equal(a, b, c, __LINE__)
+#define ABTS_LONG_NEQUAL(a, b, c)   abts_long_nequal(a, b, c, __LINE__)
+#define ABTS_ULONG_EQUAL(a, b, c)   abts_ulong_equal(a, b, c, __LINE__)
+#define ABTS_ULONG_NEQUAL(a, b, c)  abts_ulong_nequal(a, b, c, __LINE__)
+#define ABTS_LLONG_EQUAL(a, b, c)   abts_llong_equal(a, b, c, __LINE__)
+#define ABTS_LLONG_NEQUAL(a, b, c)  abts_llong_nequal(a, b, c, __LINE__)
+#define ABTS_ULLONG_EQUAL(a, b, c)  abts_ullong_equal(a, b, c, __LINE__)
+#define ABTS_ULLONG_NEQUAL(a, b, c) abts_ullong_nequal(a, b, c, __LINE__)
+#define ABTS_SIZE_EQUAL(a, b, c)    abts_size_equal(a, b, c, __LINE__)
+#define ABTS_SIZE_NEQUAL(a, b, c)   abts_size_nequal(a, b, c, __LINE__)
 #define ABTS_STR_EQUAL(a, b, c)     abts_str_equal(a, b, c, __LINE__)
 #define ABTS_STR_NEQUAL(a, b, c, d) abts_str_nequal(a, b, c, d, __LINE__)
 #define ABTS_PTR_NOTNULL(a, b)      abts_ptr_notnull(a, b, __LINE__)
