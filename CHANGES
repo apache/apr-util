@@ -1,6 +1,10 @@
                                                      -*- coding: utf-8 -*-
 Changes with APR-util 1.6.7
 
+  *) apr_buckets: In the FILE bucket, use a short read to avoid
+     repeatedly failing to morph into an MMAP bucket when a
+     non-page-aligned file offset is used.  PR 70167.  [Joe Orton]
+
 Changes with APR-util 1.6.6
 
   *) Fix crypto/apr_passwd.c compilation errors on older systems. PR 70283.
